@@ -27,19 +27,18 @@ bool TanhOp<float, CPUContext>::RunOnDevice() {
 }
 
 template <>
-bool ReluGradientOp<float, CPUContext>::RunOnDevice() {
-  auto& X = Input(0);
+bool TanhGradientOp<float, CPUContext>::RunOnDevice() {
+  auto& Y = Input(0);
   auto& dY = Input(1);
   auto* dX = Output(0);
-  DCHECK_GT(X.size(), 0);
-  DCHECK_EQ(dY.size(), X.size());
-  dX->ReshapeLike(X);
-  const float* Xdata = X.data();
+  DCHECK_GT(Y.size(), 0);
+  DCHECK_EQ(dY.size(), Y.size());
+  dX->ReshapeLike(Y);
+  const float* Ydata = Y.data();
   const float* dYdata = dY.data();
   float* dXdata = dX->mutable_data();
-  for (int i = 0; i < X.size(); ++i) {
-	float t = tanh(Xdata[i]);
-    dXdata[i] = 1 - t*t;
+  for (int i = 0; i < dX.size(); ++i) {
+    dXdata[i] = dYdata[i]*(1 - Ydata[i]*Ydata[i]);
   }
   return true;
 }
