@@ -21,11 +21,10 @@ __global__ void TanhKernel(const int N, const dtype* X, dtype* Y) {
 }
 
 template <typename dtype>
-__global__ void TanhGradientKernel(const int N, const dtype* X, const dtype* dY,
+__global__ void TanhGradientKernel(const int N, const dtype* Y, const dtype* dY,
                               dtype* dX) {
   CUDA_1D_KERNEL_LOOP(i, N) {
-	  float t = tanh(X[i]);
-    dX[i] = 1 - t*t;
+    dX[i] = dY[i]*(1 - Y[i]*Y[i]);
   }
 }
 }  // namespace
@@ -44,15 +43,15 @@ bool TanhOp<float, CUDAContext>::RunOnDevice() {
 
 template <>
 bool TanhGradientOp<float, CUDAContext>::RunOnDevice() {
-  auto& X = Input(0);
+  auto& Y = Input(0);
   auto& dY = Input(1);
   auto* dX = Output(0);
-  DCHECK_GT(X.size(), 0);
-  DCHECK_EQ(dY.size(), X.size());
-  dX->ReshapeLike(X);
-  TanhGradientKernel<<<CAFFE_GET_BLOCKS(X.size()), CAFFE_CUDA_NUM_THREADS,
+  DCHECK_GT(Y.size(), 0);
+  DCHECK_EQ(dY.size(), Y.size());
+  dX->ReshapeLike(Y);
+  TanhGradientKernel<<<CAFFE_GET_BLOCKS(Y.size()), CAFFE_CUDA_NUM_THREADS,
                        0, device_context_.cuda_stream()>>>(
-      X.size(), X.data(), dY.data(), dX->mutable_data());
+      Y.size(), Y.data(), dY.data(), dX->mutable_data());
   return true;
 }
 
