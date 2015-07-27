@@ -104,20 +104,18 @@ inline string Blob::Serialize(const string& name) const {
 template <typename dtype, class Context>
 class Tensor {
  public:
-  Tensor() : ndim_(0), size_(0), data_(nullptr) {}
+  Tensor() : ndim_(0), size_(0) {}
 
   // Creates a tensor. The actual data allocation is going to be carried out
   // till the first time mutable_data() is called, so there is no overhead of
   // creating multiple tensors just as placeholders (although I haven't got a
   // clear idea where such cases would happen).
-  explicit Tensor(const vector<int>& dims)
-      : data_(nullptr) {
+  explicit Tensor(const vector<int>& dims) {
     Reshape(dims);
   }
 
   template <class SrcContext, class ContextForCopy>
-  Tensor(const Tensor<dtype, SrcContext>& src, ContextForCopy* context)
-      : data_(nullptr) {
+  Tensor(const Tensor<dtype, SrcContext>& src, ContextForCopy* context) {
     Reshape(src.dims());
     context->template Copy<dtype, Context, SrcContext>(
         mutable_data(), src.data(), src.size());
@@ -125,8 +123,8 @@ class Tensor {
 
   // Creates a tensor, and fills its contents with the given values. We need to
   // have a context passed in as the copy function is device dependent.
-  Tensor(const vector<int>& dims, vector<dtype> values, Context* context)
-      : data_(nullptr) {
+  Tensor(const vector<int>& dims, const vector<dtype>& values,
+         Context* context) {
     Reshape(dims);
     CHECK_EQ(values.size(), size_);
     context->template Copy<dtype, Context, CPUContext>(
@@ -134,9 +132,8 @@ class Tensor {
   }
 
   // Special case of above: create a tensor of shape 1, and the given value.
-  Tensor(const dtype& value, Context* context)
-      : data_(nullptr) {
-    Reshape(std::vector<int>(1, 1));
+  Tensor(const dtype& value, Context* context) {
+    Reshape(std::vector<int>(0));
     context->template Copy<dtype, Context, CPUContext>(
         mutable_data(), &value, 1);
   }
@@ -144,21 +141,20 @@ class Tensor {
   virtual ~Tensor() {}
 
   void Reshape(const vector<int>& dims) {
-    CHECK_GT(dims.size(), 0);
     dims_ = dims;
     ndim_ = dims_.size();
     // Calculate the size.
-    int new_size = 1;
+    size_ = 1;
     for (int d : dims_) {
       CHECK_GT(d, 0);
-      new_size *= d;
+      size_ *= d;
     }
-    // If the size changes, we will free the data. the next mutable_data() call
-    // will create the data storage.
-    if (data_.get() && size_ != new_size) {
-      data_.reset();
+    // If the size exceeds capacity, we will free the data. The next
+    // mutable_data() call will create the data storage.
+    if (size_ > capacity_) {
+      capacity_ = size_;
+      if (data_) { data_.reset(); }
     }
-    size_ = new_size;
   }
 
   template <typename other_type, class OtherContext>
@@ -203,8 +199,8 @@ class Tensor {
   }
 
   void Allocate() {
-    CHECK_GT(size_, 0);
-    data_.reset(static_cast<dtype*>(Context::New(size_ * sizeof(dtype))),
+    CHECK_GT(capacity_, 0);
+    data_.reset(static_cast<dtype*>(Context::New(capacity_ * sizeof(dtype))),
                 Context::Delete);
   }
 
@@ -212,7 +208,8 @@ class Tensor {
   int ndim_;
   vector<int> dims_;
   int size_;
-  std::shared_ptr<dtype> data_;
+  int capacity_ = 0;
+  std::shared_ptr<dtype> data_ = nullptr;
   DISABLE_COPY_AND_ASSIGN(Tensor);
 };
 
