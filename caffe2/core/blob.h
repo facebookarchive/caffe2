@@ -104,20 +104,18 @@ inline string Blob::Serialize(const string& name) const {
 template <typename dtype, class Context>
 class Tensor {
  public:
-  Tensor() : ndim_(0), size_(0), data_(nullptr) {}
+  Tensor() : ndim_(0), size_(0) {}
 
   // Creates a tensor. The actual data allocation is going to be carried out
   // till the first time mutable_data() is called, so there is no overhead of
   // creating multiple tensors just as placeholders (although I haven't got a
   // clear idea where such cases would happen).
-  explicit Tensor(const vector<int>& dims)
-      : data_(nullptr) {
+  explicit Tensor(const vector<int>& dims) {
     Reshape(dims);
   }
 
   template <class SrcContext, class ContextForCopy>
-  Tensor(const Tensor<dtype, SrcContext>& src, ContextForCopy* context)
-      : data_(nullptr) {
+  Tensor(const Tensor<dtype, SrcContext>& src, ContextForCopy* context) {
     Reshape(src.dims());
     context->template Copy<dtype, Context, SrcContext>(
         mutable_data(), src.data(), src.size());
@@ -125,8 +123,7 @@ class Tensor {
 
   // Creates a tensor, and fills its contents with the given values. We need to
   // have a context passed in as the copy function is device dependent.
-  Tensor(const vector<int>& dims, vector<dtype> values, Context* context)
-      : data_(nullptr) {
+  Tensor(const vector<int>& dims, vector<dtype> values, Context* context) {
     Reshape(dims);
     CHECK_EQ(values.size(), size_);
     context->template Copy<dtype, Context, CPUContext>(
@@ -134,8 +131,7 @@ class Tensor {
   }
 
   // Special case of above: create a tensor of shape 1, and the given value.
-  Tensor(const dtype& value, Context* context)
-      : data_(nullptr) {
+  Tensor(const dtype& value, Context* context) {
     Reshape(std::vector<int>(1, 1));
     context->template Copy<dtype, Context, CPUContext>(
         mutable_data(), &value, 1);
@@ -213,7 +209,7 @@ class Tensor {
   vector<int> dims_;
   int size_;
   int capacity_ = 0;
-  std::shared_ptr<dtype> data_;
+  std::shared_ptr<dtype> data_ = nullptr;
   DISABLE_COPY_AND_ASSIGN(Tensor);
 };
 
