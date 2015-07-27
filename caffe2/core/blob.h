@@ -132,7 +132,7 @@ class Tensor {
 
   // Special case of above: create a tensor of shape 1, and the given value.
   Tensor(const dtype& value, Context* context) {
-    Reshape(std::vector<int>(1, 1));
+    Reshape(std::vector<int>(0));
     context->template Copy<dtype, Context, CPUContext>(
         mutable_data(), &value, 1);
   }
@@ -140,7 +140,6 @@ class Tensor {
   virtual ~Tensor() {}
 
   void Reshape(const vector<int>& dims) {
-    CHECK_GT(dims.size(), 0);
     dims_ = dims;
     ndim_ = dims_.size();
     // Calculate the size.
