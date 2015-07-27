@@ -148,17 +148,17 @@ class Tensor {
     dims_ = dims;
     ndim_ = dims_.size();
     // Calculate the size.
-    int new_size = 1;
+    size_ = 1;
     for (int d : dims_) {
       CHECK_GT(d, 0);
-      new_size *= d;
+      size_ *= d;
     }
-    // If the size changes, we will free the data. the next mutable_data() call
-    // will create the data storage.
-    if (data_.get() && size_ != new_size) {
-      data_.reset();
+    // If the size exceeds capacity, we will free the data. The next
+    // mutable_data() call will create the data storage.
+    if (size_ > capacity_) {
+      capacity_ = size_;
+      if (data_) { data_.reset(); }
     }
-    size_ = new_size;
   }
 
   template <typename other_type, class OtherContext>
@@ -203,8 +203,8 @@ class Tensor {
   }
 
   void Allocate() {
-    CHECK_GT(size_, 0);
-    data_.reset(static_cast<dtype*>(Context::New(size_ * sizeof(dtype))),
+    CHECK_GT(capacity_, 0);
+    data_.reset(static_cast<dtype*>(Context::New(capacity_ * sizeof(dtype))),
                 Context::Delete);
   }
 
@@ -212,6 +212,7 @@ class Tensor {
   int ndim_;
   vector<int> dims_;
   int size_;
+  int capacity_ = 0;
   std::shared_ptr<dtype> data_;
   DISABLE_COPY_AND_ASSIGN(Tensor);
 };
