@@ -3,13 +3,19 @@
 #include "caffe2/core/operator.h"
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/utils/proto_utils.h"
-#include "gflags/gflags.h"
+#include "caffe2/binaries/gflags_namespace.h"
 #include "glog/logging.h"
 
 DEFINE_string(plan, "", "The given path to the plan protobuffer.");
 
 int main(int argc, char** argv) {
-  MPI_Init(&argc, &argv);
+  int mpi_ret;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &mpi_ret);
+  if (mpi_ret != MPI_THREAD_MULTIPLE) {
+    LOG(ERROR) << "Caffe2 MPI requires the underlying MPI to support the "
+                  "MPI_THREAD_MULTIPLE mode";
+    return 1;
+  }
   google::InitGoogleLogging(argv[0]);
   gflags::SetUsageMessage("Runs a given plan.");
   gflags::ParseCommandLineFlags(&argc, &argv, true);

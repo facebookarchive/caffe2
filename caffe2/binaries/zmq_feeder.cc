@@ -6,7 +6,7 @@
 
 #include "caffe2/core/db.h"
 #include "caffe2/utils/zmq.hpp"
-#include "gflags/gflags.h"
+#include "caffe2/binaries/gflags_namespace.h"
 #include "glog/logging.h"
 
 DEFINE_string(server, "tcp://*:5555", "The server address.");
@@ -50,13 +50,12 @@ int main(int argc, char** argv) {
     string key = cursor->key();
     zmq::message_t key_msg(key.size());
     memcpy(key_msg.data(), key.data(), key.size());
-    while (!sender.send(key_msg, ZMQ_SNDMORE)) {
-      VLOG(1) << "Trying re-sending key...";
-    }
-
     string value = cursor->value();
     zmq::message_t value_msg(value.size());
     memcpy(value_msg.data(), value.data(), value.size());
+    while (!sender.send(key_msg, ZMQ_SNDMORE)) {
+      VLOG(1) << "Trying re-sending key...";
+    }
     while(!sender.send(value_msg)) {
       VLOG(1) << "Trying re-sending...";
     }

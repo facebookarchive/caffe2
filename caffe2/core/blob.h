@@ -115,8 +115,8 @@ class Tensor {
     Reshape(dims);
   }
 
-  template <class SrcContext>
-  Tensor(const Tensor<dtype, SrcContext>& src, Context* context)
+  template <class SrcContext, class ContextForCopy>
+  Tensor(const Tensor<dtype, SrcContext>& src, ContextForCopy* context)
       : data_(nullptr) {
     Reshape(src.dims());
     context->template Copy<dtype, Context, SrcContext>(
@@ -125,7 +125,7 @@ class Tensor {
 
   // Creates a tensor, and fills its contents with the given values. We need to
   // have a context passed in as the copy function is device dependent.
-  Tensor(const vector<int>& dims, vector<dtype> values, Context* context)
+  Tensor(const vector<int>& dims, const vector<dtype>& values, Context* context)
       : data_(nullptr) {
     Reshape(dims);
     CHECK_EQ(values.size(), size_);
@@ -136,7 +136,7 @@ class Tensor {
   // Special case of above: create a tensor of shape 1, and the given value.
   Tensor(const dtype& value, Context* context)
       : data_(nullptr) {
-    Reshape(std::vector<int>(1, 1));
+    Reshape(std::vector<int>());
     context->template Copy<dtype, Context, CPUContext>(
         mutable_data(), &value, 1);
   }
@@ -144,7 +144,6 @@ class Tensor {
   virtual ~Tensor() {}
 
   void Reshape(const vector<int>& dims) {
-    CHECK_GT(dims.size(), 0);
     dims_ = dims;
     ndim_ = dims_.size();
     // Calculate the size.
