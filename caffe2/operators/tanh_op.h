@@ -1,5 +1,5 @@
-#ifndef CAFFE2_OPERATORS_RELU_OP_H_
-#define CAFFE2_OPERATORS_RELU_OP_H_
+#ifndef CAFFE2_OPERATORS_TANH_OP_H_
+#define CAFFE2_OPERATORS_TANH_OP_H_
 
 #include "caffe2/core/context.h"
 #include "caffe2/core/operator.h"

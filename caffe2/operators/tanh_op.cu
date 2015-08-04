@@ -4,13 +4,13 @@
 namespace caffe2 {
 namespace {
 __device__ float tanh(float x) {
-	if (x >= 0) {
-		float enx = exp(-2.0*x);
-		return (1 - enx)/(1 + enx);
-	} else {
-		float epx = exp(2.0*x);
-		return (epx - 1)/(epx + 1);
-	}
+  if (x >= 0) {
+    float enx = exp(-2.0*x);
+    return (1 - enx)/(1 + enx);
+  } else {
+    float epx = exp(2.0*x);
+    return (epx - 1)/(epx + 1);
+  }
 }
 
 template <typename dtype>
