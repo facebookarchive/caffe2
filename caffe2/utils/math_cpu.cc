@@ -38,6 +38,8 @@ DELEGATE_SIMPLE_UNARY_FUNCTION(float, Log, vsLn)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Log, vdLn)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqr, vsSqr)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sqr, vdSqr)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Tanh, vsTanh)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, Tanh, vdTanh)
 
 template <>
 void Powx<float, CPUContext>(

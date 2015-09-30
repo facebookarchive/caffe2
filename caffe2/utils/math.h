@@ -21,6 +21,8 @@ template <typename T, class DeviceContext>
 void Log(const int N, const T* x, T* y, DeviceContext* context);
 template <typename T, class DeviceContext>
 void Sqr(const int N, const T* x, T* y, DeviceContext* context);
+template<typename T, class DeviceContext>
+void Tanh(const int N, const T* x, T* y, DeviceContext* context);
 
 template <typename T, class DeviceContext>
 void Powx(const int N, const T* a, const T b, T* y, DeviceContext* context);
