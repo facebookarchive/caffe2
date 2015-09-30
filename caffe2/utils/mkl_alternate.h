@@ -33,10 +33,21 @@ extern "C" {
     v##name<double>(n, a, y); \
   }
 
+float tanh(const float& x) {
+  if (x >= 0) {
+    float enx = exp(-2.0f*x);
+    return (1.0f - enx)/(1.0f + enx);
+  } else {
+    float epx = exp(2.0f*x);
+    return (epx - 1.0f)/(epx + 1.0f);
+  }
+}
+
 DEFINE_VSL_UNARY_FUNC(Sqr, y[i] = a[i] * a[i]);
 DEFINE_VSL_UNARY_FUNC(Exp, y[i] = exp(a[i]));
 DEFINE_VSL_UNARY_FUNC(Ln, y[i] = std::log(a[i]));
 DEFINE_VSL_UNARY_FUNC(Abs, y[i] = fabs(a[i]));
+DEFINE_VSL_UNARY_FUNC(Tanh, y[i] = tanh(a[i]));
 
 // A simple way to define the vsl unary functions with singular parameter b.
 // The operation should be in the form e.g. y[i] = pow(a[i], b)

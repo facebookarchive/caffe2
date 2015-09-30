@@ -26,6 +26,12 @@ def AddSoftmaxGradient(op):
     [op.output[0], GetGradientName(op.output[0])],
     [GetGradientName(op.input[0])])
 
+@GradientRegistry.RegisterGradient("Tanh")
+def AddSoftmaxGradient(op):
+  return CreateOperator('TanhGradient')(
+    [op.output[0], GetGradientName(op.output[0])],
+    [GetGradientName(op.input[0])])
+
 @GradientRegistry.RegisterGradient("Flatten")
 def AddFlattenGradient(op):
   return CreateOperator('ReshapeLike')(
