@@ -3,6 +3,7 @@
 from caffe2.proto import caffe2_pb2, caffe2_legacy_pb2
 from caffe.proto import caffe_pb2
 from caffe2.python import core, utils
+import numpy as np
 
 
 def _StateMeetsRule(state, rule):
@@ -66,7 +67,7 @@ class CacaRegistry(object):
     def TranslateModel(
         cls,
         caffe_net,
-        pretrained_net,
+        pretrained_net=None,
         is_test=False,
         net_state=None,
     ):
@@ -86,26 +87,29 @@ class CacaRegistry(object):
                       .format(layer.name))
                 continue
             print('Translate layer {}'.format(layer.name))
-            # Get pretrained one
-            pretrained_layers = (
-                [l for l in pretrained_net.layer
-                 if l.name == layer.name] + [l
-                                             for l in pretrained_net.layers
-                                             if l.name == layer.name]
-            )
-            if len(pretrained_layers) > 1:
-                raise ValueError(
-                    'huh? more than one pretrained layer of one name?')
-            elif len(pretrained_layers) == 1:
-                pretrained_blobs = [
-                    utils.CaffeBlobToNumpyArray(blob)
-                    for blob in pretrained_layers[0].blobs
-                ]
+            if pretrained_net != None:
+                # Get pretrained one
+                pretrained_layers = (
+                    [l for l in pretrained_net.layer
+                     if l.name == layer.name] + [l
+                                                 for l in pretrained_net.layers
+                                                 if l.name == layer.name]
+                )
+                if len(pretrained_layers) > 1:
+                    raise ValueError(
+                        'huh? more than one pretrained layer of one name?')
+                elif len(pretrained_layers) == 1:
+                    pretrained_blobs = [
+                        utils.CaffeBlobToNumpyArray(blob)
+                        for blob in pretrained_layers[0].blobs
+                    ]
+                else:
+                    # No pretrained layer for the given layer name. We'll just pass
+                    # no parameter blobs.
+                    # print 'No pretrained layer for layer', layer.name
+                    pretrained_blobs = []
             else:
-                # No pretrained layer for the given layer name. We'll just pass
-                # no parameter blobs.
-                # print 'No pretrained layer for layer', layer.name
-                pretrained_blobs = []
+                pretrained_blobs = None
             operators, params = cls.TranslateLayer(
                 layer, pretrained_blobs, is_test)
             net.op.extend(operators)
@@ -137,7 +141,7 @@ def AddArgument(op, key, value):
 @CacaRegistry.Register("Input")
 def TranslateInput(layer, pretrained_blobs, is_test):
     return [], []
-    
+
 
 
 @CacaRegistry.Register("Convolution")
@@ -162,10 +166,14 @@ def TranslateConv(layer, pretrained_blobs, is_test):
     AddArgument(caffe_op, "kernel", param.kernel_size[0])
     AddArgument(caffe_op, "pad", pad)
     AddArgument(caffe_op, "order", "NCHW")
-    weight = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_w')
-    bias = utils.NumpyArrayToCaffe2Tensor(
-        pretrained_blobs[1].flatten(), output + '_b'
-    )
+    if pretrained_blobs != None:
+        weight = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_w')
+        bias = utils.NumpyArrayToCaffe2Tensor(
+            pretrained_blobs[1].flatten(), output + '_b'
+        )
+    else:
+        weight=utils.NumpyArrayToCaffe2Tensor(np.array([]), output + '_w')
+        bias=utils.NumpyArrayToCaffe2Tensor(np.array([]), output + '_b')
     return caffe_op, [weight, bias]
 
 
@@ -179,6 +187,9 @@ def TranslateConvWithGroups(layer, pretrained_blobs, is_test):
     caffe_ops = []
     caffe_params = []
     param = layer.convolution_param
+    if pretrained_blobs == None:
+        raise ValueError("convolution with groups seem to be less and less " +
+        "popular, does not support weight-less conversion for conv groups now")
     weight, bias = pretrained_blobs
     bias = bias.flatten()
     n, c, h, w = weight.shape
@@ -278,12 +289,16 @@ def TranslateInnerProduct(layer, pretrained_blobs, is_test):
     caffe_op = BaseTranslate(layer, "FC")
     output = caffe_op.output[0]
     caffe_op.input.extend([output + '_w', output + '_b'])
-    weight = utils.NumpyArrayToCaffe2Tensor(
-        pretrained_blobs[0][0, 0], output + '_w'
-    )
-    bias = utils.NumpyArrayToCaffe2Tensor(
-        pretrained_blobs[1].flatten(), output + '_b'
-    )
+    if pretrained_blobs != None:
+        weight = utils.NumpyArrayToCaffe2Tensor(
+            pretrained_blobs[0][0, 0], output + '_w'
+        )
+        bias = utils.NumpyArrayToCaffe2Tensor(
+            pretrained_blobs[1].flatten(), output + '_b'
+        )
+    else:
+        weight=utils.NumpyArrayToCaffe2Tensor(np.array([]), output + '_w')
+        bias=utils.NumpyArrayToCaffe2Tensor(np.array([]), output + '_b')
     return caffe_op, [weight, bias]
 
 
