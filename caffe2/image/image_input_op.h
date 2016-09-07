@@ -10,6 +10,7 @@
 #include "caffe2/utils/math.h"
 #include "caffe2/utils/thread_pool.h"
 #include "caffe2/operators/prefetch_op.h"
+#include "caffe2/image/transform_gpu.h"
 
 namespace caffe2 {
 
@@ -36,6 +37,10 @@ class ImageInputOp final
       const std::string value, float *image_data, int *label,
       const int channels, std::mt19937 *randgen,
       std::bernoulli_distribution *mirror_this_image);
+  void DecodeAndTransposeOnly(
+      const std::string value, uint8_t *image_data, int *label,
+      const int channels, std::mt19937 *randgen,
+      std::bernoulli_distribution *mirror_this_image);
 
   unique_ptr<db::DBReader> owned_reader_;
   const db::DBReader* reader_;
@@ -53,6 +58,7 @@ class ImageInputOp final
   int crop_;
   bool mirror_;
   bool use_caffe_datum_;
+  bool gpu_transform_;
 
   // thread pool for parse + decode
   int num_decode_threads_;
@@ -76,9 +82,12 @@ ImageInputOp<Context>::ImageInputOp(
         mirror_(OperatorBase::template GetSingleArgument<int>("mirror", 0)),
         use_caffe_datum_(OperatorBase::template GetSingleArgument<int>(
               "use_caffe_datum", 0)),
+        gpu_transform_(OperatorBase::template GetSingleArgument<int>(
+              "use_gpu_transform", 0)),
         num_decode_threads_(OperatorBase::template GetSingleArgument<int>(
               "decode_threads", 4)),
-        thread_pool_(new ThreadPool(num_decode_threads_)) {
+        thread_pool_(new ThreadPool(num_decode_threads_))
+{
   if (operator_def.input_size() == 0) {
     LOG(ERROR) << "You are using an old ImageInputOp format that creates "
                        "a local db reader. Consider moving to the new style "
@@ -100,6 +109,9 @@ ImageInputOp<Context>::ImageInputOp(
 
   LOG(INFO) << "Creating an image input op with the following setting: ";
   LOG(INFO) << "    Using " << num_decode_threads_ << " CPU threads;";
+  if (gpu_transform_) {
+    LOG(INFO) << "    Performing transformation on GPU";
+  }
   LOG(INFO) << "    Outputting in batches of " << batch_size_ << " images;";
   LOG(INFO) << "    Treating input image as "
             << (color_ ? "color " : "grayscale ") << "image;";
@@ -233,6 +245,43 @@ void TransformImage(const cv::Mat& scaled_img, const int channels,
   }
 }
 
+// Only crop / transose the image
+// leave in uint8_t dataType
+template <class Context>
+void CropTransposeImage(const cv::Mat& scaled_img, const int channels,
+                        uint8_t *cropped_data, const int crop, const bool mirror,
+                        std::mt19937 *randgen,
+                        std::bernoulli_distribution *mirror_this_image) {
+
+  // find the cropped region, and copy it to the destination matrix with
+  // mean subtraction and scaling.
+  int width_offset =
+      std::uniform_int_distribution<>(0, scaled_img.cols - crop)(*randgen);
+  int height_offset =
+      std::uniform_int_distribution<>(0, scaled_img.rows - crop)(*randgen);
+  if (mirror && (*mirror_this_image)(*randgen)) {
+    // Copy mirrored image.
+    for (int h = height_offset; h < height_offset + crop; ++h) {
+      for (int w = width_offset + crop - 1; w >= width_offset; --w) {
+        const cv::Vec3b& cv_data = scaled_img.at<cv::Vec3b>(h, w);
+        for (int c = 0; c < channels; ++c) {
+          *(cropped_data++) = cv_data[c];
+        }
+      }
+    }
+  } else {
+    // Copy normally.
+    for (int h = height_offset; h < height_offset + crop; ++h) {
+      for (int w = width_offset; w < width_offset + crop; ++w) {
+        const cv::Vec3b& cv_data = scaled_img.at<cv::Vec3b>(h, w);
+        for (int c = 0; c < channels; ++c) {
+          *(cropped_data++) = cv_data[c];
+        }
+      }
+    }
+  }
+}
+
 // Parse datum, decode image, perform transform
 // Intended as entry point for binding to thread pool
 template <class Context>
@@ -270,6 +319,42 @@ void ImageInputOp<Context>::DecodeAndTransform(
 }
 
 template <class Context>
+void ImageInputOp<Context>::DecodeAndTransposeOnly(
+    const std::string value, uint8_t *image_data, int *label,
+    const int channels, std::mt19937 *randgen,
+      std::bernoulli_distribution *mirror_this_image) {
+
+  cv::Mat img;
+  // Decode the image
+  CHECK(GetImageAndLabelFromDBValue(value, &img, label));
+
+  int scaled_width, scaled_height;
+  cv::Mat scaled_img;
+  if (warp_) {
+    scaled_width = scale_;
+    scaled_height = scale_;
+  } else if (img.rows > img.cols) {
+    scaled_width = scale_;
+    scaled_height = static_cast<float>(img.rows) * scale_ / img.cols;
+  } else {
+    scaled_height = scale_;
+    scaled_width = static_cast<float>(img.cols) * scale_ / img.rows;
+  }
+  if (scaled_height != img.rows || scaled_width != img.cols) {
+    cv::resize(img, scaled_img, cv::Size(scaled_width, scaled_height),
+               0, 0, cv::INTER_LINEAR);
+  } else {
+    // No scaling needs to be done.
+    scaled_img = img;
+  }
+
+  // Factor out the image transformation
+  CropTransposeImage<Context>(scaled_img, channels, image_data, crop_, mirror_,
+                              randgen, mirror_this_image);
+}
+
+
+template <class Context>
 bool ImageInputOp<Context>::Prefetch() {
   if (!owned_reader_.get()) {
     // if we are not owning the reader, we will get the reader pointer from
@@ -279,7 +364,12 @@ bool ImageInputOp<Context>::Prefetch() {
   }
   const int channels = color_ ? 3 : 1;
   // Call mutable_data() once to allocate the underlying memory.
-  prefetched_image_.mutable_data<float>();
+  if (gpu_transform_) {
+    // we'll transfer up in int8, then convert later
+    prefetched_image_.mutable_data<uint8_t>();
+  } else {
+    prefetched_image_.mutable_data<float>();
+  }
   prefetched_label_.mutable_data<int>();
   // TODO(jiayq): Handle this prefetching with a real thread pool. Currently,
   // with 4 threads we should be able to get a decent speed for AlexNet type
@@ -290,14 +380,9 @@ bool ImageInputOp<Context>::Prefetch() {
     randgen_per_thread.emplace_back(meta_randgen());
   }
 
-  // add thread pool here, generate batch_size * 3? random numbers
-  //
-  // Generate random numbers for all images in the batch
   for (int item_id = 0; item_id < batch_size_; ++item_id) {
     std::bernoulli_distribution mirror_this_image(0.5);
     std::mt19937& randgen = randgen_per_thread[num_decode_threads_];
-    float* image_data = prefetched_image_.mutable_data<float>()
-        + crop_ * crop_ * channels * item_id;
     std::string key, value;
     cv::Mat img;
     int label;
@@ -307,12 +392,27 @@ bool ImageInputOp<Context>::Prefetch() {
     reader_->Read(&key, &value);
 
     // launch into thread pool for processing
-    thread_pool_->runTask(
-          std::bind(&ImageInputOp<Context>::DecodeAndTransform, this,
-                      std::string(value), image_data,
-                      &prefetched_label_.mutable_data<int>()[item_id], channels,
-                      &randgen_per_thread[item_id % num_decode_threads_],
-                      &mirror_this_image));
+    if (gpu_transform_) {
+      // output of decode will still be int8
+      uint8_t* image_data = prefetched_image_.mutable_data<uint8_t>()
+          + crop_ * crop_ * channels * item_id;
+      thread_pool_->runTask(
+            // only decode, crop, run transpose later
+            std::bind(&ImageInputOp<Context>::DecodeAndTransposeOnly, this,
+                        std::string(value), image_data,
+                        &prefetched_label_.mutable_data<int>()[item_id], channels,
+                        &randgen_per_thread[item_id % num_decode_threads_],
+                        &mirror_this_image));
+    } else {
+      float* image_data = prefetched_image_.mutable_data<float>()
+          + crop_ * crop_ * channels * item_id;
+      thread_pool_->runTask(
+            std::bind(&ImageInputOp<Context>::DecodeAndTransform, this,
+                        std::string(value), image_data,
+                        &prefetched_label_.mutable_data<int>()[item_id], channels,
+                        &randgen_per_thread[item_id % num_decode_threads_],
+                        &mirror_this_image));
+    }
   }
   thread_pool_->waitWorkComplete();
 
@@ -335,7 +435,11 @@ bool ImageInputOp<Context>::CopyPrefetched() {
     image_output->CopyFrom(prefetched_image_, &context_);
     label_output->CopyFrom(prefetched_label_, &context_);
   } else {
-    image_output->CopyFrom(prefetched_image_on_device_, &context_);
+    if (gpu_transform_) {
+      TransformOnGPU<uint8_t,float,Context>(prefetched_image_on_device_, image_output, mean_, std_, &context_);
+    } else {
+      image_output->CopyFrom(prefetched_image_on_device_, &context_);
+    }
     label_output->CopyFrom(prefetched_label_on_device_, &context_);
   }
   return true;
