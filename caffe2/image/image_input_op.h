@@ -1,7 +1,6 @@
 #ifndef CAFFE2_IMAGE_IMAGE_INPUT_OP_H_
 #define CAFFE2_IMAGE_IMAGE_INPUT_OP_H_
 
-#include <omp.h>
 #include <opencv2/opencv.hpp>
 
 #include <iostream>
@@ -9,6 +8,7 @@
 #include "caffe/proto/caffe.pb.h"
 #include "caffe2/core/db.h"
 #include "caffe2/utils/math.h"
+#include "caffe2/utils/thread_pool.h"
 #include "caffe2/operators/prefetch_op.h"
 
 namespace caffe2 {
@@ -32,6 +32,11 @@ class ImageInputOp final
  private:
   bool GetImageAndLabelFromDBValue(
       const string& value, cv::Mat* img, int* label);
+  void DecodeAndTransform(
+      const std::string value, float *image_data, int *label,
+      const int channels, std::mt19937 *randgen,
+      std::bernoulli_distribution *mirror_this_image);
+
   unique_ptr<db::DBReader> owned_reader_;
   const db::DBReader* reader_;
   CPUContext cpu_context_;
@@ -48,6 +53,10 @@ class ImageInputOp final
   int crop_;
   bool mirror_;
   bool use_caffe_datum_;
+
+  // thread pool for parse + decode
+  int num_decode_threads_;
+  std::shared_ptr<ThreadPool> thread_pool_;
 };
 
 
@@ -66,7 +75,10 @@ ImageInputOp<Context>::ImageInputOp(
         crop_(OperatorBase::template GetSingleArgument<int>("crop", -1)),
         mirror_(OperatorBase::template GetSingleArgument<int>("mirror", 0)),
         use_caffe_datum_(OperatorBase::template GetSingleArgument<int>(
-              "use_caffe_datum", 0)) {
+              "use_caffe_datum", 0)),
+        num_decode_threads_(OperatorBase::template GetSingleArgument<int>(
+              "decode_threads", 4)),
+        thread_pool_(new ThreadPool(num_decode_threads_)) {
   if (operator_def.input_size() == 0) {
     LOG(ERROR) << "You are using an old ImageInputOp format that creates "
                        "a local db reader. Consider moving to the new style "
@@ -87,6 +99,7 @@ ImageInputOp<Context>::ImageInputOp(
       scale_, crop_, "The scale value must be no smaller than the crop value.");
 
   LOG(INFO) << "Creating an image input op with the following setting: ";
+  LOG(INFO) << "    Using " << num_decode_threads_ << " CPU threads;";
   LOG(INFO) << "    Outputting in batches of " << batch_size_ << " images;";
   LOG(INFO) << "    Treating input image as "
             << (color_ ? "color " : "grayscale ") << "image;";
@@ -182,6 +195,80 @@ bool ImageInputOp<Context>::GetImageAndLabelFromDBValue(
   return true;
 }
 
+// Factored out image transformation
+template <class Context>
+void TransformImage(const cv::Mat& scaled_img, const int channels,
+                    float *image_data,
+                    const int crop, const bool mirror, const float mean,
+                    const float std, std::mt19937 *randgen,
+                    std::bernoulli_distribution *mirror_this_image) {
+  // find the cropped region, and copy it to the destination matrix with
+  // mean subtraction and scaling.
+  int width_offset =
+      std::uniform_int_distribution<>(0, scaled_img.cols - crop)(*randgen);
+  int height_offset =
+      std::uniform_int_distribution<>(0, scaled_img.rows - crop)(*randgen);
+  if (mirror && (*mirror_this_image)(*randgen)) {
+    // Copy mirrored image.
+    for (int h = height_offset; h < height_offset + crop; ++h) {
+      for (int w = width_offset + crop - 1; w >= width_offset; --w) {
+        const cv::Vec3b& cv_data = scaled_img.at<cv::Vec3b>(h, w);
+        for (int c = 0; c < channels; ++c) {
+          *(image_data++) =
+              (static_cast<uint8_t>(cv_data[c]) - mean) / std;
+        }
+      }
+    }
+  } else {
+    // Copy normally.
+    for (int h = height_offset; h < height_offset + crop; ++h) {
+      for (int w = width_offset; w < width_offset + crop; ++w) {
+        const cv::Vec3b& cv_data = scaled_img.at<cv::Vec3b>(h, w);
+        for (int c = 0; c < channels; ++c) {
+          *(image_data++) =
+              (static_cast<uint8_t>(cv_data[c]) - mean) / std;
+        }
+      }
+    }
+  }
+}
+
+// Parse datum, decode image, perform transform
+// Intended as entry point for binding to thread pool
+template <class Context>
+void ImageInputOp<Context>::DecodeAndTransform(
+      const std::string value, float *image_data, int *label,
+      const int channels, std::mt19937 *randgen,
+      std::bernoulli_distribution *mirror_this_image) {
+  cv::Mat img;
+  // Decode the image
+  CHECK(GetImageAndLabelFromDBValue(value, &img, label));
+
+  int scaled_width, scaled_height;
+  cv::Mat scaled_img;
+  if (warp_) {
+    scaled_width = scale_;
+    scaled_height = scale_;
+  } else if (img.rows > img.cols) {
+    scaled_width = scale_;
+    scaled_height = static_cast<float>(img.rows) * scale_ / img.cols;
+  } else {
+    scaled_height = scale_;
+    scaled_width = static_cast<float>(img.cols) * scale_ / img.rows;
+  }
+  if (scaled_height != img.rows || scaled_width != img.cols) {
+    cv::resize(img, scaled_img, cv::Size(scaled_width, scaled_height),
+               0, 0, cv::INTER_LINEAR);
+  } else {
+    // No scaling needs to be done.
+    scaled_img = img;
+  }
+
+  // Factor out the image transformation
+  TransformImage<Context>(scaled_img, channels, image_data, crop_, mirror_,
+                          mean_, std_, randgen, mirror_this_image);
+}
+
 template <class Context>
 bool ImageInputOp<Context>::Prefetch() {
   if (!owned_reader_.get()) {
@@ -195,77 +282,39 @@ bool ImageInputOp<Context>::Prefetch() {
   prefetched_image_.mutable_data<float>();
   prefetched_label_.mutable_data<int>();
   // TODO(jiayq): Handle this prefetching with a real thread pool. Currently,
-  // with 4 threads we should be able to get a decent sheed for AlexNet type
+  // with 4 threads we should be able to get a decent speed for AlexNet type
   // training already.
   std::mt19937 meta_randgen(time(nullptr));
   std::vector<std::mt19937> randgen_per_thread;
   for (int i = 0; i < 4; ++i) {
     randgen_per_thread.emplace_back(meta_randgen());
   }
-  #pragma omp parallel for num_threads(4)
+
+  // add thread pool here, generate batch_size * 3? random numbers
+  //
+  // Generate random numbers for all images in the batch
   for (int item_id = 0; item_id < batch_size_; ++item_id) {
     std::bernoulli_distribution mirror_this_image(0.5);
-    std::mt19937& randgen = randgen_per_thread[omp_get_thread_num()];
+    std::mt19937& randgen = randgen_per_thread[num_decode_threads_];
     float* image_data = prefetched_image_.mutable_data<float>()
         + crop_ * crop_ * channels * item_id;
-    string key, value;
+    std::string key, value;
     cv::Mat img;
     int label;
     cv::Mat scaled_img;
-    // process data
+
+    // read data
     reader_->Read(&key, &value);
-    CAFFE_ENFORCE(GetImageAndLabelFromDBValue(value, &img, &label));
-    // deal with scaling.
-    int scaled_width, scaled_height;
-    if (warp_) {
-      scaled_width = scale_;
-      scaled_height = scale_;
-    } else if (img.rows > img.cols) {
-      scaled_width = scale_;
-      scaled_height = static_cast<float>(img.rows) * scale_ / img.cols;
-    } else {
-      scaled_height = scale_;
-      scaled_width = static_cast<float>(img.cols) * scale_ / img.rows;
-    }
-    if (scaled_height != img.rows || scaled_width != img.cols) {
-      cv::resize(img, scaled_img, cv::Size(scaled_width, scaled_height),
-                 0, 0, cv::INTER_LINEAR);
-    } else {
-      // No scaling needs to be done.
-      scaled_img = img;
-    }
-    // find the cropped region, and copy it to the destination matrix with
-    // mean subtraction and scaling.
-    int width_offset =
-        std::uniform_int_distribution<>(0, scaled_img.cols - crop_)(randgen);
-    int height_offset =
-        std::uniform_int_distribution<>(0, scaled_img.rows - crop_)(randgen);
-    if (mirror_ && mirror_this_image(randgen)) {
-      // Copy mirrored image.
-      for (int h = height_offset; h < height_offset + crop_; ++h) {
-        for (int w = width_offset + crop_ - 1; w >= width_offset; --w) {
-          const cv::Vec3b& cv_data = scaled_img.at<cv::Vec3b>(h, w);
-          for (int c = 0; c < channels; ++c) {
-            *(image_data++) =
-                (static_cast<uint8_t>(cv_data[c]) - mean_) / std_;
-          }
-        }
-      }
-    } else {
-      // Copy normally.
-      for (int h = height_offset; h < height_offset + crop_; ++h) {
-        for (int w = width_offset; w < width_offset + crop_; ++w) {
-          const cv::Vec3b& cv_data = scaled_img.at<cv::Vec3b>(h, w);
-          for (int c = 0; c < channels; ++c) {
-            *(image_data++) =
-                (static_cast<uint8_t>(cv_data[c]) - mean_) / std_;
-          }
-        }
-      }
-    }
-    // Copy the label
-    prefetched_label_.mutable_data<int>()[item_id] = label;
+
+    // launch into thread pool for processing
+    thread_pool_->runTask(
+          std::bind(&ImageInputOp<Context>::DecodeAndTransform, this,
+                      std::string(value), image_data,
+                      &prefetched_label_.mutable_data<int>()[item_id], channels,
+                      &randgen_per_thread[item_id % num_decode_threads_],
+                      &mirror_this_image));
   }
+  thread_pool_->waitWorkComplete();
 
   // If the context is not CPUContext, we will need to do a copy in the
   // prefetch function as well.
