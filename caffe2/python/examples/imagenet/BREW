@@ -1,0 +1,4 @@
+filegroup(
+  name="imagenet_example_files",
+  srcs=Glob(["*.py"]),
+)
