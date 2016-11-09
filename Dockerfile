@@ -78,7 +78,6 @@ WORKDIR /workspace
 COPY . .
 
 # Get the repository, and build.
-RUN ( cd third_party/eigen && git checkout master ) && \
-    make -j"$(nproc)"
+RUN make -j"$(nproc)"
 
 
