@@ -1,30 +1,9 @@
 FROM nvdl.githost.io:4678/dgx/cuda:8.0-cudnn5-devel-ubuntu14.04
 MAINTAINER NVIDIA CORPORATION <cudatools@nvidia.com>
 
-# A docker container with CUDA and caffe2 installed.
-# Note: this should install everything but cudnn, which requires you to have a
-# manual registration and download from the NVidia website. After creating this
-# docker image, the Caffe2 repository is located at /opt/caffe2. You can install
-# cudnn manually and re-compile caffe2.
-
-################################################################################
-# Step 1: set up cuda on the ubuntu box.
-################################################################################
-
-RUN cat /etc/resolv.conf
-
-RUN apt-get update && apt-get install -q -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   build-essential \
-  wget
-
-# Run nvcc to make sure things are set correctly.
-RUN nvcc --version
-
-################################################################################
-# Step 2: set up caffe2 pre-requisites
-################################################################################
-
-RUN apt-get update && apt-get install -q -y \
+  wget \
   git \
   libeigen3-dev \
   libgoogle-glog-dev \
@@ -37,30 +16,31 @@ RUN apt-get update && apt-get install -q -y \
   libbz2-dev \
   protobuf-compiler \
   python-dev \
-  python-pip
+  python-pip \
+  autoconf \
+  automake \
+  libtool \
+  graphviz \
+  libatlas-base-dev
 
 # Caffe2 works best with openmpi 1.8.5 or above (which has cuda support).
 # If you do not need openmpi, skip this step.
-RUN cd /tmp && \
-  wget http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-1.10.0.tar.gz && \
-  tar xzvf openmpi-1.10.0.tar.gz && \
-  cd /tmp/openmpi-1.10.0 && \
-  ./configure --with-cuda --with-threads && \
-  make && make install && \
-  cd / && \
-  rm -rf /tmp/openmpi-1.10.0 && \
-  rm /tmp/openmpi-1.10.0.tar.gz
+RUN OPENMPI_VERSION=1.10.3 && \
+    wget -q -O - https://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-${OPENMPI_VERSION}.tar.gz | tar -xzf - && \
+    cd openmpi-${OPENMPI_VERSION} && \
+    ./configure --with-cuda --prefix=/usr --disable-getpwuid && \
+    make -j"$(nproc)" install && \
+    rm -rf /openmpi-${OPENMPI_VERSION}
 
 # Caffe2 requires zeromq 4.0 or above, manually install.
 # If you do not need zeromq, skip this step.
-RUN apt-get install -q -y autoconf libtool
 RUN mkdir /tmp/zeromq-build && \
   cd /tmp/zeromq-build && \
   wget https://github.com/zeromq/zeromq4-1/archive/v4.1.3.tar.gz && \
   tar xzvf v4.1.3.tar.gz --strip 1 && \
   ./autogen.sh && \
   ./configure --without-libsodium && \
-  make && make install && \
+  make -j"$(nproc)" && make -j"$(nproc)" install && \
   cd / && \
   rm -rf /tmp/zeromq-build
 
@@ -76,12 +56,6 @@ RUN pip install \
 ################################################################################
 # Step 3: install optional dependencies ("good to have" features)
 ################################################################################
-
-RUN apt-get install -q -y \
-  gfortran \
-  graphviz \
-  libatlas-base-dev \
-  vim
 
 RUN pip install \
   flask \
@@ -100,11 +74,11 @@ RUN pip install \
 # Step 4: set up caffe2
 ################################################################################
 
-# Get the repository, and build.
-RUN cd /opt && \
-  git clone --recursive https://github.com/caffe2/caffe2.git && \
-  cd /opt/caffe2 && \
-  make
+WORKDIR /workspace
+COPY . .
 
-# Now, we know that some of the caffe tests will fail. How do we deal with
-# those?
+# Get the repository, and build.
+RUN ( cd third_party/eigen && git checkout master ) && \
+    make -j"$(nproc)"
+
+

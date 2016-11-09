@@ -76,11 +76,11 @@ class Config(object):
 
     # Manually specified include paths. These include paths are searched before
     # any auto-generated include paths.
-    INCLUDES = []
+    INCLUDES = ['/usr/local/cuda/include']
 
     # Manually specified lib directories. These are searched before any
     # auto-generated library directories.
-    LIBDIRS = []
+    LIBDIRS = ['/usr/local/cuda/lib64']
 
     # Additional cflags you would like to add to the compilation.
     CFLAGS = []
@@ -95,7 +95,7 @@ class Config(object):
     # Additional libraries to link against. This will be appended to each link
     # link command.
     # ADDITIONAL_LIBS = ['boost_system', 'boost_thread']
-    ADDITIONAL_LIBS = []
+    ADDITIONAL_LIBS = ['cudart', 'curand']
 
     ###########################################################################
     # (optional) CUDA. If you do not specify this, the GPU part of Caffe2 will
@@ -110,6 +110,7 @@ class Config(object):
         'arch=compute_30,code=sm_30',
         'arch=compute_35,code=sm_35',
         'arch=compute_50,code=sm_50',
+        'arch=compute_60,code=sm_60',
         'arch=compute_61,code=sm_61',
     ]
     # additional CUDA cflags to pass to nvcc.
@@ -118,9 +119,9 @@ class Config(object):
     # You can choose to add the path of the cuda libraries to the rpath, so that
     # during runtime you do not need to hard-code the library paths. You can,
     # of course, set this to False.
-    CUDA_ADD_TO_RPATH = True
+    CUDA_ADD_TO_RPATH = False
     # Specify if you want to link cuda as static libraries.
-    LINK_CUDA_STATIC = True
+    LINK_CUDA_STATIC = False
 
     ############################################################################
     # (optional) MPI setting.
