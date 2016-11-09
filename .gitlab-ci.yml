@@ -9,6 +9,7 @@ caffe2:
     script:
     - docker login -u gitlab-ci-token -p "${CI_BUILD_TOKEN}" "${CI_REGISTRY}"
     - ORIGIN="${CI_BUILD_REPO##*@}" && git remote set-url origin git@${ORIGIN/\//:}
+    - git submodule update --init --recursive
     - if [[ "${CI_BUILD_REF_NAME}" == *-stage ]]; then
         echo -e 'Dockerfile*\n.git*\n.dockerignore' > .dockerignore;
       fi
