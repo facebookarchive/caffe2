@@ -50,6 +50,7 @@ RUN pip install --upgrade pip
 # Python dependencies
 RUN pip install \
   matplotlib \
+  hypothesis \
   numpy \
   protobuf
 
@@ -57,18 +58,17 @@ RUN pip install \
 # Step 3: install optional dependencies ("good to have" features)
 ################################################################################
 
+# scikit-image has to be after scipy.
 RUN pip install \
-  flask \
-  ipython \
-  notebook \
-  pydot \
-  python-nvd3 \
-  scipy \
-  tornado
-
-# This is intentional. scikit-image has to be after scipy.
-RUN pip install \
-  scikit-image
+      flask \
+      ipython \
+      notebook \
+      pydot \
+      python-nvd3 \
+      scipy \
+      tornado && \
+    pip install \
+      scikit-image
 
 ################################################################################
 # Step 4: set up caffe2
@@ -79,5 +79,3 @@ COPY . .
 
 # Get the repository, and build.
 RUN make -j"$(nproc)"
-
-
