@@ -86,7 +86,7 @@ RUN echo "------------------------------------------------------" && \
     echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs ls -al]]" && \
     find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs ls -al && \
     echo "" && \
-    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local -type f | md5sum]]" && \
+    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs md5sum]]" && \
     find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs md5sum
 
 ################################################################################
