@@ -71,6 +71,25 @@ RUN pip install \
       scikit-image
 
 ################################################################################
+# Show installed packages
+################################################################################
+
+RUN echo "------------------------------------------------------" && \
+    echo "-- INSTALLED PACKAGES --------------------------------" && \
+    echo "------------------------------------------------------" && \
+    echo "[[dpkg -l]]" && \
+    dpkg -l && \
+    echo "" && \
+    echo "[[pip list]]" && \
+    pip list && \
+    echo "" && \
+    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs ls -al]]" && \
+    find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs ls -al && \
+    echo "" && \
+    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local -type f | md5sum]]" && \
+    find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs md5sum
+
+################################################################################
 # Step 4: set up caffe2
 ################################################################################
 
@@ -79,3 +98,5 @@ COPY . .
 
 # Get the repository, and build.
 RUN make -j"$(nproc)"
+
+RUN chmod -R a+w /workspace
