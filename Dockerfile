@@ -71,6 +71,18 @@ RUN pip install \
       scikit-image
 
 ################################################################################
+# Step 4: set up caffe2
+################################################################################
+
+WORKDIR /workspace
+COPY . .
+
+# Get the repository, and build.
+RUN make -j"$(nproc)"
+
+RUN chmod -R a+w /workspace
+
+################################################################################
 # Show installed packages
 ################################################################################
 
@@ -83,20 +95,11 @@ RUN echo "------------------------------------------------------" && \
     echo "[[pip list]]" && \
     pip list && \
     echo "" && \
-    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs ls -al]]" && \
-    find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs ls -al && \
+    echo "------------------------------------------------------" && \
+    echo "-- FILE SIZE, DATE, HASH -----------------------------" && \
+    echo "------------------------------------------------------" && \
+    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs ls -al]]" && \
+    (find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs ls -al || true) && \
     echo "" && \
-    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs md5sum]]" && \
-    find /usr/bin /usr/sbin /usr/lib /usr/local -type f | xargs md5sum
-
-################################################################################
-# Step 4: set up caffe2
-################################################################################
-
-WORKDIR /workspace
-COPY . .
-
-# Get the repository, and build.
-RUN make -j"$(nproc)"
-
-RUN chmod -R a+w /workspace
+    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs md5sum]]" && \
+    (find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs md5sum || true)
