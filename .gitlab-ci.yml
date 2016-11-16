@@ -7,7 +7,7 @@ stages:
 caffe2:
     stage: build
     script:
-    - docker login -u gitlab-runner "${CI_REGISTRY}"
+    - docker login -u gitlab-ci-token -p "${CI_BUILD_TOKEN}" "${CI_REGISTRY}"
     - ORIGIN="${CI_BUILD_REPO##*@}" && git remote set-url origin git@${ORIGIN/\//:}
     - git submodule update --init --recursive
     - if [[ "${CI_BUILD_REF_NAME}" == *-stage ]]; then
@@ -24,7 +24,7 @@ caffe2:
 all:
     stage: push
     script:
-    - docker login -u gitlab-runner "${CI_REGISTRY}"
+    - docker login -u gitlab-ci-token -p "${CI_BUILD_TOKEN}" "${CI_REGISTRY}"
     - docker push "${CI_REGISTRY_IMAGE}"
     only:
     - /^.*-devel$/
