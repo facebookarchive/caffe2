@@ -32,18 +32,6 @@ RUN OPENMPI_VERSION=1.10.3 && \
     make -j"$(nproc)" install && \
     rm -rf /openmpi-${OPENMPI_VERSION}
 
-# Caffe2 requires zeromq 4.0 or above, manually install.
-# If you do not need zeromq, skip this step.
-RUN mkdir /tmp/zeromq-build && \
-  cd /tmp/zeromq-build && \
-  wget https://github.com/zeromq/zeromq4-1/archive/v4.1.3.tar.gz && \
-  tar xzvf v4.1.3.tar.gz --strip 1 && \
-  ./autogen.sh && \
-  ./configure --without-libsodium && \
-  make -j"$(nproc)" && make -j"$(nproc)" install && \
-  cd / && \
-  rm -rf /tmp/zeromq-build
-
 # pip self upgrade
 RUN pip install --upgrade pip
 
