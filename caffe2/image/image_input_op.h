@@ -371,9 +371,7 @@ bool ImageInputOp<Context>::Prefetch() {
     prefetched_image_.mutable_data<float>();
   }
   prefetched_label_.mutable_data<int>();
-  // TODO(jiayq): Handle this prefetching with a real thread pool. Currently,
-  // with 4 threads we should be able to get a decent speed for AlexNet type
-  // training already.
+  // Prefetching handled with a thread pool of "decode_threads" threads.
   std::mt19937 meta_randgen(time(nullptr));
   std::vector<std::mt19937> randgen_per_thread;
   for (int i = 0; i < 4; ++i) {
@@ -436,7 +434,7 @@ bool ImageInputOp<Context>::CopyPrefetched() {
     label_output->CopyFrom(prefetched_label_, &context_);
   } else {
     if (gpu_transform_) {
-      TransformOnGPU<uint8_t,float,Context>(prefetched_image_on_device_, image_output, mean_, std_, &context_);
+      TransformOnGPU<uint8_t,float,Context>(prefetched_image_on_device_, image_output, std_, mean_, &context_);
     } else {
       image_output->CopyFrom(prefetched_image_on_device_, &context_);
     }
