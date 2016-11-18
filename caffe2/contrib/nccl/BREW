@@ -4,7 +4,6 @@ cc_library(
   hdrs = Glob(["*.h"]),
   deps = [
     "//caffe2:core_gpu",
-    "//third_party:nccl",
   ],
   whole_archive = True,
 )
