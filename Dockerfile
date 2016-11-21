@@ -38,6 +38,7 @@ RUN pip install --upgrade pip
 # Python dependencies
 RUN pip install \
   matplotlib \
+  hypothesis \
   numpy \
   protobuf
 
@@ -45,18 +46,17 @@ RUN pip install \
 # Step 3: install optional dependencies ("good to have" features)
 ################################################################################
 
+# scikit-image has to be after scipy.
 RUN pip install \
-  flask \
-  ipython \
-  notebook \
-  pydot \
-  python-nvd3 \
-  scipy \
-  tornado
-
-# This is intentional. scikit-image has to be after scipy.
-RUN pip install \
-  scikit-image
+      flask \
+      ipython \
+      notebook \
+      pydot \
+      python-nvd3 \
+      scipy \
+      tornado && \
+    pip install \
+      scikit-image
 
 ################################################################################
 # Step 4: set up caffe2
@@ -68,4 +68,26 @@ COPY . .
 # Get the repository, and build.
 RUN make -j"$(nproc)"
 
+RUN chmod -R a+w /workspace
 
+################################################################################
+# Show installed packages
+################################################################################
+
+RUN echo "------------------------------------------------------" && \
+    echo "-- INSTALLED PACKAGES --------------------------------" && \
+    echo "------------------------------------------------------" && \
+    echo "[[dpkg -l]]" && \
+    dpkg -l && \
+    echo "" && \
+    echo "[[pip list]]" && \
+    pip list && \
+    echo "" && \
+    echo "------------------------------------------------------" && \
+    echo "-- FILE SIZE, DATE, HASH -----------------------------" && \
+    echo "------------------------------------------------------" && \
+    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs ls -al]]" && \
+    (find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs ls -al || true) && \
+    echo "" && \
+    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs md5sum]]" && \
+    (find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs md5sum || true)
