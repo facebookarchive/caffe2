@@ -57,6 +57,7 @@ class ImageInputOp final
   bool warp_;
   int crop_;
   bool mirror_;
+  bool is_test_;
   bool use_caffe_datum_;
   bool gpu_transform_;
 
@@ -80,6 +81,7 @@ ImageInputOp<Context>::ImageInputOp(
         warp_(OperatorBase::template GetSingleArgument<int>("warp", 0)),
         crop_(OperatorBase::template GetSingleArgument<int>("crop", -1)),
         mirror_(OperatorBase::template GetSingleArgument<int>("mirror", 0)),
+        is_test_(OperatorBase::template GetSingleArgument<int>("is_test", 0)),
         use_caffe_datum_(OperatorBase::template GetSingleArgument<int>(
               "use_caffe_datum", 0)),
         gpu_transform_(OperatorBase::template GetSingleArgument<int>(
@@ -213,13 +215,21 @@ void TransformImage(const cv::Mat& scaled_img, const int channels,
                     float *image_data,
                     const int crop, const bool mirror, const float mean,
                     const float std, std::mt19937 *randgen,
-                    std::bernoulli_distribution *mirror_this_image) {
+                    std::bernoulli_distribution *mirror_this_image,
+                    bool is_test = false) {
   // find the cropped region, and copy it to the destination matrix with
   // mean subtraction and scaling.
-  int width_offset =
+  int width_offset, height_offset;
+  if (is_test) {
+    width_offset = (scaled_img.cols - crop) / 2;
+    height_offset = (scaled_img.rows - crop) / 2;
+  } else {
+    width_offset =
       std::uniform_int_distribution<>(0, scaled_img.cols - crop)(*randgen);
-  int height_offset =
+    height_offset =
       std::uniform_int_distribution<>(0, scaled_img.rows - crop)(*randgen);
+  }
+
   if (mirror && (*mirror_this_image)(*randgen)) {
     // Copy mirrored image.
     for (int h = height_offset; h < height_offset + crop; ++h) {
@@ -251,14 +261,22 @@ template <class Context>
 void CropTransposeImage(const cv::Mat& scaled_img, const int channels,
                         uint8_t *cropped_data, const int crop, const bool mirror,
                         std::mt19937 *randgen,
-                        std::bernoulli_distribution *mirror_this_image) {
+                        std::bernoulli_distribution *mirror_this_image,
+                        bool is_test = false) {
 
   // find the cropped region, and copy it to the destination matrix with
   // mean subtraction and scaling.
-  int width_offset =
+  int width_offset, height_offset;
+  if (is_test) {
+    width_offset = (scaled_img.cols - crop) / 2;
+    height_offset = (scaled_img.rows - crop) / 2;
+  } else {
+    width_offset =
       std::uniform_int_distribution<>(0, scaled_img.cols - crop)(*randgen);
-  int height_offset =
+    height_offset =
       std::uniform_int_distribution<>(0, scaled_img.rows - crop)(*randgen);
+  }
+
   if (mirror && (*mirror_this_image)(*randgen)) {
     // Copy mirrored image.
     for (int h = height_offset; h < height_offset + crop; ++h) {
@@ -315,7 +333,7 @@ void ImageInputOp<Context>::DecodeAndTransform(
 
   // Factor out the image transformation
   TransformImage<Context>(scaled_img, channels, image_data, crop_, mirror_,
-                          mean_, std_, randgen, mirror_this_image);
+                          mean_, std_, randgen, mirror_this_image, is_test_);
 }
 
 template <class Context>
@@ -350,7 +368,7 @@ void ImageInputOp<Context>::DecodeAndTransposeOnly(
 
   // Factor out the image transformation
   CropTransposeImage<Context>(scaled_img, channels, image_data, crop_, mirror_,
-                              randgen, mirror_this_image);
+                              randgen, mirror_this_image, is_test_);
 }
 
 
@@ -371,7 +389,9 @@ bool ImageInputOp<Context>::Prefetch() {
     prefetched_image_.mutable_data<float>();
   }
   prefetched_label_.mutable_data<int>();
-  // Prefetching handled with a thread pool of "decode_threads" threads.
+  // TODO(jiayq): Handle this prefetching with a real thread pool. Currently,
+  // with 4 threads we should be able to get a decent speed for AlexNet type
+  // training already.
   std::mt19937 meta_randgen(time(nullptr));
   std::vector<std::mt19937> randgen_per_thread;
   for (int i = 0; i < 4; ++i) {
@@ -434,7 +454,7 @@ bool ImageInputOp<Context>::CopyPrefetched() {
     label_output->CopyFrom(prefetched_label_, &context_);
   } else {
     if (gpu_transform_) {
-      TransformOnGPU<uint8_t,float,Context>(prefetched_image_on_device_, image_output, std_, mean_, &context_);
+      TransformOnGPU<uint8_t,float,Context>(prefetched_image_on_device_, image_output, mean_, std_, &context_);
     } else {
       image_output->CopyFrom(prefetched_image_on_device_, &context_);
     }
