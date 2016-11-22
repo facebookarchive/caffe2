@@ -195,9 +195,15 @@ bool CudnnConvOp<T>::RunOnDevice() {
         pad_r_,
         "The current padding scheme leads to unequal padding on the left "
         "and right, which is not supported by cudnn.");
+#if CUDNN_VERSION_MIN(6,0,0)
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(
+          conv_desc_, pad_t_, pad_l_, stride_h_, stride_w_, 1, 1,
+          CUDNN_CROSS_CORRELATION, cudnnTypeWrapper<T>::type));
+#else
     CUDNN_CHECK(cudnnSetConvolution2dDescriptor(
           conv_desc_, pad_t_, pad_l_, stride_h_, stride_w_, 1, 1,
           CUDNN_CROSS_CORRELATION));
+#endif
     if (deterministic_) {
       algo_ = CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM;
     } else if (exhaustive_search_) {
@@ -355,9 +361,15 @@ bool CudnnConvGradientOp<T>::RunOnDevice() {
         pad_r_,
         "The current padding scheme leads to unequal padding on the left "
         "and right, which is not supported by cudnn.");
+#if CUDNN_VERSION_MIN(6,0,0)
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(
+          conv_desc_, pad_t_, pad_l_, stride_h_, stride_w_, 1, 1,
+          CUDNN_CROSS_CORRELATION, cudnnTypeWrapper<T>::type));
+#else
     CUDNN_CHECK(cudnnSetConvolution2dDescriptor(
           conv_desc_, pad_t_, pad_l_, stride_h_, stride_w_, 1, 1,
           CUDNN_CROSS_CORRELATION));
+#endif
     // Set the workspace
 
     size_t bwd_filter_ws_size, bwd_data_ws_size;
