@@ -28,8 +28,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN OPENMPI_VERSION=1.10.3 && \
     wget -q -O - https://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-${OPENMPI_VERSION}.tar.gz | tar -xzf - && \
     cd openmpi-${OPENMPI_VERSION} && \
-    ./configure --with-cuda --prefix=/usr --disable-getpwuid && \
-    make -j"$(nproc)" install && \
+    ./configure --with-cuda --prefix=/usr --disable-getpwuid 2>&1 >/dev/null && \
+    make -j"$(nproc)" install 2>&1 >/dev/null && \
     rm -rf /openmpi-${OPENMPI_VERSION}
 
 # pip self upgrade
