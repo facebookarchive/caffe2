@@ -4,7 +4,7 @@
 namespace caffe2 {
 
 OPERATOR_SCHEMA(CreateCommonWorld)
-    .NumInputs(1)
+    .NumInputs(0,1)
     .NumOutputs(1)
     .SetDoc(R"DOC(
 Creates a common world for communication operators.
