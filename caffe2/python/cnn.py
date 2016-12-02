@@ -47,7 +47,7 @@ class CNNModelHelper(ModelHelperBase):
         """Convolution. We intentionally do not provide odd kernel/stride/pad
         settings in order to discourage the use of odd cases.
         """
-        use_bias = False if ("no_bias" in kwargs) else True
+        use_bias = False if ("no_bias" in kwargs and kwargs["no_bias"]) else True
         weight_init = weight_init if weight_init else ('XavierFill', {})
         bias_init = bias_init if bias_init else ('ConstantFill', {})
         blob_out = blob_out or self.net.NextName()
