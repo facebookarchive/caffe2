@@ -374,7 +374,7 @@ bool ImageInputOp<Context>::Prefetch() {
   // Prefetching handled with a thread pool of "decode_threads" threads.
   std::mt19937 meta_randgen(time(nullptr));
   std::vector<std::mt19937> randgen_per_thread;
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < num_decode_threads_; ++i) {
     randgen_per_thread.emplace_back(meta_randgen());
   }
 
