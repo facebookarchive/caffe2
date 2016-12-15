@@ -431,7 +431,7 @@ input_mode) are passed directly through to CuDNN.
 
 )DOC");
 REGISTER_CUDNN_OPERATOR(RecurrentGradient, RecurrentGradientOp<float>);
-OPERATOR_SCHEMA(RecurrentGradient).NumInputs(9).NumOutputs(6).AllowInplace({{4,5}});
+OPERATOR_SCHEMA(RecurrentGradient).NumInputs(9).NumOutputs(5);
 REGISTER_CUDNN_OPERATOR(RecurrentInit, RecurrentInitOp<float>);
 OPERATOR_SCHEMA(RecurrentInit).NumInputs(1).NumOutputs(2);
 
