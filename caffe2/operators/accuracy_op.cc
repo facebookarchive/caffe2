@@ -32,7 +32,14 @@ bool AccuracyOp<float, CPUContext>::RunOnDevice() {
         Xdata_pairs.begin(),
         Xdata_pairs.begin() + top_k,
         Xdata_pairs.end(),
-        std::greater<std::pair<float, int> >());
+        [](std::pair<float, int> lhs, std::pair<float, int> rhs) {
+            if(lhs.first == rhs.first) {
+                return lhs.second < rhs.second;
+            }   
+            else {
+                return lhs.first > rhs.first;
+            }   
+        });
     // Increment accuracy if any of the top k predictions 
     // are equal to the expected label.
     for (int k = 0; k < top_k; k++) { 
