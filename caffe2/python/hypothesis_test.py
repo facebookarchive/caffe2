@@ -80,7 +80,8 @@ _NUMPY_TYPE_TO_ENUM = {
 }
 
 
-def _dtypes(dtypes=[np.int32, np.int64, np.float32, np.float64]):
+def _dtypes(dtypes=None):
+    dtypes = dtypes if dtypes else [np.int32, np.int64, np.float32]
     return st.sampled_from(dtypes)
 
 
@@ -150,6 +151,23 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertDeviceChecks(dc, op, [X1, X2], [0])
         self.assertGradientChecks(gc, op, [X1, X2], 0, [0])
 
+    @given(inputs=hu.tensors(n=2, min_dim=2, max_dim=2), **hu.gcs)
+    def test_row_mul(self, inputs, gc, dc):
+        op = core.CreateOperator("RowMul", ["X1", "X2"], ["Y"])
+        X1, Xtmp = inputs
+        X2 = Xtmp[:, 0]
+
+        def ref(x, y):
+            ret = np.zeros(shape=x.shape, dtype=x.dtype)
+            for i in range(y.size):
+                ret[i, ] = x[i, ] * y[i]
+            return [ret]
+
+        self.assertDeviceChecks(dc, op, [X1, X2], [0])
+        for i in range(2):
+            self.assertGradientChecks(gc, op, [X1, X2], i, [0])
+        self.assertReferenceChecks(gc, op, [X1, X2], ref)
+
     @given(inputs=hu.tensors(n=2), **hu.gcs)
     def test_max(self, inputs, gc, dc):
         op = core.CreateOperator("Max", ["X1", "X2"], ["Y"])
@@ -217,15 +235,6 @@ class TestOperators(hu.HypothesisTestCase):
     @given(X=hu.tensor(), **hu.gcs)
     def test_tanh(self, X, gc, dc):
         op = core.CreateOperator("Tanh", "X", "Y")
-        self.assertDeviceChecks(dc, op, [X], [0])
-        self.assertGradientChecks(gc, op, [X], 0, [0])
-
-    @given(X=hu.tensor(), **hu.gcs)
-    def test_relu(self, X, gc, dc):
-        op = core.CreateOperator("Relu", ["X"], ["Y"])
-        # go away from the origin point to avoid kink problems
-        X += 0.02 * np.sign(X)
-        X[X == 0.0] += 0.02
         self.assertDeviceChecks(dc, op, [X], [0])
         self.assertGradientChecks(gc, op, [X], 0, [0])
 
@@ -410,6 +419,29 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertDeviceChecks(dc, op, inputs, [0])
         for i in range(num_inputs):
             self.assertGradientChecks(gc, op, inputs, i, [0])
+
+    @given(X=hu.arrays(dims=[5, 2],
+                       elements=st.floats(min_value=0.0, max_value=10.0)),
+           **hu.gcs_cpu_only)
+    def test_last_n_windows(self, X, gc, dc):
+        workspace.FeedBlob('input', X)
+        collect_net = core.Net('collect_net')
+        collect_net.LastNWindowCollector(
+            ['input'],
+            ['output'],
+            num_to_collect=7,
+        )
+        plan = core.Plan('collect_data')
+        plan.AddStep(core.execution_step('collect_data',
+                                         [collect_net], num_iter=2))
+        workspace.RunPlan(plan)
+        output = workspace.FetchBlob('output')
+        inputs = workspace.FetchBlob('input')
+        new_output = np.zeros([7, inputs.shape[1]])
+        for i in range(inputs.shape[0] * 2):
+            new_output[i % 7] = inputs[i % inputs.shape[0]]
+        import numpy.testing as npt
+        npt.assert_almost_equal(output, new_output, decimal=5)
 
     @given(batch_size=st.integers(1, 3),
            stride=st.integers(1, 3),
