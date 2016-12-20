@@ -1,0 +1,93 @@
+FROM nvdl.githost.io:4678/dgx/cuda:8.0-cudnn6-devel-ubuntu14.04
+MAINTAINER NVIDIA CORPORATION <cudatools@nvidia.com>
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  build-essential \
+  wget \
+  git \
+  libeigen3-dev \
+  libgoogle-glog-dev \
+  libleveldb-dev \
+  liblmdb-dev \
+  libopencv-dev \
+  libprotobuf-dev \
+  libsnappy-dev \
+  zlib1g-dev \
+  libbz2-dev \
+  protobuf-compiler \
+  python-dev \
+  python-pip \
+  autoconf \
+  automake \
+  libtool \
+  graphviz \
+  libatlas-base-dev
+
+# Caffe2 works best with openmpi 1.8.5 or above (which has cuda support).
+# If you do not need openmpi, skip this step.
+RUN OPENMPI_VERSION=1.10.3 && \
+    wget -q -O - https://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-${OPENMPI_VERSION}.tar.gz | tar -xzf - && \
+    cd openmpi-${OPENMPI_VERSION} && \
+    ./configure --with-cuda --prefix=/usr --disable-getpwuid 2>&1 >/dev/null && \
+    make -j"$(nproc)" install 2>&1 >/dev/null && \
+    rm -rf /openmpi-${OPENMPI_VERSION}
+
+# pip self upgrade
+RUN pip install --upgrade pip
+
+# Python dependencies
+RUN pip install \
+  matplotlib \
+  hypothesis \
+  numpy \
+  protobuf
+
+################################################################################
+# Step 3: install optional dependencies ("good to have" features)
+################################################################################
+
+# scikit-image has to be after scipy.
+RUN pip install \
+      flask \
+      ipython \
+      notebook \
+      pydot \
+      python-nvd3 \
+      scipy \
+      tornado && \
+    pip install \
+      scikit-image
+
+################################################################################
+# Step 4: set up caffe2
+################################################################################
+
+WORKDIR /workspace
+COPY . .
+
+# Get the repository, and build.
+RUN make -j"$(nproc)"
+
+RUN chmod -R a+w /workspace
+
+################################################################################
+# Show installed packages
+################################################################################
+
+RUN echo "------------------------------------------------------" && \
+    echo "-- INSTALLED PACKAGES --------------------------------" && \
+    echo "------------------------------------------------------" && \
+    echo "[[dpkg -l]]" && \
+    dpkg -l && \
+    echo "" && \
+    echo "[[pip list]]" && \
+    pip list && \
+    echo "" && \
+    echo "------------------------------------------------------" && \
+    echo "-- FILE SIZE, DATE, HASH -----------------------------" && \
+    echo "------------------------------------------------------" && \
+    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs ls -al]]" && \
+    (find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs ls -al || true) && \
+    echo "" && \
+    echo "[[find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs md5sum]]" && \
+    (find /usr/bin /usr/sbin /usr/lib /usr/local /workspace -type f | xargs md5sum || true)
