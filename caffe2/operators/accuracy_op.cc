@@ -15,7 +15,8 @@ bool AccuracyOp<float, CPUContext>::RunOnDevice() {
   Y->Resize(vector<TIndex>());
   const auto* Xdata = X.data<float>();
   const auto* labelData = label.data<int>();
-  const int top_k = top_k_;
+  CAFFE_ENFORCE(top_k_ <= D, "top_k must not be larger than number of classes.");
+  
   int correct = 0;
   for (int i = 0; i < N; ++i) {
     // Make a vector of pairs(prediction, index) so that 
@@ -30,7 +31,7 @@ bool AccuracyOp<float, CPUContext>::RunOnDevice() {
     // at the beginning of vector.
     std::partial_sort(
         Xdata_pairs.begin(),
-        Xdata_pairs.begin() + top_k,
+        Xdata_pairs.begin() + top_k_,
         Xdata_pairs.end(),
         [](std::pair<float, int> lhs, std::pair<float, int> rhs) {
             if(lhs.first == rhs.first) {
@@ -42,7 +43,7 @@ bool AccuracyOp<float, CPUContext>::RunOnDevice() {
         });
     // Increment accuracy if any of the top k predictions 
     // are equal to the expected label.
-    for (int k = 0; k < top_k; k++) { 
+    for (int k = 0; k < top_k_; k++) { 
       if (Xdata_pairs[k].second == labelData[i]) {                                               
         ++correct;
         break;
