@@ -4,6 +4,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from caffe2.python import core, scope
+from caffe2.proto import caffe2_pb2
 import numpy as np
 
 import logging
@@ -267,6 +268,22 @@ class ModelHelperBase(object):
         assert len(self._devices) > 0, \
             "Use data_parallel_model to run model on multiple GPUs."
         return self._devices
+
+    def Accuracy(self, blob_in, blob_out, **kwargs):
+        dev = kwargs['device_option'] if 'device_option' in kwargs else scope.CurrentDeviceScope()
+
+        blobs_in_dev = []
+        # if device_option is CPU (or None, so assumed to be CPU), nothing needs to be done
+        if dev == None or dev.device_type == caffe2_pb2.CPU:
+            blobs_in_dev = blob_in
+        else:
+            # Otherwise insert copy operators
+            pred_host = self.net.CopyGPUToCPU(blob_in[0], blob_in[0]+"_host")
+            label_host = self.net.CopyGPUToCPU(blob_in[1], blob_in[1]+"_host")
+            blobs_in_dev = [pred_host, label_host]
+
+        # Now use the Host version of the accuracy op
+        self.net.Accuracy(blobs_in_dev, blob_out, device_option=core.DeviceOption(caffe2_pb2.CPU, 0), **kwargs)
 
     def __getattr__(self, op_type):
         """Catch-all for all other operators, mostly those without params."""
