@@ -105,6 +105,20 @@ if(USE_LEVELDB)
   endif()
 endif()
 
+# ---[ Rocksdb
+if(USE_ROCKSDB)
+  find_package(RocksDB)
+  if (ROCKSDB_FOUND)
+    include_directories(SYSTEM ${RocksDB_INCLUDE_DIR})
+    list(APPEND Caffe2_DEPENDENCY_LIBS ${RocksDB_LIBRARIES})
+  else()
+    message(WARNING "Not compiling with RocksDB. Suppress this warning with -DUSE_ROCKSDB=OFF")
+    set(USE_ROCKSDB OFF)
+  endif()
+endif()
+
+
+
 # ---[ Redis
 if(USE_REDIS)
   find_package(Hiredis)
