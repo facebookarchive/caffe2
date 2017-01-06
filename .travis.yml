@@ -34,16 +34,6 @@ matrix:
         packages:
         - g++-5
     env: COMPILER=g++-5
-  - os: linux
-    distro: xenial
-    compiler: gcc
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        packages:
-        - g++-5
-    env: COMPILER=g++-5
   - os: osx
     compiler: clang
     env: COMPILER=clang++
