@@ -6,6 +6,9 @@ matrix:
   include:
   - os: linux
     compiler: gcc
+    env: COMPILER=g++
+  - os: linux
+    compiler: gcc
     addons:
       apt:
         sources:
@@ -23,6 +26,16 @@ matrix:
         - g++-4.9
     env: COMPILER=g++-4.9
   - os: linux
+    compiler: gcc
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-5
+    env: COMPILER=g++-5
+  - os: linux
+    distro: xenial
     compiler: gcc
     addons:
       apt:
