@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <stdlib.h>
 
+#include <array>
 #include <chrono>
 #include <thread>
 
