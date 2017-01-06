@@ -105,6 +105,19 @@ if(USE_LEVELDB)
   endif()
 endif()
 
+# ---[ Redis
+if(USE_REDIS)
+  find_package(Hiredis)
+  if(HIREDIS_FOUND)
+    include_directories(SYSTEM ${Hiredis_INCLUDE})
+    list(APPEND Caffe2_DEPENDENCY_LIBS ${Hiredis_LIBRARIES})
+  else()
+    message(WARNING "Not compiling with Redis. Suppress this warning with -DUSE_REDIS=OFF")
+    set(USE_REDIS OFF)
+  endif()
+endif()
+
+
 # ---[ OpenCV
 if(USE_OPENCV)
   # OpenCV 3

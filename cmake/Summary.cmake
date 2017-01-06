@@ -66,5 +66,6 @@ function (Caffe2_print_configuration_summary)
   message(STATUS "  USE_ROCKSDB           : ${USE_ROCKSDB}")
   message(STATUS "  USE_MPI               : ${USE_MPI}")
   message(STATUS "  USE_OPENMP            : ${USE_OPENMP}")
+  message(STATUS "  USE_REDIS             : ${USE_REDIS}")
 
 endfunction()

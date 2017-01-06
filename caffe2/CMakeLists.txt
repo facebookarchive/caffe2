@@ -20,7 +20,7 @@ add_subdirectory(contrib)
 add_subdirectory(core)
 add_subdirectory(cuda_rtc)
 add_subdirectory(db)
-# add_subdirectory(distributed)
+add_subdirectory(distributed)
 # add_subdirectory(experiments) # note, we may remove this folder at some point
 add_subdirectory(image)
 add_subdirectory(mkl)
