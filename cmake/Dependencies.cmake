@@ -117,7 +117,17 @@ if(USE_ROCKSDB)
   endif()
 endif()
 
-
+# ---[ ZMQ
+if(USE_ZMQ)
+  find_package(ZMQ)
+  if (ZMQ_FOUND)
+    include_directories(SYSTEM ${ZMQ_INCLUDE_DIR})
+    list(APPEND Caffe2_DEPENDENCY_LIBS ${ZMQ_LIBRARIES})
+  else()
+    message(WARNING "Not compiling with ZMQ. Suppress this warning with -DUSE_ZMQ=OFF")
+    set(USE_ZMQ OFF)
+  endif()
+endif()
 
 # ---[ Redis
 if(USE_REDIS)

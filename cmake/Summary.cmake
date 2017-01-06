@@ -62,7 +62,7 @@ function (Caffe2_print_configuration_summary)
   message(STATUS "    OpenCV version      : ${OpenCV_VERSION}")
   endif()
 
-  message(STATUS "  USE_ZMQDB             : ${USE_ZMQDB}")
+  message(STATUS "  USE_ZMQ               : ${USE_ZMQ}")
   message(STATUS "  USE_ROCKSDB           : ${USE_ROCKSDB}")
   message(STATUS "  USE_MPI               : ${USE_MPI}")
   message(STATUS "  USE_OPENMP            : ${USE_OPENMP}")
