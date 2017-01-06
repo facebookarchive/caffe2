@@ -73,6 +73,43 @@ inline const char* cudnnGetErrorString(cudnnStatus_t status) {
         ::caffe2::internal::cudnnGetErrorString(status)); \
   } while (0)
 
+// report the version of cuDNN Caffe2 was compiled with
+inline size_t cudnnCompiledVersion() {
+  return CUDNN_VERSION;
+}
+// report the runtime version of cuDNN
+inline size_t cudnnRuntimeVersion() {
+  return cudnnGetVersion();
+}
+
+// Extract cuDNN versions
+inline size_t cudnnExtractMajorVersion(size_t v) {
+  return v / 1000;
+}
+inline size_t cudnnExtractMinorVersion(size_t v) {
+  return (v % 1000) / 100;
+}
+inline size_t cudnnExtractPatchVersion(size_t v) {
+  return v % 100;
+}
+
+// Check compatibility of compiled and runtime cuDNN versions
+inline void CheckCuDNNVersions() {
+  // Version format is major*1000 + minor*100 + patch
+  // Major and minor versions must match
+  auto compiled_version = cudnnCompiledVersion();
+  auto runtime_version = cudnnRuntimeVersion();
+  auto compiled_major = cudnnExtractMajorVersion(compiled_version);
+  auto compiled_minor = cudnnExtractMinorVersion(compiled_version);
+  auto runtime_major = cudnnExtractMajorVersion(runtime_version);
+  auto runtime_minor = cudnnExtractMinorVersion(runtime_version);
+
+  bool version_match = (compiled_major == runtime_major) && (compiled_minor == runtime_minor);
+  CAFFE_ENFORCE(version_match,
+                "cuDNN compiled (", cudnnCompiledVersion(), ") and"
+                "runtime (", cudnnRuntimeVersion(), ") versions mismatch");
+}
+
 /**
  * cudnnTypeWrapper is a wrapper class that allows us to refer to the cudnn type
  * in a template function. The class is specialized explicitly for different
