@@ -82,29 +82,11 @@ inline size_t cudnnRuntimeVersion() {
   return cudnnGetVersion();
 }
 
-// Extract cuDNN versions
-inline size_t cudnnExtractMajorVersion(size_t v) {
-  return v / 1000;
-}
-inline size_t cudnnExtractMinorVersion(size_t v) {
-  return (v % 1000) / 100;
-}
-inline size_t cudnnExtractPatchVersion(size_t v) {
-  return v % 100;
-}
-
 // Check compatibility of compiled and runtime cuDNN versions
 inline void CheckCuDNNVersions() {
   // Version format is major*1000 + minor*100 + patch
-  // Major and minor versions must match
-  auto compiled_version = cudnnCompiledVersion();
-  auto runtime_version = cudnnRuntimeVersion();
-  auto compiled_major = cudnnExtractMajorVersion(compiled_version);
-  auto compiled_minor = cudnnExtractMinorVersion(compiled_version);
-  auto runtime_major = cudnnExtractMajorVersion(runtime_version);
-  auto runtime_minor = cudnnExtractMinorVersion(runtime_version);
-
-  bool version_match = (compiled_major == runtime_major) && (compiled_minor == runtime_minor);
+  // Major, minor and patch versions must all match
+  bool version_match = cudnnCompiledVersion() == cudnnRuntimeVersion();
   CAFFE_ENFORCE(version_match,
                 "cuDNN compiled (", cudnnCompiledVersion(), ") and"
                 "runtime (", cudnnRuntimeVersion(), ") versions mismatch");
