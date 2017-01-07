@@ -60,17 +60,9 @@ include(cmake/Dependencies.cmake)
 include(cmake/MiscCheck.cmake)
 
 # ---[ Set link flag, handle additional deps for gcc 5.x
-if(BUILD_SHARED_LIBS)
-    if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0.0)
-      message(STATUS "GCC ${CMAKE_CXX_COMPILER_VERSION}: Adding gcc and gcc_s libs to link line")
-      list(APPEND Caffe2_DEPENDENCY_LIBS gcc_s gcc)
-    endif()
-else()
-    if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0)
-        list(APPEND Caffe2_DEPENDENCY_LIBS -Wl,--whole-archive gcc_s gcc)
-    else()
-        list(APPEND Caffe2_DEPENDENCY_LIBS -Wl,--whole-archive)
-    endif()
+if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0.0)
+  message(STATUS "GCC ${CMAKE_CXX_COMPILER_VERSION}: Adding gcc and gcc_s libs to link line")
+  list(APPEND Caffe2_DEPENDENCY_LIBS gcc_s gcc)
 endif()
 
 # ---[ Set output directories
