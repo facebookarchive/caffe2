@@ -60,17 +60,29 @@ endforeach()
 
 # Compile exposed libraries.
 add_library(Caffe2_CPU ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
-target_link_libraries(Caffe2_CPU ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS})
+target_link_libraries(Caffe2_CPU ${Caffe2_DEPENDENCY_LIBS})
 install(TARGETS Caffe2_CPU DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-list(APPEND Caffe2_MAIN_LIBS Caffe2_CPU)
+if (BUILD_SHARED_LIBS)
+  list(APPEND Caffe2_MAIN_LIBS Caffe2_CPU)
+else()
+  caffe_add_whole_archive_flag(Caffe2_CPU tmp)
+  list(APPEND Caffe2_MAIN_LIBS ${tmp})
+endif()
+
 
 # ---[ CUDA library.
 if(USE_CUDA)
   CUDA_ADD_LIBRARY(Caffe2_GPU ${Caffe2_GPU_SRCS})
-  target_link_libraries(Caffe2_GPU ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS})
+  if (BUILD_SHARED_LIBS)
+    target_link_libraries(Caffe2_GPU Caffe2_CPU ${Caffe2_DEPENDENCY_LIBS})
+    list(APPEND Caffe2_MAIN_LIBS Caffe2_GPU)
+  else()
+    target_link_libraries(Caffe2_GPU ${Caffe2_DEPENDENCY_LIBS})
+    caffe_add_whole_archive_flag(Caffe2_GPU tmp)
+    list(APPEND Caffe2_MAIN_LIBS ${tmp})
+  endif()
   install(TARGETS Caffe2_GPU DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
   link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-  list(APPEND Caffe2_MAIN_LIBS Caffe2_GPU)
 endif()
 
 # ---[ Test binaries.
