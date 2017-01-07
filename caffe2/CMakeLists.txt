@@ -11,6 +11,8 @@ set(Caffe2_GPU_SRCS)
 set(Caffe2_CPU_TEST_SRCS)
 set(Caffe2_GPU_TEST_SRCS)
 
+include_directories(BEFORE ${CMAKE_BINARY_DIR})
+
 # ---[ Add respective subdirectories
 # Note: the folders that are being commented out have not been properly
 # addressed yet.
@@ -26,7 +28,7 @@ add_subdirectory(image)
 add_subdirectory(mkl)
 add_subdirectory(mpi)
 add_subdirectory(operators)
-# add_subdirectory(proto) # note, proto is processed above already.
+add_subdirectory(proto) # note, proto is processed above already.
 add_subdirectory(python)
 add_subdirectory(queue)
 add_subdirectory(sgd)
@@ -55,16 +57,9 @@ message(STATUS "  " ${tmp})
 endforeach()
 
 # ---[ List of libraries to link with
-# The old Caffe proto
-list(APPEND Caffe2_MAIN_LIBS Caffe_PROTO)
-
-# The Caffe2 proto
-add_subdirectory(proto)
-include_directories(BEFORE ${CMAKE_BINARY_DIR})
-list(APPEND Caffe2_MAIN_LIBS Caffe2_PROTO)
 
 # Compile exposed libraries.
-add_library(Caffe2_CPU ${Caffe2_CPU_SRCS})
+add_library(Caffe2_CPU ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
 target_link_libraries(Caffe2_CPU ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS})
 install(TARGETS Caffe2_CPU DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 list(APPEND Caffe2_MAIN_LIBS Caffe2_CPU)
