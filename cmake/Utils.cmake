@@ -383,7 +383,7 @@ endfunction()
 
 function(caffe_add_whole_archive_flag lib output_var)
   if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(${output_var} -Wl,-force_load,lib${lib}.a PARENT_SCOPE)
+      set(${output_var} -Wl,-force_load,$<TARGET_FILE:${lib}> PARENT_SCOPE)
   else()
     # Assume everything else is like gcc
     set(${output_var} -Wl,--whole-archive ${lib} -Wl,--no-whole-archive PARENT_SCOPE)

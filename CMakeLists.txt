@@ -72,6 +72,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "binaries")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
 
+# ---[ Include path needed for proto
+include_directories(BEFORE ${CMAKE_BINARY_DIR})
+
 # ---[ Third party builds.
 include_directories(${CMAKE_SOURCE_DIR})
 
