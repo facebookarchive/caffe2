@@ -34,26 +34,29 @@ add_subdirectory(sgd)
 # add_subdirectory(test) # todo: use caffe2_gtest_main instead of gtest_main because we will need to call GlobalInit
 add_subdirectory(utils)
 
-# Debug messages - after cmake is fully tested we should remove these prints.
-message(STATUS "CPU sources: ")
-foreach(tmp ${Caffe2_CPU_SRCS})
-message(STATUS "  " ${tmp})
-endforeach()
+# Debug messages - if you want to get a list of source files, enable the
+# following.
+if (FALSE)
+  message(STATUS "CPU sources: ")
+  foreach(tmp ${Caffe2_CPU_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
 
-message(STATUS "GPU sources: ")
-foreach(tmp ${Caffe2_GPU_SRCS})
-message(STATUS "  " ${tmp})
-endforeach()
+  message(STATUS "GPU sources: ")
+  foreach(tmp ${Caffe2_GPU_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
 
-message(STATUS "CPU test sources: ")
-foreach(tmp ${Caffe2_CPU_TEST_SRCS})
-message(STATUS "  " ${tmp})
-endforeach()
+  message(STATUS "CPU test sources: ")
+  foreach(tmp ${Caffe2_CPU_TEST_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
 
-message(STATUS "GPU test sources: ")
-foreach(tmp ${Caffe2_GPU_TEST_SRCS})
-message(STATUS "  " ${tmp})
-endforeach()
+  message(STATUS "GPU test sources: ")
+  foreach(tmp ${Caffe2_GPU_TEST_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
+endif()
 
 # ---[ List of libraries to link with
 
