@@ -27,6 +27,8 @@ endfunction(prepend)
 # ---[ CMake scripts + modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
+enable_testing()
+
 # External projects
 include(ExternalProject)
 
