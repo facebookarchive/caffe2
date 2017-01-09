@@ -8,6 +8,9 @@ matrix:
     - os: linux
       compiler: gcc
       env: COMPILER=g++
+    - os: osx
+      compiler: clang
+      env: COMPILER=clang++
     - os: linux
       compiler: gcc
       addons:
@@ -35,9 +38,6 @@ matrix:
           packages:
           - g++-5
       env: COMPILER=g++-5
-    - os: osx
-      compiler: clang
-      env: COMPILER=clang++
   allow_failures:
     - env: COMPILER=g++-5
     - env: COMPILER=g++-4.9
