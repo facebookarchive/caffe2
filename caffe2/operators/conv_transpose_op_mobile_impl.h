@@ -37,7 +37,7 @@ void runTileContiguous(int tileId,
   auto currentTileStart = tileSize * tileId;
 
   // gemm tile
-  math::Gemm<T, Context>(
+  math::GemmEx<T, Context>(
     CblasTrans,
     CblasNoTrans,
     kernelDataSize,
@@ -47,10 +47,8 @@ void runTileContiguous(int tileId,
     filterData,
     kernelDataSize,
     Xdata + currentTileStart,
-    // TODO(jiayq): when the gemm change is landed, change this order to
-    // the proper one.
-    0, // beta
-    H * W, // ldb
+    H * W,
+    0,
     colBufferData,
     tileSize,
     context);
