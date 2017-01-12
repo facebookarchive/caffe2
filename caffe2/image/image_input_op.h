@@ -380,7 +380,6 @@ bool ImageInputOp<Context>::Prefetch() {
 
   for (int item_id = 0; item_id < batch_size_; ++item_id) {
     std::bernoulli_distribution mirror_this_image(0.5);
-    std::mt19937& randgen = randgen_per_thread[num_decode_threads_];
     std::string key, value;
     cv::Mat img;
     int label;
@@ -434,7 +433,7 @@ bool ImageInputOp<Context>::CopyPrefetched() {
     label_output->CopyFrom(prefetched_label_, &context_);
   } else {
     if (gpu_transform_) {
-      TransformOnGPU<uint8_t,float,Context>(prefetched_image_on_device_, image_output, mean_, std_, &context_);
+      TransformOnGPU<uint8_t,float,Context>(prefetched_image_on_device_, image_output, std_, mean_, &context_);
     } else {
       image_output->CopyFrom(prefetched_image_on_device_, &context_);
     }
