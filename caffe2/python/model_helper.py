@@ -60,7 +60,7 @@ class ModelHelperBase(object):
     """
 
     def __init__(self, name=None, init_params=True, allow_not_known_ops=True,
-                 skip_sparse_optim=False, param_model=None):
+                skip_sparse_optim=False, param_model=None):
         self.name = name or "model"
         self.net = core.Net(self.name)
 
@@ -81,6 +81,8 @@ class ModelHelperBase(object):
         self.init_params = init_params
         self.allow_not_known_ops = allow_not_known_ops
         self.skip_sparse_optim = skip_sparse_optim
+        # parameter groups, map from name -> [params]
+        self.param_group = {}
 
     def get_name(self):
         return self.name
@@ -122,6 +124,11 @@ class ModelHelperBase(object):
             length=length,
         ))
         return self._param_info[-1]
+
+    def add_param_to_group(self, param, group):
+        if not group in self.param_group:
+            self.param_group[group] = []
+        self.param_group[group].append(param)
 
     def param_info(self, grad_type=None, id=None):
         self._update_param_info()
@@ -247,6 +254,9 @@ class ModelHelperBase(object):
             db=db, db_type=db_type)
         return self.net.TensorProtosDBInput(
             dbreader, blob_out, batch_size=batch_size)
+
+    def Coalesce(self, blob_in, blob_out, **kwargs):
+        return self.net.UnsafeCoalesce(blob_in, blob_out, **kwargs)
 
     def AddOperator(self, op_type, inputs, parameters, *args, **kwargs):
         """

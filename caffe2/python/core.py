@@ -26,6 +26,7 @@ if (sys.platform == 'darwin' and 'leveldb' in C.registered_dbs()):
 # Convenience redirections to functions inside scope.
 DeviceScope = scope.DeviceScope
 NameScope = scope.NameScope
+ParamGroupScope = scope.ParamGroupScope
 
 
 # Bring datatype enums to the main namespace
