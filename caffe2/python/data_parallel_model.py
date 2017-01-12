@@ -23,7 +23,9 @@ def Parallelize_GPU(
     model_helper_obj,
     input_builder_fun,
     forward_pass_builder_fun,
-    param_update_builder_fun,
+    param_update_builder_fun=None,
+    single_param_update_builder_fun=None,
+    global_param_update_builder_fun=None,
     devices=range(0, workspace.NumCudaDevices()),
     rendezvous=None,
     net_type='dag',
@@ -48,8 +50,21 @@ def Parallelize_GPU(
       param_update_builder_fun:
                         Function that adds operators that are run after
                         gradient update, such as updating the weights and
-                        weight decaying.
-                        Signature: param_update_builder_fun(model)
+                        weight decaying. Function is also passed the learning
+                        rate scaling factor. You should multiple the learning
+                        rate by the factor to maintain invariant of same
+                        results with same total batch size, regardless of
+                        number of gpus.
+                        Signature: param_update_builder_fun(model, lr_scale)
+      single_param_update_builder_fun:
+                        Function that adds parameter update operators for a
+                        single parameter. Requires global_param_update_builder_fun
+                        to also be defined
+                        Signature: single_param_update_builder_fun(model, param)
+      global_param_update_builder_fun:
+                        Function that adds parameter update operators to be
+                        shared across all parameter updates (i.e. LR, weight decay)
+                        Signature: global_param_update_builder_fun(model, lr_scale)
       devices:          List of GPU ids, such as [0, 1, 2, 3],
       rendezvous:       used for rendezvous in distributed computation, if None
                         then only one node is used. To create rendezvous,
@@ -57,6 +72,7 @@ def Parallelize_GPU(
       net_type:         Network type
 
     '''
+
     log.info("Parallelizing model for devices: {}".format(devices))
     extra_workers = 8 if rendezvous is not None else 0  # best-guess
     model_helper_obj.net.Proto().num_workers = len(devices) * 4 + extra_workers
@@ -73,8 +89,12 @@ def Parallelize_GPU(
     # data parallel, so we need to handle them separately
     non_datapar_params = copy.copy(model_helper_obj.params)
 
+    have_update_fun = param_update_builder_fun is not None \
+            or (single_param_update_builder_fun is not None and global_param_update_builder_fun is not None)
+    assert have_update_fun, 'Must define a parameter update function'
     # Add input and model
     log.info("Create input and model training operators")
+
 
     losses_by_gpu = {}
     num_shards = 1 if rendezvous is None else rendezvous['num_shards']
@@ -88,7 +108,7 @@ def Parallelize_GPU(
                 input_builder_fun(model_helper_obj)
                 losses = forward_pass_builder_fun(model_helper_obj, loss_scale)
                 # Losses are not needed for test net
-                if param_update_builder_fun is not None:
+                if have_update_fun:
                     assert isinstance(losses, list), \
                         'Model builder function must return list of loss blobs'
                     for loss in losses:
@@ -110,7 +130,7 @@ def Parallelize_GPU(
         model_helper_obj._device_grouped_blobs.keys()
     model_helper_obj._computed_param_names = computed_params_grouped.keys()
 
-    if (param_update_builder_fun is None):
+    if not have_update_fun:
         log.info("Parameter update function not defined --> only forward")
         _InferBlobDevice(model_helper_obj)
         return
@@ -148,11 +168,21 @@ def Parallelize_GPU(
     if rendezvous is not None:
         assert num_shards > 1, \
             "Please use more than one shard for distributed training"
+    lr_scale = 1.0 / (len(devices) * num_shards)
+    if param_update_builder_fun is None:
+        log.info("running per-parameter update function")
+
     for device in devices:
         device_opt = core.DeviceOption(caffe2_pb2.CUDA, device)
+        print("device: {}".format(device))
         with core.DeviceScope(device_opt):
             with core.NameScope("gpu_{}".format(device)):
-                param_update_builder_fun(model_helper_obj)
+                if param_update_builder_fun is None:
+                    global_param_update_builder_fun(model_helper_obj)
+                    for param in model_helper_obj.GetParams():
+                        single_param_update_builder_fun(model_helper_obj, param)
+                else:
+                    param_update_builder_fun(model_helper_obj)
 
     _InferBlobDevice(model_helper_obj)
     _AnalyzeOperators(model_helper_obj)
@@ -565,6 +595,7 @@ def _AnalyzeOperators(model):
 
         namescope = "gpu_{}/".format(op_gpu)
         for inp in list(op.input) + list(op.output):
+            print('input {} has gpu {}'.format(inp, op_gpu))
             if inp.startswith("gpu_") and not inp.startswith(namescope):
                 raise Exception(
                     "Blob {} of op {}, should have namescope {}. Op: {}".format(
