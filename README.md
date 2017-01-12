@@ -17,7 +17,7 @@ Caffe2 is released under the [BSD 2-Clause license](https://github.com/Yangqing/
     
     brew install automake protobuf
     mkdir build && cd build
-    cmake ..
+    cmake .. -DUSE_LEVELDB=OFF
     make
 
 #### Ubuntu
