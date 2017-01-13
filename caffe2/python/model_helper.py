@@ -126,9 +126,34 @@ class ModelHelperBase(object):
         return self._param_info[-1]
 
     def add_param_to_group(self, param, group):
+        # A helper function to extract a parameter's name
+        def stripParamName(param):
+            # Format is "a/b/c/d" -> d
+            name = str(param)
+            sep = scope._NAMESCOPE_SEPARATOR
+            return name[name.rindex(sep) + 1:]
+
         if not group in self.param_group:
-            self.param_group[group] = []
-        self.param_group[group].append(param)
+            self.param_group[group] = set()
+
+        # need to add non-namespaced
+        self.param_group[group].add(param)
+
+    # Get parameters from a group in the existing namespace
+    def get_param_group(self, group_name, namescope=None):
+        '''
+        Returns params from a group in the current namescope
+        '''
+        if namescope is None:
+            namescope = scope.CurrentNameScope()
+        else:
+            if not namescope.endswith(scope._NAMESCOPE_SEPARATOR):
+                namescope += scope._NAMESCOPE_SEPARATOR
+
+        if namescope == '':
+            return list(self.param_group[group_name])
+        else:
+            return [p for p in self.param_group[group_name] if p.GetNameScope() == namescope]
 
     def param_info(self, grad_type=None, id=None):
         self._update_param_info()

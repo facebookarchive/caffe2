@@ -26,7 +26,8 @@ class FillerOp : public Operator<Context> {
         extra_shape_(ToVectorTIndex(
             OperatorBase::GetRepeatedArgument<int>("extra_shape"))),
         input_as_shape_(
-            OperatorBase::GetSingleArgument<bool>("input_as_shape", false)) {
+            OperatorBase::GetSingleArgument<bool>("input_as_shape", false)),
+        initialized_(false) {
     if (InputSize()) {
       if (shape_.size() != 0) {
         CAFFE_THROW(
@@ -71,7 +72,12 @@ class FillerOp : public Operator<Context> {
     } else {
       output->Resize(shape_);
     }
-    return Fill(output);
+    if (!initialized_) {
+      initialized_ = true;
+      return Fill(output);
+    } else {
+      return true;
+    }
   }
 
   virtual bool Fill(Tensor<Context>* output) = 0;
@@ -80,6 +86,7 @@ class FillerOp : public Operator<Context> {
   vector<TIndex> shape_;
   vector<TIndex> extra_shape_;
   bool input_as_shape_;
+  bool initialized_;
 };
 
 template <typename T, class Context>
