@@ -89,6 +89,7 @@ def Parallelize_GPU(
     net_type='dag',
     broadcast_computed_params=True,
     optimize_gradient_memory=False,
+    use_aggregated_parameters=True
 ):
     '''
     Function to create a model that can run on many GPUs.
@@ -211,7 +212,8 @@ def Parallelize_GPU(
 
     _InferBlobDevice(model_helper_obj)
 
-    using_parameter_groups = len(model_helper_obj.param_group)
+    using_parameter_groups = len(model_helper_obj.param_group) and\
+            use_aggregated_parameters
     model_helper_obj._using_parameter_groups = using_parameter_groups
 
     # Assemble parameter groups and coalesce them if necessary
