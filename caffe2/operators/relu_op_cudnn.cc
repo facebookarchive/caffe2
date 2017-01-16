@@ -5,7 +5,6 @@
 
 namespace caffe2 {
 
-template <typename T>
 class CuDNNReluOp final : public Operator<CUDAContext> {
  public:
   CuDNNReluOp(const OperatorDef& operator_def, Workspace* ws)
@@ -24,10 +23,10 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
     CUDNN_CHECK(cudnnDestroyActivationDescriptor(activ_desc_));
   }
 
-  bool RunOnDevice() override {
+  template <typename T, typename M>
+  bool RunOnDeviceTyped() {
     const auto& X = Input(0);
     auto* Y = Output(0);
-    Y->ResizeLike(X);
     // See if we need to reshape.
     if (X.dims() != cudnn_input_dims_) {
       VLOG(1) << "Setting descriptors.";
@@ -54,6 +53,21 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
     return true;
   }
 
+  bool RunOnDevice() override {
+    // dispatch based on contents of tensor(s)
+    const auto& X = Input(0);
+    auto* Y = Output(0);
+    Y->ResizeLike(X);
+
+    if (X.IsType<float>()) {
+      return RunOnDeviceTyped<float,float>();
+    } else if (X.IsType<float16>()) {
+      return RunOnDeviceTyped<float16,float16>();
+    } else {
+      return false;
+    }
+  }
+
  protected:
   CuDNNWrapper cudnn_wrapper_;
   cudnnTensorDescriptor_t data_desc_;
@@ -69,7 +83,6 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
 // data, or it treats input=0 the same way as input<0. This is of course not
 // very safe, but we have been running in this way in Caffe for a while so it
 // *might* be safe to assume so.
-template <typename T>
 class CuDNNReluGradientOp final : public Operator<CUDAContext> {
  public:
   CuDNNReluGradientOp(const OperatorDef& operator_def, Workspace* ws)
@@ -88,11 +101,11 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
     CUDNN_CHECK(cudnnDestroyActivationDescriptor(activ_desc_));
   }
 
-  bool RunOnDevice() override {
+  template <typename T, typename M>
+  bool RunOnDeviceTyped() {
     const auto& Y = Input(0);
     const auto& dY = Input(1);
     auto* dX = Output(0);
-    dX->ResizeLike(Y);
     // See if we need to reshape.
     if (Y.dims() != cudnn_input_dims_) {
       VLOG(1) << "Setting descriptors.";
@@ -121,6 +134,21 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
     return true;
   }
 
+  bool RunOnDevice() override {
+    const auto& Y = Input(0);
+    const auto& dY = Input(1);
+    auto* dX = Output(0);
+    dX->ResizeLike(Y);
+
+    if (Y.IsType<float>() && dY.IsType<float>()) {
+      return RunOnDeviceTyped<float,float>();
+    } else if (Y.IsType<float16>() && dY.IsType<float16>()) {
+      return RunOnDeviceTyped<float16,float16>();
+    } else {
+      return false;
+    }
+  }
+
  protected:
   CuDNNWrapper cudnn_wrapper_;
   cudnnTensorDescriptor_t data_desc_;
@@ -131,9 +159,7 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
 };
 
 namespace {
-REGISTER_CUDNN_OPERATOR(Relu, CuDNNReluOp<float>);
-REGISTER_CUDNN_OPERATOR(ReluGradient, CuDNNReluGradientOp<float>);
-REGISTER_CUDNN_OPERATOR(ReluFp16, CuDNNReluOp<float16>);
-REGISTER_CUDNN_OPERATOR(ReluFp16Gradient, CuDNNReluGradientOp<float16>);
+REGISTER_CUDNN_OPERATOR(Relu, CuDNNReluOp);
+REGISTER_CUDNN_OPERATOR(ReluGradient, CuDNNReluGradientOp);
 }  // namespace
 }  // namespace caffe2
