@@ -4,7 +4,6 @@
 
 namespace caffe2 {
 
-template <typename T>
 class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
  public:
   CuDNNPoolOp(const OperatorDef& operator_def, Workspace* ws)
@@ -29,7 +28,8 @@ class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
     CUDNN_CHECK(cudnnDestroyPoolingDescriptor(pooling_desc_));
   }
 
-  bool RunOnDevice() final {
+  template <typename T, typename M>
+  bool RunOnDeviceTyped() {
     auto& X = Input(0);
     auto* Y = Output(0);
     int N = 0, C = 0, H = 0, W = 0;
@@ -84,6 +84,19 @@ class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
     return true;
   }
 
+  bool RunOnDevice() final {
+    auto& X = Input(0);
+    auto* Y = Output(0);
+
+    if (X.IsType<float>()) {
+      return RunOnDeviceTyped<float,float>();
+    } else if (X.IsType<float16>()) {
+      return RunOnDeviceTyped<float16,float16>();
+    } else {
+      return false;
+    }
+  }
+
  protected:
   vector<TIndex> cudnn_input_dims_;
 
@@ -94,7 +107,6 @@ class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
   cudnnPoolingMode_t mode_;
 };
 
-template <typename T>
 class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
  public:
   CuDNNPoolGradientOp(const OperatorDef& operator_def, Workspace* ws)
@@ -119,7 +131,8 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
     CUDNN_CHECK(cudnnDestroyPoolingDescriptor(pooling_desc_));
   }
 
-  bool RunOnDevice() final {
+  template <typename T, typename M>
+  bool RunOnDeviceTyped() {
     auto& X = Input(0);
     auto& Y = Input(1);
     auto& dY = Input(2);
@@ -178,6 +191,23 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
     return true;
   }
 
+  bool RunOnDevice() final {
+    auto& X = Input(0);
+    auto& Y = Input(1);
+    auto& dY = Input(2);
+    auto* dX = Output(0);
+    dX->ResizeLike(X);
+
+    if (X.IsType<float>() && Y.IsType<float>() && dY.IsType<float>()) {
+      RunOnDeviceTyped<float,float>();
+    }
+    else if (X.IsType<float16>() && Y.IsType<float16>() && dY.IsType<float16>()) {
+      RunOnDeviceTyped<float16,float16>();
+    } else {
+      return false;
+    }
+  }
+
  protected:
   vector<TIndex> cudnn_input_dims_;
 
@@ -193,15 +223,10 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
 };
 
 namespace {
-REGISTER_CUDNN_OPERATOR(AveragePool, CuDNNPoolOp<float>);
-REGISTER_CUDNN_OPERATOR(AveragePoolGradient, CuDNNPoolGradientOp<float>);
-REGISTER_CUDNN_OPERATOR(MaxPool, CuDNNPoolOp<float>);
-REGISTER_CUDNN_OPERATOR(MaxPoolGradient, CuDNNPoolGradientOp<float>);
-
-REGISTER_CUDNN_OPERATOR(AveragePoolFp16, CuDNNPoolOp<float16>);
-REGISTER_CUDNN_OPERATOR(AveragePoolFp16Gradient, CuDNNPoolGradientOp<float16>);
-REGISTER_CUDNN_OPERATOR(MaxPoolFp16, CuDNNPoolOp<float16>);
-REGISTER_CUDNN_OPERATOR(MaxPoolFp16Gradient, CuDNNPoolGradientOp<float16>);
+REGISTER_CUDNN_OPERATOR(AveragePool, CuDNNPoolOp);
+REGISTER_CUDNN_OPERATOR(AveragePoolGradient, CuDNNPoolGradientOp);
+REGISTER_CUDNN_OPERATOR(MaxPool, CuDNNPoolOp);
+REGISTER_CUDNN_OPERATOR(MaxPoolGradient, CuDNNPoolGradientOp);
 
 }  // namespace
 }  // namespace caffe2
