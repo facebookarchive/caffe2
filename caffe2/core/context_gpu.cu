@@ -63,6 +63,12 @@ CudaMemoryPoolType GetCudaMemoryPoolType() {
   return g_cuda_memory_pool_type;
 }
 
+// shared mutex to lock out alloc / free during NCCL launches
+static std::mutex& gCUDAContextMutex() {
+  static std::mutex m;
+  return m;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // A wrapper to allow us to lazily initialize all cuda environments that Caffe
 // uses. This gets done the first time a caffe2::CUDAContext::New() gets called
@@ -268,8 +274,13 @@ CUDAContext::CUDAContext(const DeviceOption& option)
   DCHECK_EQ(option.device_type(), CUDA);
 }
 
+std::mutex& CUDAContext::mutex() {
+  return gCUDAContextMutex();
+}
 
 void* CUDAContext::New(size_t nbytes) {
+  // Lock the mutex
+  std::lock_guard<std::mutex> lock(CUDAContext::mutex());
   // A one-time caffe2 cuda initializer.
   static Caffe2CudaInitializerHelper g_cuda_initializer_;
   void* ptr = nullptr;
@@ -296,6 +307,9 @@ void* CUDAContext::New(size_t nbytes) {
 }
 
 void CUDAContext::Delete(void* ptr) {
+  // lock the mutex
+  std::lock_guard<std::mutex> lock(CUDAContext::mutex());
+
   switch (g_cuda_memory_pool_type) {
   case CudaMemoryPoolType::NONE: {
     // If memory pool is not set up, use simple cudaFree.
