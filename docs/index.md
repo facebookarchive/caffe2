@@ -96,4 +96,4 @@ Installation and compilation [instructions](installation.html) are provided for:
 
 ## License and Citation
 
-Caffe2 is released under the [BSD 2-Clause license](LICENSE.html).
+Caffe2 is released under the [BSD 2-Clause license](license.html).
