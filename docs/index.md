@@ -30,15 +30,15 @@ Another useful application of neural networks is with translation between langua
 
 Referring back to the IoT systems such as lighting and security, a fairly simple AI can automatically (and in real-time) review security camera footage, faceprint visitors to distinguish between homeowner, guest, and trespasser, and adjust lighting and music, or flashing lights and alarm sounds accordingly. How the system distinguishes between parties can be accomplished by training a DNN and then a variety of systems such as AWS's IoT platform can wrap this core detector to provide responses and actions.
 
-#### Medical
+### Medical
 
-[Customs agencies have use thermal image processing](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3016318/) to identify people who may be suffering from a fever in order to enforce quarantines and limit the spread of infection disease.   
+Customs agencies have use [thermal image processing](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3016318/) to identify people who may be suffering from a fever in order to enforce quarantines and limit the spread of infection disease.   
 
-#### Advertising
+### Advertising
 
 Outdoor advertising agencies have experimented with systems that identify the gender of the passerby and displays an advertisement that [targets their specific gender](http://www.psfk.com/2015/06/astra-beer-gender-detection-billboard-advertises-to-women.html). This can be done with many types of identifiers such as race, age, clothing, height, weight, mood, and so forth. Several models for these kinds of identifiers have already been created in Caffe and can be used off-the-shelf. Here is an example for [age and gender classification](https://gist.github.com/GilLevi/c9e99062283c719c03de).
 
-## What Can Deep Learning Do For Me?
+## Deep Learning is for Everyone
 
 Deep learning and neural networks can be applied to ANY problem. It excels at handling large data sets, facilitating automation, image processing, and statistical and mathematical operations, just to name a few areas. It can be applied to any kind of operation and can help find opportunities, solutions, and insights. Depending on your role you may find a different attractor for Caffe2 and deep learning.
 
@@ -54,12 +54,13 @@ Deep learning and neural networks can be applied to ANY problem. It excels at ha
 Deep Learning does amazing things and the purpose of Caffe2 is to provide an easy and straight-forward way for developers to try it out and come up with their own uses for it. In some cases you may want to use existing models and skip the whole "learning" step and get familiar with the utility and effectiveness of deep learning before trying train your own model.
 
 Some highlights of Caffe models from the [Caffe model zoo](https://github.com/BVLC/caffe/wiki/Model-Zoo):
-* [Age and Gender](https://github.com/BVLC/caffe/wiki/Model-Zoo#models-for-age-and-gender-classification)
-* [Cars](https://github.com/BVLC/caffe/wiki/Model-Zoo#googlenet_cars-on-car-model-classification)
-* [Celebrity Faces](https://github.com/BVLC/caffe/wiki/Model-Zoo#vgg-face-cnn-descriptor)
-  * [Face to Painting Matching Demo](http://www.robots.ox.ac.uk/~vgg/research/face_paint/)
 
-## Getting Started with Deep Learning and Caffe
+- [Age and Gender](https://github.com/BVLC/caffe/wiki/Model-Zoo#models-for-age-and-gender-classification)
+- [Cars](https://github.com/BVLC/caffe/wiki/Model-Zoo#googlenet_cars-on-car-model-classification)
+- [Celebrity Faces](https://github.com/BVLC/caffe/wiki/Model-Zoo#vgg-face-cnn-descriptor)
+- [Face to Painting Matching Demo](http://www.robots.ox.ac.uk/~vgg/research/face_paint/)
+
+## Getting Started with Caffe2
 
 When you are first getting started with deep learning and Caffe it will help to understand the workflow of how you will create and deploy your deep learning application. Even if you just want to try it out and use existing models and demos you will likely want to use both of these parts, however it is possible to take a model that was previously created and utilize it. At a high-level view, you are looking at two primary stages of working with an deep learning application built with Caffe:
 
@@ -70,28 +71,29 @@ Creating the model usually takes some significant processing power and time. Whi
 
 Running the model ends up being relatively lightweight in the sense that even if you took millions of images as inputs, the output that is used when running is much smaller. For example, using 50,000 images as inputs might have been several GBs of data, but the output model might only be 200 MB.
 
-## Try It Out
+### Demos
 
 Want to see some examples of how deep learning works without doing all of the setup? Try out some demos:
 
+#### [Caffe Neural Network for Image Classification](http://demo.caffe.berkeleyvision.org/classify_url?imageurl=http%3A%2F%2Fi1.kym-cdn.com%2Fentries%2Ficons%2Foriginal%2F000%2F014%2F959%2FScreenshot_116.png)
+
 ![screenshot of CNN demo page](images/CNN-demo.png)
 
-[Caffe Neural Network for Image Classification](http://demo.caffe.berkeleyvision.org/classify_url?imageurl=http%3A%2F%2Fi1.kym-cdn.com%2Fentries%2Ficons%2Foriginal%2F000%2F014%2F959%2FScreenshot_116.png)
+#### [Portrait Matcher](http://zeus.robots.ox.ac.uk/facepainting/)
 
 ![screenshot of the portrait matcher demo page](images/portrait-matcher-demo.png)
 
-[Portrait Matcher](http://zeus.robots.ox.ac.uk/facepainting/)
 
 ## [Installation](installation.html)
 
 Caffe2 is currently written in Python 2 with support for Python 3 coming in the near future.
-Installation and compilation instructions are provided for:
+Installation and compilation [instructions](installation.html) are provided for:
 
 - [MacOSx](installation.html#macosx)
 - [Ubuntu](installation.html#ubuntu)
 - [Python Support](installation.html#python)
 - [Docker Support](installation.html#docker-support)
 
-# License and Citation
+## License and Citation
 
-Caffe2 is released under the [BSD 2-Clause license](https://github.com/Yangqing/caffe2/blob/master/LICENSE).
+Caffe2 is released under the [BSD 2-Clause license](LICENSE.html).

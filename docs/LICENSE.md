@@ -1,4 +1,6 @@
-COPYRIGHT
+# Caffe2 LICENSE
+
+## COPYRIGHT
 
 All contributions by Facebook:
 Copyright (c) 2016 Facebook Inc.
@@ -26,7 +28,7 @@ mark their specific copyright on a particular contribution, they should
 indicate their copyright solely in the commit message of the change when it is
 committed.
 
-== LICENSE ==
+## REDISTRIBUTION
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -48,14 +50,15 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-== DECLARATION ==
+## DECLARATION
 
 Some parts of the caffe2 code is derived from the original Caffe code, which is
 created by Yangqing Jia and is now a BSD-licensed open-source project. The Caffe
 license is as follows:
 
-*** begin Caffe license ***
-COPYRIGHT
+## CAFFE LICENSE
+
+### COPYRIGHT
 
 All contributions by the University of California:
 Copyright (c) 2014, The Regents of the University of California (Regents)
@@ -72,7 +75,7 @@ their specific copyright on a particular contribution, they should indicate
 their copyright solely in the commit message of the change when it is
 committed.
 
-LICENSE
+### LICENSE
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -94,17 +97,21 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-CONTRIBUTION AGREEMENT
+### CONTRIBUTION AGREEMENT
 
 By contributing to the BVLC/caffe repository through pull-request, comment,
 or otherwise, the contributor releases their content to the
 license and copyright terms herein.
-*** end Caffe license ***
+
+#### end Caffe license
 
 Some part of the caffe2 code (caffe2/utils/zmq.hpp) comes from the open-source
 zmqhpp project under the MIT license. The zmqhpp license is as follows:
 
-*** begin zmqhpp license ***
+## ZMQHPP LICENSE
+
+### COPYRIGHT
+
 Copyright (c) 2009-2011 250bpm s.r.o.
 Copyright (c) 2011 Botond Ballo
 Copyright (c) 2007-2009 iMatix Corporation
@@ -126,4 +133,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
-*** end zmqhpp license ***
+
+#### end zmqhpp license
