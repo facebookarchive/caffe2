@@ -4,9 +4,16 @@
 
 In order to install or try out Caffe2, you have a few options:
 
-- Docker
-- Compile it for MacOSx or Ubuntu
-- Use pre-built binaries (TBD)
+- Pre-configured system images
+  - [x] Docker
+  - [ ] AWS
+- Compilation
+  - [x] MacOSx
+  - [x] Linux / Ubuntu
+  - [ ] Windows (TBD)
+  - [ ] Android / Android Studio (coming by end of January 2017)
+  - [ ] iOS / Xcode (coming mid-February 2017)
+- [ ] Pre-built binaries (TBD)
 
 [Demos](index.html#demos) are also a good option if you want to see it in action without setting it up yourself.
 
@@ -79,28 +86,48 @@ git submodule update
 
   Fetch the [latest source](#source) code from Github if you haven't already.
 
-  Several prerequisites are now installed via brew.
+  Several prerequisites are now installed via brew.   
+  Note, installation might be able to just use automake as eigen is default, many of the "prerequisites" are now in third party, and the others were optional:
 
-  ```
-  brew install glog automake protobuf leveldb lmdb opencv libtool
-  brew install homebrew/science/openblas
-  ```
+    ```
+    brew install automake
+    ```
+
+  The previously known working install method used:
+
+    ```
+    brew install glog automake protobuf lmdb opencv libtool
+    brew install homebrew/science/openblas
+    ```
 
   Assuming everything above installs without errors you can move on to the make steps. Warnings should be fine and you can move ahead without trouble.
 
-  If you're starting from scratch then create your build directory and begin the make process.
+  If you're starting from scratch, the commands below will create your */build* directory and begin the compilation process. Another directory will be created in your Caffe2 root directory called */install*. The cmake step uses the install directory and also turns off LevelDB. If you're not starting from scratch then delete your */build* and */install* folders first, then run the commands below.
 
   ```
-  mkdir build && cd build
-  cmake ..
-  make
+  mkdir build && mkdir install && cd build
+  cmake .. -DCMAKE_INSTALL_PATH=../install -DUSE_LEVELDB=OFF
+  make install
   ```
+
+  You will need to update your PYTHONPATH environment variable to use the newly created files in your */install* directory. Update the directory in the command below to match your Caffe2 install folder path.
+
+  ```
+  export PYTHONPATH=~/caffe2/install
+  ```
+
+  To test your install you can run Python and try importing a Caffe2 module.
+
+  ```
+  import caffe2
+  from caffe2.python import core
+  ```
+
+  If this fails then you will need to check your Python environment and make sure you're properly linking up to the modules in the */install* directory.
 
   [Original Caffe's OSX guide](http://caffe.berkeleyvision.org/install_osx.html)
 
 ### [Ubuntu](#ubuntu)
-
-#### Docker + Ubuntu
 
   For ubuntu 14.04 users, the Docker script may be a good example on the steps of building Caffe2. Please check `contrib/docker-ubuntu-14.04/Dockerfile` for details. For ubuntu 12.04, use `contrib/docker-ubuntu-12.04/Dockerfile`.
 
@@ -126,23 +153,13 @@ git submodule update
   make
 ```
 
-#### [Docker Support](#docker-support)
+### [Docker Support](#docker-support)
 
   If you have docker installed on your machine, you may want to use the provided Docker build files for simpler set up. Please check the `contrib/docker*` folders for details.
 
   Running these Docker images with CUDA GPUs is currently only supported on Linux hosts, as far as I can tell. You will need to make sure that your host driver is also 346.46, and you will need to invoke docker with
 
       docker run -t -i --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm --device /dev/nvidia0:/dev/nvidia0 [other cuda cards] ...
-
-
-## [Tutorials Setup & Python Requirements](#python)
-
-  To run the tutorials you'll need ipython-notebooks and matplotlib, which can be installed on OS X with:
-
-  ```
-      brew install matplotlib --with-python3
-      pip install ipython notebook
-  ```
 
 ## Build status (known working)
 
