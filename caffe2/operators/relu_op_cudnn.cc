@@ -16,6 +16,20 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
     CUDNN_CHECK(cudnnCreateActivationDescriptor(&activ_desc_));
     CUDNN_CHECK(cudnnSetActivationDescriptor(
         activ_desc_, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
+
+    // Choose function body for given math type
+    TensorProto_DataType math = TensorProto_DataType_FLOAT; // hardcode for now
+
+    switch (math) {
+      case TensorProto_DataType_FLOAT:
+        body_ = &CuDNNReluOp::DoRunWithMathType<float>;
+        break;
+      case TensorProto_DataType_FLOAT16:
+        body_ = &CuDNNReluOp::DoRunWithMathType<float16>;
+        break;
+      default:
+        CAFFE_THROW("Invalid math type specified");
+    }
   }
 
   ~CuDNNReluOp() {
@@ -23,8 +37,17 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
     CUDNN_CHECK(cudnnDestroyActivationDescriptor(activ_desc_));
   }
 
+  template <typename M>
+  bool DoRunWithMathType() {
+    return DispatchHelper<
+      TensorTypes<
+        float,
+        float16>,
+      M>::call(this, Input(0));
+  }
+
   template <typename T, typename M>
-  bool RunOnDeviceTyped() {
+  bool DoRunWithType() {
     const auto& X = Input(0);
     auto* Y = Output(0);
     // See if we need to reshape.
@@ -59,13 +82,7 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
     auto* Y = Output(0);
     Y->ResizeLike(X);
 
-    if (X.IsType<float>()) {
-      return RunOnDeviceTyped<float,float>();
-    } else if (X.IsType<float16>()) {
-      return RunOnDeviceTyped<float16,float16>();
-    } else {
-      return false;
-    }
+    return (this->*body_)();
   }
 
  protected:
@@ -74,6 +91,7 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
   cudnnActivationDescriptor_t activ_desc_;
   vector<TIndex> cudnn_input_dims_;
   StorageOrder order_;
+  bool (CuDNNReluOp::*body_)();
 };
 
 
@@ -94,6 +112,20 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
     CUDNN_CHECK(cudnnCreateActivationDescriptor(&activ_desc_));
     CUDNN_CHECK(cudnnSetActivationDescriptor(
         activ_desc_, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
+
+    // Choose function body for given math type
+    TensorProto_DataType math = TensorProto_DataType_FLOAT; // hardcode for now
+
+    switch (math) {
+      case TensorProto_DataType_FLOAT:
+        body_ = &CuDNNReluGradientOp::DoRunWithMathType<float>;
+        break;
+      case TensorProto_DataType_FLOAT16:
+        body_ = &CuDNNReluGradientOp::DoRunWithMathType<float16>;
+        break;
+      default:
+        CAFFE_THROW("Invalid math type specified");
+    }
   }
 
   ~CuDNNReluGradientOp() {
@@ -101,8 +133,17 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
     CUDNN_CHECK(cudnnDestroyActivationDescriptor(activ_desc_));
   }
 
+  template <typename M>
+  bool DoRunWithMathType() {
+    return DispatchHelper<
+      TensorTypes<
+        float,
+        float16>,
+      M>::call(this, Input(0));
+  }
+
   template <typename T, typename M>
-  bool RunOnDeviceTyped() {
+  bool DoRunWithType() {
     const auto& Y = Input(0);
     const auto& dY = Input(1);
     auto* dX = Output(0);
@@ -140,13 +181,7 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
     auto* dX = Output(0);
     dX->ResizeLike(Y);
 
-    if (Y.IsType<float>() && dY.IsType<float>()) {
-      return RunOnDeviceTyped<float,float>();
-    } else if (Y.IsType<float16>() && dY.IsType<float16>()) {
-      return RunOnDeviceTyped<float16,float16>();
-    } else {
-      return false;
-    }
+    return (this->*body_)();
   }
 
  protected:
@@ -156,6 +191,8 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
   vector<TIndex> cudnn_input_dims_;
   StorageOrder order_;
   // Input: Y, dY; Output: dX
+ private:
+  bool (CuDNNReluGradientOp::*body_)();
 };
 
 namespace {
