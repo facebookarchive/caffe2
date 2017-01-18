@@ -20,6 +20,20 @@ class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
     } else {
       LOG(FATAL) << "Unsupported pooling method: " << def().type();
     }
+
+    // Choose function body for given math type
+    TensorProto_DataType math = TensorProto_DataType_FLOAT; // hardcode for now
+
+    switch (math) {
+      case TensorProto_DataType_FLOAT:
+         body_ = &CuDNNPoolOp::DoRunWithMathType<float>;
+         break;
+      case TensorProto_DataType_FLOAT16:
+        body_ = &CuDNNPoolOp::DoRunWithMathType<float16>;
+        break;
+      default:
+        CAFFE_THROW("Invalid math type specified");
+    }
   }
 
   ~CuDNNPoolOp() {
@@ -28,8 +42,17 @@ class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
     CUDNN_CHECK(cudnnDestroyPoolingDescriptor(pooling_desc_));
   }
 
+  template <typename M>
+  bool DoRunWithMathType() {
+    return DispatchHelper<
+      TensorTypes<
+        float,
+        float16>,
+      M>::call(this, Input(0));
+  }
+
   template <typename T, typename M>
-  bool RunOnDeviceTyped() {
+  bool DoRunWithType() {
     auto& X = Input(0);
     auto* Y = Output(0);
     int N = 0, C = 0, H = 0, W = 0;
@@ -88,13 +111,7 @@ class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
     auto& X = Input(0);
     auto* Y = Output(0);
 
-    if (X.IsType<float>()) {
-      return RunOnDeviceTyped<float,float>();
-    } else if (X.IsType<float16>()) {
-      return RunOnDeviceTyped<float16,float16>();
-    } else {
-      return false;
-    }
+    return (this->*body_)();
   }
 
  protected:
@@ -105,6 +122,8 @@ class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
   cudnnTensorDescriptor_t top_desc_;
   cudnnPoolingDescriptor_t pooling_desc_;
   cudnnPoolingMode_t mode_;
+ private:
+  bool (CuDNNPoolOp::*body_)();
 };
 
 class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
@@ -123,6 +142,20 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
     } else {
       LOG(FATAL) << "Unsupported pooling method: " << def().type();
     }
+    //
+    // Choose function body for given math type
+    TensorProto_DataType math = TensorProto_DataType_FLOAT; // hardcode for now
+
+    switch (math) {
+      case TensorProto_DataType_FLOAT:
+         body_ = &CuDNNPoolGradientOp::DoRunWithMathType<float>;
+         break;
+      case TensorProto_DataType_FLOAT16:
+        body_ = &CuDNNPoolGradientOp::DoRunWithMathType<float16>;
+        break;
+      default:
+        CAFFE_THROW("Invalid math type specified");
+    }
   }
 
   ~CuDNNPoolGradientOp() {
@@ -131,8 +164,17 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
     CUDNN_CHECK(cudnnDestroyPoolingDescriptor(pooling_desc_));
   }
 
+  template <typename M>
+  bool DoRunWithMathType() {
+    return DispatchHelper<
+      TensorTypes<
+        float,
+        float16>,
+      M>::call(this, Input(0));
+  }
+
   template <typename T, typename M>
-  bool RunOnDeviceTyped() {
+  bool DoRunWithType() {
     auto& X = Input(0);
     auto& Y = Input(1);
     auto& dY = Input(2);
@@ -198,14 +240,7 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
     auto* dX = Output(0);
     dX->ResizeLike(X);
 
-    if (X.IsType<float>() && Y.IsType<float>() && dY.IsType<float>()) {
-      RunOnDeviceTyped<float,float>();
-    }
-    else if (X.IsType<float16>() && Y.IsType<float16>() && dY.IsType<float16>()) {
-      RunOnDeviceTyped<float16,float16>();
-    } else {
-      return false;
-    }
+    return (this->*body_)();
   }
 
  protected:
@@ -220,6 +255,8 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
   // Input: X, Y, dY
   // Output: dX
   INPUT_TAGS(IN, OUT, OUT_GRAD);
+ private:
+  bool (CuDNNPoolGradientOp::*body_)();
 };
 
 namespace {
