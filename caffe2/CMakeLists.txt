@@ -1,189 +1,148 @@
-# ---[ Excludes
-set(Caffe2_DIR_EXCLUDES
-        "/binaries"      # handled below
-        "/contrib"       # To be handled
-        "/distributed"   # Exclude for now
-        "/mpi"           # Exclude for now
-        "/experiments"   # Exclude for now
-        "/python"        # handled below
-        "/image"         # Exclude for now
-)
+# ---[ Declare source file lists
 
-set(Caffe2_FILE_EXCLUDES
-        "/operators/fully_connected_op_sparse.cc"
-        "/test/caffe2_gtest_main.cc"
-        "/db/db_test.cc"
-        "/db/rocksdb.cc"
-        "/db/zmqdb.cc"
-        "/utils/mkl_utils_test.cc"
-        "/mpi/mpi_test.cc"
-)
+# Caffe2_{CPU,GPU}_SRCS is the list that will have all the related source
+# files for CPU and GPU respectively. They will be filled with the
+# CMakeLists.txt files under each folder respectively.
+set(Caffe2_CPU_SRCS)
+set(Caffe2_GPU_SRCS)
 
-# ---[ Specific builds
-set(Caffe2_LEVELDB_SRCS
-        "/db/leveldb.cc"
-)
-set(Caffe2_LMDB_SRCS
-        "/db/lmdb.cc"
-)
+# Caffe2_{CPU,GPU}_TEST_SRCS is the list that will have all the related source
+# files for CPU and GPU tests respectively.
+set(Caffe2_CPU_TEST_SRCS)
+set(Caffe2_GPU_TEST_SRCS)
 
-set(Caffe2_CPU_TEST_SRCS
-    "/test/caffe2_gtest_main.cc"
-    "/core/parallel_net_test.cc"
-    "/core/timer_test.cc"
-    "/core/workspace_test.cc"
-    "/core/registry_test.cc"
-    "/core/context_test.cc"
-    "/core/init_test.cc"
-    "/core/operator_test.cc"
-    "/core/typeid_test.cc"
-    "/core/predictor_test.cc"
-    "/core/operator_schema_test.cc"
-    "/core/logging_test.cc"
-    "/core/blob_test.cc"
-    "/core/net_test.cc"
-    "/db/db_test.cc"
-    "/operators/utility_ops_test.cc"
-    "/operators/elementwise_op_test.cc"
-    "/operators/fully_connected_op_test.cc"
-    "/operators/conv_op_cache_cudnn_test.cc"
-    "/operators/text_file_reader_utils_test.cc"
-    "/utils/proto_utils_test.cc"
-    "/utils/math_test.cc"
-    "/utils/simple_queue_test.cc"
-    "/utils/mkl_utils_test.cc"
-    "/utils/fixed_divisor_test.cc"
-)
+# ---[ Add respective subdirectories
+# Note: the folders that are being commented out have not been properly
+# addressed yet.
 
-set(Caffe2_GPU_TEST_SRCS
-    "/contrib/nervana/nervana_fc_op_gpu_test.cc"
-    "/core/blob_gpu_test.cc"
-    "/mpi/mpi_gpu_test.cc"
-    "/core/context_gpu_test.cc"
-    "/operators/operator_fallback_gpu_test.cc"
-    "/operators/utility_ops_gpu_test.cc"
-    "/operators/fully_connected_op_gpu_test.cc"
-    "/operators/elementwise_op_gpu_test.cc"
-)
+add_subdirectory(proto)
 
-# Expand all the exludes.
-prepend(Caffe2_DIR_EXCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${Caffe2_DIR_EXCLUDES})
-prepend(Caffe2_FILE_EXCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${Caffe2_FILE_EXCLUDES})
-prepend(Caffe2_CPU_TEST_SRCS ${CMAKE_CURRENT_SOURCE_DIR} ${Caffe2_CPU_TEST_SRCS})
-prepend(Caffe2_GPU_TEST_SRCS ${CMAKE_CURRENT_SOURCE_DIR} ${Caffe2_GPU_TEST_SRCS})
-prepend(Caffe2_LEVELDB_SRCS ${CMAKE_CURRENT_SOURCE_DIR} ${Caffe2_LEVELDB_SRCS})
-prepend(Caffe2_LMDB_SRCS ${CMAKE_CURRENT_SOURCE_DIR} ${Caffe2_LMDB_SRCS})
+add_subdirectory(binaries)
+add_subdirectory(contrib)
+add_subdirectory(core)
+add_subdirectory(cuda_rtc)
+add_subdirectory(db)
+add_subdirectory(distributed)
+# add_subdirectory(experiments) # note, we may remove this folder at some point
+add_subdirectory(image)
+add_subdirectory(mkl)
+add_subdirectory(mpi)
+add_subdirectory(operators)
+add_subdirectory(python)
+add_subdirectory(queue)
+add_subdirectory(sgd)
+# add_subdirectory(test) # todo: use caffe2_gtest_main instead of gtest_main because we will need to call GlobalInit
+add_subdirectory(utils)
+
+# Debug messages - if you want to get a list of source files, enable the
+# following.
+if (FALSE)
+  message(STATUS "CPU sources: ")
+  foreach(tmp ${Caffe2_CPU_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
+
+  message(STATUS "GPU sources: ")
+  foreach(tmp ${Caffe2_GPU_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
+
+  message(STATUS "CPU test sources: ")
+  foreach(tmp ${Caffe2_CPU_TEST_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
+
+  message(STATUS "GPU test sources: ")
+  foreach(tmp ${Caffe2_GPU_TEST_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
+endif()
 
 # ---[ List of libraries to link with
-set(Caffe2_LINK_LIBS Caffe_PROTO)
 
-# Get all source directories.
-# TODO(bwasti): GLOB is not considered best practice.
-file(GLOB Caffe2_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/*)
-
-# Exclude all excluded directories.
-exclude(Caffe2_DIRS "${Caffe2_DIRS}" ${Caffe2_DIR_EXCLUDES})
-
-# Get all source files from remaining directories.
-
-# ---[ GPU files
-# ------[ cuDNN
-foreach(dir ${Caffe2_DIRS})
-        file(GLOB tmp ${dir}/*_cudnn.cc)
-        set(Caffe2_GPU_SRCS ${Caffe2_GPU_SRCS} ${tmp})
-endforeach()
-# ------[ general GPU
-foreach(dir ${Caffe2_DIRS})
-        file(GLOB tmp ${dir}/*_gpu.cc)
-        set(Caffe2_GPU_SRCS ${Caffe2_GPU_SRCS} ${tmp})
-endforeach()
-# ------[ CUDA sources
-foreach(dir ${Caffe2_DIRS})
-        file(GLOB tmp ${dir}/*.cu)
-        set(Caffe2_GPU_SRCS ${Caffe2_GPU_SRCS} ${tmp})
-endforeach()
-exclude(Caffe2_GPU_SRCS "${Caffe2_GPU_SRCS}" ${Caffe2_FILE_EXCLUDES})
-exclude(Caffe2_GPU_SRCS "${Caffe2_GPU_SRCS}" ${Caffe2_GPU_TEST_SRCS})
-
-# CPU files.
-foreach(dir ${Caffe2_DIRS})
-        file(GLOB tmp ${dir}/*.cc)
-        set(Caffe2_CPU_SRCS ${Caffe2_CPU_SRCS} ${tmp})
-endforeach()
-exclude(Caffe2_CPU_SRCS "${Caffe2_CPU_SRCS}" ${Caffe2_FILE_EXCLUDES})
-exclude(Caffe2_CPU_SRCS "${Caffe2_CPU_SRCS}" ${Caffe2_GPU_SRCS})
-exclude(Caffe2_CPU_SRCS "${Caffe2_CPU_SRCS}" ${Caffe2_CPU_TEST_SRCS})
-exclude(Caffe2_CPU_SRCS "${Caffe2_CPU_SRCS}" ${Caffe2_GPU_TEST_SRCS})
-if (NOT USE_LEVELDB)
-        exclude(Caffe2_CPU_SRCS "${Caffe2_CPU_SRCS}" ${Caffe2_LEVELDB_SRCS})
-endif()
-if (NOT USE_LMDB)
-        exclude(Caffe2_CPU_SRCS "${Caffe2_CPU_SRCS}" ${Caffe2_LMDB_SRCS})
-endif()
-
-# Compile protobufs.
-add_subdirectory(proto)
-include_directories(BEFORE ${CMAKE_BINARY_DIR})
-list(APPEND Caffe2_LINK_LIBS Caffe2_PROTO)
+# In the static linking + clang mode, cmake will fail to identify the build
+# order because the lib becomes one single string -Wl,-force-load,libCaffe2_CPU.so
+# As a result, we will create a Caffe2_MAIN_LIBS_ORDER variable simply to
+# enforce the dependency.
+set(Caffe2_MAIN_LIBS_ORDER ${Caffe2_MAIN_LIBS})
 
 # Compile exposed libraries.
-LIST(APPEND CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
-add_library(Caffe2_CPU ${Caffe2_CPU_SRCS})
-target_link_libraries(Caffe2_CPU ${Caffe2_LINK_LIBS} glog gflags ${Caffe2_LINKER_LIBS})
+add_library(Caffe2_CPU ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
+target_link_libraries(Caffe2_CPU ${Caffe2_DEPENDENCY_LIBS})
 install(TARGETS Caffe2_CPU DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-list(APPEND Caffe2_LINK_LIBS Caffe2_CPU)
+list(APPEND Caffe2_MAIN_LIBS_ORDER Caffe2_CPU)
+if (BUILD_SHARED_LIBS)
+  list(APPEND Caffe2_MAIN_LIBS Caffe2_CPU)
+else()
+    caffe_add_whole_archive_flag(Caffe2_CPU tmp)
+  list(APPEND Caffe2_MAIN_LIBS ${tmp})
+endif()
 
-# ---[ CUDA library
-if(HAVE_CUDA)
+
+# ---[ CUDA library.
+if(USE_CUDA)
   CUDA_ADD_LIBRARY(Caffe2_GPU ${Caffe2_GPU_SRCS})
-  target_link_libraries(Caffe2_GPU ${Caffe2_LINK_LIBS} glog gflags ${Caffe2_LINKER_LIBS})
+  list(APPEND Caffe2_MAIN_LIBS_ORDER Caffe2_GPU)
+  if (BUILD_SHARED_LIBS)
+    target_link_libraries(Caffe2_GPU Caffe2_CPU ${Caffe2_DEPENDENCY_LIBS})
+    list(APPEND Caffe2_MAIN_LIBS Caffe2_GPU)
+  else()
+    target_link_libraries(Caffe2_GPU ${Caffe2_DEPENDENCY_LIBS})
+    caffe_add_whole_archive_flag(Caffe2_GPU tmp)
+    list(APPEND Caffe2_MAIN_LIBS ${tmp})
+  endif()
   install(TARGETS Caffe2_GPU DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
   link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-  list(APPEND Caffe2_LINK_LIBS Caffe2_GPU)
 endif()
 
-# Compile test binaries.
-foreach(test_src ${Caffe2_CPU_TEST_SRCS})
-  get_filename_component(test_name ${test_src} NAME_WE)
-  add_executable(${test_name} "${test_src}")
-  target_link_libraries(${test_name} ${Caffe2_LINK} gtest_main)
-  target_compile_features(${test_name} PRIVATE cxx_range_for)
-  install(TARGETS ${test_name} DESTINATION ${CMAKE_INSTALL_PREFIX}/test)
-endforeach()
+# ---[ Test binaries.
+if (BUILD_TEST)
+  set(Caffe2_ALL_TEST_SRCS ${Caffe2_CPU_TEST_SRCS})
+  if (USE_CUDA)
+    list(APPEND Caffe2_ALL_TEST_SRCS ${Caffe2_GPU_TEST_SRCS})
+  endif()
 
-# ---[ Python
-add_subdirectory(python)
-
-# ---[ All binaries
-file(GLOB Caffe2_BINARY_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/binaries/*.cc)
-
-# ZMQ src
-set(Caffe2_ZMQ_BINARY_SRC
-    "zmq_feeder.cc"
-)
-# Prune out ZMQ if no support
-if(NOT USE_ZMQ)
-  message(STATUS "Excluding ZMQ binary")
-  prepend(tmp "${CMAKE_CURRENT_SOURCE_DIR}/binaries/" "${Caffe2_ZMQ_BINARY_SRC}")
-  exclude(Caffe2_BINARY_SRCS "${Caffe2_BINARY_SRCS}" "${tmp}")
+  foreach(test_src ${Caffe2_ALL_TEST_SRCS})
+    get_filename_component(test_name ${test_src} NAME_WE)
+    add_executable(${test_name} "${test_src}")
+    add_dependencies(${test_name} ${Caffe2_MAIN_LIBS_ORDER})
+    target_link_libraries(${test_name} ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS} gtest_main)
+    if (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
+      target_compile_features(${test_name} PRIVATE cxx_range_for)
+    endif()
+    add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}>)
+    # install(TARGETS ${test_name} DESTINATION ${CMAKE_INSTALL_PREFIX}/test)
+  endforeach()
 endif()
 
-# MPI-based binaries
-set(Caffe2_MPI_BINARY_SRC
-    "fb_run_plan_mpi.cc"
-    "run_plan_mpi.cc"
-)
-if(NOT USE_MPI)
-  message(STATUS "Excluding MPI binaries")
-  prepend(tmp "${CMAKE_CURRENT_SOURCE_DIR}/binaries/" "${Caffe2_MPI_BINARY_SRC}")
-  exclude(Caffe2_BINARY_SRCS "${Caffe2_BINARY_SRCS}" "${tmp}")
+
+if (BUILD_PYTHON)
+  # ---[ Python.
+  add_library(caffe2_pybind11_state SHARED ${Caffe2_CPU_PYTHON_SRCS})
+  add_dependencies(caffe2_pybind11_state ${Caffe2_MAIN_LIBS_ORDER})
+  set_target_properties(caffe2_pybind11_state PROPERTIES PREFIX "")
+  target_link_libraries(caffe2_pybind11_state ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS} ${Caffe2_PYTHON_DEPENDENCY_LIBS})
+  install(TARGETS caffe2_pybind11_state DESTINATION ${CMAKE_INSTALL_PREFIX}/caffe2/python)
+
+  if(USE_CUDA)
+    add_library(caffe2_pybind11_state_gpu SHARED ${Caffe2_GPU_PYTHON_SRCS})
+    set_target_properties(caffe2_pybind11_state_gpu PROPERTIES PREFIX "")
+    add_dependencies(caffe2_pybind11_state_gpu ${Caffe2_MAIN_LIBS_ORDER})
+    target_link_libraries(caffe2_pybind11_state_gpu ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS} ${Caffe2_PYTHON_DEPENDENCY_LIBS})
+    install(TARGETS caffe2_pybind11_state_gpu DESTINATION ${CMAKE_INSTALL_PREFIX}/caffe2/python)
+  endif()
 endif()
 
-foreach(binary_src ${Caffe2_BINARY_SRCS})
+# ---[ Binaries.
+set(Caffe2_ALL_BINARY_SRCS ${Caffe2_CPU_BINARY_SRCS})
+if (USE_CUDA)
+  list(APPEND Caffe2_ALL_BINARY_SRCS ${Caffe2_GPU_BINARY_SRCS})
+endif()
+
+foreach(binary_src ${Caffe2_ALL_BINARY_SRCS})
   get_filename_component(bin_name ${binary_src} NAME_WE)
   add_executable(${bin_name} ${binary_src})
-  target_link_libraries(${bin_name} ${Caffe2_LINK} glog cnmem benchmark ${Caffe2_LINKER_LIBS})
+  add_dependencies(${bin_name} ${Caffe2_MAIN_LIBS_ORDER})
+  target_link_libraries(${bin_name} ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS})
   install(TARGETS ${bin_name} DESTINATION ${CMAKE_INSTALL_PREFIX}/binaries)
 endforeach()
-
-

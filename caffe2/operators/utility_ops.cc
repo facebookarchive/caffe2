@@ -161,6 +161,7 @@ Produces tensor condaining data of first input and shape of second input.
     .Input(1, "shape_tensor", "Tensor whose shape will be applied to output.")
     .Output(0, "output", "Tensor with data of input 0 and shape of input 1.");
 
+
 OPERATOR_SCHEMA(SumInt)
     .NumInputs(1, INT_MAX)
     .NumOutputs(1)
@@ -473,8 +474,8 @@ OPERATOR_SCHEMA(SegmentIdsToLengths)
 Transfers a vector of segment ids to a vector of segment lengths. This operation
 supports non-consecutive segment ids. Segments not appearing in the input vector
 will have length 0. If the second input is provided, the number of segments =
-the size of its first dimension. Otherwise, the number of segments
-= the last index in the first input vector + 1.
+the size of its first dimension. Otherwise, the number of segments = the last
+index in the first input vector + 1.
 
 In general, for consecutive, zero-based segment IDs, this is the inverse
 operation of LengthsToSegmentIds, except that a vector of segment IDs
@@ -494,8 +495,8 @@ OPERATOR_SCHEMA(SegmentIdsToRanges)
 Transfers a vector of segment ids to a vector of segment ranges. This operation
 supports non-consecutive segment ids. Segments not appearing in the input vector
 will have length 0. If the second input is provided, the number of segments =
-the size of its first dimension. Otherwise, the number of segments
-= the last index in the first input vector + 1.
+the size of its first dimension. Otherwise, the number of segments = the last
+index in the first input vector + 1.
 )DOC")
     .Input(0, "segment_ids", "1-D int32_t or int64_t tensor of segment ids")
     .Input(

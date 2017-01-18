@@ -139,10 +139,6 @@ macro(caffe2_cuda_compile objlist_variable)
 
   endforeach()
 
-  if(UNIX OR APPLE)
-    list(APPEND CUDA_NVCC_FLAGS -Xcompiler -fPIC)
-  endif()
-
   if(APPLE)
     list(APPEND CUDA_NVCC_FLAGS -Xcompiler -Wno-unused-function)
   endif()
@@ -161,7 +157,7 @@ endmacro()
 ###  Non macro section
 ################################################################################################
 
-find_package(CUDA 5.5 QUIET)
+find_package(CUDA 7.0 QUIET)
 find_cuda_helper_libs(curand)  # cmake 2.8.7 compartibility which doesn't search for curand
 
 if(NOT CUDA_FOUND)
@@ -176,13 +172,16 @@ if (${CUDA_VERSION} LESS 8.0)
   list(APPEND CUDA_NVCC_FLAGS "-D__STRICT_ANSI__")
 endif()
 include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
-list(APPEND Caffe2_LINKER_LIBS ${CUDA_CUDART_LIBRARY}
+list(APPEND Caffe2_DEPENDENCY_LIBS ${CUDA_CUDART_LIBRARY}
                               ${CUDA_curand_LIBRARY} ${CUDA_CUBLAS_LIBRARIES})
 
 # find libcuda.so and lbnvrtc.so
+# For libcuda.so, we will find it under lib, lib64, and then the
+# stubs folder, in case we are building on a system that does not
+# have cuda driver installed.
 find_library(CUDA_CUDA_LIB cuda
     PATHS ${CUDA_TOOLKIT_ROOT_DIR}
-    PATH_SUFFIXES lib lib64)
+    PATH_SUFFIXES lib lib64 lib/stubs lib64/stubs)
 find_library(CUDA_NVRTC_LIB nvrtc
     PATHS ${CUDA_TOOLKIT_ROOT_DIR}
     PATH_SUFFIXES lib lib64)
@@ -191,13 +190,18 @@ find_library(CUDA_NVRTC_LIB nvrtc
 caffe2_select_nvcc_arch_flags(NVCC_FLAGS_EXTRA)
 list(APPEND CUDA_NVCC_FLAGS ${NVCC_FLAGS_EXTRA})
 message(STATUS "Added CUDA NVCC flags for: ${NVCC_FLAGS_EXTRA_readable}")
+
 if(CUDA_CUDA_LIB)
     message(STATUS "Found libcuda: ${CUDA_CUDA_LIB}")
-    list(APPEND Caffe2_LINKER_LIBS ${CUDA_CUDA_LIB})
+    list(APPEND Caffe2_DEPENDENCY_LIBS ${CUDA_CUDA_LIB})
+else()
+    message(FATAL_ERROR "Cannot find libcuda.so. Please file an issue on https://github.com/caffe2/caffe2 with your build output.")
 endif()
 if(CUDA_NVRTC_LIB)
   message(STATUS "Found libnvrtc: ${CUDA_NVRTC_LIB}")
-  list(APPEND Caffe2_LINKER_LIBS ${CUDA_NVRTC_LIB})
+  list(APPEND Caffe2_DEPENDENCY_LIBS ${CUDA_NVRTC_LIB})
+else()
+    message(FATAL_ERROR "Cannot find libnvrtc.so. Please file an issue on https://github.com/caffe2/caffe2 with your build output.")
 endif()
 
 # disable some nvcc diagnostic that apears in boost, glog, glags, opencv, etc.
@@ -209,8 +213,9 @@ endforeach()
 set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 list(APPEND CUDA_NVCC_FLAGS "-std=c++11")
 list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -fPIC")
-list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -std=c++11")
-list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_52,code=sm_52)
+if(OpenMP_FOUND)
+  list(APPEND CUDA_NVCC_FLAGS "-Xcompiler ${OpenMP_CXX_FLAGS}")
+endif()
 
 # Set :expt-relaxed-constexpr to suppress Eigen warnings
 list(APPEND CUDA_NVCC_FLAGS "--expt-relaxed-constexpr")
