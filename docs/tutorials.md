@@ -1,6 +1,6 @@
 # Caffe2 Tutorials
 
-  The iPython notebook tutorials can be [downloaded](/tutorials) or [browsed](https://github.com/aaronmarkham/caffe2/tree/documentation/docs).
+  The iPython notebook tutorials can be [browsed](https://github.com/aaronmarkham/caffe2/tree/master/docs/tutorials) or downloaded using the links below each tutorial's title.
 
   You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself.
 
@@ -8,7 +8,7 @@
 
 ## Installation
 
-  To run the tutorials you'll need Python 2.7, ipython-notebooks and [matplotlib](http://matplotlib.org/users/installing.html), which can be installed on with:
+  To run the tutorials you'll need Python 2.7, [ipython-notebooks](http://jupyter.org/install.html) and [matplotlib](http://matplotlib.org/users/installing.html), which can be installed on with:
 
 ### MacOSx via Brew & pip
 
@@ -46,7 +46,7 @@ When your browser opens with your local Jupyter server (default is http://localh
 
 ### Basics
 
-[Browse](https://github.com/caffe2/caffe2/tree/documentation/docs/tutorials/basics.ipynb) | [Download](tutorials/basics.ipynb)
+[Browse](https://github.com/aaronmarkham/caffe2/blob/master/docs/tutorials/basics.ipynb) | [Download](tutorials/basics.ipynb)
 
 This tutorial introduces a few basic Caffe2 components:
 
@@ -56,7 +56,7 @@ This tutorial introduces a few basic Caffe2 components:
 
 ### Toy Regression - Plotting Lines & Random Data
 
-[Browse](https://github.com/caffe2/caffe2/tree/documentation/docs/tutorials/toy_regression.ipynb) | [Download](tutorials/toy_regression.ipynb)
+[Browse](https://github.com/aaronmarkham/caffe2/blob/master/docs/tutorials/toy_regression.ipynb) | [Download](tutorials/toy_regression.ipynb)
 
 This tutorial shows how to use more Caffe2 features with simple linear regression as the theme.
 
@@ -67,12 +67,12 @@ This tutorial shows how to use more Caffe2 features with simple linear regressio
 
 ### MNIST - Handwriting Recognition
 
-[Browse](https://github.com/caffe2/caffe2/tree/documentation/docs/tutorials/MNIST.ipynb) | [Download](tutorials/MNIST.ipynb)
+[Browse](https://github.com/aaronmarkham/caffe2/blob/master/docs/tutorials/MNIST.ipynb) | [Download](tutorials/MNIST.ipynb)
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. The train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
 ### Immediate Outputs - Experimental
 
-[Browse](https://github.com/caffe2/caffe2/tree/documentation/docs/tutorials/immediate.ipynb) | [Download](tutorials/immediate.ipynb)
+[Browse](https://github.com/aaronmarkham/caffe2/blob/master/docs/tutorials/immediate.ipynb) | [Download](tutorials/immediate.ipynb)
 
 Explores an experimental Caffe2 feature that allows you inspect intermediate outputs as you go. It will run corresponding operators as you write them.
