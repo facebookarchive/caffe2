@@ -34,7 +34,7 @@ inline void WriteProtoToBinaryFile(const MessageLite& proto,
 #ifdef CAFFE2_USE_LITE_PROTO
 
 inline string ProtoDebugString(const MessageLite& proto) {
-  return "(cannot show debug string for MessageLite)";
+  return proto.SerializeAsString();
 }
 
 // Text format MessageLite wrappers: these functions do nothing but just
@@ -165,6 +165,7 @@ inline bool HasArgument(const OperatorDef& def, const string& name) {
 class ArgumentHelper {
  public:
   explicit ArgumentHelper(const OperatorDef& def);
+  explicit ArgumentHelper(const NetDef& netdef);
   bool HasArgument(const string& name) const;
 
   template <typename T>
@@ -205,9 +206,15 @@ class ArgumentHelper {
 };
 
 const Argument& GetArgument(const OperatorDef& def, const string& name);
+bool GetFlagArgument(
+    const OperatorDef& def,
+    const string& name,
+    bool def_value = false);
 
 Argument* GetMutableArgument(
-    const string& name, const bool create_if_missing, OperatorDef* def);
+    const string& name,
+    const bool create_if_missing,
+    OperatorDef* def);
 
 template <typename T>
 Argument MakeArgument(const string& name, const T& value);

@@ -53,6 +53,8 @@ OPERATOR_SCHEMA(WallClockTime)
     .SetDoc("Time since epoch in nanoseconds.")
     .Output(0, "time", "The time in nanoseconds.");
 
+REGISTER_CPU_OPERATOR(UnsafeCoalesce, UnsafeCoalesceOp<CPUContext>);
+
 OPERATOR_SCHEMA(Print)
     .NumInputs(1)
     .NumOutputs(0)
@@ -160,6 +162,7 @@ Produces tensor condaining data of first input and shape of second input.
     .Input(0, "data", "Tensor whose data will be copied into the output.")
     .Input(1, "shape_tensor", "Tensor whose shape will be applied to output.")
     .Output(0, "output", "Tensor with data of input 0 and shape of input 1.");
+
 
 OPERATOR_SCHEMA(SumInt)
     .NumInputs(1, INT_MAX)
@@ -473,8 +476,8 @@ OPERATOR_SCHEMA(SegmentIdsToLengths)
 Transfers a vector of segment ids to a vector of segment lengths. This operation
 supports non-consecutive segment ids. Segments not appearing in the input vector
 will have length 0. If the second input is provided, the number of segments =
-the size of its first dimension. Otherwise, the number of segments
-= the last index in the first input vector + 1.
+the size of its first dimension. Otherwise, the number of segments = the last
+index in the first input vector + 1.
 
 In general, for consecutive, zero-based segment IDs, this is the inverse
 operation of LengthsToSegmentIds, except that a vector of segment IDs
@@ -494,8 +497,8 @@ OPERATOR_SCHEMA(SegmentIdsToRanges)
 Transfers a vector of segment ids to a vector of segment ranges. This operation
 supports non-consecutive segment ids. Segments not appearing in the input vector
 will have length 0. If the second input is provided, the number of segments =
-the size of its first dimension. Otherwise, the number of segments
-= the last index in the first input vector + 1.
+the size of its first dimension. Otherwise, the number of segments = the last
+index in the first input vector + 1.
 )DOC")
     .Input(0, "segment_ids", "1-D int32_t or int64_t tensor of segment ids")
     .Input(
@@ -579,11 +582,39 @@ If the same blob is provided in input and output, the operation is copy-free.
     .Output(0, "expanded", "Reshaped tensor with same data as input.");
 
 SHOULD_NOT_DO_GRADIENT(WallClockTime);
+
+OPERATOR_SCHEMA(UnsafeCoalesce)
+    .NumInputsOutputs([](int inputs, int outputs) {
+      return inputs + 1 == outputs;
+    })
+    .AllowInplace([](int input, int output) { return input == output; })
+    .SetDoc(R"DOC(
+Coalesce the N inputs into N outputs and a single coalesced output blob.
+
+This allows operations that operate over multiple small kernels (e.g.
+biases in a deep CNN) to be coalesced into a single larger operation,
+amortizing the kernel launch overhead, synchronization costs for
+distributed computation, etc.
+
+The operator:
+
+- computes the total size of the coalesced blob by summing the input sizes
+- allocates the coalesced output blob as the total size
+- copies the input vectors into the coalesced blob, at the correct offset.
+- aliases each Output(i) to- point into the coalesced blob, at the
+  corresponding offset for Input(i).
+
+This is 'unsafe' as the output vectors are aliased, so use with
+caution.
+
+)DOC");
+
 SHOULD_NOT_DO_GRADIENT(Print);
 SHOULD_NOT_DO_GRADIENT(Shape);
 SHOULD_NOT_DO_GRADIENT(HasElements);
 SHOULD_NOT_DO_GRADIENT(IsEmpty);
 SHOULD_NOT_DO_GRADIENT(LengthsToShape);
+SHOULD_NOT_DO_GRADIENT(UnsafeCoalesce);
 
 class GetSqueezeGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;

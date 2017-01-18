@@ -1,0 +1,7 @@
+# find_package(Protobuf REQUIRED)
+
+file(GLOB Caffe2_PROTOBUF_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.proto")
+
+caffe_protobuf_generate_cpp_py(${CMAKE_CURRENT_BINARY_DIR} Caffe2_PROTO_SRCS Caffe2_PROTO_HEADERS Caffe2_PROTO_PY ${Caffe2_PROTOBUF_FILES})
+
+add_library(Caffe2_PROTO OBJECT ${Caffe2_PROTO_HEADERS} ${Caffe2_PROTO_SRCS})
