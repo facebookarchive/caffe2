@@ -2,32 +2,33 @@
 
 [![Build Status](https://travis-ci.org/bwasti/caffe2.svg?branch=master)](https://travis-ci.org/bwasti/caffe2)
 
-- [MacOSx](#macosx)
-- [Ubuntu](#Ubuntu)
-- [Docker Support](#docker-support)
-- [Tutorials & Python Support](#python)
+In order to install or try out Caffe2, you have a few options:
+
+- Docker
+- Compile it for MacOSx or Ubuntu
+- Use pre-built binaries (TBD)
+
+[Demos](index.html#demos) are also a good option if you want to see it in action without setting it up yourself.
 
 ## Getting the Source
 
 ```
-    git clone https://github.com/bwasti/caffe2.git
+    git clone --recursive https://github.com/caffe2/caffe2.git
     cd caffe2
+```
+
+If the recursive flag doesn't work for your version of git you can try the following.
+
+```
+git submodule init
+git submodule update
 ```
 
 ## Installation
 
   The Caffe2 library's dependency is largely similar to that of Caffe's. Thus, if you have installed Caffe in the past, you should most likely be good to go. Otherwise, please check the prerequisites and specific platforms' guides.
 
-  Caffe2 uses a Homebrew build script so that we can deal with multiple targets as well as optional dependencies. The format is similar to build systems like [Bazel](http://bazel.io) and [Buck](https://buckbuild.com/) with some custom flavors. It is based on python, so you will need to have Python installed.
-
-  ## Developer Installation Notes (WIP)
-  As there are many paths to installing and working with Caffe, you might find that a different route works best for you and your current development environment.
-  These are the [Latest build notes](https://github.com/bwasti/caffe2/blob/master/README.md).
-
-  - [Prerequisites](#prerequisites)
-  - [Compilation](#compilation)
-  - [Docker](#docker)
-  - Platforms: [Ubuntu](#ubuntu), [OS X](OSX)
+  For MacOSx, Caffe2 uses a Homebrew build script so that we can deal with multiple targets as well as optional dependencies. The format is similar to build systems like [Bazel](http://bazel.io) and [Buck](https://buckbuild.com/) with some custom flavors. It is based on python, so you will need to have Python installed.
 
   When updating Caffe2, it's best to `make clean` before re-compiling.
 
@@ -39,6 +40,8 @@
   * [CUDA](https://developer.nvidia.com/cuda-zone) is required for GPU mode.
       * library version above 6.5 are needed for C++11 support, and 7.0 is recommended.
   * `protobuf`, `glog`, `gflags`, `eigen3`
+
+### Optional Dependencies
 
   In addition, Caffe2 has several optional dependencies: not having these will not cause problems, but some components will not work. Note that strictly speaking, CUDA is also an optional dependency. You can compile a purely CPU-based Caffe2 by not having CUDA. However, since CUDA is critical in achieving high-performance computation, you may want to consider it a necessary dependency.
 
@@ -54,7 +57,10 @@
 
   Pycaffe2 has its own natural needs, mostly on the Python side: `numpy (>= 1.7)` and `protobuf` are needed. We also recommend installing the following packages: `flask`, `ipython`, `matplotlib`, `notebook`, `pydot`, `python-nvd3`, `scipy`, `tornado`, and `scikit-image`.
 
-  We suggest first installing the [Anaconda](https://store.continuum.io/cshop/anaconda/) Python distribution, which provides most of the necessary packages, as well as the `hdf5` library dependency.
+### Python Versions
+  It is possible to compile and run Caffe2 with 2.7 up to 3.5 versions of Python as well as using Python environments provided by different Python distributions such as Anaconda. If you are on a Mac and trying this for the first time we first suggest that you try using the default version of Python before jumping to a distribution or using environments. This may simplify things dramatically.
+
+  [Anaconda](https://store.continuum.io/cshop/anaconda/) Python distribution may be used as well, which provides most of the necessary packages, as well as the `hdf5` library dependency.
 
 ## Compilation
 
@@ -64,25 +70,14 @@
 
   The build script should tell you what got built and what did not get built.
 
-## MacOSx
+### [MacOSx](#macosx)
 
-### OSX Prerequisites
+#### OSX Prerequisites
 
   1. Install [Command Line Tools from Xcode](https://developer.apple.com/)
   2. Install [Homebrew](http://brew.sh/)
 
-  Fetch the latest source code from Github if you haven't already.
-
-  ```
-  git clone --recursive https://github.com/caffe2/caffe2.git
-  cd caffe2
-  ```
-  If the recursive flag doesn't work for your version of git you can try the following, otherwise move on to the brew install step.
-
-  ```
-  git submodule init
-  git submodule update
-  ```
+  Fetch the [latest source](#source) code from Github if you haven't already.
 
   Several prerequisites are now installed via brew.
 
@@ -97,15 +92,15 @@
 
   ```
   mkdir build && cd build
-  cmake .. -DBLAS=OpenBLAS
+  cmake ..
   make
   ```
 
   [Original Caffe's OSX guide](http://caffe.berkeleyvision.org/install_osx.html)
 
-## Ubuntu
+### [Ubuntu](#ubuntu)
 
-### Docker + Ubuntu
+#### Docker + Ubuntu
 
   For ubuntu 14.04 users, the Docker script may be a good example on the steps of building Caffe2. Please check `contrib/docker-ubuntu-14.04/Dockerfile` for details. For ubuntu 12.04, use `contrib/docker-ubuntu-12.04/Dockerfile`.
 
@@ -131,7 +126,7 @@
   make
 ```
 
-## Docker Support
+#### [Docker Support](#docker-support)
 
   If you have docker installed on your machine, you may want to use the provided Docker build files for simpler set up. Please check the `contrib/docker*` folders for details.
 
@@ -140,7 +135,7 @@
       docker run -t -i --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm --device /dev/nvidia0:/dev/nvidia0 [other cuda cards] ...
 
 
-## Tutorials Setup & Python Requirements
+## [Tutorials Setup & Python Requirements](#python)
 
   To run the tutorials you'll need ipython-notebooks and matplotlib, which can be installed on OS X with:
 
@@ -152,14 +147,17 @@
 ## Build status (known working)
 
 Ubuntu 14.04 (GCC)
+
 - [ ] Default CPU build
 - [x] Default GPU build
 
 OS X (Clang)
+
 - [x] Default CPU build
 - [ ] Default GPU build
 
 Options (both Clang and GCC)
+
 - [ ] Nervana GPU
 - [ ] ZMQ
 - [ ] RocksDB
@@ -170,11 +168,13 @@ Options (both Clang and GCC)
 - [x] No OpenCV
 
 BLAS
+
 - [x] OpenBLAS
 - [x] ATLAS
 - [ ] MKL
 
 Other
+
 - [ ] CMake 2.8 support
 - [ ] List of dependencies for Ubuntu 14.04
 - [ ] List of dependencies for OS X
