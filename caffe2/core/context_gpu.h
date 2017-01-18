@@ -179,7 +179,9 @@ class CUDAContext final {
   static void Delete(void* data);
 
 
-  // Get the read-write mutex
+  // Get a mutex to lock out cudaMalloc / cudaFree calls when
+  // NCCL kernels are being launched. Should remove threat of
+  // deadlocks
   static std::mutex& mutex();
 
   template <class SrcContext, class DstContext>
