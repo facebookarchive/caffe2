@@ -2,20 +2,25 @@
 
 [![Build Status](https://travis-ci.org/bwasti/caffe2.svg?branch=master)](https://travis-ci.org/bwasti/caffe2)
 
-In order to install or try out Caffe2, you have a few options:
+Thanks for your interesting in Caffe2! If you're new to Deep Learning you might want to take a quick look at our ["What is Deep Learning?"](index.html#caffe2-what-is-deep-learning) section first. If you already know about deep learning, but are new to Caffe you might want to take a look at our ["Why Use Caffe2?"](index.html#caffe2-why-use-caffe2) section before tackling the installation.
+
+Once you've successfully installed Caffe2, check out our [Tutorials](tutorials.html) for a jumpstart on how to use Caffe2 for neural networking and deep learning, how Caffe2 can add deep learning your mobile application, or how Caffe2 can make large-scale distributed training possible for all of your deep learning scalability needs.
+
+Ready to install Caffe2? Great! In order to install or try out Caffe2, you have several options:
 
 - Pre-configured system images
-  - [x] Docker
-  - [ ] AWS
-- Compilation
-  - [x] MacOSx
-  - [x] Linux / Ubuntu
-  - [ ] Windows (TBD)
-  - [ ] Android / Android Studio (coming by end of January 2017)
-  - [ ] iOS / Xcode (coming mid-February 2017)
-- [ ] Pre-built binaries (TBD)
+  - [x] [Docker](#installing-and-building-caffe2-compilation-docker-support)
+  - [ ] AWS (coming soon!)
+- Compile it for your Operating System
+  - [x] [MacOSx](#installing-and-building-caffe2-compilation-macosx)
+  - [x] [Linux / Ubuntu](#installing-and-building-caffe2-compilation-ubuntu)
+  - [ ] Windows (coming soon!)
+- Mobile
+  - [ ] Android / Android Studio (coming soon!)
+  - [ ] iOS / Xcode (coming soon!)
+- [ ] Pre-built binaries (coming soon!)
 
-[Demos](index.html#demos) are also a good option if you want to see it in action without setting it up yourself.
+[Demos](index.html#caffe2-getting-started-with-caffe2-demos) are also a good option if you want to see it in action without setting it up yourself.
 
 ## Getting the Source
 
@@ -77,14 +82,14 @@ git submodule update
 
   The build script should tell you what got built and what did not get built.
 
-### [MacOSx](#macosx)
+### MacOSx
 
 #### OSX Prerequisites
 
   1. Install [Command Line Tools from Xcode](https://developer.apple.com/)
   2. Install [Homebrew](http://brew.sh/)
 
-  Fetch the [latest source](#source) code from Github if you haven't already.
+  Fetch the [latest source](#installing-and-building-caffe2-getting-the-source) code from Github if you haven't already.
 
   Several prerequisites are now installed via brew.   
   Note, installation might be able to just use automake as eigen is default, many of the "prerequisites" are now in third party, and the others were optional:
@@ -101,6 +106,8 @@ git submodule update
     ```
 
   Assuming everything above installs without errors you can move on to the make steps. Warnings should be fine and you can move ahead without trouble.
+
+#### OSX Compilation
 
   If you're starting from scratch, the commands below will create your */build* directory and begin the compilation process. Another directory will be created in your Caffe2 root directory called */install*. The cmake step uses the install directory and also turns off LevelDB. If you're not starting from scratch then delete your */build* and */install* folders first, then run the commands below.
 
@@ -127,9 +134,15 @@ git submodule update
 
   [Original Caffe's OSX guide](http://caffe.berkeleyvision.org/install_osx.html)
 
-### [Ubuntu](#ubuntu)
+### Ubuntu
 
   For ubuntu 14.04 users, the Docker script may be a good example on the steps of building Caffe2. Please check `contrib/docker-ubuntu-14.04/Dockerfile` for details. For ubuntu 12.04, use `contrib/docker-ubuntu-12.04/Dockerfile`.
+
+    Fetch the [latest source](#installing-and-building-caffe2-getting-the-source) code from Github if you haven't already.
+
+    Since most Ubuntu users will want to use Caffe2 for training, research, and a variety of testing we're throwing in the kitchen sink for options during this installation. You could certainly prune many of these packages if you wanted a leaner installation.
+
+    If you're using a VM or a cloud solution, make sure you give yourself enough room for the compilation process. You will need at least 12 GB of disk space to get through all of the compilation. If you don't plan on using GPU, then you could skip the CUDA steps and use a much smaller disk image.
 
 ```
   sudo apt-get install libprotobuf-dev protobuf-compiler libatlas-base-dev libgoogle-glog-dev libgtest-dev liblmdb-dev libleveldb-dev libsnappy-dev python-dev python-pip libiomp-dev libopencv-dev libpthread-stubs0-dev cmake
@@ -153,7 +166,7 @@ git submodule update
   make
 ```
 
-### [Docker Support](#docker-support)
+### Docker Support
 
   If you have docker installed on your machine, you may want to use the provided Docker build files for simpler set up. Please check the `contrib/docker*` folders for details.
 
