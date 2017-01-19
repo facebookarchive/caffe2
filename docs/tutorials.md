@@ -1,5 +1,9 @@
 # Caffe2 Tutorials
 
+  We'd love to start by saying that we really appreciate your interest in Caffe2, and hope this will be a high-performance framework for your machine learning product uses.
+
+  These ipython notebook tutorials will guide you through the Caffe2 Python interface. Note that once we have a model defined, one is able to use pure C++ to deploy such models, without having to use Python in products.
+
   The iPython notebook tutorials can be [browsed](https://github.com/aaronmarkham/caffe2/tree/master/docs/tutorials) or downloaded using the links below each tutorial's title.
 
   You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself.
