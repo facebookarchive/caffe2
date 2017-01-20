@@ -73,7 +73,7 @@ Running the model ends up being relatively lightweight in the sense that even if
 
 ### Demos
 
-Want to see some examples of how deep learning works without doing all of the setup? Try out some [demos](#demos):
+Want to see some examples of how deep learning works without doing all of the setup? Try out some demos:
 
 #### [Caffe Neural Network for Image Classification](http://demo.caffe.berkeleyvision.org/classify_url?imageurl=http%3A%2F%2Fi1.kym-cdn.com%2Fentries%2Ficons%2Foriginal%2F000%2F014%2F959%2FScreenshot_116.png)
 
@@ -89,10 +89,9 @@ Want to see some examples of how deep learning works without doing all of the se
 Caffe2 is currently written in Python 2 with support for Python 3 coming in the near future.
 Installation and compilation [instructions](installation.html) are provided for:
 
-- [MacOSx](installation.html#macosx)
-- [Ubuntu](installation.html#ubuntu)
-- [Python Support](installation.html#python)
-- [Docker Support](installation.html#docker-support)
+- [MacOSx](installation.html#installing-and-building-caffe2-compilation-macosx)
+- [Ubuntu](installation.html#installing-and-building-caffe2-compilation-ubuntu)
+- [Docker Support](installation.html#installing-and-building-caffe2-compilation-docker-support)
 
 ## License and Citation
 

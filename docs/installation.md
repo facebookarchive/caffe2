@@ -2,20 +2,25 @@
 
 [![Build Status](https://travis-ci.org/bwasti/caffe2.svg?branch=master)](https://travis-ci.org/bwasti/caffe2)
 
-In order to install or try out Caffe2, you have a few options:
+Thanks for your interesting in Caffe2! If you're new to Deep Learning you might want to take a quick look at our ["What is Deep Learning?"](index.html#caffe2-what-is-deep-learning) section first. If you already know about deep learning, but are new to Caffe you might want to take a look at our ["Why Use Caffe2?"](index.html#caffe2-why-use-caffe2) section before tackling the installation.
+
+Once you've successfully installed Caffe2, check out our [Tutorials](tutorials.html) for a jumpstart on how to use Caffe2 for neural networking and deep learning, how Caffe2 can add deep learning your mobile application, or how Caffe2 can make large-scale distributed training possible for all of your deep learning scalability needs.
+
+Ready to install Caffe2? Great! In order to install or try out Caffe2, you have several options:
 
 - Pre-configured system images
-  - [x] Docker
-  - [ ] AWS
-- Compilation
-  - [x] MacOSx
-  - [x] Linux / Ubuntu
-  - [ ] Windows (TBD)
-  - [ ] Android / Android Studio (coming by end of January 2017)
-  - [ ] iOS / Xcode (coming mid-February 2017)
-- [ ] Pre-built binaries (TBD)
+  - [x] [Docker](#installing-and-building-caffe2-compilation-docker-support)
+  - [ ] AWS (coming soon!)
+- Compile it for your Operating System
+  - [x] [MacOSx](#installing-and-building-caffe2-compilation-macosx)
+  - [x] [Linux / Ubuntu](#installing-and-building-caffe2-compilation-ubuntu)
+  - [ ] Windows (coming soon!)
+- Mobile
+  - [ ] Android / Android Studio (coming soon!)
+  - [ ] iOS / Xcode (coming soon!)
+- [ ] Pre-built binaries (coming soon!)
 
-[Demos](index.html#demos) are also a good option if you want to see it in action without setting it up yourself.
+[Demos](index.html#caffe2-getting-started-with-caffe2-demos) are also a good option if you want to see it in action without setting it up yourself.
 
 ## Getting the Source
 
@@ -24,9 +29,11 @@ In order to install or try out Caffe2, you have a few options:
     cd caffe2
 ```
 
-If the recursive flag doesn't work for your version of git you can try the following.
+If the recursive option doesn't work for your version of git, or if you already cloned the repo without downloading and initializing the submodules you can try the following steps. Definitely try this if you're getting errors trying to compile.
 
 ```
+git clone --recursive https://github.com/caffe2/caffe2.git
+cd caffe2
 git submodule init
 git submodule update
 ```
@@ -77,14 +84,14 @@ git submodule update
 
   The build script should tell you what got built and what did not get built.
 
-### [MacOSx](#macosx)
+### MacOSx
 
 #### OSX Prerequisites
 
   1. Install [Command Line Tools from Xcode](https://developer.apple.com/)
   2. Install [Homebrew](http://brew.sh/)
 
-  Fetch the [latest source](#source) code from Github if you haven't already.
+  Fetch the [latest source](#installing-and-building-caffe2-getting-the-source) code from Github if you haven't already.
 
   Several prerequisites are now installed via brew.   
   Note, installation might be able to just use automake as eigen is default, many of the "prerequisites" are now in third party, and the others were optional:
@@ -102,64 +109,103 @@ git submodule update
 
   Assuming everything above installs without errors you can move on to the make steps. Warnings should be fine and you can move ahead without trouble.
 
+#### OSX Compilation
+
   If you're starting from scratch, the commands below will create your */build* directory and begin the compilation process. Another directory will be created in your Caffe2 root directory called */install*. The cmake step uses the install directory and also turns off LevelDB. If you're not starting from scratch then delete your */build* and */install* folders first, then run the commands below.
 
   ```
   mkdir build && mkdir install && cd build
   cmake .. -DCMAKE_INSTALL_PATH=../install -DUSE_LEVELDB=OFF
-  make install
+  make
   ```
 
-  You will need to update your PYTHONPATH environment variable to use the newly created files in your */install* directory. Update the directory in the command below to match your Caffe2 install folder path.
-
-  ```
-  export PYTHONPATH=~/caffe2/install
-  ```
-
-  To test your install you can run Python and try importing a Caffe2 module.
-
-  ```
-  import caffe2
-  from caffe2.python import core
-  ```
+  Once the build completes without errors, you will need to:
+    - [Configure Python](#installing-and-building-caffe2-compilation-configure-python)
+    - [Test Caffe2 in Python](#installing-and-building-caffe2-compilation-test-caffe2)
 
   If this fails then you will need to check your Python environment and make sure you're properly linking up to the modules in the */install* directory.
 
   [Original Caffe's OSX guide](http://caffe.berkeleyvision.org/install_osx.html)
 
-### [Ubuntu](#ubuntu)
+### Ubuntu
 
   For ubuntu 14.04 users, the Docker script may be a good example on the steps of building Caffe2. Please check `contrib/docker-ubuntu-14.04/Dockerfile` for details. For ubuntu 12.04, use `contrib/docker-ubuntu-12.04/Dockerfile`.
 
-```
-  sudo apt-get install libprotobuf-dev protobuf-compiler libatlas-base-dev libgoogle-glog-dev libgtest-dev liblmdb-dev libleveldb-dev libsnappy-dev python-dev python-pip libiomp-dev libopencv-dev libpthread-stubs0-dev cmake
-  sudo pip install numpy
-  wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
-  sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
-  sudo apt-get update
-  sudo apt-get install cuda
-  sudo apt-get install git
-```
+  Since most Ubuntu users will want to use Caffe2 for training, research, and a variety of testing we're throwing in the kitchen sink for options during this installation. You could certainly prune many of these packages if you wanted a leaner installation.
 
-```
-  CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" &&
-  curl -fsSL ${CUDNN_URL} -O &&
-  sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local &&
-  rm cudnn-8.0-linux-x64-v5.1.tgz &&
-  sudo ldconfig
+  If you're using a VM or a cloud solution, make sure you give yourself enough room for the compilation process. You will need at least 12 GB of disk space to get through all of the compilation. If you don't plan on using GPU, then you could skip the CUDA steps and use a much smaller disk image.
 
-  mkdir build && cd build
-  cmake ..
-  make
-```
+  ```
+    sudo apt-get install libprotobuf-dev protobuf-compiler libatlas-base-dev libgoogle-glog-dev libgtest-dev liblmdb-dev libleveldb-dev libsnappy-dev python-dev python-pip libiomp-dev libopencv-dev libpthread-stubs0-dev cmake
+    sudo pip install numpy
+    wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
+    sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
+    sudo apt-get update
+    sudo apt-get install cuda
+    sudo apt-get install git
+    sudo pip install protobuf
+  ```
 
-### [Docker Support](#docker-support)
+  If you plan to run the tutorials and the Jupyter notebooks:
+
+  ```  
+    sudo pip install ipython
+    sudo pip install notebook
+    sudo pip install matplotlib
+  ```
+
+  Fetch the [latest source](#installing-and-building-caffe2-getting-the-source) code from Github if you haven't already.
+
+  ```
+    CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" &&
+    curl -fsSL ${CUDNN_URL} -O &&
+    sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local &&
+    rm cudnn-8.0-linux-x64-v5.1.tgz &&
+    sudo ldconfig
+
+    mkdir build && cd build
+    cmake ..
+    make
+  ```
+
+  Once the build completes without errors, you will need to:
+    - [Configure Python](#installing-and-building-caffe2-compilation-configure-python)
+    - [Test Caffe2 in Python](#installing-and-building-caffe2-compilation-test-caffe2)
+
+#### GPU Support
+
+  Copy the nccl shared library to /usr/local/lib if you want GPU support.
+
+  
+
+### Configure Python
+
+  You will need to update your PYTHONPATH environment variable to use the newly created files in your */install* directory. Update the directory in the command below to match your Caffe2 install folder path.
+
+  ```
+  sudo make install
+  export PYTHOPATH=/usr/local
+  ```
+
+### Test Caffe2
+
+  To test if Caffe2 is working run the following:
+
+  ```
+  python -c 'from caffe2.python import core' 2>/dev/null && echo "Success!" || echo "uh oh!"
+  ```
+
+  If you get a result of "Success!" then you're ready to Caffe! If you get an "uh oh" then go back and check your console for errors and see if you missed anything. Many times this can be related to Python environments and you'll want to make sure you're running Python that's registered with the Caffe2 modules.
+
+### Docker Support
 
   If you have docker installed on your machine, you may want to use the provided Docker build files for simpler set up. Please check the `contrib/docker*` folders for details.
 
   Running these Docker images with CUDA GPUs is currently only supported on Linux hosts, as far as I can tell. You will need to make sure that your host driver is also 346.46, and you will need to invoke docker with
 
+```
       docker run -t -i --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm --device /dev/nvidia0:/dev/nvidia0 [other cuda cards] ...
+```
 
 ## Build status (known working)
 
