@@ -3,9 +3,17 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "caffe2/core/tensor.h" // for TIndex
+#include "caffe2/core/flags.h" // for TIndex
 #include "caffe2/utils/mkl/mkl_dnn_cppwrapper.h"
+
+// A global boolean variable that controls the behavior when we call View() on
+// an MKLMemory: if it is set true, then the View() function will actually
+// change the underlying storage. If it is set false, an implicit copy is
+// triggered but the original storage is not affected.
+CAFFE2_DECLARE_bool(caffe2_mkl_implicit_layout_change);
 
 namespace caffe2 {
 namespace mkl {
@@ -177,6 +185,11 @@ class MKLMemory {
     convert_out_.Reset(dnnConversionCreate<T>, layout_, user_layout_);
     share_mem_if_possible_ = share_mem_if_possible;
     layout_is_user_layout_ = dnnLayoutCompare<T>(layout_, user_layout_);
+    if (!share_mem_if_possible_) {
+      // If we are not going to share memory, we will simply allocate
+      // memory upfront.
+      buffer();
+    }
   }
 
   // Initialize an MKLMemory, with the given dimension assuming a C-contiguous
@@ -209,6 +222,11 @@ class MKLMemory {
     convert_out_.Reset(dnnConversionCreate<T>, layout_, user_layout_);
     share_mem_if_possible_ = share_mem_if_possible;
     layout_is_user_layout_ = dnnLayoutCompare<T>(layout_, user_layout_);
+    if (!share_mem_if_possible_) {
+      // If we are not going to share memory, we will simply allocate
+      // memory upfront.
+      buffer();
+    }
   }
 
   // Destructs the MKLMemory.
@@ -261,9 +279,15 @@ class MKLMemory {
 
   bool ShareFrom(const MKLMemory<T>& other) {
     if (share_mem_if_possible_ && dnnLayoutCompare<T>(other.layout_, layout_)) {
+      VLOG(2) << "Sharing underlying memory.";
       buffer_ = other.buffer_;
+      if (!buffer_.get()) {
+        VLOG(2) << "Warning: the source MKLMemory has no content yet, so the "
+                   "sharing actually has no effect.";
+      }
       return true;
     } else {
+      VLOG(2) << "Not sharing underlying memory.";
       return false;
     }
   }
@@ -295,7 +319,7 @@ class MKLMemory {
       const dnnPrimitive_t primitive = nullptr,
       const dnnResourceType_t type = dnnResourceNumber) {
     if (buffer_.get() == other->buffer_.get()) {
-      VLOG(1) << "We are sharing memory with the output, skipping copy.";
+      VLOG(2) << "We are sharing memory with the output, skipping copy.";
       // This is already mapping to the same memory region. Skip copy.
       return;
     }
@@ -304,13 +328,13 @@ class MKLMemory {
     // TODO(jiayq): if primitive creation is a big overhead and we will be
     // consistently copying stuff with fixed src and dst layouts, consider
     // making a cache for the primitive below.
-    VLOG(1) << "Trying direct copy.";
+    VLOG(2) << "Trying direct copy.";
     PrimitiveWrapper<T> convert(
         dnnConversionCreate<T>, layout_, other->layout_);
     if (dnnPrimitive_t(convert) == nullptr ||
         dnnConversionExecute<T>(convert, buffer_.get(), other->buffer()) !=
             E_SUCCESS) {
-      VLOG(1) << "Direct copy failed, will need to allocate output.";
+      VLOG(2) << "Direct copy failed, will need to allocate output.";
       // If CopyTo directly did not succeed, it could be because the target
       // MKLMemory is not having the right layout. In this case we will reset
       // the target and then do another copy.
@@ -356,6 +380,7 @@ class MKLMemory {
   // that the returned std::shared_ptr is not const protected - user discretion
   // is recommended for correctness.
   std::shared_ptr<void> View(dnnLayout_t layout_wanted) const {
+    std::lock_guard<std::mutex> lock(buffer_lock_);
     if (dnnLayoutCompare(layout_wanted, layout_)) {
       // If they are the same, return the original content.
       return std::shared_ptr<void>(buffer_);
@@ -365,9 +390,16 @@ class MKLMemory {
       PrimitiveWrapper<T> convert(
           dnnConversionCreate<T>, layout_, layout_wanted);
       MKLDNN_SAFE_CALL(dnnConversionExecute<T>(convert, buffer_, temp_buffer));
-      return std::shared_ptr<void>(temp_buffer, [](void* ptr) -> void {
-        MKLDNN_CHECK(dnnReleaseBuffer<T>(ptr));
-      });
+      if (FLAGS_caffe2_mkl_implicit_layout_change) {
+        buffer_.reset(temp_buffer, [](void* ptr) -> void {
+                MKLDNN_CHECK(dnnReleaseBuffer<T>(ptr));
+            });
+        return std::shared_ptr<void>(buffer_);
+      } else {
+        return std::shared_ptr<void>(temp_buffer, [](void* ptr) -> void {
+                MKLDNN_CHECK(dnnReleaseBuffer<T>(ptr));
+            });
+      }
     }
   }
 
@@ -376,6 +408,8 @@ class MKLMemory {
   bool layout_is_user_layout_;
   // The internal buffer in the specific dnn layout.
   std::shared_ptr<void> buffer_;
+  // A mutex to control the access of buffer in the View() function.
+  std::mutex buffer_lock_;
   // The dimensions in the same order as Caffe2 does. This is used to
   // interface with C2.
   vector<TIndex> dims_;
