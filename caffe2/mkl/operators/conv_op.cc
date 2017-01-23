@@ -90,9 +90,12 @@ class MKLConvOp final : public ConvPoolOpBase<MKLContext> {
     // operations, if the output is already allocated and is having the same
     // layout as the buffer has.
     buffer_.ShareFrom(*Y);
-    std::shared_ptr<void> X_view = X.View(input_layout_);
-    std::shared_ptr<void> filter_view = filter.View(filter_layout_);
-    std::shared_ptr<void> bias_view = bias.View(bias_layout_);
+    std::shared_ptr<void> X_view = X.View(
+        input_layout_, primitive_, dnnResourceSrc);
+    std::shared_ptr<void> filter_view = filter.View(
+        filter_layout_, primitive_, dnnResourceFilter);
+    std::shared_ptr<void> bias_view = bias.View(
+        bias_layout_, primitive_, dnnResourceBias);
     resources_[dnnResourceSrc] = X_view.get();
     resources_[dnnResourceFilter] = filter_view.get();
     resources_[dnnResourceBias] = bias_view.get();
