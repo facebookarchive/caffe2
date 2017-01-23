@@ -167,6 +167,16 @@ ArgumentHelper::ArgumentHelper(const OperatorDef& def) {
   }
 }
 
+ArgumentHelper::ArgumentHelper(const NetDef& netdef) {
+  for (auto& arg : netdef.arg()) {
+    CAFFE_ENFORCE(
+        arg_map_.count(arg.name()) == 0,
+        "Duplicated argument name found in net def: ",
+        ProtoDebugString(netdef));
+    arg_map_[arg.name()] = &arg;
+  }
+}
+
 bool ArgumentHelper::HasArgument(const string& name) const {
   return arg_map_.count(name);
 }
@@ -270,14 +280,31 @@ const Argument& GetArgument(const OperatorDef& def, const string& name) {
       return arg;
     }
   }
-  LOG(FATAL) << "Argument named " << name << " does not exist.";
-  // To suppress compiler warning of return values. This will never execute.
-  static Argument _dummy_arg_to_suppress_compiler_warning;
-  return _dummy_arg_to_suppress_compiler_warning;
+  CAFFE_THROW(
+      "Argument named ",
+      name,
+      " does not exist in operator ",
+      ProtoDebugString(def));
+}
+
+bool GetFlagArgument(
+    const OperatorDef& def,
+    const string& name,
+    bool def_value) {
+  for (const Argument& arg : def.arg()) {
+    if (arg.name() == name) {
+      CAFFE_ENFORCE(
+          arg.has_i(), "Can't parse argument as bool: ", ProtoDebugString(arg));
+      return arg.i();
+    }
+  }
+  return def_value;
 }
 
 Argument* GetMutableArgument(
-    const string& name, const bool create_if_missing, OperatorDef* def) {
+    const string& name,
+    const bool create_if_missing,
+    OperatorDef* def) {
   for (int i = 0; i < def->arg_size(); ++i) {
     if (def->arg(i).name() == name) {
       return def->mutable_arg(i);

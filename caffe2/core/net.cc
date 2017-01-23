@@ -8,6 +8,7 @@
 #include "caffe2/core/operator.h"
 #include "caffe2/core/timer.h"
 #include "caffe2/proto/caffe2.pb.h"
+#include "caffe2/utils/proto_utils.h"
 
 CAFFE2_DEFINE_bool(
     caffe2_disable_chaining,
@@ -287,6 +288,13 @@ bool SimpleNet::RunAsync() {
   return true;
 }
 
+namespace {
+template <typename A, typename B>
+bool PairLargerThan(const std::pair<A, B>& x, const std::pair<A, B>& y) {
+  return x.second > y.second;
+}
+}
+
 vector<float> SimpleNet::TEST_Benchmark(
     const int warmup_runs,
     const int main_runs,
@@ -351,10 +359,16 @@ vector<float> SimpleNet::TEST_Benchmark(
       ++idx;
     }
     LOG(INFO) << "Time per operator type:";
-    for (const auto& item : time_per_op_type) {
-      LOG(INFO) << std::setw(15) << std::setfill(' ')
-                     << item.second / main_runs
-                     << " " << item.first;
+    // sort by decreasing time spending.
+    std::vector<std::pair<string, float>> time_per_op_type_vec(
+        time_per_op_type.begin(), time_per_op_type.end());
+    std::sort(
+        time_per_op_type_vec.begin(),
+        time_per_op_type_vec.end(),
+        PairLargerThan<string, float>);
+    for (const auto& item : time_per_op_type_vec) {
+      LOG(INFO) << std::setw(15) << std::setfill(' ') << item.second / main_runs
+                << " " << item.first;
     }
   }
   // We will reuse time_per_op to return the result of BenchmarkNet.
@@ -476,7 +490,22 @@ DAGNetBase::DAGNetBase(const NetDef& net_def, Workspace* ws)
                  << "will be executed sequentially. Did you forget to set "
                  << "num_workers in the NetDef?";
   }
-  for (int i = 0; i < num_workers; ++i) {
+  num_workers_ = num_workers;
+
+  int num_workers_to_start = num_workers_;
+
+  // Option to start only one thread for first iteration. This hack is
+  // needed to prevent deadlocks happening with CUDA and concurrent allocations
+  // that operators do when run the first time.
+  ArgumentHelper arg_helper(net_def);
+  if (arg_helper.HasArgument("first_iter_only_one_worker")) {
+    if (arg_helper.GetSingleArgument<int64_t>(
+            "first_iter_only_one_worker", 0)) {
+      num_workers_to_start = 1;
+    }
+  }
+
+  for (int i = 0; i < num_workers_to_start; ++i) {
     VLOG(1) << "Start worker #" << i;
     workers_.push_back(std::thread(&DAGNetBase::WorkerFunction, this));
   }
@@ -523,6 +552,13 @@ bool DAGNetBase::Run() {
         op.operator_->def().type(),
         ") has some runtime parents left.");
   }
+
+  // Ensure the number of workers matches the defined
+  for (auto i = workers_.size(); i < num_workers_; ++i) {
+    VLOG(1) << "Start worker #" << i;
+    workers_.push_back(std::thread(&DAGNetBase::WorkerFunction, this));
+  }
+
   // If the above while loop finished, we know that the current run finished.
   return success_;
 }

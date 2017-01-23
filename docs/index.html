@@ -25,8 +25,8 @@
       Flatdoc.run({
         fetcher: Flatdoc.file('./index.md'),
         highlight: function (code, value) {
-          return (value === 'reason') 
-          ? hljs.highlight('reason', code).value 
+          return (value === 'reason')
+          ? hljs.highlight('reason', code).value
           : hljs.highlight(value, code).value;
         },
       });
@@ -42,7 +42,7 @@
     <meta content='Caffe2: Tagline.' name='description'>
     <meta content='Caffe2: Tagline.' property='og:description'>-->
 
-    <link  href='style.css' rel='stylesheet'>
+    <link  href='support/style.css' rel='stylesheet'>
   </head>
 
   <body role='flatdoc' class='big-h3 large-brief'>
@@ -60,6 +60,7 @@
         <ul>
           <li><a href='operators.html'>Operators</a></li>
           <li><a href='tutorials.html'>Tutorials</a></li>
+          <li><a href='installation.html'>Installation</a></li>
           <li><a href='https://github.com/caffe2/caffe2' class="Caffe2_currentlink">GitHub</a></li>
         </ul>
       </div>

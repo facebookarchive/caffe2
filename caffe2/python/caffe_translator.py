@@ -1,8 +1,15 @@
 #!/usr/bin/env python2
 
+import logging
+import numpy as np
+
 from caffe2.proto import caffe2_pb2, caffe2_legacy_pb2
 from caffe.proto import caffe_pb2
 from caffe2.python import core, utils
+
+logging.basicConfig()
+log = logging.getLogger("caffe_translator")
+log.setLevel(logging.INFO)
 
 
 def _StateMeetsRule(state, rule):
@@ -82,10 +89,10 @@ class TranslatorRegistry(object):
             )
         for layer in caffe_net.layer:
             if not _ShouldInclude(net_state, layer):
-                print('Current net state does not need layer {}'
-                      .format(layer.name))
+                log.info('Current net state does not need layer {}'
+                            .format(layer.name))
                 continue
-            print('Translate layer {}'.format(layer.name))
+            log.info('Translate layer {}'.format(layer.name))
             # Get pretrained one
             pretrained_layers = (
                 [l for l in pretrained_net.layer
@@ -217,6 +224,15 @@ def TranslateConv(layer, pretrained_blobs, is_test):
     param = layer.convolution_param
     if param.group > 1:
         return TranslateConvWithGroups(layer, pretrained_blobs, is_test)
+
+    # Caffe2 conv operator requires bias. Add zero bias if missing.
+    if len(pretrained_blobs) == 1:
+        num_kernels = pretrained_blobs[0].shape[0]
+        bias_blob = caffe_pb2.BlobProto()
+        bias_blob.data.extend(np.zeros(num_kernels))
+        bias_blob.shape.dim.extend([1, 1, 1, num_kernels])
+        pretrained_blobs.append(utils.CaffeBlobToNumpyArray(bias_blob))
+
     # If there is no odd things, we will basically translate it to a standard
     # caffe2 op.
     caffe_op = BaseTranslate(layer, "Conv")
@@ -231,7 +247,7 @@ def TranslateConv(layer, pretrained_blobs, is_test):
 
 
 def TranslateConvWithGroups(layer, pretrained_blobs, is_test):
-    print(
+    log.warn(
         "Legacy warning: convolution with groups seem to be less and less " +
         "popular, so we no longer have it as a first-class citizen op. " +
         "Instead, we will simulate it with depth split followed by conv " +
@@ -320,8 +336,19 @@ def TranslatePool(layer, pretrained_blobs, is_test):
         caffe_op = BaseTranslate(layer, "AveragePool")
     _TranslateStridePadKernelHelper(param, caffe_op)
     AddArgument(caffe_op, "order", "NCHW")
-    AddArgument(caffe_op, "legacy_pad",
-                caffe2_legacy_pb2.CAFFE_LEGACY_POOLING)
+    if param.HasField('torch_pooling') and param.torch_pooling:
+        # In the Facebook port of Caffe, a torch_pooling field was added to
+        # map the pooling computation of Torch. Essentially, it uses
+        #   floor((height + 2 * padding - kernel) / stride) + 1
+        # instead of
+        #   ceil((height + 2 * padding - kernel) / stride) + 1
+        # which is Caffe's version.
+        # Torch pooling is actually the same as Caffe2 pooling, so we don't
+        # need to do anything.
+        pass
+    else:
+        AddArgument(caffe_op, "legacy_pad",
+                    caffe2_legacy_pb2.CAFFE_LEGACY_POOLING)
     if param.global_pooling:
         AddArgument(caffe_op, "global_pooling", 1)
     return caffe_op, []
@@ -394,7 +421,7 @@ def TranslateSoftmaxWithLoss(layer, pretrained_blobs, is_test):
 def TranslateAccuracy(layer, pretrained_blobs, is_test):
     caffe_op = BaseTranslate(layer, "Accuracy")
     if layer.accuracy_param.top_k != 1:
-        print("Warning: Translation does not support Accuracy layers top_k >1.")
+        log.warn("Translation does not support Accuracy layers top_k >1.")
     return caffe_op, []
 
 
@@ -446,6 +473,14 @@ def TranslateScale(layer, pretrained_blobs, is_test):
         # the scale parameter is in pretrained blobs
         if scale_param.num_axes != 1:
             raise RuntimeError("This path has not been verified yet.")
+        if len(pretrained_blobs) != 1:
+            # Caffe Scale layer supports a bias term such that it computes
+            # (scale_param * X + bias), whereas Caffe2 Mul op doesn't.
+            # If the Scale layer follows a Conv, it can be removed altogether
+            # by fusing its params into the Conv weights before running the
+            # translator. We could also include a separate Add op for the bias,
+            # but the former approach saves two operators.
+            raise RuntimeError("Bias term in Scale is not yet supported.")
         output = caffe_op.output[0]
         caffe_op.input.append(output + '_w')
         weight = utils.NumpyArrayToCaffe2Tensor(

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 
+#include "caffe2/core/common_omp.h"
 #include "caffe2/core/context.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/core/operator.h"
@@ -599,7 +600,7 @@ class ScatterAssignOp : public Operator<Context> {
     T* data = output->template mutable_data<T>();
     const Index* idxs = indices.template data<Index>();
     const T* slicesData = slices.template data<T>();
-#pragma omp parallel for
+    CAFFE2_OMP_PARALLEL_FOR()
     for (int i = 0; i < K; ++i) {
       Index idx = idxs[i];
       // double-checking the indices, but it's fine as it's DCHECK only
@@ -1320,7 +1321,11 @@ class GatherOp : public Operator<Context> {
     auto out = static_cast<char*>(output->raw_mutable_data(data.meta()));
 
     for (int i = 0; i < N; ++i) {
-      auto src = src_base + idxs[i] * block_bytesize;
+      auto idx = idxs[i];
+      CAFFE_ENFORCE(
+          0 <= idx && idx < data.dim(0),
+          "INDICES element is out of DATA bounds");
+      auto src = src_base + idx * block_bytesize;
       context_.template CopyItems<Context, Context>(
           data.meta(), block_size, src, out + block_bytesize * i);
     }
