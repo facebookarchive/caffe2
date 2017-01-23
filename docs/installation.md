@@ -119,11 +119,10 @@ git submodule update
   make
   ```
 
-  Once the build completes without errors, you will need to:
+  Once the build completes without errors, you will want to:
     - [Configure Python](#installing-and-building-caffe2-compilation-configure-python)
     - [Test Caffe2 in Python](#installing-and-building-caffe2-compilation-test-caffe2)
-
-  If this fails then you will need to check your Python environment and make sure you're properly linking up to the modules in the */install* directory.
+    - [Install Tutorial Prerequisites](#installing-and-building-caffe2-compilation-tutorials-prerequisites)
 
   [Original Caffe's OSX guide](http://caffe.berkeleyvision.org/install_osx.html)
 
@@ -146,14 +145,6 @@ git submodule update
     sudo pip install protobuf
   ```
 
-  If you plan to run the tutorials and the Jupyter notebooks:
-
-  ```  
-    sudo pip install ipython
-    sudo pip install notebook
-    sudo pip install matplotlib
-  ```
-
   Fetch the [latest source](#installing-and-building-caffe2-getting-the-source) code from Github if you haven't already.
 
   ```
@@ -168,15 +159,14 @@ git submodule update
     make
   ```
 
-  Once the build completes without errors, you will need to:
+  Once the build completes without errors, you will want to:
     - [Configure Python](#installing-and-building-caffe2-compilation-configure-python)
     - [Test Caffe2 in Python](#installing-and-building-caffe2-compilation-test-caffe2)
+    - [Install Tutorial Prerequisites](#installing-and-building-caffe2-compilation-tutorials-prerequisites)
 
 #### GPU Support
 
   Copy the nccl shared library to /usr/local/lib if you want GPU support.
-
-  
 
 ### Configure Python
 
@@ -196,6 +186,17 @@ git submodule update
   ```
 
   If you get a result of "Success!" then you're ready to Caffe! If you get an "uh oh" then go back and check your console for errors and see if you missed anything. Many times this can be related to Python environments and you'll want to make sure you're running Python that's registered with the Caffe2 modules.
+
+### Tutorials Prerequisites
+
+  If you plan to run the tutorials and the Jupyter notebooks you can get these package from your package manager of choice: apt-get, pip, or Anaconda's conda. Here are examples using pip.
+
+  ```  
+    sudo pip install ipython
+    sudo pip install notebook
+    sudo pip install matplotlib
+    sudo pip install graphviz
+  ```
 
 ### Docker Support
 
