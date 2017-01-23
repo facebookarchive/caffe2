@@ -10,7 +10,7 @@ from caffe2.python import cnn, core, workspace, test_util
 
 @unittest.skipIf(not workspace.C.has_mkldnn, "Skipping as we do not have mkldnn.")
 class TestMKLBasic(test_util.TestCase):
-    def testReLUConsistencyWithCPU(self):
+    def testReLUConsistencyTiming(self):
         X = np.random.randn(128, 4096).astype(np.float32)
         mkl_do = core.DeviceOption(caffe2_pb2.MKLDNN)
         # Makes sure that feed works.
