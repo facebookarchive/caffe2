@@ -11,8 +11,10 @@
 
     <script src='support/vendor/jquery.js'></script>
     <script src='support/legacy.js'></script>
-    <script src='support/highlightJs/build/highlight.pack.js'></script>
-    <link  href='support/highlightJs/src/styles/xcode.css' rel='stylesheet'>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+    <!--script src='support/highlightJs/build/highlight.pack.js'></script>
+    <link  href='support/highlightJs/src/styles/xcode.css' rel='stylesheet'-->
     <script src='support/flatdoc.js'></script>
 
     <link  href='support/theme-white/style.css' rel='stylesheet'>
@@ -23,7 +25,7 @@
     <!-- Flatdoc Runner -->
     <script>
       Flatdoc.run({
-        fetcher: Flatdoc.file('./index.md'),
+        fetcher: Flatdoc.file('./installation.md'),
         highlight: function (code, value) {
           return (value === 'reason')
           ? hljs.highlight('reason', code).value
@@ -46,17 +48,9 @@
   </head>
 
   <body role='flatdoc' class='big-h3 large-brief'>
-
-    <div class='title-area title-card'>
-      <div class='in'>
-              <div class='Caffe2_maintitle'>Caffe2</div>
-              <div class='Caffe2_subtitle'>Neural Network Engine</div>
-      </div>
-    </div>
-
     <div class='header'>
       <div class='left'>
-        <h1><a href='#caffe2'>Caffe2</a></h1>
+        <h1><a href='index.html#caffe2'>Caffe2</a></h1>
         <ul>
           <li><a href='operators.html'>Operators</a></li>
           <li><a href='tutorials.html'>Tutorials</a></li>

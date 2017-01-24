@@ -89,10 +89,9 @@ Want to see some examples of how deep learning works without doing all of the se
 Caffe2 is currently written in Python 2 with support for Python 3 coming in the near future.
 Installation and compilation [instructions](installation.html) are provided for:
 
-- [MacOSx](installation.html#macosx)
-- [Ubuntu](installation.html#ubuntu)
-- [Python Support](installation.html#python)
-- [Docker Support](installation.html#docker-support)
+- [MacOSx](installation.html#installing-and-building-caffe2-compilation-macosx)
+- [Ubuntu](installation.html#installing-and-building-caffe2-compilation-ubuntu)
+- [Docker Support](installation.html#installing-and-building-caffe2-compilation-docker-support)
 
 ## License and Citation
 
