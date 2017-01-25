@@ -110,7 +110,7 @@ If you want to add or discuss a new feature then you should create a post in the
 
 ### Pre-trained Models
 
-Have you created the greatest model since Cindy Crawford? Or maybe the best image categorization since VGG Team's ILSVRC14 16-layer model? How about a video to text translation model that is more accurate than all before it and it supports 5 languages? Whatever that awesome thing is that you made, share it, and we can put it in [Caffe2's Model Zoo](zoo.html)!
+Have you created the greatest model since Cindy Crawford? Or maybe the best image categorization model since VGG Team's ILSVRC14 16-layer model? How about a video to text translation model that is more accurate than all before it and it supports 5 languages? Whatever that awesome thing is that you made, share it, and we can put it in [Caffe2's Model Zoo](zoo.html)! Instructions for submissions are on the [Zoo](zoo.html) page.
 
 ## License and Citation
 

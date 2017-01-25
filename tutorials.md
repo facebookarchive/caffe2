@@ -80,3 +80,9 @@ This tutorial creates a small convolutional neural network (CNN) that can identi
 [Browse](https://github.com/aaronmarkham/caffe2/blob/master/docs/tutorials/immediate.ipynb) | [Download](tutorials/immediate.ipynb)
 
 Explores an experimental Caffe2 feature that allows you inspect intermediate outputs as you go. It will run corresponding operators as you write them.
+
+### Converting Models from Caffe to Caffe2
+
+A tutorial for converting your old Caffe models or for any of the models found in the Caffe Model Zoo is provided in the following Jupyter notebook found at `docs/tutorials/Caffe_translator.ipynb` or you can browse and download them here:
+
+[Browse](https://github.com/aaronmarkham/caffe2/blob/master/docs/tutorials/Caffe_translator.ipynb) | [Download](tutorials/Caffe_translator.ipynb)
