@@ -14,13 +14,13 @@ Most readers will have been exposed to Apple's Siri. This digital assistant's co
 
 ### Digital Assistants & Chat Bots
 
-Ultimately looking at a digital assistant like Siri you might be reminiscent of 2001's HAL computer, one of pop culture's first introductions to Artificial Intelligence. Rather than focus on the AI's homicidal hijinks, other properties are more relevant to understand what you can do with AI and DNN today. The AI was able to *see* though video cameras and *feel* environmental conditions by reading sensors such and temperature, pressure, and velocity. It was able to control doors, engines, and other devices through actuators or other networked parts of the space station. As we explore the full impact and capabilities of the Internet of Things (IoT) where everything from your fridge to your security system to individual lights communicate, you can see that we're not far off from useful interaction with simple AI's. Some of these that we're seeing now are chat bots.
+Ultimately looking at a digital assistant like Siri you might be reminiscent of 2001's HAL computer, one of pop culture's first introductions to Artificial Intelligence. Rather than focus on the AI's homicidal hijinks, other properties are more relevant to understand what you can do with AI and DNN today. The AI was able to *see* though video cameras and *feel* environmental conditions by reading sensors such and temperature, pressure, and velocity. It was able to control doors, engines, and other devices through actuators or other networked parts of the space station. As we explore the full impact and capabilities of the Internet of Things (IoT) where everything communicates: from your fridge, to your security system, to individual lights, you can see that we're not far off from useful interaction with simple AI's. Some simple AI's that we're seeing now are chat bots.
 
-A chat bot could in action when you click on the support link on your bank's website or favorite shopping website. The "how may I help you?" response can fully a fully automated program that reads your text and looks for related responses, or in the most simplest form redirects you to the appropriate live agent. As the more complex bots are written using deep neural networking, their ability to understand your statements, and more importantly, the context, they'll be able to hold longer more meaningful conversations without you even realizing you weren't chatting with a real person.
+A chat bot could be in action when you click on the support link on your bank's website or favorite shopping website. The "how may I help you?" response can fully a fully automated program that reads your text and looks for related responses, or in the most simplest form redirects you to the appropriate live agent. As the more complex bots are written using deep neural networking, their ability to understand your statements, and more importantly, the context, they'll be able to hold longer more meaningful conversations without you even realizing you weren't chatting with a real person.
 
 ### Computer Vision
 
-Computer vision has been around for (many years) and has enabled advanced robotics, streamlined manufacturing, better medical devices, just to name a few positives, and even license plate recognition to automate giving people tickets for a number of moving violations like speeding, running red lights, and toll violations. Neural networks have significantly improved computer vision applications. A couple of examples are photo processing for object recognition (is that a cat or a dog), and video processing to automate scene classification or people recognition (is that a helicopter? is there a person in the scene? who is that person?).
+Computer vision has been around for many years and has enabled advanced robotics, streamlined manufacturing, better medical devices, just to name a few positives, and even license plate recognition to automate giving people tickets for a number of moving violations like speeding, running red lights, and toll violations. Neural networks have significantly improved computer vision applications. A couple of examples are photo processing for object recognition (is that a cat or a dog?), and video processing to automate scene classification or people recognition (is that a helicopter? Is there a person in the scene? Who is that person?).
 
 ### Translation
 
@@ -32,7 +32,10 @@ Referring back to the IoT systems such as lighting and security, a fairly simple
 
 ### Medical
 
-Customs agencies have use [thermal image processing](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3016318/) to identify people who may be suffering from a fever in order to enforce quarantines and limit the spread of infection disease.   
+Customs agencies have use [thermal image processing](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3016318/) to identify people who may be suffering from a fever in order to enforce quarantines and limit the spread of infection disease.
+
+Image segmentation is a common task for in medical imaging to help identify different types of tissue, scan for anomalies, and provide assistance to physicians analyzing imagery in a variety of disciplines such as radiology and oncology.
+Medical records can be processed with ML and DNN to find insights and correlations in these massive data sets.    
 
 ### Advertising
 
@@ -86,12 +89,28 @@ Want to see some examples of how deep learning works without doing all of the se
 
 ## [Installation](installation.html)
 
-Caffe2 is currently written in Python 2 with support for Python 3 coming in the near future.
+Caffe2's modules are currently written in Python 2 with support for Python 3 coming in the near future.
 Installation and compilation [instructions](installation.html) are provided for:
 
 - [MacOSx](installation.html#installing-and-building-caffe2-compilation-macosx)
 - [Ubuntu](installation.html#installing-and-building-caffe2-compilation-ubuntu)
 - [Docker Support](installation.html#installing-and-building-caffe2-compilation-docker-support)
+
+## Contributing to Caffe2
+
+Caffe is an Open Source project and we really hope to foster innovation and collaboration.
+
+### Bug Reporting
+
+If you find a bug please file an [Issue](https://github.com/caffe2/caffe2/issues), and if you fix said bug, file a [Pull Request](https://github.com/caffe2/caffe2/pulls) referencing the issue.
+
+### Features  
+
+If you want to add or discuss a new feature then you should create a post in the forum and assure at least some discussion before submitting a "blind" pull request.
+
+### Pre-trained Models
+
+Have you created the greatest model since Cindy Crawford? Or maybe the best image categorization since VGG Team's ILSVRC14 16-layer model? How about a video to text translation model that is more accurate than all before it and it supports 5 languages? Whatever that awesome thing is that you made, share it, and we can put it in [Caffe2's Model Zoo](zoo.html)!
 
 ## License and Citation
 
