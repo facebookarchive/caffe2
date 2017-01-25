@@ -88,3 +88,6 @@ MANIFEST-*
 
 # Install folder generated during last part of build instructions
 install
+
+# No need to track third_party folder
+third_party
