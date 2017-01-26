@@ -6,14 +6,19 @@ if [[ $BUILD_TARGET == 'android' ]]; then
 
   if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     brew install automake libtool
+    # Install android ndk
+    wget https://dl.google.com/android/repository/android-ndk-r13b-darwin-x86_64.zip
+    sudo mkdir -p /opt/android_ndk
+    sudo chmod a+rwx /opt/android_ndk
+    unzip -qo android-ndk-r13b-darwin-x86_64.zip -d /opt/android_ndk
   else
     sudo apt-get install autotools-dev autoconf
+    # Install android ndk
+    wget https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip
+    sudo mkdir -p /opt/android_ndk
+    sudo chmod a+rwx /opt/android_ndk
+    unzip -qo android-ndk-r13b-linux-x86_64.zip -d /opt/android_ndk
   fi
-  # Install android ndk
-  wget https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip
-  sudo mkdir -p /opt/android_ndk
-  sudo chmod a+rwx /opt/android_ndk
-  unzip -qo android-ndk-r13b-linux-x86_64.zip -d /opt/android_ndk
 
 elif [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 #*******************#
