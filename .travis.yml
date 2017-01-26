@@ -48,6 +48,7 @@ matrix:
     - env: COMPILER=g++-5
     - env: COMPILER=g++-4.9
     - env: COMPILER=g++-4.8
+    - env: BUILD_TARGET=android
 
 cache:
   apt: true
