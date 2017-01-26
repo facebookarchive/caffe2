@@ -1,6 +1,15 @@
 #!/bin/bash
+if [[ $BUILD_TARGET == 'android' ]]; then
+#**********************#
+# Android installation #
+#**********************#
+  # Install android ndk
+  sudo apt-get install autotools-dev autoconf
+  wget https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip
+  mkdir -p /opt/android_ndk
+  unzip -qo android-ndk-r13b-linux-x86_64.zip -d /opt/android_ndk
 
-if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+elif [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 #*******************#
 # OS X installation #
 #*******************#
@@ -47,5 +56,4 @@ else
   sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local
   rm cudnn-8.0-linux-x64-v5.1.tgz
   sudo ldconfig
-
 fi
