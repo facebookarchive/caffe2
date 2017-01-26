@@ -8,6 +8,9 @@ matrix:
     - os: linux
       compiler: gcc
       env: BUILD_TARGET=android
+    - os: osx
+      compiler: clang
+      env: BUILD_TARGET=android
     - os: linux
       compiler: gcc
       env: COMPILER=g++

@@ -32,9 +32,9 @@ mkdir -p $BUILD_ROOT
 echo "Building protoc"
 cd $CAFFE2_ROOT/third_party/protobuf
 ./autogen.sh || exit 1
-./configure || exit 1
+./configure --prefix=$BUILD_ROOT/protoc || exit 1
 make -j 4 || exit 1
-cp src/.libs/protoc $BUILD_ROOT/ || exit 1
+make install || exit 1
 make clean
 
 # Now, actually build the android target. Let's find the most recent version
@@ -62,7 +62,7 @@ cmake .. \
     -DUSE_LMDB=OFF \
     -DUSE_LEVELDB=OFF \
     -DBUILD_PYTHON=OFF \
-    -DPROTOBUF_PROTOC_EXECUTABLE=$BUILD_ROOT/protoc \
+    -DPROTOBUF_PROTOC_EXECUTABLE=$BUILD_ROOT/protoc/bin/protoc \
     -DCMAKE_VERBOSE_MAKEFILE=1 \
     -DUSE_MPI=OFF \
     -DBUILD_SHARED_LIBS=OFF \

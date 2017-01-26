@@ -1,10 +1,15 @@
 #!/bin/bash
 if [[ $BUILD_TARGET == 'android' ]]; then
-#**********************#
-# Android installation #
-#**********************#
+#**********************************************#
+# Android installation, both on OS X and Linux #
+#**********************************************#
+
+  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+    brew install automake libtool
+  else
+    sudo apt-get install autotools-dev autoconf
+  fi
   # Install android ndk
-  sudo apt-get install autotools-dev autoconf
   wget https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip
   mkdir -p /opt/android_ndk
   unzip -qo android-ndk-r13b-linux-x86_64.zip -d /opt/android_ndk
