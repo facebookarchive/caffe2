@@ -23,7 +23,7 @@ echo "Building caffe2"
 cd $BUILD_ROOT
 
 cmake .. \
-    -DCMAKE_TOOLCHAIN_FILE=/Users/jiayq/Research/ios-cmake/toolchain/iOS.cmake\
+    -DCMAKE_TOOLCHAIN_FILE=$CAFFE2_ROOT/third_party/ios-cmake/toolchain/iOS.cmake\
     -DCMAKE_INSTALL_PREFIX=../install \
     -DCMAKE_BUILD_TYPE=Release \
     -DIOS_PLATFORM=OS \
@@ -36,10 +36,9 @@ cmake .. \
     -DPROTOBUF_PROTOC_EXECUTABLE=$CAFFE2_ROOT/build_host_protoc/bin/protoc \
     -DCMAKE_VERBOSE_MAKEFILE=1 \
     -DUSE_MPI=OFF \
-    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_SHARED_LIBS=OFF \
     -DCMAKE_THREAD_LIBS_INIT=-lpthread \
     -DCMAKE_HAVE_THREADS_LIBRARY=1 \
-    -DCMAKE_USE_WIN32_THREADS_INIT=0 \
     -DCMAKE_USE_PTHREADS_INIT=1 \
     || exit 1
 make
