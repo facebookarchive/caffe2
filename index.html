@@ -25,7 +25,7 @@
     <!-- Flatdoc Runner -->
     <script>
       Flatdoc.run({
-        fetcher: Flatdoc.file('./index.md'),
+        fetcher: Flatdoc.file('./README.md'),
         highlight: function (code, value) {
           return (value === 'reason')
           ? hljs.highlight('reason', code).value
