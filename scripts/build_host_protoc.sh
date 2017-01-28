@@ -9,7 +9,7 @@
 # After the execution of the file, one should be able to find the host protoc
 # binary at build_host_protoc/bin/protoc.
 
-CAFFE2_ROOT="$( cd "$(dirname "$0")"/.. ; pwd -P)"
+CAFFE2_ROOT="$( cd "$(dirname -- "$0")"/.. ; pwd -P)"
 BUILD_ROOT=$CAFFE2_ROOT/build_host_protoc
 mkdir -p $BUILD_ROOT/build
 
