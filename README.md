@@ -63,6 +63,24 @@ Some highlights of Caffe models from the [Caffe model zoo](https://github.com/BV
 - [Celebrity Faces](https://github.com/BVLC/caffe/wiki/Model-Zoo#vgg-face-cnn-descriptor)
 - [Face to Painting Matching Demo](http://www.robots.ox.ac.uk/~vgg/research/face_paint/)
 
+## Philosophy
+
+Quoting the original Caffe project's [Philosophy](http://caffe.berkeleyvision.org/tutorial/):
+
+> In one sip, Caffe is brewed for
+
+> * Expression: models and optimizations are defined as plaintext schemas instead of code.
+
+> * Speed: for research and industry alike speed is crucial for state-of-the-art models and massive data.
+
+> * Modularity: new tasks and settings require flexibility and extension.
+
+> * Openness: scientific and applied progress call for common code, reference models, and reproducibility.
+
+> * Community: academic research, startup prototypes, and industrial applications all share strength by joint discussion and development in a BSD-2 project.
+
+> and these principles direct the project.
+
 ## Getting Started with Caffe2
 
 When you are first getting started with deep learning and Caffe it will help to understand the workflow of how you will create and deploy your deep learning application. Even if you just want to try it out and use existing models and demos you will likely want to use both of these parts, however it is possible to take a model that was previously created and utilize it. At a high-level view, you are looking at two primary stages of working with an deep learning application built with Caffe:
