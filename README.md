@@ -1,78 +1,25 @@
-# Caffe2
+# Product and Feature Documentation Template
 
-Caffe2 is a deep learning framework made with expression, speed, and modularity in mind. It is an experimental refactoring of Caffe, and allows a more flexible way to organize computation.
+This is a template for general product and feature documentation.
 
-## License and Citation
+## What to do
 
-Caffe2 is released under the [BSD 2-Clause license](https://github.com/Yangqing/caffe2/blob/master/LICENSE).
+1. Understand the [overall template](./TEMPLATE-INFORMATION.md).
+1. Copy all the contents of this directory to your repo. This template uses Jekyll, the backend rendering engine for GitHub pages. You can have these docs in a root of a GitHub repo on the `master` branch, in a `docs` folder of a repo on the `master` branch, or you can have them as the root directly on a `gh-pages` branch of a repo. GitHub will [automatically serve up the content](https://github.com/blog/2228-simpler-github-pages-publishing).
 
-## Building Caffe2
+  > If you do not want as much automation, you can put this template anywhere in your repo on whatever branch; then use a script to copy the static generated markup (from the `_site` folder) into the gh-pages branch.
 
-[![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
+1. Rename `EXAMPLE-README-FOR-RUNNING-DOCS.md` to `README.md`.
+1. Rename `EXAMPLE-CONTRIBUTING.md` to `CONTRIBUTING.md`.
+1. Rename `EXAMPLE-LICENSE` to `LICENSE`. Creative Commons Attribution 4.0 is the standard for documentation.
 
-    git clone --recursive https://github.com/bwasti/caffe2.git
-    cd caffe2
-    
-#### OS X
-    
-    brew install automake protobuf
-    mkdir build && cd build
-    cmake ..
-    make
+## Example Template Rendering
 
-#### Ubuntu
+Here is what the example landing page may look like (with your logo, of course):
 
-    sudo apt-get install libprotobuf-dev protobuf-compiler libatlas-base-dev libgoogle-glog-dev libgtest-dev liblmdb-dev libleveldb-dev libsnappy-dev python-dev python-pip libiomp-dev libopencv-dev libpthread-stubs0-dev cmake
-    sudo pip install numpy
-    wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
-    sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
-    sudo apt-get update
-    sudo apt-get install cuda
-    sudo apt-get install git
+![](./static/images/landing-page-example.png)
 
-    CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" &&
-    curl -fsSL ${CUDNN_URL} -O &&
-    sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local &&
-    rm cudnn-8.0-linux-x64-v5.1.tgz &&
-    sudo ldconfig
-    
-    mkdir build && cd build
-    cmake ..
-    make
-    
-## Python support
+and here is what you may see when you scroll down from the landing page (with actual, real content,  
+of course):
 
-To run the tutorials you'll need ipython-notebooks and matplotlib, which can be installed on OS X with:
-    
-    brew install matplotlib --with-python3
-    pip install ipython notebook
-
-## Build status (known working)
-
-Ubuntu 14.04 (GCC)
-- [x] Default CPU build
-- [x] Default GPU build
-
-OS X (Clang)
-- [x] Default CPU build
-- [x] Default GPU build
-
-Options (both Clang and GCC)
-- [ ] Nervana GPU
-- [ ] ZMQ
-- [ ] RocksDB
-- [ ] MPI
-- [ ] OpenMP
-- [x] No LMDB
-- [x] No LevelDB
-- [x] No OpenCV
-
-BLAS
-- [x] OpenBLAS
-- [x] ATLAS
-- [ ] MKL
-
-Other
-- [x] CMake 2.8 support
-- [x] List of dependencies for Ubuntu 14.04
-- [x] List of dependencies for OS X
+![](./static/images/after-scrolling-down-example.png)

@@ -1,0 +1,21 @@
+- title: Quick Start
+  items:
+  - id: getting-started
+  - id: learn-more
+- title: Learn
+  items:
+  - id: tutorials
+  - id: datasets
+  - id: zoo
+- title: Operators
+  items:
+  - id: all-operators
+  - id: custom-operators
+
+# n title:, 1 items: per title:, n id: per items:
+# - title: A
+#   items:
+#   - id: B
+#   - id: C
+# - title: D
+#   - id: E
