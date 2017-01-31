@@ -1,11 +1,9 @@
 ---
 docid: tutorials
-title: Tutorials
+title: Caffe2 Tutorials
 layout: docs
 permalink: /docs/tutorials.html
 ---
-
-# Caffe2 Tutorials
 
   We'd love to start by saying that we really appreciate your interest in Caffe2, and hope this will be a high-performance framework for your machine learning product uses. Caffe2 is intended to be modular and facilitate fast prototyping of ideas and experiments in deep learning. Given this modularity, note that once you have a model defined, and you are interested in gaining additional performance and scalability, you are able to use pure C++ to deploy such models without having to use Python in your final product. Also, as the community develops enhanced and high-performance modules you are able to easily swap these modules into your Caffe2 project.
 
