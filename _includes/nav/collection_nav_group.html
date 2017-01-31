@@ -1,5 +1,5 @@
-<div class="navGroup{% if currentgroup == group %} navGroupActive navGroupCurrent{% endif %}">
-  <h3><i>+</i><span>{{ grouptitle }}</span></h3>
+<div class="navGroup navGroupActive navGroupCurrent">
+  <h3><span>{{ grouptitle }}</span></h3>
   <ul>
     {% if include.data_collection %}
       {% for item in group.items %}

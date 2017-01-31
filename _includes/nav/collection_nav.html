@@ -24,6 +24,7 @@
             {% assign grouptitle = group.title %}
             {% for item in group.items %}
               {% if item.id == page.docid %}
+              {% assign currentselected = item.id %}
               {% assign currentgroup = group %}
               {% endif %}
             {% endfor %}
@@ -43,23 +44,11 @@
   }, false);
 
   var collectionNav = document.getElementById('collection_nav');
-  var collectionNavToggler = 
+  var collectionNavToggler =
     document.getElementById('collection_nav_toggler');
   collectionNavToggler.addEventListener('click', function(e) {
     collectionNav.classList.toggle('toggleNavActive');
     document.dispatchEvent(docsevent);
   });
 
-  var groups = document.getElementsByClassName('navGroup');
-  for(var i = 0; i < groups.length; i++) {
-    var thisGroup = groups[i];
-    thisGroup.onclick = function() {
-      for(var j = 0; j < groups.length; j++) {
-        var group = groups[j];
-        group.classList.remove('navGroupActive');
-      }
-      this.classList.add('navGroupActive');
-    }
-  }
 </script>
-
