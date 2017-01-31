@@ -73,6 +73,9 @@ _site
 
 # build, distribute, and bins (+ python proto bindings)
 build
+build_host_protoc
+build_android
+build_ios
 .build_debug/*
 .build_release/*
 distribute/*

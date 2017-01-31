@@ -2,7 +2,7 @@
 docid: custom-operators
 title: Custom Operators
 layout: docs
-permalink: /docs/custome-operators.html
+permalink: /docs/custom-operators.html
 ---
 
 Did you check out the wide array of [Operators](operators.html) already provided in Caffe2? Still want to roll your own operator? Read on, but don't forget to contribute your fancy new operator back to the project!
