@@ -1,6 +1,6 @@
 ---
 docid: zoo
-title: Zoo
+title: Caffe2 Model Zoo
 layout: docs
 permalink: /docs/zoo.html
 ---
