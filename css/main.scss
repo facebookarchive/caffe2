@@ -4,43 +4,43 @@
 @charset "utf-8";
 
 @font-face {
-	font-family: 'Lato';
-	src: url("{{ '/static/fonts/LatoLatin-Italic.woff2' | relative_url }}") format('woff2'),
-		url("{{ '/static/fonts/LatoLatin-Italic.woff' | relative_url }}") format('woff');
-	font-weight: normal;
-	font-style: italic;
+  font-family: 'Lato';
+  src: url("{{ '/static/fonts/LatoLatin-Italic.woff2' | relative_url }}") format('woff2'),
+  url("{{ '/static/fonts/LatoLatin-Italic.woff' | relative_url }}") format('woff');
+  font-weight: normal;
+  font-style: italic;
 }
 
 @font-face {
-	font-family: 'Lato';
-	src: url("{{ '/static/fonts/LatoLatin-Black.woff2' | relative_url }}") format('woff2'),
-		url("{{ '/static/fonts/LatoLatin-Black.woff' | relative_url }}") format('woff');
-	font-weight: 900;
-	font-style: normal;
+  font-family: 'Lato';
+  src: url("{{ '/static/fonts/LatoLatin-Black.woff2' | relative_url }}") format('woff2'),
+  url("{{ '/static/fonts/LatoLatin-Black.woff' | relative_url }}") format('woff');
+  font-weight: 900;
+  font-style: normal;
 }
 
 @font-face {
-	font-family: 'Lato';
-	src: url("{{ '/static/fonts/LatoLatin-BlackItalic.woff2' | relative_url }}") format('woff2'),
-		url("{{ '/static/fonts/LatoLatin-BlackItalic.woff' | relative_url }}") format('woff');
-	font-weight: 900;
-	font-style: italic;
+  font-family: 'Lato';
+  src: url("{{ '/static/fonts/LatoLatin-BlackItalic.woff2' | relative_url }}") format('woff2'),
+  url("{{ '/static/fonts/LatoLatin-BlackItalic.woff' | relative_url }}") format('woff');
+  font-weight: 900;
+  font-style: italic;
 }
 
 @font-face {
-	font-family: 'Lato';
-	src: url("{{ '/static/fonts/LatoLatin-Light.woff2' | relative_url }}") format('woff2'),
-		url("{{ '/static/fonts/LatoLatin-Light.woff' | relative_url }}") format('woff');
-	font-weight: 300;
-	font-style: normal;
+  font-family: 'Lato';
+  src: url("{{ '/static/fonts/LatoLatin-Light.woff2' | relative_url }}") format('woff2'),
+  url("{{ '/static/fonts/LatoLatin-Light.woff' | relative_url }}") format('woff');
+  font-weight: 300;
+  font-style: normal;
 }
 
 @font-face {
-	font-family: 'Lato';
-	src: url("{{ '/static/fonts/LatoLatin-Regular.woff2' | relative_url }}") format('woff2'),
-		url("{{ '/static/fonts/LatoLatin-Regular.woff' | relative_url }}") format('woff');
-	font-weight: normal;
-	font-style: normal;
+  font-family: 'Lato';
+  src: url("{{ '/static/fonts/LatoLatin-Regular.woff2' | relative_url }}") format('woff2'),
+  url("{{ '/static/fonts/LatoLatin-Regular.woff' | relative_url }}") format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 
 // Our variables
@@ -53,40 +53,40 @@ $base-line-height:  1.4em;
 $spacing-unit:      12px;
 
 // Two configured colors (see _config.yml)
-$primary-bg:        				{{ site.color.primary }};
-$secondary-bg:      				{{ site.color.secondary }};
+$primary-bg:        {{ site.color.primary }};
+$secondary-bg:      {{ site.color.secondary }};
 
 // For alternating background colors on the landing page
 $alternate-bg:              #F6F7F9;
 
 // Custom colors
-$homeContainer-button-color: #2a7d6d;
+$homeContainer-button-color: #fff;
 
 // $primary-bg overlays
 {% if site.color.primary-overlay == 'light' %}
-$primary-overlay:       		darken($primary-bg, 70%);
-$primary-overlay-special:		darken($primary-bg, 40%);
+$primary-overlay:           darken($primary-bg, 70%);
+$primary-overlay-special:   darken($primary-bg, 40%);
 {% else %}
-$primary-overlay:      		 	#fff;
-$primary-overlay-special:		lighten($primary-bg, 30%);
+$primary-overlay:           #fff;
+$primary-overlay-special:   lighten($primary-bg, 30%);
 {% endif %}
 
 // $secondary-bg overlays
 {% if site.color.secondary-overlay == 'light' %}
 $text:              #303846;
-$sidenav: 				  darken($secondary-bg, 15%);
-$sidenav-text: 			$text;
-$sidenav-overlay: 	darken($sidenav, 10%);
-$sidenav-active: 		lighten($sidenav, 10%);
+$sidenav:           darken($secondary-bg, 15%);
+$sidenav-text:       $text;
+$sidenav-overlay:   darken($sidenav, 10%);
+$sidenav-active:     lighten($sidenav, 10%);
 {% else %}
 $text:              #fff;
-$sidenav: 				  lighten($secondary-bg, 20%);
-$sidenav-text: 			$text;
-$sidenav-overlay: 	lighten($sidenav, 10%);
-$sidenav-active: 		darken($sidenav, 10%);
+$sidenav:           lighten($secondary-bg, 20%);
+$sidenav-text:       $text;
+$sidenav-overlay:   lighten($sidenav, 10%);
+$sidenav-active:     darken($sidenav, 10%);
 {% endif %}
 
-$code-bg: 					#002b36;
+$code-bg:           #002b36;
 
 
 $header-height: 34px;
@@ -121,18 +121,18 @@ $green: #97dccf;
 @import
         "reset",
         "base",
-				"header",
+  "header",
         "search",
         "syntax-highlighting",
-				"promo",
-				"buttons",
-				"gridBlock",
-				"poweredby",
-				"footer",
-				"react_header_nav",
-				"react_docs_nav",
-				"blog",
-				"caffe2"
+  "promo",
+  "buttons",
+  "gridBlock",
+  "poweredby",
+  "footer",
+  "react_header_nav",
+  "react_docs_nav",
+  "blog",
+  "caffe2"
 ;
 
 // Anchor links
