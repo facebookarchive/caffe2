@@ -9,78 +9,107 @@ Did you check out the wide array of [Operators](operators.html) already provided
 
 ## Writing a Basic Operator
 
-Almost every operator will use both a .cc file for the registering of the operator and a .h file for the actual implementation, though this can vary across operators. For example, in some cases, the implementation may be coded in the .cc file. In addition, several operators also have GPU/CUDA implementations, which are stored in .cu files.
+  Almost every operator will use both a .cc file for the registering of the operator and a .h file for the actual implementation, though this can vary across operators. For example, in some cases, the implementation may be coded in the .cc file. In addition, several operators also have GPU/CUDA implementations, which are stored in .cu files.
 
-We begin with the .cc file. Consider the operator defined in fully_connected_op.cc:
+  [](except this example where an extra .cc file has the CUDAContext invocation whereas other operators put it in the cu file... so maybe this should be changed to a cu file for consistency? Our example should be the way it is supposed to be done versus some legacy implementation that is still supported.)
 
-**[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
+  We will start by describing what goes into the .cc file. As an example, consider the operator defined in [fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc):
 
-  ```
-  #include "caffe2/operators/fully_connected_op.h"
 
-  namespace caffe2 {
-  namespace {
+```
+#include "caffe2/operators/fully_connected_op.h"
 
-  REGISTER_CPU_OPERATOR(FC, FullyConnectedOp<float, CPUContext>);
-  REGISTER_CPU_OPERATOR(FCGradient, FullyConnectedGradientOp<float, CPUContext>);
-  ```
+namespace caffe2 {
+namespace {
+
+REGISTER_CPU_OPERATOR(FC, FullyConnectedOp<float, CPUContext>);
+REGISTER_CPU_OPERATOR(FCGradient, FullyConnectedGradientOp<float, CPUContext>);
+```
+
 
   At first, the names of the operators and the corresponding gradient operator is registered with this macro; this binds the function FC whenever used in Python to the FullyConnectedOp operator, where the `float` and `CPUContext` dictate what kind of input type is expected, and what the context is; this value can be either `CPUContext` or `CUDAContext` depending on whether this is used on a CPU or GPU device.
 
-  Now, we consider the operator schema:
+  Fully Connected also has a GPU implementation that can be found in [fully_connected_op_gpu.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op_gpu.cc).
+
+
+```
+#include "caffe2/core/context_gpu.h"
+#include "caffe2/operators/fully_connected_op.h"
+
+namespace caffe2 {
+namespace {
+REGISTER_CUDA_OPERATOR(FC, FullyConnectedOp<float, CUDAContext>);
+REGISTER_CUDA_OPERATOR(FCGradient,
+                       FullyConnectedGradientOp<float, CUDAContext>);
+}  // namespace
+}  // namespace caffe2
+```
+
+
+  Note that the primary differences between this GPU implementation versus the CPU implementation is using `REGISTER_CUDA_OPERATOR` and `CUDAContext` instead of `REGISTER_CPU_OPERATOR` and `CPUContext`. Also note the inclusion of the additional header file [context_gpu.h](https://github.com/caffe2/caffe2/blob/master/caffe2/core/context_gpu.h) which is something you'll want to include for any GPU implementation.
+
+  [](are there cases where you won't use context_gpu.h?)
+  [](we should talk about context_gpu.h somewhere!)
+  [](CPUContext::CopyBytes - how does this work when you're running in multi-GPU mode?)
+
+  Referring back to `fully_connected_op.cc` we will look at the remainder of the file and discuss the operator schema. This is where the this operator is told how many inputs and outputs are created. This section is also used to generate the documentation for the operator in the [Operators Catalogue](operators_catalogue.html), so be thorough in describing the arguments and the functionality. Also note below that with `.Arg`, `.Input`, and `.Output` the last parameter is a description that is also utilized in generating documentation.
+
+  **[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
+
+```
+OPERATOR_SCHEMA(FC)
+  .NumInputs(3)
+  .NumOutputs(1)
+  .SetDoc(R"DOC(
+Computes the result of passing an input vector X into a fully connected layer with 2D weight matrix W and 1D bias vector b.
+
+The layer computes Y = X * W + b, where X has size (M x K), W has size (K x N), b has size (N), and Y has size (M x N), where M is the batch size. Even though b  is 1D, it is resized to size (M x N) implicitly and added to each vector in the batch. These dimensions must be matched correctly, or else the operator will throw errors.
+)DOC")
+  .Arg("axis", "(int32_t) default to 1; describes the axis of the inputs; "
+  "defaults to one because the 0th axis most likely describes the batch_size")
+  .Input(0, "X", "2D input of size (MxK) data")
+  .Input(1, "W", "2D blob of size (KxN) containing fully connected weight "
+  "matrix")
+  .Input(2, "b", "1D blob containing bias vector")
+  .Output(0, "Y", "1D output tensor");
+```
+
+As you can see in the schema code above, this operator has 3 inputs and 1 output, which were specified by `.NumInputs` and `.NumOutputs` respectively. The documentation is thorough and specified with `.SetDoc`. It also has one additional optional argument that defaults to 1 as specified with `.Arg`.
+
+`.SetDocR"DOC(docs go here)DOC"` is where you provide the operator's documentation.
+
+`.Input` sets the main data used in the operator, such as the weight matrices for a fully connected layer. The example above shows three entries for `.Input`. Note the first parameter is the index of the input, starting at 0 for the first input. The second parameter is the name of the variable such as X, W, or b. Finally, the third parameter is the description.
+
+`.Arg` are usually auxiliary inputs that are not involved in the raw data manipulation.
+[]("axis" is shown here, but how many more args are there and where is this discussed?)
+
+`.Output` specifies the outputs. The types parameters are the same as `.Input`: (index, name, description)
+
+The schema goes on to describe a second operator, `FCGradient`.
+[](what is the best practice for grouping operators like this? For example, if you make a custom operator very similar to an existing one, should you make your own separate set of files like this, or should you simply modify an existing operator's .cc file, add your variant to the schema, and add whatever new functions you have to the .h file?)
 
 **[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
 
-  ```
-  OPERATOR_SCHEMA(FC)
-    .NumInputs(3)
-    .NumOutputs(1)
-    .SetDoc(R"DOC(
-  Computes the result of passing an input vector X into a fully connected
-  layer with 2D weight matrix W and 1D bias vector b.
 
-  The layer computes Y = X * W + b, where X has size (M x K), W has size (K x N),
-  b has size (N), and Y has size (M x N), where M is the batch size. Even though b
-  is 1D, it is resized to size (M x N) implicitly and added to each vector in the
-  batch. These dimensions must be matched correctly, or else the operator will
-  throw errors.
-  )DOC")
-    .Arg("axis", "(int32_t) default to 1; describes the axis of the inputs; "
-    "defaults to one because the 0th axis most likely describes the batch_size")
-    .Input(0, "X", "2D input of size (MxK) data")
-    .Input(1, "W", "2D blob of size (KxN) containing fully connected weight "
-    "matrix")
-    .Input(2, "b", "1D blob containing bias vector")
-    .Output(0, "Y", "1D output tensor");
-    ```
 
-The next part is the **operator schema**. This is where the this operator is told how many inputs and outputs are created, as well as the documentation for it.
+    OPERATOR_SCHEMA(FCGradient).NumInputs(3).NumOutputs(2, 3);
+    class GetFCGradient : public GradientMakerBase {
+      using GradientMakerBase::GradientMakerBase;
+      vector<OperatorDef> GetGradientDefs() override {
+        CHECK_EQ(def_.input_size(), 3);
+        return SingleGradientDef(
+            "FCGradient", "",
+            vector<string>{I(0), I(1), GO(0)},
+            vector<string>{GI(1), GI(2), GI(0)});
+      }
+    };
+    REGISTER_GRADIENT(FC, GetFCGradient);
+    }  // namespace
+    }  // namespace caffe2
 
-`NOTE: Please document your operators as you write new ones that you would like to contribute!`
 
-Note that there can be two kinds of inputs: the Inputs and the Args; the discerning difference is that usually, the Inputs contain the main data used in the operator, such as the weight matrices for a fully connected layer, while the Args are usually auxiliary inputs that are not involved in the raw data manipulation. Take note of how the documentation is added, as this documentation is periodically and automatically parsed by another program to update the [Caffe2 operators documentation](operators.html).
 
-Finally, we address the gradient operators:
-
-**[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
-
-  ```
-  OPERATOR_SCHEMA(FCGradient).NumInputs(3).NumOutputs(2, 3);
-
-  class GetFCGradient : public GradientMakerBase {
-    using GradientMakerBase::GradientMakerBase;
-    vector<OperatorDef> GetGradientDefs() override {
-      CHECK_EQ(def_.input_size(), 3);
-      return SingleGradientDef(
-          "FCGradient", "",
-          vector<string>{I(0), I(1), GO(0)},
-          vector<string>{GI(1), GI(2), GI(0)});
-    }
-  };
-  REGISTER_GRADIENT(FC, GetFCGradient);
-  }  // namespace
-  }  // namespace caffe2
-  ```
+[](note the above schema doesn't have a SetDocR section, and the formatting is different, more shorthand than the previous schema. Should we reformat and force a spot for docs and tag it as "documentation missing" or similar so we go back and fill it in with something?)
 
 The input and output of GradientOp have to be tagged using the `GradientMakerBase::GetGradientDefs()`. By doing so, we're effectively informing Caffe2 how the inputs and outputs of the gradient operator are related to the corresponding operator. In particular, the first vector tags the inputs of the gradient operator, and the second vector tags the outputs. Note that doc scheme is not necessary for gradient operators usually, unless you see fit.
 
@@ -90,9 +119,9 @@ As previously mentioned, most of the implementation details are in header file i
 ### Unit Testing Caffe2 operators
 It is a very good idea to write some unit tests to verify your operator is correctly implemented. There are a few helper libraries provided within Caffe2 to make sure your operator tests have good coverage.
 
-Hypothesis (http://hypothesis.readthedocs.io/) is a very useful library for property-based testing. The key idea here is to express properties of the code under test (e.g. that it passes a gradient check, that it implements a reference function, etc), and then generate random instances and verify they satisfy these properties.
+[Hypothesis](http://hypothesis.readthedocs.io/) is a very useful library for property-based testing. The key idea here is to express properties of the code under test (e.g. that it passes a gradient check, that it implements a reference function, etc), and then generate random instances and verify they satisfy these properties.
 
-The main functions of interest are exposed on HypothesisTestCase, defined in [caffe2/python/hypothesis_test_util.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/hypothesis_test_util.py).
+The main functions of interest are exposed on `HypothesisTestCase`, defined in [caffe2/python/hypothesis_test_util.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/hypothesis_test_util.py).
 
 You should add your unit test to the folder [caffe2/caffe2/python/operator_tests/](https://github.com/caffe2/caffe2/tree/master/caffe2/python/operator_test). In that directory you can find many existing examples to work from.
 
@@ -101,12 +130,11 @@ The key functions are:
 * `assertDeviceChecks(devices, op, inputs, outputs)`: This asserts that the operator computes the same outputs, regardless of which device it is executed on.
 * `assertGradientChecks(device, op, inputs, output_, outputs_with_grads)`: This implements a standard numerical gradient checker for the operator in question.
 * `assertReferenceChecks(device, op, inputs, reference)`: This runs the reference function (effectively calling reference(\*inputs), and comparing that to the output of output.
-[hypothesis_test_util.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/hypothesis_test_util.py)] exposes some useful pre-built samplers.
+[hypothesis_test_util.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/hypothesis_test_util.py) exposes some useful pre-built samplers.
+* hu.gcs - a gradient checker device (gc) and device checker devices (dc)
+* hu.gcs_cpu_only - a gradient checker device (gc) and device checker devices (dc) for CPU-only operators
 
-hu.gcs - a gradient checker device (gc) and device checker devices (dc)
-hu.gcs_cpu_only - a gradient checker device (gc) and device checker devices (dc) for CPU-only operators
-Examples #
-For a simple example.
+For a simple example:
 
 ```
 @given(X=hu.tensor(), **hu.gcs)
@@ -116,7 +144,7 @@ def test_averaged_loss(self, X, gc, dc):
     self.assertGradientChecks(gc, op, [X], 0, [0])
 ```
 
-Another example that demonstrates the usage of assertReferenceChecks.
+Another example that demonstrates the usage of `assertReferenceChecks`:
 
 ```
 @given(inputs=hu.tensors(n=3),
@@ -163,7 +191,7 @@ def test_adam(self, inputs, in_place, beta1, beta2, lr, iters, epsilon,
                                adam, input_device_options)
 ```
 
-For a fancier example that demonstrates drawing more sophisticated elements.
+For a fancier example that demonstrates drawing more sophisticated elements:
 
 ```
 @given(prediction=hu.arrays(dims=[10, 3],
