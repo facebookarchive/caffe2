@@ -73,19 +73,19 @@ Some highlights of Caffe models from the [Caffe model zoo](https://github.com/BV
 
 Quoting the original Caffe project's [Philosophy](http://caffe.berkeleyvision.org/tutorial/):
 
-> In one sip, Caffe is brewed for
+In one sip, Caffe is brewed for:
 
-> * Expression: models and optimizations are defined as plaintext schemas instead of code.
+* Expression: models and optimizations are defined as plaintext schemas instead of code.
 
-> * Speed: for research and industry alike speed is crucial for state-of-the-art models and massive data.
+* Speed: for research and industry alike speed is crucial for state-of-the-art models and massive data.
 
-> * Modularity: new tasks and settings require flexibility and extension.
+* Modularity: new tasks and settings require flexibility and extension.
 
-> * Openness: scientific and applied progress call for common code, reference models, and reproducibility.
+* Openness: scientific and applied progress call for common code, reference models, and reproducibility.
 
-> * Community: academic research, startup prototypes, and industrial applications all share strength by joint discussion and development in a BSD-2 project.
+* Community: academic research, startup prototypes, and industrial applications all share strength by joint discussion and development in a BSD-2 project.
 
-> and these principles direct the project.
+and these principles direct the project.
 
 ## Getting Started with Caffe2
 

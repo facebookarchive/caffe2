@@ -1,25 +1,84 @@
-# Product and Feature Documentation Template
+## User Documentation for Caffe 2
 
-This is a template for general product and feature documentation.
+This directory will contain the user and feature documentation for Caffe2. The documentation will be hosted on GitHub pages.
 
-## What to do
+### Contributing
 
-1. Understand the [overall template](./TEMPLATE-INFORMATION.md).
-1. Copy all the contents of this directory to your repo. This template uses Jekyll, the backend rendering engine for GitHub pages. You can have these docs in a root of a GitHub repo on the `master` branch, in a `docs` folder of a repo on the `master` branch, or you can have them as the root directly on a `gh-pages` branch of a repo. GitHub will [automatically serve up the content](https://github.com/blog/2228-simpler-github-pages-publishing).
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for details on how to add or modify content.
 
-  > If you do not want as much automation, you can put this template anywhere in your repo on whatever branch; then use a script to copy the static generated markup (from the `_site` folder) into the gh-pages branch.
+### Run the Site Locally
 
-1. Rename `EXAMPLE-README-FOR-RUNNING-DOCS.md` to `README.md`.
-1. Rename `EXAMPLE-CONTRIBUTING.md` to `CONTRIBUTING.md`.
-1. Rename `EXAMPLE-LICENSE` to `LICENSE`. Creative Commons Attribution 4.0 is the standard for documentation.
+The requirements for running a GitHub pages site locally is described in [GitHub help](https://help.github.com/articles/setting-up-your-github-pages-site-locally-with-jekyll/#requirements). The steps below summarize these steps.
 
-## Example Template Rendering
+> If you have run the site before, you can start with step 1 and then move on to step 5.
 
-Here is what the example landing page may look like (with your logo, of course):
+1. Ensure that you are in the same directory where this `README.md` and the `Gemfile` file exists (e.g., it could be in `caff2/docs` on `master`, in the root of a `gh-pages` branch, etc). The below RubyGems commands, etc. must be run from there.
 
-![](./static/images/landing-page-example.png)
+1. Make sure you have Ruby and [RubyGems](https://rubygems.org/) installed.
 
-and here is what you may see when you scroll down from the landing page (with actual, real content,  
-of course):
+   > Ruby >= 2.2 is required for the gems. On the latest versions of Mac OS X, Ruby 2.0 is the
+   > default. Use [Homebrew](http://brew.sh) and the `brew install ruby` command (or your
+   > preferred upgrade mechanism) to install a newer version of Ruby for your Mac OS X system.
 
-![](./static/images/after-scrolling-down-example.png)
+1. Make sure you have [Bundler](http://bundler.io/) installed.
+
+    ```
+    # may require sudo
+    gem install bundler
+    ```
+
+1. Install the project's dependencies
+
+    ```
+    # run this in the directory containing the "Gemfile" file.
+    bundle install
+    ```
+
+    > If you get an error when installing `nokogiri`, you may be running into the problem described
+    > in [this nokogiri issue](https://github.com/sparklemotion/nokogiri/issues/1483). You can
+    > either `brew uninstall xz` (and then `brew install xz` after the bundle is installed) or
+    > `xcode-select --install` (although this may not work if you have already installed command
+    > line tools).
+
+1. Run Jekyll's server.
+
+    - On first runs or for structural changes to the documentation (e.g., new sidebar menu item), do a full build.
+
+    ```
+    # run this in the directory containing the "Gemfile" file
+    bundle exec jekyll serve
+    ```
+
+    - For content changes only, you can use `--incremental` for faster builds.
+
+    ```
+    bundle exec jekyll serve --incremental
+    ```
+
+    > We use `bundle exec` instead of running straight `jekyll` because `bundle exec` will always use the version of Jekyll from our `Gemfile`. Just running `jekyll` will use the system version and may not necessarily be compatible.
+
+    - To run using an actual IP address, you can use `--host=0.0.0.0`
+
+    ```
+    # run this in the directory containing the "Gemfile" file
+    bundle exec jekyll serve --host=0.0.0.0
+    ```
+
+    This will allow you to use the IP address associated with your machine in the URL. That way you could share it with other people.
+
+    e.g., on a Mac, you can your IP address with something like `ifconfig | grep "inet " | grep -v 127.0.0.1`.
+
+1. Either of commands in the previous step will serve up the site on your local device at http://127.0.0.1:4000/ or http://localhost:4000.
+
+### Updating the Bundle
+
+The site depends on Github Pages and the installed bundle is based on the `github-pages` gem.
+Occasionally that gem might get updated with new or changed functionality. If that is the case,
+you can run:
+
+```
+# run this in the directory containing the "Gemfile" file
+bundle update
+```
+
+to get the latest packages for the installation.
