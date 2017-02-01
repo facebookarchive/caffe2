@@ -1,11 +1,11 @@
 ---
 docid: tutorials
-title: Tutorials
+title: Caffe2 Tutorials
 layout: docs
 permalink: /docs/tutorials.html
 ---
 
-We'd love to start by saying that we really appreciate your interest in Caffe2, and hope this will be a high-performance framework for your machine learning product uses. Caffe2 is intended to be modular and facilitate fast prototyping of ideas and experiments in deep learning. Given this modularity, note that once you have a model defined, and you are interested in gaining additional performance and scalability, you are able to use pure C++ to deploy such models without having to use Python in your final product. Also, as the community develops enhanced and high-performance modules you are able to easily swap these modules into your Caffe2 project.
+  We'd love to start by saying that we really appreciate your interest in Caffe2, and hope this will be a high-performance framework for your machine learning product uses. Caffe2 is intended to be modular and facilitate fast prototyping of ideas and experiments in deep learning. Given this modularity, note that once you have a model defined, and you are interested in gaining additional performance and scalability, you are able to use pure C++ to deploy such models without having to use Python in your final product. Also, as the community develops enhanced and high-performance modules you are able to easily swap these modules into your Caffe2 project.
 
 ## Pick Your Path
 
@@ -43,29 +43,27 @@ These recent academic tutorials cover deep learning for researchers in machine l
 
 ### Operators
 
-**New in Caffe2!**
-One of basic units of computation in Caffe2 are the [Operators](operators.html). Each operator contains the logic necessary to compute the output given the appropriate number and types of inputs and parameters. The overall difference between operators' functionality in Caffe and Caffe2 is illustrated in the following graphic, respectively:
-
-![operators comparison](/static/images/operators-comparison.png)
-
-As a result, for example, in the FC operator, each of the input X, bias b, and the weight matrix W must be provided, and a single output will be computed.
+One of basic units of computation in Caffe2 are the [Operators](operators.html).
 
 #### Writing Your Own Operators
-Fantastic idea! Write custom operators and share them with the community! Here is a [guide for creating your own operators](operators_custom.html).
+
+Fantastic idea! Write custom operators and share them with the community! Refer to the guide on writing operators:
+
+* [Guide for creating your own operators](operators_custom.html)
 
 ## IPython Notebook Tutorials
 
-These IPython notebook tutorials we have provided below will guide you through the Caffe2 Python interface. Some tutorials have been generously provided by the Caffe community and we welcome more contributions of this kind to help others get ramped up more quickly and to try out the many different uses of Caffe2.
+  These IPython notebook tutorials we have provided below will guide you through the Caffe2 Python interface. Some tutorials have been generously provided by the Caffe community and we welcome more contributions of this kind to help others get ramped up more quickly and to try out the many different uses of Caffe2.
 
-The iPython notebook tutorials can be browsed or downloaded using the links below each tutorial's title.
+  The iPython notebook tutorials can be browsed or downloaded using the links below each tutorial's title.
 
-You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself.
+  You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself.
 
-However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. Installation instructions below will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
+  However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. Installation instructions below will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
 
 ### Installation
 
-To run the tutorials you'll need Python 2.7, [ipython-notebooks](http://jupyter.org/install.html) and [matplotlib](http://matplotlib.org/users/installing.html), which can be installed on with:
+  To run the tutorials you'll need Python 2.7, [ipython-notebooks](http://jupyter.org/install.html) and [matplotlib](http://matplotlib.org/users/installing.html), which can be installed on with:
 
 #### MacOSx via Brew & pip
 

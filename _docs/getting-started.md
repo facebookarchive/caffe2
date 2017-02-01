@@ -23,27 +23,25 @@ Ready to install Caffe2? Great! In order to install or try out Caffe2, you have 
   - [x] [Linux / Ubuntu](#installing-and-building-caffe2-compilation-ubuntu)
   - [ ] Windows (coming soon!)
 - Mobile
-  - [ ] Android / Android Studio (coming soon!)
-  - [ ] iOS / Xcode (coming soon!)
+  - [x] Android / Android Studio
+  - [x] iOS / Xcode
 - [ ] Pre-built binaries (coming soon!)
 
 [Demos](index.html#caffe2-getting-started-with-caffe2-demos) are also a good option if you want to see it in action without setting it up yourself.
 
 ## Getting the Source
 
-```
-    git clone --recursive https://github.com/caffe2/caffe2.git
-    cd caffe2
-```
+    git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
+
 
 If the recursive option doesn't work for your version of git, or if you already cloned the repo without downloading and initializing the submodules you can try the following steps. Definitely try this if you're getting errors trying to compile.
 
-```
-git clone --recursive https://github.com/caffe2/caffe2.git
-cd caffe2
-git submodule init
-git submodule update
-```
+
+    git clone --recursive https://github.com/caffe2/caffe2.git
+    cd caffe2
+    git submodule init
+    git submodule update
+
 
 ## Installation
 
@@ -103,16 +101,16 @@ git submodule update
   Several prerequisites are now installed via brew.   
   Note, installation might be able to just use automake as eigen is default, many of the "prerequisites" are now in third party, and the others were optional:
 
-    ```
+
     brew install automake
-    ```
+
 
   The previously known working install method used:
 
-    ```
+
     brew install glog automake protobuf lmdb opencv libtool
     brew install homebrew/science/openblas
-    ```
+
 
   Assuming everything above installs without errors you can move on to the make steps. Warnings should be fine and you can move ahead without trouble.
 
@@ -120,11 +118,11 @@ git submodule update
 
   If you're starting from scratch, the commands below will create your */build* directory and begin the compilation process. Another directory will be created in your Caffe2 root directory called */install*. The cmake step uses the install directory and also turns off LevelDB. If you're not starting from scratch then delete your */build* and */install* folders first, then run the commands below.
 
-  ```
-  mkdir build && mkdir install && cd build
-  cmake .. -DCMAKE_INSTALL_PATH=../install -DUSE_LEVELDB=OFF
-  make
-  ```
+
+    mkdir build && mkdir install && cd build
+    cmake .. -DCMAKE_INSTALL_PATH=../install -DUSE_LEVELDB=OFF
+    make
+
 
   Once the build completes without errors, you will want to:
     - [Configure Python](#installing-and-building-caffe2-compilation-configure-python)
@@ -141,30 +139,26 @@ git submodule update
 
   If you're using a VM or a cloud solution, make sure you give yourself enough room for the compilation process. You will need at least 12 GB of disk space to get through all of the compilation. If you don't plan on using GPU, then you could skip the CUDA steps and use a much smaller disk image.
 
-  ```
-    sudo apt-get install libprotobuf-dev protobuf-compiler libatlas-base-dev libgoogle-glog-dev libgtest-dev liblmdb-dev libleveldb-dev libsnappy-dev python-dev python-pip libiomp-dev libopencv-dev libpthread-stubs0-dev cmake
-    sudo pip install numpy
-    wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
-    sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
-    sudo apt-get update
-    sudo apt-get install cuda
-    sudo apt-get install git
-    sudo pip install protobuf
-  ```
+      sudo apt-get install libprotobuf-dev protobuf-compiler libatlas-base-dev libgoogle-glog-dev libgtest-dev liblmdb-dev libleveldb-dev libsnappy-dev python-dev python-pip libiomp-dev libopencv-dev libpthread-stubs0-dev cmake
+      sudo pip install numpy
+      wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
+      sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
+      sudo apt-get update
+      sudo apt-get install cuda
+      sudo apt-get install git
+      sudo pip install protobuf
 
   Fetch the [latest source](#installing-and-building-caffe2-getting-the-source) code from Github if you haven't already.
 
-  ```
-    CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" &&
-    curl -fsSL ${CUDNN_URL} -O &&
-    sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local &&
-    rm cudnn-8.0-linux-x64-v5.1.tgz &&
-    sudo ldconfig
+      CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" &&
+      curl -fsSL ${CUDNN_URL} -O &&
+      sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local &&
+      rm cudnn-8.0-linux-x64-v5.1.tgz &&
+      sudo ldconfig
 
-    mkdir build && cd build
-    cmake ..
-    make
-  ```
+      mkdir build && cd build
+      cmake ..
+      make  
 
   Once the build completes without errors, you will want to:
     - [Configure Python](#installing-and-building-caffe2-compilation-configure-python)
@@ -179,18 +173,34 @@ git submodule update
 
   You will need to update your PYTHONPATH environment variable to use the newly created files in your */install* directory. Update the directory in the command below to match your Caffe2 install folder path.
 
-  ```
-  sudo make install
-  export PYTHOPATH=/usr/local
-  ```
+
+    sudo make install
+    export PYTHOPATH=/usr/local
+
+
+### Android
+
+  To build for Android we recommend Android Studio. Other routes will work as well, but currently this documentation will only describe steps for this IDE.
+
+  To build Caffe2 for Android run the following script:
+
+    ./scripts/build_android.sh
+
+### iOS
+
+To build for iOS we recommend Xcode. Other routes will work as well, but currently this documentation will only describe steps for this IDE.
+
+To build Caffe2 for iOS run the following script:
+
+    ./scripts/build_ios.sh
 
 ### Test Caffe2
 
   To test if Caffe2 is working run the following:
 
-  ```
-  python -c 'from caffe2.python import core' 2>/dev/null && echo "Success!" || echo "uh oh!"
-  ```
+
+    python -c 'from caffe2.python import core' 2>/dev/null && echo "Success!" || echo "uh oh!"
+
 
   If you get a result of "Success!" then you're ready to Caffe! If you get an "uh oh" then go back and check your console for errors and see if you missed anything. Many times this can be related to Python environments and you'll want to make sure you're running Python that's registered with the Caffe2 modules.
 
@@ -198,12 +208,10 @@ git submodule update
 
   If you plan to run the tutorials and the Jupyter notebooks you can get these package from your package manager of choice: apt-get, pip, or Anaconda's conda. Here are examples using pip.
 
-  ```  
     sudo pip install ipython
     sudo pip install notebook
     sudo pip install matplotlib
     sudo pip install graphviz
-  ```
 
 ### Docker Support
 
@@ -211,9 +219,7 @@ git submodule update
 
   Running these Docker images with CUDA GPUs is currently only supported on Linux hosts, as far as I can tell. You will need to make sure that your host driver is also 346.46, and you will need to invoke docker with
 
-```
       docker run -t -i --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm --device /dev/nvidia0:/dev/nvidia0 [other cuda cards] ...
-```
 
 ## Build status (known working)
 
