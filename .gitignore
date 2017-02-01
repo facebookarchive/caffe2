@@ -88,3 +88,6 @@ LOCK
 LOG*
 CURRENT
 MANIFEST-*
+
+# Install folder generated during last part of build instructions
+install
