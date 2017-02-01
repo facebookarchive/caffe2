@@ -1,4 +1,4 @@
-This provides guidance on how to contribute various content to `your-site`.
+This provides guidance on how to contribute various content to `caffe.ai`.
 
 ## Getting started
 

@@ -5,12 +5,14 @@
 - title: Learn
   items:
   - id: tutorials
+  - id: operators
   - id: datasets
   - id: zoo
-- title: Operators
+- title: Reference
   items:
-  - id: all-operators
+  - id: operators-catalogue
   - id: custom-operators
+  - id: sparse-operations
 
 # n title:, 1 items: per title:, n id: per items:
 # - title: A

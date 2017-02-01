@@ -1,11 +1,9 @@
 ---
 docid: zoo
-title: Zoo
+title: Caffe2 Model Zoo
 layout: docs
 permalink: /docs/zoo.html
 ---
-
-# Caffe Model Zoo
 
 If you want to get your hands on already trained models, you are in the right place!
 
