@@ -9,11 +9,11 @@ Did you check out the wide array of [Operators](operators.html) already provided
 
 ## Writing a Basic Operator
 
-  Almost every operator will use both a .cc file for the registering of the operator and a .h file for the actual implementation, though this can vary across operators. For example, in some cases, the implementation may be coded in the .cc file. In addition, several operators also have GPU/CUDA implementations, which are stored in .cu files.
+Almost every operator will use both a .cc file for the registering of the operator and a .h file for the actual implementation, though this can vary across operators. For example, in some cases, the implementation may be coded in the .cc file. In addition, several operators also have GPU/CUDA implementations, which are stored in .cu files.
 
-  [](except this example where an extra .cc file has the CUDAContext invocation whereas other operators put it in the cu file... so maybe this should be changed to a cu file for consistency? Our example should be the way it is supposed to be done versus some legacy implementation that is still supported.)
+[](except this example where an extra .cc file has the CUDAContext invocation whereas other operators put it in the cu file... so maybe this should be changed to a cu file for consistency? Our example should be the way it is supposed to be done versus some legacy implementation that is still supported.)
 
-  We will start by describing what goes into the .cc file. As an example, consider the operator defined in [fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc):
+We will start by describing what goes into the .cc file. As an example, consider the operator defined in [fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc):
 
 
 ```
@@ -27,9 +27,9 @@ REGISTER_CPU_OPERATOR(FCGradient, FullyConnectedGradientOp<float, CPUContext>);
 ```
 
 
-  At first, the names of the operators and the corresponding gradient operator is registered with this macro; this binds the function FC whenever used in Python to the FullyConnectedOp operator, where the `float` and `CPUContext` dictate what kind of input type is expected, and what the context is; this value can be either `CPUContext` or `CUDAContext` depending on whether this is used on a CPU or GPU device.
+At first, the names of the operators and the corresponding gradient operator is registered with this macro; this binds the function FC whenever used in Python to the FullyConnectedOp operator, where the `float` and `CPUContext` dictate what kind of input type is expected, and what the context is; this value can be either `CPUContext` or `CUDAContext` depending on whether this is used on a CPU or GPU device.
 
-  Fully Connected also has a GPU implementation that can be found in [fully_connected_op_gpu.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op_gpu.cc).
+Fully Connected also has a GPU implementation that can be found in [fully_connected_op_gpu.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op_gpu.cc).
 
 
 ```
@@ -45,16 +45,15 @@ REGISTER_CUDA_OPERATOR(FCGradient,
 }  // namespace caffe2
 ```
 
+Note that the primary differences between this GPU implementation versus the CPU implementation is using `REGISTER_CUDA_OPERATOR` and `CUDAContext` instead of `REGISTER_CPU_OPERATOR` and `CPUContext`. Also note the inclusion of the additional header file [context_gpu.h](https://github.com/caffe2/caffe2/blob/master/caffe2/core/context_gpu.h) which is something you'll want to include for any GPU implementation.
 
-  Note that the primary differences between this GPU implementation versus the CPU implementation is using `REGISTER_CUDA_OPERATOR` and `CUDAContext` instead of `REGISTER_CPU_OPERATOR` and `CPUContext`. Also note the inclusion of the additional header file [context_gpu.h](https://github.com/caffe2/caffe2/blob/master/caffe2/core/context_gpu.h) which is something you'll want to include for any GPU implementation.
+[](are there cases where you won't use context_gpu.h?)
+[](we should talk about context_gpu.h somewhere!)
+[](CPUContext::CopyBytes - how does this work when you're running in multi-GPU mode?)
 
-  [](are there cases where you won't use context_gpu.h?)
-  [](we should talk about context_gpu.h somewhere!)
-  [](CPUContext::CopyBytes - how does this work when you're running in multi-GPU mode?)
+Referring back to `fully_connected_op.cc` we will look at the remainder of the file and discuss the operator schema. This is where the this operator is told how many inputs and outputs are created. This section is also used to generate the documentation for the operator in the [Operators Catalogue](operators_catalogue.html), so be thorough in describing the arguments and the functionality. Also note below that with `.Arg`, `.Input`, and `.Output` the last parameter is a description that is also utilized in generating documentation.
 
-  Referring back to `fully_connected_op.cc` we will look at the remainder of the file and discuss the operator schema. This is where the this operator is told how many inputs and outputs are created. This section is also used to generate the documentation for the operator in the [Operators Catalogue](operators_catalogue.html), so be thorough in describing the arguments and the functionality. Also note below that with `.Arg`, `.Input`, and `.Output` the last parameter is a description that is also utilized in generating documentation.
-
-  **[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
+**[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
 
 ```
 OPERATOR_SCHEMA(FC)
@@ -90,24 +89,22 @@ The schema goes on to describe a second operator, `FCGradient`.
 
 **[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
 
-
-
-    OPERATOR_SCHEMA(FCGradient).NumInputs(3).NumOutputs(2, 3);
-    class GetFCGradient : public GradientMakerBase {
-      using GradientMakerBase::GradientMakerBase;
-      vector<OperatorDef> GetGradientDefs() override {
-        CHECK_EQ(def_.input_size(), 3);
-        return SingleGradientDef(
-            "FCGradient", "",
-            vector<string>{I(0), I(1), GO(0)},
-            vector<string>{GI(1), GI(2), GI(0)});
-      }
-    };
-    REGISTER_GRADIENT(FC, GetFCGradient);
-    }  // namespace
-    }  // namespace caffe2
-
-
+```
+OPERATOR_SCHEMA(FCGradient).NumInputs(3).NumOutputs(2, 3);
+class GetFCGradient : public GradientMakerBase {
+  using GradientMakerBase::GradientMakerBase;
+  vector<OperatorDef> GetGradientDefs() override {
+    CHECK_EQ(def_.input_size(), 3);
+    return SingleGradientDef(
+        "FCGradient", "",
+        vector<string>{I(0), I(1), GO(0)},
+        vector<string>{GI(1), GI(2), GI(0)});
+  }
+};
+REGISTER_GRADIENT(FC, GetFCGradient);
+}  // namespace
+}  // namespace caffe2
+```
 
 [](note the above schema doesn't have a SetDocR section, and the formatting is different, more shorthand than the previous schema. Should we reformat and force a spot for docs and tag it as "documentation missing" or similar so we go back and fill it in with something?)
 

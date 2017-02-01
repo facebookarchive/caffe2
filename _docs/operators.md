@@ -17,16 +17,16 @@ As a result, for example, in the Fully Connected operator, each of the input X, 
 
 For a full listing of Caffe2 Operators, refer to the Operators Catalogue:
 
-* [Operators Catalogue](operators_catalogue.html)
+* [Operators Catalogue](operators-catalogue.html)
 
 ## Writing Your Own Custom Operators
 
 Fantastic idea! Write custom operators and share them with the community! Refer to the guide on writing operators:
 
-* [Guide for creating your own operators](custom_operators.html)
+* [Guide for creating your own operators](custom-operators.html)
 
 ## Sparse Operations
 
 Caffe2 provides support for representing sparse features and performing corresponding operations on segments of tensors. Refer to the guide on sparse operators:
 
-* [Guide for sparse operations](sparse_operations.html)
+* [Guide for sparse operations](sparse-operations.html)
