@@ -96,7 +96,7 @@ If the recursive option doesn't work for your version of git, or if you already 
   1. Install [Command Line Tools from Xcode](https://developer.apple.com/)
   2. Install [Homebrew](http://brew.sh/)
 
-  Fetch the [latest source](#installing-and-building-caffe2-getting-the-source) code from Github if you haven't already.
+  Fetch the [latest source](getting-started.html#getting-the-source) code from Github if you haven't already.
 
   Several prerequisites are now installed via brew.   
   Note, installation might be able to just use automake as eigen is default, many of the "prerequisites" are now in third party, and the others were optional:
@@ -125,9 +125,10 @@ If the recursive option doesn't work for your version of git, or if you already 
 
 
   Once the build completes without errors, you will want to:
-    - [Configure Python](#installing-and-building-caffe2-compilation-configure-python)
-    - [Test Caffe2 in Python](#installing-and-building-caffe2-compilation-test-caffe2)
-    - [Install Tutorial Prerequisites](#installing-and-building-caffe2-compilation-tutorials-prerequisites)
+
+    * [Configure Python](getting-started.html#compilation__configure-python)
+    * [Test Caffe2 in Python](getting-started.html#compilation__test-caffe2)
+    * [Install Tutorial Prerequisites](hgetting-started.html#compilation__tutorials-prerequisites)
 
   [Original Caffe's OSX guide](http://caffe.berkeleyvision.org/install_osx.html)
 
@@ -139,31 +140,36 @@ If the recursive option doesn't work for your version of git, or if you already 
 
   If you're using a VM or a cloud solution, make sure you give yourself enough room for the compilation process. You will need at least 12 GB of disk space to get through all of the compilation. If you don't plan on using GPU, then you could skip the CUDA steps and use a much smaller disk image.
 
-      sudo apt-get install libprotobuf-dev protobuf-compiler libatlas-base-dev libgoogle-glog-dev libgtest-dev liblmdb-dev libleveldb-dev libsnappy-dev python-dev python-pip libiomp-dev libopencv-dev libpthread-stubs0-dev cmake
-      sudo pip install numpy
-      wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
-      sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
-      sudo apt-get update
-      sudo apt-get install cuda
-      sudo apt-get install git
-      sudo pip install protobuf
+```
+sudo apt-get install libprotobuf-dev protobuf-compiler libatlas-base-dev libgoogle-glog-dev libgtest-dev liblmdb-dev libleveldb-dev libsnappy-dev python-dev python-pip libiomp-dev libopencv-dev libpthread-stubs0-dev cmake
+sudo pip install numpy
+wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
+sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
+sudo apt-get update
+sudo apt-get install cuda
+sudo apt-get install git
+sudo pip install protobuf
+```
 
   Fetch the [latest source](#installing-and-building-caffe2-getting-the-source) code from Github if you haven't already.
 
-      CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" &&
-      curl -fsSL ${CUDNN_URL} -O &&
-      sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local &&
-      rm cudnn-8.0-linux-x64-v5.1.tgz &&
-      sudo ldconfig
+```
+CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" &&
+curl -fsSL ${CUDNN_URL} -O &&
+sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local &&
+rm cudnn-8.0-linux-x64-v5.1.tgz &&
+sudo ldconfig
 
-      mkdir build && cd build
-      cmake ..
-      make  
+mkdir build && cd build
+cmake ..
+make  
+```
 
   Once the build completes without errors, you will want to:
-    - [Configure Python](#installing-and-building-caffe2-compilation-configure-python)
-    - [Test Caffe2 in Python](#installing-and-building-caffe2-compilation-test-caffe2)
-    - [Install Tutorial Prerequisites](#installing-and-building-caffe2-compilation-tutorials-prerequisites)
+
+  * [Configure Python](getting-started.html#compilation__configure-python)
+  * [Test Caffe2 in Python](getting-started.html#compilation__test-caffe2)
+  * [Install Tutorial Prerequisites](hgetting-started.html#compilation__tutorials-prerequisites)
 
 #### GPU Support
 
@@ -174,8 +180,10 @@ If the recursive option doesn't work for your version of git, or if you already 
   You will need to update your PYTHONPATH environment variable to use the newly created files in your */install* directory. Update the directory in the command below to match your Caffe2 install folder path.
 
 
-    sudo make install
-    export PYTHOPATH=/usr/local
+```
+sudo make install
+export PYTHOPATH=/usr/local
+```
 
 
 ### Android
