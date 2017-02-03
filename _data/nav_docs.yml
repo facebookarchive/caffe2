@@ -2,9 +2,12 @@
   items:
   - id: getting-started
   - id: learn-more
+  - id: caffe-migration
 - title: Learn
   items:
   - id: tutorials
+  - id: mobile-integration
+  - id: reading-file
   - id: operators
   - id: datasets
   - id: zoo
