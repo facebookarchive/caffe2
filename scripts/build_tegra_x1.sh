@@ -33,9 +33,13 @@ sudo apt-get install \
   liblmdb-dev \
   libpython-dev \
   libsnappy-dev \
-  python-hypothesis \
   python-numpy \
+  python-pip \
   python-protobuf
+
+# Obtain python hypothesis, which Caffe2 uses for unit testing. Note that
+# the one provided by apt-get is quite old so we install it via pip
+sudo pip install hypothesis
 
 # Now, actually build the android target.
 echo "Building caffe2"
