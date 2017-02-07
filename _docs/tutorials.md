@@ -70,6 +70,7 @@ Fantastic idea! Write custom operators and share them with the community! Refer 
   ```
   brew install matplotlib --with-python3
   pip install ipython notebook
+  pip install scikit-image
   ```
 
 #### Anaconda
@@ -78,6 +79,7 @@ Anaconda comes with iPython notebook, so you'll only need to install matplotlib.
 
   ```
   conda install matplotlib
+  conda install scikit-image
   ```
 
 #### pip
@@ -85,6 +87,7 @@ Anaconda comes with iPython notebook, so you'll only need to install matplotlib.
   ```
   pip install matplotlib
   pip install ipython notebook
+  pip install scikit-image
   ```
 
 Instructions on how to setup Jupyter Notebook, which is the latest, greatest way to use and create interactive code notebooks (ipynb files) is found at [http://jupyter.org](http://jupyter.org/install.html).
