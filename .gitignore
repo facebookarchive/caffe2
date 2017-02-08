@@ -9,3 +9,5 @@ _site
 *.psd
 *~
 .jekyll-metadata
+tutorials/.ipynb_checkpoints/
+tutorials/tutorial_files/
