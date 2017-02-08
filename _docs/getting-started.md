@@ -31,106 +31,110 @@ Ready to install Caffe2? Great! In order to install or try out Caffe2, you have 
 
 ## Getting the Source
 
-    git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
-
+```
+git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
+```
 
 If the recursive option doesn't work for your version of git, or if you already cloned the repo without downloading and initializing the submodules you can try the following steps. Definitely try this if you're getting errors trying to compile.
 
-
-    git clone --recursive https://github.com/caffe2/caffe2.git
-    cd caffe2
-    git submodule init
-    git submodule update
-
+```
+git clone --recursive https://github.com/caffe2/caffe2.git
+cd caffe2
+git submodule init
+git submodule update
+```
 
 ## Installation
 
-  The Caffe2 library's dependency is largely similar to that of Caffe's. Thus, if you have installed Caffe in the past, you should most likely be good to go. Otherwise, please check the prerequisites and specific platforms' guides.
+The Caffe2 library's dependency is largely similar to that of Caffe's. Thus, if you have installed Caffe in the past, you should most likely be good to go. Otherwise, please check the prerequisites and specific platforms' guides.
 
-  For MacOSx, Caffe2 uses a Homebrew build script so that we can deal with multiple targets as well as optional dependencies. The format is similar to build systems like [Bazel](http://bazel.io) and [Buck](https://buckbuild.com/) with some custom flavors. It is based on python, so you will need to have Python installed.
+For MacOSx, Caffe2 uses a Homebrew build script so that we can deal with multiple targets as well as optional dependencies. The format is similar to build systems like [Bazel](http://bazel.io) and [Buck](https://buckbuild.com/) with some custom flavors. It is based on python, so you will need to have Python installed.
 
-  When updating Caffe2, it's best to `make clean` before re-compiling.
+When updating Caffe2, it's best to `make clean` before re-compiling.
 
 ## Prerequisites
 
-  Caffe2 has several dependencies.
+Caffe2 has several dependencies.
 
-  * A C++ compiler that supports C++11.
-  * [CUDA](https://developer.nvidia.com/cuda-zone) is required for GPU mode.
-      * library version above 6.5 are needed for C++11 support, and 7.0 is recommended.
-  * `protobuf`, `glog`, `gflags`, `eigen3`
+* A C++ compiler that supports C++11.
+* [CUDA](https://developer.nvidia.com/cuda-zone) is required for GPU mode.
+  * library version above 6.5 are needed for C++11 support, and 7.0 is recommended.
+* `protobuf`, `glog`, `gflags`, `eigen3`
 
 ### Optional Dependencies
 
-  In addition, Caffe2 has several optional dependencies: not having these will not cause problems, but some components will not work. Note that strictly speaking, CUDA is also an optional dependency. You can compile a purely CPU-based Caffe2 by not having CUDA. However, since CUDA is critical in achieving high-performance computation, you may want to consider it a necessary dependency.
+In addition, Caffe2 has several optional dependencies: not having these will not cause problems, but some components will not work. Note that strictly speaking, CUDA is also an optional dependency. You can compile a purely CPU-based Caffe2 by not having CUDA. However, since CUDA is critical in achieving high-performance computation, you may want to consider it a necessary dependency.
 
-  * [OpenCV](http://opencv.org/), which is needed for image-related operations. If you work with images, you most likely want this.
-  * [OpenMPI](http://www.open-mpi.org/), needed for MPI-related Caffe2 operators.
-  * `leveldb`, needed for Caffe2's LevelDB IO backend. LevelDB also depends on `snappy`.
-  * `rocksdb`, needed for Caffe2's RocksDB IO backend. RocksDB also depends on `snappy`, `bzip2`, and `zlib`.
-  * `lmdb`, needed for Caffe2's LMDB IO backend.
-  * [ZeroMQ](http://zeromq.org/), needed for Caffe2's ZmqDB IO backend (serving data through a socket).
-  * [cuDNN](https://developer.nvidia.com/cudnn), needed for Caffe2's cuDNN operators.
+* [OpenCV](http://opencv.org/), which is needed for image-related operations. If you work with images, you most likely want this.
+* [OpenMPI](http://www.open-mpi.org/), needed for MPI-related Caffe2 operators.
+* `leveldb`, needed for Caffe2's LevelDB IO backend. LevelDB also depends on `snappy`.
+* `rocksdb`, needed for Caffe2's RocksDB IO backend. RocksDB also depends on `snappy`, `bzip2`, and `zlib`.
+* `lmdb`, needed for Caffe2's LMDB IO backend.
+* [ZeroMQ](http://zeromq.org/), needed for Caffe2's ZmqDB IO backend (serving data through a socket).
+* [cuDNN](https://developer.nvidia.com/cudnn), needed for Caffe2's cuDNN operators.
 
-  If you do not install some of the dependencies, when you compile Caffe2, you will receive warning message that some components are not correctly built. This is fine - you will be able to use the other components without problem.
+If you do not install some of the dependencies, when you compile Caffe2, you will receive warning message that some components are not correctly built. This is fine - you will be able to use the other components without problem.
 
-  Pycaffe2 has its own natural needs, mostly on the Python side: `numpy (>= 1.7)` and `protobuf` are needed. We also recommend installing the following packages: `flask`, `ipython`, `matplotlib`, `notebook`, `pydot`, `python-nvd3`, `scipy`, `tornado`, and `scikit-image`.
+Pycaffe2 has its own natural needs, mostly on the Python side: `numpy (>= 1.7)` and `protobuf` are needed. We also recommend installing the following packages: `flask`, `ipython`, `matplotlib`, `notebook`, `pydot`, `python-nvd3`, `scipy`, `tornado`, and `scikit-image`.
 
 ### Python Versions
-  It is possible to compile and run Caffe2 with 2.7 up to 3.5 versions of Python as well as using Python environments provided by different Python distributions such as Anaconda. If you are on a Mac and trying this for the first time we first suggest that you try using the default version of Python before jumping to a distribution or using environments. This may simplify things dramatically.
 
-  [Anaconda](https://store.continuum.io/cshop/anaconda/) Python distribution may be used as well, which provides most of the necessary packages, as well as the `hdf5` library dependency.
+It is possible to compile and run Caffe2 with 2.7 up to 3.5 versions of Python as well as using Python environments provided by different Python distributions such as Anaconda. If you are on a Mac and trying this for the first time we first suggest that you try using the default version of Python before jumping to a distribution or using environments. This may simplify things dramatically.
+
+[Anaconda](https://store.continuum.io/cshop/anaconda/) Python distribution may be used as well, which provides most of the necessary packages, as well as the `hdf5` library dependency.
 
 ## Compilation
 
-  Now that you have the prerequisites, you should be good to go. Caffe's build environment should be able to figure out everything itself. However, there may be cases when you need to manually specify some paths of the build toolchain. In that case, go to `build_env.py`, and modify the lines in the Env class (look for line `class Env(object)`) accordingly. Then, simply run
+Now that you have the prerequisites, you should be good to go. Caffe's build environment should be able to figure out everything itself. However, there may be cases when you need to manually specify some paths of the build toolchain. In that case, go to `build_env.py`, and modify the lines in the Env class (look for line `class Env(object)`) accordingly. Then, simply run
 
-      make
+```
+make
+```
 
-  The build script should tell you what got built and what did not get built.
+The build script should tell you what got built and what did not get built.
 
 ### MacOSx
 
 #### OSX Prerequisites
 
-  1. Install [Command Line Tools from Xcode](https://developer.apple.com/)
-  2. Install [Homebrew](http://brew.sh/)
+1. Install [Command Line Tools from Xcode](https://developer.apple.com/)
+2. Install [Homebrew](http://brew.sh/)
 
-  Fetch the [latest source](getting-started.html#getting-the-source) code from Github if you haven't already.
+Fetch the [latest source](getting-started.html#getting-the-source) code from Github if you haven't already.
 
-  Several prerequisites are now installed via brew.   
-  Note, installation might be able to just use automake as eigen is default, many of the "prerequisites" are now in third party, and the others were optional:
+Several prerequisites are now installed via brew.   
+Note, installation might be able to just use automake as eigen is default, many of the "prerequisites" are now in third party, and the others were optional:
 
+```
+brew install automake
+```
 
-    brew install automake
+The previously known working install method used:
 
+```
+brew install glog automake protobuf lmdb opencv libtool
+brew install homebrew/science/openblas
+```
 
-  The previously known working install method used:
-
-
-    brew install glog automake protobuf lmdb opencv libtool
-    brew install homebrew/science/openblas
-
-
-  Assuming everything above installs without errors you can move on to the make steps. Warnings should be fine and you can move ahead without trouble.
+Assuming everything above installs without errors you can move on to the make steps. Warnings should be fine and you can move ahead without trouble.
 
 #### OSX Compilation
 
-  If you're starting from scratch, the commands below will create your */build* directory and begin the compilation process. Another directory will be created in your Caffe2 root directory called */install*. The cmake step uses the install directory and also turns off LevelDB. If you're not starting from scratch then delete your */build* and */install* folders first, then run the commands below.
+If you're starting from scratch, the commands below will create your */build* directory and begin the compilation process. Another directory will be created in your Caffe2 root directory called */install*. The cmake step uses the install directory and also turns off LevelDB. If you're not starting from scratch then delete your */build* and */install* folders first, then run the commands below.
 
+```
+mkdir build && mkdir install && cd build
+cmake .. -DCMAKE_INSTALL_PATH=../install -DUSE_LEVELDB=OFF
+make
+```
 
-    mkdir build && mkdir install && cd build
-    cmake .. -DCMAKE_INSTALL_PATH=../install -DUSE_LEVELDB=OFF
-    make
+Once the build completes without errors, you will want to:
 
+* [Configure Python](getting-started.html#compilation__configure-python)
+* [Test Caffe2 in Python](getting-started.html#compilation__test-caffe2)
+* [Install Tutorial Prerequisites](hgetting-started.html#compilation__tutorials-prerequisites)
 
-  Once the build completes without errors, you will want to:
-
-    * [Configure Python](getting-started.html#compilation__configure-python)
-    * [Test Caffe2 in Python](getting-started.html#compilation__test-caffe2)
-    * [Install Tutorial Prerequisites](hgetting-started.html#compilation__tutorials-prerequisites)
-
-  [Original Caffe's OSX guide](http://caffe.berkeleyvision.org/install_osx.html)
+[Original Caffe's OSX guide](http://caffe.berkeleyvision.org/install_osx.html)
 
 ### Ubuntu
 
@@ -206,9 +210,9 @@ To build Caffe2 for iOS run the following script:
 
   To test if Caffe2 is working run the following:
 
-
-    python -c 'from caffe2.python import core' 2>/dev/null && echo "Success!" || echo "uh oh!"
-
+```
+python -c 'from caffe2.python import core' 2>/dev/null && echo "Success!" || echo "uh oh!"
+```
 
   If you get a result of "Success!" then you're ready to Caffe! If you get an "uh oh" then go back and check your console for errors and see if you missed anything. Many times this can be related to Python environments and you'll want to make sure you're running Python that's registered with the Caffe2 modules.
 
@@ -216,10 +220,12 @@ To build Caffe2 for iOS run the following script:
 
   If you plan to run the tutorials and the Jupyter notebooks you can get these package from your package manager of choice: apt-get, pip, or Anaconda's conda. Here are examples using pip.
 
-    sudo pip install ipython
-    sudo pip install notebook
-    sudo pip install matplotlib
-    sudo pip install graphviz
+```
+sudo pip install ipython
+sudo pip install notebook
+sudo pip install matplotlib
+sudo pip install graphviz
+```
 
 ### Docker Support
 
@@ -227,7 +233,9 @@ To build Caffe2 for iOS run the following script:
 
   Running these Docker images with CUDA GPUs is currently only supported on Linux hosts, as far as I can tell. You will need to make sure that your host driver is also 346.46, and you will need to invoke docker with
 
-      docker run -t -i --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm --device /dev/nvidia0:/dev/nvidia0 [other cuda cards] ...
+```
+docker run -t -i --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm --device /dev/nvidia0:/dev/nvidia0 [other cuda cards] ...
+```
 
 ## Build status (known working)
 
