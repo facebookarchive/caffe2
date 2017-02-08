@@ -5,7 +5,7 @@ layout: docs
 permalink: /docs/custom-operators.html
 ---
 
-Did you check out the wide array of [Operators](operators.html) already provided in Caffe2? Still want to roll your own operator? Read on, but don't forget to contribute your fancy new operator back to the project!
+Did you check out the wide array of [Operators](operators-catalogue.html) already provided in Caffe2? Still want to roll your own operator? Read on, but don't forget to contribute your fancy new operator back to the project!
 
 ## Writing a Basic Operator
 
