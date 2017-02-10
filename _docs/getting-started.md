@@ -181,12 +181,12 @@ make
 
 ### Configure Python
 
-  You will need to update your PYTHONPATH environment variable to use the newly created files in your */install* directory. Update the directory in the command below to match your Caffe2 install folder path.
+  You will want to install the python files into your Python environment. After the build step and while still in the build folder, you can call `sudo make install` to accomplish this. You will also need to update or add your PYTHONPATH environment variable to use the newly created files in your */install* directory. Update the directory in the command below to match your Caffe2 install folder path. By default on MacOSx Sierra, it is going into /usr/local.
 
 
 ```
 sudo make install
-export PYTHOPATH=/usr/local
+export PYTHONPATH=/usr/local
 ```
 
 
