@@ -59,8 +59,8 @@ else
   #################
 
   # Found here:
-  # https://github.com/NVIDIA/nvidia-docker/blob/master/ubuntu-16.04/cuda/8.0/devel/cudnn5/Dockerfile#L11-L16
-  CUDNN_DOWNLOAD_SUM=a87cb2df2e5e7cc0a05e266734e679ee1a2fadad6f06af82a76ed81a23b102c8
+  # https://gitlab.com/nvidia/cuda/blob/ff2d7c34fe/8.0/devel/cudnn5/Dockerfile
+  CUDNN_DOWNLOAD_SUM=c10719b36f2dd6e9ddc63e3189affaa1a94d7d027e63b71c3f64d449ab0645ce
   CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz"
   curl -fsSL ${CUDNN_URL} -O
   echo "$CUDNN_DOWNLOAD_SUM  cudnn-8.0-linux-x64-v5.1.tgz" | sha256sum -c --strict -
