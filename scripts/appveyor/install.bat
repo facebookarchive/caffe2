@@ -21,3 +21,5 @@ nvcc -V || exit /b
 
 :: Miniconda path for appveyor
 set PATH=C:\Miniconda-x64;C:\Miniconda-x64\Scripts;%PATH%
+:: Install numpy
+conda install numpy
