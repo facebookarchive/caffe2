@@ -13,11 +13,15 @@ if not exist %CAFFE2_ROOT%\build_host_protoc\bin\protoc.exe %CAFFE2_ROOT%\script
 if not exist %CAFFE2_ROOT%\build mkdir %CAFFE2_ROOT%\build
 cd %CAFFE2_ROOT%\build
 
+:: Set up cmake. We will skip building the test files right now.
+:: TODO: enable cuda support.
 cmake .. ^
   -DCMAKE_VERBOSE_MAKEFILE=1 ^
   -DBUILD_TEST=OFF ^
   -DUSE_CUDA=OFF ^
-  -DUSE_NCCL=OFF ^
   -DPROTOBUF_PROTOC_EXECUTABLE=%CAFFE2_ROOT%\build_host_protoc\bin\protoc.exe
+  
+:: Actually run the build
+msbuild ALL_BUILD.vcxproj
 
 cd %ORIGINAL_DIR%
