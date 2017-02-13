@@ -19,9 +19,10 @@ cmake .. ^
   -DCMAKE_VERBOSE_MAKEFILE=1 ^
   -DBUILD_TEST=OFF ^
   -DUSE_CUDA=OFF ^
-  -DPROTOBUF_PROTOC_EXECUTABLE=%CAFFE2_ROOT%\build_host_protoc\bin\protoc.exe
+  -DPROTOBUF_PROTOC_EXECUTABLE=%CAFFE2_ROOT%\build_host_protoc\bin\protoc.exe ^
+  || exit /b
   
 :: Actually run the build
-msbuild ALL_BUILD.vcxproj
+msbuild ALL_BUILD.vcxproj || exit /b
 
 cd %ORIGINAL_DIR%

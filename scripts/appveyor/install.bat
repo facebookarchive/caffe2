@@ -17,7 +17,7 @@ set PATH=%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin;%ProgramFiles
 :: TODO: we will still need to figure out how to install cudnn.
 
 :: Make sure that nvcc is working correctly.
-nvcc -V
+nvcc -V || exit /b
 
 :: Miniconda path for appveyor
 set PATH=C:\Miniconda-x64;C:\Miniconda-x64\Scripts;%PATH%
