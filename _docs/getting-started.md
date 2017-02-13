@@ -211,10 +211,10 @@ To build Caffe2 for iOS run the following script:
   To test if Caffe2 is working run the following:
 
 ```
-python -c 'from caffe2.python import core' 2>/dev/null && echo "Success!" || echo "uh oh!"
+python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "uh oh"
 ```
 
-  If you get a result of "Success!" then you're ready to Caffe! If you get an "uh oh" then go back and check your console for errors and see if you missed anything. Many times this can be related to Python environments and you'll want to make sure you're running Python that's registered with the Caffe2 modules.
+  If you get a result of "Success" then you're ready to Caffe! If you get an "uh oh" then go back and check your console for errors and see if you missed anything. Many times this can be related to Python environments and you'll want to make sure you're running Python that's registered with the Caffe2 modules.
 
 ### Tutorials Prerequisites
 
