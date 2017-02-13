@@ -18,3 +18,6 @@ set PATH=%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin;%ProgramFiles
 
 :: Make sure that nvcc is working correctly.
 nvcc -V
+
+:: Miniconda path for appveyor
+set PATH=C:\Miniconda-x64;C:\Miniconda-x64\Scripts;%PATH%
