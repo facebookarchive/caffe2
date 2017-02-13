@@ -6,6 +6,18 @@ from __future__ import unicode_literals
 from caffe2.python import core, context
 from caffe2.python.schema import Field, from_blob_list
 from collections import defaultdict
+from copy import copy
+
+
+def _merge_node_kwargs(a, b):
+    # TODO(azzolini): consistency checks
+    if a is None:
+        return b
+    if b is None:
+        return a
+    c = copy(a)
+    c.update(b)
+    return c
 
 
 @context.define_context(allow_default=True)
@@ -19,16 +31,23 @@ class Cluster(object):
     def __init__(self):
         # list instead of set to keep order
         self._nodes = []
+        self._node_kwargs = {}
 
     def add_node(self, node):
         if str(node) not in self._nodes:
             self._nodes.append(str(node))
+        self._node_kwargs[str(node)] = _merge_node_kwargs(
+            node.kwargs(),
+            self._node_kwargs.get(str(node)))
 
     def nodes(self):
         """
         Returns the list of unique node names used within this context.
         """
         return self._nodes
+
+    def node_kwargs(self):
+        return self._node_kwargs
 
 
 @context.define_context(allow_default=True)
@@ -50,14 +69,27 @@ class Node(object):
         In this example, all three execution steps will run in parallel.
         Moreover, s1 and s3 will run on the same node, and can see each
         others blobs.
+
+        Additionally, a Node can be passed implementation-specific kwargs,
+        in order to specify properties of the node. When using AML Flow,
+        we currently support:
+            resource_requirements: a fblearner.flow.api.ResourceRequirements
+                                   specifying requirements for this Node.
+            flow_returns: a fblearner.flow.api.types.Schema object specifying
+                          the output schema of the Flow operator where the
+                          Node will run.
     """
 
-    def __init__(self, node='local'):
+    def __init__(self, node='local', **kwargs):
         self._name = str(node)
+        self._kwargs = kwargs
         Cluster.current().add_node(self)
 
     def __str__(self):
         return self._name
+
+    def kwargs(self):
+        return self._kwargs
 
 
 class WorkspaceType(object):
@@ -70,15 +102,17 @@ class WorkspaceType(object):
     GLOBAL = 'global'
 
 
-def get_setup_nets(key, steps, target):
+def get_setup_nets(key, steps_or_nets, target):
     init_net = core.Net(key + '/init')
     exit_net = core.Net(key + '/exit')
     init_nets = []
     exit_nets = []
     objs = []
-    for step in steps:
-        if step is not None:
-            objs += step.get_all_attributes(key)
+    for step_or_net in steps_or_nets:
+        if hasattr(step_or_net, 'get_all_attributes'):
+            objs += step_or_net.get_all_attributes(key)
+        elif hasattr(step_or_net, 'get_attributes'):
+            objs += step_or_net.get_attributes(key)
     for obj in objs:
         # these are needed in order to allow nesting of TaskGroup, which
         # is a feature not yet implemented.
@@ -231,8 +265,13 @@ class TaskGroup(object):
             tasks_by_node[node_map[task.node]].append(task)
         grouped_by_node = TaskGroup()
         for node, tasks in tasks_by_node.items():
+            report_net = (
+                self._report_nets[node][0]
+                if node in self._report_nets else None)
             node_inits, node_exits = get_setup_nets(
-                TaskGroup.LOCAL_SETUP, [t.get_step() for t in tasks], self)
+                TaskGroup.LOCAL_SETUP,
+                [t.get_step() for t in tasks] + [report_net],
+                self)
             # shortcut for single task with no queue
             steps = []
             outputs = []
@@ -266,12 +305,14 @@ class TaskGroup(object):
                 step = core.execution_step(node, steps)
             Task(
                 node=node, step=step, outputs=outputs,
+                name='grouped_by_node',
                 group=grouped_by_node, workspace_type=workspace_type)
         self._tasks_by_node = (grouped_by_node, node_map)
         return grouped_by_node
 
-    def to_task(self, node='local'):
-        tasks = self.tasks_by_node(lambda x: 'local').tasks()
+    def to_task(self, node=None):
+        node = str(Node.current(node))
+        tasks = self.tasks_by_node(lambda x: node).tasks()
         if len(tasks) == 0:
             return Task()
         return tasks[0]
@@ -343,18 +384,42 @@ class Task(object):
     """
 
     TASK_SETUP = 'task_setup'
+    REPORT_NET = 'report_net'
+    _global_names_used = set()
+
+    @staticmethod
+    def _get_next_name(node, group, name):
+        basename = str(node) + '/' + str(name)
+        names_used = (
+            Task._global_names_used
+            if group is None else
+            set(t.name for t in group._tasks_to_add))
+        cur_name = basename
+        i = 0
+        while cur_name in names_used:
+            i += 1
+            cur_name = '%s:%d' % (basename, i)
+        return cur_name
 
     def __init__(
             self, step=None, outputs=None,
-            workspace_type=None, group=None, node=None):
+            workspace_type=None, group=None, node=None, name=None):
         """
         Instantiate a Task and add it to the current TaskGroup and Node.
         """
+        if not name and isinstance(step, core.ExecutionStep):
+            name = step.Proto().name
+        if not name:
+            name = 'task'
         # register this node name with active context
         self.node = str(Node.current(None if node is None else Node(node)))
-        group = TaskGroup.current(group, required=False)
-        if group is not None:
-            group._tasks_to_add.append(self)
+        self.group = TaskGroup.current(group, required=False)
+
+        self.name = Task._get_next_name(self.node, self.group, name)
+
+        # may need to be temporarily removed later if Task used as a context
+        if self.group is not None:
+            self.group._tasks_to_add.append(self)
 
         self._already_used = False
         self._step = None
@@ -368,19 +433,25 @@ class Task(object):
         self._pipeline = None
         self._is_pipeline_context = False
         self._workspace_type = workspace_type
+        self._report_net = None
 
     def __enter__(self):
+        # temporarily remove from _tasks_to_add to ensure correct order
+        if self.group is not None:
+            self.group._tasks_to_add.remove(self)
         self._assert_not_used()
         assert self._step is None, 'This Task already has an execution step.'
         from caffe2.python import net_builder
-        self._net_builder = net_builder.NetBuilder()
+        self._net_builder = net_builder.NetBuilder(_fullname=self.name)
         self._net_builder.__enter__()
         return self
 
     def __exit__(self, type, value, traceback):
+        self._net_builder.__exit__(type, value, traceback)
         if type is None:
             self.set_step(self._net_builder)
-        self._net_builder.__exit__(type, value, traceback)
+        if self.group is not None:
+            self.group._tasks_to_add.append(self)
         self._net_builder = None
 
     def workspace_type(self):
@@ -410,23 +481,31 @@ class Task(object):
 
     def get_step(self):
         if self._step is not None and self._step_with_setup is None:
+            report_net = self._step.get_all_attributes(Task.REPORT_NET)
+            assert len(report_net) <= 1, (
+                'Currently only one report net supported per task.')
+            if report_net:
+                report_net = report_net[0]
+                if not hasattr(report_net, '_report_net_used'):
+                    self._step.SetReportNet(report_net, 1)
+                    report_net._report_net_used = True
             init_nets, exit_nets = get_setup_nets(
                 Task.TASK_SETUP, [self._step], self)
             if len(self._outputs) == 0:
-                output_net = core.Net("output_net")
+                output_net = core.Net('%s:output' % self.name)
                 self.add_output(output_net.ConstantFill(
                     [], 1, dtype=core.DataType.INT32, value=0))
                 exit_nets.append(output_net)
             self._step_with_setup = core.execution_step(
-                'task',
+                self.name,
                 [
-                    core.execution_step('task_init', init_nets),
+                    core.execution_step('%s:init' % self.name, init_nets),
                     self._step,
-                    core.execution_step('task_exit', exit_nets),
+                    core.execution_step('%s:exit' % self.name, exit_nets),
                 ]
             )
         elif self._step_with_setup is None:
-            self._step_with_setup = core.execution_step('task', [])
+            self._step_with_setup = core.execution_step(self.name, [])
         return self._step_with_setup
 
     def outputs(self):

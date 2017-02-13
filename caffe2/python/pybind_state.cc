@@ -5,6 +5,7 @@
 
 #include "caffe2/core/asan.h"
 #include "caffe2/core/db.h"
+#include "caffe2/core/operator.h"
 #include "caffe2/core/predictor.h"
 #include "caffe2/utils/mkl_utils.h"
 #include "google/protobuf/io/coded_stream.h"
@@ -516,6 +517,15 @@ void addObjectMethods(py::module& m) {
           });
 }
 
+#if PY_VERSION_HEX >= 0x03000000
+static void*
+#else
+static void
+#endif
+NumpyImportArrayHelper() {
+  import_array();
+}
+
 void addGlobalMethods(py::module& m) {
   m.attr("is_asan") = py::bool_(CAFFE2_ASAN_ENABLED);
 
@@ -624,11 +634,13 @@ void addGlobalMethods(py::module& m) {
         std::string(net_def));
     return true;
   });
-  m.def("run_net", [](const std::string& name) {
+  m.def("run_net", [](const std::string& name, int num_iter) {
     CAFFE_ENFORCE(gWorkspace);
     CAFFE_ENFORCE(gWorkspace->GetNet(name), "Can't find net ", name);
     py::gil_scoped_release g;
-    CAFFE_ENFORCE(gWorkspace->RunNet(name), "Error running net ", name);
+    for (int i = 0; i < num_iter; i++) {
+      CAFFE_ENFORCE(gWorkspace->RunNet(name), "Error running net ", name);
+    }
     return true;
   });
   m.def(
@@ -677,6 +689,43 @@ void addGlobalMethods(py::module& m) {
     CAFFE_ENFORCE(gWorkspace->RunPlan(def));
     return true;
   });
+  m.def(
+      "infer_shapes_and_types_from_workspace",
+      [](const std::vector<py::bytes>& net_protos) {
+        CAFFE_ENFORCE(gWorkspace);
+
+        // Parse protobuffers to NetDefs
+        std::vector<std::unique_ptr<caffe2::NetDef>> nets;
+        for (auto proto : net_protos) {
+          std::unique_ptr<NetDef> def(new NetDef());
+          def.get()->ParseFromString(proto);
+          nets.push_back(std::move(def));
+        }
+
+        auto blob_info = InferBlobShapesAndTypesFromWorkspace(gWorkspace, nets);
+
+        std::string protob;
+        CAFFE_ENFORCE(blob_info.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
+  m.def(
+      "infer_shapes_and_types_from_map",
+      [](const std::vector<py::bytes>& net_protos,
+         const std::map<std::string, std::vector<TIndex>> blob_dimensions) {
+        // Parse protobuffers to NetDefs
+        std::vector<std::unique_ptr<caffe2::NetDef>> nets;
+        for (auto proto : net_protos) {
+          std::unique_ptr<NetDef> def(new NetDef());
+          def.get()->ParseFromString(proto);
+          nets.push_back(std::move(def));
+        }
+
+        auto blob_info = InferBlobShapesAndTypesFromMap(blob_dimensions, nets);
+
+        std::string protob;
+        CAFFE_ENFORCE(blob_info.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
   m.def("create_blob", [](const std::string& name) {
     CAFFE_ENFORCE(gWorkspace);
     CAFFE_ENFORCE(gWorkspace->CreateBlob(name));
@@ -796,7 +845,11 @@ void addGlobalMethods(py::module& m) {
 
   auto initialize = [&]() {
     // Initialization of the module
-    ([]() {
+#if PY_VERSION_HEX >= 0x03000000
+    ([]() -> void* {
+#else
+    ([]() -> void {
+#endif
       // This is a workaround so we can deal with numpy's import_array behavior.
       // Despite the fact that you may think import_array() is a function call,
       // it is defined as a macro (as of 1.10).

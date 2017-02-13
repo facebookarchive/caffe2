@@ -39,7 +39,7 @@ except NameError:
 
 
 def _GetRegisteredOperators():
-    return set(s.decode() for s in workspace.RegisteredOperators())
+    return set(workspace.RegisteredOperators())
 
 
 _REGISTERED_OPERATORS = _GetRegisteredOperators()
@@ -60,6 +60,26 @@ def GlobalInit(args):
 
 def GetGlobalInitArgs():
     return _GLOBAL_INIT_ARGS[:]
+
+
+_WORKER_INIT_CALLS = []
+
+
+def worker_init_func(func):
+    """
+    By decorating a function with this, each call to the function will be
+    recorded at workflow time and replayed in each of the works at startup.
+    Used for example for registering caffe python operators.
+    """
+    def call(*args, **kwargs):
+        _WORKER_INIT_CALLS.append((func, args, kwargs))
+        return func(*args, **kwargs)
+
+    return call
+
+
+def GetWorkerInitCalls():
+    return _WORKER_INIT_CALLS[:]
 
 
 def IsOperator(op_type):
@@ -269,11 +289,15 @@ def CreateOperator(
 
 
 def _RegisterPythonImpl(f, grad_f=None, pass_workspace=False):
+    if isinstance(f, tuple):
+        f = f[0](*f[1], **f[2])
+    if isinstance(grad_f, tuple):
+        grad_f = grad_f[0](*grad_f[1], **grad_f[2])
+
     token = C.register_python_op(f, pass_workspace)
     if grad_f:
         C.register_python_gradient_op(token, grad_f)
     return token
-
 
 def CreatePythonOperator(
     f, inputs,
@@ -1077,8 +1101,15 @@ class Net(object):
     operator_registry_ = {}
 
     @staticmethod
+    def current_prefix():
+        from caffe2.python.net_builder import NetBuilder
+        builder = NetBuilder.current(required=False)
+        return builder.name if builder else ''
+
+    @staticmethod
     def _get_next_net_name(basename):
-        name = basename
+        name = basename = '/'.join(filter(
+            lambda x: x, (Net.current_prefix(), basename)))
         next_idx = 1
         while name in Net._net_names_used:
             name = basename + '_' + str(next_idx)
@@ -1133,13 +1164,14 @@ class Net(object):
                 self._next_name_index = max(autogen_indices) + 1
             else:
                 self._next_name_index = 0
+            name = self._net.name
         else:
+            name = name_or_proto
             self._net = caffe2_pb2.NetDef()
-            self._net.name = name_or_proto
             self._next_name_index = 0
 
         # make sure that this net name hasn't been used before
-        self._net.name = Net._get_next_net_name(self._net.name)
+        self._net.name = Net._get_next_net_name(name)
 
     def AppendNet(self, net):
         assert isinstance(net, Net)
@@ -1600,7 +1632,21 @@ class Net(object):
 
     def Python(self, f, grad_f=None, pass_workspace=False):
         """
-        `f` should have a signature (inputs, outputs)
+        Registers and returns a python operator.
+
+        `f` and `f_grad` can be one of the following:
+            - a function with signature (inputs, outputs), where inputs and
+              outputs are a list of CPUTensor objects. This function will be
+              called from C++ everytime the operator is executed.
+            - a tuple (func, args, kwargs), here `func` is a callable, args is
+              an argument list, and kwargs is a dict list. The call:
+                  f = func(*args, kwargs)
+              will be performed locally at node initialization time, on all of
+              the nodes of the job, returning `f`, a callable that will be used
+              as the python operator function to be called during Net execution.
+              This is to be used when using python operator in a distributed
+              context, and allows to create and keep local python state across
+              calls to the operator.
 
         If `pass_workspace` is True, the signature is changed to
         (inputs, outputs, workspace) where `workspace` is the workspace the op
@@ -1608,7 +1654,14 @@ class Net(object):
         manipulate the workspace directly), use on your own risk.
         """
         assert(IsOperator('Python'))
-        token = _RegisterPythonImpl(f, grad_f, pass_workspace=pass_workspace)
+        if isinstance(f, tuple) or isinstance(grad_f, tuple):
+            # if we got a tuple, we will make sure this tuple will be
+            # registered to run at startup on each of the workers in a
+            # distributed run.
+            registry = worker_init_func(_RegisterPythonImpl)
+        else:
+            registry = _RegisterPythonImpl
+        token = registry(f, grad_f, pass_workspace=pass_workspace)
         return lambda *args, **kwargs: self._CreateAndAddToSelf(
             'Python', token=token, *args, **kwargs)
 
@@ -1841,6 +1894,8 @@ def to_execution_step(step_or_nets, default_name=None):
         return step_or_nets
 
     stop_blob = None
+    if not default_name and hasattr(step_or_nets, 'name'):
+        default_name = step_or_nets.name
     if isinstance(step_or_nets, NetBuilder):
         stop_blob = step_or_nets._stop_blob
         step_or_nets = step_or_nets.get()

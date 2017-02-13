@@ -17,24 +17,18 @@ namespace {
 REGISTER_CPU_OPERATOR(UniformFill, UniformFillOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(UniformIntFill, UniformFillOp<int, CPUContext>);
 REGISTER_CPU_OPERATOR(ConstantFill, ConstantFillOp<CPUContext>);
-REGISTER_CPU_OPERATOR(GivenTensorFill, GivenTensorFillOp<float, CPUContext>);
-REGISTER_CPU_OPERATOR(GivenTensorIntFill, GivenTensorFillOp<int, CPUContext>);
-REGISTER_CPU_OPERATOR(
-    GivenTensorInt64Fill,
-    GivenTensorFillOp<int64_t, CPUContext>);
-REGISTER_CPU_OPERATOR(
-    GivenTensorStringFill,
-    GivenTensorFillOp<std::string, CPUContext>);
 REGISTER_CPU_OPERATOR(GaussianFill, GaussianFillOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(XavierFill, XavierFillOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(MSRAFill, MSRAFillOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(RangeFill, RangeFillOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(LengthsRangeFill, LengthsRangeFillOp<CPUContext>);
 
+
 OPERATOR_SCHEMA(ConstantFill)
     .NumInputs(0, 1)
     .NumOutputs(1)
     .AllowInplace({{0, 0}})
+    .TensorInferenceFunction(FillerTensorInference)
     .SetDoc(R"DOC(
 The operator fills the elements of the output tensor with a constant value
 specified by the 'value' argument.
@@ -77,30 +71,42 @@ NOTE: Currently, it supports data type of float, int32, int64, and bool.
         "Output tensor of constant values specified by 'value'"
         "argument and its type is specified by the 'dtype' argument");
 
-OPERATOR_SCHEMA(UniformFill).NumInputs(0, 1).NumOutputs(1).AllowInplace({{0, 0}});
-OPERATOR_SCHEMA(UniformIntFill).NumInputs(0, 1).NumOutputs(1).AllowInplace({{0, 0}});
-OPERATOR_SCHEMA(GivenTensorFill).NumInputs(0, 1).NumOutputs(1).AllowInplace({{0, 0}});
-OPERATOR_SCHEMA(GivenTensorIntFill).NumInputs(0, 1).NumOutputs(1).AllowInplace({{0, 0}});
-OPERATOR_SCHEMA(GivenTensorInt64Fill)
-    .NumInputs(0, 1)
-    .NumOutputs(1)
-    .AllowInplace({{0, 0}});
-OPERATOR_SCHEMA(GivenTensorStringFill)
-    .NumInputs(0, 1)
-    .NumOutputs(1)
-    .AllowInplace({{0, 0}});
-OPERATOR_SCHEMA(GaussianFill).NumInputs(0, 1).NumOutputs(1).AllowInplace({{0, 0}});
-OPERATOR_SCHEMA(XavierFill).NumInputs(0, 1).NumOutputs(1).AllowInplace({{0, 0}});
-OPERATOR_SCHEMA(MSRAFill).NumInputs(0, 1).NumOutputs(1).AllowInplace({{0, 0}});
-OPERATOR_SCHEMA(RangeFill).NumInputs(0, 1).NumOutputs(1).AllowInplace({{0, 0}});
 
+OPERATOR_SCHEMA(UniformFill)
+    .NumInputs(0, 1)
+    .NumOutputs(1)
+    .AllowInplace({{0, 0}})
+    .TensorInferenceFunction(FillerTensorInference);
+
+OPERATOR_SCHEMA(UniformIntFill)
+    .NumInputs(0, 1)
+    .NumOutputs(1)
+    .AllowInplace({{0, 0}})
+    .TensorInferenceFunction(FillerTensorInference);
+OPERATOR_SCHEMA(GaussianFill)
+    .NumInputs(0, 1)
+    .NumOutputs(1)
+    .AllowInplace({{0, 0}})
+    .TensorInferenceFunction(FillerTensorInference);
+OPERATOR_SCHEMA(XavierFill)
+    .NumInputs(0, 1)
+    .NumOutputs(1)
+    .AllowInplace({{0, 0}})
+    .TensorInferenceFunction(FillerTensorInference);
+OPERATOR_SCHEMA(MSRAFill)
+    .NumInputs(0, 1)
+    .NumOutputs(1)
+    .AllowInplace({{0, 0}})
+    .TensorInferenceFunction(FillerTensorInference);
+OPERATOR_SCHEMA(RangeFill)
+    .NumInputs(0, 1)
+    .NumOutputs(1)
+    .AllowInplace({{0, 0}})
+    .TensorInferenceFunction(FillerTensorInference);
 
 NO_GRADIENT(UniformFill);
 NO_GRADIENT(UniformIntFill);
 NO_GRADIENT(ConstantFill);
-NO_GRADIENT(GivenTensorFill);
-NO_GRADIENT(GivenTensorIntFill);
-NO_GRADIENT(GivenTensorInt64Fill);
 NO_GRADIENT(GaussianFill);
 NO_GRADIENT(XavierFill);
 NO_GRADIENT(MSRAFill);

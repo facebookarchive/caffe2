@@ -106,7 +106,7 @@ class Reader(object):
             fields = from_blob_list(self._schema, fields)
         return should_stop, fields
 
-    def execution_step(self, reader_net_name=None):
+    def execution_step(self, reader_net_name=None, external_should_stop=None):
         """Create an execution step with a net containing read operators.
 
         The execution step will contain a `stop_blob` that knows how to stop
@@ -138,6 +138,8 @@ class Reader(object):
         """
         reader_net = core.Net(reader_net_name or 'reader')
         should_stop, fields = self.read_record(reader_net)
+        if external_should_stop is not None:
+            should_stop = reader_net.Or([external_should_stop, should_stop])
         read_step = core.execution_step(
             '{}_step'.format(reader_net_name),
             reader_net,
@@ -223,6 +225,38 @@ class ReaderBuilder(object):
 
     def new_reader(self, split_queue):
         raise NotImplementedError()
+
+
+class PipedReaderBuilder(ReaderBuilder):
+    """
+    ReaderBuilder that modifies underlying builder by calling `piper`
+    function on each new reader produced, and return the result of
+    the function. This way, it is possible to append data processing
+    pipelines that will be replicated for each reader that gets created.
+
+    E.g.:
+
+    PipedReaderBuilder(
+        HiveReaderBuilder(...),
+        lambda reader: pipe(reader, processor=my_proc))
+    """
+
+    def __init__(self, builder, piper):
+        self._builder = builder
+        self._piper = piper
+
+    def schema(self):
+        return self._builder.schema()
+
+    def enqueue_splits(self, net, split_queue):
+        return self._builder.enqueue_splits(net, split_queue)
+
+    def splits(self, net):
+        return self._builder.splits(net)
+
+    def new_reader(self, split_queue):
+        output = self._piper(self._builder.new_reader(split_queue))
+        return output if isinstance(output, Reader) else output.reader()
 
 
 class Pipe(object):

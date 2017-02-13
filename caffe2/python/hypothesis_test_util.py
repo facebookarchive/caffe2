@@ -378,8 +378,15 @@ class HypothesisTestCase(test_util.TestCase):
                     ref_vals, ref_indices = ref
                     val_name = grad_names.values
                 vals = workspace.FetchBlob(str(val_name))
-                np.testing.assert_allclose(vals, ref_vals,
-                                           atol=threshold, rtol=threshold)
+                np.testing.assert_allclose(
+                    vals,
+                    ref_vals,
+                    atol=threshold,
+                    rtol=threshold,
+                    err_msg='Gradient {0} is not matching the reference'.format(
+                        val_name,
+                    ),
+                )
                 if ref_indices is not None:
                     indices = workspace.FetchBlob(str(grad_names.indices))
                     np.testing.assert_allclose(indices, ref_indices,
@@ -449,7 +456,12 @@ class HypothesisTestCase(test_util.TestCase):
                     if atol is None:
                         atol = threshold
                     np.testing.assert_allclose(
-                        output, ref, atol=atol, rtol=threshold)
+                        output, ref, atol=atol, rtol=threshold,
+                        err_msg=(
+                            'Output {0} is not matching the reference'.format(
+                                output_blob_name,
+                            )),
+                    )
                 outs.append(output)
             if grad_reference and output_to_grad:
                 self._assertGradReferenceChecks(

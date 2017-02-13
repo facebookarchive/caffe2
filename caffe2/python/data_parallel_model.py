@@ -9,6 +9,7 @@ from caffe2.python import model_helper, dyndep, scope, workspace, core, memonger
 from caffe2.proto import caffe2_pb2
 
 dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/nccl:nccl_ops")
+dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/fbcollective:fbcollective_ops")
 
 log = logging.getLogger("data_parallel_model")
 log.setLevel(logging.INFO)
@@ -36,17 +37,15 @@ def Parallelize_GPU(
       forward_pass_builder_fun:
                         Function to add the operators to the model.
                         Must return list of loss-blob references that
-                        are used to build the gradient.
-                        Signature: forward_pass_builder_fun(model)
+                        are used to build the gradient. Loss scale parameter
+                        is passed, as you should scale the loss of your model
+                        by 1.0 / the total number of gpus.
+                        Signature: forward_pass_builder_fun(model, loss_scale)
       param_update_builder_fun:
                         Function that adds operators that are run after
                         gradient update, such as updating the weights and
-                        weight decaying. Function is also passed the learning
-                        rate scaling factor. You should multiple the learning
-                        rate by the factor to maintain invariant of same
-                        results with same total batch size, regardless of
-                        number of gpus.
-                        Signature: param_update_builder_fun(model, lr_scale)
+                        weight decaying.
+                        Signature: param_update_builder_fun(model)
       devices:          List of GPU ids, such as [0, 1, 2, 3],
       rendezvous:       used for rendezvous in distributed computation, if None
                         then only one node is used. To create rendezvous,
@@ -71,13 +70,16 @@ def Parallelize_GPU(
     log.info("Create input and model training operators")
 
     losses_by_gpu = {}
+    num_shards = 1 if rendezvous is None else rendezvous['num_shards']
+    loss_scale = 1.0 / (len(devices) * num_shards)
+
     for device in devices:
         device_opt = core.DeviceOption(caffe2_pb2.CUDA, device)
         with core.DeviceScope(device_opt):
             with core.NameScope("gpu_{}".format(device)):
                 log.info("Model for GPU: {}".format(device))
                 input_builder_fun(model_helper_obj)
-                losses = forward_pass_builder_fun(model_helper_obj)
+                losses = forward_pass_builder_fun(model_helper_obj, loss_scale)
                 # Losses are not needed for test net
                 if param_update_builder_fun is not None:
                     assert isinstance(losses, list), \
@@ -128,12 +130,15 @@ def Parallelize_GPU(
 
     log.info("Post-iteration operators for updating params")
     num_shards = 1 if rendezvous is None else rendezvous['num_shards']
-    lr_scale = 1.0 / (len(devices) * num_shards)
+    # The following check is necessary for ring reduce to work
+    if rendezvous is not None:
+        assert num_shards > 1, \
+            "Please use more than one shard for distributed training"
     for device in devices:
         device_opt = core.DeviceOption(caffe2_pb2.CUDA, device)
         with core.DeviceScope(device_opt):
             with core.NameScope("gpu_{}".format(device)):
-                param_update_builder_fun(model_helper_obj, lr_scale)
+                param_update_builder_fun(model_helper_obj)
 
     _AnalyzeOperators(model_helper_obj)
 
@@ -327,7 +332,7 @@ def _AllReduceGradientsDistributed(
     # Step 1: sum gradients from local GPUs to master GPU
     master_device_opt = core.DeviceOption(caffe2_pb2.CUDA, devices[0])
     reducing_device_opt = master_device_opt
-    if all_reduce_engine == "RDMA_TCP":
+    if all_reduce_engine == "FBCOLLECTIVE":
         reducing_device_opt = core.DeviceOption(caffe2_pb2.CPU, 0)
 
     # We need to specify a partial order using control_input to
@@ -363,9 +368,9 @@ def _AllReduceGradientsDistributed(
             nccl_control_blob = grads_group[0]
             model.net.Copy(master_grad, reduced_grad)
 
-        # RDMA_TCP works only on CPU context, so we need a temporary
-        # cpu-bound scratch blob.
-        if all_reduce_engine == "RDMA_TCP":
+        # FBCOLLECTIVE currently works only on CPU context, so we need
+        # a temporary cpu-bound scratch blob.
+        if all_reduce_engine == "FBCOLLECTIVE":
             with core.DeviceScope(reducing_device_opt):
                 model.param_init_net.ConstantFill(
                     [], reduced_grad + "cpu", shape=[1], value=0.0

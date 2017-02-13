@@ -1125,6 +1125,27 @@ class TestOperators(hu.HypothesisTestCase):
             inputs=[input_tensor],
             reference=exp_ref)
 
+    @given(input_tensor=hu.arrays(
+        dims=[10], elements=st.floats(min_value=1,
+                                      max_value=10000)),
+           **hu.gcs_cpu_only)
+    def test_log(self, input_tensor, gc, dc):
+        op = core.CreateOperator(
+            "Log",
+            ["input"],
+            ["output"]
+        )
+
+        def log_ref(input_tensor):
+            return (np.log(input_tensor),)
+
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=[input_tensor],
+            reference=log_ref)
+        self.assertGradientChecks(gc, op, [input_tensor], 0, [0])
+
     @given(num_threads=st.integers(1, 10),  # noqa
            num_elements=st.integers(1, 100),
            capacity=st.integers(1, 5),
@@ -1352,7 +1373,7 @@ class TestOperators(hu.HypothesisTestCase):
 
         # This golden array is dependent on the specified inp_sizes, out_sizes,
         # tt_ranks, and seed. Changing these will cause the test to fail.
-        self.assertAlmostEqual(np.linalg.norm(golden - Y), 0, delta=1e-12)
+        self.assertAlmostEqual(np.linalg.norm(golden - Y), 0, delta=1e-10)
 
     @given(num_workers=st.integers(1, 10),
            net_type=st.sampled_from(
@@ -1735,8 +1756,7 @@ class TestOperators(hu.HypothesisTestCase):
             alias_dst=["output", "hidden_output"],
             alias_offset=[1, -1],
             recurrent_states=["hidden"],
-            recurrent_inputs=recurrent_inputs,
-            recurrent_input_pos=map(inputs.index, recurrent_inputs),
+            initial_recurrent_state_ids=map(inputs.index, recurrent_inputs),
             link_internal=link_internal,
             link_external=link_external,
             link_offset=link_offset,
@@ -2087,6 +2107,30 @@ class TestOperators(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [X], piecewise)
         self.assertDeviceChecks(dc, op, [X], [0])
+
+    @given(X=hu.tensor(min_dim=1,
+                       max_dim=4,
+                       elements=st.floats(min_value=-100, max_value=100)),
+           extra_dim=st.integers(0, 5),
+           **hu.gcs_cpu_only)
+    def test_sparse_to_dense(self, X, extra_dim, gc, dc):
+        N = X.shape[0]
+        first_dim = N + extra_dim
+        D = np.random.uniform(0, 1, size=(first_dim, 3))
+        I = np.random.randint(first_dim, size=N)
+
+        op = core.CreateOperator("SparseToDense", ["I", "X", "D"], ["Y"])
+
+        def sparse_to_dense(I, X, D):
+            O = np.zeros([first_dim] + list(X.shape[1:]))
+            if len(O.shape) == 1:
+                O[I] = X
+            else:
+                O[I, :] = X
+            return [O]
+
+        self.assertReferenceChecks(gc, op, [I, X, D], sparse_to_dense)
+        self.assertDeviceChecks(dc, op, [I, X, D], [0])
 
 
 if __name__ == "__main__":

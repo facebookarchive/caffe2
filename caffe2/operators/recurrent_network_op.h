@@ -81,16 +81,32 @@ void initializeRecurrentInput(
   auto inputBlob = ws->GetBlob(rc.input);
   CAFFE_ENFORCE(inputBlob);
   const auto& input = inputBlob->template Get<Tensor<Context>>();
-  CAFFE_ENFORCE_EQ(input.ndim(), 3, rc.input);
-  CAFFE_ENFORCE_EQ(input.dim(0), 1, rc.input);
-  CAFFE_ENFORCE_EQ(input.dim(1), batchSize, rc.input);
+  CAFFE_ENFORCE_GE(input.ndim(), 1, rc.input);
+  CAFFE_ENFORCE_LE(input.ndim(), 3, rc.input);
 
+  const auto stateSize = input.dim(input.ndim() - 1);
   // States at [0, ..., T] (inclusive)
-  state->Resize(seqLen + 1, batchSize, input.dim(2));
-  context->template Copy<T, Context, Context>(
-      batchSize * input.dim(2),
-      input.template data<T>(),
-      state->template mutable_data<T>());
+  state->Resize(seqLen + 1, batchSize, stateSize);
+
+  if (input.ndim() == 3) {
+    CAFFE_ENFORCE_EQ(input.dim(0), 1, rc.input);
+  }
+  if (input.ndim() >= 2) {
+    CAFFE_ENFORCE_EQ(input.dim(input.ndim() - 2), batchSize, rc.input);
+    context->template Copy<T, Context, Context>(
+        batchSize * stateSize,
+        input.template data<T>(),
+        state->template mutable_data<T>());
+  } else {
+    for (int i = 0; i < batchSize; ++i) {
+      // Usually, the initial state is the same for all inputs in the batch.
+      // So the op conveniently accepts 1-D input and copies it batchSize times.
+      context->template Copy<T, Context, Context>(
+          stateSize,
+          input.template data<T>(),
+          state->template mutable_data<T>() + i * stateSize);
+    }
+  }
 }
 
 template <typename T, typename Context>
@@ -123,28 +139,7 @@ void extractLinks(
     const std::string& internalArg,
     const std::string& externalArg,
     const std::string offsetArg,
-    std::vector<detail::Link>* links) {
-  const auto& internal = op->GetRepeatedArgument<std::string>(internalArg);
-  const auto& external = op->GetRepeatedArgument<std::string>(externalArg);
-  const auto& offset = op->GetRepeatedArgument<int32_t>(offsetArg);
-  CAFFE_ENFORCE(
-      internal.size() == offset.size(),
-      "internal/offset mismatch: ",
-      internalArg,
-      externalArg);
-  CAFFE_ENFORCE(
-      external.size() == offset.size(),
-      "external/offset mismatch",
-      externalArg,
-      offsetArg);
-  for (auto i = 0; i < internal.size(); ++i) {
-    detail::Link l;
-    l.internal = internal[i];
-    l.external = external[i];
-    l.offset = offset[i];
-    links->push_back(l);
-  }
-}
+    std::vector<detail::Link>* links);
 } // namespace detail
 
 template <typename T, class Context>
@@ -176,7 +171,7 @@ class RecurrentNetworkOp final : public Operator<Context> {
     const auto states =
         OperatorBase::GetRepeatedArgument<std::string>("recurrent_states");
     const auto inputs =
-        OperatorBase::GetRepeatedArgument<std::string>("recurrent_inputs");
+        OperatorBase::GetRepeatedArgument<int>("initial_recurrent_state_ids");
     CAFFE_ENFORCE_EQ(states.size(), inputs.size(), "states/inputs mismatch");
     std::vector<detail::RecurrentInput> ris;
     for (auto i = 0; i < states.size(); ++i) {
@@ -186,7 +181,7 @@ class RecurrentNetworkOp final : public Operator<Context> {
 
       detail::RecurrentInput ri;
       ri.state = states[i];
-      ri.input = inputs[i];
+      ri.input = def().input(inputs[i]);
       ris.push_back(ri);
     }
     return ris;
@@ -287,7 +282,7 @@ class RecurrentNetworkGradientOp final : public Operator<Context> {
     params_ = constructParams();
     recurrentGradients_ = constructRecurrentGradients();
     recurrentInputIds_ = OperatorBase::template GetRepeatedArgument<int32_t>(
-        "recurrent_input_ids");
+        "initial_recurrent_state_ids");
 
     CAFFE_ENFORCE(ws);
     const auto stepNet =
@@ -343,18 +338,6 @@ class RecurrentNetworkGradientOp final : public Operator<Context> {
     const auto seqLen = Input(0).dim32(0);
     VLOG(1) << "seqLen: " << seqLen;
     const auto batchSize = Input(0).dim32(1);
-    // See GetRecurrentNetworkGradient to understand offseting here
-    for (int i = 0; i < recurrentInputIds_.size(); ++i) {
-      // See GetRecurrentNetworkGradient to understand offseting here
-      // Outputs of the gradient are inputs of the forward pass.
-      // So we need to offset on all inputs that go before recurrent
-      // initial ones
-      auto outputIdx = i + params_.size() + numSequences_;
-      int inputId = recurrentInputIds_[i];
-      VLOG(1) << "Resetting output " << outputIdx << " like input " << inputId;
-      Output(outputIdx)->ResizeLike(Input(inputId));
-      Output(outputIdx)->template mutable_data<float>();
-    }
     for (auto& param : params_) {
       auto pBlob = sharedWs_->GetBlob(param.param);
       CAFFE_ENFORCE(pBlob);
@@ -485,6 +468,46 @@ class RecurrentNetworkGradientOp final : public Operator<Context> {
       CAFFE_ENFORCE(gradBlob);
       swap(*accGradBlob, *gradBlob);
     }
+
+    CAFFE_ENFORCE_EQ(recurrentInputIds_.size(), recurrentGradients_.size());
+    // See GetRecurrentNetworkGradient to understand offseting here
+    for (int i = 0; i < recurrentInputIds_.size(); ++i) {
+      // See GetRecurrentNetworkGradient to understand offseting here
+      // Outputs of the gradient are inputs of the forward pass.
+      // So we need to offset on all inputs that go before recurrent
+      // initial ones
+      auto outputIdx = i + params_.size() + numSequences_;
+      // +1 because Output(0) is GO(0)
+      int inputId = recurrentInputIds_[i] + 1;
+      VLOG(1) << "Resetting output " << def().output(outputIdx)
+              << " like input " << def().input(inputId);
+      Output(outputIdx)->ResizeLike(Input(inputId));
+      auto pBlob = sharedWs_->GetBlob(recurrentGradients_[i].grad);
+      CAFFE_ENFORCE(pBlob);
+      auto* p = pBlob->template GetMutable<Tensor<Context>>();
+
+      if (Input(inputId).ndim() >= 2) {
+        context_.template Copy<T, Context, Context>(
+            Output(outputIdx)->size(),
+            p->template data<T>(),
+            Output(outputIdx)->template mutable_data<T>());
+      } else {
+        const auto recurrentStateSize = Input(inputId).dim32(0);
+        context_.template Copy<T, Context, Context>(
+            recurrentStateSize,
+            p->template data<T>(),
+            Output(outputIdx)->template mutable_data<T>());
+        for (int j = 1; j < batchSize; ++j) {
+          math::Add<T, Context>(
+              recurrentStateSize,
+              p->template data<T>() + j * recurrentStateSize,
+              Output(outputIdx)->template data<T>(),
+              Output(outputIdx)->template mutable_data<T>(),
+              &context_);
+        }
+      }
+    }
+
     return true;
   }
 

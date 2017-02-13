@@ -151,15 +151,16 @@ def RunNetOnce(net):
     return C.run_net_once(StringfyProto(net))
 
 
-def RunNet(name):
+def RunNet(name, num_iter=1):
     """Runs a given net.
 
     Inputs:
       name: the name of the net, or a reference to the net.
+      num_iter: number of iterations to run
     Returns:
       True or an exception.
     """
-    return C.run_net(StringifyNetName(name))
+    return C.run_net(StringifyNetName(name), num_iter)
 
 
 def RunPlan(plan_or_step):
@@ -168,6 +169,35 @@ def RunPlan(plan_or_step):
     if isinstance(plan_or_step, core.ExecutionStep):
         plan_or_step = core.Plan(plan_or_step)
     return C.run_plan(StringfyProto(plan_or_step))
+
+
+def InferShapesAndTypes(nets, blob_dimensions=None):
+    """Infers the shapes and types for the specified nets.
+
+    Inputs:
+      nets: the list of nets
+      blob_dimensions (optional): a dictionary of blobs and their dimensions.
+          If not specified, the workspace blobs are used.
+    Returns:
+      A tuple of (shapes, types) dictionaries keyed by blob name.
+    """
+    net_protos = [StringfyProto(n.Proto()) for n in nets]
+    if blob_dimensions is None:
+        blobdesc_prototxt = C.infer_shapes_and_types_from_workspace(net_protos)
+    else:
+        blobdesc_prototxt = C.infer_shapes_and_types_from_map(
+            net_protos, blob_dimensions
+        )
+    blobdesc_proto = caffe2_pb2.TensorShapes()
+    blobdesc_proto.ParseFromString(blobdesc_prototxt)
+    shapes = {}
+    types = {}
+    for ts in blobdesc_proto.shapes:
+        if not ts.unknown_shape:
+            shapes[ts.name] = list(ts.dims)
+            types[ts.name] = ts.data_type
+
+    return (shapes, types)
 
 
 def _StringifyName(name, expected_type):

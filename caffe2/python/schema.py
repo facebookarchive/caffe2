@@ -240,6 +240,11 @@ class Struct(Field):
             assert field[0] != 'lengths', (
                 'Struct cannot contain a field named `lengths`.'
             )
+        existing = set()
+        for name, field in fields:
+            if name in existing:
+                raise ValueError('Duplicate field name: %s' % name)
+            existing.add(name)
         fields = [(name, _normalize_field(field)) for name, field in fields]
         for id, (name, field) in enumerate(fields):
             field._set_parent(self, id)
@@ -314,6 +319,14 @@ class Struct(Field):
             return self.__dict__['fields'][item]
         except KeyError:
             raise AttributeError(item)
+
+    def __add__(self, other):
+        """
+        Allows to merge fields of two schema.Struct using '+' operator
+        """
+        if not isinstance(other, Struct):
+            return NotImplemented
+        return Struct(*(self.get_children() + other.get_children()))
 
 
 class Scalar(Field):
@@ -489,7 +502,10 @@ class Scalar(Field):
 
     def set_type(self, dtype):
         self._original_dtype = dtype
-        self.dtype = np.dtype(dtype or np.void)
+        if dtype is not None:
+            self.dtype = np.dtype(dtype)
+        else:
+            self.dtype = np.dtype(np.void)
         self._validate_metadata()
 
     def id(self):

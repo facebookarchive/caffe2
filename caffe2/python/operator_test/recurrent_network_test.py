@@ -58,7 +58,7 @@ def lstm_reference(input, hidden_input, cell_input,
     T = input.shape[0]
     N = input.shape[1]
     G = input.shape[2]
-    D = hidden_input.shape[2]
+    D = hidden_input.shape[hidden_input.ndim - 1]
     hidden = np.zeros(shape=(T + 1, N, D))
     cell = np.zeros(shape=(T + 1, N, D))
     assert hidden.shape[0] == T + 1
@@ -99,7 +99,7 @@ class RecurrentNetworkTest(hu.HypothesisTestCase):
            n=st.integers(1, 5),
            d=st.integers(1, 5))
     def test_lstm_new(self, t, n, d):
-        model = ModelHelperBase(name='external')
+        model = CNNModelHelper(name='external')
 
         def create_lstm(
                 model, input_blob, seq_lengths, init, dim_in, dim_out, scope):
@@ -108,7 +108,8 @@ class RecurrentNetworkTest(hu.HypothesisTestCase):
                 dim_in, dim_out, scope="external/recurrent")
 
         self.lstm(model, create_lstm, t, n, d, lstm_reference,
-                  gradients_to_check=[0, 3, 4], outputs_to_check=[0, 1, 2, 3])
+                  gradients_to_check=[0, 1, 2, 3, 4],
+                  outputs_to_check=[0, 1, 2, 3])
 
     @given(t=st.integers(1, 4),
            n=st.integers(1, 5),
@@ -125,7 +126,8 @@ class RecurrentNetworkTest(hu.HypothesisTestCase):
         # CNNModelHelper.LSTM returns only 3 outputs. But the operator itself
         # returns 5. We ignore the rest.
         self.lstm(model, create_lstm, t, n, d, old_lstm_reference,
-                  gradients_to_check=[0, 2, 3], outputs_to_check=[0, 3, 4])
+                  gradients_to_check=[0, 2, 3, 4, 5],
+                  outputs_to_check=[0, 3, 4])
 
     @debug
     def lstm(self, model, create_lstm, t, n, d, ref, gradients_to_check,
@@ -140,24 +142,22 @@ class RecurrentNetworkTest(hu.HypothesisTestCase):
 
         op = model.net._net.op[-1]
 
-        def extract_param_name(model, param_substr):
-            result = []
-            for p in model.params:
-                if param_substr in str(p):
-                    result.append(str(p))
-
-            assert len(result) == 1
-            return result[0]
-
         workspace.RunNetOnce(model.param_init_net)
         input_blob = op.input[0]
 
+        def generate_random_state(n, d):
+            ndim = int(np.random.choice(3, 1)) + 1
+            if ndim == 1:
+                return np.random.randn(1, n, d).astype(np.float32)
+            random_state = np.random.randn(n, d).astype(np.float32)
+            if ndim == 3:
+                random_state = random_state.reshape([1, n, d])
+            return random_state
+
         workspace.FeedBlob(
             str(input_blob), np.random.randn(t, n, d * 4).astype(np.float32))
-        workspace.FeedBlob(
-            "hidden_init", np.random.randn(1, n, d).astype(np.float32))
-        workspace.FeedBlob(
-            "cell_init", np.random.randn(1, n, d).astype(np.float32))
+        workspace.FeedBlob("hidden_init", generate_random_state(n, d))
+        workspace.FeedBlob("cell_init", generate_random_state(n, d))
         workspace.FeedBlob(
             "seq_lengths", np.random.randint(0, t, size=(n,)).astype(np.int32))
         inputs = [workspace.FetchBlob(name) for name in op.input]
@@ -182,6 +182,7 @@ class RecurrentNetworkTest(hu.HypothesisTestCase):
                 outputs_to_check=param,
                 outputs_with_grads=[0],
                 threshold=0.01,
+                stepsize=0.005,
             )
 
     @given(T=st.integers(1, 4),
@@ -206,7 +207,6 @@ class RecurrentNetworkTest(hu.HypothesisTestCase):
             inputs=[(input_t, input_blob)],
             initial_cell_inputs=[(output_t_prev, one_blob)],
             links={output_t_prev: output_t},
-            scratch_sizes=[],
             scope="test_mul_rnn",
         )
 
@@ -240,8 +240,7 @@ class RecurrentNetworkTest(hu.HypothesisTestCase):
                 input_grad[t_cur] = (output_grad[t_cur] +
                                      right_grad) * prev_output
                 right_grad = input[t_cur] * (output_grad[t_cur] + right_grad)
-
-            return (input_grad, np.zeros(shape=[T, n, d]).astype(np.float32))
+            return (input_grad, right_grad.reshape([1, n, d]))
 
         self.assertReferenceChecks(
             device_option=hu.cpu_do,
