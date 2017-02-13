@@ -221,11 +221,10 @@ python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo
   If you plan to run the tutorials and the Jupyter notebooks you can get these package from your package manager of choice: apt-get, pip, or Anaconda's conda. Here are examples using pip.
 
 ```
-sudo pip install ipython
-sudo pip install notebook
-sudo pip install matplotlib
-sudo pip install graphviz
+sudo pip install ipython notebook matplotlib graphviz protobuf
 ```
+
+(note: `matplotlib` will depend on `freetype` and `libpng` which can be installed by `sudo apt-get install libpng-dev libjpeg8-dev libfreetype6-dev` or `brew install freetype`)
 
 ### Docker Support
 
