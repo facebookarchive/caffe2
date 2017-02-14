@@ -5,13 +5,16 @@ layout: docs
 permalink: /docs/getting-started.html
 ---
 
-## Installing and Building Caffe2
-
 [![Build Status](https://travis-ci.org/bwasti/caffe2.svg?branch=master)](https://travis-ci.org/bwasti/caffe2)
 
-Thanks for your interesting in Caffe2! If you're new to Deep Learning you might want to take a quick look at our ["What is Deep Learning?"](index.html#caffe2-what-is-deep-learning) section first. If you already know about deep learning, but are new to Caffe you might want to take a look at our ["Why Use Caffe2?"](index.html#caffe2-why-use-caffe2) section before tackling the installation.
+Welcome to Caffe2! This page will help you install Caffe2 on your system, allowing you to get started using it for [deep learning](/docs/learn-more#what-is-deep-learning).
 
-Once you've successfully installed Caffe2, check out our [Tutorials](tutorials.html) for a jumpstart on how to use Caffe2 for neural networking and deep learning, how Caffe2 can add deep learning your mobile application, or how Caffe2 can make large-scale distributed training possible for all of your deep learning scalability needs.
+If you already have Caffe2 installed on your system, you can:
+
+- Take a [detailed dive](/docs/learn-more) into the concepts around [deep learning](/docs/learn-more#what-is-deep-learning) and [Caffe2](/docs/learn-more#why-use-caffe2).
+- Start running the [tutorials](/docs/tutorials).
+
+## Installing and Building Caffe2
 
 Ready to install Caffe2? Great! In order to install or try out Caffe2, you have several options:
 
