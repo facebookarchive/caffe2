@@ -1,0 +1,118 @@
+{% capture intro %}{% include_relative getting-started/intro.md %}{% endcapture %}
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">{% if include.truncate %}<a href="{{ page.url | absolute_url }}">{{ page.title }}</a>{% else %}{{ page.title }}{% endif %}</h1>
+  </header>
+  <article class="post-content">
+    {{intro | markdownify}}
+    <div class="toggler">
+      <table>
+      <tr>
+      <td><span><strong>Platform:</strong></span></td>
+      <td>
+      <a href="javascript:void(0);" class="button-mac" onclick="display('platform', 'mac')">MacOS X</a>
+      <a href="javascript:void(0);" class="button-ubuntu" onclick="display('platform', 'ubuntu')">Ubuntu</a>
+      <a href="javascript:void(0);" class="button-windows" onclick="display('platform', 'windows')">Windows</a>
+      <a href="javascript:void(0);" class="button-ios" onclick="display('platform', 'ios')">iOS</a>
+      <a href="javascript:void(0);" class="button-android" onclick="display('platform', 'android')">Android</a>
+      </td>
+      </tr>
+      <tr>
+      <td><span><strong>Configuration:</strong></span></td>
+      <td>
+      <a href="javascript:void(0);" class="button-compile" onclick="display('configuration', 'compile')">Build From Source</a>
+      <a href="javascript:void(0);" class="button-prebuilt" onclick="display('configuration', 'prebuilt')">Pre-Built Binaries</a>
+      <a href="javascript:void(0);" class="button-docker" onclick="display('configuration', 'docker')">Docker Images</a>
+      </td>
+      </tr>
+      </table>
+    </div>
+    {{ content }}
+    <p><a class="edit-page-link" href="https://github.com/{{ site.ghrepo }}/tree/gh-pages/{{ page.path }}" target="_blank">Edit on GitHub</a></p>
+  </article>
+  {% include doc_paging.html %}
+</div>
+<script>
+// Convert <div>...<span><block /></span>...</div>
+// Into <div>...<block />...</div>
+var blocks = document.getElementsByTagName('block');
+var article = document.getElementsByTagName('article')[0];
+for (var i = 0; i < blocks.length; ++i) {
+  var block = blocks[i];
+  article.insertBefore(block, null);
+}
+// Convert <div>...<block />content<block />...</div>
+// Into <div>...<block>content</block><block />...</div>
+blocks = document.getElementsByTagName('block');
+for (var i = 0; i < blocks.length; ++i) {
+  var block = blocks[i];
+  while (block.nextSibling && block.nextSibling.tagName !== 'BLOCK') {
+    block.appendChild(block.nextSibling);
+  }
+}
+function display(type, value) {
+  var container = document.getElementsByTagName('block')[0].parentNode;
+  container.className = 'display-' + type + '-' + value + ' ' +
+    container.className.replace(RegExp('display-' + type + '-[a-z]+ ?'), '');
+}
+
+// If we are coming to the page with a hash in it (i.e. from a search, for example), try to get
+// us as close as possible to the correct platform and dev os using the hashtag and block walk up.
+var foundHash = false;
+if (window.location.hash !== '' && window.location.hash !== 'content') { // content is default
+  var hashLinks = document.querySelectorAll('a.hash-link');
+  for (var i = 0; i < hashLinks.length && !foundHash; ++i) {
+    if (hashLinks[i].hash === window.location.hash) {
+      var parent = hashLinks[i].parentElement;
+      while (parent) {
+        if (parent.tagName === 'BLOCK') {
+          var targetPlatform = null;
+          var config = null;
+          // Could be more than one target platform and configuration, but just choose some sort of order
+          // of priority here.
+
+          // Platform
+          if (parent.className.indexOf('mac') > -1) {
+            targetPlatform = 'mac';
+          } else if (parent.className.indexOf('linux') > -1) {
+            targetPlatform = 'linux';
+          } else if (parent.className.indexOf('windows') > -1) {
+            targetPlatform = 'windows';
+          } else if (parent.className.indexOf('ios') > -1) {
+            targetPlatform = 'ios';
+          } else if (parent.className.indexOf('android') > -1) {
+            targetPlatform = 'android';
+          } else {
+            break; // assume we don't have anything.
+          }
+
+          // Configuration
+          if (parent.className.indexOf('compile') > -1) {
+            config = 'compile';
+          } else if (parent.className.indexOf('prebuilt') > -1) {
+            config = 'prebuilt';
+          } else if (parent.className.indexOf('docker') > -1) {
+            config = 'docker';
+          } else {
+            break; // assume we don't have anything.
+          }
+          // We would have broken out if both targetPlatform and devOS hadn't been filled.
+          display('platform', targetPlatform);
+          display('configuration', config);
+          foundHash = true;
+          break;
+        }
+        parent = parent.parentElement;
+      }
+    }
+  }
+}
+// Do the default if there is no matching hash
+if (!foundHash) {
+  var isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
+  var isLinux = navigator.platform.toLowerCase().indexOf('linux') !== -1;
+  display('platform', isMac ? 'mac' : (isLinux ? 'linux' : 'windows'));
+  display('configuration', 'prebuilt');
+}
+</script>
