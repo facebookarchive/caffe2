@@ -35,7 +35,7 @@ else()
   endif()
 endif()
 
-if (NOT Protobuf_FOUND )
+if (NOT (Protobuf_FOUND OR PROTOBUF_FOUND) )
   message(FATAL_ERROR "Could not find Protobuf or compile local version.")
 endif()
 
