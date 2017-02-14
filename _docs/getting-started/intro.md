@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/bwasti/caffe2.svg?branch=master)](https://travis-ci.org/bwasti/caffe2)
+[![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
 Welcome to Caffe2! This page will help you install Caffe2 on your system, allowing you to get started using it for [deep learning](/docs/learn-more#what-is-deep-learning).
 
