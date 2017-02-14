@@ -211,21 +211,20 @@ To build Caffe2 for iOS run the following script:
   To test if Caffe2 is working run the following:
 
 ```
-python -c 'from caffe2.python import core' 2>/dev/null && echo "Success!" || echo "uh oh!"
+python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "uh oh"
 ```
 
-  If you get a result of "Success!" then you're ready to Caffe! If you get an "uh oh" then go back and check your console for errors and see if you missed anything. Many times this can be related to Python environments and you'll want to make sure you're running Python that's registered with the Caffe2 modules.
+  If you get a result of "Success" then you're ready to Caffe! If you get an "uh oh" then go back and check your console for errors and see if you missed anything. Many times this can be related to Python environments and you'll want to make sure you're running Python that's registered with the Caffe2 modules.
 
 ### Tutorials Prerequisites
 
   If you plan to run the tutorials and the Jupyter notebooks you can get these package from your package manager of choice: apt-get, pip, or Anaconda's conda. Here are examples using pip.
 
 ```
-sudo pip install ipython
-sudo pip install notebook
-sudo pip install matplotlib
-sudo pip install graphviz
+sudo pip install ipython notebook matplotlib graphviz protobuf
 ```
+
+(note: `matplotlib` will depend on `freetype` and `libpng` which can be installed by `sudo apt-get install libpng-dev libjpeg8-dev libfreetype6-dev` or `brew install freetype`)
 
 ### Docker Support
 

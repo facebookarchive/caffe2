@@ -2,8 +2,10 @@ table {
   background: $lightergrey;
   border: 1px solid $lightgrey;
   border-collapse: collapse;
-  display:table;
+  display: block;
   margin: 20px 0;
+  table-layout: fixed;
+  max-width: 800px;
 
   thead {
     border-bottom: 1px solid $lightgrey;
