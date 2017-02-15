@@ -5,7 +5,6 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include <array>
 #include <chrono>
@@ -16,6 +15,18 @@
 
 namespace caffe2 {
 
+// Workaround to build file_store_handler in windows. It probably won't run
+// correctly, because the functions tmpPath et al. are not cross platform yet.
+// TODO(jiayq): if there is a real need, make the file cross platform.
+#if defined(_MSC_VER)
+static char* realpath(const char* src, char* dst) {
+  return strcpy(dst, src);
+}
+static constexpr int kPathMax = 4096;
+#else // defined(_MSC_VER)
+static constexpr int kPathMax = PATH_MAX;
+#endif // defined(_MSC_VER)
+
 FileStoreHandler::FileStoreHandler(std::string& path) {
   basePath_ = realPath(path);
 }
@@ -23,7 +34,7 @@ FileStoreHandler::FileStoreHandler(std::string& path) {
 FileStoreHandler::~FileStoreHandler() {}
 
 std::string FileStoreHandler::realPath(const std::string& path) {
-  std::array<char, PATH_MAX> buf;
+  std::array<char, kPathMax> buf;
   CHECK_EQ(buf.data(), realpath(path.c_str(), buf.data())) << "realpath: "
                                                            << strerror(errno);
   return std::string(buf.data());

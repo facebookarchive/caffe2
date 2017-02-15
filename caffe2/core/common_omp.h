@@ -6,7 +6,9 @@
 #endif // _OPENMP
 
 // Macro to abstract out basic omp parallel loops
-#ifdef _OPENMP
+// Note(jiayq): it seems that VS2015 does not support _Pragma yet, so we
+// disable it here.
+#if defined(_OPENMP) && !defined(_MSC_VER)
 #define CAFFE2_OMP_PARALLEL_FOR() _Pragma("omp parallel for")
 // _Pragma( STRINGIFY( CONCATENATE( omp parallel for ) ) )
 #else
