@@ -1,7 +1,9 @@
 {% if include.layout == "fourColumn" %}
   {% assign layout = "fourByGridBlock" %}
-{% else %}
+{% elsif include.layout == "twoColumn" %}
   {% assign layout = "twoByGridBlock" %}
+{% else %}
+  {% assign layout = "oneByGridBlock" %}
 {% endif %}
 
 {% if include.imagealign == "side" %}
@@ -22,6 +24,7 @@
   {% assign align = "alignLeft" %}
 {% endif %}
 
+{% if item.imagefirst %}
 <div class="blockElement {{ layout }} {{ imagealign }} {{ align }}">
   {% if item.image %}
   <div class="blockImage">
@@ -31,7 +34,26 @@
   <div class="blockContent">
     <h3>{{ item.title }}</h3>
     {% if item.text %}
-    {{ item.text | markdownify }}
+      <div>
+      {{ item.text | markdownify }}
+      </div>
     {% endif %}
   </div>
 </div>
+{% else %}
+<div class="blockElement {{ layout }} {{ imagealign }} {{ align }}">
+  <div class="blockContent">
+    <h3>{{ item.title }}</h3>
+    {% if item.text %}
+      <div>
+      {{ item.text | markdownify }}
+      </div>
+    {% endif %}
+  </div>
+  {% if item.image %}
+  <div class="blockImage">
+    <img src="/static/{{ item.image }}" alt="{{ item.title }}" title="{{ item.title }}" />
+  </div>
+  {% endif %}
+</div>
+{% endif %}

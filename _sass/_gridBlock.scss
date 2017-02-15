@@ -1,12 +1,21 @@
+.gridBlockWrapper {
+  background: #f9f9f9;
+}
+
+.gridBlockWrapper.alternateBackground {
+  background: #e9e9e9;
+}
+
 .gridBlock {
-  margin: -5px 0;
-  padding: 10px;
+  margin: 0px auto;
+  padding: 0 10px;
   padding-top: 100px;
   padding-bottom: 50px;
+  max-width: 1200px;
 
   h3 {
     width: 100%;
-    text-align: center;
+    text-align: left;
     color: #999;
     font-size: 20px;
     margin-top: -40px;
@@ -14,15 +23,15 @@
 
   .blockElement {
     padding: 5px 0;
+    align-items: center;
 
     img {
       max-width: 100%;
     }
 
     h3 {
-      border-bottom: 1px solid rgba($primary-bg, 0.5);
       color: $primary-bg;
-      font-size: 18px;
+      font-size: 40px;
       margin: 0;
       padding: 10px 0;
     }
@@ -50,7 +59,7 @@
 	flex-flow: row wrap;
 }
 .blockImage {
-	max-width: 150px;
+	max-width: 900px;
 	width: 50%;
 }
 .imageAlignTop .blockImage {
@@ -60,14 +69,25 @@
 	margin-left: auto;
 	margin-right: auto;
 }
-.imageAlignSide .blockImage {
-	flex: 0 1 100px;
-	margin-right: 20px;
+.imageAlignSide {
+  p {
+    margin-bottom: 40px;
+    max-width: 560px;
+    margin: 0;
+  }
 }
+
+.imageAlignSide .blockImage {
+	flex: 0 1 500px;
+	margin-right: 100px;
+}
+
 .imageAlignSide .blockContent {
-  display: flex;
 	flex: 1 1;
-  justify-content: center;
+
+  p {
+    padding: 0;
+  }
 }
 
 @media only screen and (max-width: 1023px) {
@@ -88,6 +108,12 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+
+    .oneByGridBlock {
+      box-sizing: border-box;
+      flex: 1 0 100%;
+      padding: 10px;
+    }
 
     .twoByGridBlock {
       box-sizing: border-box;
@@ -112,6 +138,12 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+
+    .oneByGridBlock {
+      box-sizing: border-box;
+      flex: 1 0 100%;
+      padding: 10px 20px;
+    }
 
     .twoByGridBlock {
       box-sizing: border-box;

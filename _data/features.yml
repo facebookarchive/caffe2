@@ -2,7 +2,17 @@
 #   {% include content/gridblocks.html data_source=site.data.features align="center" %}
 # in index.md
 #
-#- title: Feature 1
-#  text: |
-#        This is a description of the feature which **can** use [markdown](#).
-#  image: images/an-image.png
+- title: Blazing fast
+  text: |
+        This is a description of the feature which can use markdown.
+  image: images/features-fast.jpg
+- title: Super Portable
+  text: |
+        This is a description of the feature which can use markdown.
+  image: images/features-portable.jpg
+  imagefirst: yes
+  alternateBackground: yes
+- title: Highly Scalable
+  text: |
+        This is a description of the feature which **can** use markdown.
+  image: images/features-scalable.jpg
