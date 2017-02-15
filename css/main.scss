@@ -67,6 +67,7 @@ $fixedHeader-link-color: #fff;
 $primary-link-color: #a67b5b; // coffee
 $primary-link-hover-color: #4d4d4d;
 $primary-footer-color: #a67b5b; // coffee
+$fixedHeader-project-name-color: #191919;
 
 // $primary-bg overlays
 {% if site.color.primary-overlay == 'light' %}
