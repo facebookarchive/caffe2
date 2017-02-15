@@ -1,6 +1,6 @@
 input[type="search"] {
-    -moz-appearance:    none;
-    -webkit-appearance: none;
+  -moz-appearance:    none;
+  -webkit-appearance: none;
 }
 
 .navSearchWrapper {
@@ -8,7 +8,7 @@ input[type="search"] {
   position: relative;
 
   &::before {
-    border: 3px solid $primary-overlay-special;
+    border: 3px solid $search-magnifier-color;
     border-radius: 50%;
     content: " ";
     display: block;
@@ -21,7 +21,7 @@ input[type="search"] {
   }
 
   &::after {
-    background: $primary-overlay-special;
+    background: $search-magnifier-color;
     content: " ";
     height: 7px;
     left: 24px;
@@ -42,18 +42,18 @@ input[type="search"] {
     right: 0 !important;
 
     .algolia-docsearch-suggestion--category-header {
-      background: $primary-overlay-special;
+      background: $search-suggestion-color;
       color: $primary-bg;
 
       .algolia-docsearch-suggestion--highlight {
         background-color: $primary-bg;
-        color: $primary-overlay;
+        color: $search-suggestion-color;
       }
     }
 
     .algolia-docsearch-suggestion--title .algolia-docsearch-suggestion--highlight,
     .algolia-docsearch-suggestion--subcategory-column .algolia-docsearch-suggestion--highlight {
-        color: $primary-bg;
+        color: $search-suggestion-color;
     }
 
     .algolia-docsearch-suggestion__secondary,
@@ -74,7 +74,7 @@ input#search_input {
   outline: none;
   position: relative;
   transition: background-color .2s cubic-bezier(0.68, -0.55, 0.265, 1.55), width .2s cubic-bezier(0.68, -0.55, 0.265, 1.55), color .2s ease;
-  width: 60px;
+  width: 200px;
 
   &:focus, &:active {
     background-color: $secondary-bg;
