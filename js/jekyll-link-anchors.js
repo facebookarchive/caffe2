@@ -36,6 +36,11 @@
   var headingNodes = Array.prototype.slice.call(tags);
 
   headingNodes.forEach(function(node) {
+    // This is a h2 in our template h2#project_tagline
+    // Just skip anchoring it if so.
+    if (node.getAttribute('id') === 'project_tagline') {
+      return;
+    }
     var nameIdx = possibleNodeNames.indexOf(node.localName); // h2 = 0, h3 = 1, etc.
     var link;
     var id;
