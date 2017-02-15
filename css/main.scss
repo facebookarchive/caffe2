@@ -71,6 +71,8 @@ $fixedHeader-project-name-color: #191919;
 $search-magnifier-color: #ccc;
 $search-box-color: #fff;
 $search-suggestion-color: #a67b5b; // coffee
+$toggler-button-selected: #a67b5b; // coffee
+$toggler-button-text: #99424f;
 
 // $primary-bg overlays
 {% if site.color.primary-overlay == 'light' %}

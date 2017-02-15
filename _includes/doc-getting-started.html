@@ -5,7 +5,6 @@
     <h1 class="post-title">{% if include.truncate %}<a href="{{ page.url | absolute_url }}">{{ page.title }}</a>{% else %}{{ page.title }}{% endif %}</h1>
   </header>
   <article class="post-content">
-    {{intro | markdownify}}
     <div class="toggler">
       <table>
       <tr>
@@ -19,7 +18,7 @@
       </td>
       </tr>
       <tr>
-      <td><span><strong>Configuration:</strong></span></td>
+      <td><span><strong>Install Type:</strong></span></td>
       <td>
       <a href="javascript:void(0);" class="button-compile" onclick="display('configuration', 'compile')">Build From Source</a>
       <a href="javascript:void(0);" class="button-prebuilt" onclick="display('configuration', 'prebuilt')">Pre-Built Binaries</a>
@@ -28,6 +27,7 @@
       </tr>
       </table>
     </div>
+    {{intro | markdownify}}
     {{ content }}
     <p><a class="edit-page-link" href="https://github.com/{{ site.ghrepo }}/tree/gh-pages/{{ page.path }}" target="_blank">Edit on GitHub</a></p>
   </article>

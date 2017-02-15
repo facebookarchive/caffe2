@@ -1,5 +1,14 @@
 /* Toggler like on getting started */
 
+.mainContainer .mainWrapper .post .toggler :not(.gist-meta)>a {
+    color: $toggler-button-text;
+}
+
+.mainContainer .mainWrapper .toggler :not(.gist-meta)>a:hover, .mainContainer .mainWrapper .toggler :not(.gist-meta)>a:focus {
+    background: $toggler-button-selected;
+    color: $toggler-button-text;
+}
+
 .toggler a {
   display: inline-block;
   padding: 10px 5px;
@@ -22,8 +31,7 @@
 .display-configuration-compile .toggler .button-compile,
 .display-configuration-prebuilt .toggler .button-prebuilt,
 .display-configuration-docker .toggler .button-docker {
-  background-color: $primary-overlay;
-  color: white;
+  background-color: $toggler-button-selected;
 }
 block {
   display: none;
