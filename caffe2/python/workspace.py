@@ -314,7 +314,7 @@ class Predictor(object):
 
     def __init__(self, init_net, predict_net, device_option=None):
         # This initializes all the parameters we need
-        ws.RunOnce(self.loadNet(init_net))
+        RunOnce(self.loadNet(init_net))
         self.predict = self.loadNet(predict_net)
         if device_option:
             self.device_option = device_option.SerializeToString()
