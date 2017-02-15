@@ -7,11 +7,12 @@ function(custom_protobuf_find)
   if (APPLE)
     # Protobuf generated files triggers a deprecated atomic operation warning
     # so we turn it off here.
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations" PARENT_SCOPE)
   endif()
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/protobuf/cmake)
   include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/protobuf/src)
   list(APPEND Caffe2_DEPENDENCY_LIBS libprotobuf)
+  set(Caffe2_DEPENDENCY_LIBS ${Caffe2_DEPENDENCY_LIBS} PARENT_SCOPE)
   if(NOT EXISTS ${PROTOBUF_PROTOC_EXECUTABLE})
     message(FATAL_ERROR
             "To build protobufs locally (required for Android/iOS/Windows), "
