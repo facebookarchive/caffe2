@@ -23,7 +23,7 @@ if (ANDROID OR IOS OR WIN32)
   endif()
 else()
   find_package( Protobuf REQUIRED )
-  list(APPEND Caffe2_DEPENDENCY_LIBS ${PROTOBUF_LIBRARIES})
+  list(APPEND Caffe2_DEPENDENCY_LIBS ${PROTOBUF_LIBRARIES} ${PROTOBUF_LIBRARY})
   include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIR})
 endif()
 
