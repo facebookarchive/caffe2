@@ -301,6 +301,37 @@ class _BlobDict(object):
 blobs = _BlobDict()
 
 
+class Predictor(object):
+    def loadNet(self, net):
+        out_net = caffe2_pb2.NetDef()
+        try:
+            with open(net) as f:
+                out_net.ParseFromString(f.read())
+        except EnvironmentError:
+            out_net.ParseFromString(net)
+        except Exception as e:
+            raise e
+
+    def __init__(self, init_net, predict_net, device_option=None):
+        # This initializes all the parameters we need
+        ws.RunOnce(self.loadNet(init_net))
+        self.predict = self.loadNet(predict_net)
+        if device_option:
+            self.device_option = device_option.SerializeToString()
+        else:
+            self.device_option = self.predict.device_option.SerializeToString()
+
+    def run(self, input_arrs):
+        if len(input_arrs) != len(self.predict.external_input):
+            raise RuntimeError("Input size ({}) does not match expected ({})".
+                    format(len(input_arrs), len(self.predict.external_input)))
+        for i, input_arr in enumerate(input_arrs):
+            FeedBlob(self.predict.external_input[i], input_arr, self.device_option)
+        if not RunNet(self.predict.name):
+            raise RuntimeError("Error running the network.")
+        return [FetchBlob(s) for s in self.predict.external_output]
+
+    
 class Model(object):
     def __init__(self, net, parameters, inputs, outputs, device_option=None):
         """Initializes a model.
