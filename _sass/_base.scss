@@ -23,7 +23,7 @@ article {
 }
 
 a {
-  border-bottom: 1px dotted $primary-bg;
+  border-bottom: 1px dotted $primary-link-color;
   color: $text;
   text-decoration: none;
   -webkit-transition: all 0.3s;
@@ -57,9 +57,10 @@ h1, h2, h3, h4 {
 .homeContainer {
   background: $primary-bg;
   color: $primary-overlay;
+  text-align: center;
 
   a {
-    color: $primary-overlay;
+    color: $primary-link-color;
   }
 
   .homeSplashFade {
@@ -68,7 +69,7 @@ h1, h2, h3, h4 {
 
   .homeWrapper {
     padding: 3em 10px;
-    text-align: left;
+    text-align: center;
 
       .wrapper {
         margin: 0px auto;
@@ -96,7 +97,7 @@ h1, h2, h3, h4 {
         font-size: 200%;
         letter-spacing: -0.04em;
         line-height: 1em;
-        color: $primary-overlay-special;
+        color: $homeContainer-text-color;
       }
   }
 }
@@ -117,7 +118,7 @@ h1, h2, h3, h4 {
 }
 
 section#intro {
-  margin: 40px 0;
+  margin: 10px 0;
   color: $primary-overlay-special;
 
   p {
@@ -180,7 +181,7 @@ section#intro {
       &:hover,
       &:focus {
         background: $primary-bg;
-        color: $primary-overlay;
+        color: $primary-link-hover-color;
       }
     }
 
@@ -208,7 +209,6 @@ section#intro {
 
       & {
         border-bottom: 1px solid darken($primary-bg, 10%);
-        color: darken($primary-bg, 10%);
         font-size: 22px;
         padding: 10px 0;
       }
@@ -271,11 +271,11 @@ section#intro {
       }
 
       :not(.gist-meta) > a {
-        color: $primary-bg;
+        color: $primary-link-color;
 
         &:hover,
         &:focus {
-          color: #fff;
+          color: $primary-link-hover-color;
         }
       }
 
@@ -307,7 +307,7 @@ section#intro {
         }
 
         .post-meta {
-          color: $primary-bg;
+          color: $primary-link-color;
           font-family: $header-font-family;
           text-align: center;
         }
@@ -336,12 +336,12 @@ section#intro {
 
         :not(.gist-meta) > a {
           border: none;
-          color: $primary-overlay;
+          color: $primary-link-color;
           display: block;
           padding: 4px 12px;
 
           &:hover {
-            background-color: $secondary-bg;
+            background-color: $primary-link-hover-color;
             color: $text;
           }
 
@@ -440,12 +440,6 @@ section#intro {
     .homeWrapper {
       position: relative;
 
-      #inner {
-        box-sizing: border-box;
-        max-width: 600px;
-        padding-right: 40px;
-      }
-
       .projectLogo {
         align-items: center;
         bottom: 0;
@@ -493,9 +487,6 @@ section#intro {
 @media only screen and (min-width: 1200px) {
   .homeContainer {
     .homeWrapper {
-      #inner {
-        max-width: 750px;
-      }
     }
   }
 
@@ -507,11 +498,6 @@ section#intro {
 @media only screen and (min-width: 1500px) {
   .homeContainer {
     .homeWrapper {
-      #inner {
-        max-width: 1100px;
-        padding-bottom: 40px;
-        padding-top: 40px;
-      }
     }
   }
 

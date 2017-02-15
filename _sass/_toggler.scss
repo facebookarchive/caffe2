@@ -22,7 +22,7 @@
 .display-configuration-compile .toggler .button-compile,
 .display-configuration-prebuilt .toggler .button-prebuilt,
 .display-configuration-docker .toggler .button-docker {
-  background-color: #05A5D1;
+  background-color: $primary-overlay;
   color: white;
 }
 block {

@@ -1,5 +1,5 @@
 .fixedHeaderContainer {
-  background: $primary-bg;
+  background: $fixedHeader-background-color;
   color: $primary-overlay;
   height: $header-height;
   padding: $header-ptop 0 $header-pbot;
@@ -58,7 +58,7 @@
 
         a {
           border-bottom: 2px solid transparent;
-          color: $primary-overlay-special;
+          color: $fixedHeader-link-color;
           font-size: 16px;
           font-weight: 400;
           line-height: 1.2em;

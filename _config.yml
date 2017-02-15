@@ -1,9 +1,9 @@
 # Site settings
 permalink: /blog/:year/:month/:day/:title.html
 title: Caffe2
-tagline: A deep learning, cross platform ML framework
+tagline: Caffe2
 description: >
-  Caffe2 is a machine learning framework enabling simple and flexible deep learning. Building on the original Caffe, Caffe2 is designed with expression, speed, and modularity in mind.
+  A deep learning, cross platform ML framework
 fbappid: "1615782811974223"
 gacode: "UA-44373548-25"
 logo: /static/logo.svg
@@ -36,9 +36,9 @@ ghrepo: "caffe2/caffe2"
 # Use these color settings to determine your colour scheme for the site.
 color:
   # primary should be a vivid color that reflects the project's brand
-  primary: "#A67B5B" # coffee
+  primary: "#FFF"
   # secondary should be a subtle light or dark color used on page backgrounds
-  secondary: "#FFFFFF"
+  secondary: "#FFF"
   # Use the following to specify whether the previous two colours are 'light'
   # or 'dark' and therefore what colors can be overlaid on them
   primary-overlay: "light"

@@ -1,12 +1,12 @@
 .footerContainer {
   background: $secondary-bg;
-  color: $primary-bg;
+  color: $primary-footer-color;
   overflow: hidden;
   padding: 0 10px;
   text-align: left;
 
   .footerWrapper {
-    border-top: 1px solid $primary-bg;
+    border-top: 1px solid $primary-footer-color;
     padding: 0;
 
     .footerBlocks {

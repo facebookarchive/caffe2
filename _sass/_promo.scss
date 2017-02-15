@@ -20,7 +20,8 @@
 
     .pluginRowBlock {
       display: flex;
-      flex-flow: row wrap;
+      flex-flow: wrap;
+      justify-content: center;
       margin: 0 -2px;
 
       .pluginWrapper {
