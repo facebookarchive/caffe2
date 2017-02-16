@@ -27,6 +27,9 @@ REGISTER_CPU_OPERATOR(
 REGISTER_CPU_OPERATOR(
     CopyFromCPUInput,
     CopyOp<CPUContext, CPUContext, CPUContext>);
+REGISTER_CPU_OPERATOR(
+    CopyOnDeviceLike,
+    CopyOnDeviceLikeOp<CPUContext, CPUContext, CPUContext>);
 REGISTER_CPU_OPERATOR(Copy, CopyOp<CPUContext, CPUContext, CPUContext>);
 REGISTER_CPU_OPERATOR(Shape, ShapeOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Reshape, ReshapeOp<float, CPUContext>);
@@ -548,8 +551,8 @@ OPERATOR_SCHEMA(LengthsToWeights)
     .NumInputs(1)
     .NumOutputs(1)
     .Arg("power", "n of 1/pow(length,n) for normalization")
-    .SetDoc(
-        R"DOC( Similar as LengthsToSegmentIds but output vector of segment
+    .SetDoc(R"DOC(
+Similar as LengthsToSegmentIds but output vector of segment
 weights derived by lengths. i.e 1/pow(length, power)
 )DOC")
     .Input(0, "lengths", "1-D int32_t or int64_t tensor of lengths")
@@ -721,11 +724,6 @@ class GetMaxGradient : public GradientMakerBase {
 };
 REGISTER_GRADIENT(Max, GetMaxGradient);
 
-// TODO(jiayq): Copy is a bit tricky because one need to figure out correctly
-// where the input lies (e.g. for muji, which gpu). Right now I am marking it
-// as not gradient ready.
-SHOULD_NOT_DO_GRADIENT(Copy);
-
 class GetGatherGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   vector<OperatorDef> GetGradientDefs() override {
@@ -762,6 +760,18 @@ struct GetFlattenToVecGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(FlattenToVec, GetFlattenToVecGradient);
+
+struct GetCopyGradient : public GradientMakerBase {
+  using GradientMakerBase::GradientMakerBase;
+  vector<OperatorDef> GetGradientDefs() override {
+    return SingleGradientDef(
+        "CopyOnDeviceLike",
+        "",
+        vector<string>{GO(0), I(0)},
+        vector<string>{GI(0)});
+  }
+};
+REGISTER_GRADIENT(Copy, GetCopyGradient);
 
 struct GetGPUToCPUGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
