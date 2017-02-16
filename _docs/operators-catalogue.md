@@ -5,6 +5,8 @@ layout: docs
 permalink: /docs/operators-catalogue.html
 ---
 
+* TOC
+{:toc}
 
 ## Accumulate
 
@@ -23,12 +25,12 @@ Accumulation is done using Axpby operation as shown:
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `gamma` | (float, default 1.0) Accumulation multiplier
-*Inputs* | 
+*Inputs* |
 `input` | The input tensor that has to be accumulated to the output tensor. If the output size is not the same as input size, the output tensor is first reshaped and initialized to zero, and only then, accumulation is done.
-*Outputs* | 
+*Outputs* |
 `output` | Accumulated output tensor
 
 
@@ -61,11 +63,11 @@ Accuracy takes two inputs- predictions and labels, and returns a float accuracy 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `predictions` | 2-D tensor (Tensor<float>) of size (num_batches x num_classes) containing scores
 `labels` | 1-D tensor (Tensor<int>) of size (num_batches) having the indices of true labels
-*Outputs* | 
+*Outputs* |
 `accuracy` | 1-D tensor (Tensor<float>) of size 1 containing accuracy
 
 
@@ -111,14 +113,14 @@ Performs element-wise binary addition (with limited broadcast support).
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand, should share the type with the second operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and type as A
 
 
@@ -154,16 +156,16 @@ If no lengths vector is provided, add padding only once, at the start and end of
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `padding_width` | Number of copies of padding to add around each range.
 `end_padding_width` | (Optional) Specifies a different end-padding width.
-*Inputs* | 
+*Inputs* |
 `data_in` | (T<N, D1..., Dn>) Input data
 `lengths` | (i64) Num of elements in each range. sum(lengths) = N.
 `start_padding` | T<D1..., Dn> Padding data for range start.
 `end_padding` | T<D1..., Dn> (optional) Padding for range end. If not provided, start_padding is used as end_padding as well.
-*Outputs* | 
+*Outputs* |
 `data_out` | (T<N + 2*padding_width, D1..., Dn>) Padded data.
 `lengths_out` | (i64, optional) Lengths for each padded range.
 
@@ -197,10 +199,10 @@ Makes the output and the input share the same underlying storage.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | Input tensor whose storage will be shared.
-*Outputs* | 
+*Outputs* |
 `output` | Tensor of same shape as input, sharing its storage.
 
 
@@ -233,11 +235,11 @@ Does an allgather operation among the nodes.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `comm_world` | The common world.
 `X` | A tensor to be allgathered.
-*Outputs* | 
+*Outputs* |
 `Y` | The allgathered tensor, same on all nodes.
 
 
@@ -270,11 +272,11 @@ Does an allreduce operation among the nodes. Currently only Sum is supported.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `comm_world` | The common world.
 `X` | A tensor to be allreduced.
-*Outputs* | 
+*Outputs* |
 `Y` | The allreduced tensor, same on all nodes.
 
 
@@ -321,14 +323,14 @@ Both input operands should be of type  `bool` .
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and A and type `bool`
 
 
@@ -365,11 +367,11 @@ All except the outer-most dimension must be the same between input 1 and 2.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `dataset` | The tensor to be appended to.
 `new_data` | Tensor to append to the end of dataset.
-*Outputs* | 
+*Outputs* |
 `dataset` | Same as input 0, representing the mutated tensor.
 
 
@@ -421,12 +423,12 @@ Given a mutex and two int32 scalar tensors, performs an atomic fetch add by muta
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `mutex_ptr` | Blob containing to a unique_ptr<mutex>
 `mut_value` | Value to be mutated after the sum.
 `increment` | Value to add to the first operand.
-*Outputs* | 
+*Outputs* |
 `mut_value` | Mutated value after sum. Usually same as input 1.
 `fetched_value` | Value of the first operand before sum.
 
@@ -452,16 +454,16 @@ Given a mutex and two int32 scalar tensors, performs an atomic fetch add by muta
 
 
 AveragePool consumes an input blob X and applies average pooling across the the blob according to kernel sizes, stride sizes, and pad lengths defined by the ConvPoolOpBase operator. Average pooling consisting of averaging all values of a subset of the input tensor according to the kernel size and downsampling the data into the output blob Y for further processing.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
-`X` | Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case. 
-*Outputs* | 
+`X` | Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case.
+*Outputs* |
 `Y` | Output data tensor from average pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.
 
 
@@ -525,10 +527,10 @@ AveragedLoss takes in a 1-D tensor as input and returns a single output float va
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | The input data as Tensor
-*Outputs* | 
+*Outputs* |
 `output` | The output tensor of size 1 containing the averaged value.
 
 
@@ -584,14 +586,14 @@ Batch Matrix multiplication Yi = Ai * Bi, where A has size (C x M x K), B has si
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `trans_a` | Pass 1 to transpose A before multiplication
 `trans_b` | Pass 1 to transpose B before multiplication
-*Inputs* | 
+*Inputs* |
 `A` | 3D matrix of size (C x M x K)
 `B` | 3D matrix of size (C x K x N)
-*Outputs* | 
+*Outputs* |
 `Y` | 3D matrix of size (C x M x N)
 
 
@@ -619,7 +621,7 @@ Batch Matrix multiplication Yi = Ai * Bi, where A has size (C x M x K), B has si
 
  BatchToSpace for 4-D tensors of type T.
  Rearranges (permutes) data from batch into blocks of spatial data, followed by cropping. This is the reverse transformation of SpaceToBatch. More specifically, this op outputs a copy of the input tensor where values from the batch dimension are moved in spatial blocks to the height and width dimensions, followed by cropping along the height and width dimensions.
- 
+
 
 
 ### Code
@@ -650,11 +652,11 @@ Given a data 1D tensor and a mask (boolean) tensor of same shape, returns a tens
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | The 1D, original data tensor.
 `mask` | A tensor of bools of same shape as `data`.
-*Outputs* | 
+*Outputs* |
 `masked_data` | A tensor of same type as `data`.
 
 
@@ -685,11 +687,11 @@ Given a tensor of int32 segment lengths and a mask (boolean) tensor, return the 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `lengths` | A 1D int32 tensor representing segment lengths.
 `mask` | A 1D bool tensor of values to keep.
-*Outputs* | 
+*Outputs* |
 `masked_lengths` | Segment lengths of a masked tensor.
 
 
@@ -720,13 +722,13 @@ Does a broadcast operation from the root node to every other node. The tensor on
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `root` | (int, default 0) the root to run broadcast from.
-*Inputs* | 
+*Inputs* |
 `comm_world` | The common world.
 `X` | A tensor to be broadcasted.
-*Outputs* | 
+*Outputs* |
 `X` | In-place as input 1.
 
 
@@ -760,12 +762,12 @@ The operator casts the elements of a given input tensor to a data type specified
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `to` | The data type to which the elements of the input tensor are cast.Strictly must be one of the types from DataType enum in TensorProto
-*Inputs* | 
+*Inputs* |
 `input` | Input tensor to be cast.
-*Outputs* | 
+*Outputs* |
 `output` | Output tensor with the same shape as input with type specified by the 'to' argument
 
 
@@ -796,10 +798,10 @@ Copy the value of a atomic<bool> to a bool
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `atomic_bool` | Blob containing a unique_ptr<atomic<bool>>
-*Outputs* | 
+*Outputs* |
 `value` | Copy of the value for the atomic<bool>
 
 
@@ -823,16 +825,16 @@ Copy the value of a atomic<bool> to a bool
 ## CheckCounterDone
 
 
-If the internal count value <= 0, outputs true, otherwise outputs false, 
+If the internal count value <= 0, outputs true, otherwise outputs false,
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `counter` | A blob pointing to an instance of a counter.
-*Outputs* | 
+*Outputs* |
 `done` | true if the internal count is zero or negative.
 
 
@@ -865,10 +867,10 @@ Checks that the given data fields represents a consistent dataset unther the sch
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `fields` | List of strings representing the string names in the formatspecified in the doc for CreateTreeCursor.
-*Inputs* | 
+*Inputs* |
 `field_0` | Data for field 0.
 
 
@@ -899,7 +901,7 @@ The Checkpoint operator is similar to the Save operator, but allows one to save 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `absolute_path` | (int, default 0) if set, use the db path directly and do not prepend the current root folder of the workspace.
 `db` | (string) a template string that one can combine with the iteration to create the final db name. For example, "/home/lonestarr/checkpoint_%08d.db"
@@ -936,11 +938,11 @@ Clip operator limits the given input within an interval. The interval is specifi
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `min` | Minimum value, under which element is replaced by min
 `max` | Maximum value, above which element is replaced by max
-*Inputs* | 
+*Inputs* |
 `input` | Input tensor (Tensor<float>) containing elements to beclipped
 `output` | Output tensor (Tensor<float>) containing clippedinput elements
 
@@ -1020,7 +1022,7 @@ Collect tensor into tensor vector by reservoir sampling, argument num_to_collect
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `num_to_collect` | The max number of tensors to collect
 
@@ -1053,11 +1055,11 @@ Compute the offsets matrix given cursor and data blobs. Need to be ran at beginn
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `cursor` | A blob containing a pointer to the cursor.
 `dataset_field_0` | First dataset field
-*Outputs* | 
+*Outputs* |
 `field_0` | Tensor containing offset info for this chunk.
 
 
@@ -1086,7 +1088,7 @@ Concatenate a list of tensors into a single tensor.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `axis` | Which axis to concat on
 `order` | Either NHWC or HCWH, will concat on C axis
@@ -1115,16 +1117,16 @@ Concatenate a list of tensors into a single tensor.
 
 
 Concat Tensors in the std::unique_ptr<std::vector<Tensor> > along the first dimension.
-    
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `vector of Tensor` | std::unique_ptr<std::vector<Tensor> >
-*Outputs* | 
+*Outputs* |
 `tensor` | tensor after concatenating
 
 
@@ -1148,19 +1150,19 @@ Concat Tensors in the std::unique_ptr<std::vector<Tensor> > along the first dime
 ## ConditionalSetAtomicBool
 
 
- 
+
 
 ```
     Set an atomic<bool> to true if the given condition bool variable is true
 ```
 
-     
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `atomic_bool` | Blob containing a unique_ptr<atomic<bool>>
 `condition` | Blob containing a bool
@@ -1196,16 +1198,16 @@ The operator fills the elements of the output tensor with a constant value speci
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `value` | The value for the elements of the output tensor.
 `dtype` | The data type for the elements of the output tensor.Strictly must be one of the types from DataType enum in TensorProto.
 `shape` | The shape of the output tensor.Cannot set the shape argument and pass in an input at the same time.
 `extra_shape` | The additional dimensions appended at the end of the shape indicatedby the input blob.Cannot set the extra_shape argument when there is no input blob.
 `input_as_shape` | 1D tensor containing the desired output shape
-*Inputs* | 
+*Inputs* |
 `input` | Input tensor (optional) to provide shape information.
-*Outputs* | 
+*Outputs* |
 `output` | Output tensor of constant values specified by 'value'argument and its type is specified by the 'dtype' argument
 
 
@@ -1232,18 +1234,18 @@ The operator fills the elements of the output tensor with a constant value speci
 
 
 The convolution operator consumes an input vector, the filter blob and the bias blob and computes the output. Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is convolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_op_impl.h is the templated implementation of the conv_op.h file, which is why they are separate files.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | Input data blob from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the NCHW usage. On the other hand, the NHWC Op has a different set of dimension constraints.
 `filter` | The filter blob that will be used in the convolutions; has size (M x C x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel.
 `bias` | The 1D bias blob that is added through the convolution; has size (M).
-*Outputs* | 
+*Outputs* |
 `Y` | Output data blob that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.
 
 
@@ -1300,7 +1302,7 @@ No documentation yet.
 ## ConvTranspose
 
 
- 
+
 
 ```
     The transposed convolution consumes an input vector, the filter blob, and
@@ -1316,18 +1318,18 @@ No documentation yet.
     conv_transpose_op.h file, which is why they are separate files.
 ```
 
-   
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | Input data blob from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the NCHW usage. On the other hand, the NHWC Op has a different set of dimension constraints.
 `filter` | The filter blob that will be used in the transposed convolution; has size (M x C x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel.
 `bias` | The 1D bias blob that is added through the convolution;has size (C)
-*Outputs* | 
+*Outputs* |
 `Y` | Output data blob that contains the result of the transposed convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.
 
 
@@ -1389,10 +1391,10 @@ Copy input tensor into output, potentially across devices.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | The input tensor.
-*Outputs* | 
+*Outputs* |
 `output` | Tensor that will contain a copy of the input.
 
 
@@ -1425,10 +1427,10 @@ Copy tensor for CPU to GPU context. Must be run under GPU device option.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | The input tensor.
-*Outputs* | 
+*Outputs* |
 `output` | Tensor that will contain a copy of the input.
 
 
@@ -1459,10 +1461,10 @@ Take a CPU input tensor and copy it to an output in the current Context (GPU or 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | The input CPU tensor.
-*Outputs* | 
+*Outputs* |
 `output` | either a TensorCUDA or a TensorCPU
 
 
@@ -1495,10 +1497,10 @@ Copy tensor for GPU to CPU context. Must be run under GPU device option.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | The input tensor.
-*Outputs* | 
+*Outputs* |
 `output` | Tensor that will contain a copy of the input.
 
 
@@ -1528,7 +1530,7 @@ CosineEmbeddingCriterion takes two inputs: the similarity value and the label, a
               if y == 1
 ```
 
-   
+
 
 ```
         max(0, s - margin),  if y == -1
@@ -1540,11 +1542,11 @@ CosineEmbeddingCriterion takes two inputs: the similarity value and the label, a
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `S` | The cosine similarity as a 1-dim TensorCPU.
 `Y` | The label as a 1-dim TensorCPU with int value of 1 or -1.
-*Outputs* | 
+*Outputs* |
 `loss` | The output loss with the same dimensionality as S.
 
 
@@ -1593,23 +1595,23 @@ No documentation yet.
 ## CosineSimilarity
 
 
- 
+
 
 ```
   Given two input float tensors X, Y, and produces one output float tensor
   of the cosine similarity between X and Y.
 ```
 
-   
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | 1D input tensor
-*Outputs* | 
+*Outputs* |
 `Y` | 1D input tensor
 
 
@@ -1661,10 +1663,10 @@ If the internal count value > 0, decreases count value by 1 and outputs false, o
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `counter` | A blob pointing to an instance of a counter.
-*Outputs* | 
+*Outputs* |
 `done` | false unless the internal count is zero.
 
 
@@ -1690,16 +1692,16 @@ If the internal count value > 0, decreases count value by 1 and outputs false, o
 ## CountUp
 
 
-Increases count value by 1 and outputs the previous value atomically 
+Increases count value by 1 and outputs the previous value atomically
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `counter` | A blob pointing to an instance of a counter.
-*Outputs* | 
+*Outputs* |
 `previous_count` | count value BEFORE this operation
 
 
@@ -1730,7 +1732,7 @@ Create an unique_ptr blob to hold a atomic<bool>
 ### Interface
 
 
-*Outputs* | 
+*Outputs* |
 ---- | ----
 `atomic_bool` | Blob containing a unique_ptr<atomic<bool>>
 
@@ -1762,13 +1764,13 @@ Creates a common world for communication operators.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `size` | (int) size of the common world.
 `rank` | (int) rank of this node in the common world.
-*Inputs* | 
+*Inputs* |
 `kv_handler` | Key/value handler for rendezvous (optional).
-*Outputs* | 
+*Outputs* |
 `comm_world` | A common world for collective operations.
 
 
@@ -1801,10 +1803,10 @@ Creates a count-down counter with initial value specified by the 'init_count' ar
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `init_count` | Initial count for the counter, must be >= 0.
-*Outputs* | 
+*Outputs* |
 `counter` | A blob pointing to an instance of a new counter.
 
 
@@ -1835,7 +1837,7 @@ Creates an unlocked mutex and returns it in a unique_ptr blob.
 ### Interface
 
 
-*Outputs* | 
+*Outputs* |
 ---- | ----
 `mutex_ptr` | Blob containing a std::unique_ptr<mutex>.
 
@@ -1867,7 +1869,7 @@ CreateQPSMetric operator create a blob that will store state that is required fo
 ### Interface
 
 
-*Outputs* | 
+*Outputs* |
 ---- | ----
 `output` | Blob with QPSMetricState
 
@@ -1918,12 +1920,12 @@ Create a text file reader. Fields are delimited by <TAB>.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `filename` | Path to the file.
 `num_pases` | Number of passes over the file.
 `field_types` | List with type of each field. Type enum is found at core.DataType.
-*Outputs* | 
+*Outputs* |
 `handler` | Pointer to the created TextFileReaderInstance.
 
 
@@ -1958,13 +1960,13 @@ Creates a cursor to iterate through a list of tensors, where some of those tenso
           Struct(
 ```
 
-   
+
 
 ```
             c1=String,
 ```
 
-   
+
 
 ```
             c2=List(Int),
@@ -2030,10 +2032,10 @@ The "lengths" field for a given domain must appear before any reference to that 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `fields` | A list of strings each one representing a field of the dataset.
-*Outputs* | 
+*Outputs* |
 `cursor` | A blob pointing to an instance of a new TreeCursor.
 
 
@@ -2071,11 +2073,11 @@ Operator computes the cross entropy between the input and the label set. In  pra
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | Input blob from the previous layer, which is almost always the result of a softmax operation; X is a 2D array of size N x D, where N is the batch size and D is the number of classes
 `label` | Blob containing the labels used to compare the input
-*Outputs* | 
+*Outputs* |
 `Y` | Output blob after the cross entropy computation
 
 
@@ -2190,14 +2192,14 @@ Performs element-wise binary division (with limited broadcast support).
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand, should share the type with the second operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and type as A
 
 
@@ -2246,23 +2248,23 @@ No documentation yet.
 ## DotProduct
 
 
- 
+
 
 ```
   Given two input float tensors X, Y, and produces one output float tensor
   of the dot product between X and Y.
 ```
 
-   
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | 1D input tensor
-*Outputs* | 
+*Outputs* |
 `Y` | 1D input tensor
 
 
@@ -2314,13 +2316,13 @@ Dropout takes one input data (Tensor<float>) and produces two Tensor outputs, ou
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `ratio` | (float, default 0.5) the ratio of random dropout
 `is_test` | (int, default 0) if nonzero, run dropout in test mode where the output is simply Y = X.
-*Inputs* | 
+*Inputs* |
 `data` | The input data as Tensor.
-*Outputs* | 
+*Outputs* |
 `output` | The output.
 `mask` | The output mask. If is_test is nonzero, this output is not filled.
 
@@ -2390,14 +2392,14 @@ Performs element-wise comparison  `==`  (with limited broadcast support).
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand, should share the type with the second operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and A and type `bool`
 
 
@@ -2424,16 +2426,16 @@ Performs element-wise comparison  `==`  (with limited broadcast support).
 
 
  Elu takes one input data (Tensor<T>) and produces one output data (Tensor<T>) where the function  `f(x) = alpha * (exp(x) - 1.) for x < 0` ,  `f(x) = x for x >= 0` ., is applied to the tensor elementwise.
- 
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | 1D input tensor
-*Outputs* | 
+*Outputs* |
 `Y` | 1D input tensor
 
 
@@ -2487,10 +2489,10 @@ Take an input tensor in the current Context (GPU or CPU) and create an output wh
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | The input CUDA or CPU tensor.
-*Outputs* | 
+*Outputs* |
 `output` | TensorCPU that is a copy of the input.
 
 
@@ -2523,10 +2525,10 @@ Calculates the exponential of the given input tensor, element-wise. This operati
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | Input tensor
-*Outputs* | 
+*Outputs* |
 `output` | The exponential of the input tensor computed element-wise
 
 
@@ -2569,10 +2571,10 @@ Dimension indices in  `dims`  are as seen in the output tensor. For example:
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | Original tensor
-*Outputs* | 
+*Outputs* |
 `expanded` | Reshaped tensor with same data as input.
 
 
@@ -2609,11 +2611,11 @@ All except the outer-most dimension must be the same between input 0 and 1.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `tensor` | The tensor to be extended.
 `new_indices` | The size of tensor will be extended based on max element in new_indices.
-*Outputs* | 
+*Outputs* |
 `extended_tensor` | Same as input 0, representing the mutated tensor.
 
 
@@ -2645,14 +2647,14 @@ Computes the result of passing an input vector X into a fully connected layer wi
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `axis` | (int32_t) default to 1; describes the axis of the inputs; defaults to one because the 0th axis most likely describes the batch_size
-*Inputs* | 
+*Inputs* |
 `X` | 2D input of size (MxK) data
 `W` | 2D blob of size (KxN) containing fully connected weight matrix
 `b` | 1D blob containing bias vector
-*Outputs* | 
+*Outputs* |
 `Y` | 2D output tensor
 
 
@@ -2715,7 +2717,7 @@ FeedBlobs the content of the blobs. The input and output blobs should be one-to-
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `value` | (string) if provided then we will use this string as the value for theprovided output tensor
 
@@ -2741,16 +2743,16 @@ FeedBlobs the content of the blobs. The input and output blobs should be one-to-
 
 
 Shrink the data tensor by removing data blocks with given zero-based indices in the outermost dimension of the tensor. Indices are not assumed in any order or unique but with the range [0, blocks_size). Indices could be empty.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | a 1-D tensor.
-*Outputs* | 
+*Outputs* |
 `indices` | indices of duplicate elements in data, excluding first occurrences.
 
 
@@ -2781,10 +2783,10 @@ Flattens the input tensor into a 2D matrix, keeping the first dimension unchange
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | A tensor of rank >= 2.
-*Outputs* | 
+*Outputs* |
 `output` | A tensor of rank 2 with the contents of the input tensor, with first dimension equal first dimension of input, and remaining input dimensions flatenned into the inner dimension of the output.
 
 
@@ -2817,10 +2819,10 @@ Flattens the input tensor into a 1D vector.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | A tensor of rank >= 1.
-*Outputs* | 
+*Outputs* |
 `output` | A tensor of rank 1 with the contents of the input tensor
 
 
@@ -2911,14 +2913,14 @@ Performs element-wise comparison  `>=`  (with limited broadcast support).
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand, should share the type with the second operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and A and type `bool`
 
 
@@ -2964,14 +2966,14 @@ Performs element-wise comparison  `>`  (with limited broadcast support).
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand, should share the type with the second operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and A and type `bool`
 
 
@@ -3028,11 +3030,11 @@ Given DATA tensor of rank r >= 1, and INDICES tensor of rank q, gather entries o
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Tensor of rank r >= 1.
 `INDICES` | Tensor of int32/int64 indices, of any rank q.
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Tensor of rank q + (r - 1).
 
 
@@ -3063,14 +3065,14 @@ Gather the sum of start and end paddings in a padded input sequence. Used in ord
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `padding_width` | Outer-size of padding present around each range.
 `end_padding_width` | (Optional) Specifies a different end-padding width.
-*Inputs* | 
+*Inputs* |
 `data_in` | T<N, D1..., Dn> Padded input data
 `lengths` | (i64) Num of elements in each range. sum(lengths) = N. If not provided, considers all data as a single segment.
-*Outputs* | 
+*Outputs* |
 `padding_sum` | Sum of all start paddings, or of all paddings if end_padding_sum is not provided.
 `end_padding_sum` | T<D1..., Dn> Sum of all end paddings, if provided.
 
@@ -3120,11 +3122,11 @@ Given DATA tensor of rank 1, and RANGES tensor of rank 3, gather corresponding r
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Tensor of rank 1.
 `RANGES` | Tensor of int32/int64 ranges, of dims (N, M, 2). Where N is number of examples and M is a size of each example. Last dimention represents a range in the format (start, lengths)
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | 1-D tensor of size sum of range lengths
 `LENGTHS` | 1-D tensor of size N with lengths over gathered data for each row in a batch. sum(LENGTHS) == OUTPUT.size()
 
@@ -3179,10 +3181,10 @@ Return a 1D tensor of strings containing the names of each blob in the active wo
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `include_shared` | (bool, default true) Whether to include blobs inherited from parent workspaces.
-*Outputs* | 
+*Outputs* |
 `blob_names` | 1D tensor of strings containing blob names.
 
 
@@ -3301,15 +3303,15 @@ Hierarchical softmax is an operator which approximates the softmax operator whil
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `hierarchy` | Serialized HierarchyProto string containing list of vocabulary words and their paths from root of hierarchy to the leaf
-*Inputs* | 
+*Inputs* |
 `X` | Input data from previous layer
 `W` | 2D blob containing 'stacked' fully connected weight matrices. Each node in the hierarchy contributes one FC weight matrix if it has children nodes. Dimension is N*D, D is input dimension of data (X), N is sum of all output dimensions, or total number of nodes (excl root)
 `b` | 1D blob with N parameters
 `labels` | int word_id of the target word
-*Outputs* | 
+*Outputs* |
 `Y` | 1-D of log probability outputs, one per sample
 `intermediate_output` | Extra blob to store the intermediate FC and softmax outputs for each node in the hierarchical path of a word. The outputs from samples are stored in consecutive blocks in the forward pass and are used in reverse order in the backward gradientOp pass
 
@@ -3355,7 +3357,7 @@ No documentation yet.
 ## HSoftmaxSearch
 
 
- 
+
 
 ```
   HSoftmaxSearch is an operator to generate the most possible paths given a
@@ -3363,22 +3365,22 @@ No documentation yet.
   search tree.
 ```
 
-   
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `tree` | Serialized TreeProto string containing a tree including all intermidate nodes and leafs. All nodes must have names for correct outputs
-`beam` | beam used for pruning tree. The pruning algorithm is that only children, whose score is smaller than parent's score puls beam, will be propagated. 
+`beam` | beam used for pruning tree. The pruning algorithm is that only children, whose score is smaller than parent's score puls beam, will be propagated.
 `topN` | Number of nodes in outputs
-*Inputs* | 
+*Inputs* |
 `X` | Input data from previous layer
 `W` | The matrix trained from Softmax Ops
 `b` | The bias traiend from Softmax Ops
-*Outputs* | 
+*Outputs* |
 `Y_names` | The name of selected nodes and leafs. For nodes, it will be the name defined in the tree. For leafs, it will be the index of the word in the tree.
 `Y_scores` | The corresponding scores of Y_names
 
@@ -3429,10 +3431,10 @@ Returns true iff the input tensor has size > 0
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `tensor` | Tensor of any type.
-*Outputs* | 
+*Outputs* |
 `has_elements` | Scalar bool tensor. True if input is not empty.
 
 
@@ -3456,25 +3458,25 @@ Returns true iff the input tensor has size > 0
 ## HuffmanTreeHierarchy
 
 
- 
+
 
 ```
     HuffmanTreeHierarchy is an operator to generate huffman tree hierarchy given
     the input labels. It returns the tree as seralized HierarchyProto
 ```
 
-     
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `num_classes` | The number of classes used to build the hierarchy.
-*Inputs* | 
+*Inputs* |
 `Labels` | The labels vector
-*Outputs* | 
+*Outputs* |
 `Hierarch` | Huffman coding hierarchy of the labels
 
 
@@ -3503,10 +3505,10 @@ The Im2Col operator from Matlab.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | 4-tensor in NCHW or NHWC.
-*Outputs* | 
+*Outputs* |
 `Y` | 4-tensor. For NCHW: N x (C x kH x kW) x outH x outW.For NHWC: N x outH x outW x (kH x kW x C
 
 
@@ -3540,10 +3542,10 @@ Should not be called concurrently with IndexGet.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `handle` | Pointer to an Index instance.
-*Outputs* | 
+*Outputs* |
 `handle` | The input handle.
 
 
@@ -3575,11 +3577,11 @@ If an insert is necessary but max_elements has been reached, fail.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `handle` | Pointer to an Index instance.
 `keys` | Tensor of keys to be looked up.
-*Outputs* | 
+*Outputs* |
 `indices` | Indices for each of the keys.
 
 
@@ -3610,13 +3612,13 @@ Loads the index from the given 1-D tensor. Elements in the tensor will be given 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `skip_first_entry` | If set, skips the first entry of the tensor. This allows to load tensors that are aligned with an embedding, where the first entry corresponds to the default 0 index entry.
-*Inputs* | 
+*Inputs* |
 `handle` | Pointer to an Index instance.
 `items` | 1-D tensor with elements starting with index 1.
-*Outputs* | 
+*Outputs* |
 `handle` | The input handle.
 
 
@@ -3647,10 +3649,10 @@ Returns the number of entries currently present in the index.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `handle` | Pointer to an Index instance.
-*Outputs* | 
+*Outputs* |
 `items` | Scalar int64 tensor with number of entries.
 
 
@@ -3681,10 +3683,10 @@ Stores the keys of this index in a 1-D tensor. Since element 0 is reserved for u
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `handle` | Pointer to an Index instance.
-*Outputs* | 
+*Outputs* |
 `items` | 1-D tensor with elements starting with index 1.
 
 
@@ -3728,15 +3730,15 @@ Carries out instance normalization as described in the paper  [https://arxiv.org
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `epsilon` | The epsilon value to use to avoid division by zero.
 `order` | A StorageOrder string.
-*Inputs* | 
+*Inputs* |
 `input` | The input 4-dimensional tensor of shape NCHW or NHWC depending on the order parameter.
 `scale` | The input 1-dimensional scale tensor of size C.
 `bias` | The input 1-dimensional bias tensor of size C.
-*Outputs* | 
+*Outputs* |
 `output` | The output 4-dimensional tensor of the same shape as input.
 `saved_mean` | Optional saved mean used during training to speed up gradient computation. Should not be used for testing.
 `saved_inv_stdev` | Optional saved inverse stdev used during training to speed up gradient computation. Should not be used for testing.
@@ -3794,10 +3796,10 @@ Creates a dictionary that maps int32 keys to consecutive integers from 1 to max_
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `max_elements` | Max number of elements, including the zero entry.
-*Outputs* | 
+*Outputs* |
 `handler` | Pointer to an Index instance.
 
 
@@ -3826,10 +3828,10 @@ Returns true iff the input tensor has size == 0
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `tensor` | Tensor of any type.
-*Outputs* | 
+*Outputs* |
 `is_empty` | Scalar bool tensor. True if input is empty.
 
 
@@ -3873,14 +3875,14 @@ Performs element-wise comparison  `<=`  (with limited broadcast support).
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand, should share the type with the second operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and A and type `bool`
 
 
@@ -3954,7 +3956,7 @@ No documentation yet.
 
  LSTMUnit computes the activations of a standard LSTM (without peephole connections), in a sequence-length aware fashion.
  Concretely, given the (fused) inputs X (TxNxD), the previous cell state (NxD), and the sequence lengths (N), computes the LSTM activations, avoiding computation if the input is invalid (as in, the value at X{t][n] >= seqLengths[n].
- 
+
 
 
 ### Code
@@ -4021,14 +4023,14 @@ Performs element-wise comparison  `<`  (with limited broadcast support).
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand, should share the type with the second operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and A and type `bool`
 
 
@@ -4068,11 +4070,11 @@ Operator computes the cross entropy between the input and the label set. In  pra
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | Input blob from the previous layer, which is almost always the result of a softmax operation; X is a 2D array of size N x D, where N is the batch size and D is the number of classes
 `label` | Blob containing the labels used to compare the input
-*Outputs* | 
+*Outputs* |
 `Y` | Output blob after the cross entropy computation
 
 
@@ -4121,18 +4123,18 @@ No documentation yet.
 ## LastNWindowCollector
 
 
-Collect the last N rows from input data. The purpose is to keep track of data accross batches, so for example suppose the LastNWindowCollector is called successively with the following input  [1,2,3,4] [5,6,7] [8,9,10,11]  And the number of items is set to 6, then the output after the 3rd call will contain the following elements: [6,7,8,9,10,11]  No guarantee is made on the ordering of elements in input. So a valid value for output could have been [11,10,9,8,7,6]  Also, this method works for any order tensor, treating the first dimension as input rows and keeping the last N rows seen as input. So for instance:  [[1,2],[2,3],[3,4],[4,5]] [[5,6],[6,7],[7,8]] [[8,9],[9,10],[10,11],[11,12]]  A possible output would be [[6,7],[7,8],[8,9],[9,10],[10,11],[11,12]] 
+Collect the last N rows from input data. The purpose is to keep track of data accross batches, so for example suppose the LastNWindowCollector is called successively with the following input  [1,2,3,4] [5,6,7] [8,9,10,11]  And the number of items is set to 6, then the output after the 3rd call will contain the following elements: [6,7,8,9,10,11]  No guarantee is made on the ordering of elements in input. So a valid value for output could have been [11,10,9,8,7,6]  Also, this method works for any order tensor, treating the first dimension as input rows and keeping the last N rows seen as input. So for instance:  [[1,2],[2,3],[3,4],[4,5]] [[5,6],[6,7],[7,8]] [[8,9],[9,10],[10,11],[11,12]]  A possible output would be [[6,7],[7,8],[8,9],[9,10],[10,11],[11,12]]
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `num_to_collect` | The number of random samples to append for each positive samples
-*Inputs* | 
+*Inputs* |
 `Output data` | Copy, just to say that the output depends on the previous iterations
-*Outputs* | 
+*Outputs* |
 `The last n` | Data stored in sessions
 
 
@@ -4160,18 +4162,18 @@ Applies 'Mean' to each segment of the input tensor. Segments are defined by thei
  LENGTHS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  For example LENGTHS = [2, 1] stands for segments DATA[0..1] and DATA[2]  The first dimension of the output is equal to the number of input segments, i.e.  `len(LENGTHS)` . Other dimensions are inherited from the input tensor.
  Mean computes the element-wise mean of the input slices. Operation doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
-*Outputs* | 
-`OUTPUT` | Aggregated output tensor. Has the first dimension of len(LENGTHS) 
+*Outputs* |
+`OUTPUT` | Aggregated output tensor. Has the first dimension of len(LENGTHS)
 
 
 
@@ -4219,18 +4221,18 @@ LengthsPartition splits the input int tensor into multiple ones according to the
  Takes the second input and partitions it to shards according to the remainder of values modulo the number of partitions. It requires the second tensor to be a 1D-tensor of the integral type. The first tensor should be 1D-tensor of int32 that would represent the lengths of the elements in the input. The number of partitions is derived as (num_output / num_input).
  If additional inputs are present they must have the same shape as the first input, optionally with extra trailing dimensions. They will be partitioned accordingly to the first input.
  Optional arg 'pack_first_input' transforms the first tensor values as X_ij / num_partitions.
- Outputs are ordered as X_0_part_0, X_1_part_0, ..., X_N-1_part_0, X_0_part_1, ..., X_N-1_part_K-1 
+ Outputs are ordered as X_0_part_0, X_1_part_0, ..., X_N-1_part_0, X_0_part_1, ..., X_N-1_part_K-1
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `pack_first_input` | (int, default 0) If set, the operator transforms the first tensor values as floor(X_ij / num_partitions)
-*Inputs* | 
+*Inputs* |
 `input` | Input tensor containing data to be partitioned. The number of input tensors might be greater than 1 but must have the same shape as the previous tensors.
-*Outputs* | 
+*Outputs* |
 `partitions` | Output Partitions. The number of output tensors has to be a multiple of the number of input tensors.
 
 
@@ -4261,10 +4263,10 @@ Convert a length vector to a range sequene. For example, input=[4,3,1], the outp
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `lengths` | 1D tensor of int32 or int64 segment lengths.
-*Outputs* | 
+*Outputs* |
 `range_sequence` | 1D tensor whose size is the sum of `lengths`
 
 
@@ -4292,18 +4294,18 @@ Applies 'Sum' to each segment of the input tensor. Segments are defined by their
  LENGTHS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  For example LENGTHS = [2, 1] stands for segments DATA[0..1] and DATA[2]  The first dimension of the output is equal to the number of input segments, i.e.  `len(LENGTHS)` . Other dimensions are inherited from the input tensor.
  Summation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
-*Outputs* | 
-`OUTPUT` | Aggregated output tensor. Has the first dimension of len(LENGTHS) 
+*Outputs* |
+`OUTPUT` | Aggregated output tensor. Has the first dimension of len(LENGTHS)
 
 
 
@@ -4355,10 +4357,10 @@ Given a vector of segment lengths, calculates offsets of each segment and packs 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `lengths` | 1D tensor of int32 or int64 segment lengths.
-*Outputs* | 
+*Outputs* |
 `ranges` | 2D tensor of shape len(lengths) X 2 and the same type as `lengths`
 
 
@@ -4390,10 +4392,10 @@ In general, the inverse operation is SegmentIdsToLengths. Notice though that tra
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `lengths` | 1D tensor of int32 or int64 segment lengths.
-*Outputs* | 
+*Outputs* |
 `segment_ids` | 1D tensor of length `sum(lengths)`
 
 
@@ -4437,18 +4439,18 @@ No documentation yet.
 
 ## LengthsToWeights
 
- Similar as LengthsToSegmentIds but output vector of segment weights derived by lengths. i.e 1/pow(length, power) 
+ Similar as LengthsToSegmentIds but output vector of segment weights derived by lengths. i.e 1/pow(length, power)
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `power` | n of 1/pow(length,n) for normalization
-*Inputs* | 
+*Inputs* |
 `lengths` | 1-D int32_t or int64_t tensor of lengths
-*Outputs* | 
+*Outputs* |
 `a vector of weights` | 1-D float tensor of weights by length
 
 
@@ -4476,21 +4478,21 @@ Applies 'WeightedSum' to each segment of the input tensor. Segments are defined 
  LENGTHS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  For example LENGTHS = [2, 1] stands for segments DATA[0..1] and DATA[2]  The first dimension of the output is equal to the number of input segments, i.e.  `len(LENGTHS)` . Other dimensions are inherited from the input tensor.
  Input slices are first scaled by SCALARS and then summed element-wise. It doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
-*Inputs* | 
+*Inputs* |
 `DATA` | Input tensor for the summation
 `SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
 `LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
-*Outputs* | 
-`OUTPUT` | Aggregated output tensor. Has the first dimension of len(LENGTHS) 
+*Outputs* |
+`OUTPUT` | Aggregated output tensor. Has the first dimension of len(LENGTHS)
 
 
 
@@ -4557,13 +4559,13 @@ No documentation yet.
 
 The Load operator loads a set of serialized blobs from a db. It takes no input and [0, infinity) number of outputs, using the db keys to match the db entries with the outputs.
  If an input is passed, then it is assumed that that input blob is a DBReader to load from, and we ignore the db and db_type arguments.
- 
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `absolute_path` | (int, default 0) if set, use the db path directly and do not prepend the current root folder of the workspace.
 `db` | (string) the path to the db to load.
@@ -4601,10 +4603,10 @@ Calculates the natural log of the given input tensor, element-wise. This operati
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | Input tensor
-*Outputs* | 
+*Outputs* |
 `output` | The natural log of the input tensor computed element-wise
 
 
@@ -4635,10 +4637,10 @@ Creates a dictionary that maps int64 keys to consecutive integers from 1 to max_
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `max_elements` | Max number of elements, including the zero entry.
-*Outputs* | 
+*Outputs* |
 `handler` | Pointer to an Index instance.
 
 
@@ -4663,16 +4665,16 @@ Creates a dictionary that maps int64 keys to consecutive integers from 1 to max_
 
 
  LpPool consumes an input blob X and applies L-p pooling across the the blob according to kernel sizes, stride sizes, and pad lengths defined by the ConvPoolOpBase operator. L-p pooling consisting of taking the L-p norm of a subset of the input tensor according to the kernel size and downsampling the data into the output blob Y for further processing.
-   
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
-`X` | Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case. 
-*Outputs* | 
+`X` | Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case.
+*Outputs* |
 `Y` | Output data tensor from L-p pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.
 
 
@@ -4745,16 +4747,16 @@ No documentation yet.
 
 
 Given a vector of probabilities, this operator transforms this into a 2-column  matrix with complimentary probabilities for binary classification. In explicit  terms, given the vector X, the output Y is vstack(1 - X, X).
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | Input vector of probabilities
-*Outputs* | 
+*Outputs* |
 `Y` | 2-column matrix with complimentary probabilities of X for binary classification
 
 
@@ -4811,12 +4813,12 @@ MarginRankingCriterion takes two input data X1 (Tensor<float>), X2 (Tensor<float
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X1` | The left input vector as a 1-dim TensorCPU.
 `X2` | The right input vector as a 1-dim TensorCPU.
 `Y` | The label as a 1-dim TensorCPU with int value of 1 or -1.
-*Outputs* | 
+*Outputs* |
 `loss` | The output loss with the same dimensionality as X1.
 
 
@@ -4874,14 +4876,14 @@ Matrix multiplication Y = A * B, where A has size (M x K), B has size (K x N), a
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `trans_a` | Pass 1 to transpose A before multiplication
 `trans_b` | Pass 1 to transpose B before multiplication
-*Inputs* | 
+*Inputs* |
 `A` | 2D matrix of size (M x K)
 `B` | 2D matrix of size (K x N)
-*Outputs* | 
+*Outputs* |
 `Y` | 2D matrix of size (M x N)
 
 
@@ -4914,10 +4916,10 @@ Element-wise max of each of the input tensors. The first input tensor can be use
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data_0` | First of the input tensors. Can be inplace.
-*Outputs* | 
+*Outputs* |
 `max` | Output tensor. Same dimension as inputs.
 
 
@@ -4963,16 +4965,16 @@ No documentation yet.
 
 
 MaxPool consumes an input blob X and applies max pooling across the the blob according to kernel sizes, stride sizes, and pad lengths defined by the ConvPoolOpBase operator. Max pooling consisting of taking the maximumvalue of a subset of the input tensor according to the kernel size and downsampling the data into the output blob Y for further processing.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
-`X` | Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case. 
-*Outputs* | 
+`X` | Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case.
+*Outputs* |
 `Y` | Output data tensor from max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.
 
 
@@ -5049,14 +5051,14 @@ Performs element-wise binary multiplication (with limited broadcast support).
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand, should share the type with the second operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and type as A
 
 
@@ -5089,11 +5091,11 @@ Respectively compute accuracy score for each class given a number of instances a
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `prediction` | 2-D float tensor (N,D,) of predicted scores of each class for each data. N is the number of instances, i.e., batch size. D is number of possible classes/labels.
 `labels` | 1-D int tensor (N,) of labels for each instance.
-*Outputs* | 
+*Outputs* |
 `accuracies` | 1-D float tensor (D,) of accuracy for each class. If a class has no instance in the batch, its accuracy score is set to zero.
 `amounts` | 1-D int tensor (D,) of number of instances for each class in the batch.
 
@@ -5127,10 +5129,10 @@ The operator switches the order of data in a tensor from NCHW- sample index N, c
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | The input data (Tensor<float>) in the NCHW order.
-*Outputs* | 
+*Outputs* |
 `output` | The output tensor (Tensor<float>) in the NHWC order.
 
 
@@ -5163,10 +5165,10 @@ The operator switches the order of data in a tensor from NHWC- sample index N, h
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | The input data (Tensor<float>) in the NHWC order.
-*Outputs* | 
+*Outputs* |
 `output` | The output tensor (Tensor<float>) in the NCHW order.
 
 
@@ -5199,10 +5201,10 @@ Computes the element-wise negative of the input.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | 1D input tensor
-*Outputs* | 
+*Outputs* |
 `Y` | 1D input tensor
 
 
@@ -5277,10 +5279,10 @@ Performs element-wise negation.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | Input tensor of type `bool`.
-*Outputs* | 
+*Outputs* |
 `Y` | Output tensor of type `bool`.
 
 
@@ -5313,11 +5315,11 @@ Given a sequence of indices, one for each example in a batch, returns a matrix w
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `indices` | The active index for each example in the batch.
 `index_size_tensor` | Scalar with the size of the index.
-*Outputs* | 
+*Outputs* |
 `one_hots` | Matrix of size len(indices) x index_size
 
 
@@ -5362,14 +5364,14 @@ Both input operands should be of type  `bool` .
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and A and type `bool`
 
 
@@ -5396,17 +5398,17 @@ Both input operands should be of type  `bool` .
 
 
  PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one output data (Tensor<T>) where the function  `f(x) = slope * x for x < 0` ,  `f(x) = x for x >= 0` ., is applied to the data tensor elementwise.
- 
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | 1D input tensor
 `Slope` | 1D slope tensor. If `Slope` is of size 1, the value is sharedacross different channels
-*Outputs* | 
+*Outputs* |
 `Y` | 1D input tensor
 
 
@@ -5431,7 +5433,7 @@ Both input operands should be of type  `bool` .
 
 
  PReluGradient takes both Y and dY and uses this to update dX and dW according to the chain rule and derivatives of the rectified linear function.
- 
+
 
 
 ### Code
@@ -5458,13 +5460,13 @@ Map N dim tensor to N+1 dim based on length blob. Sequences that     are shorter
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `pad_minf` | Padding number in the packed segments. Use true to pad     -infinity, otherwise pad zeros
-*Inputs* | 
+*Inputs* |
 `lengths` | 1-d int/long tensor contains the length in each of the output.
 `tensor` | N dim Tensor.
-*Outputs* | 
+*Outputs* |
 `packed_tensor` | N + 1 dim Tesorwhere dim(1) is the max length, dim(0) is the batch size.
 
 
@@ -5496,10 +5498,10 @@ Pad empty field given lengths and index features,  Input(0) is a blob pointing t
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `lengths` | A blob containing a pointer to the lengths.
-*Outputs* | 
+*Outputs* |
 `out_lengths` | Tensor containing lengths with empty sample padded.
 
 
@@ -5524,16 +5526,16 @@ Pad empty field given lengths and index features,  Input(0) is a blob pointing t
 
 
 PadImage pads values around the boundary of an image according to the pad values and stride sizes defined by the ConvPoolOpBase operator.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
-`X` | Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case. 
-*Outputs* | 
+`X` | Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case.
+*Outputs* |
 `Y` | Output data tensor from padding the H and W dimensions on the tensor. Dimensions will vary based on various pad and stride sizes.
 
 
@@ -5582,17 +5584,17 @@ No documentation yet.
 ## PairWiseLoss
 
 
-Operator computes the pair wise loss between all pairs within a batch  using the logit loss function on the difference in scores between pairs 
+Operator computes the pair wise loss between all pairs within a batch  using the logit loss function on the difference in scores between pairs
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | Input blob from the previous layer, which is almost always the result of a softmax operation; X is a 2D array of size N x 1where N is the batch size. For more info: D. Sculley, Large Scale Learning to Rank. https://www.eecs.tufts.edu/~dsculley/papers/large-scale-rank.pdf
 `label` | Blob containing the labels used to compare the input
-*Outputs* | 
+*Outputs* |
 `Y` | Output blob after the cross entropy computation
 
 
@@ -5641,18 +5643,18 @@ Splits the input int tensor into multiple ones according to the first tensor.
  Takes the first input and partitions it to shards according to the remainder of values modulo the number of partitions. It requires that the first tensor is of integral type. The number of partitions is derived as (num_output / num_input).
  If additional inputs are present they must have the same shape as the first input, optionally with extra trailing dimensions. They will be partitioned accordingly to the first input.
  Optional arg 'pack_first_input' transforms the first tensor values as X_ij / num_partitions.
- Outputs are ordered as X_0_part_0, X_1_part_0, ..., X_N-1_part_0, X_0_part_1, ..., X_N-1_part_K-1 
+ Outputs are ordered as X_0_part_0, X_1_part_0, ..., X_N-1_part_0, X_0_part_1, ..., X_N-1_part_K-1
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `pack_first_input` | (int, default 0) If set, the operator transforms the first tensor values as floor(X_ij / num_partitions)
-*Inputs* | 
+*Inputs* |
 `input` | Input tensor containing data to be partitioned. The number of input tensors might be greater than 1 but must have the same shape as the previous tensors.
-*Outputs* | 
+*Outputs* |
 `partitions` | Output Partitions. The number of output tensors has to be a multiple of the number of input tensors.
 
 
@@ -5684,10 +5686,10 @@ Perplexity takes a 1-D tensor containing a batch of probabilities. Each value in
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `probabilities` | The input data as Tensor. It contains a batch oftrue label or target probabilities
-*Outputs* | 
+*Outputs* |
 `output` | The output- a single (float) perplexity value for the batch
 
 
@@ -5720,16 +5722,16 @@ PiecewiseLinearTransform takes one inputs- predictions, a 2-D tensor (Tensor<flo
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `bounds` | 1-D vector of size (prediction_dimensions x (pieces+1)) contain the upper bounds of each piece of linear function. One special case is the first bound is the lower bound of whole piecewise function and we treat it the same as the left most functions
 `slopes` | 1-D vector of size (prediction_dimensions x pieces) containing the slopes of linear function
 `intercepts` | 1-D vector of size (prediction_dimensions x pieces) containing the intercepts of linear function
 `pieces` | int value for the number of pieces for the piecewise linear function
 `binary` | If set true, we assume the input is a Nx2 tensor. Its first column is negative predictions and second column is positive and negative + positive = 1. We just need one set of transforms for the positive column.
-*Inputs* | 
+*Inputs* |
 `predictions` | 2-D tensor (Tensor<float>) of size (num_batches x num_classes) containing scores
-*Outputs* | 
+*Outputs* |
 `transforms` | 2-D tensor (Tensor<float>) of size (num_batches x num_classes) containing transformed predictions
 
 
@@ -5758,10 +5760,10 @@ Logs shape and contents of input tensor to stderr or to a file.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `to_file` | (bool) if 1, saves contents to the root folder of the current workspace, appending the tensor contents to a file named after the blob name. Otherwise, logs to stderr.
-*Inputs* | 
+*Inputs* |
 `tensor` | The tensor to print.
 
 
@@ -5794,11 +5796,11 @@ QPSMetric operator syncronously updates metric storedcreate a blob that will sto
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `QPS_METRIC_STATE` | Input Blob QPSMetricState, that needs to be updated
 `INPUT_BATCH` | Input Blob containing a tensor with batch of the examples. First dimension of the batch will be used to get the number of examples in the batch.
-*Outputs* | 
+*Outputs* |
 `output` | Blob with QPSMetricState
 
 
@@ -5829,7 +5831,7 @@ QPSMetricReport operator that syncronously consumes the QPSMetricState blob and 
 ### Interface
 
 
-*Outputs* | 
+*Outputs* |
 ---- | ----
 `output` | Blob with QPSMetricState
 
@@ -5886,13 +5888,13 @@ Read the next batch of examples out of the given cursor and data blobs.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `batch_size` | Number of top-level entries to read.
-*Inputs* | 
+*Inputs* |
 `cursor` | A blob containing a pointer to the cursor.
 `dataset_field_0` | First dataset field
-*Outputs* | 
+*Outputs* |
 `field_0` | Tensor containing the next batch for field 0.
 
 
@@ -5925,15 +5927,15 @@ Read the next batch of examples out of the given cursor, idx blob, offset matrix
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `batch_size` | Number of top-level entries to read.
-*Inputs* | 
+*Inputs* |
 `cursor` | A blob containing a pointer to the cursor.
 `idx` | idx with a shuffled order.
 `offsetsmat` | offset matrix containing length offset info.
 `dataset_field_0` | First dataset field
-*Outputs* | 
+*Outputs* |
 `field_0` | Tensor containing the next batch for field 0.
 
 
@@ -5964,17 +5966,17 @@ Receives the tensor from another node.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `src` | (int) he rank to receive the tensor from.
 `tag` | (int) a tag to receive the tensor with.
 `raw_buffer` | (bool) if set, only send the content and assume that the receiver has already known the tensor's shape and information.
-*Inputs* | 
+*Inputs* |
 `comm_world` | The common world.
 `Y` | In-place output. If raw_buffer is specified, Y should have pre-allocated data and type..
 `src` | An int CPUtensor of size 1 specifying the rank. If given, this overrides the 'from' argument of the op.
 `tag` | An int CPUtensor of size 1 specifying the tag to send the tensor with. This overrides the 'tag' argument of the op.
-*Outputs* | 
+*Outputs* |
 `Y` | The received tensor.
 `src` | The sender that sent the message as a CPUTensor of size 1 and of type int.
 `tag` | The tag that the message is sent with as a CPUTensor of size 1 and of type int.
@@ -6013,7 +6015,7 @@ Receives the tensor from another node.
  - Finally, alias the recurrent states to the specified output blobs.
  This is a fairly special-case meta-operator, and so the implementation is somewhat complex. It trades of generality (and frankly usability) against performance and control (compared to e.g. TF dynamic_rnn, Theano scan, etc).
  See the usage examples for a flavor of how to use it.
- 
+
 
 
 ### Code
@@ -6067,13 +6069,13 @@ Does a reduce operation from every node to the root node. Currently only Sum is 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `root` | (int, default 0) the root to run reduce into.
-*Inputs* | 
+*Inputs* |
 `comm_world` | The common world.
 `X` | A tensor to be reduced.
-*Outputs* | 
+*Outputs* |
 `Y` | The reduced result on root, not set for other nodes.
 
 
@@ -6101,16 +6103,16 @@ Does a reduce operation from every node to the root node. Currently only Sum is 
 
 Reduces the input tensor along the first dimension of the input tensor by applying 'Mean'. This op acts in a similar way to SortedSegmentMean and UnsortedSegmentMean but as if all input slices belong to a single segment.
  Mean computes the element-wise mean of the input slices. Operation doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor to be reduced on the first dimension
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated tensor
 
 
@@ -6157,16 +6159,16 @@ No documentation yet.
 
 Reduces the input tensor along the first dimension of the input tensor by applying 'Sum'. This op acts in a similar way to SortedSegmentSum and UnsortedSegmentSum but as if all input slices belong to a single segment.
  Summation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor to be reduced on the first dimension
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated tensor
 
 
@@ -6213,19 +6215,19 @@ No documentation yet.
 
 Reduces the input tensor along the first dimension of the input tensor by applying 'WeightedSum'. This op acts in a similar way to SortedSegmentWeightedSum and UnsortedSegmentWeightedSum but as if all input slices belong to a single segment.
  Input slices are first scaled by SCALARS and then summed element-wise. It doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
-*Inputs* | 
+*Inputs* |
 `DATA` | Input tensor for the summation
 `SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated tensor
 
 
@@ -6270,16 +6272,16 @@ No documentation yet.
 ## ReduceTailSum
 
 
-Reduce the tailing dimensions 
+Reduce the tailing dimensions
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `mat` | The matrix
-*Outputs* | 
+*Outputs* |
 `output` | Output
 
 
@@ -6310,10 +6312,10 @@ Relu takes one input data (Tensor<T>) and produces one output data (Tensor<T>) w
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | 1D input tensor
-*Outputs* | 
+*Outputs* |
 `Y` | 1D input tensor
 
 
@@ -6373,17 +6375,17 @@ ReluGradient takes both Y and dY and uses this to update dX according to the cha
 
 
 Shrink the data tensor by removing data blocks with given zero-based indices in the outermost dimension of the tensor. Indices are not assumed in any order or unique but with the range [0, blocks_size). Indices could be empty.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | a N-D data tensor, N >= 1
 `indices` | zero-based indices of blocks to be removed
-*Outputs* | 
+*Outputs* |
 `shrunk data` | data after removing data blocks indexed by 'indices'
 
 
@@ -6414,14 +6416,14 @@ Remove padding around the edges of each segment of the input data. This is the r
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `padding_width` | Outer-size of padding to remove around each range.
 `end_padding_width` | (Optional) Specifies a different end-padding width.
-*Inputs* | 
+*Inputs* |
 `data_in` | T<N, D1..., Dn> Input data
 `lengths` | (i64) Num of elements in each range. sum(lengths) = N. If not provided, considers all data as a single segment.
-*Outputs* | 
+*Outputs* |
 `data_out` | (T<N - 2*padding_width, D1..., Dn>) Unpadded data.
 `lengths_out` | (i64, optional) Lengths for each unpadded range.
 
@@ -6453,12 +6455,12 @@ Resets a count-down counter with initial value specified by the 'init_count' arg
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `init_count` | Resets counter to this value, must be >= 0.
-*Inputs* | 
+*Inputs* |
 `counter` | A blob pointing to an instance of a new counter.
-*Outputs* | 
+*Outputs* |
 `previous_value` | (optional) Previous value of the counter.
 
 
@@ -6491,7 +6493,7 @@ Resets the offsets for the given TreeCursor. This operation is thread safe.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `cursor` | A blob containing a pointer to the cursor.
 
@@ -6527,13 +6529,13 @@ It outputs the reshaped tensor as well as the original shape.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `shape` | New shape
-*Inputs* | 
+*Inputs* |
 `data` | An input tensor.
 `new_shape` | New shape.
-*Outputs* | 
+*Outputs* |
 `reshaped` | Reshaped data.
 `old_shape` | Original shape.
 
@@ -6567,11 +6569,11 @@ Produces tensor condaining data of first input and shape of second input.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | Tensor whose data will be copied into the output.
 `shape_tensor` | Tensor whose shape will be applied to output.
-*Outputs* | 
+*Outputs* |
 `output` | Tensor with data of input 0 and shape of input 1.
 
 
@@ -6604,10 +6606,10 @@ Retrieve the current value from the counter.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `counter` | A blob pointing to an instance of a counter.
-*Outputs* | 
+*Outputs* |
 `count` | current count value.
 
 
@@ -6634,17 +6636,17 @@ Retrieve the current value from the counter.
 
 
 Reverse segments in a 3-D tensor (lengths, segments, embeddings,), leaving paddings unchanged. This operator is used to reverse input of a recurrent neural network to make it a BRNN.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | a 3-D (lengths, segments, embeddings,) tensor.
 `lengths` | length of each segment.
-*Outputs* | 
+*Outputs* |
 `reversed data` | a (lengths, segments, embeddings,) tensor with each segment reversedand paddings unchanged.
 
 
@@ -6682,17 +6684,17 @@ Depending on the mode, there are multiple output cases:
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `is_test` | If set, run in test mode and skip computation of argmaxes (used for gradient computation). Only one output tensor is produced. (Default: false).
 `order` | A StorageOrder string (Default: "NCHW").
 `pooled_h` | The pooled output height (Default: 1).
 `pooled_w` | The pooled output width (Default: 1).
 `spatial_scale` | Multiplicative spatial scale factor to translate ROI coords from their input scale to the scale used when pooling (Default: 1.0).
-*Inputs* | 
+*Inputs* |
 `X` | The input 4-D tensor of data. Only NCHW order is currently supported.
 `rois` | RoIs (Regions of Interest) to pool over. Should be a 2-D tensor of shape (num_rois, 5) given as [[batch_id, x1, y1, x2, y2], ...].
-*Outputs* | 
+*Outputs* |
 `Y` | RoI pooled output 4-D tensor of shape (num_rois, channels, pooled_h, pooled_w).
 `argmaxes` | Argmaxes corresponding to indices in X used for gradient computation. Only output if arg "is_test" is false.
 
@@ -6749,11 +6751,11 @@ Given a matrix A and column vector w, the output is the multiplication of row i 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `mat` | The matrix
 `w` | The column vector
-*Outputs* | 
+*Outputs* |
 `output` | Output
 
 
@@ -6784,7 +6786,7 @@ The Save operator saves a set of blobs to a db. It takes [1, infinity) number of
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `absolute_path` | (int, default 0) if set, use the db path directly and do not prepend the current root folder of the workspace.
 `strip_regex` | (string, default="") if set, characters in the provided blob  names that match the regex will be removed prior to saving. Useful  for removing device scope from blob names.
@@ -6821,7 +6823,7 @@ Scale takes one input data (Tensor<float>) and produces one output data (Tensor<
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `scale` | (float, default 1.0) the scale to apply.
 
@@ -6858,12 +6860,12 @@ Update slices of the tensor in-place by overriding current value.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Tensor to be updated.
 `INDICES` | 1-D list of indices on the first dimensionof X_0 that need to be updated
 `SLICES` | Update slices, with shape len(INDICES) + shape(X_0)[1:]
-*Outputs* | 
+*Outputs* |
 `DATA` | Has to be exactly the same tensor as the input 0
 
 
@@ -6898,14 +6900,14 @@ Similar to WeightedSum, computes the weighted sum of several tensors, with the d
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X_0` | Tensor to be updated.
 `Weight_0` | Scalar weight for X_0, applied only to slices affected.
 `INDICES` | 1-D list of indices on the first dimension of X_0 that need to be updated
 `X_1` | Update slices, with shape len(INDICES) + shape(X_0)[1:]
 `Weight_1` | Scalar weight for X_1 update
-*Outputs* | 
+*Outputs* |
 `X_0` | Has to be exactly the same tensor as the input 0
 
 
@@ -6937,11 +6939,11 @@ Transfers a vector of segment ids to a vector of segment lengths. This operation
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `segment_ids` | 1-D int32_t or int64_t tensor of segment ids
 `data (optional)` | if provided, number of segments = the size of its first dimension
-*Outputs* | 
+*Outputs* |
 `lengths` | 1-D int64_t tensor of segment lengths
 
 
@@ -6972,11 +6974,11 @@ Transfers a vector of segment ids to a vector of segment ranges. This operation 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `segment_ids` | 1-D int32_t or int64_t tensor of segment ids
 `data (optional)` | if provided, number of segments = the size of its first dimension
-*Outputs* | 
+*Outputs* |
 `lengths` | 1-D int64_t tensor of segment lengths
 
 
@@ -7007,12 +7009,12 @@ Given a sequence of indices, segmented by the lengths tensor, returns a matrix t
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `lengths` | Size of each segment.
 `indices` | Active indices, of size sum(lengths)
 `index_size_tensor` | Size of the index
-*Outputs* | 
+*Outputs* |
 `one_hots` | Matrix of size len(lengths) x index_size
 
 
@@ -7043,12 +7045,12 @@ Sends the tensor to another node.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `dst` | The rank to send the tensor to.
 `tag` | (int) a tag to send the tensor with.
 `raw_buffer` | (bool) if set, only send the content and assume that the receiver has already known the tensor's shape and information.
-*Inputs* | 
+*Inputs* |
 `comm_world` | The common world.
 `X` | A tensor to be allgathered.
 `dst` | An int CPUtensor of size 1 specifying the rank. If given, this overrides the 'to' argument of the op.
@@ -7105,10 +7107,10 @@ Sigmoid takes one input data (Tensor<T>) and produces one output data (Tensor<T>
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | 1D input tensor
-*Outputs* | 
+*Outputs* |
 `Y` | 1D output tensor
 
 
@@ -7142,11 +7144,11 @@ Returns a tensor of shape (batch_size,) of losses for each example.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `logits` | matrix of logits for each example and class.
 `targets` | matrix of targets, same shape as logits.
-*Outputs* | 
+*Outputs* |
 `xentropy` | Vector with the total xentropy for each example.
 
 
@@ -7240,12 +7242,12 @@ Slices are passed as 2 1D vectors with starting and end indices for each dimensi
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | Tensor of data to extract slices from.
 `starts` | 1D tensor: start-indices for each dimension of data.
 `ends` | 1D tensor: end-indices for each dimension of data.
-*Outputs* | 
+*Outputs* |
 `output` | Sliced data tensor.
 
 
@@ -7276,10 +7278,10 @@ The operator computes the softmax normalized values for each layer in the batch 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | The input data as 2-D Tensor<float>.
-*Outputs* | 
+*Outputs* |
 `output` | The softmax normalized output values with the same shape as input tensor.
 
 
@@ -7341,7 +7343,7 @@ The operator computes the softmax normalized values for each layer in the batch 
 The inputs are a 2-D tensor (Tensor<float>) of size (batch_size x input_feature_dimensions) and tensor of labels (ground truth).
 Output is tensor with the probability for each label for each example (N x D) and averaged loss (scalar). Use parameter spatial=1 to enable spatial softmax.
 Spatial softmax also supports special \"don't care\" label (-1) that is ignored when computing the loss.
-Use parameter label_prob=1 to enable inputting labels as a probability distribution. 
+Use parameter label_prob=1 to enable inputting labels as a probability distribution.
 
 ```
   Currently does not handle spatial=1 case.
@@ -7403,10 +7405,10 @@ Calculates the softsign (x/1+|x|) of the given input tensor element-wise. This o
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | 1-D input tensor
-*Outputs* | 
+*Outputs* |
 `output` | The softsign (x/1+|x|) values of the input tensor computed element-wise
 
 
@@ -7439,11 +7441,11 @@ Calculates the softsign gradient (sgn(x)/(1+|x|)^2) of the given input tensor el
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | 1-D input tensor
 `input` | 1-D input tensor
-*Outputs* | 
+*Outputs* |
 `output` | The softsign gradient (sgn(x)/(1+|x|)^2) values of the input tensor computed element-wise
 
 
@@ -7478,11 +7480,11 @@ Compute the sorted indices given a field index to sort by and break the sorted i
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `cursor` | A blob containing a pointer to the cursor.
 `dataset_field_0` | First dataset field
-*Outputs* | 
+*Outputs* |
 `indices` | Tensor containing sorted indices.
 
 
@@ -7510,17 +7512,17 @@ Applies 'Mean' to each segment of input tensor. Segments need to be sorted and c
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  Mean computes the element-wise mean of the input slices. Operation doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `SEGMENT_IDS` | Vector with the same length as the first dimension of DATA and values in the range 0..K-1 and in increasing order that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
 
 
@@ -7569,17 +7571,17 @@ Applies 'LogMeanExp' to each segment of input tensor. In order to allow for more
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  LogMeanExp computes the element-wise log of the mean of exponentials of input slices. Operation doesn't change the shape of individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor to be aggregated
 `SEGMENT_IDS` | Vector with the same length as the first dimension of DATA and values in the range 0..K-1 and in increasing order that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated tensor with the first dimension of K and the other dimentsions inherited from DATA
 
 
@@ -7628,17 +7630,17 @@ Applies 'LogSumExp' to each segment of input tensor. In order to allow for more 
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  LogSumExp computes the element-wise log of the sum of exponentials of input slices. Operation doesn't change the shape of individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor to be aggregated
 `SEGMENT_IDS` | Vector with the same length as the first dimension of DATA and values in the range 0..K-1 and in increasing order that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated tensor with the first dimension of K and the other dimentsions inherited from DATA
 
 
@@ -7687,17 +7689,17 @@ Applies 'Max' to each segment of input tensor. In order to allow for more effici
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  Max computation is done element-wise, so that each element of the output slice corresponds to the max value of the respective elements in the input slices. Operation doesn't change the shape of individual blocks. This implementation imitates torch nn.Max operator. If the maximum value occurs more than once, the operator will return the first occurence of value. When computing the gradient using the backward propagation, the gradient input corresponding to the first occurence of the maximum value will be used.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor to be aggregated
 `SEGMENT_IDS` | Vector with the same length as the first dimension of DATA and values in the range 0..K-1 and in increasing order that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated tensor with the first dimension of K and the other dimentsions inherited from DATA
 
 
@@ -7746,17 +7748,17 @@ Applies 'Mean' to each segment of input tensor. In order to allow for more effic
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  Mean computation is done element-wise, so that each element of the output slice corresponds to the average value of the respective elements in the input slices. Operation doesn't change the shape of individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor to be aggregated
 `SEGMENT_IDS` | Vector with the same length as the first dimension of DATA and values in the range 0..K-1 and in increasing order that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated tensor with the first dimension of K and the other dimentsions inherited from DATA
 
 
@@ -7805,17 +7807,17 @@ Applies 'Sum' to each segment of input tensor. In order to allow for more effici
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  Summation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor to be aggregated
 `SEGMENT_IDS` | Vector with the same length as the first dimension of DATA and values in the range 0..K-1 and in increasing order that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated tensor with the first dimension of K and the other dimentsions inherited from DATA
 
 
@@ -7864,17 +7866,17 @@ Applies 'Sum' to each segment of input tensor. Segments need to be sorted and co
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  Summation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `SEGMENT_IDS` | Vector with the same length as the first dimension of DATA and values in the range 0..K-1 and in increasing order that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
 
 
@@ -7923,20 +7925,20 @@ Applies 'WeightedSum' to each segment of input tensor. Segments need to be sorte
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  Input slices are first scaled by SCALARS and then summed element-wise. It doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
-*Inputs* | 
+*Inputs* |
 `DATA` | Input tensor for the summation
 `SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
 `SEGMENT_IDS` | Vector with the same length as the first dimension of DATA and values in the range 0..K-1 and in increasing order that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
 
 
@@ -7983,7 +7985,7 @@ No documentation yet.
 
  SpaceToBatch for 4-D tensors of type T.
  Zero-pads and then rearranges (permutes) blocks of spatial data into batch. More specifically, this op outputs a copy of the input tensor where values from the height and width dimensions are moved to the batch dimension. After the zero-padding, both height and width of the input must be divisible by the block size.
- 
+
 
 
 ### Code
@@ -8013,18 +8015,18 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Mean
  LENGTHS is a vector that defines slice sizes by first dimention of DATA. Values belonging to the same segment are aggregated together. sum(LENGTHS) has to match INDICES size.
  The first dimension of the output is equal to the number of input segment, i.e.  `len(LENGTHS)` . Other dimensions are inherited from the input tensor.
  Mean computes the element-wise mean of the input slices. Operation doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `LENGTHS` | Non negative vector with sum of elements equal to INDICES length
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
 
 
@@ -8075,18 +8077,18 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Sum'
  LENGTHS is a vector that defines slice sizes by first dimention of DATA. Values belonging to the same segment are aggregated together. sum(LENGTHS) has to match INDICES size.
  The first dimension of the output is equal to the number of input segment, i.e.  `len(LENGTHS)` . Other dimensions are inherited from the input tensor.
  Summation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `LENGTHS` | Non negative vector with sum of elements equal to INDICES length
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
 
 
@@ -8137,21 +8139,21 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Weig
  LENGTHS is a vector that defines slice sizes by first dimention of DATA. Values belonging to the same segment are aggregated together. sum(LENGTHS) has to match INDICES size.
  The first dimension of the output is equal to the number of input segment, i.e.  `len(LENGTHS)` . Other dimensions are inherited from the input tensor.
  Input slices are first scaled by SCALARS and then summed element-wise. It doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
-*Inputs* | 
+*Inputs* |
 `DATA` | Input tensor for the summation
 `SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `LENGTHS` | Non negative vector with sum of elements equal to INDICES length
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
 
 
@@ -8223,18 +8225,18 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Mean
  SEGMENT_IDS is a vector that maps each referenced slice of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together. SEGMENT_IDS should have the same dimension as INDICES.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  Mean computes the element-wise mean of the input slices. Operation doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `SEGMENT_IDS` | Vector with the same length as INDICES and values in the range 0..K-1 and in increasing order that maps each slice of DATA referenced by INDICES to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
 
 
@@ -8285,18 +8287,18 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Sum'
  SEGMENT_IDS is a vector that maps each referenced slice of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together. SEGMENT_IDS should have the same dimension as INDICES.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  Summation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `SEGMENT_IDS` | Vector with the same length as INDICES and values in the range 0..K-1 and in increasing order that maps each slice of DATA referenced by INDICES to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
 
 
@@ -8347,21 +8349,21 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Weig
  SEGMENT_IDS is a vector that maps each referenced slice of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together. SEGMENT_IDS should have the same dimension as INDICES.
  The first dimension of the output is equal to the number of input segments, i.e.  `SEGMENT_IDS[-1]+1` . Other dimensions are inherited from the input tensor.
  Input slices are first scaled by SCALARS and then summed element-wise. It doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
-*Inputs* | 
+*Inputs* |
 `DATA` | Input tensor for the summation
 `SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `SEGMENT_IDS` | Vector with the same length as INDICES and values in the range 0..K-1 and in increasing order that maps each slice of DATA referenced by INDICES to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
 
 
@@ -8413,12 +8415,12 @@ Convert sparse representations to dense with given indices.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `indices` | 1-D int32/int64 tensor of concatenated ids of data
 `values` | Data tensor, first dimension has to match `indices`
 `data_to_infer_dim` | Optional: if provided, the first dimension of output is the first dimension of this tensor.
-*Outputs* | 
+*Outputs* |
 `output` | Output tensor of the same type as `values` of shape `[len(lengths), len(mask)] + shape(default_value)` (if `lengths` is not provided the first dimension is omitted)
 
 
@@ -8451,15 +8453,15 @@ Convert sparse representations to dense with given indices.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `mask` | list(int) argument with desired ids on the 'dense' output dimension
-*Inputs* | 
+*Inputs* |
 `indices` | 1-D int32/int64 tensor of concatenated ids of data
 `values` | Data tensor, first dimension has to match `indices`
 `default_value` | Default value for the output if the id is not present in `indices`. Must have the same type as `values` and the same shape, but without the first dimension
 `lengths` | Optional lengths to represent a batch of `indices` and `values`.
-*Outputs* | 
+*Outputs* |
 `output` | Output tensor of the same type as `values` of shape `[len(lengths), len(mask)] + shape(default_value)` (if `lengths` is not provided the first dimension is omitted)
 
 
@@ -8489,18 +8491,18 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Mean
  SEGMENT_IDS is a vector that maps each referenced slice of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together. SEGMENT_IDS should have the same dimension as INDICES.
  If  `num_segments`  argument is passed it would be used as a first dimension for the output. Otherwise, it'd be dynamically calculated from as the max value of SEGMENT_IDS plus one. Other output dimensions are inherited from the input tensor.
  Mean computes the element-wise mean of the input slices. Operation doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `SEGMENT_IDS` | Integer vector with the same length as INDICES that maps each slice of DATA referenced by INDICES to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of equal to the number of segments.
 
 
@@ -8551,18 +8553,18 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Sum'
  SEGMENT_IDS is a vector that maps each referenced slice of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together. SEGMENT_IDS should have the same dimension as INDICES.
  If  `num_segments`  argument is passed it would be used as a first dimension for the output. Otherwise, it'd be dynamically calculated from as the max value of SEGMENT_IDS plus one. Other output dimensions are inherited from the input tensor.
  Summation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `DATA` | Input tensor, slices of which are aggregated.
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `SEGMENT_IDS` | Integer vector with the same length as INDICES that maps each slice of DATA referenced by INDICES to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of equal to the number of segments.
 
 
@@ -8613,21 +8615,21 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Weig
  SEGMENT_IDS is a vector that maps each referenced slice of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together. SEGMENT_IDS should have the same dimension as INDICES.
  If  `num_segments`  argument is passed it would be used as a first dimension for the output. Otherwise, it'd be dynamically calculated from as the max value of SEGMENT_IDS plus one. Other output dimensions are inherited from the input tensor.
  Input slices are first scaled by SCALARS and then summed element-wise. It doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
-*Inputs* | 
+*Inputs* |
 `DATA` | Input tensor for the summation
 `SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `SEGMENT_IDS` | Integer vector with the same length as INDICES that maps each slice of DATA referenced by INDICES to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of equal to the number of segments.
 
 
@@ -8678,24 +8680,24 @@ Carries out spatial batch normalization as described in the paper  [https://arxi
                 (training mode)
 ```
 
- Output case #2: Y (test mode) 
+ Output case #2: Y (test mode)
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `is_test` | If set to nonzero, run spatial batch normalization in test mode.
 `epsilon` | The epsilon value to use to avoid division by zero.
 `order` | A StorageOrder string.
-*Inputs* | 
+*Inputs* |
 `X` | The input 4-dimensional tensor of shape NCHW or NHWC depending on the order parameter.
 `scale` | The scale as a 1-dimensional tensor of size C to be applied to the output.
 `bias` | The bias as a 1-dimensional tensor of size C to be applied to the output.
 `mean` | The running mean (training) or the estimated mean (testing) as a 1-dimensional tensor of size C.
 `var` | The running variance (training) or the estimated variance (testing) as a 1-dimensional tensor of size C.
-*Outputs* | 
+*Outputs* |
 `Y` | The output 4-dimensional tensor of the same shape as X.
 `mean` | The running mean after the spatial BN operator. Must be in-place with the input mean. Should not be used for testing.
 `var` | The running variance after the spatial BN operator. Must be in-place with the input var. Should not be used for testing.
@@ -8761,7 +8763,7 @@ Split a tensor into a list of tensors.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `axis` | Which axis to split on
 `order` | Either NHWC or NCWH, will split on C axis
@@ -8828,23 +8830,23 @@ Given DATA tensor with first dimention N and SCALE vector of the same size N pro
 ## SquaredL2Distance
 
 
- 
+
 
 ```
   Given two input float tensors X, Y, and produces one output float tensor
   of the L2 difference between X and Y that is computed as ||(X - Y)^2 / 2||.
 ```
 
-   
+
 
 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `X` | 1D input tensor
-*Outputs* | 
+*Outputs* |
 `Y` | 1D input tensor
 
 
@@ -8894,7 +8896,7 @@ No documentation yet.
 
 
 Remove single-dimensional entries from the shape of a tensor.
-Takes a 
+Takes a
 
 ```
   parameter `dims` with a list of dimension to squeeze.
@@ -8908,10 +8910,10 @@ This is the exact inverse operation of ExpandDims given the same  `dims`  arg.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data` | Tensors with at least max(dims) dimensions.
-*Outputs* | 
+*Outputs* |
 `squeezed` | Reshaped tensor with same data as input.
 
 
@@ -8970,12 +8972,12 @@ Returns tensor of boolean of the same dimension of input.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `suffix` | The suffix to check input strings against.
-*Inputs* | 
+*Inputs* |
 `strings` | Tensor of std::string.
-*Outputs* | 
+*Outputs* |
 `bools` | Tensor of bools of same shape as input.
 
 
@@ -9006,10 +9008,10 @@ Creates a dictionary that maps string keys to consecutive integers from 1 to max
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `max_elements` | Max number of elements, including the zero entry.
-*Outputs* | 
+*Outputs* |
 `handle` | Pointer to an Index instance.
 
 
@@ -9040,12 +9042,12 @@ Takes a 1-D or a 2-D tensor as input and joins elements in each row with the pro
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `delimiter` | Delimiter for join (Default: ",").
-*Inputs* | 
+*Inputs* |
 `input` | 1-D or 2-D tensor
-*Outputs* | 
+*Outputs* |
 `strings` | 1-D tensor of strings created by joining row elements from the input tensor.
 
 
@@ -9078,12 +9080,12 @@ NOTE: Prefix is computed on number of bytes, which may lead to wrong behavior an
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `length` | Maximum size of the prefix, in bytes.
-*Inputs* | 
+*Inputs* |
 `strings` | Tensor of std::string.
-*Outputs* | 
+*Outputs* |
 `prefixes` | Tensor of std::string containing prefixes for each input.
 
 
@@ -9115,12 +9117,12 @@ Returns tensor of boolean of the same dimension of input.
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `prefix` | The prefix to check input strings against.
-*Inputs* | 
+*Inputs* |
 `strings` | Tensor of std::string.
-*Outputs* | 
+*Outputs* |
 `bools` | Tensor of bools of same shape as input.
 
 
@@ -9153,12 +9155,12 @@ NOTE: Prefix is computed on number of bytes, which may lead to wrong behavior an
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `length` | Maximum size of the suffix, in bytes.
-*Inputs* | 
+*Inputs* |
 `strings` | Tensor of std::string.
-*Outputs* | 
+*Outputs* |
 `suffixes` | Tensor of std::string containing suffixes for each output.
 
 
@@ -9202,14 +9204,14 @@ Performs element-wise binary subtraction (with limited broadcast support).
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand, should share the type with the second operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and type as A
 
 
@@ -9242,10 +9244,10 @@ Element-wise sum of each of the input tensors. The first input tensor can be use
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `data_0` | First of the input tensors. Can be inplace.
-*Outputs* | 
+*Outputs* |
 `sum` | Output tensor. Same dimension as inputs.
 
 
@@ -9299,12 +9301,12 @@ Summarize computes four statistics of the input tensor (Tensor<float>)- min, max
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `to_file` | (int, default 0) flag to indicate if the summarized statistics have to be written to a log file.
-*Inputs* | 
+*Inputs* |
 `data` | The input data as Tensor<float>.
-*Outputs* | 
+*Outputs* |
 `output` | 1-D tensor (Tensor<float>) of size 4 containing min, max, mean and standard deviation
 
 
@@ -9344,16 +9346,16 @@ The TT-layer serves as a low-rank decomposition of a fully connected layer. The 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `inp_sizes` | (int[]) Input sizes of cores. Indicates the input size of the individual cores; the size of the input vector X must match the product of the inp_sizes array.
 `out_sizes` | (int[]) Output sizes of cores. Indicates the output size of the individual cores; the size of the output vector Y must match the product of the out_sizes array.
 `tt_ranks` | (int[]) Ranks of cores. Indicates the ranks of the individual cores; lower rank means larger compression, faster computation but reduce accuracy.
-*Inputs* | 
+*Inputs* |
 `X` | Input tensor from previous layer with size (M x K), where M is the batch size and K is the input size.
 `b` | 1D blob containing the bias vector
 `cores` | 1D blob containing each individual cores with sizes specified above.
-*Outputs* | 
+*Outputs* |
 `Y` | Output tensor from previous layer with size (M x N), where M is the batch size and N is the output size.
 
 
@@ -9384,10 +9386,10 @@ Calculates the hyperbolic tangent of the given input tensor element-wise. This o
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `input` | 1-D input tensor
-*Outputs* | 
+*Outputs* |
 `output` | The hyperbolic tangent values of the input tensor computed element-wise
 
 
@@ -9443,12 +9445,12 @@ TensorProtosDBInput is a simple input operator that basically reads things from 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `batch_size` | (int, default 0) the number of samples in a batch. The default value of 0 means that the operator will attempt to insert the entire data in a single output blob.
-*Inputs* | 
+*Inputs* |
 `data` | A pre-initialized DB reader. Typically, this is obtained by calling CreateDB operator with a db_name and a db_type. The resulting output blob is a DB Reader tensor
-*Outputs* | 
+*Outputs* |
 `output` | The output tensor in which the batches of data are returned. The number of output tensors is equal to the size of (number of TensorProto's in) the TensorProtos objects stored in the DB as values. Each output tensor will be of size specified by the 'batch_size' argument of the operator
 
 
@@ -9479,10 +9481,10 @@ Read a batch of rows from the given text file reader instance. Expects the numbe
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `batch_size` | Maximum number of rows to read.
-*Inputs* | 
+*Inputs* |
 `handler` | Pointer to an existing TextFileReaderInstance.
 
 
@@ -9513,12 +9515,12 @@ Transpose the input tensor similar to numpy.transpose. For example, when axes=(1
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `axes` | A list of integers. By default, reverse the dimensions, otherwise permute the axes according to the values given.
-*Inputs* | 
+*Inputs* |
 `data` | An input tensor.
-*Outputs* | 
+*Outputs* |
 `transposed` | Transposed output.
 
 
@@ -9598,10 +9600,10 @@ There's no guarantees on the ordering of the output indices.
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `indices` | 1D tensor of int32 or int64 indices.
-*Outputs* | 
+*Outputs* |
 `unique_indices` | 1D tensor of deduped entries.
 
 
@@ -9633,7 +9635,7 @@ If the second input is given, its elements will be excluded from uniform samplin
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `min` | Minimum value, inclusive
 `max` | Maximum value, inclusive
@@ -9641,10 +9643,10 @@ If the second input is given, its elements will be excluded from uniform samplin
 `shape` | The shape of the output tensor.Cannot set the shape argument and pass in an input at the same time.
 `extra_shape` | The additional dimensions appended at the end of the shape indicatedby the input blob. Cannot set the extra_shape argument when there is no input blob.
 `input_as_shape` | 1D tensor containing the desired output shape
-*Inputs* | 
+*Inputs* |
 `input` | Input tensor to provide shape information
 `avoid` | (optional) Avoid elements in this tensor. Elements must be unique.
-*Outputs* | 
+*Outputs* |
 `output` | Output tensor of unique uniform samples
 
 
@@ -9673,11 +9675,11 @@ Map N+1 dim tensor to N dim based on length blob
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `lengths` | 1-d int/long tensor contains the length in each of the input.
 `tensor` | N+1 dim Tensor.
-*Outputs* | 
+*Outputs* |
 `packed_tensor` | N dim Tesor
 
 
@@ -9713,7 +9715,7 @@ biases in a deep CNN) to be coalesced into a single larger operation, amortizing
 ```
 
  This is 'unsafe' as the output vectors are aliased, so use with caution.
- 
+
 
 
 ### Code
@@ -9741,19 +9743,19 @@ Applies 'Mean' to each segment of input tensor. Segments ids can appear in arbit
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  If  `num_segments`  argument is passed it would be used as a first dimension for the output. Otherwise, it'd be dynamically calculated from as the max value of SEGMENT_IDS plus one. Other output dimensions are inherited from the input tensor.
  Mean computes the element-wise mean of the input slices. Operation doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `num_segments` | Optional int argument specifying the number of output segments and thus the first dimension of the output
-*Inputs* | 
+*Inputs* |
 `DATA` | Input tensor, slices of which are aggregated.
 `SEGMENT_IDS` | Integer vector with the same length as the first dimension of DATA that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of equal to the number of segments.
 
 
@@ -9802,19 +9804,19 @@ Applies 'Sum' to each segment of input tensor. Segments ids can appear in arbitr
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  If  `num_segments`  argument is passed it would be used as a first dimension for the output. Otherwise, it'd be dynamically calculated from as the max value of SEGMENT_IDS plus one. Other output dimensions are inherited from the input tensor.
  Summation is done element-wise across slices of the input tensor and doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `num_segments` | Optional int argument specifying the number of output segments and thus the first dimension of the output
-*Inputs* | 
+*Inputs* |
 `DATA` | Input tensor, slices of which are aggregated.
 `SEGMENT_IDS` | Integer vector with the same length as the first dimension of DATA that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of equal to the number of segments.
 
 
@@ -9863,21 +9865,21 @@ Applies 'WeightedSum' to each segment of input tensor. Segments ids can appear i
  SEGMENT_IDS is a vector that maps each of the first dimension slices of the DATA to a particular group (segment). Values belonging to the same segment are aggregated together.
  If  `num_segments`  argument is passed it would be used as a first dimension for the output. Otherwise, it'd be dynamically calculated from as the max value of SEGMENT_IDS plus one. Other output dimensions are inherited from the input tensor.
  Input slices are first scaled by SCALARS and then summed element-wise. It doesn't change the shape of the individual blocks.
-  
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `num_segments` | Optional int argument specifying the number of output segments and thus the first dimension of the output
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
-*Inputs* | 
+*Inputs* |
 `DATA` | Input tensor for the summation
 `SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
 `SEGMENT_IDS` | Integer vector with the same length as the first dimension of DATA that maps each slice of DATA to one of the segments
-*Outputs* | 
+*Outputs* |
 `OUTPUT` | Aggregated output tensor. Has the first dimension of equal to the number of segments.
 
 
@@ -9927,7 +9929,7 @@ Time since epoch in nanoseconds.
 ### Interface
 
 
-*Outputs* | 
+*Outputs* |
 ---- | ----
 `time` | The time in nanoseconds.
 
@@ -9960,10 +9962,10 @@ Input should be in the form X_0, weight_0, X_1, weight_1, ... where X_i all have
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `weight_0` | Weight of the first input in the sum.
-*Outputs* | 
+*Outputs* |
 `output` | Result containing weighted elem-wise sum of inputs.
 
 
@@ -10033,14 +10035,14 @@ Both input operands should be of type  `bool` .
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `broadcast` | Pass 1 to enable broadcasting
 `axis` | If set, defines the broadcast dimensions. See doc for details.
-*Inputs* | 
+*Inputs* |
 `A` | First operand.
 `B` | Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.
-*Outputs* | 
+*Outputs* |
 `C` | Result, has same dimensions and A and type `bool`
 
 
@@ -10075,21 +10077,21 @@ Both input operands should be of type  `bool` .
 ```
 
  and returns (new_param, new_history).
- 
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `epsilon` | Default 1e-5
-*Inputs* | 
+*Inputs* |
 `param` | Parameters to be updated
 `moment` | Moment history
 `grad` | Gradient computed
 `lr` | learning rate
-*Outputs* | 
+*Outputs* |
 `output_param` | Updated parameters
 `output_moment` | Updated moment
 
@@ -10136,19 +10138,19 @@ Both input operands should be of type  `bool` .
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `beta1` | Default 0.9
 `beta2` | Default 0.999
 `epsilon` | Default 1e-5
-*Inputs* | 
+*Inputs* |
 `param` | Parameters to be updated
 `moment_1` | First moment history
 `moment_2` | Second moment history
 `grad` | Gradient computed
 `lr` | learning rate
 `iter` | iteration number
-*Outputs* | 
+*Outputs* |
 `output_param` | Updated parameters
 `output_moment_1` | Updated first moment
 `output_moment_2` | Updated second moment
@@ -10183,7 +10185,7 @@ Similar to Iter, but takes a mutex as the first input to make sure that updates 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `mutex` | The mutex used to do atomic increment.
 `iter` | The iter counter as an int64_t TensorCPU.
@@ -10472,7 +10474,7 @@ No documentation yet.
 
  Output is (grad, momentum, parameter).
  Note the difference to MomentumSGD, which returns a new gradient but does not perform the parameter update.
- 
+
 
 
 ### Code
@@ -10578,7 +10580,7 @@ Concretely, given inputs (grad, mean_squares, mom, lr), computes:
 ```
 
  returns (grad_o, mean_squares_o, mom_o).
- 
+
 
 
 ### Code
@@ -10610,7 +10612,7 @@ The 1st input is the queue and the last output is the status. The rest are data 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `queue` | The shared pointer for the BlobsQueue
 
@@ -10645,7 +10647,7 @@ The 1st input is the queue and the last output is the status. The rest are data 
 ### Interface
 
 
-*Inputs* | 
+*Inputs* |
 ---- | ----
 `queue` | The shared pointer for the BlobsQueue
 
@@ -10673,22 +10675,22 @@ The 1st input is the queue and the last output is the status. The rest are data 
 
 
  Given inputs (param, history, indices, grad, lr), runs the dense AdaGrad update on (param, grad, history[indices], lr), and returns (new_param, new_history) as in the dense case.
- 
+
 
 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `epsilon` | Default 1e-5
-*Inputs* | 
+*Inputs* |
 `param` | Parameters to be updated
 `moment` | Moment history
 `indices` | Sparse indices
 `grad` | Gradient computed
 `lr` | learning rate
-*Outputs* | 
+*Outputs* |
 `output_param` | Updated parameters
 `output_moment_1` | Updated moment
 
@@ -10720,12 +10722,12 @@ Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the dense 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `beta1` | Default 0.9
 `beta2` | Default 0.999
 `epsilon` | Default 1e-5
-*Inputs* | 
+*Inputs* |
 `param` | Parameters to be updated
 `moment_1` | First moment history
 `moment_2` | Second moment history
@@ -10733,7 +10735,7 @@ Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the dense 
 `grad` | Gradient computed
 `lr` | learning rate
 `iter` | iteration number
-*Outputs* | 
+*Outputs* |
 `output_param` | Updated parameters
 `output_moment_1` | Updated first moment
 `output_moment_2` | Updated second moment
@@ -10898,17 +10900,17 @@ The first three inputs  `scalars` ,  `indices` , and  `segment_ids`  are the spa
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `num_outputs` | Number of outputs
 `num_segments` | Number of segments
-*Inputs* | 
+*Inputs* |
 `scalars` | Values of the non-zero entries of the sparse data.
 `indices` | Indices to the non-zero valued features.
 `segment_ids` | Segment IDs corresponding to the non-zero entries.
 `weight` | Weight vector
 `alpha` | Optional coefficients for linear combination of hashed weights.
-*Outputs* | 
+*Outputs* |
 `output` | Output tensor with the first dimension equal to the number of segments.
 
 
@@ -10964,17 +10966,17 @@ The first three inputs  `scalars` ,  `indices` , and  `segment_ids`  are the spa
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `num_outputs` | Number of outputs
 `num_segments` | Number of segments
-*Inputs* | 
+*Inputs* |
 `scalars` | Values of the non-zero entries of the sparse data.
 `indices` | Indices to the non-zero valued features.
 `segment_ids` | Segment IDs corresponding to the non-zero entries.
 `weight` | Weight vector
 `alpha` | Optional coefficients for linear combination of hashed weights.
-*Outputs* | 
+*Outputs* |
 `output` | Output tensor with the first dimension equal to the number of segments.
 
 
@@ -11032,14 +11034,14 @@ The valid combinations are listed below, where p, q, r, s are strictly positive 
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `old_shape` | Old shape.
 `new_shape` | New shape.
-*Inputs* | 
+*Inputs* |
 `old_col` | Original column indices.
 `old_row` | Original row indices.
-*Outputs* | 
+*Outputs* |
 `new_col` | New column indices.
 `new_row` | New row indices.
 
@@ -11070,15 +11072,15 @@ Tensor contraction C = A * B
 ### Interface
 
 
-*Arguments* | 
+*Arguments* |
 ---- | ----
 `K` | i_{k-1} * r_k
 `M` | r_{k-1} * o_{k-1}
 `N` | o_k
-*Inputs* | 
+*Inputs* |
 `A` | 2D matrix of size (K x M)
 `B` | tensor
-*Outputs* | 
+*Outputs* |
 `C` | contracted tensor
 
 
@@ -11247,5 +11249,3 @@ No schema documented yet.
 
 
 - *CPU* `caffe2::TTLinearGradientOp<float, caffe2::CPUContext, caffe2::DefaultEngine>`
-
-

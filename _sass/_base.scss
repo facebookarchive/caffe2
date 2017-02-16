@@ -412,6 +412,7 @@ section#intro {
   .mainContainer {
     .mainWrapper {
       .post {
+
         h2 {
           font-size: 180%;
         }
@@ -466,6 +467,18 @@ section#intro {
       .post {
         box-sizing: border-box;
         display: block;
+
+        ul#markdown-toc {
+          font-size: 14px;
+          list-style-type:none;
+          display: block;
+          li {
+            text-align: right;
+            width: 30%;
+            float: left;
+            margin-bottom: -1px;
+          }
+        }
 
         .post-header {
           h1 {

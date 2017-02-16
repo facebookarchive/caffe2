@@ -69,6 +69,7 @@ kramdown:
   input: GFM
   syntax_highlighter: rouge
   auto_ids: true
+  toc_levels: 1..2
 
   syntax_highlighter_opts:
     css_class: 'rougeHighlight'
