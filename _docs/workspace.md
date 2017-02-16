@@ -1,3 +1,10 @@
+---
+docid: workspace
+title: The Workspace Class
+layout: docs
+permalink: /docs/workspace.html
+---
+
 # Core Caffe2
 
 ## Workspace
@@ -11,29 +18,21 @@ Workspace is a class that holds all the related objects created during runtime:
 A workspace is created for you whenever you create nets or handle blobs of data with Caffe2. Calling `workspace` initializes an empty workspace with the given root folder. For any operators that are going to interface with the file system, such as load operators, they will write things under this root folder given by the workspace.
 
 ```python
+from caffe2.proto.caffe2_pb2 import NetDef
 from caffe2.python import workspace
-# netdef has references to names of blobs that came from init_net
-# if you ran predict_net first bad things
+
+init_net = NetDef()
+init_net.ParseFromString(open(protobuf_data))
+predict_net = NetDef()
+predict_net.ParseFromString(open(protobuf_data))
+print predict_net.name //would reveal the name field
+
 workspace.CreateNet(init_net)
 workspace.CreateNet(predict_net)
 workspace.RunNet(predict_net)
-workspace.ResetWorkspace(root_folder)
 ```
 
-You will notice that the CreateNet methods require a net. These are NetDefs that are created from data from datasets, pre-trained models, protobuf data describing the nets and models need to be instantiated as prototype objects inheriting the characteristics from Caffe2's protobuf spec. These will then be managed in the workspace.
-
-* protobuf_data may have a `name` field that can be used to later call blobs and nets on the workspace. Otherwise you may define this as described below.
-
-In the code below we create some NetDefs that can be used in the workspace. This is the setup steps that would need to be handled before running the net as shown in the code block above.
-
-```python
-from caffe2.proto.caffe2_pb2 import NetDef
-i = NetDef()
-i.ParseFromString(open(protobuf_data))
-p = NetDef()
-p.ParseFromString(open(protobuf_data))
-print p.name //would reveal the name field
-```
+You will notice that the CreateNet methods require a net. These are NetDefs that are created from data from datasets, pre-trained models, protobuf data describing the nets and models need to be instantiated as prototype objects inheriting the characteristics from Caffe2's protobuf spec. These will then be managed in the workspace. Also, note that we've loaded the init_net first, which will setup references to blobs that should be filled by predict_net once you load that net.
 
 For more examples of the basics of workspaces, check out the [basics tutorial](../tutorials/basics.ipynb).
 
@@ -42,11 +41,11 @@ For more examples of the basics of workspaces, check out the [basics tutorial](.
 Creates an empty net unless blobs are passed in.
 
 Inputs:
-  net: required NetDef
-  input_blobs
+* net: required NetDef
+* input_blobs
 
 Outputs:
-  net object
+* net object
 
 ```python
 workspace.CreateNet(net_def, input_blobs)
@@ -57,12 +56,12 @@ workspace.CreateNet(net_def, input_blobs)
 Feeds a blob into the workspace.
 
 Inputs:
-  name: the name of the blob.
-  arr: either a TensorProto object or a numpy array object to be fed into the workspace.
-  device_option (optional): the device option to feed the data with.
+* name: the name of the blob
+* arr: either a TensorProto object or a numpy array object to be fed into the workspace
+* device_option (optional): the device option to feed the data with
 
 Returns:
-  True or False, stating whether the feed is successful.
+* True or False, stating whether the feed is successful.
 
 ```python
 workspace.FeedBlob(name, arr, device_option=None)
@@ -73,10 +72,10 @@ workspace.FeedBlob(name, arr, device_option=None)
 Fetches a blob from the workspace.
 
 Inputs:
-  name: the name of the blob - a string or a BlobReference
+* name: the name of the blob - a string or a BlobReference
 
 Returns:
-  Fetched blob (numpy array or string) if successful
+* Fetched blob (numpy array or string) if successful
 
 ```python
 workspace.FetchBlob(name)
@@ -87,10 +86,10 @@ workspace.FetchBlob(name)
 Fetches a list of blobs from the workspace.
 
 Inputs:
-  names: list of names of blobs - strings or BlobReferences
+* names: list of names of blobs - strings or BlobReferences
 
 Returns:
-  list of fetched blobs
+* list of fetched blobs
 
 ```python
 workspace.FetchBlob(name)
@@ -101,18 +100,18 @@ workspace.FetchBlob(name)
 Returns the current namescope string. To be used to fetch blobs.
 
 Outputs:
-  namescope
+* namescope
 
 #### InferShapesAndTypes
 
 Infers the shapes and types for the specified nets.
 
 Inputs:
-  nets: the list of nets
-  blob_dimensions (optional): a dictionary of blobs and their dimensions. If not specified, the workspace blobs are used.
+* nets: the list of nets
+* blob_dimensions (optional): a dictionary of blobs and their dimensions. If not specified, the workspace blobs are used.
 
 Returns:
-  A tuple of (shapes, types) dictionaries keyed by blob name.
+* A tuple of (shapes, types) dictionaries keyed by blob name.
 
 ```python
 InferShapesAndTypes(nets, blob_dimensions)
@@ -123,10 +122,10 @@ InferShapesAndTypes(nets, blob_dimensions)
 Resets the workspace, and if root_folder is empty it will keep the current folder setting.
 
 Inputs:
-  root_folder: string
+* root_folder: string
 
 Outputs:
-  workspace object
+* workspace object
 
 ```python
 workspace.ResetWorkspace(root_folder)
@@ -137,11 +136,11 @@ workspace.ResetWorkspace(root_folder)
 Runs a given net.
 
 Inputs:
-  name: the name of the net, or a reference to the net.
-  num_iter: number of iterations to run, defaults to 1
+* name: the name of the net, or a reference to the net.
+* num_iter: number of iterations to run, defaults to 1
 
 Returns:
-  True or an exception.
+* True or an exception.
 
 ```python
 workspace.RunNetOnce(name, num_iter)
@@ -152,7 +151,7 @@ workspace.RunNetOnce(name, num_iter)
 Takes in a net and will run the net one time.
 
 Inputs:
-  net
+* net
 
 ```python
 workspace.RunNetOnce(net)
@@ -163,7 +162,7 @@ workspace.RunNetOnce(net)
 Will execute a single operator.
 
 Inputs:
-  operator
+* operator
 
 ```python
 workspace.RunOperatorOnce(operator)
@@ -174,11 +173,11 @@ workspace.RunOperatorOnce(operator)
 Will execute a set of operators.
 
 Inputs:
-  operators list
+* operators list
 
 Outputs:
-  Boolean on success
-  False if any op fails
+* Boolean on success
+* False if any op fails
 
 ```python
 workspace.RunOperatorOnce(operators)
@@ -186,13 +185,14 @@ workspace.RunOperatorOnce(operators)
 
 #### RunPlan
 
-Needs to be documented.
+Construct a plan of multiple execution steps to run multiple different networks.
+Use `RunPlan` to execute this plan.
 
 Inputs:
-  plan_or_step
+* plan_or_step
 
 Outputs:
-  protobuf
+* protobuf
 
 ```python
 workspace.RunPlan(plan_or_step)
@@ -204,11 +204,11 @@ Starts a mint instance.
 Note: this does not work well under ipython yet. According to https://github.com/ipython/ipython/issues/5862
 
 Inputs:
-  root_folder: string
-  port: int
+* root_folder: string
+* port: int
 
 Output:
-  mint instance
+* mint instance
 
 ```python
 workspace.StartMint(root_folder, port)
@@ -219,10 +219,10 @@ workspace.StartMint(root_folder, port)
 Returns the name of a blob.
 
 Inputs:
-  name
+* name
 
 Outputs:
-  name, "BlobReference"
+* name, "BlobReference"
 
 ```python
 workspace.StringifyBlobName(name)
@@ -233,10 +233,10 @@ workspace.StringifyBlobName(name)
 Returns the name of a net.
 
 Inputs:
-  name
+* name
 
 Outputs:
-  name, "Net"
+* name, "Net"
 
 ```python
 workspace.StringifyNetName(name)
@@ -247,14 +247,14 @@ workspace.StringifyNetName(name)
 Stringify a protocol buffer object.
 
 Inputs:
-  obj: a protocol buffer object, or a Pycaffe2 object that has a Proto()
+* obj: a protocol buffer object, or a Pycaffe2 object that has a Proto()
       function.
 
 Outputs:
-  string: the output protobuf string.
+* string: the output protobuf string.
 
 Raises:
-  AttributeError: if the passed in object does not have the right attribute.
+* AttributeError: if the passed in object does not have the right attribute.
 
 ```python
 workspace.StringifyProto(name)
