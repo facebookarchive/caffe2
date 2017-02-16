@@ -5,10 +5,6 @@ layout: docs
 permalink: /docs/workspace.html
 ---
 
-# Core Caffe2
-
-## Workspace
-
 Workspace is a class that holds all the related objects created during runtime:
 (1) all blobs, and
 (2) all instantiated networks. It is the owner of all these objects and deals with the scaffolding logistics.
