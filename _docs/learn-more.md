@@ -9,31 +9,31 @@ Caffe2 is a machine learning framework enabling simple and flexible deep learnin
 
 ## What Is Deep Learning?
 
-Deep learning is one of the latest advances in Artificial Intelligence and computer science in general. It many ways it is the next generation of machine learning and often works hand-in-hand with existing machine learning processing.
+Deep learning is one of the latest advances in Artificial Intelligence (AI) and computer science in general. It many ways it is the next generation of machine learning and often works hand-in-hand with existing machine learning processing.
 
-To better understand what Caffe is and how you can use it, we have provided a few examples of machine learning and deep learning in practice today.
+To better understand what Caffe2 is and how you can use it, we have provided a few examples of machine learning and deep learning in practice today.
 
 ### Audio Recognition
 
-Most readers will have been exposed to Apple's Siri. This digital assistant's core interaction with users is through voice recognition. You ask Siri for directions, to make appointments on your calendar, and to look up information. Its uncanny ability to understand a variety of accents in English, let alone its multilingual settings and capabilities, is fairly astonishing when compared to navigating the incredibly frustrating phone trees for your cable company who also use some variation of voice recognition. This wasn't always the case. When Apple launched Siri there was significant criticism of Siri's ability to accurately interpret what people were asking her. It was at about the same frustration level as the aforementioned telecom system. Apple [recently revealed](https://backchannel.com/an-exclusive-look-at-how-ai-and-machine-learning-work-at-apple-8dbfb131932b#.eiae77d82) that many of the enhancements made in Siri since 2014, in comparison to its launch, were accomplished by utilization of Deep Neural Networks (DNN), Convolutional Neural Networks, and other advances in machine learning.
+Many readers may have been exposed to Apple's Siri. This digital assistant's core interaction with users is through voice recognition. You ask Siri for directions, to make appointments on your calendar, and to look up information. Its ability to understand a variety of accents in English, let alone its multilingual settings and capabilities, is based on many of the enhancements made in Siri since 2014. These enhancements were [accomplished](https://backchannel.com/an-exclusive-look-at-how-ai-and-machine-learning-work-at-apple-8dbfb131932b#.eiae77d82) through the utilization of Deep Neural Networks (DNN), Convolutional Neural Networks, and other advances in machine learning.
 
-### Digital Assistants & Chat Bots
+### Chat Bots
 
-Ultimately looking at a digital assistant like Siri you might be reminiscent of 2001's HAL computer, one of pop culture's first introductions to Artificial Intelligence. Rather than focus on the AI's homicidal hijinks, other properties are more relevant to understand what you can do with AI and DNN today. The AI was able to *see* though video cameras and *feel* environmental conditions by reading sensors such and temperature, pressure, and velocity. It was able to control doors, engines, and other devices through actuators or other networked parts of the space station. As we explore the full impact and capabilities of the Internet of Things (IoT) where everything communicates: from your fridge, to your security system, to individual lights, you can see that we're not far off from useful interaction with simple AI's. Some simple AI's that we're seeing now are chat bots.
+There are currently useful interaction with simple AI's. A common simple AI is a chat bot.
 
-A chat bot could be in action when you click on the support link on your bank's website or favorite shopping website. The "how may I help you?" response can fully a fully automated program that reads your text and looks for related responses, or in the most simplest form redirects you to the appropriate live agent. As the more complex bots are written using deep neural networking, their ability to understand your statements, and more importantly, the context, they'll be able to hold longer more meaningful conversations without you even realizing you weren't chatting with a real person.
-
-### Computer Vision
-
-Computer vision has been around for many years and has enabled advanced robotics, streamlined manufacturing, better medical devices, just to name a few positives, and even license plate recognition to automate giving people tickets for a number of moving violations like speeding, running red lights, and toll violations. Neural networks have significantly improved computer vision applications. A couple of examples are photo processing for object recognition (is that a cat or a dog?), and video processing to automate scene classification or people recognition (is that a helicopter? Is there a person in the scene? Who is that person?).
-
-### Translation
-
-Another useful application of neural networks is with translation between languages. This can be though voice, text, or even handwriting. One of the [tutorials](tutorials.html) with Caffe2 shows how you can create a basic neural network that can identify handwriting of English text with over 95% accuracy. It is not only highly accurate, it is extremely fast.
+A chat bot could be in action when you click on the support link on your bank's website or favorite shopping website. The "how may I help you?" response can be a fully automated program that reads your text and looks for related responses, or, in the most simplest form, can redirect you to an appropriate live agent. As more complex bots are written using DNN, their ability to understand your statements, and more importantly, the context, the bots will be able to hold longer, more meaningful conversations without you even realizing you are not chatting with a real person.
 
 ### IoT
 
-Referring back to the IoT systems such as lighting and security, a fairly simple AI can automatically (and in real-time) review security camera footage, faceprint visitors to distinguish between homeowner, guest, and trespasser, and adjust lighting and music, or flashing lights and alarm sounds accordingly. How the system distinguishes between parties can be accomplished by training a DNN and then a variety of systems such as AWS's IoT platform can wrap this core detector to provide responses and actions.
+As we explore the full impact and capabilities of the Internet of Things (IoT), where common technology communicates with you - from your fridge, to your security system, to individual lights - a fairly simple AI can automatically (and in real-time) review security camera footage, faceprint visitors to distinguish between homeowner, guest, and trespasser, and adjust lighting, music, and alarm sounds accordingly. How the system distinguishes between parties can be accomplished by training a DNN and then a variety of systems such as [AWS's IoT platform](https://aws.amazon.com/iot/) can wrap this core detector to provide responses and actions.
+
+### Computer Vision
+
+Computer vision has been around for many years and has enabled advanced robotics, streamlined manufacturing, better medical devices, etc. There is even license plate recognition to automate giving people tickets for a number of moving violations like speeding and running red lights. Neural networks have significantly improved computer vision applications. Photo processing is being used for object recognition, answering questions such as "Is that a cat or a dog?".  Video processing is being used to automate scene classification or people recognition, answering questions such as "Is that a helicopter? Is there a person in the helicopter? Who is that person?".
+
+### Translation
+
+Another useful application of neural networks is with translation between languages. Translations can occur via voice, text, or even handwriting. One of the Caffe2 [tutorials](/docs/tutorials/) shows how you can create a basic neural network that can identify handwriting of English text with over 95% accuracy. It is not only highly accurate, it is extremely fast.
 
 ### Medical
 
