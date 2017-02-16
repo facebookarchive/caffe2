@@ -2,8 +2,20 @@
   href: /docs/
   category: docs
 
+- title: Tutorials
+  href: /docs/tutorials
+  category: docs
+
 - title: GitHub
   href: http://github.com/caffe2/caffe2
+  category: external
+
+- title: File an Issue
+  href: http://github.com/caffe2/caffe2/issues
+  category: external
+
+- title: Contribute
+  href: http://github.com/caffe2/caffe2/pulls
   category: external
 
 # Use external for external links not associated with the paths of the current site.
