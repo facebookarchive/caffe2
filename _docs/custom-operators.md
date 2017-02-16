@@ -16,7 +16,7 @@ Almost every operator will use both a .cc file for the registering of the operat
 We will start by describing what goes into the .cc file. As an example, consider the operator defined in [fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc):
 
 
-```
+```cpp
 #include "caffe2/operators/fully_connected_op.h"
 
 namespace caffe2 {
@@ -32,7 +32,7 @@ At first, the names of the operators and the corresponding gradient operator is 
 Fully Connected also has a GPU implementation that can be found in [fully_connected_op_gpu.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op_gpu.cc).
 
 
-```
+```cpp
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/operators/fully_connected_op.h"
 
@@ -55,7 +55,7 @@ Referring back to `fully_connected_op.cc` we will look at the remainder of the f
 
 **[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
 
-```
+```cpp
 OPERATOR_SCHEMA(FC)
   .NumInputs(3)
   .NumOutputs(1)
@@ -89,7 +89,7 @@ The schema goes on to describe a second operator, `FCGradient`.
 
 **[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
 
-```
+```cpp
 OPERATOR_SCHEMA(FCGradient).NumInputs(3).NumOutputs(2, 3);
 class GetFCGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
@@ -133,7 +133,7 @@ The key functions are:
 
 For a simple example:
 
-```
+```cpp
 @given(X=hu.tensor(), **hu.gcs)
 def test_averaged_loss(self, X, gc, dc):
     op = core.CreateOperator("AveragedLoss", ["X"], ["loss"])
@@ -143,7 +143,7 @@ def test_averaged_loss(self, X, gc, dc):
 
 Another example that demonstrates the usage of `assertReferenceChecks`:
 
-```
+```cpp
 @given(inputs=hu.tensors(n=3),
        in_place=st.booleans(),
        beta1=st.floats(min_value=0.1, max_value=0.9),
@@ -190,7 +190,7 @@ def test_adam(self, inputs, in_place, beta1, beta2, lr, iters, epsilon,
 
 For a fancier example that demonstrates drawing more sophisticated elements:
 
-```
+```cpp
 @given(prediction=hu.arrays(dims=[10, 3],
                             elements=st.floats(allow_nan=False,
                                                allow_infinity=False,
