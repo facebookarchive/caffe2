@@ -102,7 +102,7 @@ When your browser opens with your local Jupyter server (default is http://localh
 
 ### Basics
 
-[Browse](https://github.com/caffe2/caffe2/blob/documentation/tutorials/basics.ipynb) | [Download](tutorials/basics.ipynb)
+[Browse](../tutorials/basics.ipynb) | [Download](../tutorials/basics.ipynb)
 
 This tutorial introduces a few basic Caffe2 components:
 
@@ -112,7 +112,7 @@ This tutorial introduces a few basic Caffe2 components:
 
 ### Toy Regression - Plotting Lines & Random Data
 
-[Browse](https://github.com/caffe2/caffe2/blob/documentation/tutorials/toy_regression.ipynb) | [Download](tutorials/toy_regression.ipynb)
+[Browse](../tutorials/toy_regression.ipynb) | [Download](../tutorials/toy_regression.ipynb)
 
 This tutorial shows how to use more Caffe2 features with simple linear regression as the theme.
 
@@ -123,13 +123,13 @@ This tutorial shows how to use more Caffe2 features with simple linear regressio
 
 ### MNIST - Handwriting Recognition
 
-[Browse](https://github.com/caffe2/caffe2/blob/documentation/tutorials/MNIST.ipynb) | [Download](tutorials/MNIST.ipynb)
+[Browse](../tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. The train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
 ### Immediate Outputs - Experimental
 
-[Browse](https://github.com/caffe2/caffe2/blob/documentation/tutorials/immediate.ipynb) | [Download](tutorials/immediate.ipynb)
+[Browse](../tutorials/immediate.ipynb) | [Download](../tutorials/immediate.ipynb)
 
 Explores an experimental Caffe2 feature that allows you inspect intermediate outputs as you go. It will run corresponding operators as you write them.
 
@@ -137,4 +137,4 @@ Explores an experimental Caffe2 feature that allows you inspect intermediate out
 
 A tutorial for converting your old Caffe models or for any of the models found in the Caffe Model Zoo is provided in the following Jupyter notebook found at `docs/tutorials/Caffe_translator.ipynb` or you can browse and download them here:
 
-[Browse](https://github.com/caffe2/caffe2/blob/documentation/tutorials/Caffe_translator.ipynb) | [Download](tutorials/Caffe_translator.ipynb)
+[Browse](../tutorials/Caffe_translator.ipynb) | [Download](../tutorials/Caffe_translator.ipynb)
