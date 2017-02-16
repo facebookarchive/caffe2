@@ -1,6 +1,6 @@
 
 
-.rougeHighlight { background-color: $code-bg; color: #93a1a1 }
+.rougeHighlight { background-color: $code-background; color: #93a1a1 }
 .rougeHighlight .c { color: #586e75 } /* Comment */
 .rougeHighlight .err { color: #93a1a1 } /* Error */
 .rougeHighlight .g { color: #93a1a1 } /* Generic */
@@ -97,8 +97,8 @@
             flex: 1 1;
 
             &.gutter {
-              border-right: 1px solid lighten($code-bg, 10%);
-              color: lighten($code-bg, 15%);
+              border-right: 1px solid lighten($code-background, 10%);
+              color: lighten($code-gutter-color, 15%);
               margin-right: 10px;
               max-width: 40px;
               padding-right: 10px;
