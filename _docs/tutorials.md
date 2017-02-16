@@ -12,9 +12,9 @@ permalink: /docs/tutorials.html
 1. Make my own neural network!
 2. Use one off the shelf!
 
-If you chose 1 then keep reading. You'll need some background in neural networking first. Have that dialed in already? Skip ahead to the [Tour of Components](http://localhost:8000/tutorials.html#tour-of-caffe-components) below. Need a primer or a refresher? Some resources are listed below.
+If you chose 1 then keep reading. You'll need some background in neural networking first. Have that dialed in already? Skip ahead to the [Tour of Components](tutorials.html#tour-of-caffe-components) below. Need a primer or a refresher? Some resources are listed below.
 
-If you chose 2, then you will want to jump down to the [IPython notebook tutorials](http://localhost:8000/tutorials.html#caffe2-tutorials-ipython-notebook-tutorials), where several examples are using pre-trained models and will show you how to get a demo project up and running in minutes. Want to have image classification in your Android or iOS app? It's pretty much plug-n-play with Android Studio or Xcode.
+If you chose 2, then you will want to jump down to the [IPython notebook tutorials](tutorials.html#ipython-notebook-tutorials), where several examples are using pre-trained models and will show you how to get a demo project up and running in minutes. Want to have image classification in your Android or iOS app? It's pretty much plug-n-play with Android Studio or Xcode.
 
 ### New to deep learning:
 
@@ -49,7 +49,7 @@ One of basic units of computation in Caffe2 are the [Operators](operators.html).
 
 Fantastic idea! Write custom operators and share them with the community! Refer to the guide on writing operators:
 
-* [Guide for creating your own operators](operators_custom.html)
+* [Guide for creating your own operators](custom-operators.html)
 
 ## IPython Notebook Tutorials
 
