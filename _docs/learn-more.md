@@ -5,7 +5,7 @@ layout: docs
 permalink: /docs/learn-more.html
 ---
 
-Caffe2 is a deep learning framework made with expression, speed, and modularity in mind. It is an experimental refactoring of [Caffe](http://caffe.berkeleyvision.org/), and allows a more flexible way to organize computation.
+Caffe2 is a machine learning framework enabling simple and flexible deep learning. Building on the original [Caffe](caffe.berkeleyvision.org), Caffe2 is designed with expression, speed, and modularity in mind, and allows a more flexible way to organize computation.
 
 ## What Is Deep Learning?
 
@@ -110,16 +110,6 @@ Want to see some examples of how deep learning works without doing all of the se
 
 ![screenshot of the portrait matcher demo page](/static/images/portrait-matcher-demo.png)
 
-
-## [Installation](installation.html)
-
-Caffe2's modules are currently written in Python 2 with support for Python 3 coming in the near future.
-Installation and compilation [instructions](installation.html) are provided for:
-
-- [MacOSx](installation.html#installing-and-building-caffe2-compilation-macosx)
-- [Ubuntu](installation.html#installing-and-building-caffe2-compilation-ubuntu)
-- [Docker Support](installation.html#installing-and-building-caffe2-compilation-docker-support)
-
 ## Contributing to Caffe2
 
 Caffe is an Open Source project and we really hope to foster innovation and collaboration.
@@ -135,7 +125,3 @@ If you want to add or discuss a new feature then you should create a post in the
 ### Pre-trained Models
 
 Have you created the greatest model since Cindy Crawford? Or maybe the best image categorization model since VGG Team's ILSVRC14 16-layer model? How about a video to text translation model that is more accurate than all before it and it supports 5 languages? Whatever that awesome thing is that you made, share it, and we can put it in [Caffe2's Model Zoo](zoo.html)! Instructions for submissions are on the [Zoo](zoo.html) page.
-
-## License and Citation
-
-Caffe2 is released under the [BSD 2-Clause license](license.html).
