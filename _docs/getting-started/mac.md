@@ -66,6 +66,7 @@ To compile Caffe2, first ensure the [prerequisites above]() are installed. Then 
 git clone --recursive https://github.com/caffe2/caffe2.git
 cd caffe2
 make
+make install
 ```
 
 ## Verification

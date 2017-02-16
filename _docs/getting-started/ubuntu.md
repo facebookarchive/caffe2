@@ -83,7 +83,8 @@ sudo ldconfig
 
 mkdir build && cd build
 cmake ..
-make  
+make
+make install
 ```
 
 ## Verification
