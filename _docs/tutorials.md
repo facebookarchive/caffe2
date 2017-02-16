@@ -94,9 +94,15 @@ Instructions on how to setup Jupyter Notebook, which is the latest, greatest way
 
 Note: if you've already successfully installed Caffe2 with Anaconda Python, then great news! You already have Jupyter Notebook. Starting it is easy:
 
-  ```
-  jupyter notebook
-  ```
+```
+jupyter notebook
+```
+
+Or you can run the shell script included in the tutorial folder:
+
+```bash
+./start_ipython_notebook.sh
+```
 
 When your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in */docs/tutorials*. Opening them this way will launch their interactive features.
 
