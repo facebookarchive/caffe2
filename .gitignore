@@ -11,3 +11,4 @@ _site
 .jekyll-metadata
 tutorials/.ipynb_checkpoints/
 tutorials/tutorial_files/
+third_party/
