@@ -44,6 +44,7 @@ Creates an empty net unless blobs are passed in.
 Inputs:
   net: required NetDef
   input_blobs
+
 Outputs:
   net object
 
@@ -59,6 +60,7 @@ Inputs:
   name: the name of the blob.
   arr: either a TensorProto object or a numpy array object to be fed into the workspace.
   device_option (optional): the device option to feed the data with.
+
 Returns:
   True or False, stating whether the feed is successful.
 
@@ -72,6 +74,7 @@ Fetches a blob from the workspace.
 
 Inputs:
   name: the name of the blob - a string or a BlobReference
+
 Returns:
   Fetched blob (numpy array or string) if successful
 
@@ -85,6 +88,7 @@ Fetches a list of blobs from the workspace.
 
 Inputs:
   names: list of names of blobs - strings or BlobReferences
+
 Returns:
   list of fetched blobs
 
@@ -106,6 +110,7 @@ Infers the shapes and types for the specified nets.
 Inputs:
   nets: the list of nets
   blob_dimensions (optional): a dictionary of blobs and their dimensions. If not specified, the workspace blobs are used.
+
 Returns:
   A tuple of (shapes, types) dictionaries keyed by blob name.
 
@@ -119,6 +124,7 @@ Resets the workspace, and if root_folder is empty it will keep the current folde
 
 Inputs:
   root_folder: string
+
 Outputs:
   workspace object
 
@@ -130,11 +136,12 @@ workspace.ResetWorkspace(root_folder)
 
 Runs a given net.
 
-  Inputs:
-    name: the name of the net, or a reference to the net.
-    num_iter: number of iterations to run, defaults to 1
-  Returns:
-    True or an exception.
+Inputs:
+  name: the name of the net, or a reference to the net.
+  num_iter: number of iterations to run, defaults to 1
+
+Returns:
+  True or an exception.
 
 ```python
 workspace.RunNetOnce(name, num_iter)
@@ -168,6 +175,7 @@ Will execute a set of operators.
 
 Inputs:
   operators list
+
 Outputs:
   Boolean on success
   False if any op fails
@@ -182,6 +190,7 @@ Needs to be documented.
 
 Inputs:
   plan_or_step
+
 Outputs:
   protobuf
 
@@ -197,6 +206,7 @@ Note: this does not work well under ipython yet. According to https://github.com
 Inputs:
   root_folder: string
   port: int
+
 Output:
   mint instance
 
@@ -210,7 +220,8 @@ Returns the name of a blob.
 
 Inputs:
   name
-Ouputs:
+
+Outputs:
   name, "BlobReference"
 
 ```python
@@ -223,7 +234,8 @@ Returns the name of a net.
 
 Inputs:
   name
-Ouputs:
+
+Outputs:
   name, "Net"
 
 ```python
@@ -237,17 +249,13 @@ Stringify a protocol buffer object.
 Inputs:
   obj: a protocol buffer object, or a Pycaffe2 object that has a Proto()
       function.
+
 Outputs:
   string: the output protobuf string.
+
 Raises:
   AttributeError: if the passed in object does not have the right attribute.
 
 ```python
 workspace.StringifyProto(name)
 ```
-
-
-TODO:
-Shared workspace:
-Initializes a workspace with a shared workspace.
-When we access a Blob, we will first try to access the blob that exists in the local workspace, and if not, access the blob that exists in the shared workspace. The caller keeps the ownership of the shared workspace and is responsible for making sure that its lifetime is longer than the created workspace.
