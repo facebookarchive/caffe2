@@ -12,6 +12,7 @@
   - id: datasets
   - id: zoo
   - id: AI-Camera-demo-android
+  - id: applications-of-deep-learning
 - title: Reference
   items:
   - id: operators-catalogue
