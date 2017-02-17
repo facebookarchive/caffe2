@@ -12,17 +12,14 @@ Whenever possible, [Homebrew](http://brew.sh) is used to install dependencies.
 
 ### Install Python
 
-[Python](https://www.python.org/) is core to run Caffe2. *MacOS X has Python built in by default*, and that can be used to run Caffe2. To check your version:
+[Python 2.7](https://www.python.org/download/releases/2.7/) is required to run Caffe2's Python modules. You can still use Caffe2's C++ libraries without Python if that is your preference. *MacOS X has Python built in by default*, and that can be used to run Caffe2. To check your version:
 
 ```
 python --version
 ```
 
-However, you can also install later versions of Python with Homebrew (e.g., version 3 instead of 2.7).
+Caffe2 currently supports Python 2.7. We hope to support Python 3 in the near future. If you're already using Python 3, consider using virtualenv or Anaconda and install Caffe2 in a Python 2.7 environment.
 
-```
-brew install python3
-```
 
 > The [Anaconda](https://www.continuum.io/downloads) platform provides a single script to install many of the necessary packages for Caffe2, including Python. Using Anaconda is outside the scope of these instructions, but if you are interested, it may work well for you.
 
@@ -38,24 +35,22 @@ brew install git
 
 ### Required Dependencies
 
-- [Xcode](https://developer.apple.com/xcode/)
-- [Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone)
-- [C++ 11](https://en.wikipedia.org/wiki/C%2B%2B11)
-- [Google Protocol Buffers](https://developers.google.com/protocol-buffers/)
-- [Google Logging Module](https://github.com/google/glog)
-- [gflags](https://gflags.github.io/gflags/)
-- [Eigen 3](http://eigen.tuxfamily.org/)
-- [NumPy](http://www.numpy.org/)
+1. Xcode Command Line Tools or a comparable compiler is needed to build from source.
 
-First, install Xcode from the [app store](https://itunes.apple.com/us/app/xcode/id497799835) and as described in the NVIDIA [installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/).
+  - [Xcode](https://developer.apple.com/xcode/): Apple developer account required
 
-At this point Xcode, CUDA and C++ 11 are installed. Now install the other dependencies.
+2. (optional) GPU support - you don't need this if you are only using CPU mode
+
+  - [Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone): install from NVIDIA's site; free developer account required
+  - [Installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/)
+
+3. Other dependencies will be installed for you in /third_party in Caffe2's source. [more info](getting-started.html#whats-in-third-party)
+
+> Make sure you have installed Xcode and CUDA (if using GPU) before running these
 
 ```
-## Make sure you have installed Xcode and CUDA before running these
-brew install python3 protobuf glog gflags eigen
-## Now install NumPy
-sudo pip3 install numpy
+brew install glog automake protobuf leveldb lmdb
+sudo pip install numpy protobuf
 ```
 
 ## Compilation
@@ -95,9 +90,7 @@ Strictly speaking, you now have everything you need to run the core Caffe2 succe
 
 - [OpenCV](http://opencv.org/) for image-related operations.
 - [OpenMPI](http://www.open-mpi.org/) for MPI-related Caffe2 operators.
-- [LevelDB](http://leveldb.org/) for Caffe2's LevelDB IO backend.
 - [RocksdB](http://rocksdb.org) for Caffe2's RocksDB IO backend.
-- [LMDB](https://lmdb.readthedocs.io/en/release/) for Caffe2's LMDB IO backend.
 - [ZeroMQ](http://zeromq.org/), needed for Caffe2's ZmqDB IO backend (serving data through a socket).
 - [cuDNN](https://developer.nvidia.com/cudnn), needed for Caffe2's cuDNN operators.
 
@@ -106,7 +99,7 @@ The installation for OpenCV, OpenMPI and cuDNN are too detailed and complex to d
 You can install the others via [Homebrew](http://brew.sh):
 
 ```
-brew install leveldb, rocksdb, lmdb, zeromq
+brew install rocksdb, zeromq
 ```
 
 There are also various Python libraries that will be valuable in your experience with Caffe2.
@@ -123,6 +116,21 @@ There are also various Python libraries that will be valuable in your experience
 ```
 sudo pip install flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image
 ```
+
+### What's in Third Party?
+
+- Android cmake
+- Benchmark
+- cnmem
+- cub
+- eigen
+- googletest
+- ios-cmake
+- nccl
+- nervanagpu
+- NNPACK
+- protobuf
+- pybind11
 
 <block class="mac docker" />
 
