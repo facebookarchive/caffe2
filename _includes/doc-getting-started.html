@@ -5,6 +5,7 @@
     <h1 class="post-title">{% if include.truncate %}<a href="{{ page.url | absolute_url }}">{{ page.title }}</a>{% else %}{{ page.title }}{% endif %}</h1>
   </header>
   <article class="post-content">
+    {{intro | markdownify}}
     <div class="toggler">
       <table>
       <tr>
@@ -27,7 +28,6 @@
       </tr>
       </table>
     </div>
-    {{intro | markdownify}}
     {{ content }}
     <p><a class="edit-page-link" href="https://github.com/{{ site.ghrepo }}/tree/gh-pages/{{ page.path }}" target="_blank">Edit on GitHub</a></p>
   </article>
