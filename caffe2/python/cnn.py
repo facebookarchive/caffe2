@@ -735,8 +735,15 @@ class CNNModelHelper(ModelHelperBase):
                     dim_in=dim_out, dim_out=4 * dim_out, axis=2)
         step_net.net.Sum([s("gates_t"), "input_t"], [s("gates_t")])
         step_net.net.LSTMUnit(
-            ["cell_t_prev", s("gates_t"), str(seq_lengths), "timestep"],
-            ["hidden_t", "cell_t"])
+            [
+                "hidden_t_prev",
+                "cell_t_prev",
+                s("gates_t"),
+                str(seq_lengths),
+                "timestep",
+            ],
+            ["hidden_t", "cell_t"],
+        )
 
         links = [
             ("hidden_t_prev", s("hidden"), 0),
@@ -801,7 +808,9 @@ class CNNModelHelper(ModelHelperBase):
             backward_link_offset=backward_link_offset,
             step_net=str(step_net.Proto()),
             backward_step_net=str(backward_step_net.Proto()),
-            timestep="timestep")
+            timestep="timestep",
+            outputs_with_grads=[0],
+        )
         self.param_init_net.Proto().op.extend(
             step_net.param_init_net.Proto().op)
         self.params += step_net.params
