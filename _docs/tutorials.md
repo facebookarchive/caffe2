@@ -16,13 +16,13 @@ If you chose 1 then keep reading. You'll need some background in neural networki
 
 If you chose 2, then you will want to jump down to the [IPython notebook tutorials](tutorials.html#ipython-notebook-tutorials), where several examples are using pre-trained models and will show you how to get a demo project up and running in minutes. Want to have image classification in your Android or iOS app? It's pretty much plug-n-play with Android Studio or Xcode.
 
-### New to deep learning:
+### New to deep learning
 
 A broad introduction is given in the free online draft of [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/index.html) by Michael Nielsen. In particular the chapters on using neural nets and how backpropagation works are helpful if you are new to the subject.
 
 For an exposition of neural networks in circuits and code, check out [Understanding Neural Networks from a Programmer’s Perspective](http://karpathy.github.io/neuralnets/) by Andrej Karpathy (Stanford).
 
-### Experienced researchers in some facet of machine learning:
+### Experienced researchers in some facet of machine learning
 
 The [Tutorial on Deep Learning for Vision](https://sites.google.com/site/deeplearningcvpr2014/) from CVPR ‘14 is a good companion tutorial for researchers. Once you have the framework and practice foundations from the Caffe tutorial, explore the fundamental ideas and advanced research directions in the CVPR ‘14 tutorial.
 
@@ -46,13 +46,13 @@ These recent academic tutorials cover deep learning for researchers in machine l
 
 ### Operators
 
-One of basic units of computation in Caffe2 are the [Operators](operators.html).
+One of basic units of computation in Caffe2 are the [Operators](/docs/operators).
 
 #### Writing Your Own Operators
 
 Fantastic idea! Write custom operators and share them with the community! Refer to the guide on writing operators:
 
-* [Guide for creating your own operators](custom-operators.html)
+* [Guide for creating your own operators](/docs/custom-operators)
 
 ## IPython Notebook Tutorials
 
@@ -107,7 +107,7 @@ Or you can run the shell script included in the tutorial folder:
 ./start_ipython_notebook.sh
 ```
 
-When your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in */docs/tutorials*. Opening them this way will launch their interactive features.
+When your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in the [`tutorials`](/tutorials) directory. Opening them this way will launch their interactive features.
 
 ### Beginners and New to Caffe2
 
@@ -115,13 +115,13 @@ When your browser opens with your local Jupyter server (default is http://localh
 
 A tutorial for converting your old Caffe models or for any of the models found in the Caffe Model Zoo is provided in the following Jupyter notebook found at `docs/tutorials/Caffe_translator.ipynb` or you can browse and download them here:
 
-[Browse](../tutorials/Caffe_translator.ipynb) | [Download](../tutorials/Caffe_translator.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Caffe_translator.ipynb) | [Download](/tutorials/Caffe_translator.ipynb)
 
 #### Getting Models and Datasets
 
 Here you can find a tutorial with examples of downloading datasets and models from Caffe's original repository as well as use the new Caffe2 Model Downloader.
 
-[Browse](../tutorials/Getting_Models_and_Datasets.ipynb) | [Download](../tutorials/Getting_Models_and_Datasets.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Getting_Models_and_Datasets.ipynb) | [Download](../tutorials/Getting_Models_and_Datasets.ipynb)
 
 #### Basics of Caffe2 - Workspaces, Operators, and Nets
 
@@ -131,7 +131,7 @@ This tutorial introduces a few basic Caffe2 components:
 * Operators
 * Nets
 
-[Browse](../tutorials/basics.ipynb) | [Download](../tutorials/basics.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/basics.ipynb) | [Download](/tutorials/basics.ipynb)
 
 #### Toy Regression - Plotting Lines & Random Data
 
@@ -142,7 +142,7 @@ This tutorial shows how to use more Caffe2 features with simple linear regressio
 * automatically train the model
 * review stochastic gradient descent results and changes to your ground truth parameters as the network learned
 
-[Browse](../tutorials/toy_regression.ipynb) | [Download](../tutorials/toy_regression.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/toy_regression.ipynb) | [Download](/tutorials/toy_regression.ipynb)
 
 #### Image Pre-Processing Pipeline
 
@@ -154,13 +154,13 @@ Learn how to get your images ready for ingestion into pre-trained models or as t
 * RGB to BRG
 * image prep for Caffe2 ingestion
 
-[Browse](../tutorials/Image_Pre-Processing_Pipeline.ipynb) | [Download](../tutorials/Image_Pre-Processing_Pipeline.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Image_Pre-Processing_Pipeline.ipynb) | [Download](../tutorials/Image_Pre-Processing_Pipeline.ipynb)
 
 #### Loading Pre-trained Models
 
 Take advantage of the Model Zoo and grab some pre-trained models and take them for a test drive. This tutorial has a set of different models that are ready to go and will show you the basic steps for prepping them and firing up your neural net. Then you can throw some images or other tests at them and see how they perform.
 
-[Browse](../tutorials/Loading_Pretrained_Models.ipynb) | [Download](../tutorials/Loading_Pretrained_Models.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Loading_Pretrained_Models.ipynb) | [Download](../tutorials/Loading_Pretrained_Models.ipynb)
 
 ### Creating a CNN from Scratch
 
@@ -168,7 +168,7 @@ Take advantage of the Model Zoo and grab some pre-trained models and take them f
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. The train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
-[Browse](../tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
 
 ### Advanced Topics
 
@@ -176,4 +176,8 @@ This tutorial creates a small convolutional neural network (CNN) that can identi
 
 Explores an experimental Caffe2 feature that allows you inspect intermediate outputs as you go. It will run corresponding operators as you write them.
 
-[Browse](../tutorials/immediate.ipynb) | [Download](../tutorials/immediate.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/immediate.ipynb) | [Download](/tutorials/immediate.ipynb)
+
+### Write Your Own Tutorial!
+
+Have a great tutorial that you've created or have some ideas? Let's chat about it. Create an [Issue](https://github.com/caffe2/caffe2/issues) and post a link to your tutorial or post your idea.

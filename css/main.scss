@@ -149,7 +149,15 @@ $green: #97dccf;
   "toggler"
 ;
 
+
 // Anchor links
+
+// This allows us to not have the anchored link to fall under the header
+a.anchor {
+  position: absolute;;
+  margin-top: -($header-height+$header-ptop+$header-pbot);
+}
+
 // http://ben.balter.com/2014/03/13/pages-anchor-links/
 .header-link {
   position: absolute;
