@@ -11,7 +11,7 @@ Did you check out the wide array of [Operators](operators-catalogue.html) alread
 
 Almost every operator will use both a .cc file for the registering of the operator and a .h file for the actual implementation, though this can vary across operators. For example, in some cases, the implementation may be coded in the .cc file. In addition, several operators also have GPU/CUDA implementations, which are stored in .cu files.
 
-[](except this example where an extra .cc file has the CUDAContext invocation whereas other operators put it in the cu file... so maybe this should be changed to a cu file for consistency? Our example should be the way it is supposed to be done versus some legacy implementation that is still supported.)
+If a CUDA implementation involves actual CUDA kernels it has to be named .cu so it is complied by NVCC. If it is only implementing existing CUDA libraries then we name it `_gpu.cc` to save on compilation time.
 
 We will start by describing what goes into the .cc file. As an example, consider the operator defined in [fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc):
 
@@ -47,10 +47,6 @@ REGISTER_CUDA_OPERATOR(FCGradient,
 
 Note that the primary differences between this GPU implementation versus the CPU implementation is using `REGISTER_CUDA_OPERATOR` and `CUDAContext` instead of `REGISTER_CPU_OPERATOR` and `CPUContext`. Also note the inclusion of the additional header file [context_gpu.h](https://github.com/caffe2/caffe2/blob/master/caffe2/core/context_gpu.h) which is something you'll want to include for any GPU implementation.
 
-[](are there cases where you won't use context_gpu.h?)
-[](we should talk about context_gpu.h somewhere!)
-[](CPUContext::CopyBytes - how does this work when you're running in multi-GPU mode?)
-
 Referring back to `fully_connected_op.cc` we will look at the remainder of the file and discuss the operator schema. This is where the this operator is told how many inputs and outputs are created. This section is also used to generate the documentation for the operator in the [Operators Catalogue](operators_catalogue.html), so be thorough in describing the arguments and the functionality. Also note below that with `.Arg`, `.Input`, and `.Output` the last parameter is a description that is also utilized in generating documentation.
 
 **[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
@@ -80,12 +76,10 @@ As you can see in the schema code above, this operator has 3 inputs and 1 output
 `.Input` sets the main data used in the operator, such as the weight matrices for a fully connected layer. The example above shows three entries for `.Input`. Note the first parameter is the index of the input, starting at 0 for the first input. The second parameter is the name of the variable such as X, W, or b. Finally, the third parameter is the description.
 
 `.Arg` are usually auxiliary inputs that are not involved in the raw data manipulation.
-[]("axis" is shown here, but how many more args are there and where is this discussed?)
 
 `.Output` specifies the outputs. The types parameters are the same as `.Input`: (index, name, description)
 
 The schema goes on to describe a second operator, `FCGradient`.
-[](what is the best practice for grouping operators like this? For example, if you make a custom operator very similar to an existing one, should you make your own separate set of files like this, or should you simply modify an existing operator's .cc file, add your variant to the schema, and add whatever new functions you have to the .h file?)
 
 **[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
 
@@ -105,8 +99,6 @@ REGISTER_GRADIENT(FC, GetFCGradient);
 }  // namespace
 }  // namespace caffe2
 ```
-
-[](note the above schema doesn't have a SetDocR section, and the formatting is different, more shorthand than the previous schema. Should we reformat and force a spot for docs and tag it as "documentation missing" or similar so we go back and fill it in with something?)
 
 The input and output of GradientOp have to be tagged using the `GradientMakerBase::GetGradientDefs()`. By doing so, we're effectively informing Caffe2 how the inputs and outputs of the gradient operator are related to the corresponding operator. In particular, the first vector tags the inputs of the gradient operator, and the second vector tags the outputs. Note that doc scheme is not necessary for gradient operators usually, unless you see fit.
 
@@ -224,3 +216,5 @@ def test_accuracy(self, prediction, labels, gc, dc):
         inputs=[prediction, labels],
         reference=op_ref)
 ```
+
+Don't forget to contribute by creating an [Issue](https://github.com/caffe2/caffe2/issues) and describing your operator and linking to your project. 

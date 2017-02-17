@@ -19,7 +19,7 @@ For a full listing of Caffe2 Operators, refer to the Operators Catalogue:
 
 ## Writing Your Own Custom Operators
 
-Fantastic idea! Write custom operators and share them with the community! Refer to the guide on writing operators:
+Fantastic idea! Write custom operators and [share](https://github.com/caffe2/caffe2/issues) them with the community! Refer to the guide on writing operators:
 
 * [Guide for creating your own operators](custom-operators.html)
 

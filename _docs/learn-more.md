@@ -39,7 +39,7 @@ The philosophy of Caffe2 is the same as [Caffe](http://caffe.berkeleyvision.org/
 
 ## Why Use Caffe2?
 
-Deep Learning has the potential to bring breakthroughs in machine learning and artitifical intelligence. Caffe2 aims to provide an easy and straightforward way for developers to experiment with deep learning first hand.
+Deep Learning has the potential to bring breakthroughs in machine learning and artificial intelligence. Caffe2 aims to provide an easy and straightforward way for developers to experiment with deep learning first hand.
 
 > In some cases you may want to use existing models and skip the whole "learning" step and get familiar with the utility and effectiveness of deep learning before trying train your own model.
 
