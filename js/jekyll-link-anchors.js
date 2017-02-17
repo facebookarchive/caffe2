@@ -42,6 +42,10 @@
       return;
     }
     var nameIdx = possibleNodeNames.indexOf(node.localName); // h2 = 0, h3 = 1, etc.
+    // The anchor will be used for the actual positioning after click so that we aren't under
+    // a fixed header
+    var anchor;
+    // The actual link of associated with the anchor
     var link;
     var id;
     var psib;
@@ -62,6 +66,8 @@
         node.getAttribute('id').substring(0, suffix.index) === node.textContent.toLowerCase()) {
       node.setAttribute('id', node.textContent.toLowerCase());
     }
+    anchor = document.createElement('a');
+    anchor.className='anchor';
 
     link = document.createElement('a');
     link.className = 'header-link';
@@ -82,8 +88,11 @@
       }
       psib = psib.previousElementSibling;
     }
-    link.id = id + node.getAttribute('id');
-    link.href = '#' + link.id;
+    anchor.name = id + node.getAttribute('id');
+    node.insertBefore(anchor, node.firstChild);
+    link.href = '#' + id + node.getAttribute('id');
     node.appendChild(link);
+    // We don't want duplicate ids since the anchor will have this id already included.
+    node.removeAttribute('id');
   });
 })();
