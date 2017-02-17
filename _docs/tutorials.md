@@ -43,13 +43,13 @@ These recent academic tutorials cover deep learning for researchers in machine l
 
 ### Operators
 
-One of basic units of computation in Caffe2 are the [Operators](operators.html).
+One of basic units of computation in Caffe2 are the [Operators](/docs/operators).
 
 #### Writing Your Own Operators
 
 Fantastic idea! Write custom operators and share them with the community! Refer to the guide on writing operators:
 
-* [Guide for creating your own operators](custom-operators.html)
+* [Guide for creating your own operators](/docs/custom-operators)
 
 ## IPython Notebook Tutorials
 
@@ -104,11 +104,11 @@ Or you can run the shell script included in the tutorial folder:
 ./start_ipython_notebook.sh
 ```
 
-When your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in */docs/tutorials*. Opening them this way will launch their interactive features.
+When your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in the [`tutorials`](/tutorials) directory. Opening them this way will launch their interactive features.
 
 ### Basics
 
-[Browse](../tutorials/basics.ipynb) | [Download](../tutorials/basics.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/basics.ipynb) | [Download](/tutorials/basics.ipynb)
 
 This tutorial introduces a few basic Caffe2 components:
 
@@ -118,7 +118,7 @@ This tutorial introduces a few basic Caffe2 components:
 
 ### Toy Regression - Plotting Lines & Random Data
 
-[Browse](../tutorials/toy_regression.ipynb) | [Download](../tutorials/toy_regression.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/toy_regression.ipynb) | [Download](/tutorials/toy_regression.ipynb)
 
 This tutorial shows how to use more Caffe2 features with simple linear regression as the theme.
 
@@ -129,13 +129,13 @@ This tutorial shows how to use more Caffe2 features with simple linear regressio
 
 ### MNIST - Handwriting Recognition
 
-[Browse](../tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
+[Browse](/tutorials/MNIST.ipynb) | [Download](/tutorials/MNIST.ipynb)
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. The train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
 ### Immediate Outputs - Experimental
 
-[Browse](../tutorials/immediate.ipynb) | [Download](../tutorials/immediate.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/immediate.ipynb) | [Download](/tutorials/immediate.ipynb)
 
 Explores an experimental Caffe2 feature that allows you inspect intermediate outputs as you go. It will run corresponding operators as you write them.
 
@@ -143,4 +143,4 @@ Explores an experimental Caffe2 feature that allows you inspect intermediate out
 
 A tutorial for converting your old Caffe models or for any of the models found in the Caffe Model Zoo is provided in the following Jupyter notebook found at `docs/tutorials/Caffe_translator.ipynb` or you can browse and download them here:
 
-[Browse](../tutorials/Caffe_translator.ipynb) | [Download](../tutorials/Caffe_translator.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Caffe_translator.ipynb) | [Download](/tutorials/Caffe_translator.ipynb)
