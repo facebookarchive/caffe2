@@ -78,6 +78,7 @@ class TranslatorRegistry(object):
         caffe_net,
         pretrained_net,
         is_test=False,
+        input_mean=None,
         net_state=None,
     ):
         net_state = caffe_pb2.NetState() if net_state is None else net_state
@@ -90,34 +91,56 @@ class TranslatorRegistry(object):
                 'only accepts new style layers that are stored in the '
                 'layer field.'
             )
-        for layer in caffe_net.layer:
-            if not _ShouldInclude(net_state, layer):
+        if input_mean:
+            caffenet_mean = caffe_pb2.BlobProto()
+            caffenet_mean.ParseFromString(open(input_mean, 'rb').read())
+            mean_ = utils.CaffeBlobToNumpyArray(caffenet_mean)
+            mean_tensor = utils.NumpyArrayToCaffe2Tensor(mean_, 'mean_')
+            net_params.protos.extend([mean_tensor])
+            mean_op = caffe2_pb2.OperatorDef()
+            mean_op.type = 'Sub'
+            mean_op.input.extend(['data_', 'mean_'])
+            # Assume that input blob's name is "data"
+            mean_op.output.extend(['data'])
+            net.op.extend([mean_op])
+        i = 0
+        while i < len(caffe_net.layer):
+            if not _ShouldInclude(net_state, caffe_net.layer[i]):
                 log.info('Current net state does not need layer {}'
-                            .format(layer.name))
+                            .format(caffe_net.layer[i].name))
                 continue
-            log.info('Translate layer {}'.format(layer.name))
+            log.info('Translate layer {}'.format(caffe_net.layer[i].name))
             # Get pretrained one
-            pretrained_layers = (
-                [l for l in pretrained_net.layer
-                 if l.name == layer.name] + [l
-                                             for l in pretrained_net.layers
-                                             if l.name == layer.name]
-            )
-            if len(pretrained_layers) > 1:
+            # Note: Not Support V1LayerParameter
+            pretrained_layers_index = [l for l in xrange(len(pretrained_net.layer))
+                 if pretrained_net.layer[l] == caffe_net.layer[i].name]
+            if len(pretrained_layers_index) > 1:
                 raise ValueError(
                     'huh? more than one pretrained layer of one name?')
-            elif len(pretrained_layers) == 1:
-                pretrained_blobs = [
-                    utils.CaffeBlobToNumpyArray(blob)
-                    for blob in pretrained_layers[0].blobs
-                ]
+            elif len(pretrained_layers_index) == 1:
+                if pretrained_net.layer[pretrained_layers_index[0]].type == "BatchNorm":
+                    # A Scale layer should follow BatchNorm layer
+                    # according to paper https://arxiv.org/abs/1502.03167.
+                    assert pretrained_net.layer[pretrained_layers_index[0]+1].type == "Scale"
+                    pretrained_blobs = [utils.CaffeBlobToNumpyArray(blob)
+                    for blob in pretrained_net.layer[pretrained_layers_index[0]].blobs] +\
+                        [utils.CaffeBlobToNumpyArray(blob)
+                    for blob in pretrained_net.layer[pretrained_layers_index[0] + 1].blobs]
+                    i += 2
+                else:
+                    pretrained_blobs = [
+                        utils.CaffeBlobToNumpyArray(blob)
+                        for blob in pretrained_net.layer[pretrained_layers_index[0]].blobs
+                    ]
+                    i += 1
             else:
                 # No pretrained layer for the given layer name. We'll just pass
                 # no parameter blobs.
                 # print 'No pretrained layer for layer', layer.name
                 pretrained_blobs = []
+
             operators, params = cls.TranslateLayer(
-                layer, pretrained_blobs, is_test)
+                caffe_net.layer[i], pretrained_blobs, is_test)
             net.op.extend(operators)
             net_params.protos.extend(params)
         return net, net_params
@@ -276,7 +299,6 @@ def TranslateDeconv(layer, pretrained_blobs, is_test):
 def TranslateRelu(layer, pretrained_blobs, is_test):
     return BaseTranslate(layer, "Relu"), []
 
-
 @TranslatorRegistry.Register("PReLU")
 def TranslateRelu(layer, pretrained_blobs, is_test):
     caffe_op = BaseTranslate(layer, "PRelu")
@@ -296,18 +318,7 @@ def TranslatePool(layer, pretrained_blobs, is_test):
         caffe_op = BaseTranslate(layer, "AveragePool")
     _TranslateStridePadKernelHelper(param, caffe_op)
     AddArgument(caffe_op, "order", "NCHW")
-    if param.HasField('torch_pooling') and param.torch_pooling:
-        # In the Facebook port of Caffe, a torch_pooling field was added to
-        # map the pooling computation of Torch. Essentially, it uses
-        #   floor((height + 2 * padding - kernel) / stride) + 1
-        # instead of
-        #   ceil((height + 2 * padding - kernel) / stride) + 1
-        # which is Caffe's version.
-        # Torch pooling is actually the same as Caffe2 pooling, so we don't
-        # need to do anything.
-        pass
-    else:
-        AddArgument(caffe_op, "legacy_pad",
+    AddArgument(caffe_op, "legacy_pad",
                     caffe2_legacy_pb2.CAFFE_LEGACY_POOLING)
     if param.global_pooling:
         AddArgument(caffe_op, "global_pooling", 1)
@@ -508,6 +519,30 @@ def TranslateSigmoid(layer, pretrained_blobs, is_test):
     return caffe_op, []
 
 
+@TranslatorRegistry.Register("BatchNorm")
+def TranslateBatchNorm(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "SpatialBN")
+    output = caffe_op.output[0]
+    param = layer.batch_norm_param
+    AddArgument(caffe_op, "is_test", is_test)
+    AddArgument(caffe_op, "epsilon", param.eps)
+    AddArgument(caffe_op, "order", "NCHW")
+
+    caffe_op.input.extend([output + "_scale", output + "_bias", output + "_mean", output + "_var"])
+    if not is_test:
+        caffe_op.output.extend([output + "_mean", output + "_var", output + "_saved_mean", output + "_saved_var"])
+
+    mean = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_mean')
+    var = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[1], output + '_var')
+    scale = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[2], output + '_scale')
+    bias = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[3], output + '_bias')
+
+    return caffe_op, [scale, bias, mean, var]
+
+
+
+
+
 @TranslatorRegistry.Register("ROIPooling")
 def TranslateROIPooling(layer, pretrained_blobs, is_test):
     caffe_op = BaseTranslate(layer, "RoIPool")
@@ -535,6 +570,7 @@ if __name__ == '__main__':
         description="Utilitity to convert pretrained caffe models to Caffe2 models.")
     parser.add_argument("prototext", help="Caffe prototext.")
     parser.add_argument("caffemodel", help="Caffe trained model.")
+    parser.add_argument("--mean_file", help="Caffe mean protobuf binary file.", default=None)
     parser.add_argument("--init_net", help="Caffe2 initialization net.", default="init_net.pb")
     parser.add_argument("--predict_net", help="Caffe2 prediction net.", default="predict_net.pb")
     args = parser.parse_args()
@@ -543,6 +579,7 @@ if __name__ == '__main__':
     caffenet_pretrained = caffe_pb2.NetParameter()
     input_proto = args.prototext
     input_caffemodel = args.caffemodel
+    input_mean = args.mean_file
     output_init_net = args.init_net
     output_predict_net = args.predict_net
 
@@ -550,10 +587,11 @@ if __name__ == '__main__':
         open(input_proto).read(), caffenet
     )
     caffenet_pretrained.ParseFromString(
-        open(input_caffemodel).read()
+        open(input_caffemodel, 'rb').read()
     )
+
     net, pretrained_params = TranslateModel(
-        caffenet, caffenet_pretrained, is_test=True
+        caffenet, caffenet_pretrained, is_test=True, input_mean=input_mean
     )
 
     # Assume there is one input and one output
@@ -568,6 +606,6 @@ if __name__ == '__main__':
     for param in pretrained_params.protos:
         workspace.FeedBlob(param.name, utils.Caffe2TensorToNumpyArray(param))
     with open(output_predict_net, 'wb') as f:
-        f.write(net.SerializeToString())
+        f.write(str(net))
     with open(output_init_net, 'wb') as f:
         f.write(init_net.SerializeToString())
