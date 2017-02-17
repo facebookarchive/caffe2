@@ -317,8 +317,8 @@ class CNNModelHelper(ModelHelperBase):
         bias_init=None, **kwargs
     ):
         """FC"""
-        weight_init = weight_init if weight_init else ('XavierFill', {})
-        bias_init = bias_init if bias_init else ('ConstantFill', {})
+        weight_init = weight_init or ('XavierFill', {})
+        bias_init = bias_init or ('ConstantFill', {})
         blob_out = blob_out or self.net.NextName()
         if self.init_params:
             weight = self.param_init_net.__getattr__(weight_init[0])(
@@ -735,8 +735,15 @@ class CNNModelHelper(ModelHelperBase):
                     dim_in=dim_out, dim_out=4 * dim_out, axis=2)
         step_net.net.Sum([s("gates_t"), "input_t"], [s("gates_t")])
         step_net.net.LSTMUnit(
-            ["cell_t_prev", s("gates_t"), str(seq_lengths), "timestep"],
-            ["hidden_t", "cell_t"])
+            [
+                "hidden_t_prev",
+                "cell_t_prev",
+                s("gates_t"),
+                str(seq_lengths),
+                "timestep",
+            ],
+            ["hidden_t", "cell_t"],
+        )
 
         links = [
             ("hidden_t_prev", s("hidden"), 0),

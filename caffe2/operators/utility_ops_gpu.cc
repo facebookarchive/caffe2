@@ -2,6 +2,29 @@
 #include "caffe2/operators/utility_ops.h"
 
 namespace caffe2 {
+
+template <>
+class CopyOnDeviceLikeOp<CUDAContext, CUDAContext, CUDAContext>
+    : public Operator<CUDAContext> {
+ public:
+  CopyOnDeviceLikeOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<CUDAContext>(operator_def, ws) {}
+  USE_OPERATOR_FUNCTIONS(CUDAContext);
+
+  bool RunOnDevice() override {
+    auto& input = Input(0);
+    auto* output = OperatorBase::Output<Tensor<CUDAContext>>(0);
+    CUDAContext context(GetGPUIDForPointer(Input(1).raw_data()));
+    output->ResizeLike(input);
+    context.template CopyItems<CUDAContext, CUDAContext>(
+        input.meta(),
+        input.size(),
+        input.raw_data(),
+        output->raw_mutable_data(input.meta()));
+    return true;
+  }
+};
+
 namespace {
 
 REGISTER_CUDA_OPERATOR(Print, PrintOp<CUDAContext>);
@@ -14,6 +37,7 @@ REGISTER_CUDA_OPERATOR(ResizeLike, ResizeLikeOp<CUDAContext>);
 REGISTER_CUDA_OPERATOR(Reshape, ReshapeOp<float, CUDAContext>);
 REGISTER_CUDA_OPERATOR(Sum, SumOp<float, CUDAContext>);
 REGISTER_CUDA_OPERATOR(WeightedSum, WeightedSumOp<float, CUDAContext>);
+REGISTER_CUDA_OPERATOR(Shape, ShapeOp<CUDAContext>);
 // From whatever the current context, ensure the output is TensorCPU
 REGISTER_CUDA_OPERATOR(
     EnsureCPUOutput,
@@ -35,7 +59,11 @@ REGISTER_CUDA_OPERATOR(
 // involving different GPUs.
 REGISTER_CUDA_OPERATOR(Copy, CopyOp<CUDAContext, CUDAContext, CUDAContext>);
 
+REGISTER_CUDA_OPERATOR(
+    CopyOnDeviceLike,
+    CopyOnDeviceLikeOp<CUDAContext, CUDAContext, CUDAContext>);
+
 REGISTER_CUDA_OPERATOR(UnsafeCoalesce, UnsafeCoalesceOp<CUDAContext>);
 
-}  // namespace
-}  // namespace caffe2
+} // namespace
+} // namespace caffe2

@@ -474,8 +474,8 @@ class Scalar(Field):
                 if blob.size == 0:
                     blob = blob.reshape((0, ) + dtype.shape)
             else:
-                assert isinstance(blob, np.ndarray
-                                 ), ('Invalid blob type: %s' % str(type(blob)))
+                assert isinstance(blob, np.ndarray), (
+                    'Invalid blob type: %s' % str(type(blob)))
 
             # reshape scalars into 1D arrays
             # TODO(azzolini): figure out better way of representing this
@@ -785,19 +785,21 @@ def FeedRecord(blob_record, arrays, ws=None):
 def NewRecord(net, schema):
     """
     Given a record of np.arrays, create a BlobReference for each one of them,
-    returning a record containing BlobReferences. The BlobReferences will be
-    added as ExternalInputs of the given net.
+    returning a record containing BlobReferences. The name of each returned blob
+    is NextScopedBlob(field_name), which guarantees unique name in the current
+    net. Use NameScope explicitly to avoid name conflictions between different
+    nets.
     """
     if isinstance(schema, Scalar):
         result = schema.clone()
         result.set_value(
-            blob=ScopedBlobReference(net.NextName('unnamed_scalar'))
+            blob=net.NextScopedBlob('unnamed_scalar')
         )
         return result
 
     assert isinstance(schema, Field), 'Record must be a schema.Field instance.'
     blob_refs = [
-        net.AddExternalInput(net.NextName(prefix=name))
+        net.NextScopedBlob(prefix=name)
         for name in schema.field_names()
     ]
     return from_blob_list(schema, blob_refs)
@@ -842,8 +844,8 @@ _DATA_TYPE_FOR_DTYPE = [
 
 def is_schema_subset(schema, original_schema):
     # TODO add more checks
-    return set(schema.field_names()
-              ).issubset(set(original_schema.field_names()))
+    return set(schema.field_names()).issubset(
+        set(original_schema.field_names()))
 
 
 def equal_schemas(schema, original_schema):

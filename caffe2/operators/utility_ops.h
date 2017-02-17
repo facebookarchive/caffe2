@@ -545,7 +545,7 @@ class ScatterAssignOp : public Operator<Context> {
     T* data = output->template mutable_data<T>();
     const Index* idxs = indices.template data<Index>();
     const T* slicesData = slices.template data<T>();
-    CAFFE2_OMP_PARALLEL_FOR()
+    // TODO: proper vectorization with Eigen
     for (int i = 0; i < K; ++i) {
       Index idx = idxs[i];
       // double-checking the indices, but it's fine as it's DCHECK only
@@ -576,6 +576,13 @@ class CopyOp : public Operator<Context> {
         output->raw_mutable_data(input.meta()));
     return true;
   }
+};
+
+template <class Context, class DstContext, class SrcContext>
+class CopyOnDeviceLikeOp : public CopyOp<Context, DstContext, SrcContext> {
+ public:
+  CopyOnDeviceLikeOp(const OperatorDef& operator_def, Workspace* ws)
+      : CopyOp<Context, DstContext, SrcContext>(operator_def, ws) {}
 };
 
 template <class Context>
@@ -970,12 +977,11 @@ class ShapeOp : public Operator<Context> {
 
   bool RunOnDevice() override {
     auto& input = Input(0);
-    auto* output = OperatorBase::Output<TensorCPU>(0);
+    auto* output = OperatorBase::Output<Tensor<Context>>(0);
     output->Resize(input.ndim());
     TIndex* output_data = output->template mutable_data<TIndex>();
-    for (int i = 0; i < input.ndim(); ++i) {
-      output_data[i] = input.dim(i);
-    }
+    context_.template CopyBytes<Context, Context>(
+        input.ndim() * sizeof(TIndex), input.dims().data(), output_data);
     return true;
   }
 };
