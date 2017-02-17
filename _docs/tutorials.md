@@ -33,13 +33,16 @@ These recent academic tutorials cover deep learning for researchers in machine l
 
 ## Tour of Caffe Components  
 
-* [Nets, Layers, and Blobs](http://caffe.berkeleyvision.org/tutorial/net_layer_blob.html): the anatomy of a Caffe model
-* [Forward / Backward](http://caffe.berkeleyvision.org/tutorial/forward_backward.html): the essential computations of layered compositional models
-* [Loss](http://caffe.berkeleyvision.org/tutorial/loss.html): the task to be learned is defined by the loss
-* [Solver](http://caffe.berkeleyvision.org/tutorial/solver.html): the solver coordinates model optimization
-* [Layer Catalogue](http://caffe.berkeleyvision.org/tutorial/layers.html): **DEPRECATED** in favor of Operators. However, the original Caffe coverage of layers is quite good and worth looking at. Below in the operators section we will talk more about how Caffe2 compares with its earlier version. The layer is the fundamental unit of modeling and computation – Caffe’s catalogue includes layers for state-of-the-art models
-* [Interfaces](http://caffe.berkeleyvision.org/tutorial/interfaces.html): command line, Python, and MATLAB Caffe
-* [Data](http://caffe.berkeleyvision.org/tutorial/data.html): how to *caffeinate* data for model input
+### C++ implementation
+
+* gpu.h: needs documentation
+* db.h: needs documentation
+
+
+### Python implementation
+
+* TensorProtosDBInput: needs documentation
+
 
 ### Operators
 
@@ -53,42 +56,42 @@ Fantastic idea! Write custom operators and share them with the community! Refer 
 
 ## IPython Notebook Tutorials
 
-  These IPython notebook tutorials we have provided below will guide you through the Caffe2 Python interface. Some tutorials have been generously provided by the Caffe community and we welcome more contributions of this kind to help others get ramped up more quickly and to try out the many different uses of Caffe2.
+These IPython notebook tutorials we have provided below will guide you through the Caffe2 Python interface. Some tutorials have been generously provided by the Caffe community and we welcome more contributions of this kind to help others get ramped up more quickly and to try out the many different uses of Caffe2.
 
-  The iPython notebook tutorials can be browsed or downloaded using the links below each tutorial's title.
+The iPython notebook tutorials can be browsed or downloaded using the links below each tutorial's title.
 
-  You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself.
+You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself.
 
-  However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. Installation instructions below will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
+However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. Installation instructions below will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
 
 ### Installation
 
-  To run the tutorials you'll need Python 2.7, [ipython-notebooks](http://jupyter.org/install.html) and [matplotlib](http://matplotlib.org/users/installing.html), which can be installed on with:
+To run the tutorials you'll need Python 2.7, [ipython-notebooks](http://jupyter.org/install.html) and [matplotlib](http://matplotlib.org/users/installing.html), which can be installed on with:
 
 #### MacOSx via Brew & pip
 
-  ```
-  brew install matplotlib --with-python3
-  pip install ipython notebook
-  pip install scikit-image
-  ```
+```bash
+brew install matplotlib --with-python3
+pip install ipython notebook
+pip install scikit-image
+```
 
 #### Anaconda
 
 Anaconda comes with iPython notebook, so you'll only need to install matplotlib.
 
-  ```
-  conda install matplotlib
-  conda install scikit-image
-  ```
+```bash
+conda install matplotlib
+conda install scikit-image
+```
 
 #### pip
 
-  ```
-  pip install matplotlib
-  pip install ipython notebook
-  pip install scikit-image
-  ```
+```bash
+pip install matplotlib
+pip install ipython notebook
+pip install scikit-image
+```
 
 Instructions on how to setup Jupyter Notebook, which is the latest, greatest way to use and create interactive code notebooks (ipynb files) is found at [http://jupyter.org](http://jupyter.org/install.html).
 
@@ -106,9 +109,21 @@ Or you can run the shell script included in the tutorial folder:
 
 When your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in */docs/tutorials*. Opening them this way will launch their interactive features.
 
-### Basics
+### Beginners and New to Caffe2
 
-[Browse](../tutorials/basics.ipynb) | [Download](../tutorials/basics.ipynb)
+#### Converting Models from Caffe to Caffe2
+
+A tutorial for converting your old Caffe models or for any of the models found in the Caffe Model Zoo is provided in the following Jupyter notebook found at `docs/tutorials/Caffe_translator.ipynb` or you can browse and download them here:
+
+[Browse](../tutorials/Caffe_translator.ipynb) | [Download](../tutorials/Caffe_translator.ipynb)
+
+#### Getting Models and Datasets
+
+Here you can find a tutorial with examples of downloading datasets and models from Caffe's original repository as well as use the new Caffe2 Model Downloader.
+
+[Browse](../tutorials/Getting_Models_and_Datasets.ipynb) | [Download](../tutorials/Getting_Models_and_Datasets.ipynb)
+
+#### Basics of Caffe2 - Workspaces, Operators, and Nets
 
 This tutorial introduces a few basic Caffe2 components:
 
@@ -116,9 +131,9 @@ This tutorial introduces a few basic Caffe2 components:
 * Operators
 * Nets
 
-### Toy Regression - Plotting Lines & Random Data
+[Browse](../tutorials/basics.ipynb) | [Download](../tutorials/basics.ipynb)
 
-[Browse](../tutorials/toy_regression.ipynb) | [Download](../tutorials/toy_regression.ipynb)
+#### Toy Regression - Plotting Lines & Random Data
 
 This tutorial shows how to use more Caffe2 features with simple linear regression as the theme.
 
@@ -127,20 +142,38 @@ This tutorial shows how to use more Caffe2 features with simple linear regressio
 * automatically train the model
 * review stochastic gradient descent results and changes to your ground truth parameters as the network learned
 
-### MNIST - Handwriting Recognition
+[Browse](../tutorials/toy_regression.ipynb) | [Download](../tutorials/toy_regression.ipynb)
 
-[Browse](../tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
+#### Image Pre-Processing Pipeline
+
+Learn how to get your images ready for ingestion into pre-trained models or as test images against other datasets. From cell phones to web cams to new medical imagery you will want to consider your image ingestion pipeline and what conversions are necessary for both speed and accuracy during any kind of image classification.
+
+* resizing
+* rescaling
+* HWC to CHW
+* RGB to BRG
+* image prep for Caffe2 ingestion
+
+[Browse](../tutorials/Image_Pre-Processing_Pipeline.ipynb) | [Download](../tutorials/Image_Pre-Processing_Pipeline.ipynb)
+
+#### Loading Pre-trained Models
+
+Take advantage of the Model Zoo and grab some pre-trained models and take them for a test drive. This tutorial has a set of different models that are ready to go and will show you the basic steps for prepping them and firing up your neural net. Then you can throw some images or other tests at them and see how they perform.
+
+[Browse](../tutorials/Loading_Pretrained_Models.ipynb) | [Download](../tutorials/Loading_Pretrained_Models.ipynb)
+
+### Creating a CNN from Scratch
+
+#### MNIST - Handwriting Recognition
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. The train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
-### Immediate Outputs - Experimental
+[Browse](../tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
 
-[Browse](../tutorials/immediate.ipynb) | [Download](../tutorials/immediate.ipynb)
+### Advanced Topics
+
+#### Immediate Outputs - Experimental
 
 Explores an experimental Caffe2 feature that allows you inspect intermediate outputs as you go. It will run corresponding operators as you write them.
 
-### Converting Models from Caffe to Caffe2
-
-A tutorial for converting your old Caffe models or for any of the models found in the Caffe Model Zoo is provided in the following Jupyter notebook found at `docs/tutorials/Caffe_translator.ipynb` or you can browse and download them here:
-
-[Browse](../tutorials/Caffe_translator.ipynb) | [Download](../tutorials/Caffe_translator.ipynb)
+[Browse](../tutorials/immediate.ipynb) | [Download](../tutorials/immediate.ipynb)
