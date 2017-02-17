@@ -16,13 +16,13 @@ If you chose 1 then keep reading. You'll need some background in neural networki
 
 If you chose 2, then you will want to jump down to the [IPython notebook tutorials](tutorials.html#ipython-notebook-tutorials), where several examples are using pre-trained models and will show you how to get a demo project up and running in minutes. Want to have image classification in your Android or iOS app? It's pretty much plug-n-play with Android Studio or Xcode.
 
-### New to deep learning:
+### New to deep learning
 
 A broad introduction is given in the free online draft of [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/index.html) by Michael Nielsen. In particular the chapters on using neural nets and how backpropagation works are helpful if you are new to the subject.
 
 For an exposition of neural networks in circuits and code, check out [Understanding Neural Networks from a Programmer’s Perspective](http://karpathy.github.io/neuralnets/) by Andrej Karpathy (Stanford).
 
-### Experienced researchers in some facet of machine learning:
+### Experienced researchers in some facet of machine learning
 
 The [Tutorial on Deep Learning for Vision](https://sites.google.com/site/deeplearningcvpr2014/) from CVPR ‘14 is a good companion tutorial for researchers. Once you have the framework and practice foundations from the Caffe tutorial, explore the fundamental ideas and advanced research directions in the CVPR ‘14 tutorial.
 

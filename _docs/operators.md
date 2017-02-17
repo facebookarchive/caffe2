@@ -5,8 +5,6 @@ layout: docs
 permalink: /docs/operators.html
 ---
 
-**New in Caffe2!**
-
 One of basic units of computation in Caffe2 are the `Operators`. Each operator contains the logic necessary to compute the output given the appropriate number and types of inputs and parameters. The overall difference between operators' functionality in Caffe and Caffe2 is illustrated in the following graphic, respectively:
 
 ![operators comparison](../static/images/operators-comparison.png)
