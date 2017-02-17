@@ -31,6 +31,7 @@ else()
   if ( NOT (Protobuf_FOUND OR PROTOBUF_FOUND) )
     custom_protobuf_find()
   else()
+    # Adding PROTOBUF_LIBRARY for legacy support.
     list(APPEND Caffe2_DEPENDENCY_LIBS ${PROTOBUF_LIBRARIES} ${PROTOBUF_LIBRARY})
     include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIR})
   endif()
