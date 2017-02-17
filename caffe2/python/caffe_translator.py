@@ -111,9 +111,13 @@ class TranslatorRegistry(object):
                 continue
             log.info('Translate layer {}'.format(caffe_net.layer[i].name))
             # Get pretrained one
-            # Note: Not Support V1LayerParameter
-            pretrained_layers_index = [l for l in xrange(len(pretrained_net.layer))
-                 if pretrained_net.layer[l] == caffe_net.layer[i].name]
+            pretrained_layers_index = (
+                [l for l in xrange(len(pretrained_net.layer))
+                 if pretrained_net.layer[l].name == caffe_net.layer[i].name] +
+                [l for l in xrange(len(pretrained_net.layers))
+                 if pretrained_net.layers[l].name == caffe_net.layer[i].name]
+            )
+            is_bn = False
             if len(pretrained_layers_index) > 1:
                 raise ValueError(
                     'huh? more than one pretrained layer of one name?')
@@ -123,27 +127,29 @@ class TranslatorRegistry(object):
                     # according to paper https://arxiv.org/abs/1502.03167.
                     assert pretrained_net.layer[pretrained_layers_index[0]+1].type == "Scale"
                     pretrained_blobs = [utils.CaffeBlobToNumpyArray(blob)
-                    for blob in pretrained_net.layer[pretrained_layers_index[0]].blobs] +\
+                    for blob in pretrained_net.layer[pretrained_layers_index[0]].blobs] + \
                         [utils.CaffeBlobToNumpyArray(blob)
                     for blob in pretrained_net.layer[pretrained_layers_index[0] + 1].blobs]
-                    i += 2
+                    is_bn = True
                 else:
                     pretrained_blobs = [
                         utils.CaffeBlobToNumpyArray(blob)
                         for blob in pretrained_net.layer[pretrained_layers_index[0]].blobs
                     ]
-                    i += 1
             else:
                 # No pretrained layer for the given layer name. We'll just pass
                 # no parameter blobs.
                 # print 'No pretrained layer for layer', layer.name
                 pretrained_blobs = []
-                i += 1
 
             operators, params = cls.TranslateLayer(
                 caffe_net.layer[i], pretrained_blobs, is_test)
             net.op.extend(operators)
             net_params.protos.extend(params)
+            if is_bn:
+                i += 2
+            else:
+                i += 1
         return net, net_params
 
 
