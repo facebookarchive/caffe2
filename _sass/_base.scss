@@ -289,6 +289,11 @@ section#intro {
         font-size: 110%;
       }
 
+      h4 {
+        border-bottom: 1px solid $primary-bg;
+        font-size: 90%;
+      }
+
       ol {
         list-style: decimal outside none;
       }
@@ -419,6 +424,10 @@ section#intro {
 
         h3 {
           font-size: 120%;
+        }
+
+        h4 {
+          font-size: 100%;
         }
 
         .docPagination {
