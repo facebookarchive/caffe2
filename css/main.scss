@@ -177,3 +177,14 @@ h5:hover .header-link,
 h6:hover .header-link {
   opacity: 1;
 }
+
+.operator_search {
+  width: 90%;
+  margin: 2%;
+  font-size: $base-font-size;
+  font-family: $base-font-family;
+  border: 1px #888 solid;
+  border-radius: 4px;
+  outline:none;
+}
+

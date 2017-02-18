@@ -1,11 +1,9 @@
 ---
 docid: operators-catalogue
 title: Operators Catalogue
-layout: docs
+layout: operators
 permalink: /docs/operators-catalogue.html
 ---
-* TOC
-{:toc}
 
 
 ## Accumulate
