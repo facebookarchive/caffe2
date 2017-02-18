@@ -12,16 +12,17 @@ Whenever possible, [Homebrew](http://brew.sh) is used to install dependencies.
 
 ### Install Python
 
-[Python 2.7](https://www.python.org/download/releases/2.7/) is required to run Caffe2's Python modules. You can still use Caffe2's C++ libraries without Python if that is your preference. *MacOS X has Python built in by default*, and that can be used to run Caffe2. To check your version:
+[Python 2.7](https://www.python.org/download/releases/2.7/) is required to run Caffe2's Python modules. *MacOS X has Python built in by default*, and that can be used to run Caffe2. To check your version:
 
 ```
 python --version
 ```
 
-Caffe2 currently supports Python 2.7. We hope to support Python 3 in the near future. If you're already using Python 3, consider using virtualenv or Anaconda and install Caffe2 in a Python 2.7 environment.
-
+> Caffe2 currently supports Python 2.7. We hope to support Python 3 in the near future. If you're already using Python 3, consider using virtualenv or Anaconda and install Caffe2 in a Python 2.7 environment.
 
 > The [Anaconda](https://www.continuum.io/downloads) platform provides a single script to install many of the necessary packages for Caffe2, including Python. Using Anaconda is outside the scope of these instructions, but if you are interested, it may work well for you.
+
+> You can still use Caffe2's C++ libraries without Python if that is your preference.
 
 <block class="mac compile" />
 
@@ -35,22 +36,22 @@ brew install git
 
 ### Required Dependencies
 
-1. Xcode Command Line Tools or a comparable compiler is needed to build from source.
+1. [Xcode](https://developer.apple.com/xcode/) Command Line Tools or a comparable compiler is needed to build from source.
 
-  - [Xcode](https://developer.apple.com/xcode/): Apple developer account required
+    - [Install Xcode](https://itunes.apple.com/us/app/xcode/id497799835)
 
-2. (optional) GPU support - you don't need this if you are only using CPU mode
+2. (optional) GPU support via [Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone): install from NVIDIA's site; free developer account required
 
-  - [Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone): install from NVIDIA's site; free developer account required
-  - [Installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/)
+    - [Installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/)
 
-3. Other dependencies will be installed for you in /third_party in Caffe2's source. [more info](getting-started.html#whats-in-third-party)
+3. Other dependencies will be installed for you in `/third_party` in Caffe2's source. [more info](#whats-in-third-party)
 
-> Make sure you have installed Xcode and CUDA (if using GPU) before running these
+> CUDA is not required if you are only using CPU mode with Caffe2.
 
 ```
-brew install glog automake protobuf leveldb lmdb
-sudo pip install numpy protobuf
+# Make sure you have installed Xcode and CUDA (if using GPU) before running these.
+brew install glog automake leveldb lmdb
+sudo pip install numpy
 ```
 
 ## Compilation
@@ -58,6 +59,7 @@ sudo pip install numpy protobuf
 To compile Caffe2, first ensure the [prerequisites above]() are installed. Then you can download for compilation.
 
 ```
+## --recursive gets submodules - same as git submodule init && git submodule update
 git clone --recursive https://github.com/caffe2/caffe2.git
 cd caffe2
 make
@@ -78,13 +80,20 @@ An output of `Failure` usually means you have not installed one of the dependenc
 
 <block class="mac prebuilt" />
 
-## Prebuilt
+## Prebuilt Caffe2 Python Wheel
 
-** ADD LINK TO PREBUILT WHEEL HERE **
+- [Download the prebuilt Caffe2 Python Wheel](** ADD LINK TO PREBUILT WHEEL HERE **)
+- Then run:
+
+```python
+pip install caffe2.whl
+```
+
+This will also install various [third party](#whats-in-third-party) tools as well.
 
 <block class="mac compile prebuilt" />
 
-### Suggested Dependencies
+## Suggested Dependencies
 
 Strictly speaking, you now have everything you need to run the core Caffe2 successfully. However, for real-world deep learning (e.g., image processing, mathematical operations, etc), there are other dependencies that you will want to install in order to experience the full features of Caffe2.
 
@@ -117,20 +126,22 @@ There are also various Python libraries that will be valuable in your experience
 sudo pip install flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image
 ```
 
-### What's in Third Party?
+## What's in Third Party?
 
-- Android cmake
-- Benchmark
-- cnmem
-- cub
-- eigen
-- googletest
-- ios-cmake
-- nccl
-- nervanagpu
-- NNPACK
-- protobuf
-- pybind11
+Whether building from source or installing from the Python wheel, you also get complimentary tools installed as well.
+
+- [Android cmake](https://github.com/taka-no-me/android-cmake)
+- [benchmark](https://github.com/google/benchmark)
+- [cnmem](https://github.com/NVIDIA/cnmem)
+- [cub](http://nvlabs.github.io/cub/)
+- [eigen](http://eigen.tuxfamily.org/)
+- [googletest](https://github.com/google/googletest)
+- [ios-cmake](https://github.com/cristeab/ios-cmake)
+- [nccl](https://github.com/NVIDIA/nccl)
+- [nervanagpu](https://github.com/NervanaSystems/nervanagpu)
+- [NNPACK](https://github.com/Maratyszcza/NNPACK)
+- [Google Protocol Buffers (protobuf)](https://developers.google.com/protocol-buffers/)
+- [pybind11](https://github.com/pybind/pybind11)
 
 <block class="mac docker" />
 
