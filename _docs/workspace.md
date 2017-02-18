@@ -1,9 +1,13 @@
 ---
 docid: workspace
-title: The Workspace Class
+title: Workspace & CNN Classes
 layout: docs
 permalink: /docs/workspace.html
 ---
+These two classes are highlighted as they're commonly used in examples and tutorials. Workspace is a key component of Caffe2 while [CNNModelHelper](workspace.html#cnnmodelhelper) is useful in quickly creating CNNs.
+
+## Workspace
+**Code:** [workspace.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/workspace.py)
 
 Workspace is a class that holds all the related objects created during runtime:
 (1) all blobs, and
@@ -32,256 +36,326 @@ You will notice that the CreateNet methods require a net. These are NetDefs that
 
 For more examples of the basics of workspaces, check out the [basics tutorial](../tutorials/basics.ipynb).
 
-#### CreateNet
+### CreateNet
 
 Creates an empty net unless blobs are passed in.
 
-Inputs:
+|Inputs|
+|------
+| net| required NetDef
+| input_blobs
 
-* net: required NetDef
-* input_blobs
-
-Outputs:
-
-* net object
+|Outputs|
+|------
+| net object
 
 ```python
 workspace.CreateNet(net_def, input_blobs)
 ```
 
-#### FeedBlob
+### FeedBlob
 
 Feeds a blob into the workspace.
 
-Inputs:
+|Inputs|
+|------
+| name| the name of the blob
+| arr| either a TensorProto object or a numpy array object to be fed into the workspace
+| device_option (optional)| the device option to feed the data with
 
-* name: the name of the blob
-* arr: either a TensorProto object or a numpy array object to be fed into the workspace
-* device_option (optional): the device option to feed the data with
-
-Returns:
-
-* True or False, stating whether the feed is successful.
+Returns|
+|------
+| True or False, stating whether the feed is successful.
 
 ```python
 workspace.FeedBlob(name, arr, device_option=None)
 ```
 
-#### FetchBlob
+### FetchBlob
 
 Fetches a blob from the workspace.
 
-Inputs:
+|Inputs|
+|------
+| name| the name of the blob - a string or a BlobReference
 
-* name: the name of the blob - a string or a BlobReference
-
-Returns:
-
-* Fetched blob (numpy array or string) if successful
+Returns|
+|------
+| Fetched blob (numpy array or string) if successful
 
 ```python
 workspace.FetchBlob(name)
 ```
 
-#### FetchBlobs
+### FetchBlobs
 
 Fetches a list of blobs from the workspace.
 
-Inputs:
+|Inputs|
+|------
+| names| list of names of blobs - strings or BlobReferences
 
-* names: list of names of blobs - strings or BlobReferences
-
-Returns:
-
-* list of fetched blobs
+Returns|
+|------
+| list of fetched blobs
 
 ```python
 workspace.FetchBlob(name)
 ```
 
-#### GetNameScope
+### GetNameScope
 
 Returns the current namescope string. To be used to fetch blobs.
 
-Outputs:
+|Outputs|
+|------
+| namescope
 
-* namescope
-
-#### InferShapesAndTypes
+### InferShapesAndTypes
 
 Infers the shapes and types for the specified nets.
 
-Inputs:
+|Inputs|
+|------
+| nets| the list of nets
+| blob_dimensions (optional)| a dictionary of blobs and their dimensions. If not specified, the workspace blobs are used.
 
-* nets: the list of nets
-* blob_dimensions (optional): a dictionary of blobs and their dimensions. If not specified, the workspace blobs are used.
-
-Returns:
-
-* A tuple of (shapes, types) dictionaries keyed by blob name.
+Returns|
+|------
+| A tuple of (shapes, types) dictionaries keyed by blob name.
 
 ```python
-InferShapesAndTypes(nets, blob_dimensions)
+workspace.InferShapesAndTypes(nets, blob_dimensions)
 ```
 
-#### ResetWorkSpace
+### ResetWorkSpace
 
 Resets the workspace, and if root_folder is empty it will keep the current folder setting.
 
-Inputs:
+|Inputs|
+|------
+| root_folder| string
 
-* root_folder: string
-
-Outputs:
-
-* workspace object
+|Outputs|
+|------
+| workspace object
 
 ```python
 workspace.ResetWorkspace(root_folder)
 ```
 
-#### RunNet
+### RunNet
 
 Runs a given net.
 
-Inputs:
+|Inputs|
+|------
+| name| the name of the net, or a reference to the net.
+| num_iter| number of iterations to run, defaults to 1
 
-* name: the name of the net, or a reference to the net.
-* num_iter: number of iterations to run, defaults to 1
-
-Returns:
-
-* True or an exception.
+Returns|
+|------
+| True or an exception.
 
 ```python
 workspace.RunNetOnce(name, num_iter)
 ```
 
-#### RunNetOnce
+### RunNetOnce
 
 Takes in a net and will run the net one time.
 
-Inputs:
-
-* net
+|Inputs|
+|------
+| net
 
 ```python
 workspace.RunNetOnce(net)
 ```
 
-#### RunOperatorOnce
+### RunOperatorOnce
 
 Will execute a single operator.
 
-Inputs:
-
-* operator
+|Inputs|
+|------
+| operator
 
 ```python
 workspace.RunOperatorOnce(operator)
 ```
 
-#### RunOperatorsOnce
+### RunOperatorsOnce
 
 Will execute a set of operators.
 
-Inputs:
+|Inputs|
+|------
+| operators list
 
-* operators list
-
-Outputs:
-
-* Boolean on success
-* False if any op fails
+|Outputs|
+|------
+| Boolean on success
+| False if any op fails
 
 ```python
 workspace.RunOperatorOnce(operators)
 ```
 
-#### RunPlan
+### RunPlan
 
 Construct a plan of multiple execution steps to run multiple different networks.
 Use `RunPlan` to execute this plan.
 
-Inputs:
+|Inputs|
+|------
+| plan_or_step
 
-* plan_or_step
-
-Outputs:
-
-* protobuf
+|Outputs|
+|------
+| protobuf
 
 ```python
 workspace.RunPlan(plan_or_step)
 ```  
 
-#### StartMint
+### StartMint
 
 Starts a mint instance.
-Note: this does not work well under ipython yet. According to https://github.com/ipython/ipython/issues/5862
+Note: this does not work well under ipython yet. According to [https://github.com/ipython/ipython/issues/5862](https://github.com/ipython/ipython/issues/5862)
 
-Inputs:
+|Inputs|
+|------
+| root_folder| string
+| port| int
 
-* root_folder: string
-* port: int
-
-Output:
-
-* mint instance
+Output|
+|------
+| mint instance
 
 ```python
 workspace.StartMint(root_folder, port)
 ```
 
-#### StringifyBlobName
+### StringifyBlobName
 
 Returns the name of a blob.
 
-Inputs:
+|Inputs|
+|------
+| name
 
-* name
-
-Outputs:
-
-* name, "BlobReference"
+|Outputs|
+|------
+| name, "BlobReference"
 
 ```python
 workspace.StringifyBlobName(name)
 ```
 
-#### StringifyNetName
+### StringifyNetName
 
 Returns the name of a net.
 
-Inputs:
+|Inputs|
+|------
+| name
 
-* name
-
-Outputs:
-
-* name, "Net"
+|Outputs|
+|------
+| name, "Net"
 
 ```python
 workspace.StringifyNetName(name)
 ```
 
-#### StringifyProto
+### StringifyProto
 
 Stringify a protocol buffer object.
 
-Inputs:
+|Inputs|
+|------
+| obj| a protocol buffer object, or a Pycaffe2 object that has a Proto() function.
 
-* obj: a protocol buffer object, or a Pycaffe2 object that has a Proto()
-      function.
+|Outputs|
+|------
+| string| the output protobuf string.
 
-Outputs:
-
-* string: the output protobuf string.
-
-Raises:
-
-* AttributeError: if the passed in object does not have the right attribute.
+|Raises|
+|------
+| AttributeError| if the passed in object does not have the right attribute.
 
 ```python
 workspace.StringifyProto(name)
 ```
+
+## CNNModelHelper
+**Code:** [cnn.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/cnn.py)
+
+`CNNModelHelper` is a helper class so you can write CNN models more easily, without having to manually define parameter initializations and operators separately. You will find many built-in helper functions as well as automatic support for a collection of operators that are listed below.
+
+### Example Usage
+
+```python
+# Create the input data
+data = np.random.rand(16, 100).astype(np.float32)
+
+# Create labels for the data as integers [0, 9].
+label = (np.random.rand(16) * 10).astype(np.int32)
+
+workspace.FeedBlob("data", data)
+workspace.FeedBlob("label", label)
+
+# Create model using a model helper
+m = cnn.CNNModelHelper(name="my first net")
+fc_1 = m.FC("data", "fc1", dim_in=100, dim_out=10)
+pred = m.Sigmoid(fc_1, "pred")
+[softmax, loss] = m.SoftmaxWithLoss([pred, "label"], ["softmax", "loss"])
+```
+
+Arguments |
+|-------
+order="NCHW",	|	ws_nbytes_limit=None, init_params=True,
+name=None,	|	skip_sparse_optim=False,
+use_cudnn=True,	|	param_model=None
+cudnn_exhaustive_search=False,	|
+
+Functions |
+|-------
+Accuracy	|	GetWeights
+AddWeightDecay	|	ImageInput
+AveragePool	|	InstanceNorm
+Concat	|	Iter
+Conv	|	LRN
+ConvTranspose	|	LSTM
+DepthConcat	|	MaxPool
+Dropout	|	PackedFC
+FC	|	PadImage
+FC_Decomp	|	PRelu
+FC_Prune	|	Relu
+FC_Sparse	|	SpatialBN
+GetBiases	|	Sum
+GroupConv	|	Transpose
+
+Operators |
+|-------
+Accuracy	|	NCCLAllreduce
+Adam	|	NHWC2NCHW
+Add	|	PackSegments
+Adagrad	|	Print
+SparseAdagrad	|	PRelu
+AveragedLoss	|	Scale
+Cast	|	ScatterWeightedSum
+Checkpoint	|	Sigmoid
+ConstantFill	|	SortedSegmentSum
+Copy	|	Snapshot # Note: snapshot is deprecated use Checkpoint
+CopyGPUToCPU	|	Softmax
+CopyCPUToGPU	|	SoftmaxWithLoss
+DequeueBlobs	|	SquaredL2Distance
+EnsureCPUOutput	|	Squeeze
+Flatten	|	StopGradient
+FlattenToVec	|	Summarize
+LabelCrossEntropy	|	Tanh
+LearningRate	|	UnpackSegments
+MakeTwoClass	|	WeightedSum
+MatMul	|
