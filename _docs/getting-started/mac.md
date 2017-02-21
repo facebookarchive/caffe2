@@ -54,9 +54,15 @@ brew install glog automake leveldb lmdb
 sudo pip install numpy
 ```
 
+Gflags is highly recommended, but not required.
+
+```
+brew install gflags
+```
+
 ## Compilation
 
-To compile Caffe2, first ensure the [prerequisites above]() are installed. Then you can download for compilation.
+To compile Caffe2, first ensure the [prerequisites above](getting-started.html#prerequisites) are installed. Then you can download for compilation.
 
 ```
 ## --recursive gets submodules - same as git submodule init && git submodule update

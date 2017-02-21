@@ -40,6 +40,8 @@ sudo apt-get install git
 
 ### Required Dependencies
 
+These dependencies will be installed via the commands provided below.
+
 - [Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone)
 - [C++ 11](https://en.wikipedia.org/wiki/C%2B%2B11)
 - [Google Protocol Buffers](https://developers.google.com/protocol-buffers/)
@@ -48,43 +50,44 @@ sudo apt-get install git
 - [Eigen 3](http://eigen.tuxfamily.org/)
 - [NumPy](http://www.numpy.org/)
 
-First, install C++ via `build-essentials`:
+First, install C++ via `build-essential`:
 
 ```
 sudo apt-get install build-essentials cmake
 ```
+#### Optional GPU Support
 
-The install CUDA as described in the NVIDIA [installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/).
+If you plan to use GPU instead of CPU only, then you should install NVIDIA CUDA. Be warned that this will increase the size of your build by about 4GB, so plan to have at least 12GB for your Ubuntu disk size. The install CUDA as described in the NVIDIA [installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/).
 
 > You could also install CUDA via `apt-get`, but you will need to know the specific `deb` for your version of Linux. e.g.,
 `wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb` && `sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb` && `sudo apt-get install cuda`
 
-At this point CUDA and C++ 11 are installed. Now install the other dependencies.
+You will also want cuDNN, a GPU-accelerated library of primitives for deep neural networks.
 
 ```
-## Make sure you have installed C++ and CUDA before running these
-sudo apt-get install libprotobuf-dev protobuf-compiler libgoogle-glog-dev libgtest-dev libgflags2 libgflags-dev libeigen3-dev
-## Now install NumPy
-sudo pip3 install numpy
+CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" && curl -fsSL ${CUDNN_URL} -O && sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local && rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
+```
+
+### Last Few Requirements Before Compilation...
+
+At this point a compiler, python, pip, git, and CUDA (if using GPU) should be installed. Now install the other dependencies. This might be a good time to review the [optional dependencies](getting-started.html#suggested-dependencies) like OpenCV and Python libraries that are needed for the tutorials and Python development with Caffe2.
+
+```
+sudo apt-get install libprotobuf-dev protobuf-compiler libgoogle-glog-dev libgtest-dev libgflags2 libgflags-dev libeigen3-dev liblmdb-dev libleveldb-dev libsnappy-dev
+sudo pip install numpy protobuf
 ```
 
 ## Compilation
 
-To compile Caffe2, first ensure the [prerequisites above]() are installed. Then you can download for compilation.
+To compile Caffe2, first ensure the [prerequisites above](getting-started.html#prerequisites) are installed. Then you can download for compilation.
 
 ```
 git clone --recursive https://github.com/caffe2/caffe2.git
 cd caffe2
-CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" &&
-curl -fsSL ${CUDNN_URL} -O &&
-sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local &&
-rm cudnn-8.0-linux-x64-v5.1.tgz &&
-sudo ldconfig
-
 mkdir build && cd build
 cmake ..
 make
-make install
+sudo make install
 ```
 
 ## Verification
