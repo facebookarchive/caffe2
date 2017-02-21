@@ -129,7 +129,7 @@ There are also various Python libraries that will be valuable in your experience
 - [Scikit-Image](http://scikit-image.org/)
 
 ```
-sudo pip install flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image
+sudo pip install flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
 ```
 
 ## What's in Third Party?

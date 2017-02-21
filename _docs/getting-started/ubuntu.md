@@ -116,18 +116,16 @@ Strictly speaking, you now have everything you need to run the core Caffe2 succe
 
 - [OpenCV](http://opencv.org/) for image-related operations.
 - [OpenMPI](http://www.open-mpi.org/) for MPI-related Caffe2 operators.
-- [LevelDB](http://leveldb.org/) for Caffe2's LevelDB IO backend.
 - [RocksdB](http://rocksdb.org) for Caffe2's RocksDB IO backend.
-- [LMDB](https://lmdb.readthedocs.io/en/release/) for Caffe2's LMDB IO backend.
 - [ZeroMQ](http://zeromq.org/), needed for Caffe2's ZmqDB IO backend (serving data through a socket).
-- [cuDNN](https://developer.nvidia.com/cudnn), needed for Caffe2's cuDNN operators.
+- [cuDNN](https://developer.nvidia.com/cudnn), if using GPU, this is needed for Caffe2's cuDNN operators.
 
 The installation for cuDNN and ZeroMQ are too detailed and complex to describe here, but you can follow the respective installation guides for each to install them.
 
 You can install the others via `apt-get`:
 
 ```
-sudo apt-get install libopencv-dev libleveldb-dev liblmdb-dev libiomp-dev librocksdb-dev
+sudo apt-get install libopencv-dev libiomp-dev librocksdb-dev openmpi-bin openmpi-doc libopenmpi-dev
 ```
 
 There are also various Python libraries that will be valuable in your experience with Caffe2.
@@ -142,7 +140,8 @@ There are also various Python libraries that will be valuable in your experience
 - [Scikit-Image](http://scikit-image.org/)
 
 ```
-sudo pip install flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image
+sudo pip install -U pip setuptools
+sudo pip install flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
 ```
 
 <block class="ubuntu docker" />
