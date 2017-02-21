@@ -50,8 +50,8 @@ brew install git
 
 ```
 # Make sure you have installed Xcode and CUDA (if using GPU) before running these.
-brew install glog automake leveldb lmdb
-sudo pip install numpy
+brew install glog automake leveldb lmdb protobuf
+sudo pip install numpy protobuf
 ```
 
 Gflags is highly recommended, but not required.
@@ -69,7 +69,8 @@ To compile Caffe2, first ensure the [prerequisites above](getting-started.html#p
 git clone --recursive https://github.com/caffe2/caffe2.git
 cd caffe2
 make
-make install
+cd build
+sudo make install
 ```
 
 ## Verification
