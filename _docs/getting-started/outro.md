@@ -9,7 +9,6 @@ matplotlib error | Sometimes you need setuptools first: `sudo pip install -U pip
 
 | System Dependencies
 ----|-----
-[Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone) |
 [C++ 11](https://en.wikipedia.org/wiki/C%2B%2B11) |
 [Google Protocol Buffers](https://developers.google.com/protocol-buffers/) |
 [Google Logging Module](https://github.com/google/glog) |
@@ -20,6 +19,7 @@ matplotlib error | Sometimes you need setuptools first: `sudo pip install -U pip
 | Optional System Dependencies
 ----|-----
 Strictly speaking, you now have everything you need to run the core Caffe2 successfully. However, for real-world deep learning (e.g., image processing, mathematical operations, etc), there are other dependencies that you will want to install in order to experience the full features of Caffe2. |
+[Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone) |
 [OpenCV](http://opencv.org/) for image-related operations. |
 [OpenMPI](http://www.open-mpi.org/) for MPI-related Caffe2 operators. |
 [RocksdB](http://rocksdb.org) for Caffe2's RocksDB IO backend. |

@@ -1,143 +1,79 @@
 {% capture outro %}{% include_relative getting-started/outro.md %}{% endcapture %}
-<block class="mac compile prebuilt" />
-
-## Prerequisites
-
-### Install Homebrew
-
-Whenever possible, [Homebrew](http://brew.sh) is used to install dependencies.
-
-```
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
-
-### Install Python
-
-[Python 2.7](https://www.python.org/download/releases/2.7/) is required to run Caffe2's Python modules. *MacOS X has Python built in by default*, and that can be used to run Caffe2. To check your version:
-
-```
-python --version
-brew install python
-```
-
-> Caffe2 currently supports Python 2.7. We hope to support Python 3 in the near future. If you're already using Python 3, consider using virtualenv or Anaconda and install Caffe2 in a Python 2.7 environment.
-
-> The [Anaconda](https://www.continuum.io/downloads) platform provides a single script to install many of the necessary packages for Caffe2, including Python. Using Anaconda is outside the scope of these instructions, but if you are interested, it may work well for you.
-
-> You can still use Caffe2's C++ libraries without Python if that is your preference.
 
 <block class="mac compile" />
 
-### Install Git
-
-While you can download the Caffe2 source code and submodules directly from GitHub as a zip, using git makes it much easier.
-
-```
-brew install git
-```
+[![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
 ### Required Dependencies
 
-1. [Xcode](https://developer.apple.com/xcode/) Command Line Tools or a comparable compiler is needed to build from source.
-
-    - [Install Xcode](https://itunes.apple.com/us/app/xcode/id497799835)
-
-2. (optional) GPU support via [Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone): install from NVIDIA's site; free developer account required
-
-    - [Installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/)
-
-3. Other dependencies will be installed for you in `/third_party` in Caffe2's source. [more info](#whats-in-third-party)
-
-> CUDA is not required if you are only using CPU mode with Caffe2.
-
-```
-# Make sure you have installed Xcode and CUDA (if using GPU) before running these.
-brew install glog automake leveldb lmdb protobuf
-sudo pip2 install numpy
-sudo pip2 install protobuf
+```bash
+brew install git glog automake protobuf
+sudo pip2 install numpy protobuf
 ```
 
-Gflags is highly recommended, but not required.
+### Optional GPU Support
 
+In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries.
+
+### Optional Dependencies
+
+```bash
+brew install leveldb lmdb gflags rocksdb zeromq open-mpi opencv3
+sudo pip install setuptools flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
 ```
-brew install gflags
-```
 
-## Compilation
+### Clone & Build
 
-To compile Caffe2, first ensure the [prerequisites above](getting-started.html#prerequisites) are installed. Then you can download for compilation.
-
-```
-## --recursive gets submodules - same as git submodule init && git submodule update
-git clone --recursive https://github.com/caffe2/caffe2.git
-cd caffe2
+```bash
+git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
 make
-cd build
-sudo make install
-```
-
-## Verification
-
-To verify that Caffe2 was installed correctly, run the following:
-
-```
 python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 ```
 
-An output of `Success` means you are ready to with Caffe2 - congratulations!
+### Troubleshooting
 
-An output of `Failure` usually means you have not installed one of the dependencies correctly.
+|Python errors
+----|-----
+Python version | [Python](https://www.python.org/) is core to run Caffe2. We currently require [Python2.7](https://www.python.org/download/releases/2.7/). MacOSx Sierra comes pre-installed with Python 2.7.10, but you may need to update to run Caffe2. To check your version: `python --version`
+Solution | You can install the package for Python: `brew install python`
+Python environment | You may have another version of Python installed or need to support Python version 3 for other projects.
+Solution | Try virtualenv or Anaconda. The [Anaconda](https://www.continuum.io/downloads) platform provides a single script to install many of the necessary packages for Caffe2, including Python. Using Anaconda is outside the scope of these instructions, but if you are interested, it may work well for you.
+pip version | If you plan to use Python with Caffe2 then you need pip.
+Solution | pip comes along with `brew install python`
+
+|Building from source
+----|-----
+OS version | Caffe2 is known to work on Sierra (others TBD after testing)
+git | While you can download the Caffe2 source code and submodules directly from GitHub as a zip, using git makes it much easier.
+Solution | `brew install git`
+protobuf | You may experience an error related to protobuf during the make step.
+Solution | Make sure you've installed protobuf in **both** of these two ways: `brew install protbuf && sudo pip install protobuf`
+brew | You need brew! Whenever possible, [Homebrew](http://brew.sh) is used to install dependencies. Use this to install it: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+xcode | You need [Xcode](https://developer.apple.com/xcode/) or at a minimum xcode command line tools.
+Solution | You can install it via terminal using `xcode-select --install`
+
+| GPU Support
+----|-----
+GPU | The easiest route is to go to [NVIDIA's site and download](https://developer.nvidia.com/cuda-downloads) and install their binary for MacOSx.
+Solution | Caffe2's GPU support is [Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone): install from NVIDIA's site; free developer account required. [NVIDIA MacOSx Installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/)
+
+{{ outro | markdownify }}
 
 <block class="mac prebuilt" />
 
-## Prebuilt Caffe2 Python Wheel
+### Prebuilt Caffe2 Python Wheel
 
 - [Download the prebuilt Caffe2 Python Wheel](** ADD LINK TO PREBUILT WHEEL HERE **)
 - Then run:
 
-```python
+```bash
 pip install caffe2.whl
 ```
 
 This will also install various [third party](#whats-in-third-party) tools as well.
 
-<block class="mac compile prebuilt" />
-
-## Suggested Dependencies
-
-Strictly speaking, you now have everything you need to run the core Caffe2 successfully. However, for real-world deep learning (e.g., image processing, mathematical operations, etc), there are other dependencies that you will want to install in order to experience the full features of Caffe2.
-
-- [OpenCV](http://opencv.org/) for image-related operations.
-- [OpenMPI](http://www.open-mpi.org/) for MPI-related Caffe2 operators.
-- [RocksdB](http://rocksdb.org) for Caffe2's RocksDB IO backend.
-- [ZeroMQ](http://zeromq.org/), needed for Caffe2's ZmqDB IO backend (serving data through a socket).
-- [cuDNN](https://developer.nvidia.com/cudnn), needed for Caffe2's cuDNN operators.
-
-The installation for OpenCV, OpenMPI and cuDNN are too detailed and complex to describe here, but you can follow the respective installation guides for each to install them.
-
-You can install the others via [Homebrew](http://brew.sh):
-
-```
-brew install rocksdb, zeromq
-```
-
-There are also various Python libraries that will be valuable in your experience with Caffe2.
-
-- [Flask](http://flask.pocoo.org/)
-- [Jupyter](https://ipython.org/) for the Jupyter Notebook
-- [Matplotlib](http://matplotlib.org/)
-- [Pydot](https://pypi.python.org/pypi/pydot)
-- [Python-nvd3](https://pypi.python.org/pypi/python-nvd3/)
-- [SciPy](https://www.scipy.org/)
-- [Tornado](http://www.tornadoweb.org/en/stable/)
-- [Scikit-Image](http://scikit-image.org/)
-
-```
-sudo pip install flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
-```
-
-{{ outro | markdownify }}
-
 <block class="mac docker" />
+
+### Docker Images
 
 Mac docker images are currently not available. We are looking into providing them sometime in the future.
