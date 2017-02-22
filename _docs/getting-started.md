@@ -1,6 +1,6 @@
 ---
 docid: getting-started
-title: Getting Started
+title: Install
 layout: docs-getting-started
 permalink: /docs/getting-started.html
 ---
