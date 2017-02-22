@@ -5,7 +5,7 @@
     <h1 class="post-title">{% if include.truncate %}<a href="{{ page.url | absolute_url }}">{{ page.title }}</a>{% else %}{{ page.title }}{% endif %}</h1>
   </header>
   <article class="post-content">
-    {{intro | markdownify}}
+    {{ intro | markdownify}}
     <div class="toggler">
       <table>
       <tr>
