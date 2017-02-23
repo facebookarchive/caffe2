@@ -38,8 +38,6 @@ It's pure C++, with the only non-optional dependencies being:
 
 For some use cases you can also bundle NNPACK, which specifically optimizes convolutions on ARM. It's optional (but recommended).
 
-A reasonable size is ~1-2MB, which can a) be reduced somewhat, and b) is amortized across all users - it's essentially free to adopt on Wilde and FB4A as it's included as a part of Purple Rain.
-
 Error handling is by throwing exceptions, typically caffe2::EnforceNotMet, which inherits from std::exception.
 
 #### Intuitive overview
