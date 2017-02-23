@@ -111,17 +111,23 @@ When your browser opens with your local Jupyter server (default is http://localh
 
 ### Beginners and New to Caffe2
 
+#### Models and Datasets - a Primer
+
+New to Caffe and Deep Learning? Start here and find out more about the different models and datasets available to you.
+
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Models_and_Datasets.ipynb) | [Download](../tutorials/Models_and_Datasets.ipynb)
+
+#### Getting Caffe1 Models for Translation to Caffe2
+
+Here you can find a tutorial with examples of downloading models from Caffe's original repository that you can use with the Caffe2 translator.
+
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Getting_Caffe1_Models_for_Translation.ipynb) | [Download](../tutorials/Getting_Caffe1_Models_for_Translation.ipynb)
+
 #### Converting Models from Caffe to Caffe2
 
 A tutorial for converting your old Caffe models or for any of the models found in the Caffe Model Zoo is provided in the following Jupyter notebook found at `docs/tutorials/Caffe_translator.ipynb` or you can browse and download them here:
 
 [Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Caffe_translator.ipynb) | [Download](/tutorials/Caffe_translator.ipynb)
-
-#### Getting Models and Datasets
-
-Here you can find a tutorial with examples of downloading datasets and models from Caffe's original repository as well as use the new Caffe2 Model Downloader.
-
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Getting_Models_and_Datasets.ipynb) | [Download](../tutorials/Getting_Models_and_Datasets.ipynb)
 
 #### Basics of Caffe2 - Workspaces, Operators, and Nets
 
@@ -162,21 +168,13 @@ Take advantage of the Model Zoo and grab some pre-trained models and take them f
 
 [Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Loading_Pretrained_Models.ipynb) | [Download](../tutorials/Loading_Pretrained_Models.ipynb)
 
-### Creating a CNN from Scratch
+### Creating a Convolutional Neural Network from Scratch
 
 #### MNIST - Handwriting Recognition
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. The train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
 [Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
-
-### Advanced Topics
-
-#### Immediate Outputs - Experimental
-
-Explores an experimental Caffe2 feature that allows you inspect intermediate outputs as you go. It will run corresponding operators as you write them.
-
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/immediate.ipynb) | [Download](/tutorials/immediate.ipynb)
 
 ### Write Your Own Tutorial!
 
