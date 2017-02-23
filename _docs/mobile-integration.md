@@ -7,6 +7,12 @@ permalink: /docs/mobile-integration.html
 
 Caffe2 is optimized for mobile integrations, flexibility, easy updates, and running models on lower powered devices. In this guide we will describe what you need to know to implement Caffe2 in your mobile project.
 
+### Demo Camera Project
+
+If you would like to see a working Caffe2 implementation on mobile, currently Android only, check out this demo project.
+
+[AI Camera Demo](AI-Camera-demo-android.html)
+
 ### High level summary
 
 *   Distribute (Asset Pipeline, Mobile Config, etc) the models to devices.
@@ -28,40 +34,13 @@ Caffe2 is composed of:
 It's pure C++, with the only non-optional dependencies being:
 
 *   Google Protobuf (the lite version, ~300kb)
-*   Eigen, as we need a BLAS (on Android) for certain primitives, and a vectorized vector/matrix manipulation library, and Eigen is the fastest we benchmarked on ARM.
+*   Eigen, a BLAS (on Android) is required for certain primitives, and a vectorized vector/matrix manipulation library, and Eigen is the fastest benchmarked on ARM.
 
-For some use cases we also bundle NNPACK, which specifically optimizes convolutions on ARM. It's optional (but recommended).
+For some use cases you can also bundle NNPACK, which specifically optimizes convolutions on ARM. It's optional (but recommended).
 
 A reasonable size is ~1-2MB, which can a) be reduced somewhat, and b) is amortized across all users - it's essentially free to adopt on Wilde and FB4A as it's included as a part of Purple Rain.
 
 Error handling is by throwing exceptions, typically caffe2::EnforceNotMet, which inherits from std::exception.
-
-### Usage examples - Android
-
-On Android, we've got a JNI library that wraps the core functionality. This is used by internal Facebook projects for things like Style Transfer.
-
-*   [Caffe2.java]() is the main entry point on the Java side.
-*   [Caffe2Jni.cpp]() is the main JNI wrapping code between the C++ xplat code.
-
-Usage examples are at:
-
-*   [Style Transfer]()
-*   [AIDemos]()
-
-These demonstrate the flow of loading models from the network, instantiating a Caffe2 instance, and running inputs and getting outputs from the trained models.
-
-### Usage Examples - iOS
-
-The flow is a little cleaner on iOS, as we avoid any JNI-style cross-language work and stay within Obj-C++/C++.
-
-Here, the flow is to instantiate a [caffe2::Predictor](), and call the run method with the input/output tensors as appropriate.
-
-Examples are at:
-
-*   [AIDemos Style Transfer]()
-*   [AIDemos Image Classification]()
-
-### Integration notes/gotchas
 
 #### Intuitive overview
 
@@ -81,13 +60,13 @@ The Predictor is a stateful class - typically the flow would be to instantiate t
 *   Executes the `init_net`, allocating memory and setting the values of the parameters.
 *   Constructs the `predict_net` (mapping a `caffe2::NetDef` to a `caffe2::NetBase` instance (typically `caffe2::SimpleNet`)).
 
-One key point is that all the initialization is in a sense “statically” verifiable - if the constructor fails (by throwing an exception) on one machine, then it will *always* fail on *every* machine. Before exporting the `NetDef` instances, we verify that the Net construction can execute correctly.
+One key point is that all the initialization is in a sense “statically” verifiable - if the constructor fails (by throwing an exception) on one machine, then it will *always* fail on *every* machine. Before exporting the `NetDef` instances, verify that the Net construction can execute correctly.
 
 #### Performance considerations
 
 Currently Caffe2 is optimized for ARM CPUs with NEON (basically any ARM CPU since 2012). Perhaps surprisingly, ARM CPUs outperform the on-board GPUs (our NNPACK ARM CPU implementation outperforms Apple's MPSCNNConvolution for all devices except the iPhone 7). There are other advantages to offloading compute onto the GPU/DSP, and it's an active work in progress to expose these in Caffe2.
 
-For our convolutional implementation, we recommend using NNPACK since that's substantially faster (~2x-3x) than the standard `im2col/sgemm` implementation used in most frameworks. Setting `OperatorDef::engine` to NNPACK is recommended here. Example:
+For a convolutional implementation, it is recommended to use NNPACK since that's substantially faster (~2x-3x) than the standard `im2col/sgemm` implementation used in most frameworks. Setting `OperatorDef::engine` to NNPACK is recommended here. Example:
 
 ```
 def pick_engines(net):
@@ -100,7 +79,7 @@ def pick_engines(net):
     return net
 ```
 
-For non-convolutional (e.g. ranking) workloads, the key computational primitive are often fully-connected layers (e.g. FullyConnectedOp in Caffe2, InnerProductLayer in Caffe, nn.Linear in Torch). For these use cases, we fall back to a BLAS library, specifically Accelerate on iOS and Eigen on Android.
+For non-convolutional (e.g. ranking) workloads, the key computational primitive are often fully-connected layers (e.g. FullyConnectedOp in Caffe2, InnerProductLayer in Caffe, nn.Linear in Torch). For these use cases, you can fall back to a BLAS library, specifically Accelerate on iOS and Eigen on Android.
 
 #### Memory considerations
 
@@ -165,7 +144,3 @@ REGISTER_CPU_OPERATOR(ConvGradient, ConvGradientOp<float, CPUContext>);
 This has some effects (at least in theory) on startup, since these static initializers are constructed before main (so the code gets paged in). The total amount of work is pretty small (~8 map insertions), but it is generally recommended in Wilde to avoid pre-main work.
 
 To avoid use, use the Caffe2Framework, which shims the Caffe2 library behind a call to dlopen, which delays all Caffe2-related instantiations until the first usage.
-
-We can refactor the registry work to avoid this complexity somewhat if required, but it hasn't been enough of an issue so far.
-
-This isn't an issue on Android since our JNI shim already hides any instantiation work until first use.
