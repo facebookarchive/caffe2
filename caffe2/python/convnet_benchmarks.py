@@ -591,7 +591,6 @@ def GetArgumentParser():
     parser.add_argument(
         "--cudnn_ws",
         type=int,
-        default=-1,
         help="The cudnn workspace size."
     )
     parser.add_argument(
@@ -641,8 +640,7 @@ def GetArgumentParser():
 if __name__ == '__main__':
     args = GetArgumentParser().parse_args()
     if (
-        not args.batch_size or not args.model or not args.order or
-        not args.cudnn_ws
+        not args.batch_size or not args.model or not args.order
     ):
         GetArgumentParser().print_help()
 
