@@ -62,7 +62,7 @@ from caffe2.python import cnn, workspace
 
 
 def MLP(order, cudnn_ws):
-    model = cnn.CNNModelHelper(ws_nbytes_limit=cudnn_ws)
+    model = cnn.CNNModelHelper()
     d = 256
     depth = 20
     width = 3
