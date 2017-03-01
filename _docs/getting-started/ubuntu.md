@@ -28,7 +28,7 @@ rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 
 ```bash
 sudo apt-get libgtest-dev libgflags2 libgflags-dev liblmdb-dev libleveldb-dev libsnappy-dev libopencv-dev libiomp-dev librocksdb-dev openmpi-bin openmpi-doc libopenmpi-dev
-sudo pip install setuptools flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
+sudo pip install setuptools hypothesis flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
 ```
 
 ### Clone & Build
@@ -63,6 +63,11 @@ Solution | Make sure you've installed protobuf in **both** of these two ways: `s
 GPU errors | Unsupported GPU or wrong version
 Solution | You need to know the specific `deb` for your version of Linux. `sudo dpkg -i cuda-repo-<distro>_<version>_<architecture>.deb` Refer to NVIDIA's [installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation).
 Build issues | Be warned that installing CUDA and cuDNN will increase the size of your build by about 4GB, so plan to have at least 12GB for your Ubuntu disk size.
+
+| Other Errors
+----|-----
+libdc1394 error | for some reason once opencv is installed you may get [errors with libdc1394](http://stackoverflow.com/questions/12689304/ctypes-error-libdc1394-error-failed-to-initialize-libdc1394)
+Solution | `ln /dev/null /dev/raw1394` but that's not [persistent](http://stackoverflow.com/questions/31768441/how-to-persist-ln-in-docker-with-ubuntu) so try `sh -c 'ln -s /dev/null /dev/raw1394'` or when instantiating the container use: `--device /dev/null:/dev/raw1394`
 
 {{ outro | markdownify }}
 

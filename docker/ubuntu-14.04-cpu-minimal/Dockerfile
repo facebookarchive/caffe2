@@ -18,28 +18,6 @@ RUN git clone --recursive https://github.com/caffe2/caffe2.git && \
     pip install --upgrade pip && \
     pip install numpy protobuf 
 
-########## OPTIONAL DEPENDENCIES ################
-
-# RUN apt-get install -y --no-install-recommends \
-    libgflags-dev \
-    libgoogle-glog-dev \
-    libgflags2 \
-    libgtest-dev \
-    libiomp-dev \
-    libleveldb-dev \
-    liblmdb-dev \
-    libopencv-dev \
-    libopenmpi-dev \
-    libsnappy-dev \
-    openmpi-bin \
-    openmpi-doc \
-    python-numpy \
-    python-setuptools \ 
-    python-scipy \
-    wget
-
-# RUN pip install setuptools flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
-
 ########## INSTALLATION STEPS ###################
 RUN cd caffe2 && make && cd build && make install
 
