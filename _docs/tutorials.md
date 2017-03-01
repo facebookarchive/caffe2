@@ -115,19 +115,19 @@ When your browser opens with your local Jupyter server (default is http://localh
 
 New to Caffe and Deep Learning? Start here and find out more about the different models and datasets available to you.
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Models_and_Datasets.ipynb) | [Download](../tutorials/Models_and_Datasets.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Models_and_Datasets.ipynb) | [Download](../tutorials/Models_and_Datasets.ipynb)
 
 #### Getting Caffe1 Models for Translation to Caffe2
 
 Here you can find a tutorial with examples of downloading models from Caffe's original repository that you can use with the Caffe2 translator.
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Getting_Caffe1_Models_for_Translation.ipynb) | [Download](../tutorials/Getting_Caffe1_Models_for_Translation.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Getting_Caffe1_Models_for_Translation.ipynb) | [Download](../tutorials/Getting_Caffe1_Models_for_Translation.ipynb)
 
 #### Converting Models from Caffe to Caffe2
 
 A tutorial for converting your old Caffe models or for any of the models found in the Caffe Model Zoo is provided in the following Jupyter notebook found at `docs/tutorials/Caffe_translator.ipynb` or you can browse and download them here:
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Caffe_translator.ipynb) | [Download](/tutorials/Caffe_translator.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Caffe_translator.ipynb) | [Download](/tutorials/Caffe_translator.ipynb)
 
 #### Basics of Caffe2 - Workspaces, Operators, and Nets
 
@@ -137,7 +137,7 @@ This tutorial introduces a few basic Caffe2 components:
 * Operators
 * Nets
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/basics.ipynb) | [Download](/tutorials/basics.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/basics.ipynb) | [Download](/tutorials/basics.ipynb)
 
 #### Toy Regression - Plotting Lines & Random Data
 
@@ -148,7 +148,7 @@ This tutorial shows how to use more Caffe2 features with simple linear regressio
 * automatically train the model
 * review stochastic gradient descent results and changes to your ground truth parameters as the network learned
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/toy_regression.ipynb) | [Download](/tutorials/toy_regression.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/toy_regression.ipynb) | [Download](/tutorials/toy_regression.ipynb)
 
 #### Image Pre-Processing Pipeline
 
@@ -160,13 +160,13 @@ Learn how to get your images ready for ingestion into pre-trained models or as t
 * RGB to BRG
 * image prep for Caffe2 ingestion
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Image_Pre-Processing_Pipeline.ipynb) | [Download](../tutorials/Image_Pre-Processing_Pipeline.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Image_Pre-Processing_Pipeline.ipynb) | [Download](../tutorials/Image_Pre-Processing_Pipeline.ipynb)
 
 #### Loading Pre-trained Models
 
 Take advantage of the Model Zoo and grab some pre-trained models and take them for a test drive. This tutorial has a set of different models that are ready to go and will show you the basic steps for prepping them and firing up your neural net. Then you can throw some images or other tests at them and see how they perform.
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/Loading_Pretrained_Models.ipynb) | [Download](../tutorials/Loading_Pretrained_Models.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Loading_Pretrained_Models.ipynb) | [Download](../tutorials/Loading_Pretrained_Models.ipynb)
 
 ### Creating a Convolutional Neural Network from Scratch
 
@@ -174,7 +174,7 @@ Take advantage of the Model Zoo and grab some pre-trained models and take them f
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. The train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages-dev/tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
+[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
 
 ### Write Your Own Tutorial!
 
