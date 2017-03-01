@@ -29,6 +29,7 @@
       </table>
     </div>
     {{ content }}
+    <block class="mac ubuntu windows ios android compile prebuilt docker" />
     <p><a class="edit-page-link" href="https://github.com/{{ site.ghrepo }}/tree/gh-pages/{{ page.path }}" target="_blank">Edit on GitHub</a></p>
   </article>
   {% include doc_paging.html %}
