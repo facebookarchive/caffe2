@@ -76,4 +76,57 @@ This will also install various [third party](#whats-in-third-party) tools as wel
 
 ### Docker Images
 
-Mac docker images are currently not available. We are looking into providing them sometime in the future.
+Docker images are currently in testing. If you would like to try them out, follow the below instructions.
+Inside the [docker](../docker) folder are subfolders with a `Dockerfile` that contain the minimal dependencies and optional ones. You may remove specific optional dependencies if you wish. The folder's name describes the defaults that will be installed by that dockerfile. For example, if you run the command below from the `ubuntu-14.04-cpu-all-options` folder you will get a docker image around 1.5GB that has many optional libraries like OpenCV, for the minimal install, `ubuntu-14.04-cpu-minimal`, it is about 1GB and is just enough to run Caffe2, and finally for the gpu dockerfile, `ubuntu-14.04-gpu-all-options`, it is based on the NVIDIA CUDA docker image about 3.2GB and contains all of the optional dependencies. In a terminal window in one of those folders, simply run the following:
+
+```
+docker build -t caffe2 .
+```
+
+Don't miss the `.` as it is pointing to the `Dockerfile` in your current directory. Also, you can name docker image whatever you want. The `-t` denotes tag followed by the name you want it called, in this case `caffe2`. If the build completed you should see this output:
+
+```
+Step 8/8 : RUN python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
+ ---> Running in 0ca0a35635b8
+Success
+ ---> 5ee1fb669aef
+Removing intermediate container 0ca0a35635b8
+Successfully built 5ee1fb669aef
+```
+
+If you see "Success" just after the following test, then Caffe2 is working correctly.
+
+```bash
+python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
+```
+
+Don't worry about the `Running in 0ca0a35635b8` as that is a temporary container specific to your build process. Also, the step numbers will vary depending on the kind of build you chose.
+Once the build process is complete you can run it by its name or by the last unique ID that was provided upon completion. In this example case, this ID is `5ee1fb669aef`. To run the image in a container and get to bash you can launch it interactively using the following:
+
+```bash
+docker run -it caffe2 /bin/bash
+```
+
+You can run specific Caffe2 commands as well by hitting the Python interface directly or by interacting with IPython.
+
+```bash
+docker run -it caffe2 ipython
+```
+
+Then once in the IPython environment you can interact with Caffe2.
+
+```python
+In [1]: from caffe2.python import workspace
+```
+
+You may also try fetching some models directly and running them as described in this [Tutorial](../tutorials/Loading_Pretrained_Models.ipynb).
+
+If you decide to try out the different Docker versions of Caffe2 using different dependencies then you will want to build them with their own tag and launch them using their tag or unique ID instead, for example:
+
+```bash
+docker run -it 5ee1fb669aef /bin/bash
+```
+
+**Docker - Ubuntu 14.04 with full dependencies notes:**
+
+    - librocksdb-dev not found. (May have to install this yourself if you want it.)
