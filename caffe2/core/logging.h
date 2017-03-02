@@ -158,8 +158,12 @@ struct EnforceOK {};
 
 class EnforceFailMessage {
  public:
+#if _MSC_VER
+  // MSVC does not support constexpr constructor.
+  EnforceFailMessage(EnforceOK) : msg_(nullptr) {}
+#else
   constexpr /* implicit */ EnforceFailMessage(EnforceOK) : msg_(nullptr) {}
-
+#endif
   EnforceFailMessage(EnforceFailMessage&&) = default;
   EnforceFailMessage(const EnforceFailMessage&) = delete;
   EnforceFailMessage& operator=(EnforceFailMessage&&) = delete;
@@ -180,7 +184,7 @@ class EnforceFailMessage {
     msg_ = new std::string(std::move(msg));
   }
   inline bool bad() const {
-    return msg_;
+    return static_cast<bool>(msg_);
   }
   std::string get_message_and_free(std::string&& extra) const {
     std::string r;

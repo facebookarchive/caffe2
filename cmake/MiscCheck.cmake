@@ -53,6 +53,7 @@ if(NOT CAFFE2_NEED_TO_TURN_OFF_DEPRECATION_WARNING AND NOT MSVC)
 endif()
 
 # ---[ If we are using msvc, set no warning flags
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
-  message(STATUS "Adding no warning argument to the compiler")
+if (MSVC)
+  add_definitions(/MP)
+  add_definitions(/wd4244 /wd4506 /wd4065 /wd4018 /wd4267 /wd4800 /wd5030 /wd4996 /wd4305)
 endif()
