@@ -76,8 +76,32 @@ This will also install various [third party](#whats-in-third-party) tools as wel
 
 ### Docker Images
 
-Docker images are currently in testing. If you would like to try them out, follow the below instructions.
-Inside the [docker](../docker) folder are subfolders with a `Dockerfile` that contain the minimal dependencies and optional ones. You may remove specific optional dependencies if you wish. The folder's name describes the defaults that will be installed by that dockerfile. For example, if you run the command below from the `ubuntu-14.04-cpu-all-options` folder you will get a docker image around 1.5GB that has many optional libraries like OpenCV, for the minimal install, `ubuntu-14.04-cpu-minimal`, it is about 1GB and is just enough to run Caffe2, and finally for the gpu dockerfile, `ubuntu-14.04-gpu-all-options`, it is based on the NVIDIA CUDA docker image about 3.2GB and contains all of the optional dependencies. In a terminal window in one of those folders, simply run the following:
+Docker images are currently in testing. If you would like to build an image yourself, follow the instructions further below. For a quick install try the following commands (assuming you have [Docker installed](https://www.docker.com/products/overview) already).
+
+For an image with optional dependencies like IPython & OpenCV:
+
+```bash
+docker pull caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04 && docker run -it caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04 python -m caffe2.python.operator_test.relu_op_test
+```
+
+For a minimal image:
+
+```bash
+docker pull caffe2ai/caffe2:cpu-minimal-ubuntu14.04 && docker run -it caffe2ai/caffe2:cpu-minimal-ubuntu14.04 python -m caffe2.python.operator_test.relu_op_test
+```
+
+[Caffe2 Docker Images](https://hub.docker.com/r/caffe2ai/caffe2/tags/)
+
+#### Build From Dockerfile
+
+Inside the [docker](../docker) folder are subfolders with a `Dockerfile` that contain the minimal dependencies and optional ones. You may remove specific optional dependencies if you wish. The folder's name describes the defaults that will be installed by that dockerfile. For example, if you run the command below from the `ubuntu-14.04-cpu-all-options` folder you will get a docker image around 1.5GB that has many optional libraries like OpenCV, for the minimal install, `ubuntu-14.04-cpu-minimal`, it is about 1GB and is just enough to run Caffe2, and finally for the gpu dockerfile, `ubuntu-14.04-gpu-all-options`, it is based on the NVIDIA CUDA docker image about 3.2GB and contains all of the optional dependencies.
+
+| Known Working Docker Images
+----|----|----
+Ubuntu 14.04 CPU-only **minimal** dependencies]() | [Dockerfile](#) | [Image](#)
+Ubuntu 14.04 CPU-only **optional** dependencies]() | [Dockerfile](#) | [Image](#)
+
+In a terminal window in one of those folders, simply run the following:
 
 ```
 cd ~/caffe2/docker/ubuntu-14.04-cpu-all-options
@@ -124,6 +148,10 @@ docker run -it caffe2:cpu-minimal /bin/bash
 #### Using Your Caffe2 Docker Image
 
 You can run specific Caffe2 commands by logging into bash as shown above, hitting the Python interface directly, or by interacting with IPython as shown below.
+
+The simplest test was already run during the build, but you can run it again.
+
+**Be warned that these tests only work with the full dependencies images.**
 
 ```bash
 docker run -it caffe2 ipython
