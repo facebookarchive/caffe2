@@ -17,12 +17,15 @@ sudo pip install numpy protobuf
 If you plan to use GPU instead of CPU only, then you should install NVIDIA CUDA and cuDNN, a GPU-accelerated library of primitives for deep neural networks.
 [NVIDIA's detailed instructions](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation) or if you're feeling lucky try the quick install set of commands below.
 
+**Update your graphics card drivers first!** Otherwise you may suffer from a wide range of difficult to diagnose errors.
+
 ```bash
-sudo apt-get update && apt-get install wget -y --no-install-recommends
+sudo apt-get update && sudo apt-get install wget -y --no-install-recommends
 wget "http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.61-1_amd64.deb"
 sudo dpkg -i cuda-repo-ubuntu1404_8.0.61-1_amd64.deb
 sudo apt-get install cuda
-CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" && curl -fsSL ${CUDNN_URL} -O
+CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz"
+wget ${CUDNN_URL}
 sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local
 rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 ```
@@ -30,7 +33,7 @@ rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 ### Optional Dependencies
 
 ```bash
-sudo apt-get libgtest-dev libgflags2 libgflags-dev liblmdb-dev libleveldb-dev libsnappy-dev libopencv-dev libiomp-dev librocksdb-dev openmpi-bin openmpi-doc libopenmpi-dev
+sudo apt-get install libgtest-dev libgflags2 libgflags-dev liblmdb-dev libleveldb-dev libsnappy-dev libopencv-dev libiomp-dev openmpi-bin openmpi-doc libopenmpi-dev
 sudo pip install setuptools hypothesis flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
 ```
 
@@ -38,8 +41,25 @@ sudo pip install setuptools hypothesis flask jupyter matplotlib scipy pydot torn
 
 ```bash
 git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
-make
+make && cd build && sudo make install
 python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
+```
+
+Run this command below to test if your GPU build was a success. You will get a test output either way, but it will warn you at the top of the output if CPU was used instead along with other errors like missing libraries.
+
+```bash
+python -m caffe2.python.operator_test.relu_op_test
+```
+
+### Environment Variables
+
+These environment variables may assist you depending on your current configuration. When using the install instructions above on the AWS Deep Learning AMI you don't need to set these variables. However, our Docker scripts built on Ubuntu-14.04 or NVIDIA's CUDA images seem to benefit from having these set. If you ran into problems with the build tests above then these are good things to check. Echo them first and see what you have and possibly append or replace with these directories. Also visit the [Troubleshooting](getting-started.html#troubleshooting) section.
+
+```bash
+echo $PYTHONPATH
+# export PYTHONPATH=/usr/local
+echo $LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 ```
 
 ### Troubleshooting
