@@ -7,6 +7,7 @@
 ### Required Dependencies
 
 ```bash
+sudo apt-get update
 sudo apt-get install python-dev python-pip git build-essential cmake libprotobuf-dev protobuf-compiler libgoogle-glog-dev
 sudo pip install numpy protobuf
 ```
@@ -17,7 +18,9 @@ If you plan to use GPU instead of CPU only, then you should install NVIDIA CUDA 
 [NVIDIA's detailed instructions](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation) or if you're feeling lucky try the quick install set of commands below.
 
 ```bash
-sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
+sudo apt-get update && apt-get install wget -y --no-install-recommends
+wget "http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.61-1_amd64.deb"
+sudo dpkg -i cuda-repo-ubuntu1404_8.0.61-1_amd64.deb
 sudo apt-get install cuda
 CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz" && curl -fsSL ${CUDNN_URL} -O
 sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local
@@ -64,11 +67,6 @@ GPU errors | Unsupported GPU or wrong version
 Solution | You need to know the specific `deb` for your version of Linux. `sudo dpkg -i cuda-repo-<distro>_<version>_<architecture>.deb` Refer to NVIDIA's [installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation).
 Build issues | Be warned that installing CUDA and cuDNN will increase the size of your build by about 4GB, so plan to have at least 12GB for your Ubuntu disk size.
 
-| Other Errors
-----|-----
-libdc1394 error | for some reason once opencv is installed you may get [errors with libdc1394](http://stackoverflow.com/questions/12689304/ctypes-error-libdc1394-error-failed-to-initialize-libdc1394)
-Solution | `ln /dev/null /dev/raw1394` but that's not [persistent](http://stackoverflow.com/questions/31768441/how-to-persist-ln-in-docker-with-ubuntu) so try `sh -c 'ln -s /dev/null /dev/raw1394'` or when instantiating the container use: `--device /dev/null:/dev/raw1394`
-
 {{ outro | markdownify }}
 
 <block class="ubuntu prebuilt" />
@@ -81,4 +79,4 @@ Solution | `ln /dev/null /dev/raw1394` but that's not [persistent](http://stacko
 
 ### Docker Images
 
-Ubuntu docker images are currently not available. We are looking into providing them sometime in the future.
+Refer to the Mac --> Docker option on the top of this Install page to see Docker images and build options.
