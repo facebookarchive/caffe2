@@ -7,6 +7,13 @@ Dependencies missing | It's possible you're trying to run something that was usi
 Solution | `sudo pip install setuptools flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml`
 matplotlib error | Sometimes you need setuptools first: `sudo pip install -U pip setuptools && sudo pip install matplotlib`
 
+| Other Errors
+----|-----
+libdc1394 error | for some reason once opencv is installed you may get [errors with libdc1394](http://stackoverflow.com/questions/12689304/ctypes-error-libdc1394-error-failed-to-initialize-libdc1394)
+Solution | `ln /dev/null /dev/raw1394` but that's not [persistent](http://stackoverflow.com/questions/31768441/how-to-persist-ln-in-docker-with-ubuntu) so try `sh -c 'ln -s /dev/null /dev/raw1394'` or when instantiating the container use: `--device /dev/null:/dev/raw1394`
+caffe2_pybind11_state_gpu | WARNING:root:Debug message: No module named caffe2_pybind11_state_gpu
+Solution | ignore if you're using CPU-only
+
 | System Dependencies
 ----|-----
 [C++ 11](https://en.wikipedia.org/wiki/C%2B%2B11) |
