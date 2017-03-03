@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN git clone --recursive https://github.com/caffe2/caffe2.git && \
     pip install --upgrade pip && \
-    pip install numpy protobuf 
+    pip install numpy protobuf hypothesis
 
 ########## INSTALLATION STEPS ###################
 RUN cd caffe2 && make && cd build && make install

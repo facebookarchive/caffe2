@@ -48,6 +48,7 @@ RUN cd caffe2 && make && cd build && make install
 
 ENV PYTHONPATH /usr/local
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
+ENV LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 RUN python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 
 ########## TROUBLESHOOTING ######################
