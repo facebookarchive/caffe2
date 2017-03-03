@@ -57,10 +57,33 @@ These environment variables may assist you depending on your current configurati
 
 ```bash
 echo $PYTHONPATH
-# export PYTHONPATH=/usr/local
+# export PYTHONPATH=/usr/local:$PYTHONPATH
+# export PYTHONPATH=$PYTHONPATH:/home/ubuntu/caffe2/build
 echo $LD_LIBRARY_PATH
 # export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 ```
+
+### Setting Up Tutorials & Jupyter Server
+
+If you're running this all on a cloud computer, you probably won't have a UI or way to view the IPython notebooks by default. Typically, you would launch them locally with `ipython notebook` and you would see a localhost:8888 webpage pop up with the directory of notebooks running. The following example will show you how to launch the Jupyter server and connect to remotely via an SSH tunnel.
+
+First configure your cloud server to accept port 8889, or whatever you want, but change the port in the following commands. On AWS you accomplish this by adding a rule to your server's security group allowing a TCP inbound on port 8889. Otherwise you would adjust iptables for this.
+
+![security group screenshot](../static/images/security-group-juypter.png)
+
+Next you launch the Juypter server.
+
+```
+ipython notebook --no-browser --port=8889
+```
+
+Then create the SSH tunnel. This will pass the cloud server's Jupyter instance to your localhost 8888 port for you to use locally. The example below is templated after how you would connect AWS, where `your-public-cert.pem` is your own public certificate and `ubuntu@super-rad-GPU-instance.compute-1.amazonaws.com` is your login to your cloud server. You can easily grab this on AWS by going to Instances > Connect and copy the part after `ssh` and swap that out in the command below.
+
+```
+ssh -N -f -L localhost:8888:localhost:8889 -i "your-public-cert.pem" ubuntu@super-rad-GPU-instance.compute-1.amazonaws.com
+```
+
+
 
 ### Troubleshooting
 
