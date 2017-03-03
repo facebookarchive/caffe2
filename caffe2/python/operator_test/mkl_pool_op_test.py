@@ -24,7 +24,7 @@ class MKLPoolTest(hu.HypothesisTestCase):
            method=st.sampled_from(["MaxPool", "AveragePool"]),
            **mu.gcs)
     @settings(max_examples=2, timeout=100)
-    def test_mkl_convolution(self, stride, pad, kernel, size,
+    def test_mkl_pooling(self, stride, pad, kernel, size,
                              input_channels, batch_size, 
                              method, gc, dc):
         op = core.CreateOperator(
