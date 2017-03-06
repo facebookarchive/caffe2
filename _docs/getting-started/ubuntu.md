@@ -109,6 +109,8 @@ Solution | Make sure you've installed protobuf in **both** of these two ways: `s
 GPU errors | Unsupported GPU or wrong version
 Solution | You need to know the specific `deb` for your version of Linux. `sudo dpkg -i cuda-repo-<distro>_<version>_<architecture>.deb` Refer to NVIDIA's [installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation).
 Build issues | Be warned that installing CUDA and cuDNN will increase the size of your build by about 4GB, so plan to have at least 12GB for your Ubuntu disk size.
+common_gpu.cc:42 | Found an unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. I will set the available devices to be zero.
+Solution | This may be a Docker-specific error where you need to launch the images while passing in GPU device flags: `sudo docker run -ti --device /dev/nvidia0:/dev/nvidia0 --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm mydocker-repo/mytag /bin/bash`. You will need to update those devices according to your hardware (however this should match a 1-GPU build) and you need to swap out `mydocker-repo/mytag` with the ID or the repo/tag of your Docker image.
 
 {{ outro | markdownify }}
 
