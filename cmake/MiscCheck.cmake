@@ -54,6 +54,14 @@ endif()
 
 # ---[ If we are using msvc, set no warning flags
 if (MSVC)
-  add_definitions(/MP)
-  add_definitions(/wd4244 /wd4506 /wd4065 /wd4018 /wd4267 /wd4800 /wd5030 /wd4996 /wd4305)
+  add_compile_options(/MP)
+  add_definitions(
+      # Rough format: (warning level): Description
+      /wd4018 # (3): Signed/unsigned mismatch
+      /wd4244 # (2/3/4): Possible loss of precision
+      /wd4267 # (3): Conversion of size_t to smaller type. Possible loss of data.
+      /wd4800 # (3): Forcing non-boolean value to true or false.
+      /wd4996 # (3): Use of a deprecated member
+      /wd5030 # (?): Unrecognized C++ attribute
+  )
 endif()
