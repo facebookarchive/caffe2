@@ -55,7 +55,7 @@ endif()
 # ---[ If we are using msvc, set no warning flags
 if (MSVC)
   add_compile_options(/MP)
-  add_definitions(
+  add_compile_options(
       # Rough format: (warning level): Description
       /wd4018 # (3): Signed/unsigned mismatch
       /wd4244 # (2/3/4): Possible loss of precision
