@@ -301,6 +301,13 @@ void Gemv<float, CPUContext>(
 #define CAFFE2_SPECIALIZED_SCALE(T, prefix)                                 \
   template <>                                                               \
   void Scale<T, CPUContext>(                                                \
+      const int n, const T alpha, const T* x, T* y, CPUContext* context) {  \
+    if (y != x)                                                             \
+      cblas_##prefix##copy(n, x, 1, y, 1);                                  \
+    cblas_##prefix##scal(n, alpha, y, 1);                                   \
+  }                                                                         \
+  template <>                                                               \
+  void Scale<T, CPUContext>(                                                \
       const int n, const T* alpha, const T* x, T* y, CPUContext* context) { \
     if (y != x)                                                             \
       cblas_##prefix##copy(n, x, 1, y, 1);                                  \
@@ -322,6 +329,11 @@ CAFFE2_SPECIALIZED_DOT(double, d)
 #undef CAFFE2_SPECIALIZED_DOT
 
 #define CAFFE2_SPECIALIZED_AXPY(T, prefix)                                  \
+  template <>                                                               \
+  void Axpy<T, CPUContext>(                                                 \
+      const int N, const T alpha, const T* x, T* y, CPUContext* context) {  \
+    cblas_##prefix##axpy(N, alpha, x, 1, y, 1);                             \
+  }                                                                         \
   template <>                                                               \
   void Axpy<T, CPUContext>(                                                 \
       const int N, const T* alpha, const T* x, T* y, CPUContext* context) { \

@@ -160,7 +160,7 @@ class EnforceFailMessage {
  public:
 #if _MSC_VER
   // MSVC does not support constexpr constructor.
-  EnforceFailMessage(EnforceOK) : msg_(nullptr) {}
+  explicit EnforceFailMessage(EnforceOK) : msg_(nullptr) {}
 #else
   constexpr /* implicit */ EnforceFailMessage(EnforceOK) : msg_(nullptr) {}
 #endif
