@@ -614,7 +614,7 @@ class MeanReducer<T, CPUContext> : public BaseReducer {
   void
   process(const Meta& meta, const T* in, TIndex offset, CPUContext* context) {
     math::AxpyFixedSize<T, CPUContext, FixedSize>(
-	    meta.block_size, 1, in, out_, context);
+        meta.block_size, 1, in, out_, context);
     current_size_++;
   }
 
