@@ -37,6 +37,8 @@ sudo apt-get install libgtest-dev libgflags2 libgflags-dev liblmdb-dev libleveld
 sudo pip install setuptools hypothesis flask graphviz jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
 ```
 
+* Note for Ubuntu 16.04 `libgflags2` should be replaced with `libgflags-dev`.
+
 ### Clone & Build
 
 ```bash
@@ -115,6 +117,8 @@ git | While you can download the Caffe2 source code and submodules directly from
 Solution | `sudo apt-get install git`
 protobuf | You may experience an error related to protobuf during the make step.
 Solution | Make sure you've installed protobuf in **both** of these two ways: `sudo apt-get install libprotobuf-dev protobuf-compiler && sudo pip install protobuf`
+libgflags2 error | This optional dependency is for Ubuntu 14.04.
+Solution | Use `apt-get install libgflags-dev` for Ubuntu 16.04.
 
 | GPU Support
 ----|-----
