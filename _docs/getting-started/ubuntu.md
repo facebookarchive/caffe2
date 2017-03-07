@@ -33,8 +33,8 @@ rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 ### Optional Dependencies
 
 ```bash
-sudo apt-get install libgtest-dev libgflags2 libgflags-dev liblmdb-dev libleveldb-dev libsnappy-dev libopencv-dev libiomp-dev openmpi-bin openmpi-doc libopenmpi-dev
-sudo pip install setuptools hypothesis flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
+sudo apt-get install libgtest-dev libgflags2 libgflags-dev liblmdb-dev libleveldb-dev libsnappy-dev libopencv-dev libiomp-dev openmpi-bin openmpi-doc libopenmpi-dev python-pydot
+sudo pip install setuptools hypothesis flask graphviz jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
 ```
 
 ### Clone & Build

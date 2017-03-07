@@ -13,6 +13,10 @@ libdc1394 error | for some reason once opencv is installed you may get [errors w
 Solution | `ln /dev/null /dev/raw1394` but that's not [persistent](http://stackoverflow.com/questions/31768441/how-to-persist-ln-in-docker-with-ubuntu) so try `sh -c 'ln -s /dev/null /dev/raw1394'` or when instantiating the container use: `--device /dev/null:/dev/raw1394`
 caffe2_pybind11_state_gpu | WARNING:root:Debug message: No module named caffe2_pybind11_state_gpu
 Solution | ignore if you're using CPU-only
+Python kernel crashing | This happens when you try to call Jupyter server directly (like in a Docker container).
+Solution | Use `sh -c "jupyter notebook ..."` to get around this problem.
+Exception: "dot" not found in path | This happens in some of the tutorials when graphing.
+Solution | Make sure you have `graphviz` and `pydot`. `sudo apt-get install python-pydot` and `sudo pip install graphviz` or `brew install` these to fix the problem.
 
 | System Dependencies
 ----|-----

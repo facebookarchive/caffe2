@@ -18,7 +18,7 @@ In the instance that you have a NVIDIA supported GPU in your Mac, then you shoul
 ### Optional Dependencies
 
 ```bash
-brew install leveldb lmdb gflags rocksdb zeromq open-mpi opencv3
+brew install leveldb lmdb gflags rocksdb zeromq open-mpi opencv3 graphviz
 sudo pip install setuptools hypothesis flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
 ```
 
