@@ -334,11 +334,6 @@ class TestShapeInference(test_util.TestCase):
                 b not in types and b in correct_types,
                 "Type for {} not defined".format(b),
             )
-
-            # BUG: Workspace blob type not being set correctly T16121392
-            if correct_types[b] == caffe2_pb2.TensorProto.INT32:
-                continue
-
             self.assertEqual(
                 types[b],
                 correct_types[b],
