@@ -69,12 +69,12 @@ If you're running this all on a cloud computer, you probably won't have a UI or 
 
 First configure your cloud server to accept port 8889, or whatever you want, but change the port in the following commands. On AWS you accomplish this by adding a rule to your server's security group allowing a TCP inbound on port 8889. Otherwise you would adjust iptables for this.
 
-![security group screenshot](../static/images/security-group-juypter.png)
+![security group screenshot](../static/images/security-group-jupyter.png)
 
 Next you launch the Juypter server.
 
 ```
-ipython notebook --no-browser --port=8889
+jupyter notebook --no-browser --port=8889
 ```
 
 Then create the SSH tunnel. This will pass the cloud server's Jupyter instance to your localhost 8888 port for you to use locally. The example below is templated after how you would connect AWS, where `your-public-cert.pem` is your own public certificate and `ubuntu@super-rad-GPU-instance.compute-1.amazonaws.com` is your login to your cloud server. You can easily grab this on AWS by going to Instances > Connect and copy the part after `ssh` and swap that out in the command below.
@@ -83,7 +83,19 @@ Then create the SSH tunnel. This will pass the cloud server's Jupyter instance t
 ssh -N -f -L localhost:8888:localhost:8889 -i "your-public-cert.pem" ubuntu@super-rad-GPU-instance.compute-1.amazonaws.com
 ```
 
+#### Jupyter from Docker
 
+If you want to do something similar, but run your Jupyter server from a Docker container, then you'll need to run the container with a few more flags. The first new one for Docker is `-p 8888:8888` which "publishes" the 8888 port on the container and maps it to your host's 8888 port. You also need to launch jupyter with `--ip 0.0.0.0` so that you can hit that port from your host's browser, otherwise it will only be available from within the container which isn't very helpful. Of course you'll want to swap out the `caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04` with your own repo:tag for the image you want to launch.
+
+Note: in this case we're running jupyter with `sh -c`. This solves a problem with the Python kernel crashing constantly when you're running notebooks.
+
+```
+docker run -it -p 8888:8888 caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+```
+
+Your output will be along these lines below. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials. Note the if you installed caffe2 in a different spot, then update the optional path that is in the command `/caffe2/caffe2/python/tutorials` to match where the tutorials are located.
+
+![jupyter docker launch screenshot](../static/images/jupyter-docker-launch.png)
 
 ### Troubleshooting
 
