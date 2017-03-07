@@ -80,9 +80,12 @@ Docker images are currently in testing. If you would like to build an image your
 
 | Known Working Docker Images | Dockerfile | Image
 ----|----|----
+Ubuntu 16.04 GPU **full options** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-16.04-gpu-all-options/Dockerfile) | docker pull caffe2ai/caffe2:gpu-fulloptions-ubuntu16.04
+Ubuntu 16.04 CPU-only **full options** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-16.04-cpu-all-options/Dockerfile) | docker pull caffe2ai/caffe2:cpu-fulloptions-ubuntu16.04
 Ubuntu 14.04 GPU **full options** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-14.04-gpu-all-options/Dockerfile) | docker pull caffe2ai/caffe2
 Ubuntu 14.04 CPU-only **full options** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-14.04-cpu-all-options/Dockerfile) | docker pull caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04
 Ubuntu 14.04 CPU-only **minimal** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-14.04-cpu-minimal/Dockerfile) | docker pull caffe2ai/caffe2:cpu-minimal-ubuntu14.04
+
 
 For the latest Docker image using GPU support and optional dependencies like IPython & OpenCV:
 
