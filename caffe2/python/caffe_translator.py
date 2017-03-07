@@ -328,7 +328,7 @@ def TranslateInnerProduct(layer, pretrained_blobs, is_test):
     output = caffe_op.output[0]
     caffe_op.input.extend([output + '_w', output + '_b'])
     weight = utils.NumpyArrayToCaffe2Tensor(
-        pretrained_blobs[0], output + '_w'
+        pretrained_blobs[0][0,0], output + '_w'
     )
     bias = utils.NumpyArrayToCaffe2Tensor(
         pretrained_blobs[1].flatten(), output + '_b'
