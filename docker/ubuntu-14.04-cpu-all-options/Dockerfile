@@ -34,11 +34,24 @@ RUN apt-get install -y --no-install-recommends \
     openmpi-bin \
     openmpi-doc \
     python-numpy \
+    python-pydot \
     python-setuptools \
     python-scipy \
     wget
 
-RUN pip install setuptools flask hypothesis jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
+RUN pip install \
+    flask \
+    graphviz \
+    hypothesis \
+    jupyter \
+    matplotlib \
+    pydot \
+    python-nvd3 \
+    pyyaml \
+    scikit-image \ 
+    scipy \
+    setuptools \
+    tornado
 
 ########## INSTALLATION STEPS ###################
 RUN cd caffe2 && make && cd build && make install
