@@ -52,10 +52,14 @@ brew | You need brew! Whenever possible, [Homebrew](http://brew.sh) is used to i
 xcode | You need [Xcode](https://developer.apple.com/xcode/) or at a minimum xcode command line tools.
 Solution | You can install it via terminal using `xcode-select --install`
 
-| GPU Support
+|GPU Support
 ----|-----
 GPU | The easiest route is to go to [NVIDIA's site and download](https://developer.nvidia.com/cuda-downloads) and install their binary for MacOSx.
 Solution | Caffe2's GPU support is [Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone): install from NVIDIA's site; free developer account required. [NVIDIA MacOSx Installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/)
+
+|Misc.
+----|-----
+malloc error | If you are using homebrew leveldb on a Mac OS, you might see an error warning you that malloc_zone_unregister() failed. This is not a caffe2 issue but is due to the homebrew leveldb having an incompatible memory allocator. It does not affect usage.
 
 {{ outro | markdownify }}
 
