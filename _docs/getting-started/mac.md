@@ -8,7 +8,7 @@
 
 ```bash
 brew install git glog automake protobuf
-sudo pip2 install numpy protobuf
+sudo pip install numpy protobuf
 ```
 
 ### Optional GPU Support
@@ -26,7 +26,7 @@ sudo pip install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 
 
 ```bash
 git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
-make
+make && cd build && sudo make install
 python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 ```
 
