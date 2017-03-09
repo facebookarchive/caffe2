@@ -279,6 +279,26 @@ class TestShapeInference(test_util.TestCase):
 
         self.InferTensorRunAndCompare(model)
 
+    def testCast(self):
+        model = cnn.CNNModelHelper()
+
+        workspace.FeedBlob('X', np.random.rand(10, 10).astype(np.float32))
+
+        model.Cast('X', 'Yfloat', to=caffe2_pb2.TensorProto.FLOAT)
+        model.Cast('X', 'Yint32', to=caffe2_pb2.TensorProto.INT32)
+        # model.Cast('X', 'Ybyte', to=caffe2_pb2.TensorProto.BYTE)
+        # model.Cast('X', 'Ystring', to=caffe2_pb2.TensorProto.STRING)
+        model.Cast('X', 'Ybool', to=caffe2_pb2.TensorProto.BOOL)
+        model.Cast('X', 'Yuint8', to=caffe2_pb2.TensorProto.UINT8)
+        model.Cast('X', 'Yint8', to=caffe2_pb2.TensorProto.INT8)
+        model.Cast('X', 'Yuint16', to=caffe2_pb2.TensorProto.UINT16)
+        model.Cast('X', 'Yint16', to=caffe2_pb2.TensorProto.INT16)
+        model.Cast('X', 'Yint64', to=caffe2_pb2.TensorProto.INT64)
+        # model.Cast('X', 'Yfloat16', to=caffe2_pb2.TensorProto.FLOAT16)
+        model.Cast('X', 'Ydouble', to=caffe2_pb2.TensorProto.DOUBLE)
+
+        self.InferTensorRunAndCompare(model)
+
     def InferTensorRunAndCompare(self, model):
         '''
         Runs shape inference, and then the model to check
@@ -300,16 +320,30 @@ class TestShapeInference(test_util.TestCase):
             arr = workspace.FetchBlob(b)
             correct_shapes[b] = arr.shape
             if type(arr) is np.ndarray:
-                if arr.dtype == np.dtype('float64'):
-                    correct_types[b] = caffe2_pb2.TensorProto.DOUBLE
-                elif arr.dtype == np.dtype('float32'):
+                if arr.dtype == np.dtype('float32'):
                     correct_types[b] = caffe2_pb2.TensorProto.FLOAT
                 elif arr.dtype == np.dtype('int32'):
                     correct_types[b] = caffe2_pb2.TensorProto.INT32
+                # BYTE
+                # STRING
+                elif arr.dtype == np.dtype('bool'):
+                    correct_types[b] = caffe2_pb2.TensorProto.BOOL
+                elif arr.dtype == np.dtype('uint8'):
+                    correct_types[b] = caffe2_pb2.TensorProto.UINT8
+                elif arr.dtype == np.dtype('int8'):
+                    correct_types[b] = caffe2_pb2.TensorProto.INT8
+                elif arr.dtype == np.dtype('uint16'):
+                    correct_types[b] = caffe2_pb2.TensorProto.UINT16
+                elif arr.dtype == np.dtype('int16'):
+                    correct_types[b] = caffe2_pb2.TensorProto.INT16
                 elif arr.dtype == np.dtype('int64'):
                     correct_types[b] = caffe2_pb2.TensorProto.INT64
+                elif arr.dtype == np.dtype('float16'):
+                    correct_types[b] = caffe2_pb2.TensorProto.FLOAT16
+                elif arr.dtype == np.dtype('float64'):
+                    correct_types[b] = caffe2_pb2.TensorProto.DOUBLE
                 else:
-                    correct_types[b] = "unknown {}".format(np.dtype)
+                    correct_types[b] = "unknown {}".format(arr.dtype)
             else:
                 correct_types[b] = str(type(arr))
 
