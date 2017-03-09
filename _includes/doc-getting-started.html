@@ -8,11 +8,14 @@
     {{ intro | markdownify}}
     <div class="toggler">
       <table>
+      <col width="35%"/>
+      <col width="65%"/>
       <tr>
       <td><span><strong>Platform:</strong></span></td>
       <td>
       <a href="javascript:void(0);" class="button-mac" onclick="display('platform', 'mac')">MacOS X</a>
       <a href="javascript:void(0);" class="button-ubuntu" onclick="display('platform', 'ubuntu')">Ubuntu</a>
+      <a href="javascript:void(0);" class="button-centos" onclick="display('platform', 'centos')">CentOS</a>
       <a href="javascript:void(0);" class="button-windows" onclick="display('platform', 'windows')">Windows</a>
       <a href="javascript:void(0);" class="button-ios" onclick="display('platform', 'ios')">iOS</a>
       <a href="javascript:void(0);" class="button-android" onclick="display('platform', 'android')">Android</a>
@@ -24,12 +27,13 @@
       <a href="javascript:void(0);" class="button-compile" onclick="display('configuration', 'compile')">Build From Source</a>
       <a href="javascript:void(0);" class="button-prebuilt" onclick="display('configuration', 'prebuilt')">Pre-Built Binaries</a>
       <a href="javascript:void(0);" class="button-docker" onclick="display('configuration', 'docker')">Docker Images</a>
+      <a href="javascript:void(0);" class="button-cloud" onclick="display('configuration', 'cloud')">Cloud</a>
       </td>
       </tr>
       </table>
     </div>
     {{ content }}
-    <block class="mac ubuntu windows ios android compile prebuilt docker" />
+    <block class="mac ubuntu centos windows ios android compile prebuilt docker cloud" />
     <p><a class="edit-page-link" href="https://github.com/{{ site.ghrepo }}/tree/gh-pages/{{ page.path }}" target="_blank">Edit on GitHub</a></p>
   </article>
   {% include doc_paging.html %}

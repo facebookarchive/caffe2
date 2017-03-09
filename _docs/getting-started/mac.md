@@ -77,3 +77,5 @@ pip install caffe2.whl
 This will also install various [third party](#whats-in-third-party) tools as well.
 
 <block class="mac docker" />
+
+<block class="mac cloud" />

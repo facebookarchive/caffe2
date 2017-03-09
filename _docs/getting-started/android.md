@@ -30,3 +30,5 @@ cd caffe2
 <block class="android prebuilt docker" />
 
 Caffe2 for Android must be built using the Android build script.
+
+<block class="android cloud" />

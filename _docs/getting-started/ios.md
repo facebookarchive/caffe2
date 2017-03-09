@@ -32,3 +32,5 @@ cd caffe2
 <block class="ios prebuilt docker" />
 
 Caffe2 for iOS must be built using the iOS build script.
+
+<block class="ios cloud" />

@@ -77,3 +77,5 @@ Solution | Caffe2's GPU support is [Nvidia CUDA 6.5 or greater](https://develope
 * If you have a Windows 10 Home, then you need [Docker Toolbox](https://www.docker.com/products/docker-toolbox)
 
 **Note: GPU mode is [not currently supported](https://github.com/NVIDIA/nvidia-docker/issues/197) with Docker on Windows with the possible exception of Windows Server 2016**
+
+<block class="windows cloud" />

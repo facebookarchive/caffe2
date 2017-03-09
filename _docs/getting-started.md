@@ -6,6 +6,7 @@ permalink: /docs/getting-started.html
 ---
 {% capture mac %}{% include_relative getting-started/mac.md %}{% endcapture %}
 {% capture ubuntu %}{% include_relative getting-started/ubuntu.md %}{% endcapture %}
+{% capture centos %}{% include_relative getting-started/centos.md %}{% endcapture %}
 {% capture windows %}{% include_relative getting-started/windows.md %}{% endcapture %}
 {% capture ios %}{% include_relative getting-started/ios.md %}{% endcapture %}
 {% capture android %}{% include_relative getting-started/android.md %}{% endcapture %}
@@ -13,6 +14,7 @@ permalink: /docs/getting-started.html
 
 {{mac | markdownify }}
 {{ubuntu | markdownify }}
+{{centos | markdownify }}
 {{windows | markdownify }}
 {{ios | markdownify }}
 {{android | markdownify }}

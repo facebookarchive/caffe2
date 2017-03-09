@@ -126,3 +126,5 @@ Build issues | Be warned that installing CUDA and cuDNN will increase the size o
 ** COMING SOON **
 
 <block class="ubuntu docker" />
+
+<block class="ubuntu cloud" />
