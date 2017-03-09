@@ -5,13 +5,14 @@
   - id: caffe-migration
 - title: Learn
   items:
+  - id: applications-of-deep-learning
   - id: tutorials
-  - id: mobile-integration
+  - id: intro-tutorial
   - id: operators
+  - id: mobile-integration
+  - id: AI-Camera-demo-android
   - id: datasets
   - id: zoo
-  - id: AI-Camera-demo-android
-  - id: applications-of-deep-learning
 - title: Reference
   items:
   - id: operators-catalogue

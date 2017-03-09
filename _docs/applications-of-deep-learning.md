@@ -47,3 +47,5 @@ Deep learning and neural networks can be applied to ANY problem. It excels at ha
 - Data person - analyze massive quantities of data to find trends and predictors, and develop new models for any industry
 - Developers & engineers - ultimately there will be demand from so many industry sectors to utilize deep learning that incorporating it into platforms will be required even if you're not involved with creating, researching, or refining the deep learning systems themselves
 - Academics - refinement of existing models, creation of new models, algorithm development, and more intelligent neural networks are forthcoming and there's a wide open arena of opportunities for academics to help progress DNN and AI.
+
+Ready to start working with Caffe2? [Install](getting-started) it, or jump ahead to read the [Intro Tutorial](intro-tutorial) or the [AI Camera Demo and Tutorial](AI-Camera-demo-android).

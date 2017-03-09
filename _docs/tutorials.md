@@ -45,7 +45,7 @@ You may browse these ipynb files on Github directly and this is the preferred ro
 However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. Installation instructions below will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
 
 
-### Beginners and New to Caffe2
+### Beginners
 
 #### Models and Datasets - a Primer
 
@@ -58,6 +58,10 @@ New to Caffe and Deep Learning? Start here and find out more about the different
 Take advantage of the Model Zoo and grab some pre-trained models and take them for a test drive. This tutorial has a set of different models that are ready to go and will show you the basic steps for prepping them and firing up your neural net. Then you can throw some images or other tests at them and see how they perform.
 
 [Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Loading_Pretrained_Models.ipynb) | [Download](../tutorials/Loading_Pretrained_Models.ipynb)
+
+### New to Caffe2
+
+You also may want to review the [Intro Tutorial](intro-tutorial) before starting this notebook.
 
 #### Basics of Caffe2 - Workspaces, Operators, and Nets
 
