@@ -34,7 +34,7 @@ rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 
 ```bash
 sudo apt-get install libgtest-dev libgflags2 libgflags-dev liblmdb-dev libleveldb-dev libsnappy-dev libopencv-dev libiomp-dev openmpi-bin openmpi-doc libopenmpi-dev python-pydot
-sudo pip install setuptools hypothesis flask graphviz jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml
+sudo pip install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml scikit-image scipy setuptools tornado
 ```
 
 * Note for Ubuntu 16.04 `libgflags2` should be replaced with `libgflags-dev`.
@@ -85,20 +85,6 @@ Then create the SSH tunnel. This will pass the cloud server's Jupyter instance t
 ssh -N -f -L localhost:8888:localhost:8889 -i "your-public-cert.pem" ubuntu@super-rad-GPU-instance.compute-1.amazonaws.com
 ```
 
-#### Jupyter from Docker
-
-If you want to do something similar, but run your Jupyter server from a Docker container, then you'll need to run the container with a few more flags. The first new one for Docker is `-p 8888:8888` which "publishes" the 8888 port on the container and maps it to your host's 8888 port. You also need to launch jupyter with `--ip 0.0.0.0` so that you can hit that port from your host's browser, otherwise it will only be available from within the container which isn't very helpful. Of course you'll want to swap out the `caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04` with your own repo:tag for the image you want to launch.
-
-Note: in this case we're running jupyter with `sh -c`. This solves a problem with the Python kernel crashing constantly when you're running notebooks.
-
-```
-docker run -it -p 8888:8888 caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
-```
-
-Your output will be along these lines below. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials. Note the if you installed caffe2 in a different spot, then update the optional path that is in the command `/caffe2/caffe2/python/tutorials` to match where the tutorials are located.
-
-![jupyter docker launch screenshot](../static/images/jupyter-docker-launch.png)
-
 ### Troubleshooting
 
 |Python errors
@@ -125,8 +111,6 @@ Solution | Use `apt-get install libgflags-dev` for Ubuntu 16.04.
 GPU errors | Unsupported GPU or wrong version
 Solution | You need to know the specific `deb` for your version of Linux. `sudo dpkg -i cuda-repo-<distro>_<version>_<architecture>.deb` Refer to NVIDIA's [installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation).
 Build issues | Be warned that installing CUDA and cuDNN will increase the size of your build by about 4GB, so plan to have at least 12GB for your Ubuntu disk size.
-common_gpu.cc:42 | Found an unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. I will set the available devices to be zero.
-Solution | This may be a Docker-specific error where you need to launch the images while passing in GPU device flags: `sudo docker run -ti --device /dev/nvidia0:/dev/nvidia0 --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm mydocker-repo/mytag /bin/bash`. You will need to update those devices according to your hardware (however this should match a 1-GPU build) and you need to swap out `mydocker-repo/mytag` with the ID or the repo/tag of your Docker image.
 
 {{ outro | markdownify }}
 
@@ -137,7 +121,3 @@ Solution | This may be a Docker-specific error where you need to launch the imag
 ** COMING SOON **
 
 <block class="ubuntu docker" />
-
-### Docker Images
-
-Refer to the Mac --> Docker option on the top of this Install page to see Docker images and build options.

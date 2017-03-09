@@ -9,9 +9,11 @@ permalink: /docs/getting-started.html
 {% capture windows %}{% include_relative getting-started/windows.md %}{% endcapture %}
 {% capture ios %}{% include_relative getting-started/ios.md %}{% endcapture %}
 {% capture android %}{% include_relative getting-started/android.md %}{% endcapture %}
+{% capture docker %}{% include_relative getting-started/docker.md %}{% endcapture %}
 
 {{mac | markdownify }}
 {{ubuntu | markdownify }}
 {{windows | markdownify }}
 {{ios | markdownify }}
 {{android | markdownify }}
+{{docker | markdownify }}
