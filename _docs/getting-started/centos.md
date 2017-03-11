@@ -1,12 +1,12 @@
 {% capture outro %}{% include_relative getting-started/outro.md %}{% endcapture %}
 
-<block class="centos compile" />
-
-{{ outro | markdownify }}
-
 <block class="centos prebuilt" />
 
 <block class="centos docker" />
+
+<block class="centos compile" />
+
+Check the cloud instructions for a general guideline on building from source for CentOS.
 
 <block class="centos cloud" />
 
@@ -137,7 +137,7 @@ make install
 
 #### Test it out!
 
-To check if Caffe2 is working and it using the GPU's try this. You should see an output of a bunch of arrays, but more importantly, no error messages!
+To check if Caffe2 is working and it's using the GPU's try the command below. You should see an output of a bunch of arrays, but more importantly, you should see no error messages! Consult the Troubleshooting section of the docs here and for Ubuntu for some help.
 
 ```
 python -m caffe2.python.operator_test.relu_op_test
@@ -172,3 +172,29 @@ Product Brand : Grid
 ```
 
 That's it. You've successfully built Caffe2!
+
+### Setting Up Tutorials & Jupyter Server
+
+If you're running this all on a cloud computer, you probably won't have a UI or way to view the IPython notebooks by default. Typically, you would launch them locally with `ipython notebook` and you would see a localhost:8888 webpage pop up with the directory of notebooks running. The following example will show you how to launch the Jupyter server and connect to remotely via an SSH tunnel.
+
+First configure your cloud server to accept port 8889, or whatever you want, but change the port in the following commands. On AWS you accomplish this by adding a rule to your server's security group allowing a TCP inbound on port 8889. Otherwise you would adjust iptables for this.
+
+![security group screenshot](../static/images/security-group-jupyter.png)
+
+Next you launch the Juypter server.
+
+```
+jupyter notebook --no-browser --port=8889
+```
+
+Then create the SSH tunnel. This will pass the cloud server's Jupyter instance to your localhost 8888 port for you to use locally. The example below is templated after how you would connect AWS, where `your-public-cert.pem` is your own public certificate and `ec2-user@super-rad-GPU-instance.compute-1.amazonaws.com` is your login to your cloud server. You can easily grab this on AWS by going to Instances > Connect and copy the part after `ssh` and swap that out in the command below.
+
+```
+ssh -N -f -L localhost:8888:localhost:8889 -i "your-public-cert.pem" ec2-user@super-rad-GPU-instance.compute-1.amazonaws.com
+```
+
+#### Troubleshooting
+
+caffe2.python not found | You may have some PATH or PYTHONPATH issues. Add `/home/ec2-user/caffe2/build` to your path and that can take care of those problems.
+
+{{ outro | markdownify }}

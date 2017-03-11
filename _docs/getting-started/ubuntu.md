@@ -1,13 +1,19 @@
 {% capture outro %}{% include_relative getting-started/outro.md %}{% endcapture %}
 
-<block class="ubuntu compile" />
+<block class="ubuntu cloud" />
+
+This AMI is confirmed to work with the regular build from source instructions.
+
+* [AWS Deep Learning AMI Ubuntu Version 14.04](https://aws.amazon.com/marketplace/pp/B06VSPXKDX?qid=1489099515180&sr=0-6&ref_=srh_res_product_title)
+
+<block class="ubuntu compile cloud" />
 
 [![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
 This build is confirmed for:
+
 * Ubuntu 14.04
 * Ubuntu 16.06
-* [AWS Deep Learning AMI Ubuntu Version 14.04](https://aws.amazon.com/marketplace/pp/B06VSPXKDX?qid=1489099515180&sr=0-6&ref_=srh_res_product_title)
 
 ### Required Dependencies
 
