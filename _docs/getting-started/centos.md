@@ -16,21 +16,21 @@ Check the cloud instructions for a general guideline on building from source for
 
 [NVIDIA GRID and TESLA GPU](https://aws.amazon.com/marketplace/pp/B00FYCDDTE?qid=1489162823246&sr=0-1&ref_=srh_res_product_title)
 
-The above AMI had been tested with Caffe2 + GPU support. The installation currently is a little tricky, but we hope over time this can be smoothed out a bit. This AMI is great though because it supports the [latest and greatest features from NVIDIA](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/accelerated-computing-instances.html).
+The above AMI had been tested with Caffe2 + GPU support. The installation is currently a little tricky, but we hope over time this can be smoothed out a bit. This AMI is great though because it supports the [latest and greatest features from NVIDIA](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/accelerated-computing-instances.html).
 
 ### Installation Guide
 
-Note that this guide will help you install Caffe2 on any CentOS distro. Amazon uses their own flavor of RHEL and they've installed CUDA in different spots than normally expected so keep that in mind. Some of these steps will not be required on vanilla CentOS because things will go in their normal places.
+Note that this guide will help you install Caffe2 on any CentOS distribution. Amazon uses their own flavor of RHEL and they've installed CUDA in different spots than normally expected, so keep that in mind if you have to do some troubleshooting. Some of these steps will not be required on vanilla CentOS because things will go in their normal places.
 
 #### Get your repos set
 
-For whatever reason, many of the required dependencies don't show up in Amazon's enable repositories. Epel is already provided in this image, but the repos is disabled. You need to enable it by editing the repo config to turn it on. Set `enabled=1` in the `epel.repo` file. This enables you to find `cmake3 leveldb-devel lmdb-devel`.
+For whatever reason, many of the required dependencies don't show up in Amazon's enable repositories. Epel is already provided in this image, but the repo is disabled. You need to enable it by editing the repo config to turn it on. Set `enabled=1` in the `epel.repo` file. This enables you to find `cmake3 leveldb-devel lmdb-devel`.
 
 ```
 sudo vim /etc/yum.repos.d/epel.repo
 ```
 
-Next you should update yum and install the Caffe2's core dependencies. These differ slightly from Ubuntu due to availability of ready-to-go packages.
+Next you should update yum and install Caffe2's core dependencies. These differ slightly from Ubuntu due to availability of ready-to-go packages.
 
 ```
 sudo yum update
@@ -76,7 +76,7 @@ sudo yum install gflags-devel
 
 #### Python Dependencies
 
-Now we need the Python dependencies. Note the troubleshooting info below... for some reason the install path with Python can get difficult.
+Now we need the Python dependencies. Note the troubleshooting info below... the install path with Python can get difficult.
 
 ```
 sudo pip install \
@@ -99,14 +99,24 @@ tornado
 This may fail with error:
 `pkg_resources.DistributionNotFound: pip==7.1.0`
 
-To fix this, upgrade pip then update the pip's config to match the version it upgraded to. For example, in the `/usr/bin/pip` file, you need to change two instances of `7.1.0` to `9.0.1`
+To fix this, upgrade pip, and then update the pip's config to match the version it upgraded to.
 
 ```
-sudo easy_install --upgrade pip
+$ sudo easy_install --upgrade pip
+Password:
+Searching for pip
+Reading https://pypi.python.org/simple/pip/
+Downloading https://pypi.python.org/packages/11/b6/abcb525026a4be042b486df43905d6893fb04f05aac21c32c638e939e447/pip-9.0.1.tar.gz#md5=35f01da33009719497f01a4ba69d63c9
+Best match: pip 9.0.1
+```
+
+Note that in this example, the upgrade was to 9.0.1. Use vim to open the `/usr/bin/pip` file and change the instances of `7.1.0` to `9.0.1`, and this solves the pip error and will allow you to install the dependencies.
+
+```
 sudo vim /usr/bin/pip
 ```
 
-Once you've fixed the config file re-run the `sudo pip install...` command from above.
+Once you've fixed the config file re-run the `sudo pip install flask graphviz...` command from above.
 
 #### Setup CUDA
 
@@ -125,7 +135,7 @@ export CUDA_HOME=/opt/nvidia/cuda
 export LD_LIBRARY_PATY=/opt/nvidia/cuda/lib64:/usr/local/bin
 ```
 
-Whew! So close. Now you need to clone Caffe2 repo and build it:
+Almost done. Now you need to clone Caffe2 repo and build it:
 
 ```
 git clone --recursive https://github.com/caffe2/caffe2
@@ -137,9 +147,10 @@ make install
 
 #### Test it out!
 
-To check if Caffe2 is working and it's using the GPU's try the command below. You should see an output of a bunch of arrays, but more importantly, you should see no error messages! Consult the Troubleshooting section of the docs here and for Ubuntu for some help.
+To check if Caffe2 is working and it's using the GPU's try the commands below. The first will tell you success or failure, and the second should trigger the GPU and output of a bunch of arrays, but more importantly, you should see no error messages! Consult the Troubleshooting section of the docs here and for Ubuntu for some help.
 
 ```
+python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 python -m caffe2.python.operator_test.relu_op_test
 ```
 
