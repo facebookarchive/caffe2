@@ -16,7 +16,7 @@ Check the cloud instructions for a general guideline on building from source for
 
 [NVIDIA GRID and TESLA GPU](https://aws.amazon.com/marketplace/pp/B00FYCDDTE?qid=1489162823246&sr=0-1&ref_=srh_res_product_title)
 
-The above AMI had been tested with Caffe2 + GPU support. The installation is currently a little tricky, but we hope over time this can be smoothed out a bit. This AMI is great though because it supports the [latest and greatest features from NVIDIA](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/accelerated-computing-instances.html).
+The above AMI had been tested with Caffe2 + GPU support on a G2.2xlarge instance that uses a NVIDIA GRID K520 GPU. This AMI comes with CUDA v7.5, and no cuDNN, so we install that manually. The installation is currently a little tricky, but we hope over time this can be smoothed out a bit. This AMI is great though because it supports the [latest and greatest features from NVIDIA](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/accelerated-computing-instances.html).
 
 ### Installation Guide
 
@@ -24,7 +24,7 @@ Note that this guide will help you install Caffe2 on any CentOS distribution. Am
 
 #### Get your repos set
 
-For whatever reason, many of the required dependencies don't show up in Amazon's enable repositories. Epel is already provided in this image, but the repo is disabled. You need to enable it by editing the repo config to turn it on. Set `enabled=1` in the `epel.repo` file. This enables you to find `cmake3 leveldb-devel lmdb-devel`.
+Many of the required dependencies don't show up in Amazon's enabled repositories. Epel is already provided in this image, but the repo is disabled. You need to enable it by editing the repo config to turn it on. Set `enabled=1` in the `epel.repo` file. This enables you to find `cmake3 leveldb-devel lmdb-devel`.
 
 ```
 sudo vim /etc/yum.repos.d/epel.repo
@@ -209,3 +209,8 @@ ssh -N -f -L localhost:8888:localhost:8889 -i "your-public-cert.pem" ec2-user@su
 caffe2.python not found | You may have some PATH or PYTHONPATH issues. Add `/home/ec2-user/caffe2/build` to your path and that can take care of those problems.
 
 {{ outro | markdownify }}
+
+<block class="ubuntu prebuilt" />
+### Prebuilt Binaries
+
+** COMING SOON **
