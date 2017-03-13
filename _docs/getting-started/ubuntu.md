@@ -22,7 +22,7 @@ sudo apt-get update
 sudo apt-get install python-dev python-pip git build-essential cmake libprotobuf-dev protobuf-compiler libgoogle-glog-dev
 sudo pip install numpy protobuf
 ```
-
+<block class="ubuntu compile" />
 ### Optional GPU Support
 
 If you plan to use GPU instead of CPU only, then you should install NVIDIA CUDA and cuDNN, a GPU-accelerated library of primitives for deep neural networks.
@@ -40,7 +40,7 @@ wget ${CUDNN_URL}
 sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local
 rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 ```
-
+<block class="ubuntu compile cloud" />
 ### Optional Dependencies
 
 ```bash
