@@ -120,4 +120,25 @@ if (!foundHash) {
   display('platform', isMac ? 'mac' : (isLinux ? 'linux' : 'windows'));
   display('configuration', 'prebuilt');
 }
+
+// Using this to provide custom links to each platform and install type, such as:
+// http://betadocs.caffe2.ai/docs/getting-started.html?platform=ubuntu&installtype=cloud
+// will take you to that selection versus telling someone where to click
+function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+platform = getParameterByName('platform')
+installtype = getParameterByName('installtype')
+
+if (platform){display('platform', platform)}
+if (installtype){display('configuration', installtype)}
 </script>
