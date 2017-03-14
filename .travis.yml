@@ -36,6 +36,10 @@ matrix:
     # 7
     - os: linux
       compiler: gcc
+      env: COMPILER=g++
+      env: BLAS=MKL
+    - os: linux
+      compiler: gcc
       addons:
         apt:
           sources:
