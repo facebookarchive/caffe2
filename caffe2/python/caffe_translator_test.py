@@ -16,8 +16,6 @@ import unittest
 @unittest.skipIf(not os.path.exists('data/testdata/caffe_translator'),
                  'No testdata existing for the caffe translator test. Exiting.')
 def setUpModule():
-    raise RuntimeError
-
     # We will do all the computation stuff in the global space.
     caffenet = caffe_pb2.NetParameter()
     caffenet_pretrained = caffe_pb2.NetParameter()
