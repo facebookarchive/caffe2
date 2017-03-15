@@ -523,7 +523,7 @@ def TranslateROIPooling(layer, pretrained_blobs, is_test):
 
 
 @TranslatorRegistry.Register("PReLU")
-def TranslateRelu(layer, pretrained_blobs, is_test):
+def TranslatePRelu(layer, pretrained_blobs, is_test):
     caffe_op = BaseTranslate(layer, "PRelu")
     output = caffe_op.output[0]
     caffe_op.input.extend([output + '_Slope'])
