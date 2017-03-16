@@ -34,36 +34,38 @@ These recent academic tutorials cover deep learning for researchers in machine l
 * [Deep Learning Tutorial](http://www.cs.nyu.edu/~yann/talks/lecun-ranzato-icml2013.pdf) by Yann LeCun (NYU, Facebook) and Marc’Aurelio Ranzato (Facebook). ICML 2013 tutorial.
 * [LISA Deep Learning Tutorial](http://deeplearning.net/tutorial/deeplearning.pdf) by the LISA Lab directed by Yoshua Bengio (U. Montréal).
 
-## IPython Notebook Tutorials
+## IPython Notebook Tutorials and Example Scripts
 
-These IPython notebook tutorials we have provided below will guide you through the Caffe2 Python interface. Some tutorials have been generously provided by the Caffe community and we welcome more contributions of this kind to help others get ramped up more quickly and to try out the many different uses of Caffe2.
+The IPython notebook tutorials and example scripts we have provided below will guide you through the Caffe2 Python interface. Some tutorials have been generously provided by the Caffe community and we welcome more contributions of this kind to help others get ramped up more quickly and to try out the many different uses of Caffe2. The iPython notebook tutorials can be browsed or downloaded using the links below each tutorial's title. You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself. However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. Installation instructions below will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
 
-The iPython notebook tutorials can be browsed or downloaded using the links below each tutorial's title.
+There are example scripts that can be found in [/caffe2/python/examples](https://github.com/caffe2/caffe2/tree/master/caffe2/python/examples) that are also great resources for starting off on a project using Caffe2.
 
-You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself.
-
-However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. Installation instructions below will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
+* [char_rnn.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/char_rnn.py): generate a recurrent convolution neural network that will sample text that you input and randomly generate text of a similar style
+* [lmdb_create_example.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/lmdb_create_example.py): create an lmdb database of random image data and labels that can be used a skeleton to write your own data import
+* [resnet50_trainer.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py): parallelized multi-GPU distributed trainer for Resnet 50. Can be used to train on imagenet data, for example
+* [seq2seq.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/seq2seq.py): create a specialized RNN that handles lines of text for projects such as language translation
+* [seq2seq_util.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/seq2seq_util.py): utility functions for the sequence to sequence example script
 
 
 ### Beginners
 
-#### Models and Datasets - a Primer
+#### [Models and Datasets - a Primer](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Models_and_Datasets.ipynb)
 
 New to Caffe and Deep Learning? Start here and find out more about the different models and datasets available to you.
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Models_and_Datasets.ipynb) | [Download](../tutorials/Models_and_Datasets.ipynb)
 
-#### Loading Pre-trained Models
+
+#### [Loading Pre-trained Models](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Loading_Pretrained_Models.ipynb)
 
 Take advantage of the Model Zoo and grab some pre-trained models and take them for a test drive. This tutorial has a set of different models that are ready to go and will show you the basic steps for prepping them and firing up your neural net. Then you can throw some images or other tests at them and see how they perform.
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Loading_Pretrained_Models.ipynb) | [Download](../tutorials/Loading_Pretrained_Models.ipynb)
+
 
 ### New to Caffe2
 
 You also may want to review the [Intro Tutorial](intro-tutorial) before starting this notebook.
 
-#### Basics of Caffe2 - Workspaces, Operators, and Nets
+#### [Basics of Caffe2 - Workspaces, Operators, and Nets](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/basics.ipynb)
 
 This tutorial introduces a few basic Caffe2 components:
 
@@ -71,9 +73,9 @@ This tutorial introduces a few basic Caffe2 components:
 * Operators
 * Nets
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/basics.ipynb) | [Download](/tutorials/basics.ipynb)
 
-#### Toy Regression - Plotting Lines & Random Data
+
+#### [Toy Regression - Plotting Lines & Random Data](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/toy_regression.ipynb)
 
 This tutorial shows how to use more Caffe2 features with simple linear regression as the theme.
 
@@ -82,9 +84,9 @@ This tutorial shows how to use more Caffe2 features with simple linear regressio
 * automatically train the model
 * review stochastic gradient descent results and changes to your ground truth parameters as the network learned
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/toy_regression.ipynb) | [Download](/tutorials/toy_regression.ipynb)
 
-#### Image Pre-Processing Pipeline
+
+#### [Image Pre-Processing Pipeline](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Image_Pre-Processing_Pipeline.ipynb)
 
 Learn how to get your images ready for ingestion into pre-trained models or as test images against other datasets. From cell phones to web cams to new medical imagery you will want to consider your image ingestion pipeline and what conversions are necessary for both speed and accuracy during any kind of image classification.
 
@@ -94,16 +96,16 @@ Learn how to get your images ready for ingestion into pre-trained models or as t
 * RGB to BRG
 * image prep for Caffe2 ingestion
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Image_Pre-Processing_Pipeline.ipynb) | [Download](../tutorials/Image_Pre-Processing_Pipeline.ipynb)
+
 
 
 ### Creating a Convolutional Neural Network from Scratch
 
-#### MNIST - Handwriting Recognition
+#### [MNIST - Handwriting Recognition](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/MNIST.ipynb)
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. The train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/MNIST.ipynb) | [Download](../tutorials/MNIST.ipynb)
+
 
 ### Write Your Own Tutorial!
 
