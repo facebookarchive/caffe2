@@ -30,11 +30,29 @@ If you plan to use GPU instead of CPU only, then you should install NVIDIA CUDA 
 
 **Update your graphics card drivers first!** Otherwise you may suffer from a wide range of difficult to diagnose errors.
 
+**For Ubuntu 14.04**
+
 ```bash
 sudo apt-get update && sudo apt-get install wget -y --no-install-recommends
 wget "http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.61-1_amd64.deb"
 sudo dpkg -i cuda-repo-ubuntu1404_8.0.61-1_amd64.deb
+sudo apt-get update
 sudo apt-get install cuda
+```
+
+**For Ubuntu 16.04**
+
+```bash
+sudo apt-get update && sudo apt-get install wget -y --no-install-recommends
+wget "http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb"
+sudo dpkg -i cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+sudo apt-get update
+sudo apt-get install cuda
+```
+
+#### Install cuDNN (all Ubuntu versions)
+
+```
 CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz"
 wget ${CUDNN_URL}
 sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local
