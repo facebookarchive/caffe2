@@ -6,13 +6,22 @@
 - title: Learn
   items:
   - id: applications-of-deep-learning
-  - id: tutorials
-  - id: intro-tutorial
   - id: operators
   - id: mobile-integration
-  - id: AI-Camera-demo-android
   - id: datasets
   - id: zoo
+- title: Tutorials
+  items:
+  - id: tutorials
+  - id: intro-tutorial
+  - id: tutorial-1
+  - id: tutorial-2
+  - id: tutorial-3
+  - id: tutorial-4
+  - id: tutorial-5
+  - id: tutorial-6
+  - id: tutorial-7
+  - id: AI-Camera-demo-android
 - title: Reference
   items:
   - id: operators-catalogue

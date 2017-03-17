@@ -1,6 +1,6 @@
 ---
 docid: tutorials
-title: Caffe2 Tutorials
+title: Caffe2 Tutorials Overview
 layout: docs
 permalink: /docs/tutorials.html
 ---
@@ -105,6 +105,9 @@ Learn how to get your images ready for ingestion into pre-trained models or as t
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. The train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
+#### [Create Your Own Dataset](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/create_your_own_dataset.ipynb)
+
+Try your hand at importing and massaging data so it can be used in Caffe2. This tutorial uses the Iris dataset.
 
 
 ### Write Your Own Tutorial!
