@@ -1086,6 +1086,61 @@ dnnBatchNormalizationCreateBackwardScaleShift<double>(
       pBatchNormalization, attributes, dataLayout, eps);
 }
 
+
+C2_MKL_TEMPLATE_PREFIX dnnError_t dnnBatchNormalizationCreateForward_v2(
+    dnnPrimitive_t* pBatchNormalization,
+    dnnPrimitiveAttributes_t attributes,
+    const dnnLayout_t dataLayout,
+    float eps,
+    unsigned int flags);
+C2_MKL_SPEC_PREFIX dnnError_t dnnBatchNormalizationCreateForward_v2<float>(
+    dnnPrimitive_t* pBatchNormalization,
+    dnnPrimitiveAttributes_t attributes,
+    const dnnLayout_t dataLayout,
+    float eps,
+    unsigned int flags) {
+  return dnnBatchNormalizationCreateForward_v2_F32(
+      pBatchNormalization, attributes, dataLayout, eps, flags);
+}
+C2_MKL_SPEC_PREFIX dnnError_t dnnBatchNormalizationCreateForward_v2<double>(
+    dnnPrimitive_t* pBatchNormalization,
+    dnnPrimitiveAttributes_t attributes,
+    const dnnLayout_t dataLayout,
+    float eps,
+    unsigned int flags) {
+  return dnnBatchNormalizationCreateForward_v2_F64(
+      pBatchNormalization, attributes, dataLayout, eps, flags);
+}
+
+C2_MKL_TEMPLATE_PREFIX dnnError_t dnnBatchNormalizationCreateBackward_v2(
+    dnnPrimitive_t* pBatchNormalization,
+    dnnPrimitiveAttributes_t attributes,
+    const dnnLayout_t dataLayout,
+    float eps,
+    unsigned int flags);
+C2_MKL_SPEC_PREFIX dnnError_t dnnBatchNormalizationCreateBackward_v2<float>(
+    dnnPrimitive_t* pBatchNormalization,
+    dnnPrimitiveAttributes_t attributes,
+    const dnnLayout_t dataLayout,
+    float eps,
+    unsigned int flags) {
+  return dnnBatchNormalizationCreateBackward_v2_F32(
+      pBatchNormalization, attributes, dataLayout, eps, flags);
+}
+
+C2_MKL_SPEC_PREFIX dnnError_t dnnBatchNormalizationCreateBackward_v2<double>(
+    dnnPrimitive_t* pBatchNormalization,
+    dnnPrimitiveAttributes_t attributes,
+    const dnnLayout_t dataLayout,
+    float eps,
+    unsigned int flags) {
+  return dnnBatchNormalizationCreateBackward_v2_F64(
+      pBatchNormalization, attributes, dataLayout, eps, flags);
+}
+
+
+
+
 C2_MKL_TEMPLATE_PREFIX dnnError_t dnnInnerProductCreateForward(
         dnnPrimitive_t *pInnerProduct,
         dnnPrimitiveAttributes_t attributes,
