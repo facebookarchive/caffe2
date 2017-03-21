@@ -20,12 +20,17 @@ The first thing you want to do is to assess whether or not you're going to use G
 2. [NVIDIA CUDA/cuDNN](https://developer.nvidia.com/cuda-downloads): if you have GPU(s) then go ahead and install
     * [CUDA](https://developer.nvidia.com/cuda-downloads)
     * [cuDNN](https://developer.nvidia.com/cudnn) (registration required; zip file, not installer)
-3. [Python 2.7.13](https://www.python.org/download/releases/python-2713/): this includes `pip` which is used to install many other dependencies.
+3. Python: you have a couple of options, plain Python or Anaconda, but we'll recommend Anaconda
+    * [Anaconda](https://www.continuum.io/downloads)
+    * [Python 2.7.13](https://www.python.org/download/releases/python-2713/): this includes `pip` which is used to install many other dependencies. Most of the time you can swap conda for pip in the directions below.
 4. Install a C++ compiler such as [Visual Studio Community Edition 2017](https://www.visualstudio.com/vs/community/)
-5. Install Python packages numpy and protobuf. From a command line:
+    * When installing VS 2017, install Desktop Development with C++ (on the right check: C++/CLI support)
+5. Install [Cmake](http://cmake.org)
+6. Install Python packages numpy and protobuf. From a command line:
 
 ```
-python -m pip install numpy protobuf
+conda install -y numpy
+conda install -y --channel https://conda.anaconda.org/eugene protobuf
 ```
 
 ### Optional Dependencies
@@ -33,6 +38,39 @@ python -m pip install numpy protobuf
 While these are optional, they're recommended if you want to run the tutorials and utilize much of the provided materials.
 
 **Python optional dependencies:**
+
+#### installs gflags and glog
+conda install -y --channel https://conda.anaconda.org/willyd glog
+
+#### upgrades protobuf to 3.1
+conda install -y --channel https://conda.anaconda.org/willyd leveldb
+
+#### installs other options
+conda install -y --channel https://conda.anaconda.org/conda-forge  hypothesis
+conda install -y --channel https://conda.anaconda.org/conda-forge  python-lmdb
+conda install -y graphviz pydot-ng zeromq
+conda install -y —channel https://conda.anaconda.org/menpo opencv3
+
+#### overlay protobuf v2.5.0
+conda install -y --channel https://conda.anaconda.org/eugene protobuf
+
+#### things that are options that get installed already by other prerequisites
+flask (already installed)
+matplotlib (probably can skip as it comes with numpy)
+pydot (not found, found pydot-ng)
+pyyaml (already installed)
+scikit-image (probably can skip - comes with numpy)
+scipy (probably can skip - comes with numpy)
+setuptools (already installed)
+tornado (already installed)
+
+#### Not found for Windows with conda - not the end of the world, but if you want these you'll probably have to build them from source.
+automake (not found)
+open-mpi
+python-nvd3
+rocksdb
+
+The pip route if you want to try that instead. Note that there's no a 1:1 on these options between pip and conda.
 
 ```
 python -m pip install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml scikit-image scipy setuptools tornado
@@ -50,6 +88,14 @@ For VS15 and VS17 users:
 
 1. Install the [Github Extension for Visual Studio](https://visualstudio.github.com).
 2. From within Visual Studio you can open/clone the github repository. From the Getting Started page under Open, you should have GitHub as an option. Login, and then either choose Caffe2 from the list (if you've forked it) or browse to where you cloned it. Default location is hereinafter is referencing `C:\Users\username\Source\Repos\caffe2`.
+
+For VS 2017 users, update the windows install batch file for the -G switch found in (caffe2/scripts/build_windows.bat). Note this section and update it to reflect your VS version:
+cmake -G “Visual Studio 15 2017 Win64”
+
+**Then run this batch file to start the build.**
+
+Troubleshooting NVIDIA install:
+Installing CUDA 8.0: “No supported version of Visual Studio was found. Must use VS 15.”
 
 
 ### Troubleshooting
