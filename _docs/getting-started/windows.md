@@ -40,29 +40,42 @@ While these are optional, they're recommended if you want to run the tutorials a
 **Python optional dependencies:**
 
 #### installs gflags and glog
+
+```
 conda install -y --channel https://conda.anaconda.org/willyd glog
+```
 
 #### upgrades protobuf to 3.1
+
+```
 conda install -y --channel https://conda.anaconda.org/willyd leveldb
+```
 
 #### installs other options
+
+```
 conda install -y --channel https://conda.anaconda.org/conda-forge  hypothesis
 conda install -y --channel https://conda.anaconda.org/conda-forge  python-lmdb
 conda install -y graphviz pydot-ng zeromq
 conda install -y —channel https://conda.anaconda.org/menpo opencv3
+```
 
 #### overlay protobuf v2.5.0
+
+```
 conda install -y --channel https://conda.anaconda.org/eugene protobuf
+```
 
 #### things that are options that get installed already by other prerequisites
-flask (already installed)
-matplotlib (probably can skip as it comes with numpy)
-pydot (not found, found pydot-ng)
-pyyaml (already installed)
-scikit-image (probably can skip - comes with numpy)
-scipy (probably can skip - comes with numpy)
-setuptools (already installed)
-tornado (already installed)
+
+  * flask (already installed)
+  * matplotlib (probably can skip as it comes with numpy)
+  * pydot (not found, found pydot-ng)
+  * pyyaml (already installed)
+  * scikit-image (probably can skip - comes with numpy)
+  * scipy (probably can skip - comes with numpy)
+  * setuptools (already installed)
+  * tornado (already installed)
 
 #### Not found for Windows with conda - not the end of the world, but if you want these you'll probably have to build them from source.
 automake (not found)
@@ -89,30 +102,28 @@ For VS15 and VS17 users:
 1. Install the [Github Extension for Visual Studio](https://visualstudio.github.com).
 2. From within Visual Studio you can open/clone the github repository. From the Getting Started page under Open, you should have GitHub as an option. Login, and then either choose Caffe2 from the list (if you've forked it) or browse to where you cloned it. Default location is hereinafter is referencing `C:\Users\username\Source\Repos\caffe2`.
 
-For VS 2017 users, update the windows install batch file for the -G switch found in (caffe2/scripts/build_windows.bat). Note this section and update it to reflect your VS version:
-cmake -G “Visual Studio 15 2017 Win64”
-
 **Then run this batch file to start the build.**
-
-Troubleshooting NVIDIA install:
-Installing CUDA 8.0: “No supported version of Visual Studio was found. Must use VS 15.”
 
 
 ### Troubleshooting
 
-|Python errors
+| Build errors
+----|-----
+Build error - C++ compiler not found | For VS 2017 users, update the windows install batch file for the -G switch found in (caffe2/scripts/build_windows.bat).
+Solution | Note the cmake section and update it to reflect your VS version: `cmake -G “Visual Studio 15 2017 Win64”`
+
+
+| Python errors
 ----|-----
 'python' is not recognized... | You need to setup Python in your PATH environment variable.
-Solution | Depending on you version of Windows, you go about this differently. Generally this is Control Panel > System & Security > System > Advanced system settings > Environnltflrinekenunjftlinvirfblneureement Variables, edit the PATH variable and add a new entry for `C:\Python27` or whatever you installation directory was for Python. You're looking for wherever python.exe resides.
+Solution | Depending on you version of Windows, you go about this differently. Generally this is Control Panel > System & Security > System > Advanced system settings > Environment Variables, edit the PATH variable and add a new entry for `C:\Python27` or whatever you installation directory was for Python. You're looking for wherever python.exe resides.
 
-|Building from source
-----|-----
 
 | GPU Support
 ----|-----
-GPU | The easiest route is to go to [NVIDIA's site and download](https://developer.nvidia.com/cuda-downloads) and install their binary for Windows.
+GPU drivers | The easiest route is to go to [NVIDIA's site and download](https://developer.nvidia.com/cuda-downloads) and install their binary for Windows.
 Solution | Caffe2's GPU support is [Nvidia CUDA 6.5 or greater](https://developer.nvidia.com/cuda-zone). CUDA 8.0 is recommended. Install from NVIDIA's site; free developer account required. [NVIDIA Windows Installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html)
-
+Installing CUDA 8.0: “No supported version of Visual Studio was found. Must use VS 15.” | Until NVIDIA updates CUDA to support VS 17, you're going to have to install VS 15 and try again.
 
 
 <block class="windows docker" />
