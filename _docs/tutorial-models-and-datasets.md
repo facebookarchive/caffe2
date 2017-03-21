@@ -75,6 +75,15 @@ Let's jump into a specific example now that you have the overview. You will be l
 * train_val.prototxt:
 * readme: this will have valuable info about how the model was trained and where you can find the model and dataset files
 
+### Example Models
+
+A small collection of pre-trained models is currently available at [caffe2/models on Gihub](https://github.com/caffe2/models):
+
+* bvlc_alexnet
+* bvlc_googlenet
+* finetune_flickr_style
+* squeezenet
+
 ### Run a Model
 
 If you want to skip over training, let's take a [look at a model that was pre-trained](tutorial-loading-pre-trained-models.html). Then we're going to throw some of the test data at it and see what it does.
