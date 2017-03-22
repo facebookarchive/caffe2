@@ -110,7 +110,7 @@ function display(type, value) {
     container.className.replace(RegExp('display-' + type + '-[a-z]+ ?'), '');
     if (history.pushState) {
       // update the URL with easy to link to parameters for the install type
-      var newurl = UpdateQueryString(type, value, document.URL)
+      var newurl = UpdateQueryString(type, value, document.URL);
       window.history.pushState({path:newurl},'',newurl);
     }
 }
@@ -168,18 +168,18 @@ if (window.location.hash !== '' && window.location.hash !== 'content') { // cont
 }
 
 // check the query string for the installation page preference
-platform = getParameterByName('platform')
-configuration = getParameterByName('configuration')
+platform = getParameterByName('platform');
+configuration = getParameterByName('configuration');
 
 if (platform){
-  display('platform', platform)
+  display('platform', platform);
 } else {
   // Do the default if there is no matching hash
   if (!foundHash) {
     var isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
     var isLinux = navigator.platform.toLowerCase().indexOf('linux') !== -1;
     display('platform', isMac ? 'mac' : (isLinux ? 'linux' : 'windows'));
-    display('configuration', 'compile')
+    display('configuration', 'compile');
   }
 }
 
