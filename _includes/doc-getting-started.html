@@ -56,10 +56,63 @@ for (var i = 0; i < blocks.length; ++i) {
     block.appendChild(block.nextSibling);
   }
 }
+
+// ********* installation configuration links ****************
+// Using this to provide custom links to each platform and install type, such as:
+// http://betadocs.caffe2.ai/docs/getting-started.html?platform=ubuntu&configuration=cloud
+// will take you to that selection versus telling someone where to click
+
+function UpdateQueryString(key, value, url) {
+    if (!url) url = window.location.href;
+    var re = new RegExp("([?&])" + key + "=.*?(&|#|$)(.*)", "gi"),
+        hash;
+
+    if (re.test(url)) {
+        if (typeof value !== 'undefined' && value !== null)
+            return url.replace(re, '$1' + key + "=" + value + '$2$3');
+        else {
+            hash = url.split('#');
+            url = hash[0].replace(re, '$1$3').replace(/(&|\?)$/, '');
+            if (typeof hash[1] !== 'undefined' && hash[1] !== null)
+                url += '#' + hash[1];
+            return url;
+        }
+    }
+    else {
+        if (typeof value !== 'undefined' && value !== null) {
+            var separator = url.indexOf('?') !== -1 ? '&' : '?';
+            hash = url.split('#');
+            url = hash[0] + separator + key + '=' + value;
+            if (typeof hash[1] !== 'undefined' && hash[1] !== null)
+                url += '#' + hash[1];
+            return url;
+        }
+        else
+            return url;
+    }
+}
+
+function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
 function display(type, value) {
   var container = document.getElementsByTagName('block')[0].parentNode;
   container.className = 'display-' + type + '-' + value + ' ' +
     container.className.replace(RegExp('display-' + type + '-[a-z]+ ?'), '');
+    if (history.pushState) {
+      // update the URL with easy to link to parameters for the install type
+      var newurl = UpdateQueryString(type, value, document.URL)
+      window.history.pushState({path:newurl},'',newurl);
+    }
 }
 
 // If we are coming to the page with a hash in it (i.e. from a search, for example), try to get
@@ -113,32 +166,22 @@ if (window.location.hash !== '' && window.location.hash !== 'content') { // cont
     }
   }
 }
-// Do the default if there is no matching hash
-if (!foundHash) {
-  var isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
-  var isLinux = navigator.platform.toLowerCase().indexOf('linux') !== -1;
-  display('platform', isMac ? 'mac' : (isLinux ? 'linux' : 'windows'));
-  display('configuration', 'prebuilt');
-}
 
-// Using this to provide custom links to each platform and install type, such as:
-// http://betadocs.caffe2.ai/docs/getting-started.html?platform=ubuntu&installtype=cloud
-// will take you to that selection versus telling someone where to click
-function getParameterByName(name, url) {
-    if (!url) {
-      url = window.location.href;
-    }
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
-
+// check the query string for the installation page preference
 platform = getParameterByName('platform')
-installtype = getParameterByName('installtype')
+configuration = getParameterByName('configuration')
 
-if (platform){display('platform', platform)}
-if (installtype){display('configuration', installtype)}
+if (platform){
+  display('platform', platform)
+} else {
+  // Do the default if there is no matching hash
+  if (!foundHash) {
+    var isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
+    var isLinux = navigator.platform.toLowerCase().indexOf('linux') !== -1;
+    display('platform', isMac ? 'mac' : (isLinux ? 'linux' : 'windows'));
+    display('configuration', 'compile')
+  }
+}
+
+if (configuration){display('configuration', configuration)}
 </script>
