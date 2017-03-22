@@ -606,8 +606,7 @@ protected:
   }
 
  private:
- inline void AllocateAndCopy = [&](
-        const vector<int>& vec, Tensor<Context>& tensor) {
+ inline void AllocateAndCopy(const vector<int>& vec, Tensor<Context>& tensor) {
       tensor.Resize(vec.size());
       context_.template Copy<int, CPUContext, Context>(
           vec.size(), vec.data(), tensor.template mutable_data<int>());
