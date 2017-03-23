@@ -213,11 +213,11 @@ class MKLMemory {
       size[i] = dims[dimension - i - 1];
       strides[i] = (i == 0) ? 1 : strides[i - 1] * size[i - 1];
     }
-    user_layout_.Reset(dims.size(), &size[0], &strides[0]);
+    user_layout_.Reset(dims.size(), size.data(), strides.data());
     if (primitive) {
       layout_.Reset(primitive, type);
     } else {
-      layout_.Reset(dimension, &size[0], &strides[0]);
+      layout_.Reset(dimension, size.data(), strides.data());
     }
     convert_in_.Reset(dnnConversionCreate<T>, user_layout_, layout_);
     convert_out_.Reset(dnnConversionCreate<T>, layout_, user_layout_);
