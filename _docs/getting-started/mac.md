@@ -43,6 +43,7 @@ graphviz \
 hypothesis \
 leveldb \
 lmdb \
+requests \
 zeromq
 ```
 

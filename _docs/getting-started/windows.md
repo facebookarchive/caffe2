@@ -56,7 +56,7 @@ conda install -y --channel https://conda.anaconda.org/willyd leveldb
 #### Install other options
 
 ```
-conda install -y --channel https://conda.anaconda.org/conda-forge  graphviz hypothesis pydot-ng python-lmdb zeromq
+conda install -y --channel https://conda.anaconda.org/conda-forge  graphviz hypothesis pydot-ng python-lmdb requests zeromq
 ```
 
 #### Overlay protobuf v2.5.0 if you installed something that upgraded it

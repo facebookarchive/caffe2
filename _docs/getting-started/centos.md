@@ -90,6 +90,7 @@ protobuf \
 pydot \
 python-nvd3 \
 pyyaml \
+requests \
 scikit-image \
 scipy \
 setuptools \

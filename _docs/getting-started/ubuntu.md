@@ -63,7 +63,7 @@ rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 
 ```bash
 sudo apt-get install libgtest-dev libgflags2 libgflags-dev liblmdb-dev libleveldb-dev libsnappy-dev libopencv-dev libiomp-dev openmpi-bin openmpi-doc libopenmpi-dev python-pydot
-sudo pip install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml scikit-image scipy setuptools tornado
+sudo pip install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image scipy setuptools tornado
 ```
 
 * Note for Ubuntu 16.04 `libgflags2` should be replaced with `libgflags-dev`.
