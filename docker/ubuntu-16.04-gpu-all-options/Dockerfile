@@ -48,6 +48,7 @@ RUN pip install \
     pydot \
     python-nvd3 \
     pyyaml \
+    requests \
     scikit-image \
     scipy \
     setuptools \

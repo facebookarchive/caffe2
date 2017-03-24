@@ -48,7 +48,8 @@ RUN pip install \
     pydot \
     python-nvd3 \
     pyyaml \
-    scikit-image \ 
+    requests \
+    scikit-image \
     scipy \
     setuptools \
     tornado
