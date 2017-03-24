@@ -39,38 +39,36 @@ While these are optional, they're recommended if you want to run the tutorials a
 
 **Python optional dependencies:**
 
-#### installs gflags and glog
+#### Install glog, gflags and other related dependencies
 
 ```
 conda install -y --channel https://conda.anaconda.org/willyd glog
 ```
 
-#### upgrades protobuf to 3.1
+#### Install leveldb
+
+Note that this upgrades protobuf to 3.1 which needs to be downgraded to 2.5 (not sure if this breaks things)
 
 ```
 conda install -y --channel https://conda.anaconda.org/willyd leveldb
 ```
 
-#### installs other options
+#### Install other options
 
 ```
-conda install -y --channel https://conda.anaconda.org/conda-forge  hypothesis
-conda install -y --channel https://conda.anaconda.org/conda-forge  python-lmdb
-conda install -y graphviz pydot-ng zeromq
-conda install -y —channel https://conda.anaconda.org/menpo opencv3
+conda install -y --channel https://conda.anaconda.org/conda-forge  graphviz hypothesis pydot-ng python-lmdb zeromq
 ```
 
-#### overlay protobuf v2.5.0
+#### Overlay protobuf v2.5.0 if you installed something that upgraded it
 
 ```
 conda install -y --channel https://conda.anaconda.org/eugene protobuf
 ```
 
-#### things that are options that get installed already by other prerequisites
+#### Things that are options that get installed already by other prerequisites
 
   * flask (already installed)
   * matplotlib (probably can skip as it comes with numpy)
-  * pydot (not found, found pydot-ng)
   * pyyaml (already installed)
   * scikit-image (probably can skip - comes with numpy)
   * scipy (probably can skip - comes with numpy)
@@ -78,12 +76,13 @@ conda install -y --channel https://conda.anaconda.org/eugene protobuf
   * tornado (already installed)
 
 #### Not found for Windows with conda - not the end of the world, but if you want these you'll probably have to build them from source.
-automake (not found)
-open-mpi
-python-nvd3
-rocksdb
 
-The pip route if you want to try that instead. Note that there's no a 1:1 on these options between pip and conda.
+  * automake
+  * open-mpi
+  * python-nvd3
+  * rocksdb
+
+The pip route if you want to try that instead. Note that there's no a 1:1 on these options between pip and conda:
 
 ```
 python -m pip install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml scikit-image scipy setuptools tornado
@@ -104,12 +103,18 @@ For VS15 and VS17 users:
 
 **Then run this batch file to start the build.**
 
+### Python Configuration
+
+You will find the Caffe2 binary in `$USER\Source\Repos` (if that's where you put the caffe2 source) `\caffe2\build\caffe2\binaries\Release`
+
+To get python to recognize the DLL, rename `caffe2_pybind11_state.dll` from `.dll` to `.pyb` and copy it to Python's DLL folder `$USER\AppData\Local\Continuum\Anaconda2\DLLs`. If you're not using Anaconda, then look for it in your Python27 or python-2713 folder.
+
 
 ### Troubleshooting
 
 | Build errors
 ----|-----
-Build error - C++ compiler not found | For VS 2017 users, update the windows install batch file for the -G switch found in (caffe2/scripts/build_windows.bat).
+C++ compiler not found | For VS 2017 users, update the windows install batch file for the -G switch found in (caffe2/scripts/build_windows.bat).
 Solution | Note the cmake section and update it to reflect your VS version: `cmake -G “Visual Studio 15 2017 Win64”`
 
 
