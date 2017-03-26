@@ -29,6 +29,11 @@
   - id: sparse-operations
   - id: cnn
   - id: workspace
+- title: API
+  items:
+    - id: api-intro
+    - id: api-python
+    - id: api-cpp
 
 # n title:, 1 items: per title:, n id: per items:
 # - title: A

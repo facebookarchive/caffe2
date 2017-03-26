@@ -2,16 +2,12 @@
   href: /docs/
   category: docs
 
-- title: C++ API
-  href: /doxygen-c/html/namespaces.html
-  category: external
-
-- title: Python API
-  href: /doxygen-python/html/namespaces.html
-  category: external
-
 - title: Tutorials
   href: /docs/tutorials
+  category: docs
+
+- title: API
+  href: /docs/api-intro
   category: docs
 
 - title: GitHub
