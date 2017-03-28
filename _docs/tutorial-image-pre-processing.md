@@ -334,7 +334,7 @@ Another strategy would be to rescale to the best size you can, with real data, b
 ### Upscaling
 
 What do you do when the images you want to run are "tiny"? In our example we've been prepping for Input Images with the spec of 224x224. Consider this 128x128 image below.
-![cells at 128x128](images/Cellsx128.png)
+![cells at 128x128](../static/images/Cellsx128.png)
 Now we're not talking about super-resolution or the CSI-effect where we can take blurry ATM photos and identify the tattoo an a perp's neck. Although, there are [some advances](https://github.com/david-gpu/srez) along these lines that deep learning has provided, and if you're reading this in time (before 3/1/17), go [check this out](https://developer.nvidia.com/zoom-enhance-magic-image-upscaling-using-deep-learning). What we want to do is simple, but, like cropping, it does have a variety of strategies you should consider.
 
 The most basic approach is going from a small square to a bigger square and using the defauls skimage provides for you. This `resize` method defaults the interpolation order parameter to 1 which happens to be bi-linear if you even cared, but it is worth mentioning because these might be the fine-tuning knobs you need later to fix problems, such as strange visual artifacts, that can be introduced in upscaling images.
