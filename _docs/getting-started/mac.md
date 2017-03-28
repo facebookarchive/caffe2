@@ -8,9 +8,9 @@ See the Troubleshooting section below for tips.
 
 ### Required Dependencies
 
-[Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2.
+[Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended.
 
-[Homebrew](https://brew.sh/).
+[Homebrew](https://brew.sh/). Install Homebrew or use your favorite package manager to install the following dependencies:
 
 ```bash
 brew install \
@@ -47,17 +47,17 @@ requests \
 zeromq
 ```
 
-## Options that get installed already with other packages
+### Options that get installed already with other packages
 
-flask (already installed)
-jupyter (comes with anaconda)
-matplotlib (probably can skip as it comes with numpy)
-pydot (not found, found pydot-ng)
-pyyaml (already installed)
-scikit-image (probably can skip - comes with numpy)
-scipy (probably can skip - comes with numpy)
-setuptools (already installed)
-tornado (already installed)
+* flask (already installed)
+* jupyter (comes with anaconda)
+* matplotlib (probably can skip as it comes with numpy)
+* pydot (not found, found pydot-ng)
+* pyyaml (already installed)
+* scikit-image (probably can skip - comes with numpy)
+* scipy (probably can skip - comes with numpy)
+* setuptools (already installed)
+* tornado (already installed)
 
 
 ### Clone & Build
