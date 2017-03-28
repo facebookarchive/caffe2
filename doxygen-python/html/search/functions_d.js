@@ -1,10 +1,9 @@
 var searchData=
 [
-  ['name',['Name',['../classcaffe2_1_1TypeMeta.html#af2e0775b4d7176faff8147e5cdbcf9f3',1,'caffe2::TypeMeta::Name()'],['../classcaffe2_1_1TypeMeta.html#a11fd1062af3349c190cac0a491652923',1,'caffe2::TypeMeta::name() const']]],
+  ['name',['name',['../classcaffe2_1_1TypeMeta.html#a11fd1062af3349c190cac0a491652923',1,'caffe2::TypeMeta::name() const'],['../classcaffe2_1_1TypeMeta.html#af2e0775b4d7176faff8147e5cdbcf9f3',1,'caffe2::TypeMeta::Name()']]],
   ['names',['names',['../classtask_1_1TaskOutputList.html#a315290e3e3a1fd5e98f009174f33bc07',1,'task::TaskOutputList']]],
   ['nbytes',['nbytes',['../classcaffe2_1_1Tensor.html#a7b30cefe34ea2200f322546fd512e895',1,'caffe2::Tensor']]],
   ['ndim',['ndim',['../classcaffe2_1_1QTensor.html#ac32235c657734ad20a4806dd42fcf258',1,'caffe2::QTensor::ndim()'],['../classcaffe2_1_1Tensor.html#aedbfe677a5e77039b247d44e62b9f4aa',1,'caffe2::Tensor::ndim()']]],
-  ['needall',['NeedAll',['../namespacecore__gradients__test.html#aae2d94ca0708fe571ecfcf1c486c7ae6',1,'core_gradients_test']]],
   ['net',['net',['../classnet__builder_1_1Operations.html#aeb83d8e9dacdbc01f3525031693f7b07',1,'net_builder::Operations']]],
   ['net2list',['net2list',['../namespaceSparseTransformer.html#ab39d4021ac0c2dcc5e1b8c35b484b46c',1,'SparseTransformer']]],
   ['nets',['Nets',['../classcaffe2_1_1Workspace.html#aac8457dbd6f552d58a50a95dd755ebf0',1,'caffe2::Workspace']]],

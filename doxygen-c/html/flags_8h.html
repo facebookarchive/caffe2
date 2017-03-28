@@ -8,12 +8,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Caffe2 - C++ API: caffe2/core/flags.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" href="/static/favicon.png" type="image/x-icon">
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<link href="new_stylesheet.css" rel="stylesheet" type="text/css" />
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
 <link href="main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
@@ -185,7 +186,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">namespace </span><a class="code" href="namespacecaffe2.html">caffe2</a> {                                                           \</div><div class="line">    extern type FLAGS_##name;                                                  \</div><div class="line">  }</div><div class="ttc" id="namespacecaffe2_html"><div class="ttname"><a href="namespacecaffe2.html">caffe2</a></div><div class="ttdoc">Simple registry implementation in Caffe2 that uses static variables to register object creators durin...</div><div class="ttdef"><b>Definition:</b> <a href="_2____init_____8py_source.html#l00001">__init__.py:1</a></div></div>
+<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">namespace </span><a class="code" href="namespacecaffe2.html">caffe2</a> {                                                           \</div><div class="line">    extern type FLAGS_##name;                                                  \</div><div class="line">  }</div><div class="ttc" id="namespacecaffe2_html"><div class="ttname"><a href="namespacecaffe2.html">caffe2</a></div><div class="ttdoc">Simple registry implementation in Caffe2 that uses static variables to register object creators durin...</div><div class="ttdef"><b>Definition:</b> <a href="convert__encoded__to__raw__leveldb_8cc_source.html#l00031">convert_encoded_to_raw_leveldb.cc:31</a></div></div>
 </div><!-- fragment -->
 <p class="definition">Definition at line <a class="el" href="flags_8h_source.html#l00145">145</a> of file <a class="el" href="flags_8h_source.html">flags.h</a>.</p>
 
@@ -228,7 +229,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">namespace </span><a class="code" href="namespacecaffe2.html">caffe2</a> {                                                           \</div><div class="line">    type FLAGS_##name = default_value;                                         \</div><div class="line">    namespace {                                                                \</div><div class="line">      class Caffe2FlagParser_##name : <span class="keyword">public</span> Caffe2FlagParser {                \</div><div class="line">       public:                                                                 \</div><div class="line">        explicit Caffe2FlagParser_##name(<span class="keyword">const</span> <span class="keywordtype">string</span>&amp; content) {              \</div><div class="line">          success_ = Caffe2FlagParser::Parse&lt;type&gt;(content, &amp;FLAGS_##name);    \</div><div class="line">        }                                                                      \</div><div class="line">      };                                                                       \</div><div class="line">    }                                                                          \</div><div class="line">    RegistererCaffe2FlagsRegistry g_Caffe2FlagsRegistry_##name(                \</div><div class="line">      #name, Caffe2FlagsRegistry(),                                            \</div><div class="line">      RegistererCaffe2FlagsRegistry::DefaultCreator&lt;Caffe2FlagParser_##name&gt;,  \</div><div class="line">      <span class="stringliteral">&quot;(&quot;</span> #type <span class="stringliteral">&quot;, default &quot;</span> #default_value <span class="stringliteral">&quot;) &quot;</span> help_str);                    \</div><div class="line">  }</div><div class="ttc" id="namespacecaffe2_html"><div class="ttname"><a href="namespacecaffe2.html">caffe2</a></div><div class="ttdoc">Simple registry implementation in Caffe2 that uses static variables to register object creators durin...</div><div class="ttdef"><b>Definition:</b> <a href="_2____init_____8py_source.html#l00001">__init__.py:1</a></div></div>
+<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">namespace </span><a class="code" href="namespacecaffe2.html">caffe2</a> {                                                           \</div><div class="line">    type FLAGS_##name = default_value;                                         \</div><div class="line">    namespace {                                                                \</div><div class="line">      class Caffe2FlagParser_##name : <span class="keyword">public</span> Caffe2FlagParser {                \</div><div class="line">       public:                                                                 \</div><div class="line">        explicit Caffe2FlagParser_##name(<span class="keyword">const</span> <span class="keywordtype">string</span>&amp; content) {              \</div><div class="line">          success_ = Caffe2FlagParser::Parse&lt;type&gt;(content, &amp;FLAGS_##name);    \</div><div class="line">        }                                                                      \</div><div class="line">      };                                                                       \</div><div class="line">    }                                                                          \</div><div class="line">    RegistererCaffe2FlagsRegistry g_Caffe2FlagsRegistry_##name(                \</div><div class="line">      #name, Caffe2FlagsRegistry(),                                            \</div><div class="line">      RegistererCaffe2FlagsRegistry::DefaultCreator&lt;Caffe2FlagParser_##name&gt;,  \</div><div class="line">      <span class="stringliteral">&quot;(&quot;</span> #type <span class="stringliteral">&quot;, default &quot;</span> #default_value <span class="stringliteral">&quot;) &quot;</span> help_str);                    \</div><div class="line">  }</div><div class="ttc" id="namespacecaffe2_html"><div class="ttname"><a href="namespacecaffe2.html">caffe2</a></div><div class="ttdoc">Simple registry implementation in Caffe2 that uses static variables to register object creators durin...</div><div class="ttdef"><b>Definition:</b> <a href="convert__encoded__to__raw__leveldb_8cc_source.html#l00031">convert_encoded_to_raw_leveldb.cc:31</a></div></div>
 </div><!-- fragment -->
 <p class="definition">Definition at line <a class="el" href="flags_8h_source.html#l00116">116</a> of file <a class="el" href="flags_8h_source.html">flags.h</a>.</p>
 
@@ -238,7 +239,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Mar 24 2017 15:08:51 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Mar 27 2017 17:24:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

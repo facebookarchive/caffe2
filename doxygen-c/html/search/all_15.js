@@ -1,12 +1,6 @@
 var searchData=
 [
-  ['unaryelementwiseop',['UnaryElementwiseOp',['../namespacecaffe2.html#a5abe7f57ee493ccd90302dffedfc076d',1,'caffe2']]],
-  ['unaryelementwisewithargsop',['UnaryElementwiseWithArgsOp',['../classcaffe2_1_1UnaryElementwiseWithArgsOp.html',1,'caffe2']]],
-  ['uniformfillop',['UniformFillOp',['../classcaffe2_1_1UniformFillOp.html',1,'caffe2']]],
-  ['uniqueop',['UniqueOp',['../classcaffe2_1_1UniqueOp.html',1,'caffe2']]],
-  ['uniqueuniformfillop',['UniqueUniformFillOp',['../classcaffe2_1_1UniqueUniformFillOp.html',1,'caffe2']]],
-  ['unsafecoalesceop',['UnsafeCoalesceOp',['../classcaffe2_1_1UnsafeCoalesceOp.html',1,'caffe2']]],
-  ['unsupportedoperatorfeature',['UnsupportedOperatorFeature',['../classcaffe2_1_1UnsupportedOperatorFeature.html',1,'caffe2']]],
-  ['update',['update',['../classcaffe2_1_1StatRegistry.html#a60f98c2d3af0185283589f777729ce5c',1,'caffe2::StatRegistry']]],
-  ['usagemessage',['UsageMessage',['../namespacecaffe2.html#a5df9421b2b851cffabdd3fa2bd728c9f',1,'caffe2']]]
+  ['valid',['Valid',['../classcaffe2_1_1db_1_1MiniDBCursor.html#ad421d42d8f4910c998049deffcab6cb7',1,'caffe2::db::MiniDBCursor::Valid()'],['../classcaffe2_1_1db_1_1Cursor.html#af3f24f30b8cd7752f04feabaeea7a7a6',1,'caffe2::db::Cursor::Valid()'],['../classcaffe2_1_1db_1_1LevelDBCursor.html#a538fbc5cfd88ffba30acad722106dcca',1,'caffe2::db::LevelDBCursor::Valid()'],['../classcaffe2_1_1db_1_1LMDBCursor.html#a3f795c437b5031ec9b057d16161ac316',1,'caffe2::db::LMDBCursor::Valid()'],['../classcaffe2_1_1db_1_1ProtoDBCursor.html#a4e406a772bdb724af353737abc42668d',1,'caffe2::db::ProtoDBCursor::Valid()'],['../classcaffe2_1_1db_1_1RocksDBCursor.html#a60ca9fbfaad566b494877441ba610283',1,'caffe2::db::RocksDBCursor::Valid()'],['../classcaffe2_1_1db_1_1ZmqDBCursor.html#abaa7d5e795b4473cd042a0a914afec00',1,'caffe2::db::ZmqDBCursor::Valid()']]],
+  ['value',['value',['../classcaffe2_1_1db_1_1MiniDBCursor.html#ab44105b03e360928cad56851f1af309c',1,'caffe2::db::MiniDBCursor::value()'],['../classcaffe2_1_1db_1_1Cursor.html#a725480ac2b62cb8caa73a765d9de7114',1,'caffe2::db::Cursor::value()'],['../classcaffe2_1_1db_1_1LevelDBCursor.html#a343b6d82536ccb7b0fb103dcab445bac',1,'caffe2::db::LevelDBCursor::value()'],['../classcaffe2_1_1db_1_1LMDBCursor.html#a1653310101ae7b493e339ebdcbcd7784',1,'caffe2::db::LMDBCursor::value()'],['../classcaffe2_1_1db_1_1ProtoDBCursor.html#aceb517ae5e4188cf48aad00bff8edfbd',1,'caffe2::db::ProtoDBCursor::value()'],['../classcaffe2_1_1db_1_1RocksDBCursor.html#afc7ed984b567b3506ef88ed9c0612a72',1,'caffe2::db::RocksDBCursor::value()'],['../classcaffe2_1_1db_1_1ZmqDBCursor.html#ad916eea826ba689dd2192272d5b5fd38',1,'caffe2::db::ZmqDBCursor::value()']]],
+  ['verify',['Verify',['../classcaffe2_1_1OpSchema.html#a7f770e2eabd4f433a0a259ddc1651acb',1,'caffe2::OpSchema']]]
 ];

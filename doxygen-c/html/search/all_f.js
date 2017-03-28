@@ -1,15 +1,12 @@
 var searchData=
 [
-  ['offsetalias',['OffsetAlias',['../structcaffe2_1_1detail_1_1OffsetAlias.html',1,'caffe2::detail']]],
-  ['operator',['Operator',['../classcaffe2_1_1Operator.html',1,'caffe2']]],
-  ['operator_3c_20cpucontext_20_3e',['Operator&lt; CPUContext &gt;',['../classcaffe2_1_1Operator.html',1,'caffe2']]],
-  ['operator_3c_20cudacontext_20_3e',['Operator&lt; CUDAContext &gt;',['../classcaffe2_1_1Operator.html',1,'caffe2']]],
-  ['operator_3c_20mklcontext_20_3e',['Operator&lt; MKLContext &gt;',['../classcaffe2_1_1Operator.html',1,'caffe2']]],
-  ['operator_3d',['operator=',['../classcaffe2_1_1TypeMeta.html#a4d678bbf36ec9008965f680ba54b12b2',1,'caffe2::TypeMeta']]],
-  ['operatorbase',['OperatorBase',['../classcaffe2_1_1OperatorBase.html',1,'caffe2']]],
-  ['operatornode',['OperatorNode',['../structcaffe2_1_1internal_1_1OperatorNode.html',1,'caffe2::internal']]],
-  ['opgraphnode',['OpGraphNode',['../structcaffe2_1_1internal_1_1OpGraphNode.html',1,'caffe2::internal']]],
-  ['opschema',['OpSchema',['../classcaffe2_1_1OpSchema.html',1,'caffe2']]],
-  ['opschemaregistry',['OpSchemaRegistry',['../classcaffe2_1_1OpSchemaRegistry.html',1,'caffe2']]],
-  ['outputcalculator',['OutputCalculator',['../classcaffe2_1_1OpSchema.html#a9cac0dbf4e72026dcc54ddc75716a269',1,'caffe2::OpSchema']]]
+  ['parsecaffecommandlineflags',['ParseCaffeCommandLineFlags',['../namespacecaffe2.html#a658a8d4d5b33a86502f0fbc5d2b82541',1,'caffe2']]],
+  ['pinnedcpuallocator',['PinnedCPUAllocator',['../structcaffe2_1_1PinnedCPUAllocator.html',1,'caffe2']]],
+  ['predictor',['Predictor',['../classcaffe2_1_1Predictor.html',1,'caffe2']]],
+  ['primitivewrapper',['PrimitiveWrapper',['../classcaffe2_1_1mkl_1_1PrimitiveWrapper.html',1,'caffe2::mkl']]],
+  ['protodb',['ProtoDB',['../classcaffe2_1_1db_1_1ProtoDB.html',1,'caffe2::db']]],
+  ['protodbcursor',['ProtoDBCursor',['../classcaffe2_1_1db_1_1ProtoDBCursor.html',1,'caffe2::db']]],
+  ['protodbtransaction',['ProtoDBTransaction',['../classcaffe2_1_1db_1_1ProtoDBTransaction.html',1,'caffe2::db']]],
+  ['publish',['publish',['../classcaffe2_1_1StatRegistry.html#ac2626686bd8fff02c3c1289fab4894d1',1,'caffe2::StatRegistry']]],
+  ['put',['Put',['../classcaffe2_1_1db_1_1MiniDBTransaction.html#a612bbe3d67be8b3db8c3cda6594f1cb0',1,'caffe2::db::MiniDBTransaction::Put()'],['../classcaffe2_1_1db_1_1Transaction.html#a295ca16c016ebe0f6adf8f2405e8f84b',1,'caffe2::db::Transaction::Put()'],['../classcaffe2_1_1db_1_1LevelDBTransaction.html#a289303faa3ba113eb7452887fff20463',1,'caffe2::db::LevelDBTransaction::Put()'],['../classcaffe2_1_1db_1_1LMDBTransaction.html#a9138851d1fce3bf6b1d2da76a635ff20',1,'caffe2::db::LMDBTransaction::Put()'],['../classcaffe2_1_1db_1_1ProtoDBTransaction.html#aff9de20da72bd500c73486cd88ecee73',1,'caffe2::db::ProtoDBTransaction::Put()'],['../classcaffe2_1_1db_1_1RocksDBTransaction.html#aa0ab57b5412a5b6686266ebacf1e0e04',1,'caffe2::db::RocksDBTransaction::Put()']]]
 ];

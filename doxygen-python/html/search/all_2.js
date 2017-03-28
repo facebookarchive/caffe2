@@ -24,6 +24,5 @@ var searchData=
   ['blobstatregistry',['BlobStatRegistry',['../structcaffe2_1_1BlobStatRegistry.html',1,'caffe2']]],
   ['boolnet',['BoolNet',['../namespacecontrol.html#af168cf06222b91303a1ffecbe04fcb32',1,'control']]],
   ['build',['build',['../classrecord__queue_1_1RecordQueue.html#a78baf95fed9be3e9a9cd50bf67c5555b',1,'record_queue::RecordQueue']]],
-  ['buildgradientgenerators',['BuildGradientGenerators',['../classcore_1_1IR.html#a2fe337e136e7a0c259eaa7a466c18b97',1,'core::IR']]],
-  ['building_20caffe2',['Building Caffe2',['../md_docs_installation.html',1,'']]]
+  ['buildgradientgenerators',['BuildGradientGenerators',['../classcore_1_1IR.html#a2fe337e136e7a0c259eaa7a466c18b97',1,'core::IR']]]
 ];

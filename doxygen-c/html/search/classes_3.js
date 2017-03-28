@@ -8,19 +8,11 @@ var searchData=
   ['dbreaderserializer',['DBReaderSerializer',['../classcaffe2_1_1db_1_1DBReaderSerializer.html',1,'caffe2::db']]],
   ['defaultcpuallocator',['DefaultCPUAllocator',['../structcaffe2_1_1DefaultCPUAllocator.html',1,'caffe2']]],
   ['defaultengine',['DefaultEngine',['../classcaffe2_1_1DefaultEngine.html',1,'caffe2']]],
-  ['dequeueblobsop',['DequeueBlobsOp',['../classcaffe2_1_1DequeueBlobsOp.html',1,'caffe2']]],
   ['deviceguard',['DeviceGuard',['../classcaffe2_1_1DeviceGuard.html',1,'caffe2']]],
   ['devicetyperegisterer',['DeviceTypeRegisterer',['../structcaffe2_1_1DeviceTypeRegisterer.html',1,'caffe2']]],
   ['dispatchhelper',['DispatchHelper',['../structcaffe2_1_1DispatchHelper.html',1,'caffe2']]],
   ['dispatchhelper_3c_20fixedvalues_3c_20firstval_2c_20values_2e_2e_2e_20_3e_2c_20extraargs_2e_2e_2e_20_3e',['DispatchHelper&lt; FixedValues&lt; FirstVal, Values... &gt;, ExtraArgs... &gt;',['../structcaffe2_1_1DispatchHelper_3_01FixedValues_3_01FirstVal_00_01Values_8_8_8_01_4_00_01ExtraArgs_8_8_8_01_4.html',1,'caffe2']]],
   ['dispatchhelper_3c_20fixedvalues_3c_3e_2c_20extraargs_2e_2e_2e_20_3e',['DispatchHelper&lt; FixedValues&lt;&gt;, ExtraArgs... &gt;',['../structcaffe2_1_1DispatchHelper_3_01FixedValues_3_4_00_01ExtraArgs_8_8_8_01_4.html',1,'caffe2']]],
   ['dispatchhelper_3c_20tensortypes_3c_20firsttype_2c_20types_2e_2e_2e_20_3e_2c_20extraargs_2e_2e_2e_20_3e',['DispatchHelper&lt; TensorTypes&lt; FirstType, Types... &gt;, ExtraArgs... &gt;',['../structcaffe2_1_1DispatchHelper_3_01TensorTypes_3_01FirstType_00_01Types_8_8_8_01_4_00_01ExtraArgs_8_8_8_01_4.html',1,'caffe2']]],
-  ['dispatchhelper_3c_20tensortypes_3c_3e_2c_20extraargs_2e_2e_2e_20_3e',['DispatchHelper&lt; TensorTypes&lt;&gt;, ExtraArgs... &gt;',['../structcaffe2_1_1DispatchHelper_3_01TensorTypes_3_4_00_01ExtraArgs_8_8_8_01_4.html',1,'caffe2']]],
-  ['divgradientop',['DivGradientOp',['../classcaffe2_1_1DivGradientOp.html',1,'caffe2']]],
-  ['dotproductgradientop',['DotProductGradientOp',['../classcaffe2_1_1DotProductGradientOp.html',1,'caffe2']]],
-  ['dotproductop',['DotProductOp',['../classcaffe2_1_1DotProductOp.html',1,'caffe2']]],
-  ['dotproductwithpaddinggradientop',['DotProductWithPaddingGradientOp',['../classcaffe2_1_1DotProductWithPaddingGradientOp.html',1,'caffe2']]],
-  ['dotproductwithpaddingop',['DotProductWithPaddingOp',['../classcaffe2_1_1DotProductWithPaddingOp.html',1,'caffe2']]],
-  ['dropoutgradientop',['DropoutGradientOp',['../classcaffe2_1_1DropoutGradientOp.html',1,'caffe2']]],
-  ['dropoutop',['DropoutOp',['../classcaffe2_1_1DropoutOp.html',1,'caffe2']]]
+  ['dispatchhelper_3c_20tensortypes_3c_3e_2c_20extraargs_2e_2e_2e_20_3e',['DispatchHelper&lt; TensorTypes&lt;&gt;, ExtraArgs... &gt;',['../structcaffe2_1_1DispatchHelper_3_01TensorTypes_3_4_00_01ExtraArgs_8_8_8_01_4.html',1,'caffe2']]]
 ];

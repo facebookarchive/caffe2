@@ -4,8 +4,6 @@ var searchData=
   ['readerbuilder',['ReaderBuilder',['../classdataio_1_1ReaderBuilder.html',1,'dataio']]],
   ['readerwithlimit',['ReaderWithLimit',['../classdataio_1_1ReaderWithLimit.html',1,'dataio']]],
   ['recordqueue',['RecordQueue',['../classrecord__queue_1_1RecordQueue.html',1,'record_queue']]],
-  ['recurrentnetworkparalleltest',['RecurrentNetworkParallelTest',['../classdata__parallel__model__test_1_1RecurrentNetworkParallelTest.html',1,'data_parallel_model_test']]],
-  ['recurrentnetworktest',['RecurrentNetworkTest',['../classrecurrent__network__test_1_1RecurrentNetworkTest.html',1,'recurrent_network_test']]],
   ['redisstorehandler',['RedisStoreHandler',['../classcaffe2_1_1RedisStoreHandler.html',1,'caffe2']]],
   ['redisstorehandlercreateop',['RedisStoreHandlerCreateOp',['../classcaffe2_1_1RedisStoreHandlerCreateOp.html',1,'caffe2']]],
   ['registerer',['Registerer',['../classcaffe2_1_1Registerer.html',1,'caffe2']]],

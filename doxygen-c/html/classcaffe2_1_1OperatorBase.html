@@ -8,12 +8,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Caffe2 - C++ API: caffe2::OperatorBase Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" href="/static/favicon.png" type="image/x-icon">
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<link href="new_stylesheet.css" rel="stylesheet" type="text/css" />
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
 <link href="main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
@@ -78,250 +79,10 @@ Inheritance diagram for caffe2::OperatorBase:</div>
  <div class="center">
   <img src="classcaffe2_1_1OperatorBase.png" usemap="#caffe2::OperatorBase_map" alt=""/>
   <map id="caffe2::OperatorBase_map" name="caffe2::OperatorBase_map">
-<area href="classcaffe2_1_1JustTest.html" alt="caffe2::JustTest" shape="rect" coords="0,56,620,80"/>
-<area href="classcaffe2_1_1mkl_1_1MKLOperator.html" alt="caffe2::mkl::MKLOperator&lt; T &gt;" shape="rect" coords="630,56,1250,80"/>
-<area href="classcaffe2_1_1Operator.html" alt="caffe2::Operator&lt; Context &gt;" shape="rect" coords="1260,56,1880,80"/>
-<area href="classcaffe2_1_1PrefetchOperator.html" alt="caffe2::PrefetchOperator&lt; Context &gt;" shape="rect" coords="2520,56,3140,80"/>
-<area href="classcaffe2_1_1Operator.html" alt="caffe2::Operator&lt; CPUContext &gt;" shape="rect" coords="3780,56,4400,80"/>
-<area href="classcaffe2_1_1Operator.html" alt="caffe2::Operator&lt; CUDAContext &gt;" shape="rect" coords="5040,56,5660,80"/>
-<area href="classcaffe2_1_1Operator.html" alt="caffe2::Operator&lt; MKLContext &gt;" shape="rect" coords="6300,56,6920,80"/>
-<area href="classcaffe2_1_1JustTestAndDoesConstruct.html" alt="caffe2::JustTestAndDoesConstruct" shape="rect" coords="630,112,1250,136"/>
-<area href="classcaffe2_1_1JustTestAndNeverConstructs.html" alt="caffe2::JustTestAndNeverConstructs" shape="rect" coords="630,168,1250,192"/>
-<area href="classcaffe2_1_1JustTestWithSomeOutput.html" alt="caffe2::JustTestWithSomeOutput" shape="rect" coords="630,224,1250,248"/>
-<area href="classcaffe2_1_1AbstractLengthsGradientOp.html" alt="caffe2::AbstractLengthsGradientOp&lt; T, TLengths, Context, ReducerGradient &gt;" shape="rect" coords="1890,112,2510,136"/>
-<area href="classcaffe2_1_1AbstractLengthsOp.html" title="Segment reduction op with optional fused embedding lookup. " alt="caffe2::AbstractLengthsOp&lt; TData, TLengths, Context, Reducer, SparseFused, InputAccessor &gt;" shape="rect" coords="1890,168,2510,192"/>
-<area href="classcaffe2_1_1AbstractLengthsWithMainInputGradientOp.html" alt="caffe2::AbstractLengthsWithMainInputGradientOp&lt; T, TLengths, Context, ReducerGradient, SparseFused &gt;" shape="rect" coords="1890,224,2510,248"/>
-<area href="classcaffe2_1_1AbstractReduceFrontOrBackGradientOp.html" alt="caffe2::AbstractReduceFrontOrBackGradientOp&lt; T, Context, ReducerGradient, FirstDim &gt;" shape="rect" coords="1890,280,2510,304"/>
-<area href="classcaffe2_1_1AbstractReduceFrontOrBackOp.html" title="Simple non-segmented reduction over the first few dimensions of the tensor. " alt="caffe2::AbstractReduceFrontOrBackOp&lt; T, Context, Reducer, FirstDim, InputAccessor &gt;" shape="rect" coords="1890,336,2510,360"/>
-<area href="classcaffe2_1_1AbstractSortedSegmentGradientOp.html" alt="caffe2::AbstractSortedSegmentGradientOp&lt; T, SIndex, Context, ReducerGradient &gt;" shape="rect" coords="1890,392,2510,416"/>
-<area href="classcaffe2_1_1AbstractSortedSegmentOp.html" title="Segment reduction op with optional fused embedding lookup. " alt="caffe2::AbstractSortedSegmentOp&lt; T, SIndex, Context, Reducer, SparseFused, InputAccessor &gt;" shape="rect" coords="1890,448,2510,472"/>
-<area href="classcaffe2_1_1AbstractSortedSegmentRangeGradientOp.html" alt="caffe2::AbstractSortedSegmentRangeGradientOp&lt; T, SIndex, Context, RangeReducerGradient &gt;" shape="rect" coords="1890,504,2510,528"/>
-<area href="classcaffe2_1_1AbstractSortedSegmentRangeOp.html" title="Base implementation for segment reduction op that leverages continuity of the data. " alt="caffe2::AbstractSortedSegmentRangeOp&lt; T, SIndex, Context, RangeReducer, InputAccessor &gt;" shape="rect" coords="1890,560,2510,584"/>
-<area href="classcaffe2_1_1AbstractUnsortedSegmentGradientOp.html" alt="caffe2::AbstractUnsortedSegmentGradientOp&lt; T, SIndex, Context, ReducerGradient &gt;" shape="rect" coords="1890,616,2510,640"/>
-<area href="classcaffe2_1_1AbstractUnsortedSegmentOp.html" title="Unsorted segment reduction op with optional fused embedding lookup. " alt="caffe2::AbstractUnsortedSegmentOp&lt; T, SIndex, Context, Reducer, SparseFused, InputAccessor &gt;" shape="rect" coords="1890,672,2510,696"/>
-<area href="classcaffe2_1_1AccumulateHistogramOp.html" alt="caffe2::AccumulateHistogramOp&lt; T, Context &gt;" shape="rect" coords="1890,728,2510,752"/>
-<area href="classcaffe2_1_1AccumulateOp.html" alt="caffe2::AccumulateOp&lt; T, Context &gt;" shape="rect" coords="1890,784,2510,808"/>
-<area href="classcaffe2_1_1AccuracyOp.html" alt="caffe2::AccuracyOp&lt; T, Context &gt;" shape="rect" coords="1890,840,2510,864"/>
-<area href="classcaffe2_1_1AdagradOp.html" alt="caffe2::AdagradOp&lt; T, Context &gt;" shape="rect" coords="1890,896,2510,920"/>
-<area href="classcaffe2_1_1AdamOp.html" alt="caffe2::AdamOp&lt; T, Context &gt;" shape="rect" coords="1890,952,2510,976"/>
-<area href="classcaffe2_1_1AliasOp.html" title="Alias op makes the output and the input share the same underlying storage. " alt="caffe2::AliasOp&lt; Context &gt;" shape="rect" coords="1890,1008,2510,1032"/>
-<area href="classcaffe2_1_1AtomicIterOp.html" alt="caffe2::AtomicIterOp&lt; Context &gt;" shape="rect" coords="1890,1064,2510,1088"/>
-<area href="classcaffe2_1_1AveragedLoss.html" alt="caffe2::AveragedLoss&lt; T, Context &gt;" shape="rect" coords="1890,1120,2510,1144"/>
-<area href="classcaffe2_1_1AveragedLossGradient.html" alt="caffe2::AveragedLossGradient&lt; T, Context &gt;" shape="rect" coords="1890,1176,2510,1200"/>
-<area href="classcaffe2_1_1BatchMatMulOp.html" alt="caffe2::BatchMatMulOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,1232,2510,1256"/>
-<area href="classcaffe2_1_1BinaryElementwiseOp.html" title="Performs a binary operation (e.g. " alt="caffe2::BinaryElementwiseOp&lt; InputTypes, Context, Functor, TypeMap &gt;" shape="rect" coords="1890,1288,2510,1312"/>
-<area href="classcaffe2_1_1CastOp.html" alt="caffe2::CastOp&lt; Context &gt;" shape="rect" coords="1890,1344,2510,1368"/>
-<area href="classcaffe2_1_1CheckCounterDoneOp.html" alt="caffe2::CheckCounterDoneOp&lt; T, Context &gt;" shape="rect" coords="1890,1400,2510,1424"/>
-<area href="classcaffe2_1_1CheckpointOp.html" alt="caffe2::CheckpointOp&lt; Context &gt;" shape="rect" coords="1890,1456,2510,1480"/>
-<area href="classcaffe2_1_1ClipGradientOp.html" alt="caffe2::ClipGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,1512,2510,1536"/>
-<area href="classcaffe2_1_1ClipOp.html" alt="caffe2::ClipOp&lt; T, Context &gt;" shape="rect" coords="1890,1568,2510,1592"/>
-<area href="classcaffe2_1_1CloseBlobsQueueOp.html" alt="caffe2::CloseBlobsQueueOp&lt; Context &gt;" shape="rect" coords="1890,1624,2510,1648"/>
-<area href="classcaffe2_1_1Col2ImOp.html" alt="caffe2::Col2ImOp&lt; T, Context &gt;" shape="rect" coords="1890,1680,2510,1704"/>
-<area href="classcaffe2_1_1ConcatOp.html" alt="caffe2::ConcatOp&lt; Context &gt;" shape="rect" coords="1890,1736,2510,1760"/>
-<area href="classcaffe2_1_1ConvPoolOpBase.html" alt="caffe2::ConvPoolOpBase&lt; Context &gt;" shape="rect" coords="1890,1792,2510,1816"/>
-<area href="classcaffe2_1_1ConvTransposeUnpoolBase.html" alt="caffe2::ConvTransposeUnpoolBase&lt; Context &gt;" shape="rect" coords="1890,1848,2510,1872"/>
-<area href="classcaffe2_1_1CopyOp.html" alt="caffe2::CopyOp&lt; Context, DstContext, SrcContext &gt;" shape="rect" coords="1890,1904,2510,1928"/>
-<area href="classcaffe2_1_1CosineEmbeddingCriterionGradientOp.html" alt="caffe2::CosineEmbeddingCriterionGradientOp&lt; Context &gt;" shape="rect" coords="1890,1960,2510,1984"/>
-<area href="classcaffe2_1_1CosineEmbeddingCriterionOp.html" alt="caffe2::CosineEmbeddingCriterionOp&lt; Context &gt;" shape="rect" coords="1890,2016,2510,2040"/>
-<area href="classcaffe2_1_1CosineSimilarityGradientOp.html" alt="caffe2::CosineSimilarityGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,2072,2510,2096"/>
-<area href="classcaffe2_1_1CosineSimilarityOp.html" alt="caffe2::CosineSimilarityOp&lt; T, Context &gt;" shape="rect" coords="1890,2128,2510,2152"/>
-<area href="classcaffe2_1_1CountDownOp.html" alt="caffe2::CountDownOp&lt; T, Context &gt;" shape="rect" coords="1890,2184,2510,2208"/>
-<area href="classcaffe2_1_1CountUpOp.html" alt="caffe2::CountUpOp&lt; T, Context &gt;" shape="rect" coords="1890,2240,2510,2264"/>
-<area href="classcaffe2_1_1CreateBlobsQueueOp.html" alt="caffe2::CreateBlobsQueueOp&lt; Context &gt;" shape="rect" coords="1890,2296,2510,2320"/>
-<area href="classcaffe2_1_1CreateCounterOp.html" alt="caffe2::CreateCounterOp&lt; T, Context &gt;" shape="rect" coords="1890,2352,2510,2376"/>
-<area href="classcaffe2_1_1CreateDBOp.html" alt="caffe2::CreateDBOp&lt; Context &gt;" shape="rect" coords="1890,2408,2510,2432"/>
-<area href="classcaffe2_1_1CrossEntropyGradientOp.html" alt="caffe2::CrossEntropyGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,2464,2510,2488"/>
-<area href="classcaffe2_1_1CrossEntropyOp.html" alt="caffe2::CrossEntropyOp&lt; T, Context &gt;" shape="rect" coords="1890,2520,2510,2544"/>
-<area href="classcaffe2_1_1DequeueBlobsOp.html" alt="caffe2::DequeueBlobsOp&lt; Context &gt;" shape="rect" coords="1890,2576,2510,2600"/>
-<area href="classcaffe2_1_1DivGradientOp.html" alt="caffe2::DivGradientOp&lt; Context &gt;" shape="rect" coords="1890,2632,2510,2656"/>
-<area href="classcaffe2_1_1DotProductGradientOp.html" alt="caffe2::DotProductGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,2688,2510,2712"/>
-<area href="classcaffe2_1_1DotProductOp.html" alt="caffe2::DotProductOp&lt; T, Context &gt;" shape="rect" coords="1890,2744,2510,2768"/>
-<area href="classcaffe2_1_1DotProductWithPaddingGradientOp.html" alt="caffe2::DotProductWithPaddingGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,2800,2510,2824"/>
-<area href="classcaffe2_1_1DotProductWithPaddingOp.html" alt="caffe2::DotProductWithPaddingOp&lt; T, Context &gt;" shape="rect" coords="1890,2856,2510,2880"/>
-<area href="classcaffe2_1_1DropoutGradientOp.html" alt="caffe2::DropoutGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,2912,2510,2936"/>
-<area href="classcaffe2_1_1DropoutOp.html" alt="caffe2::DropoutOp&lt; T, Context &gt;" shape="rect" coords="1890,2968,2510,2992"/>
-<area href="classcaffe2_1_1EluGradientOp.html" alt="caffe2::EluGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,3024,2510,3048"/>
-<area href="classcaffe2_1_1EluOp.html" alt="caffe2::EluOp&lt; T, Context &gt;" shape="rect" coords="1890,3080,2510,3104"/>
-<area href="classcaffe2_1_1EnqueueBlobsOp.html" alt="caffe2::EnqueueBlobsOp&lt; Context &gt;" shape="rect" coords="1890,3136,2510,3160"/>
-<area href="classcaffe2_1_1EnsureDenseOp.html" title="Pass inputs to outputs. " alt="caffe2::EnsureDenseOp&lt; Context &gt;" shape="rect" coords="1890,3192,2510,3216"/>
-<area href="classcaffe2_1_1ExpandDimsOp.html" alt="caffe2::ExpandDimsOp&lt; Context &gt;" shape="rect" coords="1890,3248,2510,3272"/>
-<area href="classcaffe2_1_1FeedBlobOp.html" alt="caffe2::FeedBlobOp&lt; Context &gt;" shape="rect" coords="1890,3304,2510,3328"/>
-<area href="classcaffe2_1_1FileStoreHandlerCreateOp.html" alt="caffe2::FileStoreHandlerCreateOp&lt; Context &gt;" shape="rect" coords="1890,3360,2510,3384"/>
-<area href="classcaffe2_1_1FillerOp.html" alt="caffe2::FillerOp&lt; Context &gt;" shape="rect" coords="1890,3416,2510,3440"/>
-<area href="classcaffe2_1_1FindDuplicateElementsOp.html" alt="caffe2::FindDuplicateElementsOp&lt; Context &gt;" shape="rect" coords="1890,3472,2510,3496"/>
-<area href="classcaffe2_1_1FlattenOp.html" alt="caffe2::FlattenOp&lt; Context &gt;" shape="rect" coords="1890,3528,2510,3552"/>
-<area href="classcaffe2_1_1FlattenToVecOp.html" alt="caffe2::FlattenToVecOp&lt; Context &gt;" shape="rect" coords="1890,3584,2510,3608"/>
-<area href="classcaffe2_1_1FloatToHalfOp.html" alt="caffe2::FloatToHalfOp&lt; Context &gt;" shape="rect" coords="1890,3640,2510,3664"/>
-<area href="classcaffe2_1_1FreeOp.html" alt="caffe2::FreeOp&lt; Context &gt;" shape="rect" coords="1890,3696,2510,3720"/>
-<area href="classcaffe2_1_1FtrlOp.html" alt="caffe2::FtrlOp&lt; T, Context &gt;" shape="rect" coords="1890,3752,2510,3776"/>
-<area href="classcaffe2_1_1FullyConnectedDecompGradientOp.html" alt="caffe2::FullyConnectedDecompGradientOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,3808,2510,3832"/>
-<area href="classcaffe2_1_1FullyConnectedGradientOp.html" alt="caffe2::FullyConnectedGradientOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,3864,2510,3888"/>
-<area href="classcaffe2_1_1FullyConnectedOp.html" alt="caffe2::FullyConnectedOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,3920,2510,3944"/>
-<area href="classcaffe2_1_1FullyConnectedOp__SPARSE.html" alt="caffe2::FullyConnectedOp_SPARSE&lt; T, Context, Engine &gt;" shape="rect" coords="1890,3976,2510,4000"/>
-<area href="classcaffe2_1_1FullyConnectedOpDecomp.html" alt="caffe2::FullyConnectedOpDecomp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,4032,2510,4056"/>
-<area href="classcaffe2_1_1FullyConnectedOpPrune.html" alt="caffe2::FullyConnectedOpPrune&lt; T, Context, Engine &gt;" shape="rect" coords="1890,4088,2510,4112"/>
-<area href="classcaffe2_1_1FullyConnectedPruneGradientOp.html" alt="caffe2::FullyConnectedPruneGradientOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,4144,2510,4168"/>
-<area href="classcaffe2_1_1FunHashGradientOp.html" alt="caffe2::FunHashGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,4200,2510,4224"/>
-<area href="classcaffe2_1_1FunHashOp.html" alt="caffe2::FunHashOp&lt; T, Context &gt;" shape="rect" coords="1890,4256,2510,4280"/>
-<area href="classcaffe2_1_1GatherOp.html" alt="caffe2::GatherOp&lt; Context &gt;" shape="rect" coords="1890,4312,2510,4336"/>
-<area href="classcaffe2_1_1GatherRangesOp.html" alt="caffe2::GatherRangesOp&lt; Context &gt;" shape="rect" coords="1890,4368,2510,4392"/>
-<area href="classcaffe2_1_1HalfToFloatOp.html" alt="caffe2::HalfToFloatOp&lt; Context &gt;" shape="rect" coords="1890,4424,2510,4448"/>
-<area href="classcaffe2_1_1HasElementsOp.html" alt="caffe2::HasElementsOp&lt; Context &gt;" shape="rect" coords="1890,4480,2510,4504"/>
-<area href="classcaffe2_1_1HSoftmaxOpBase.html" alt="caffe2::HSoftmaxOpBase&lt; T, Context &gt;" shape="rect" coords="1890,4536,2510,4560"/>
-<area href="classcaffe2_1_1HuffmanTreeHierarchyOp.html" alt="caffe2::HuffmanTreeHierarchyOp&lt; T, Context &gt;" shape="rect" coords="1890,4592,2510,4616"/>
-<area href="classcaffe2_1_1Im2ColOp.html" alt="caffe2::Im2ColOp&lt; T, Context &gt;" shape="rect" coords="1890,4648,2510,4672"/>
-<area href="classcaffe2_1_1InstanceNormGradientOp.html" alt="caffe2::InstanceNormGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,4704,2510,4728"/>
-<area href="classcaffe2_1_1InstanceNormOp.html" alt="caffe2::InstanceNormOp&lt; T, Context &gt;" shape="rect" coords="1890,4760,2510,4784"/>
-<area href="classcaffe2_1_1IsEmptyOp.html" alt="caffe2::IsEmptyOp&lt; Context &gt;" shape="rect" coords="1890,4816,2510,4840"/>
-<area href="classcaffe2_1_1IterOp.html" alt="caffe2::IterOp&lt; Context &gt;" shape="rect" coords="1890,4872,2510,4896"/>
-<area href="classcaffe2_1_1LabelCrossEntropyGradientOp.html" alt="caffe2::LabelCrossEntropyGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,4928,2510,4952"/>
-<area href="classcaffe2_1_1LabelCrossEntropyOp.html" alt="caffe2::LabelCrossEntropyOp&lt; T, Context &gt;" shape="rect" coords="1890,4984,2510,5008"/>
-<area href="classcaffe2_1_1LeakyReluOp.html" alt="caffe2::LeakyReluOp&lt; T, Context &gt;" shape="rect" coords="1890,5040,2510,5064"/>
-<area href="classcaffe2_1_1LearningRateOp.html" alt="caffe2::LearningRateOp&lt; T, Context &gt;" shape="rect" coords="1890,5096,2510,5120"/>
-<area href="classcaffe2_1_1LengthsRangeFillOp.html" alt="caffe2::LengthsRangeFillOp&lt; Context &gt;" shape="rect" coords="1890,5152,2510,5176"/>
-<area href="classcaffe2_1_1LengthsToRangesOp.html" alt="caffe2::LengthsToRangesOp&lt; Context &gt;" shape="rect" coords="1890,5208,2510,5232"/>
-<area href="classcaffe2_1_1LengthsToSegmentIdsOp.html" alt="caffe2::LengthsToSegmentIdsOp&lt; Context &gt;" shape="rect" coords="1890,5264,2510,5288"/>
-<area href="classcaffe2_1_1LengthsToShapeOp.html" alt="caffe2::LengthsToShapeOp&lt; Context &gt;" shape="rect" coords="1890,5320,2510,5344"/>
-<area href="classcaffe2_1_1LengthsToWeightsOp.html" alt="caffe2::LengthsToWeightsOp&lt; Context &gt;" shape="rect" coords="1890,5376,2510,5400"/>
-<area href="classcaffe2_1_1LoadOp.html" alt="caffe2::LoadOp&lt; Context &gt;" shape="rect" coords="1890,5432,2510,5456"/>
-<area href="classcaffe2_1_1LRNOpBase.html" alt="caffe2::LRNOpBase&lt; T, Context &gt;" shape="rect" coords="1890,5488,2510,5512"/>
-<area href="classcaffe2_1_1LSTMUnitGradientOp.html" alt="caffe2::LSTMUnitGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,5544,2510,5568"/>
-<area href="classcaffe2_1_1LSTMUnitOp.html" alt="caffe2::LSTMUnitOp&lt; T, Context &gt;" shape="rect" coords="1890,5600,2510,5624"/>
-<area href="classcaffe2_1_1MakeTwoClassGradientOp.html" alt="caffe2::MakeTwoClassGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,5656,2510,5680"/>
-<area href="classcaffe2_1_1MakeTwoClassOp.html" alt="caffe2::MakeTwoClassOp&lt; T, Context &gt;" shape="rect" coords="1890,5712,2510,5736"/>
-<area href="classcaffe2_1_1MarginRankingCriterionGradientOp.html" alt="caffe2::MarginRankingCriterionGradientOp&lt; Context &gt;" shape="rect" coords="1890,5768,2510,5792"/>
-<area href="classcaffe2_1_1MarginRankingCriterionOp.html" alt="caffe2::MarginRankingCriterionOp&lt; Context &gt;" shape="rect" coords="1890,5824,2510,5848"/>
-<area href="classcaffe2_1_1MatMulOp.html" alt="caffe2::MatMulOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,5880,2510,5904"/>
-<area href="classcaffe2_1_1MaxGradientOp.html" alt="caffe2::MaxGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,5936,2510,5960"/>
-<area href="classcaffe2_1_1MaxOp.html" alt="caffe2::MaxOp&lt; T, Context &gt;" shape="rect" coords="1890,5992,2510,6016"/>
-<area href="classcaffe2_1_1MomentumSGDOp.html" alt="caffe2::MomentumSGDOp&lt; T, Context &gt;" shape="rect" coords="1890,6048,2510,6072"/>
-<area href="classcaffe2_1_1MomentumSGDUpdateOp.html" alt="caffe2::MomentumSGDUpdateOp&lt; T, Context &gt;" shape="rect" coords="1890,6104,2510,6128"/>
-<area href="classcaffe2_1_1MPIAllgatherOp.html" alt="caffe2::MPIAllgatherOp&lt; T, Context &gt;" shape="rect" coords="1890,6160,2510,6184"/>
-<area href="classcaffe2_1_1MPIAllreduceOp.html" alt="caffe2::MPIAllreduceOp&lt; T, Context &gt;" shape="rect" coords="1890,6216,2510,6240"/>
-<area href="classcaffe2_1_1MPIBroadcastOp.html" alt="caffe2::MPIBroadcastOp&lt; Context &gt;" shape="rect" coords="1890,6272,2510,6296"/>
-<area href="classcaffe2_1_1MPICreateCommonWorldOp.html" alt="caffe2::MPICreateCommonWorldOp&lt; Context &gt;" shape="rect" coords="1890,6328,2510,6352"/>
-<area href="classcaffe2_1_1MPIReceiveTensorOp.html" alt="caffe2::MPIReceiveTensorOp&lt; Context &gt;" shape="rect" coords="1890,6384,2510,6408"/>
-<area href="classcaffe2_1_1MPIReduceOp.html" alt="caffe2::MPIReduceOp&lt; T, Context &gt;" shape="rect" coords="1890,6440,2510,6464"/>
-<area href="classcaffe2_1_1MPISendTensorOp.html" alt="caffe2::MPISendTensorOp&lt; Context &gt;" shape="rect" coords="1890,6496,2510,6520"/>
-<area href="classcaffe2_1_1MultiClassAccuracyOp.html" alt="caffe2::MultiClassAccuracyOp&lt; T, Context &gt;" shape="rect" coords="1890,6552,2510,6576"/>
-<area href="classcaffe2_1_1NCHW2NHWCOp.html" alt="caffe2::NCHW2NHWCOp&lt; T, Context &gt;" shape="rect" coords="1890,6608,2510,6632"/>
-<area href="classcaffe2_1_1NHWC2NCHWOp.html" alt="caffe2::NHWC2NCHWOp&lt; T, Context &gt;" shape="rect" coords="1890,6664,2510,6688"/>
-<area href="classcaffe2_1_1NoDefaultEngineOp.html" title="A helper class to denote that an op does not have a default engine. " alt="caffe2::NoDefaultEngineOp&lt; Context &gt;" shape="rect" coords="1890,6720,2510,6744"/>
-<area href="classcaffe2_1_1NormalizeGradientOp.html" alt="caffe2::NormalizeGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,6776,2510,6800"/>
-<area href="classcaffe2_1_1NormalizeOp.html" alt="caffe2::NormalizeOp&lt; T, Context &gt;" shape="rect" coords="1890,6832,2510,6856"/>
-<area href="classcaffe2_1_1PairWiseLossGradientOp.html" alt="caffe2::PairWiseLossGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,6888,2510,6912"/>
-<area href="classcaffe2_1_1PairWiseLossOp.html" alt="caffe2::PairWiseLossOp&lt; T, Context &gt;" shape="rect" coords="1890,6944,2510,6968"/>
-<area href="classcaffe2_1_1PerplexityOp.html" alt="caffe2::PerplexityOp&lt; T, Context &gt;" shape="rect" coords="1890,7000,2510,7024"/>
-<area href="classcaffe2_1_1PiecewiseLinearTransformOp.html" alt="caffe2::PiecewiseLinearTransformOp&lt; T, Context &gt;" shape="rect" coords="1890,7056,2510,7080"/>
-<area href="classcaffe2_1_1PReluGradientOp.html" alt="caffe2::PReluGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,7112,2510,7136"/>
-<area href="classcaffe2_1_1PReluOp.html" alt="caffe2::PReluOp&lt; T, Context &gt;" shape="rect" coords="1890,7168,2510,7192"/>
-<area href="classcaffe2_1_1PrintOp.html" alt="caffe2::PrintOp&lt; Context &gt;" shape="rect" coords="1890,7224,2510,7248"/>
-<area href="classcaffe2_1_1RecurrentNetworkGradientOp.html" alt="caffe2::RecurrentNetworkGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,7280,2510,7304"/>
-<area href="classcaffe2_1_1RecurrentNetworkOp.html" alt="caffe2::RecurrentNetworkOp&lt; T, Context &gt;" shape="rect" coords="1890,7336,2510,7360"/>
-<area href="classcaffe2_1_1RedisStoreHandlerCreateOp.html" alt="caffe2::RedisStoreHandlerCreateOp&lt; Context &gt;" shape="rect" coords="1890,7392,2510,7416"/>
-<area href="classcaffe2_1_1ReduceTailSumOp.html" alt="caffe2::ReduceTailSumOp&lt; T, Context &gt;" shape="rect" coords="1890,7448,2510,7472"/>
-<area href="classcaffe2_1_1ReluGradientOp.html" alt="caffe2::ReluGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,7504,2510,7528"/>
-<area href="classcaffe2_1_1ReluOp.html" alt="caffe2::ReluOp&lt; T, Context &gt;" shape="rect" coords="1890,7560,2510,7584"/>
-<area href="classcaffe2_1_1RemoveDataBlocksOp.html" alt="caffe2::RemoveDataBlocksOp&lt; Context &gt;" shape="rect" coords="1890,7616,2510,7640"/>
-<area href="classcaffe2_1_1ResetCounterOp.html" alt="caffe2::ResetCounterOp&lt; T, Context &gt;" shape="rect" coords="1890,7672,2510,7696"/>
-<area href="classcaffe2_1_1ReshapeOp.html" alt="caffe2::ReshapeOp&lt; F, Context &gt;" shape="rect" coords="1890,7728,2510,7752"/>
-<area href="classcaffe2_1_1ResizeLikeOp.html" alt="caffe2::ResizeLikeOp&lt; Context &gt;" shape="rect" coords="1890,7784,2510,7808"/>
-<area href="classcaffe2_1_1ResizeNearestOp.html" alt="caffe2::ResizeNearestOp&lt; T, Context &gt;" shape="rect" coords="1890,7840,2510,7864"/>
-<area href="classcaffe2_1_1RetrieveCountOp.html" alt="caffe2::RetrieveCountOp&lt; T, Context &gt;" shape="rect" coords="1890,7896,2510,7920"/>
-<area href="classcaffe2_1_1ReversePackedSegsOp.html" alt="caffe2::ReversePackedSegsOp&lt; Context &gt;" shape="rect" coords="1890,7952,2510,7976"/>
-<area href="classcaffe2_1_1RmsPropOp.html" alt="caffe2::RmsPropOp&lt; T, Context &gt;" shape="rect" coords="1890,8008,2510,8032"/>
-<area href="classcaffe2_1_1RoIPoolGradientOp.html" alt="caffe2::RoIPoolGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,8064,2510,8088"/>
-<area href="classcaffe2_1_1RoIPoolOp.html" alt="caffe2::RoIPoolOp&lt; T, Context &gt;" shape="rect" coords="1890,8120,2510,8144"/>
-<area href="classcaffe2_1_1RowMulOp.html" alt="caffe2::RowMulOp&lt; T, Context &gt;" shape="rect" coords="1890,8176,2510,8200"/>
-<area href="classcaffe2_1_1SafeDequeueBlobsOp.html" alt="caffe2::SafeDequeueBlobsOp&lt; Context &gt;" shape="rect" coords="1890,8232,2510,8256"/>
-<area href="classcaffe2_1_1SafeEnqueueBlobsOp.html" alt="caffe2::SafeEnqueueBlobsOp&lt; Context &gt;" shape="rect" coords="1890,8288,2510,8312"/>
-<area href="classcaffe2_1_1SaveOp.html" alt="caffe2::SaveOp&lt; Context &gt;" shape="rect" coords="1890,8344,2510,8368"/>
-<area href="classcaffe2_1_1ScaleOp.html" alt="caffe2::ScaleOp&lt; T, Context &gt;" shape="rect" coords="1890,8400,2510,8424"/>
-<area href="classcaffe2_1_1ScatterAssignOp.html" title="Update slices of the tensor in-place by overriding. " alt="caffe2::ScatterAssignOp&lt; T, Context &gt;" shape="rect" coords="1890,8456,2510,8480"/>
-<area href="classcaffe2_1_1ScatterWeightedSumOp.html" title="Update slices of the tensor in-place with weighted sum. " alt="caffe2::ScatterWeightedSumOp&lt; T, Context &gt;" shape="rect" coords="1890,8512,2510,8536"/>
-<area href="classcaffe2_1_1SegmentIdsToLengthsOp.html" alt="caffe2::SegmentIdsToLengthsOp&lt; Context &gt;" shape="rect" coords="1890,8568,2510,8592"/>
-<area href="classcaffe2_1_1SegmentIdsToRangesOp.html" alt="caffe2::SegmentIdsToRangesOp&lt; Context &gt;" shape="rect" coords="1890,8624,2510,8648"/>
-<area href="classcaffe2_1_1ShapeOp.html" alt="caffe2::ShapeOp&lt; Context &gt;" shape="rect" coords="1890,8680,2510,8704"/>
-<area href="classcaffe2_1_1SigmoidCrossEntropyWithLogitsGradientOp.html" alt="caffe2::SigmoidCrossEntropyWithLogitsGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,8736,2510,8760"/>
-<area href="classcaffe2_1_1SigmoidCrossEntropyWithLogitsOp.html" alt="caffe2::SigmoidCrossEntropyWithLogitsOp&lt; T, Context &gt;" shape="rect" coords="1890,8792,2510,8816"/>
-<area href="classcaffe2_1_1SliceOp.html" alt="caffe2::SliceOp&lt; SIndex, Context &gt;" shape="rect" coords="1890,8848,2510,8872"/>
-<area href="classcaffe2_1_1SoftmaxGradientOp.html" alt="caffe2::SoftmaxGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,8904,2510,8928"/>
-<area href="classcaffe2_1_1SoftmaxOp.html" alt="caffe2::SoftmaxOp&lt; T, Context &gt;" shape="rect" coords="1890,8960,2510,8984"/>
-<area href="classcaffe2_1_1SoftmaxWithLossGradientOp.html" alt="caffe2::SoftmaxWithLossGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,9016,2510,9040"/>
-<area href="classcaffe2_1_1SoftmaxWithLossOp.html" alt="caffe2::SoftmaxWithLossOp&lt; T, Context &gt;" shape="rect" coords="1890,9072,2510,9096"/>
-<area href="classcaffe2_1_1SpaceBatchOpBase.html" alt="caffe2::SpaceBatchOpBase&lt; Context &gt;" shape="rect" coords="1890,9128,2510,9152"/>
-<area href="classcaffe2_1_1SparseAdagradOp.html" alt="caffe2::SparseAdagradOp&lt; T, Context &gt;" shape="rect" coords="1890,9184,2510,9208"/>
-<area href="classcaffe2_1_1SparseAdamOp.html" alt="caffe2::SparseAdamOp&lt; T, Context &gt;" shape="rect" coords="1890,9240,2510,9264"/>
-<area href="classcaffe2_1_1SparseFunHashGradientOp.html" alt="caffe2::SparseFunHashGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,9296,2510,9320"/>
-<area href="classcaffe2_1_1SparseFunHashOp.html" alt="caffe2::SparseFunHashOp&lt; T, Context &gt;" shape="rect" coords="1890,9352,2510,9376"/>
-<area href="classcaffe2_1_1SparseMatrixReshapeOp.html" alt="caffe2::SparseMatrixReshapeOp&lt; Context &gt;" shape="rect" coords="1890,9408,2510,9432"/>
-<area href="classcaffe2_1_1SparseToDenseOp.html" alt="caffe2::SparseToDenseOp&lt; Context &gt;" shape="rect" coords="1890,9464,2510,9488"/>
-<area href="classcaffe2_1_1SpatialBNGradientOp.html" alt="caffe2::SpatialBNGradientOp&lt; Context &gt;" shape="rect" coords="1890,9520,2510,9544"/>
-<area href="classcaffe2_1_1SpatialBNOp.html" alt="caffe2::SpatialBNOp&lt; Context &gt;" shape="rect" coords="1890,9576,2510,9600"/>
-<area href="classcaffe2_1_1SplitOp.html" alt="caffe2::SplitOp&lt; Context &gt;" shape="rect" coords="1890,9632,2510,9656"/>
-<area href="classcaffe2_1_1SquaredL2DistanceGradientOp.html" alt="caffe2::SquaredL2DistanceGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,9688,2510,9712"/>
-<area href="classcaffe2_1_1SquaredL2DistanceOp.html" alt="caffe2::SquaredL2DistanceOp&lt; T, Context &gt;" shape="rect" coords="1890,9744,2510,9768"/>
-<area href="classcaffe2_1_1SquareRootDivideOp.html" alt="caffe2::SquareRootDivideOp&lt; TScale, Context &gt;" shape="rect" coords="1890,9800,2510,9824"/>
-<area href="classcaffe2_1_1SqueezeOp.html" alt="caffe2::SqueezeOp&lt; Context &gt;" shape="rect" coords="1890,9856,2510,9880"/>
-<area href="classcaffe2_1_1StopGradientOp.html" alt="caffe2::StopGradientOp&lt; Context &gt;" shape="rect" coords="1890,9912,2510,9936"/>
-<area href="classcaffe2_1_1StringJoinOp.html" alt="caffe2::StringJoinOp&lt; Context &gt;" shape="rect" coords="1890,9968,2510,9992"/>
-<area href="classcaffe2_1_1SumElementsGradientOp.html" alt="caffe2::SumElementsGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,10024,2510,10048"/>
-<area href="classcaffe2_1_1SumElementsOp.html" alt="caffe2::SumElementsOp&lt; T, Context &gt;" shape="rect" coords="1890,10080,2510,10104"/>
-<area href="classcaffe2_1_1SummarizeOp.html" alt="caffe2::SummarizeOp&lt; T, Context &gt;" shape="rect" coords="1890,10136,2510,10160"/>
-<area href="classcaffe2_1_1SumOp.html" alt="caffe2::SumOp&lt; T, Context &gt;" shape="rect" coords="1890,10192,2510,10216"/>
-<area href="classcaffe2_1_1SumReduceLikeOp.html" alt="caffe2::SumReduceLikeOp&lt; Context &gt;" shape="rect" coords="1890,10248,2510,10272"/>
-<area href="classcaffe2_1_1TileGradientOp.html" alt="caffe2::TileGradientOp&lt; T, Context &gt;" shape="rect" coords="1890,10304,2510,10328"/>
-<area href="classcaffe2_1_1TileOp.html" alt="caffe2::TileOp&lt; T, Context &gt;" shape="rect" coords="1890,10360,2510,10384"/>
-<area href="classcaffe2_1_1TopKOp.html" alt="caffe2::TopKOp&lt; T, Context &gt;" shape="rect" coords="1890,10416,2510,10440"/>
-<area href="classcaffe2_1_1TransposeOp.html" alt="caffe2::TransposeOp&lt; Context &gt;" shape="rect" coords="1890,10472,2510,10496"/>
-<area href="classcaffe2_1_1TTContractionGradientOp.html" alt="caffe2::TTContractionGradientOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,10528,2510,10552"/>
-<area href="classcaffe2_1_1TTContractionOp.html" alt="caffe2::TTContractionOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,10584,2510,10608"/>
-<area href="classcaffe2_1_1TTLinearGradientOp.html" alt="caffe2::TTLinearGradientOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,10640,2510,10664"/>
-<area href="classcaffe2_1_1TTLinearOp.html" alt="caffe2::TTLinearOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,10696,2510,10720"/>
-<area href="classcaffe2_1_1TTPadGradientOp.html" alt="caffe2::TTPadGradientOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,10752,2510,10776"/>
-<area href="classcaffe2_1_1TTPadOp.html" alt="caffe2::TTPadOp&lt; T, Context, Engine &gt;" shape="rect" coords="1890,10808,2510,10832"/>
-<area href="classcaffe2_1_1UnaryElementwiseWithArgsOp.html" alt="caffe2::UnaryElementwiseWithArgsOp&lt; InputTypes, Context, Functor, TypeMap &gt;" shape="rect" coords="1890,10864,2510,10888"/>
-<area href="classcaffe2_1_1UniqueOp.html" title="Deduplicates input indices vector and optionally produces reverse remapping. " alt="caffe2::UniqueOp&lt; Context &gt;" shape="rect" coords="1890,10920,2510,10944"/>
-<area href="classcaffe2_1_1UnsafeCoalesceOp.html" alt="caffe2::UnsafeCoalesceOp&lt; Context &gt;" shape="rect" coords="1890,10976,2510,11000"/>
-<area href="classcaffe2_1_1WallClockTimeOp.html" alt="caffe2::WallClockTimeOp&lt; Context &gt;" shape="rect" coords="1890,11032,2510,11056"/>
-<area href="classcaffe2_1_1WeightedSumOp.html" alt="caffe2::WeightedSumOp&lt; T, Context &gt;" shape="rect" coords="1890,11088,2510,11112"/>
-<area href="classcaffe2_1_1ImageInputOp.html" alt="caffe2::ImageInputOp&lt; Context &gt;" shape="rect" coords="3150,112,3770,136"/>
-<area href="classcaffe2_1_1TensorProtosDBInput.html" alt="caffe2::TensorProtosDBInput&lt; Context &gt;" shape="rect" coords="3150,168,3770,192"/>
-<area href="classcaffe2_1_1CreateQPSMetricOp.html" alt="caffe2::CreateQPSMetricOp" shape="rect" coords="4410,112,5030,136"/>
-<area href="classcaffe2_1_1CreateTextFileReaderOp.html" alt="caffe2::CreateTextFileReaderOp" shape="rect" coords="4410,168,5030,192"/>
-<area href="classcaffe2_1_1IncrementByOneOp.html" alt="caffe2::IncrementByOneOp" shape="rect" coords="4410,224,5030,248"/>
-<area href="classcaffe2_1_1IndexCreateOp.html" alt="caffe2::IndexCreateOp&lt; T &gt;" shape="rect" coords="4410,280,5030,304"/>
-<area href="classcaffe2_1_1IndexFreezeOp.html" alt="caffe2::IndexFreezeOp" shape="rect" coords="4410,336,5030,360"/>
-<area href="classcaffe2_1_1IndexGetOp.html" alt="caffe2::IndexGetOp" shape="rect" coords="4410,392,5030,416"/>
-<area href="classcaffe2_1_1IndexLoadOp.html" alt="caffe2::IndexLoadOp" shape="rect" coords="4410,448,5030,472"/>
-<area href="classcaffe2_1_1IndexSizeOp.html" alt="caffe2::IndexSizeOp" shape="rect" coords="4410,504,5030,528"/>
-<area href="classcaffe2_1_1IndexStoreOp.html" alt="caffe2::IndexStoreOp" shape="rect" coords="4410,560,5030,584"/>
-<area href="classcaffe2_1_1PartitionOpBase.html" alt="caffe2::PartitionOpBase" shape="rect" coords="4410,616,5030,640"/>
-<area href="classcaffe2_1_1QPSMetricOp.html" alt="caffe2::QPSMetricOp" shape="rect" coords="4410,672,5030,696"/>
-<area href="classcaffe2_1_1QPSMetricReportOp.html" alt="caffe2::QPSMetricReportOp" shape="rect" coords="4410,728,5030,752"/>
-<area href="classcaffe2_1_1SleepOp.html" alt="caffe2::SleepOp" shape="rect" coords="4410,784,5030,808"/>
-<area href="classcaffe2_1_1SparseFtrlOp.html" alt="caffe2::SparseFtrlOp&lt; T &gt;" shape="rect" coords="4410,840,5030,864"/>
-<area href="classcaffe2_1_1SparseToDenseMaskOp.html" alt="caffe2::SparseToDenseMaskOp" shape="rect" coords="4410,896,5030,920"/>
-<area href="classcaffe2_1_1StoreAddOp.html" alt="caffe2::StoreAddOp" shape="rect" coords="4410,952,5030,976"/>
-<area href="classcaffe2_1_1StoreGetOp.html" alt="caffe2::StoreGetOp" shape="rect" coords="4410,1008,5030,1032"/>
-<area href="classcaffe2_1_1StoreSetOp.html" alt="caffe2::StoreSetOp" shape="rect" coords="4410,1064,5030,1088"/>
-<area href="classcaffe2_1_1StoreWaitOp.html" alt="caffe2::StoreWaitOp" shape="rect" coords="4410,1120,5030,1144"/>
-<area href="classcaffe2_1_1TextFileReaderReadOp.html" alt="caffe2::TextFileReaderReadOp" shape="rect" coords="4410,1176,5030,1200"/>
-<area href="classcaffe2_1_1ThrowException.html" alt="caffe2::ThrowException" shape="rect" coords="4410,1232,5030,1256"/>
-<area href="classcaffe2_1_1ConvPoolOpBase.html" alt="caffe2::ConvPoolOpBase&lt; CPUContext &gt;" shape="rect" coords="4410,1288,5030,1312"/>
-<area href="classcaffe2_1_1CopyOnDeviceLikeOp_3_01CUDAContext_00_01CUDAContext_00_01CUDAContext_01_4.html" alt="caffe2::CopyOnDeviceLikeOp&lt; CUDAContext, CUDAContext, CUDAContext &gt;" shape="rect" coords="5670,112,6290,136"/>
-<area href="classcaffe2_1_1CuDNNReluGradientOp.html" alt="caffe2::CuDNNReluGradientOp" shape="rect" coords="5670,168,6290,192"/>
-<area href="classcaffe2_1_1CuDNNReluOp.html" alt="caffe2::CuDNNReluOp" shape="rect" coords="5670,224,6290,248"/>
-<area href="classcaffe2_1_1CuDNNSoftmaxGradientOp.html" alt="caffe2::CuDNNSoftmaxGradientOp&lt; T &gt;" shape="rect" coords="5670,280,6290,304"/>
-<area href="classcaffe2_1_1CuDNNSoftmaxOp.html" alt="caffe2::CuDNNSoftmaxOp&lt; T &gt;" shape="rect" coords="5670,336,6290,360"/>
-<area href="classcaffe2_1_1ElementwiseRTCOp.html" title="A GPU operator that can generate limited elementwise operations. " alt="caffe2::ElementwiseRTCOp" shape="rect" coords="5670,392,6290,416"/>
-<area href="classcaffe2_1_1GPUFallbackOp.html" title="A templated class to allow one to wrap a CPU operator as a CUDA operator. " alt="caffe2::GPUFallbackOp&lt; CPUOp, SkipOutputCopy &gt;" shape="rect" coords="5670,448,6290,472"/>
-<area href="classcaffe2_1_1RecurrentBaseOp.html" alt="caffe2::RecurrentBaseOp&lt; T &gt;" shape="rect" coords="5670,504,6290,528"/>
-<area href="classcaffe2_1_1ConvPoolOpBase.html" alt="caffe2::ConvPoolOpBase&lt; CUDAContext &gt;" shape="rect" coords="5670,560,6290,584"/>
-<area href="classcaffe2_1_1ConvTransposeUnpoolBase.html" alt="caffe2::ConvTransposeUnpoolBase&lt; CUDAContext &gt;" shape="rect" coords="5670,616,6290,640"/>
-<area href="classcaffe2_1_1SpatialBNGradientOp.html" alt="caffe2::SpatialBNGradientOp&lt; CUDAContext &gt;" shape="rect" coords="5670,672,6290,696"/>
-<area href="classcaffe2_1_1SpatialBNOp.html" alt="caffe2::SpatialBNOp&lt; CUDAContext &gt;" shape="rect" coords="5670,728,6290,752"/>
-<area href="classcaffe2_1_1MKLFallbackOp.html" title="A templated class to allow one to wrap a CPU operator as an MKL operator. " alt="caffe2::MKLFallbackOp&lt; CPUOp, SkipOutputCopy &gt;" shape="rect" coords="6300,112,6920,136"/>
+<area href="classcaffe2_1_1mkl_1_1MKLOperator.html" alt="caffe2::mkl::MKLOperator&lt; T &gt;" shape="rect" coords="0,56,206,80"/>
+<area href="classcaffe2_1_1Operator.html" alt="caffe2::Operator&lt; Context &gt;" shape="rect" coords="216,56,422,80"/>
+<area href="classcaffe2_1_1Operator.html" alt="caffe2::Operator&lt; CUDAContext &gt;" shape="rect" coords="432,56,638,80"/>
+<area href="classcaffe2_1_1ElementwiseRTCOp.html" title="A GPU operator that can generate limited elementwise operations. " alt="caffe2::ElementwiseRTCOp" shape="rect" coords="432,112,638,136"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -404,7 +165,7 @@ const <a class="el" href="classcaffe2_1_1ArgumentHelper.html">ArgumentHelper</a>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Mar 24 2017 15:08:56 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Mar 27 2017 17:24:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

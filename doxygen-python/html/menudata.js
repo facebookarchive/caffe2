@@ -1,6 +1,4 @@
 var menudata={children:[
-{text:"Main Page",url:"index.html"},
-{text:"Related Pages",url:"pages.html"},
 {text:"Packages",url:"namespaces.html",children:[
 {text:"Packages",url:"namespaces.html"},
 {text:"Package Functions",url:"namespacemembers.html",children:[
@@ -103,4 +101,7 @@ var menudata={children:[
 {text:"w",url:"functions_func_w.html#index_w"},
 {text:"~",url:"functions_func_0x7e.html#index_0x7e"}]}]}]},
 {text:"Files",url:"files.html",children:[
-{text:"File List",url:"files.html"}]}]}
+{text:"File List",url:"files.html"}]},
+{text:"C++ API",url:"/doxygen-c/html/classes.html"},
+{text:"Python API",url:"/doxygen-python/html/annotated.html"},
+{text:"GitHub",url:"https://github.com/caffe2/caffe2"}]}

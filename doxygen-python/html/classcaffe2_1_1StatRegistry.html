@@ -8,12 +8,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Caffe2 - Python API: caffe2::StatRegistry Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" href="/static/favicon.png" type="image/x-icon">
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<link href="new_stylesheet.css" rel="stylesheet" type="text/css" />
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
 <link href="main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
@@ -85,14 +86,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afb8511c240761776463076b75bd67aba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcaffe2_1_1StatValue.html">StatValue</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1StatRegistry.html#afb8511c240761776463076b75bd67aba">add</a> (const std::string &amp;name)</td></tr>
 <tr class="memdesc:afb8511c240761776463076b75bd67aba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new counter with given name.  <a href="#afb8511c240761776463076b75bd67aba">More...</a><br /></td></tr>
 <tr class="separator:afb8511c240761776463076b75bd67aba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2626686bd8fff02c3c1289fab4894d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1StatRegistry.html#ac2626686bd8fff02c3c1289fab4894d1">publish</a> (<a class="el" href="namespacecaffe2.html#a3711911ae0651cd752086931342f43d9">ExportedStatList</a> &amp;exported, bool reset=false)</td></tr>
+<tr class="memitem:ac2626686bd8fff02c3c1289fab4894d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1StatRegistry.html#ac2626686bd8fff02c3c1289fab4894d1">publish</a> (<a class="el" href="namespacecaffe2.html#a8eb1578901c4027246db0d3e46305c7f">ExportedStatList</a> &amp;exported, bool reset=false)</td></tr>
 <tr class="memdesc:ac2626686bd8fff02c3c1289fab4894d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Populate an ExportedStatList with current counter values.  <a href="#ac2626686bd8fff02c3c1289fab4894d1">More...</a><br /></td></tr>
 <tr class="separator:ac2626686bd8fff02c3c1289fab4894d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9454a86e8d8e485161c4299d33b98e26"><td class="memItemLeft" align="right" valign="top"><a id="a9454a86e8d8e485161c4299d33b98e26"></a>
-<a class="el" href="namespacecaffe2.html#a3711911ae0651cd752086931342f43d9">ExportedStatList</a>&#160;</td><td class="memItemRight" valign="bottom"><b>publish</b> (bool reset=false)</td></tr>
+<a class="el" href="namespacecaffe2.html#a8eb1578901c4027246db0d3e46305c7f">ExportedStatList</a>&#160;</td><td class="memItemRight" valign="bottom"><b>publish</b> (bool reset=false)</td></tr>
 <tr class="separator:a9454a86e8d8e485161c4299d33b98e26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60f98c2d3af0185283589f777729ce5c"><td class="memItemLeft" align="right" valign="top"><a id="a60f98c2d3af0185283589f777729ce5c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1StatRegistry.html#a60f98c2d3af0185283589f777729ce5c">update</a> (const <a class="el" href="namespacecaffe2.html#a3711911ae0651cd752086931342f43d9">ExportedStatList</a> &amp;data)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1StatRegistry.html#a60f98c2d3af0185283589f777729ce5c">update</a> (const <a class="el" href="namespacecaffe2.html#a8eb1578901c4027246db0d3e46305c7f">ExportedStatList</a> &amp;data)</td></tr>
 <tr class="memdesc:a60f98c2d3af0185283589f777729ce5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update values of counters contained in the given ExportedStatList to the values provided, creating counters that don't exist. <br /></td></tr>
 <tr class="separator:a60f98c2d3af0185283589f777729ce5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -154,7 +155,7 @@ static <a class="el" href="classcaffe2_1_1StatRegistry.html">StatRegistry</a> &a
         <tr>
           <td class="memname">void caffe2::StatRegistry::publish </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacecaffe2.html#a3711911ae0651cd752086931342f43d9">ExportedStatList</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacecaffe2.html#a8eb1578901c4027246db0d3e46305c7f">ExportedStatList</a> &amp;&#160;</td>
           <td class="paramname"><em>exported</em>, </td>
         </tr>
         <tr>
@@ -186,7 +187,7 @@ static <a class="el" href="classcaffe2_1_1StatRegistry.html">StatRegistry</a> &a
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Mar 24 2017 15:08:41 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Mar 27 2017 17:24:27 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

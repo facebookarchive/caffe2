@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['scopeguard',['ScopeGuard',['../namespacecaffe2.html#a5963d86113a91278f7514b547ba6b541',1,'caffe2']]]
+  ['scopeguard',['ScopeGuard',['../namespacecaffe2.html#a053c2bac27c34908dbf03660a799e736',1,'caffe2']]]
 ];

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['packedfctest',['PackedFCTest',['../classmkl__packed__fc__op__test_1_1PackedFCTest.html',1,'mkl_packed_fc_op_test']]],
   ['parameterinfo',['ParameterInfo',['../classmodel__helper_1_1ParameterInfo.html',1,'model_helper']]],
   ['parametertype',['ParameterType',['../classmodel__helper_1_1ParameterType.html',1,'model_helper']]],
   ['parser',['Parser',['../classparser_1_1Parser.html',1,'parser']]],
@@ -19,6 +18,5 @@ var searchData=
   ['protodbtransaction',['ProtoDBTransaction',['../classcaffe2_1_1db_1_1ProtoDBTransaction.html',1,'caffe2::db']]],
   ['pythongradientop',['PythonGradientOp',['../classcaffe2_1_1python_1_1PythonGradientOp.html',1,'caffe2::python']]],
   ['pythonop',['PythonOp',['../classcaffe2_1_1python_1_1PythonOp.html',1,'caffe2::python']]],
-  ['pythonopbase',['PythonOpBase',['../classcaffe2_1_1python_1_1PythonOpBase.html',1,'caffe2::python']]],
-  ['pythonoptest',['PythonOpTest',['../classpython__op__test_1_1PythonOpTest.html',1,'python_op_test']]]
+  ['pythonopbase',['PythonOpBase',['../classcaffe2_1_1python_1_1PythonOpBase.html',1,'caffe2::python']]]
 ];

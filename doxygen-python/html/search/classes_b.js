@@ -2,7 +2,6 @@ var searchData=
 [
   ['layermodelhelper',['LayerModelHelper',['../classlayer__model__helper_1_1LayerModelHelper.html',1,'layer_model_helper']]],
   ['layoutwrapper',['LayoutWrapper',['../classcaffe2_1_1mkl_1_1LayoutWrapper.html',1,'caffe2::mkl']]],
-  ['lengthstester',['LengthsTester',['../classsegment__ops__test_1_1LengthsTester.html',1,'segment_ops_test']]],
   ['leveldb',['LevelDB',['../classcaffe2_1_1db_1_1LevelDB.html',1,'caffe2::db']]],
   ['leveldbcursor',['LevelDBCursor',['../classcaffe2_1_1db_1_1LevelDBCursor.html',1,'caffe2::db']]],
   ['leveldbtransaction',['LevelDBTransaction',['../classcaffe2_1_1db_1_1LevelDBTransaction.html',1,'caffe2::db']]],

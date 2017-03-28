@@ -5,7 +5,6 @@ var searchData=
   ['datainputcoordinator',['DataInputCoordinator',['../classdata__workers_1_1DataInputCoordinator.html',1,'data_workers']]],
   ['dataset',['Dataset',['../classdataset_1_1Dataset.html',1,'dataset']]],
   ['datatype',['DataType',['../classcore_1_1DataType.html',1,'core']]],
-  ['dataworkerstest',['DataWorkersTest',['../classdata__workers__test_1_1DataWorkersTest.html',1,'data_workers_test']]],
   ['db',['DB',['../classcaffe2_1_1db_1_1DB.html',1,'caffe2::db']]],
   ['dbreader',['DBReader',['../classcaffe2_1_1db_1_1DBReader.html',1,'caffe2::db']]],
   ['dbreaderdeserializer',['DBReaderDeserializer',['../classcaffe2_1_1db_1_1DBReaderDeserializer.html',1,'caffe2::db']]],

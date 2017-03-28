@@ -8,12 +8,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Caffe2 - Python API: caffe2/utils/string_utils.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" href="/static/favicon.png" type="image/x-icon">
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<link href="new_stylesheet.css" rel="stylesheet" type="text/css" />
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
 <link href="main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
@@ -71,12 +72,12 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;memory&gt;</span></div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacecaffe2.html">caffe2</a> {</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;std::vector&lt;std::string&gt; <a class="code" href="namespacesplit.html">split</a>(<span class="keywordtype">char</span> separator, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">string</span>);</div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keywordtype">size_t</span> editDistance(</div><div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  <span class="keyword">const</span> std::string&amp; s1, <span class="keyword">const</span> std::string&amp; s2, <span class="keywordtype">size_t</span> max_distance = 0);</div><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div><div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;int32_t editDistanceHelper(<span class="keyword">const</span> <span class="keywordtype">char</span>* s1,</div><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keywordtype">size_t</span> s1_len,</div><div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">char</span>* s2,</div><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  <span class="keywordtype">size_t</span> s2_len,</div><div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  std::vector&lt;size_t&gt; &amp;current,</div><div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  std::vector&lt;size_t&gt; &amp;previous,</div><div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  std::vector&lt;size_t&gt; &amp;previous1,</div><div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <span class="keywordtype">size_t</span> max_distance);</div><div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;} <span class="comment">// namespace caffe2</span></div><div class="ttc" id="namespacesplit_html"><div class="ttname"><a href="namespacesplit.html">split</a></div><div class="ttdoc">Module caffe2.python.layers.split. </div></div>
-<div class="ttc" id="namespacecaffe2_html"><div class="ttname"><a href="namespacecaffe2.html">caffe2</a></div><div class="ttdoc">Simple registry implementation in Caffe2 that uses static variables to register object creators durin...</div><div class="ttdef"><b>Definition:</b> <a href="build_2caffe2_2____init_____8py_source.html#l00001">__init__.py:1</a></div></div>
+<div class="ttc" id="namespacecaffe2_html"><div class="ttname"><a href="namespacecaffe2.html">caffe2</a></div><div class="ttdoc">Simple registry implementation in Caffe2 that uses static variables to register object creators durin...</div><div class="ttdef"><b>Definition:</b> <a href="convert__encoded__to__raw__leveldb_8cc_source.html#l00031">convert_encoded_to_raw_leveldb.cc:31</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Mar 24 2017 15:08:40 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Mar 27 2017 17:24:26 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

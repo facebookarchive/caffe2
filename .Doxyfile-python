@@ -51,14 +51,14 @@ PROJECT_BRIEF          = "A deep learning, cross platform ML framework"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = /Users/aaronmarkham/caffe2/static/images/Caffe2-with-name-55-tall.png
+PROJECT_LOGO           = doxygen/Caffe2-with-name-55-tall.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = /Users/aaronmarkham/caffe2/doxygen-python/
+OUTPUT_DIRECTORY       = doxygen/doxygen-python/
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -703,7 +703,7 @@ FILE_VERSION_FILTER    =
 # DoxygenLayout.xml, doxygen will parse it automatically even if the LAYOUT_FILE
 # tag is left empty.
 
-LAYOUT_FILE            =
+LAYOUT_FILE            = doxygen/DoxygenLayout-python.xml
 
 # The CITE_BIB_FILES tag can be used to specify one or more bib files containing
 # the reference definitions. This must be a list of .bib files. The .bib
@@ -878,7 +878,11 @@ EXCLUDE                = caffe2/contrib/ \
                          caffe2/proto/ \
                          caffe2/sgd/ \
                          caffe2/test/ \
-                         *_test.cc
+                         build/ \
+                         caffe/ \
+                         cmake/ \
+                         models/ \
+                         third_party
 
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
@@ -895,7 +899,7 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       =
+EXCLUDE_PATTERNS       =  *_test.py
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -988,7 +992,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE =
+USE_MDFILE_AS_MAINPAGE = README.md
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -1144,7 +1148,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            = /Users/aaronmarkham/caffe2/doxygen-c/new_header.html
+HTML_HEADER            = doxygen/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1154,7 +1158,7 @@ HTML_HEADER            = /Users/aaronmarkham/caffe2/doxygen-c/new_header.html
 # that doxygen normally uses.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_FOOTER            = /Users/aaronmarkham/caffe2/doxygen-c/new_footer.html
+HTML_FOOTER            = doxygen/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of
@@ -1166,7 +1170,7 @@ HTML_FOOTER            = /Users/aaronmarkham/caffe2/doxygen-c/new_footer.html
 # obsolete.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_STYLESHEET        = /Users/aaronmarkham/caffe2/doxygen-c/new_stylesheet.css
+HTML_STYLESHEET        = doxygen/stylesheet.css
 
 # The HTML_EXTRA_STYLESHEET tag can be used to specify additional user-defined
 # cascading style sheets that are included after the standard style sheets
@@ -1179,7 +1183,7 @@ HTML_STYLESHEET        = /Users/aaronmarkham/caffe2/doxygen-c/new_stylesheet.css
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = /Users/aaronmarkham/caffe2/_site/css/main.css
+HTML_EXTRA_STYLESHEET  = doxygen/main.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note

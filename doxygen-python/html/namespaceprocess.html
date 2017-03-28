@@ -8,12 +8,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Caffe2 - Python API: process Namespace Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" href="/static/favicon.png" type="image/x-icon">
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<link href="new_stylesheet.css" rel="stylesheet" type="text/css" />
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
 <link href="main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
@@ -70,42 +71,40 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Module <a class="el" href="namespacecaffe2.html" title="Simple registry implementation in Caffe2 that uses static variables to register object creators durin...">caffe2</a>...caffe2.experiments.process.  
+<p>Module doxygen.process Script to insert preamble for doxygen and regen API docs.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a743230e6e8647b0c8a1088645b48b088"><td class="memItemLeft" align="right" valign="top"><a id="a743230e6e8647b0c8a1088645b48b088"></a>
+<tr class="memitem:a90c472b84954712204f922ec9bf23532"><td class="memItemLeft" align="right" valign="top"><a id="a90c472b84954712204f922ec9bf23532"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>insert</b> (originalfile, first_line, description)</td></tr>
-<tr class="separator:a743230e6e8647b0c8a1088645b48b088"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a90c472b84954712204f922ec9bf23532"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:a6ddcaf07cd112ca729e505a1be07bfe6"><td class="memItemLeft" align="right" valign="top"><a id="a6ddcaf07cd112ca729e505a1be07bfe6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>filepath</b> = os.path.join(root, file)</td></tr>
 <tr class="separator:a6ddcaf07cd112ca729e505a1be07bfe6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42c8b93ea04771610616dd2e7212b48e"><td class="memItemLeft" align="right" valign="top"><a id="a42c8b93ea04771610616dd2e7212b48e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>directory</b> = os.path.dirname(filepath)[2:]</td></tr>
+<tr class="separator:a42c8b93ea04771610616dd2e7212b48e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac40a22966f5249ace180c9542724908b"><td class="memItemLeft" align="right" valign="top"><a id="ac40a22966f5249ace180c9542724908b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>name</b> = os.path.splitext(file)[0]</td></tr>
 <tr class="separator:ac40a22966f5249ace180c9542724908b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42c8b93ea04771610616dd2e7212b48e"><td class="memItemLeft" align="right" valign="top"><a id="a42c8b93ea04771610616dd2e7212b48e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>directory</b> = os.path.dirname(filepath)</td></tr>
-<tr class="separator:a42c8b93ea04771610616dd2e7212b48e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a825f694d73476b3ea86e29626d713ac3"><td class="memItemLeft" align="right" valign="top"><a id="a825f694d73476b3ea86e29626d713ac3"></a>
+<tr class="memitem:a1b35b36d1ee92364c7f7aa9074ae5926"><td class="memItemLeft" align="right" valign="top"><a id="a1b35b36d1ee92364c7f7aa9074ae5926"></a>
 string&#160;</td><td class="memItemRight" valign="bottom"><b>first_line</b> = &quot;## @package &quot; + name</td></tr>
-<tr class="separator:a825f694d73476b3ea86e29626d713ac3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0110d9c0aeab9c2b90cad3cc48f6082c"><td class="memItemLeft" align="right" valign="top"><a id="a0110d9c0aeab9c2b90cad3cc48f6082c"></a>
-string&#160;</td><td class="memItemRight" valign="bottom"><b>description</b> = &quot;\n# caffe2.&quot; + directory + &quot;.&quot; + name + &quot;\n&quot;</td></tr>
-<tr class="separator:a0110d9c0aeab9c2b90cad3cc48f6082c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a1b35b36d1ee92364c7f7aa9074ae5926"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93fe71ed2e1ebaf93f1aada78e431b55"><td class="memItemLeft" align="right" valign="top"><a id="a93fe71ed2e1ebaf93f1aada78e431b55"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>description</b> = &quot;\n# Module &quot; + directory + &quot;.&quot; + name + &quot;\n&quot;</td></tr>
+<tr class="separator:a93fe71ed2e1ebaf93f1aada78e431b55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Module <a class="el" href="namespacecaffe2.html" title="Simple registry implementation in Caffe2 that uses static variables to register object creators durin...">caffe2</a>...caffe2.experiments.process. </p>
-<p>Module doxygen.process todo: process the whole source tree (deal with experiments folder, etc)</p>
-<p>Module <a class="el" href="namespacecaffe2.html" title="Simple registry implementation in Caffe2 that uses static variables to register object creators durin...">caffe2</a>...caffe2.process. </p>
+<div class="textblock"><p>Module doxygen.process Script to insert preamble for doxygen and regen API docs. </p>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Mar 24 2017 15:08:44 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Mar 27 2017 17:24:28 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

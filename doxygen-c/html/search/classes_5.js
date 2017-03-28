@@ -1,30 +1,6 @@
 var searchData=
 [
-  ['feedblobop',['FeedBlobOp',['../classcaffe2_1_1FeedBlobOp.html',1,'caffe2']]],
-  ['filereader',['FileReader',['../classcaffe2_1_1FileReader.html',1,'caffe2']]],
-  ['filestorehandler',['FileStoreHandler',['../classcaffe2_1_1FileStoreHandler.html',1,'caffe2']]],
-  ['filestorehandlercreateop',['FileStoreHandlerCreateOp',['../classcaffe2_1_1FileStoreHandlerCreateOp.html',1,'caffe2']]],
-  ['fillerop',['FillerOp',['../classcaffe2_1_1FillerOp.html',1,'caffe2']]],
-  ['findduplicateelementsop',['FindDuplicateElementsOp',['../classcaffe2_1_1FindDuplicateElementsOp.html',1,'caffe2']]],
   ['fixeddivisor',['FixedDivisor',['../classcaffe2_1_1FixedDivisor.html',1,'caffe2']]],
   ['fixeddivisor_3c_20int32_5ft_20_3e',['FixedDivisor&lt; int32_t &gt;',['../classcaffe2_1_1FixedDivisor_3_01int32__t_01_4.html',1,'caffe2']]],
-  ['fixedlearningrate',['FixedLearningRate',['../classcaffe2_1_1FixedLearningRate.html',1,'caffe2']]],
-  ['fixedtype',['FixedType',['../structcaffe2_1_1FixedType.html',1,'caffe2']]],
-  ['fixedvalues',['FixedValues',['../structcaffe2_1_1FixedValues.html',1,'caffe2']]],
-  ['flattenop',['FlattenOp',['../classcaffe2_1_1FlattenOp.html',1,'caffe2']]],
-  ['flattentovecop',['FlattenToVecOp',['../classcaffe2_1_1FlattenToVecOp.html',1,'caffe2']]],
-  ['floattohalfop',['FloatToHalfOp',['../classcaffe2_1_1FloatToHalfOp.html',1,'caffe2']]],
-  ['foreach',['ForEach',['../structcaffe2_1_1ForEach.html',1,'caffe2']]],
-  ['freeop',['FreeOp',['../classcaffe2_1_1FreeOp.html',1,'caffe2']]],
-  ['ftrlop',['FtrlOp',['../classcaffe2_1_1FtrlOp.html',1,'caffe2']]],
-  ['ftrlparams',['FtrlParams',['../structcaffe2_1_1FtrlParams.html',1,'caffe2']]],
-  ['fullyconnecteddecompgradientop',['FullyConnectedDecompGradientOp',['../classcaffe2_1_1FullyConnectedDecompGradientOp.html',1,'caffe2']]],
-  ['fullyconnectedgradientop',['FullyConnectedGradientOp',['../classcaffe2_1_1FullyConnectedGradientOp.html',1,'caffe2']]],
-  ['fullyconnectedop',['FullyConnectedOp',['../classcaffe2_1_1FullyConnectedOp.html',1,'caffe2']]],
-  ['fullyconnectedop_5fsparse',['FullyConnectedOp_SPARSE',['../classcaffe2_1_1FullyConnectedOp__SPARSE.html',1,'caffe2']]],
-  ['fullyconnectedopdecomp',['FullyConnectedOpDecomp',['../classcaffe2_1_1FullyConnectedOpDecomp.html',1,'caffe2']]],
-  ['fullyconnectedopprune',['FullyConnectedOpPrune',['../classcaffe2_1_1FullyConnectedOpPrune.html',1,'caffe2']]],
-  ['fullyconnectedprunegradientop',['FullyConnectedPruneGradientOp',['../classcaffe2_1_1FullyConnectedPruneGradientOp.html',1,'caffe2']]],
-  ['funhashgradientop',['FunHashGradientOp',['../classcaffe2_1_1FunHashGradientOp.html',1,'caffe2']]],
-  ['funhashop',['FunHashOp',['../classcaffe2_1_1FunHashOp.html',1,'caffe2']]]
+  ['fixedvalues',['FixedValues',['../structcaffe2_1_1FixedValues.html',1,'caffe2']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['xavierfillop',['XavierFillOp',['../classcaffe2_1_1XavierFillOp.html',1,'caffe2']]]
+  ['_7etaskthreadpool',['~TaskThreadPool',['../classTaskThreadPool.html#a2f87e11a28cc941070d612f8ef385eba',1,'TaskThreadPool']]]
 ];

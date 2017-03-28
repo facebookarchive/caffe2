@@ -34,7 +34,6 @@ var searchData=
   ['size_5ffrom_5fdim_5f',['size_from_dim_',['../namespacecaffe2.html#a57dab6c8becb4bb52f6e74e5c1063487',1,'caffe2']]],
   ['size_5fto_5fdim',['size_to_dim',['../classcaffe2_1_1QTensor.html#af2e31e65a2a812b7b56e691a430c11a0',1,'caffe2::QTensor']]],
   ['slice',['slice',['../classschema_1_1Field.html#a98a892aaf9cda03689ce359862dfac5f',1,'schema::Field']]],
-  ['split',['split',['../classsegment__ops__test_1_1SegmentsTester.html#a97bd1cf0b92bd69a91d6e61e5de9618b',1,'segment_ops_test::SegmentsTester']]],
   ['start',['Start',['../classcaffe2_1_1Timer.html#a2cd2082f328f09afdae05de39ccb04f0',1,'caffe2::Timer']]],
   ['startmint',['StartMint',['../namespaceworkspace.html#a28935578845f9dc696b471b94a32d220',1,'workspace']]],
   ['stop',['stop',['../classnet__builder_1_1Operations.html#aeb6b5fe8f8225de32f9c7afa489b053a',1,'net_builder::Operations']]],

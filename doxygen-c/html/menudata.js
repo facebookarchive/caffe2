@@ -1,23 +1,4 @@
 var menudata={children:[
-{text:"Main Page",url:"index.html"},
-{text:"Related Pages",url:"pages.html"},
-{text:"Namespaces",url:"namespaces.html",children:[
-{text:"Namespace List",url:"namespaces.html"},
-{text:"Namespace Members",url:"namespacemembers.html",children:[
-{text:"All",url:"namespacemembers.html",children:[
-{text:"c",url:"namespacemembers.html#index_c"},
-{text:"d",url:"namespacemembers.html#index_d"},
-{text:"e",url:"namespacemembers.html#index_e"},
-{text:"g",url:"namespacemembers.html#index_g"},
-{text:"h",url:"namespacemembers.html#index_h"},
-{text:"m",url:"namespacemembers.html#index_m"},
-{text:"n",url:"namespacemembers.html#index_n"},
-{text:"p",url:"namespacemembers.html#index_p"},
-{text:"s",url:"namespacemembers.html#index_s"},
-{text:"t",url:"namespacemembers.html#index_t"},
-{text:"u",url:"namespacemembers.html#index_u"}]},
-{text:"Functions",url:"namespacemembers_func.html"},
-{text:"Typedefs",url:"namespacemembers_type.html"}]}]},
 {text:"Data Structures",url:"annotated.html",children:[
 {text:"Data Structures",url:"annotated.html"},
 {text:"Data Structure Index",url:"classes.html"},
@@ -74,4 +55,7 @@ var menudata={children:[
 {text:"w",url:"functions_func_w.html#index_w"},
 {text:"~",url:"functions_func_0x7e.html#index_0x7e"}]}]}]},
 {text:"Files",url:"files.html",children:[
-{text:"File List",url:"files.html"}]}]}
+{text:"File List",url:"files.html"}]},
+{text:"C++ API",url:"/doxygen-c/html/classes.html"},
+{text:"Python API",url:"/doxygen-python/html/annotated.html"},
+{text:"GitHub",url:"https://github.com/caffe2/caffe2"}]}

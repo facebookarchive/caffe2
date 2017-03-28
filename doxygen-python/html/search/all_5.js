@@ -1,9 +1,6 @@
 var searchData=
 [
-  ['elementwise_5fop_5fbroadcast_5ftest',['elementwise_op_broadcast_test',['../namespaceelementwise__op__broadcast__test.html',1,'']]],
-  ['elementwise_5fops_5ftest',['elementwise_ops_test',['../namespaceelementwise__ops__test.html',1,'']]],
   ['elementwisertcop',['ElementwiseRTCOp',['../classcaffe2_1_1ElementwiseRTCOp.html',1,'caffe2']]],
-  ['emptysample_5fops_5ftest',['emptysample_ops_test',['../namespaceemptysample__ops__test.html',1,'']]],
   ['enforcefailmessage',['EnforceFailMessage',['../classcaffe2_1_1enforce__detail_1_1EnforceFailMessage.html',1,'caffe2::enforce_detail']]],
   ['enforcenotmet',['EnforceNotMet',['../classcaffe2_1_1EnforceNotMet.html',1,'caffe2']]],
   ['enforceok',['EnforceOK',['../structcaffe2_1_1enforce__detail_1_1EnforceOK.html',1,'caffe2::enforce_detail']]],
@@ -17,10 +14,9 @@ var searchData=
   ['expanddims',['ExpandDims',['../classlayers_1_1expand__dims_1_1ExpandDims.html',1,'layers::expand_dims']]],
   ['experiment_5futil',['experiment_util',['../namespaceexperiment__util.html',1,'']]],
   ['exportedstat',['ExportedStat',['../classcaffe2_1_1ExportedStat.html',1,'caffe2']]],
-  ['exportedstatlist',['ExportedStatList',['../namespacecaffe2.html#a3711911ae0651cd752086931342f43d9',1,'caffe2']]],
+  ['exportedstatlist',['ExportedStatList',['../namespacecaffe2.html#a8eb1578901c4027246db0d3e46305c7f',1,'caffe2']]],
   ['exportedstatvalue',['ExportedStatValue',['../structcaffe2_1_1ExportedStatValue.html',1,'caffe2']]],
   ['extend',['Extend',['../classcaffe2_1_1Tensor.html#a4a93b6abb4ec0d8a4ba9451928d57cd5',1,'caffe2::Tensor']]],
-  ['extend_5ftensor_5fop_5ftest',['extend_tensor_op_test',['../namespaceextend__tensor__op__test.html',1,'']]],
   ['extension_5floader',['extension_loader',['../namespaceextension__loader.html',1,'']]],
   ['externallogger',['ExternalLogger',['../classexperiment__util_1_1ExternalLogger.html',1,'experiment_util']]],
   ['extractpredictornet',['ExtractPredictorNet',['../namespacedata__parallel__model.html#a4c4bd80dfa3243526cb86c75e817b0b0',1,'data_parallel_model.ExtractPredictorNet()'],['../namespacemodel__helper.html#a12d7c876a323b057b0279cfd2b8e18fc',1,'model_helper.ExtractPredictorNet()']]]

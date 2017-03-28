@@ -8,7 +8,6 @@ var searchData=
   ['import_5frecursive',['import_recursive',['../namespacelayers.html#a4977a0a58b25726151fe2c5c40ccc1b9',1,'layers']]],
   ['infershapesandtypes',['InferShapesAndTypes',['../namespaceworkspace.html#a161df004b093325ff4c6302d2bdcf66a',1,'workspace']]],
   ['infertensor',['InferTensor',['../classcaffe2_1_1OpSchema.html#a78158f2fb93f3ccc55598faf0c100d73',1,'caffe2::OpSchema']]],
-  ['infertensorrunandcompare',['InferTensorRunAndCompare',['../classshape__inference__test_1_1TestShapeInference.html#a5004109b0e3d72d672b759827a289dca',1,'shape_inference_test::TestShapeInference']]],
   ['init',['init',['../classcheckpoint_1_1CheckpointManager.html#a589fc2e02123b4245fc1321aa7c3c1db',1,'checkpoint::CheckpointManager']]],
   ['init_5fempty',['init_empty',['../classdataset_1_1Dataset.html#ab3465dcbe1e2fd4c51294e814d6a1e0d',1,'dataset::Dataset']]],
   ['init_5ffrom_5fdataframe',['init_from_dataframe',['../classdataset_1_1Dataset.html#a9fb8b5d289d586f1e8c5e565b7a362a2',1,'dataset::Dataset']]],

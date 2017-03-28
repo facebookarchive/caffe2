@@ -25,12 +25,10 @@ var searchData=
   ['rnn_5fbidirectional_5fencoder',['rnn_bidirectional_encoder',['../namespaceseq2seq__util.html#a58bcd66ae9adf845974cf853c7ca529f',1,'seq2seq_util']]],
   ['rnn_5funidirectional_5fencoder',['rnn_unidirectional_encoder',['../namespaceseq2seq__util.html#ae976344ca3aac3e9b7134e07f0a17306',1,'seq2seq_util']]],
   ['rootfolder',['RootFolder',['../classcaffe2_1_1Workspace.html#a2d62f3cb10bc581e9eab50755df72b9b',1,'caffe2::Workspace']]],
-  ['run_5fmodel',['run_model',['../classdata__parallel__model__test_1_1GPUDataParallelModelTest.html#a4f9edec74587155d8f5c03bd26961ce1',1,'data_parallel_model_test.GPUDataParallelModelTest.run_model()'],['../classdata__parallel__model__test_1_1RecurrentNetworkParallelTest.html#a0c4fcc26efbe2f73b9ca77accce8a726',1,'data_parallel_model_test.RecurrentNetworkParallelTest.run_model()'],['../classdata__parallel__model__test_1_1SparseDataParallelModelTest.html#a3d91280738288ad97d73a3de7a6aa163',1,'data_parallel_model_test.SparseDataParallelModelTest.run_model()']]],
   ['runallongpu',['RunAllOnGPU',['../classcore_1_1Net.html#a3fa040cf7337c4a818925dd83d32d2cf',1,'core::Net']]],
   ['runepoch',['RunEpoch',['../namespaceresnet50__trainer.html#a21dba481c473d02110409171d74e575b',1,'resnet50_trainer']]],
   ['runeverymillis',['RunEveryMillis',['../classcore_1_1ExecutionStep.html#a24f3ba35a5014a9df0c6dc26da86778c',1,'core::ExecutionStep']]],
   ['runnet',['RunNet',['../classcaffe2_1_1Workspace.html#ad3397195de6959369706722a9bfb5a59',1,'caffe2::Workspace::RunNet()'],['../namespaceworkspace.html#ad3c286000405bc3f9c1030ccfdf71a11',1,'workspace.RunNet()']]],
-  ['runningallreducewithgpus',['RunningAllreduceWithGPUs',['../classmuji__test_1_1TestMuji.html#aae0ded1927bc456784e54ee715701871',1,'muji_test::TestMuji']]],
   ['runplan',['RunPlan',['../classcaffe2_1_1Workspace.html#abac16fc4557c8fa9cd06482809ec7b99',1,'caffe2::Workspace']]],
   ['runtask',['runTask',['../classTaskThreadPool.html#a99f4b9328ae0bd443f1e43a58fef159f',1,'TaskThreadPool']]]
 ];

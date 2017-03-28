@@ -11,7 +11,6 @@ var searchData=
   ['resizelike',['ResizeLike',['../classcaffe2_1_1Tensor.html#a0fea6dc59769e210503512dae094c4bd',1,'caffe2::Tensor']]],
   ['rootfolder',['RootFolder',['../classcaffe2_1_1Workspace.html#a2d62f3cb10bc581e9eab50755df72b9b',1,'caffe2::Workspace']]],
   ['runnet',['RunNet',['../classcaffe2_1_1Workspace.html#ad3397195de6959369706722a9bfb5a59',1,'caffe2::Workspace']]],
-  ['runondevice',['RunOnDevice',['../classcaffe2_1_1TileOp.html#a4d8945f1b41db7eff4152f34070a7971',1,'caffe2::TileOp::RunOnDevice()'],['../classcaffe2_1_1TileGradientOp.html#ac064cc3180625c34c03d87b436cc2148',1,'caffe2::TileGradientOp::RunOnDevice()']]],
   ['runplan',['RunPlan',['../classcaffe2_1_1Workspace.html#abac16fc4557c8fa9cd06482809ec7b99',1,'caffe2::Workspace']]],
   ['runtask',['runTask',['../classTaskThreadPool.html#a99f4b9328ae0bd443f1e43a58fef159f',1,'TaskThreadPool']]]
 ];

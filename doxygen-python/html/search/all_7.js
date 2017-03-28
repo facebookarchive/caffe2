@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['gather_5fops_5ftest',['gather_ops_test',['../namespacegather__ops__test.html',1,'']]],
-  ['gather_5franges_5fop_5ftest',['gather_ranges_op_test',['../namespacegather__ranges__op__test.html',1,'']]],
   ['generate_5fdata',['generate_data',['../namespacelstm__benchmark.html#a0bdac09245d21b338d6c328f1514673e',1,'lstm_benchmark']]],
   ['generator',['generator',['../namespacegenerator.html',1,'']]],
   ['get',['Get',['../classcaffe2_1_1Blob.html#a8e0cd2bca6037a1acf21fa47f1d218b2',1,'caffe2::Blob::Get()'],['../classcaffe2_1_1GradientMakerBase.html#a0dec1b9b1b97388596837fc72c234a8c',1,'caffe2::GradientMakerBase::Get()'],['../structcaffe2_1_1ThrowInTheTowelIfGradientIsCalled.html#aa934e3fb73afa73e74635707ebd34bc8',1,'caffe2::ThrowInTheTowelIfGradientIsCalled::Get()'],['../structcaffe2_1_1GradientNotImplementedYet.html#a5e6c20d2a365aa77727c44f9c9c60852',1,'caffe2::GradientNotImplementedYet::Get()'],['../classcaffe2_1_1StatRegistry.html#a93172616b2c09828f0183c7c1f162eaa',1,'caffe2::StatRegistry::get()'],['../classschema_1_1Scalar.html#a790d0e4ea9edd8b32e2d8b8977b85e5e',1,'schema.Scalar.get()']]],
@@ -15,7 +13,6 @@ var searchData=
   ['get_5fpatch_5fshape',['get_patch_shape',['../classvisualize_1_1PatchVisualizer.html#af7eda3eaa678f397485f549cb540b600',1,'visualize::PatchVisualizer']]],
   ['get_5fpython_5fcmake_5fflags',['get_python_cmake_flags',['../namespaceget__python__cmake__flags.html',1,'']]],
   ['get_5fssa',['get_ssa',['../namespacecore.html#a0b214cc9ec83086e82d98f06294c2a40',1,'core']]],
-  ['get_5ftraining_5fnets',['get_training_nets',['../classlayers__test_1_1TestLayers.html#ac5c01d29fc01619ee6017238ffeb33cf',1,'layers_test::TestLayers']]],
   ['get_5fundefined_5fblobs',['get_undefined_blobs',['../namespacecore.html#a7fb79f59cfd6282bbe6783460c9ba136',1,'core']]],
   ['getbackwardpass',['GetBackwardPass',['../classcore_1_1IR.html#af64e8de2e61caa941bccf6dfb1ecfb76',1,'core.IR.GetBackwardPass()'],['../classcore_1_1GradientRegistry.html#a706fc62ec597b5e6c49569f9cb68bfe7',1,'core.GradientRegistry.GetBackwardPass()']]],
   ['getblob',['GetBlob',['../classcaffe2_1_1Workspace.html#a06ff8e7f4c6487e7fb1aa948ffaadb22',1,'caffe2::Workspace::GetBlob(const string &amp;name) const'],['../classcaffe2_1_1Workspace.html#a5ace110b4af72d7be5db1a483688c344',1,'caffe2::Workspace::GetBlob(const string &amp;name)']]],
@@ -46,15 +43,11 @@ var searchData=
   ['ghopdocuploader',['GHOpDocUploader',['../classgithub_1_1GHOpDocUploader.html',1,'github']]],
   ['ghoperatordoc',['GHOperatorDoc',['../classgithub_1_1GHOperatorDoc.html',1,'github']]],
   ['ghoperatorengine',['GHOperatorEngine',['../classgithub_1_1GHOperatorEngine.html',1,'github']]],
-  ['gis',['GIS',['../namespacecore__gradients__test.html#a6176f825ffc220087bd43b57610152c3',1,'core_gradients_test']]],
   ['github',['github',['../namespacegithub.html',1,'']]],
-  ['given_5ftensor_5ffill_5fop_5ftest',['given_tensor_fill_op_test',['../namespacegiven__tensor__fill__op__test.html',1,'']]],
   ['globalcoordinator',['GlobalCoordinator',['../classdata__workers_1_1GlobalCoordinator.html',1,'data_workers']]],
   ['globalinit',['GlobalInit',['../namespacecaffe2.html#af70b04a01a1779ddd61f9ef1e0a141b7',1,'caffe2']]],
   ['globalmpicomm',['GlobalMPIComm',['../namespacecaffe2.html#aca313bd69abda6cc82792348e1d64cc1',1,'caffe2']]],
-  ['gpudataparallelmodeltest',['GPUDataParallelModelTest',['../classdata__parallel__model__test_1_1GPUDataParallelModelTest.html',1,'data_parallel_model_test']]],
   ['gpuexecutor',['GPUExecutor',['../classcaffe2_1_1gpu__single__thread_1_1GPUExecutor.html',1,'caffe2::gpu_single_thread']]],
-  ['gradient_5fcheck_5ftest',['gradient_check_test',['../namespacegradient__check__test.html',1,'']]],
   ['gradient_5fchecker',['gradient_checker',['../namespacegradient__checker.html',1,'']]],
   ['gradientchecker',['GradientChecker',['../classgradient__checker_1_1GradientChecker.html',1,'gradient_checker']]],
   ['gradientmakerbase',['GradientMakerBase',['../classcaffe2_1_1GradientMakerBase.html',1,'caffe2']]],
@@ -62,7 +55,6 @@ var searchData=
   ['gradientopsmeta',['GradientOpsMeta',['../structcaffe2_1_1GradientOpsMeta.html',1,'caffe2']]],
   ['gradientregistry',['GradientRegistry',['../classcore_1_1GradientRegistry.html',1,'core']]],
   ['gradientwrapper',['GradientWrapper',['../structcaffe2_1_1GradientWrapper.html',1,'caffe2']]],
-  ['group_5fconv_5ftest',['group_conv_test',['../namespacegroup__conv__test.html',1,'']]],
   ['groupconv',['GroupConv',['../classcnn_1_1CNNModelHelper.html#a782f95f79b7c969c6af16d5d1ccb2e85',1,'cnn::CNNModelHelper']]],
   ['groupconv_5fdeprecated',['GroupConv_Deprecated',['../classcnn_1_1CNNModelHelper.html#a960e96e236c0c5a451e3dd8f18154588',1,'cnn::CNNModelHelper']]]
 ];

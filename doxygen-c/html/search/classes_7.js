@@ -1,10 +1,5 @@
 var searchData=
 [
-  ['halftofloatop',['HalfToFloatOp',['../classcaffe2_1_1HalfToFloatOp.html',1,'caffe2']]],
-  ['haselementsop',['HasElementsOp',['../classcaffe2_1_1HasElementsOp.html',1,'caffe2']]],
-  ['hsoftmaxgradientop',['HSoftmaxGradientOp',['../classcaffe2_1_1HSoftmaxGradientOp.html',1,'caffe2']]],
-  ['hsoftmaxop',['HSoftmaxOp',['../classcaffe2_1_1HSoftmaxOp.html',1,'caffe2']]],
-  ['hsoftmaxopbase',['HSoftmaxOpBase',['../classcaffe2_1_1HSoftmaxOpBase.html',1,'caffe2']]],
-  ['hsoftmaxsearchop',['HSoftmaxSearchOp',['../classcaffe2_1_1HSoftmaxSearchOp.html',1,'caffe2']]],
-  ['huffmantreehierarchyop',['HuffmanTreeHierarchyOp',['../classcaffe2_1_1HuffmanTreeHierarchyOp.html',1,'caffe2']]]
+  ['initregisterer',['InitRegisterer',['../classcaffe2_1_1InitRegisterer.html',1,'caffe2']]],
+  ['is_5ffundamental_3c_20caffe2_3a_3a_5f_5ff16_20_3e',['is_fundamental&lt; caffe2::__f16 &gt;',['../structstd_1_1is__fundamental_3_01caffe2_1_1____f16_01_4.html',1,'std']]]
 ];

@@ -3,7 +3,6 @@ var searchData=
   ['markdown',['Markdown',['../classformatter_1_1Markdown.html',1,'formatter']]],
   ['maxpoolgradientrtcop',['MaxPoolGradientRTCOp',['../classcaffe2_1_1MaxPoolGradientRTCOp.html',1,'caffe2']]],
   ['maxpoolrtcop',['MaxPoolRTCOp',['../classcaffe2_1_1MaxPoolRTCOp.html',1,'caffe2']]],
-  ['memongertest',['MemongerTest',['../classmemonger__test_1_1MemongerTest.html',1,'memonger_test']]],
   ['memoryallocationreporter',['MemoryAllocationReporter',['../classcaffe2_1_1MemoryAllocationReporter.html',1,'caffe2']]],
   ['messagelogger',['MessageLogger',['../classcaffe2_1_1MessageLogger.html',1,'caffe2']]],
   ['metadata',['Metadata',['../classschema_1_1Metadata.html',1,'schema']]],
@@ -11,7 +10,6 @@ var searchData=
   ['minidbcursor',['MiniDBCursor',['../classcaffe2_1_1db_1_1MiniDBCursor.html',1,'caffe2::db']]],
   ['minidbtransaction',['MiniDBTransaction',['../classcaffe2_1_1db_1_1MiniDBTransaction.html',1,'caffe2::db']]],
   ['mklcontext',['MKLContext',['../classcaffe2_1_1MKLContext.html',1,'caffe2']]],
-  ['mklconvtest',['MKLConvTest',['../classmkl__conv__op__test_1_1MKLConvTest.html',1,'mkl_conv_op_test']]],
   ['mklfallbackop',['MKLFallbackOp',['../classcaffe2_1_1MKLFallbackOp.html',1,'caffe2']]],
   ['mklmemory',['MKLMemory',['../classcaffe2_1_1mkl_1_1MKLMemory.html',1,'caffe2::mkl']]],
   ['mkloperator',['MKLOperator',['../classcaffe2_1_1mkl_1_1MKLOperator.html',1,'caffe2::mkl']]],
@@ -29,6 +27,5 @@ var searchData=
   ['mpireceivetensorop',['MPIReceiveTensorOp',['../classcaffe2_1_1MPIReceiveTensorOp.html',1,'caffe2']]],
   ['mpireduceop',['MPIReduceOp',['../classcaffe2_1_1MPIReduceOp.html',1,'caffe2']]],
   ['mpisendtensorop',['MPISendTensorOp',['../classcaffe2_1_1MPISendTensorOp.html',1,'caffe2']]],
-  ['multinodecheckpointmanager',['MultiNodeCheckpointManager',['../classcheckpoint_1_1MultiNodeCheckpointManager.html',1,'checkpoint']]],
-  ['mycontext',['MyContext',['../classcontext__test_1_1MyContext.html',1,'context_test']]]
+  ['multinodecheckpointmanager',['MultiNodeCheckpointManager',['../classcheckpoint_1_1MultiNodeCheckpointManager.html',1,'checkpoint']]]
 ];

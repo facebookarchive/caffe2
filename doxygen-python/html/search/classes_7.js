@@ -8,7 +8,6 @@ var searchData=
   ['ghoperatordoc',['GHOperatorDoc',['../classgithub_1_1GHOperatorDoc.html',1,'github']]],
   ['ghoperatorengine',['GHOperatorEngine',['../classgithub_1_1GHOperatorEngine.html',1,'github']]],
   ['globalcoordinator',['GlobalCoordinator',['../classdata__workers_1_1GlobalCoordinator.html',1,'data_workers']]],
-  ['gpudataparallelmodeltest',['GPUDataParallelModelTest',['../classdata__parallel__model__test_1_1GPUDataParallelModelTest.html',1,'data_parallel_model_test']]],
   ['gpuexecutor',['GPUExecutor',['../classcaffe2_1_1gpu__single__thread_1_1GPUExecutor.html',1,'caffe2::gpu_single_thread']]],
   ['gradientchecker',['GradientChecker',['../classgradient__checker_1_1GradientChecker.html',1,'gradient_checker']]],
   ['gradientmakerbase',['GradientMakerBase',['../classcaffe2_1_1GradientMakerBase.html',1,'caffe2']]],

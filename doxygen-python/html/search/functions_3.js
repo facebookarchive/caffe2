@@ -7,8 +7,6 @@ var searchData=
   ['channellast',['ChannelLast',['../namespacevisualize.html#ac872d14e12139793afd35604742bb16f',1,'visualize']]],
   ['checkgradientoperatorinput',['CheckGradientOperatorInput',['../classcore_1_1IR.html#a9c8ef53797f3a0601e7d741927851122',1,'core::IR']]],
   ['checknet',['CheckNet',['../classdevice__checker_1_1DeviceChecker.html#ab1801eb71622ecc86b8d1d31ff8dc237',1,'device_checker::DeviceChecker']]],
-  ['checknetalloutput',['CheckNetAllOutput',['../classcontrol__test_1_1TestControl.html#af2e39a7bc0865e8cbb52013fb6a2af8e',1,'control_test::TestControl']]],
-  ['checknetoutput',['CheckNetOutput',['../classcontrol__test_1_1TestControl.html#a967c71a611252d551a91dd95bcae834b',1,'control_test::TestControl']]],
   ['checksimple',['CheckSimple',['../classdevice__checker_1_1DeviceChecker.html#ab9c002843e4f4e76f65a84fc45f8a990',1,'device_checker.DeviceChecker.CheckSimple()'],['../classgradient__checker_1_1GradientChecker.html#ab4d8baef0e381a6fc72af61c4aa90981',1,'gradient_checker.GradientChecker.CheckSimple()']]],
   ['clone',['Clone',['../classcore_1_1Net.html#a3281e3cc6f095229c7863fcd6c62fd3f',1,'core.Net.Clone()'],['../classschema_1_1Field.html#a4b13f579a08faffe21326039a3ff824a',1,'schema.Field.clone()']]],
   ['clone_5fand_5fbind_5fnet',['clone_and_bind_net',['../namespacecore.html#a7d28f8216c9e520e484e61570a6666e1',1,'core']]],

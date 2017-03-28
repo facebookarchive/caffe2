@@ -2,7 +2,6 @@ var searchData=
 [
   ['fc',['FC',['../classlayers_1_1fc_1_1FC.html',1,'layers.fc.FC'],['../namespacefc.html',1,'fc']]],
   ['fc_5fdecomp',['FC_Decomp',['../classcnn_1_1CNNModelHelper.html#ab23c26f2acbec7347e685b304668e98e',1,'cnn::CNNModelHelper']]],
-  ['fc_5foperator_5ftest',['fc_operator_test',['../namespacefc__operator__test.html',1,'']]],
   ['fc_5fprune',['FC_Prune',['../classcnn_1_1CNNModelHelper.html#a1d693db1d1adcae7543ae13ef02b2528',1,'cnn::CNNModelHelper']]],
   ['fc_5fsparse',['FC_Sparse',['../classcnn_1_1CNNModelHelper.html#aeb7d743e67e77dc9529fded01fbfcae8',1,'cnn::CNNModelHelper']]],
   ['fc_5fwithout_5fbias',['fc_without_bias',['../namespacefc__without__bias.html',1,'']]],
@@ -19,10 +18,8 @@ var searchData=
   ['field_5fnames',['field_names',['../classdataset_1_1Dataset.html#a5724593b268669c7241f0571bd42fba4',1,'dataset.Dataset.field_names()'],['../classschema_1_1Field.html#a6b7a67ab9bb9f02dfc1877e6b02e229f',1,'schema.Field.field_names()']]],
   ['field_5ftypes',['field_types',['../classdataset_1_1Dataset.html#a8dd6065c197fd9c80d6e4eda8845ab6c',1,'dataset.Dataset.field_types()'],['../classschema_1_1Field.html#a85561b85e58a598fce0ec338d433d487',1,'schema.Field.field_types()']]],
   ['file',['file',['../classcaffe2_1_1OpSchema.html#aa463ba826de1a266d647aca6a830d7ee',1,'caffe2::OpSchema']]],
-  ['file_5fstore_5fhandler_5fop_5ftest',['file_store_handler_op_test',['../namespacefile__store__handler__op__test.html',1,'']]],
   ['filestorehandler',['FileStoreHandler',['../classcaffe2_1_1FileStoreHandler.html',1,'caffe2']]],
   ['filestorehandlercreateop',['FileStoreHandlerCreateOp',['../classcaffe2_1_1FileStoreHandlerCreateOp.html',1,'caffe2']]],
-  ['filler_5fops_5ftest',['filler_ops_test',['../namespacefiller__ops__test.html',1,'']]],
   ['final_5foutput',['final_output',['../namespacetask.html#a6f12acd781b20917edab0ad97a69c1c6',1,'task']]],
   ['fixeddivisor',['FixedDivisor',['../classcaffe2_1_1FixedDivisor.html',1,'caffe2']]],
   ['fixeddivisor_3c_20int32_5ft_20_3e',['FixedDivisor&lt; int32_t &gt;',['../classcaffe2_1_1FixedDivisor_3_01int32__t_01_4.html',1,'caffe2']]],
@@ -41,7 +38,6 @@ var searchData=
   ['fullyconnectedprunegradientop',['FullyConnectedPruneGradientOp',['../classcaffe2_1_1FullyConnectedPruneGradientOp.html',1,'caffe2']]],
   ['func',['Func',['../structcaffe2_1_1python_1_1python__detail_1_1Func.html',1,'caffe2::python::python_detail']]],
   ['functional',['Functional',['../classlayers_1_1functional_1_1Functional.html',1,'layers.functional.Functional'],['../namespacefunctional.html',1,'functional']]],
-  ['funhash_5fop_5ftest',['funhash_op_test',['../namespacefunhash__op__test.html',1,'']]],
   ['funhashgradientop',['FunHashGradientOp',['../classcaffe2_1_1FunHashGradientOp.html',1,'caffe2']]],
   ['funhashop',['FunHashOp',['../classcaffe2_1_1FunHashOp.html',1,'caffe2']]]
 ];

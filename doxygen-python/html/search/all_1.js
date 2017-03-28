@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['activation_5fops_5ftest',['activation_ops_test',['../namespaceactivation__ops__test.html',1,'']]],
   ['adagradoptimizer',['AdagradOptimizer',['../classoptimizer_1_1AdagradOptimizer.html',1,'optimizer']]],
   ['adamoptimizer',['AdamOptimizer',['../classoptimizer_1_1AdamOptimizer.html',1,'optimizer']]],
   ['add',['add',['../classcaffe2_1_1StatRegistry.html#afb8511c240761776463076b75bd67aba',1,'caffe2::StatRegistry']]],
@@ -27,13 +26,10 @@ var searchData=
   ['analyzer',['Analyzer',['../classnet__printer_1_1Analyzer.html',1,'net_printer']]],
   ['app',['app',['../namespaceapp.html',1,'']]],
   ['argumenthelper',['ArgumentHelper',['../classcaffe2_1_1ArgumentHelper.html',1,'caffe2']]],
-  ['assertblobsequal',['assertBlobsEqual',['../classlayers__test_1_1TestLayers.html#a2ce9347880f020ab7d8db6e230f0b458',1,'layers_test::TestLayers']]],
   ['assertdevicechecks',['assertDeviceChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a8e5a5ea6c1ca06b2ee50a56d10b0a0d5',1,'hypothesis_test_util::HypothesisTestCase']]],
   ['assertgradientchecks',['assertGradientChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a898f5288da927a19f596ec212e065017',1,'hypothesis_test_util::HypothesisTestCase']]],
-  ['assertnetcontainops',['assertNetContainOps',['../classlayers__test_1_1TestLayers.html#a343d0bbcd6ebfcc8eb934d0742a03067',1,'layers_test::TestLayers']]],
   ['assertreferencechecks',['assertReferenceChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a26430279848a5a6689f63432979bd61a',1,'hypothesis_test_util::HypothesisTestCase']]],
   ['asyncdagnet',['AsyncDAGNet',['../classcaffe2_1_1AsyncDAGNet.html',1,'caffe2']]],
-  ['atomic_5fops_5ftest',['atomic_ops_test',['../namespaceatomic__ops__test.html',1,'']]],
   ['attention',['attention',['../namespaceattention.html',1,'']]],
   ['attentiontype',['AttentionType',['../classattention_1_1AttentionType.html',1,'attention']]],
   ['averagepool',['AveragePool',['../classcnn_1_1CNNModelHelper.html#ace33e54a068d5a9ec66d47ae874f3e34',1,'cnn::CNNModelHelper']]],
