@@ -2189,7 +2189,7 @@ class TestOperators(hu.HypothesisTestCase):
     @given(N=st.integers(min_value=10, max_value=100),
            M=st.integers(min_value=2, max_value=10),
            num_buckets=st.integers(min_value=1, max_value=5),
-           **hu.gcs)
+           **hu.gcs_cpu_only)
     def test_accumulate_histogram_op(self, N, M, num_buckets, gc, dc):
         X = np.random.rand(N, M).astype(np.float32)
         lower_bound, upper_bound = 0.1, 0.9
