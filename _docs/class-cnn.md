@@ -6,7 +6,8 @@ permalink: /docs/cnn.html
 ---
 
 ## CNNModelHelper
-**Code:** [cnn.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/cnn.py)
+**Code:** [cnn.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/cnn.py) 
+| **API Docs:** [cnn.CNNModelHelper](/doxygen-python/html/classcnn_1_1CNNModelHelper.html)
 
 `CNNModelHelper` is a helper class so you can write CNN models more easily, without having to manually define parameter initializations and operators separately. You will find many built-in helper functions as well as automatic support for a collection of operators that are listed below.
 
