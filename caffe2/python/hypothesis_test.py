@@ -2173,7 +2173,7 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertGradientChecks(gc, op, [X, Y], 1, [0])
 
     @given(N=st.integers(min_value=2, max_value=10),
-           M=st.integers(min_value=2, max_value=10), **hu.gcs)
+           M=st.integers(min_value=2, max_value=10), **hu.gcs_cpu_only)
     def test_ensure_dense(self, N, M, gc, dc):
         # in place
         X = np.random.rand(N, M).astype(np.float32) - 0.5
