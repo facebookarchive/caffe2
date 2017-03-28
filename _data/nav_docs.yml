@@ -22,6 +22,7 @@
   - id: tutorial-6
   - id: tutorial-7
   - id: AI-Camera-demo-android
+  - id: sync-sgd
 - title: Reference
   items:
   - id: operators-catalogue
