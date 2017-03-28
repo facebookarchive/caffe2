@@ -18,13 +18,14 @@
 
 .homeContainer {
   .button {
+    background: $homeContainer-button-color;
     border-color: $homeContainer-button-color;
     border-width: 1px;
-    color: $homeContainer-button-color;
+    color: $homeContainer-button-text-color;
 
     &:hover {
-      background: $homeContainer-button-color;
-      color: $primary-bg;
+      background: $homeContainer-button-text-color;
+      color: $homeContainer-button-color;
     }
   }
 }

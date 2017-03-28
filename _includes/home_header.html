@@ -2,7 +2,9 @@
   <div class="homeSplashFade">
     <div id="home_wrap" class="wrapper homeWrapper">
       <div id="inner">
-        <h2 id="project_tagline">{{ site.tagline }}</h2>
+        <div>
+        <img class="projectLogo" height="75px" src="{{ '/static/logo.svg' | relative_url }}" alt="{{ site.title }}" title="{{ site.title }}" />
+        <h2 id="project_tagline">{{ site.tagline }}</h2></div>
         <section id="intro">
             {% if page.excerpt %}
               <p>{{ page.excerpt | strip_html }}</p>

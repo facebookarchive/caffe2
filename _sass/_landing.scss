@@ -1,0 +1,238 @@
+@import "mixins";
+
+$describe-background: #25376B;
+$describe-h2-color: #33ECC3;
+$describe-h3-color: #fff;
+$describe-h4-color: #A2FFEB;
+$describe-p-color: #fff;
+
+$zoo-background: #F0F8FB;
+$zoo-h2-color: #000;
+$zoo-p-color: #000;
+
+$applications-background: #FFF;
+$applications-h2-color: #0080B8;
+$applications-p-color: #000;
+$applications-h4-color: #64B1D3;
+$applications-button-color: #A2FFEB;
+$applications-button-text-color: #25376B;
+
+.landing-container {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 970px !important;
+}
+
+.landing-row {
+  margin-right: -15px;
+  margin-left: -15px;
+  padding-top: 20px;
+  box-sizing: border-box;
+}
+
+.landing-container:before, .landing-row:before {
+  display: table;
+  content: " ";
+  box-sizing: border-box;
+}
+
+.landing-container:after, .landing-row:after {
+  display: table;
+  content: " ";
+  clear: both;
+}
+
+.landing-col-md-2 {
+  position: relative;
+  min-height: 1px;
+  box-sizing: border-box;
+}
+
+.landing-col-md-3 {
+  position: relative;
+  min-height: 1px;
+  box-sizing: border-box;
+}
+
+.landing-describe {
+  background-color: $describe-background;
+  padding: 40px 0 20px;
+  box-sizing: border-box;
+  display: block;
+
+  h2 {
+    font-size: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: $describe-h2-color;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+    color: $describe-h3-color;
+  }
+
+  h4 {
+    font-size: 17px;
+    margin-bottom: 45px;
+    color: $describe-h4-color;
+  }
+
+  p {
+    font-size: 16px;
+    text-align: center;
+    color: $describe-p-color;
+  }
+
+  .box {
+    text-align: center;
+    padding: 10px 0;
+    margin-bottom: 70px;
+
+    img {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 35px;
+      @include opacity(0.5);
+    }
+
+    &:first-child {
+        border-right: 1px solid #d9d9d9;
+    }
+  }
+}
+
+.landing-zoo {
+  background-color: $zoo-background;
+  padding: 40px 0 20px;
+  box-sizing: border-box;
+  display: block;
+  text-align: center;
+
+  h2 {
+    font-size: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: $zoo-h2-color;
+    padding-top: 20px;
+  }
+
+  p {
+    font-size: 16px;
+    text-align: center;
+    color: $zoo-p-color;
+    padding-bottom: 25px;
+  }
+
+  .button {
+    background: $homeContainer-button-color;
+    border-color: $homeContainer-button-color;
+    border-width: 1px;
+    color: $homeContainer-button-text-color;
+
+    &:hover {
+      background: $homeContainer-button-text-color;
+      color: $homeContainer-button-color;
+    }
+  }
+}
+
+.landing-applications {
+  background-color: $applications-background;
+  padding: 80px 0 20px;
+  box-sizing: border-box;
+  display: block;
+
+  h2 {
+    font-size: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: $applications-h2-color;
+  }
+
+  h4 {
+    font-size: 17px;
+    margin-bottom: 15px;
+    color: $applications-h4-color;
+  }
+
+  p {
+    padding-top: 30px;
+    font-size: 16px;
+    text-align: center;
+    color: $applications-p-color;
+  }
+
+  .box {
+    text-align: center;
+    padding: 20px 0;
+    margin-bottom: 20px;
+
+    img {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 35px;
+    }
+  }
+
+  .buttonWrapper {
+    text-align: center;
+  }
+  .button {
+    background: $applications-button-color;
+    border-color: $applications-button-color;
+    border-width: 1px;
+    color: $applications-button-text-color;
+
+    &:hover {
+      background: $applications-button-text-color;
+      color: $applications-button-color;
+    }
+  }
+}
+
+@media only screen and (max-width: 991px) {
+  .landing-container {
+    h2 {
+      font-size: 25px !important;
+    }
+
+    p {
+      font-size: 14px !important;
+    }
+  }
+
+  .landing-row {
+    margin: 0 !important;
+  }
+}
+
+@media only screen and (min-width: 992px) {
+  .landing-container {
+    width: 970px;
+  }
+
+  .landing-col-md-2 {
+    float: left;
+    width: 50%;
+  }
+
+  .landing-col-md-3 {
+    float: left;
+    width: 33%;
+  }
+
+  .landing-describe {
+    .box {
+      &.what {
+        padding: 10px 40px 0 0;
+      }
+
+      &.how {
+        padding: 10px 0 0 40px;
+      }
+    }
+  }
+}
