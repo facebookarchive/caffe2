@@ -61,16 +61,20 @@ $gridBlockWrapper-background: #f9f9f9;
 $gridBlockWrapper-alternate-background: #e9e9e9;
 
 // Custom colors
-$homeContainer-button-color: #99424f;
-$homeContainer-text-color: #99424f;
-$fixedHeader-background-color: #a67b5b; // coffee
-$fixedHeader-link-color: #fff;
+$homeContainer-button-color: #25376B;
+$homeContainer-button-text-color: #A2FFEB;
+$homeContainer-tagline-color: #303846;
+$homeContainer-text-color: #0080B8;
+$homeContainer-background-color: #F0F8FB;
+$fixedHeader-background-color: #F0F8FB;
+$fixedHeader-link-color: #64B1D3;
 $primary-link-color: #a67b5b; // coffee
 $primary-link-hover-color: #4d4d4d;
 $primary-footer-color: #a67b5b; // coffee
 $fixedHeader-project-name-color: #191919;
-$search-magnifier-color: #ccc;
+$search-magnifier-color: #64B1D3;
 $search-box-color: #fff;
+$search-default-text-color: #64B1D3;
 $search-suggestion-color: #a67b5b; // coffee
 $toggler-button-selected: #a67b5b; // coffee
 $toggler-button-text: #99424f;
@@ -148,7 +152,8 @@ $green: #97dccf;
   "react_docs_nav",
   "blog",
   "tables",
-  "toggler"
+  "toggler",
+  "landing"
 ;
 
 
@@ -188,4 +193,3 @@ h6:hover .header-link {
   border-radius: 4px;
   outline:none;
 }
-
