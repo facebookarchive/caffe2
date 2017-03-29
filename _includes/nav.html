@@ -9,7 +9,7 @@
         <nav class="navigation">
           <ul>
             {% for item in site.data.nav %}
-              <li class="navItem{% if page.collection == item.category or page.category == item.category %} navItemActive{% endif %}">
+              <li class="navItem">
                 {% if item.category == "external" %}
                   <a href="{{ item.href }}">{{ item.title }}</a>
                 {% else %}

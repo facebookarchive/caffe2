@@ -66,23 +66,24 @@ $homeContainer-button-text-color: #A2FFEB;
 $homeContainer-tagline-color: #303846;
 $homeContainer-text-color: #0080B8;
 $homeContainer-background-color: #F0F8FB;
+$homeContainer-top-border-color: #A0CFE4;
 $fixedHeader-background-color: #F0F8FB;
 $fixedHeader-link-color: #64B1D3;
-$primary-link-color: #a67b5b; // coffee
+$primary-link-color: #64B1D3;
 $primary-link-hover-color: #4d4d4d;
-$primary-footer-color: #a67b5b; // coffee
+$primary-footer-color: #64B1D3;
 $fixedHeader-project-name-color: #191919;
 $search-magnifier-color: #64B1D3;
 $search-box-color: #fff;
 $search-default-text-color: #64B1D3;
-$search-suggestion-color: #a67b5b; // coffee
-$toggler-button-selected: #a67b5b; // coffee
+$search-suggestion-color: #64B1D3;
+$toggler-button-selected: #64B1D3;
 $toggler-button-text: #99424f;
 $code-background: #e9e9e9;
-$code-gutter-color: #a67b5b;
-$code-text-general: #a67b5b; // coffee
-$toggler-type-text: #a67b5b; // coffee
-$sliding-nav-background: #a67b5b; // coffee
+$code-gutter-color: #64B1D3;
+$code-text-general: #000000;
+$toggler-type-text: #64B1D3;
+$sliding-nav-background: #64B1D3;
 
 // $primary-bg overlays
 {% if site.color.primary-overlay == 'light' %}

@@ -70,37 +70,39 @@ h1, h2, h3, h4 {
   .homeWrapper {
     padding: 3em 10px;
     text-align: center;
+    border-top: 10px solid;
+    border-color: $homeContainer-top-border-color;
 
-      .wrapper {
-        margin: 0px auto;
-        max-width: $content-width;
-        padding: 0 20px;
-      }
+    .wrapper {
+      margin: 0px auto;
+      max-width: $content-width;
+      padding: 0 20px;
+    }
 
-      .projectLogo {
-        img {
-          height: 100px;
-          margin-bottom: 0px;
-        }
+    .projectLogo {
+      img {
+        height: 100px;
+        margin-bottom: 0px;
       }
+    }
 
-      h1#project_title {
-        font-family: $header-font-family;
-        font-size: 300%;
-        letter-spacing: -0.08em;
-        line-height: 1em;
-        margin-bottom: 80px;
-      }
+    h1#project_title {
+      font-family: $header-font-family;
+      font-size: 300%;
+      letter-spacing: -0.08em;
+      line-height: 1em;
+      margin-bottom: 80px;
+    }
 
-      h2#project_tagline {
-        font-family: $header-font-family;
-        font-size: 300%;
-        letter-spacing: -0.04em;
-        line-height: 1em;
-        color: $homeContainer-tagline-color;
-        display: inline-block;
-        vertical-align: bottom;
-      }
+    h2#project_tagline {
+      font-family: $header-font-family;
+      font-size: 300%;
+      letter-spacing: -0.04em;
+      line-height: 1em;
+      color: $homeContainer-tagline-color;
+      display: inline-block;
+      vertical-align: bottom;
+    }
   }
 }
 
