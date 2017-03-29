@@ -54,7 +54,7 @@ You may also want to adjust some of the other optional parameters to increase pe
 
 * `--gpu`: enables the network to utilize GPU resources, massively increasing the speed of training (or learning)
 * `--seq_length`: this is the number of characters in one continuous sequence that are grabbed from the training data and passed into the network; defaults to 25
-* `--batch_size`: you may want to look at [optimization resources](https://svail.github.io/rnn_perf/); defaults to 1
+* `--batch_size`: you may want to look at [RNN optimization resources](https://svail.github.io/rnn_perf/); defaults to 1
 * `--iters_to_report`: this is how often the scripts provides a little output to show it's current status; defaults to 500
 * `--hidden_size`: this is the size of the neural network's hidden layer; defaults to 100
 
@@ -79,4 +79,8 @@ And I will onseling say?
 
 CLEOPATRA:
 When he do. Tyouth from whell?
-``
+```
+
+### Notes
+
+When acquiring data sources for this script, try to get all plain ASCII text rather than UTF-8 or other formats if you want it to run out of the box. Otherwise, you're going to need to preprocess it or modify the script to handle the different formats.

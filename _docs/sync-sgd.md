@@ -53,3 +53,9 @@ Under the hood, Caffe2 uses `DeviceScope` and `NameScope` to distinguish paramet
 ### Performance
 
 Performance will depend on the model, but for Resnet-50, we get ~7x speedup on 8 [M40 GPUs](http://www.nvidia.com/object/tesla-m40.html) over 1 GPU.
+
+### Further Reading & Examples
+
+[Gloo](https://github.com/facebookincubator/gloo) is a Facebook Incubator project that helps manage multi-host, multi-GPU machine learning applications.
+
+[Resnet-50 example code](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py) contains example code using `rendezvous` which is a feature not utilized in this synch SGD example, but is present in the [data_parallel_model module](/doxygen-python/html/namespacedata__parallel__model.html) that it used.
