@@ -1,5 +1,5 @@
 ---
-docid: tutorial-6
+docid: mnist
 title: MNIST - Create a CNN from Scratch
 layout: docs
 permalink: /docs/tutorial-MNIST.html

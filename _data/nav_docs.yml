@@ -14,13 +14,13 @@
   items:
   - id: tutorials
   - id: intro-tutorial
-  - id: tutorial-1
-  - id: tutorial-2
-  - id: tutorial-3
-  - id: tutorial-4
-  - id: tutorial-5
-  - id: tutorial-6
-  - id: tutorial-7
+  - id: models-datasets
+  - id: basics
+  - id: toy-regression
+  - id: image-preprocessing
+  - id: pretrained-models
+  - id: mnist
+  - id: create-dataset
   - id: AI-Camera-demo-android
   - id: sync-sgd
 - title: Reference

@@ -1,5 +1,5 @@
 ---
-docid: tutorial-4
+docid: toy-regression
 title: Toy Regression
 layout: docs
 permalink: /docs/tutorial-toy-regression.html

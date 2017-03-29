@@ -1,5 +1,5 @@
 ---
-docid: tutorial-5
+docid: image-preprocessing
 title: Image Pre-Processing
 layout: docs
 permalink: /docs/tutorial-image-pre-processing.html

@@ -1,5 +1,5 @@
 ---
-docid: tutorial-3
+docid: basics
 title: Basics of Caffe2 - Workspaces, Operators, and Nets
 layout: docs
 permalink: /docs/tutorial-basics-of-caffe2.html
