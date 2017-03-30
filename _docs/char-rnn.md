@@ -5,7 +5,7 @@ layout: docs
 permalink: /docs/RNNs-and-LSTM-networks.html
 ---
 
-**Code:**
+**Code:** [char_rnn.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/char_rnn.py)
 
 Are you interested in creating a chat bot or doing language processing with Deep Learning? This tutorial will show you one of [Caffe2's example Python scripts](https://github.com/caffe2/caffe2/tree/master/caffe2/python/examples) that you can run out of the box and modify to start you project from using a working Recurrent Neural Network (RNN). This particular RNN is a Long Short Term Memory (LSTM) network, where the network is capable of learning and maintaining a memory overtime while showing gradual improvement. For more information, you might want to [check out A. Karpathy's blog](http://karpathy.github.io/2015/05/21/rnn-effectiveness/), the inspiration for this Caffe2 variation of the code he posted. It goes into further technical detail with some great animations and examples.
 
