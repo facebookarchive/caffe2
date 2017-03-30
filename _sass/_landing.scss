@@ -1,5 +1,42 @@
 @import "mixins";
 
+@font-face {
+  font-family: 'Montserrat';
+  src: url("{{ '/static/fonts/Montserrat-Italic.ttf' | relative_url }}") format('ttf');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url("{{ '/static/fonts/Montserrat-Black.ttf' | relative_url }}") format('ttf');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url("{{ '/static/fonts/Montserrat-BlackItalic.ttf' | relative_url }}") format('ttf');
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url("{{ '/static/fonts/Montserrat-Light.ttf' | relative_url }}") format('ttf');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url("{{ '/static/fonts/Montserrat-Regular.ttf' | relative_url }}") format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+$landing-page-font-family: 'Montserrat', 'Lato', Calibri, Arial, sans-serif;
+
 $describe-background: #25376B;
 $describe-h2-color: #33ECC3;
 $describe-h3-color: #fff;
@@ -17,10 +54,25 @@ $applications-h4-color: #64B1D3;
 $applications-button-color: #A2FFEB;
 $applications-button-text-color: #25376B;
 
+.homeContainer {
+  .homeWrapper {
+    h2#project_tagline {
+      font-family: $landing-page-font-family;
+      font-weight: 600;
+    }
+    p {
+      font-family: $landing-page-font-family;
+    }
+    .button {
+      font-family: $landing-page-font-family;
+    }
+  }
+}
 .landing-container {
   margin-right: auto;
   margin-left: auto;
   max-width: 970px !important;
+  font-family: $landing-page-font-family;
 }
 
 .landing-row {
@@ -65,6 +117,7 @@ $applications-button-text-color: #25376B;
     margin-bottom: 20px;
     text-align: center;
     color: $describe-h2-color;
+    font-family: $landing-page-font-family;
   }
 
   h3 {
@@ -72,18 +125,21 @@ $applications-button-text-color: #25376B;
     font-weight: 400;
     text-align: center;
     color: $describe-h3-color;
+    font-family: $landing-page-font-family;
   }
 
   h4 {
     font-size: 17px;
     margin-bottom: 45px;
     color: $describe-h4-color;
+    font-family: $landing-page-font-family;
   }
 
   p {
-    font-size: 16px;
+    font-size: 14px;
     text-align: center;
     color: $describe-p-color;
+    font-family: $landing-page-font-family;
   }
 
   .box {
@@ -117,6 +173,7 @@ $applications-button-text-color: #25376B;
     text-align: center;
     color: $zoo-h2-color;
     padding-top: 20px;
+    font-family: $landing-page-font-family;
   }
 
   p {
@@ -124,6 +181,7 @@ $applications-button-text-color: #25376B;
     text-align: center;
     color: $zoo-p-color;
     padding-bottom: 25px;
+    font-family: $landing-page-font-family;
   }
 
   .button {
@@ -150,12 +208,14 @@ $applications-button-text-color: #25376B;
     margin-bottom: 20px;
     text-align: center;
     color: $applications-h2-color;
+    font-family: $landing-page-font-family;
   }
 
   h4 {
     font-size: 17px;
     margin-bottom: 15px;
     color: $applications-h4-color;
+    font-family: $landing-page-font-family;
   }
 
   p {
@@ -163,6 +223,7 @@ $applications-button-text-color: #25376B;
     font-size: 16px;
     text-align: center;
     color: $applications-p-color;
+    font-family: $landing-page-font-family;
   }
 
   .box {
@@ -185,6 +246,7 @@ $applications-button-text-color: #25376B;
     border-color: $applications-button-color;
     border-width: 1px;
     color: $applications-button-text-color;
+    font-family: $landing-page-font-family;
 
     &:hover {
       background: $applications-button-text-color;
@@ -197,10 +259,11 @@ $applications-button-text-color: #25376B;
   .landing-container {
     h2 {
       font-size: 25px !important;
+      font-family: $landing-page-font-family !important;
     }
 
     p {
-      font-size: 14px !important;
+      font-size: 14px !important !important;
     }
   }
 

@@ -98,3 +98,6 @@ defaults:
       path: ""
     values:
       image: /static/og_image.png
+
+exclude:
+  - doc-type-examples/
