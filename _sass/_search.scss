@@ -68,7 +68,7 @@ input#search_input {
   font-size: 14px;
   line-height: 20px;
   border-radius: 20px;
-  background-color: rgba($primary-overlay-special, 0.25);
+  background-color: $search-box-color;
   border: none;
   color: rgba($primary-overlay-special, 0);
   outline: none;
