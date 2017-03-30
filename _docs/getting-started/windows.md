@@ -12,6 +12,8 @@ Windows 10 or greater is required to run Caffe2.
 
 [![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
+Windows build is in testing and beta mode. When in doubt, build from source for the dependencies.
+
 ### Required Dependencies
 
 The first thing you want to do is to assess whether or not you're going to use GPU acceleration with Caffe2. If you have an NVIDIA GPU and you plan on training some neural networks, then it's probably worth the extra installation an effort. If you're just going to play around with pre-trained models then skip the video drivers and CUDA/cuDNN installation steps.
@@ -28,6 +30,8 @@ The first thing you want to do is to assess whether or not you're going to use G
 5. Install [Cmake](http://cmake.org)
 6. Install Python packages numpy and protobuf. From a command line:
 
+Build protobuf from source, or you can try this package on Anaconda. Version 3.2 of protobuf is preferred. **Use at your own risk!**
+
 ```
 conda install -y numpy
 conda install -y --channel https://conda.anaconda.org/eugene protobuf
@@ -41,13 +45,16 @@ While these are optional, they're recommended if you want to run the tutorials a
 
 #### Install glog, gflags and other related dependencies
 
+Build this from source, or you can try this package on Anaconda. **Use at your own risk!**
+
 ```
 conda install -y --channel https://conda.anaconda.org/willyd glog
 ```
 
 #### Install leveldb
 
-Note that this upgrades protobuf to 3.1 which needs to be downgraded to 2.5 (not sure if this breaks things)
+
+Note that this upgrades protobuf to 3.1, but we would like to use 3.2. Again, build this from source, or you can try this package on Anaconda. **Use at your own risk!**
 
 ```
 conda install -y --channel https://conda.anaconda.org/willyd leveldb
@@ -57,12 +64,6 @@ conda install -y --channel https://conda.anaconda.org/willyd leveldb
 
 ```
 conda install -y --channel https://conda.anaconda.org/conda-forge  graphviz hypothesis pydot-ng python-lmdb requests zeromq
-```
-
-#### Overlay protobuf v2.5.0 if you installed something that upgraded it
-
-```
-conda install -y --channel https://conda.anaconda.org/eugene protobuf
 ```
 
 #### Things that are options that get installed already by other prerequisites
