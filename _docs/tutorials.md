@@ -9,7 +9,7 @@ permalink: /docs/tutorials.html
 
 ## Pick Your Path
 
-1. [Use a pre-trained neural network off the shelf!](tutorials.html#null__beginners-and-new-to-caffe2) (Easy)
+1. [Use a pre-trained neural network off the shelf!](tutorials.html#null__new-to-deep-learning) (Easy)
 2. [Make my own neural network!](tutorials.html#null__creating-a-convolutional-neural-network-from-scratch) (Intermediate)
 3. [Mobile First! I want to make an app that uses deep learning!](AI-Camera-demo-android) (Advanced)
 
@@ -23,7 +23,7 @@ If you chose 3, click the link to discover how to have image classification in y
 
 A broad introduction is given in the free online draft of [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/index.html) by Michael Nielsen. In particular the chapters on using neural nets and how backpropagation works are helpful if you are new to the subject.
 
-For an exposition of neural networks in circuits and code, check out [Understanding Neural Networks from a Programmer’s Perspective](http://karpathy.github.io/neuralnets/) by Andrej Karpathy (Stanford).
+For an exposition of neural networks in circuits and code, check out [Hacker's Guide to Neural Networks](http://karpathy.github.io/neuralnets/) by Andrej Karpathy (Stanford).
 
 ### Experienced researchers in some facet of machine learning
 
@@ -65,7 +65,7 @@ Take advantage of the Model Zoo and grab some pre-trained models and take them f
 
 You also may want to review the [Intro Tutorial](intro-tutorial) before starting this notebook.
 
-#### [Basics of Caffe2 - Workspaces, Operators, and Nets](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/basics.ipynb)
+#### [Basics of Caffe2 - Workspaces, Operators, and Nets](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Basics.ipynb)
 
 This tutorial introduces a few basic Caffe2 components:
 
@@ -75,7 +75,7 @@ This tutorial introduces a few basic Caffe2 components:
 
 
 
-#### [Toy Regression - Plotting Lines & Random Data](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/toy_regression.ipynb)
+#### [Toy Regression - Plotting Lines & Random Data](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Toy_Regression.ipynb)
 
 This tutorial shows how to use more Caffe2 features with simple linear regression as the theme.
 
@@ -167,6 +167,23 @@ pip install matplotlib
 pip install ipython notebook
 pip install scikit-image
 ```
+
+Hit it with a hammer you say? Ok, here's a full list for your installation pleasure, and note that you'll want them installed with Python, and in some cases C++ or at the system level, so you might `brew install` as well as `pip install` or `conda install` them:
+
+flask
+graphviz
+hypothesis
+jupyter
+leveldb
+lmdb
+matplotlib
+pydot
+pyyaml
+requests
+scikit-image
+scipy
+tornado
+zeromq
 
 Instructions on how to setup Jupyter Notebook, which is the latest, greatest way to use and create interactive code notebooks (ipynb files) is found at [http://jupyter.org](http://jupyter.org/install.html).
 

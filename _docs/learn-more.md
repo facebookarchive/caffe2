@@ -45,7 +45,7 @@ Deep Learning has the potential to bring breakthroughs in machine learning and a
 
 ## Working with Caffe2
 
-First, make sure you have [installed Caffe2](/docs/getting-started).
+First, make sure you have [installed Caffe2](getting-started).
 
 When you are first getting started with deep learning and Caffe2, it will help to understand the workflow of how you will create and deploy your deep learning application. There are two primary stages for working with a deep learning application built with Caffe2:
 

@@ -27,7 +27,7 @@ Computer vision has been around for many years and has enabled advanced robotics
 
 ## Translation
 
-Another useful application of neural networks is with translation between languages. Translations can occur via voice, text, or even handwriting. One of the Caffe2 [tutorials](/docs/tutorials/) shows how you can create a basic neural network that can identify handwriting of English text with over 95% accuracy. It is not only highly accurate, it is extremely fast.
+Another useful application of neural networks is with translation between languages. Translations can occur via voice, text, or even handwriting. One of the Caffe2 [tutorials](tutorials) shows how you can create a basic neural network that can identify handwriting of English text with over 95% accuracy. It is not only highly accurate, it is extremely fast.
 
 ## Medical
 
