@@ -607,15 +607,17 @@ bool CudnnConvGradientOp<T>::RunOnDevice() {
           cudnn_ws_nbytes_limit_,
           &bwd_filter_algo_));
       // choose backward algo for data
-      CUDNN_ENFORCE(cudnnGetConvolutionBackwardDataAlgorithm(
-          cudnn_wrapper_.inline_cudnn_handle(),
-          filter_desc_,
-          top_desc_,
-          conv_desc_,
-          bottom_desc_,
-          CUDNN_CONVOLUTION_BWD_DATA_SPECIFY_WORKSPACE_LIMIT,
-          cudnn_ws_nbytes_limit_,
-          &bwd_data_algo_));
+      if (OutputSize() == 3 || (no_bias_ && (OutputSize() == 2))) {
+        CUDNN_ENFORCE(cudnnGetConvolutionBackwardDataAlgorithm(
+            cudnn_wrapper_.inline_cudnn_handle(),
+            filter_desc_,
+            top_desc_,
+            conv_desc_,
+            bottom_desc_,
+            CUDNN_CONVOLUTION_BWD_DATA_SPECIFY_WORKSPACE_LIMIT,
+            cudnn_ws_nbytes_limit_,
+            &bwd_data_algo_));
+      }
     }
     // get workspace for backwards filter algorithm
     CUDNN_ENFORCE(cudnnGetConvolutionBackwardFilterWorkspaceSize(
@@ -626,15 +628,19 @@ bool CudnnConvGradientOp<T>::RunOnDevice() {
         filter_desc_,
         bwd_filter_algo_,
         &bwd_filter_ws_size));
-    // get workspace for backwards data algorithm
-    CUDNN_ENFORCE(cudnnGetConvolutionBackwardDataWorkspaceSize(
-        cudnn_wrapper_.inline_cudnn_handle(),
-        filter_desc_,
-        top_desc_,
-        conv_desc_,
-        bottom_desc_,
-        bwd_data_algo_,
-        &bwd_data_ws_size));
+    if (OutputSize() == 3 || (no_bias_ && (OutputSize() == 2))) {
+      // get workspace for backwards data algorithm
+      CUDNN_ENFORCE(cudnnGetConvolutionBackwardDataWorkspaceSize(
+          cudnn_wrapper_.inline_cudnn_handle(),
+          filter_desc_,
+          top_desc_,
+          conv_desc_,
+          bottom_desc_,
+          bwd_data_algo_,
+          &bwd_data_ws_size));
+    } else {
+      bwd_data_ws_size = 0;
+    }
     cudnn_ws_nbytes_ = std::max(bwd_filter_ws_size, bwd_data_ws_size);
 
     VLOG(1) << "CuDNN bwd algorithm: " << bwd_filter_algo_ << ", "
