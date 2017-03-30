@@ -8,6 +8,8 @@
 
 Docker images are currently in testing. If you would like to build an image yourself, follow the instructions further below. For a quick install try the following commands (assuming you have [Docker installed](https://www.docker.com/products/overview) already).
 
+[USB/offline or Quickstart instructions](docker-setup)
+
 ### Get caffe2ai/caffe2
 
 Visit our [Docker repo](https://hub.docker.com/r/caffe2ai/caffe2) for a full list of different Docker options. Currently we have CPU and GPU support for both 14.04 and 16.04 Ubuntu.
@@ -39,6 +41,8 @@ docker pull caffe2ai/caffe2:cpu-minimal-ubuntu14.04 && docker run -it caffe2ai/c
 ```
 
 [Caffe2 Docker Images](https://hub.docker.com/r/caffe2ai/caffe2/tags/)
+
+See below for instructions on usage.
 
 ### Build From Dockerfile
 
@@ -88,7 +92,9 @@ docker build -t caffe2:cpu-minimal .
 docker run -it caffe2:cpu-minimal /bin/bash
 ```
 
-### Using Your Caffe2 Docker Image
+### Using A Caffe2 Docker Image
+
+[DockerHub Caffe2 Repo](https://hub.docker.com/r/caffe2ai/caffe2)
 
 You can run specific Caffe2 commands by logging into bash as shown above, hitting the Python interface directly, or by interacting with IPython as shown below.
 
@@ -118,7 +124,9 @@ You may also try fetching some models directly and running them as described in 
 
 If you want to run your Jupyter server from a Docker container, then you'll need to run the container with several additional flags. The first new one (versus running it locally) for Docker is `-p 8888:8888` which "publishes" the 8888 port on the container and maps it to your host's 8888 port. You also need to launch jupyter with `--ip 0.0.0.0` so that you can hit that port from your host's browser, otherwise it will only be available from within the container which isn't very helpful. Of course you'll want to swap out the `caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04` with your own repo:tag for the image you want to launch.
 
-Note: in this case we're running jupyter with `sh -c`. This solves a problem with the Python kernel crashing constantly when you're running notebooks.
+
+> In this case we're running jupyter with `sh -c`. This solves a problem with the Python kernel crashing constantly when you're running notebooks.
+
 
 ```
 docker run -it -p 8888:8888 caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
@@ -128,6 +136,7 @@ Your output will be along these lines below. You just need to copy the provided 
 
 ![jupyter docker launch screenshot](../static/images/jupyter-docker-launch.png)
 
+> In some situations you can't access the Jupyter server on your browser via 0.0.0.0 or localhost. You need to pull the Docker IP address (run `docker-machine ip`) and use that to access the Jupyter server.
 
 **Docker - Ubuntu 14.04 with full dependencies notes:**
 
