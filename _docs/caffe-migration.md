@@ -23,17 +23,11 @@ Converting your models from original Caffe is relatively easy. We provide a tuto
 
 Here you can find a tutorial with examples of downloading models from Caffe's original repository that you can use with the Caffe2 translator. Skip this if you're starting from scratch and just want to learn Caffe2.
 
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Getting_Caffe1_Models_for_Translation.ipynb) | [Download](../tutorials/Getting_Caffe1_Models_for_Translation.ipynb)
+[Browse the IPython Tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Getting_Caffe1_Models_for_Translation.ipynb)
 
 #### Converting Models from Caffe to Caffe2
 
-A tutorial for converting your old Caffe models or for any of the models found in the Caffe Model Zoo is provided in the following Jupyter notebook found at `docs/tutorials/Caffe_translator.ipynb` or you can browse and download them here. Skip this if you're starting from scratch and just want to learn Caffe2.
-
-[Browse](https://github.com/caffe2/caffe2/blob/gh-pages/tutorials/Caffe_translator.ipynb) | [Download](/tutorials/Caffe_translator.ipynb)
-
-See the [tutorials][tutorial.html] page for prerequisites.
-
-Alternatively you can try a command line python script tailor made for this purpose. It is found in Caffe2's [python folder](https://github.com/caffe2/caffe2/tree/master/caffe2/python).
+ We have provided a command line python script tailor made for this purpose. It is found in Caffe2's [python folder](https://github.com/caffe2/caffe2/tree/master/caffe2/python).
 
 * [caffe_translator.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/caffe_translator.py) - This script has built-in translators for common layers. The tutorial mentioned above implements this same script, so it may be helpful to review the tutorial to see how the script can be utilized. You can also call the script directly from command line.
 * [caffe_translator_test.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/caffe_translator_test.py) - This a large test that goes through the translation of the BVLC caffenet model, runs an example through the whole model, and verifies numerically that all the results look right. In default, it is disabled unless you explicitly want to run it.
@@ -58,4 +52,4 @@ This can currently be accomplished in a two step process where you convert to Ca
 
 ## Troubleshooting
 
-<TBD>
+Some older versions of Caffe produced models that are not convertible by this translator. Generally speaking you can manage this with a custom script that stuffs your layers into [blobs](/doxygen-python/html/namespaceworkspace.html#a34cb41f806c820ea5ce1876ee3aa29f0) and you label them.
