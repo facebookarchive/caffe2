@@ -18,7 +18,7 @@ id: home
             <div class="landing-col-md-2 box how">
                 <img src="./static/images/landing-stack.png">
                 <h4>HOW DO YOU USE IT?</h4>
-                <p>Try out our quickstart tutorials, peruse the documentation, or jump straight in and start developing. Caffe2 comes with native Python and C++ APIs that work interchangeably so you can prototype quickly now, easily optimize later. Use AWS or Docker images, or install it on your Mac, Windows or Ubuntu computer. Caffe2 also integrates with Android Studio, Microsoft Visual Studio, or XCode for mobile development.</p>
+                <p>Try out our quickstart tutorials, peruse the documentation, or jump straight in and start developing. Caffe2 comes with native Python and C++ APIs that work interchangeably so you can prototype quickly now, easily optimize later. Use AWS, Azure or Docker images, or install it on your Mac, Windows or Ubuntu computer. Caffe2 also integrates with Android Studio, Microsoft Visual Studio, or XCode for mobile development.</p>
             </div>
         </div>
     </div>
