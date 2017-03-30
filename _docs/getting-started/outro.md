@@ -26,13 +26,13 @@ Try to keep the system and python dependencies at the same version. We've encoun
 
 | System Dependencies
 ----|-----
-[cmake: C++ 11](https://cmake.org/download/) |
+[cmake](https://cmake.org/download/) |
 [git](https://github.com) |
 [gflags](https://gflags.github.io/gflags/) |
 [glog: Google Logging Module](https://github.com/google/glog) |
 [NumPy](http://www.numpy.org/) |
 [protobuf: Google Protocol Buffers](https://developers.google.com/protocol-buffers/) | version 3.2.0
-Build tools | Xcode CLTs & automake (mac), build-essential (linux), Visual Studio (win)
+Build tools for C++ 11 | Xcode CLTs & automake (mac/iOS), build-essential (linux), Visual Studio (win), Android Studio (droid)
 
 
 | Python Dependencies
