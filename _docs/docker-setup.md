@@ -10,9 +10,11 @@ permalink: /docs/docker-setup.html
 **Assumes you have Docker and are using a Mac**
 
 ```
-docker load -i /Volumes/CAFFE2/caffe2-tutorial-docker.tar && \
+docker load -i /Volumes/CAFFE2/caffe2-tutorial-docker.tar
 docker run -it -p 8888:8888 c2.cpu.tutorial sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
 ```
+
+Windows users: you can just change "/Volumes" to "D:\" or whatever the drive letter the USB was assigned and it should work.
 
 ## Setup Docker
 
@@ -76,7 +78,7 @@ docker run -it -p 8888:8888 c2.cpu.tutorial sh -c "jupyter notebook --no-browser
 
 This will output a URL. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials.
 
-> In some situations you can't access the Jupyter server on your browser via 0.0.0.0 or localhost. You need to pull the Docker IP address (run `docker-machine ip`) and use that to access the Jupyter server.
+> In some situations you can't access the Jupyter server on your browser via 0.0.0.0 or localhost. You need to pull the Docker IP address (run `docker-machine ip`) and use that to access the Jupyter server. If this doesn't work, check your computer's IP address and try that. If that doesn't work, kill the server, start docker-machine as mentioned in troubleshooting, check its IP, then start the Jupyter server and use the docker-machine IP.
 
 ### Troubleshooting
 

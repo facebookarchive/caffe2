@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caffe2 Tutorial - Docker Setup</title>
+<link rel="stylesheet" href="static/css/main.css" media="screen">
+<style type="text/css">
+	.c2table{
+		width:100%;
+		border-collapse:collapse;
+	}
+	.c2table td{
+		padding:7px; border:#4e95f4 1px solid;
+	}
+	/* provide some minimal visual accomodation for IE8 and below */
+	.c2table tr{
+		background: #b8d1f3;
+	}
+	/*  Define the background color for all the ODD background rows  */
+	.c2table tr:nth-child(odd){
+		background: #b8d1f3;
+	}
+	/*  Define the background color for all the EVEN background rows  */
+	.c2table tr:nth-child(even){
+		background: #dae5f4;
+	}
+</style>
+</head>
+
+<body class="docsNavVisible">
+  <img height="100px" src="static/logo.svg" alt="Caffe2" title="Caffe2" />
+      <h1>Caffe2</h1>
+
+
+      <h2 id="project_tagline" class="fbossFontLight">A deep learning, ML framework. Code Once, Run Anywhere!</h2>
+
+
+<h1>Running Caffe2 from a Docker Image</h1>
+
+<h2 id="quickstartfeelinglucky">Quickstart (Feeling Lucky)</h2>
+
+<p><strong>Assumes you have Docker and are using a Mac</strong></p>
+
+<pre><code>docker load -i /Volumes/CAFFE2/caffe2-tutorial-docker.tar
+docker run -it -p 8888:8888 c2.tutorial sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+</code></pre>
+
+<p>Windows users: you can just change "/Volumes" to "D:\" or whatever the drive letter the USB was assigned and it should work.</p>
+
+<h2 id="setupdocker">Setup Docker</h2>
+
+<p>You'll need Docker installed on your local PC. Skip ahead if you've done this already. To be sure run this command:</p>
+
+<pre><code>docker version
+</code></pre>
+
+<h3 id="mac">Mac</h3>
+
+<ul>
+<li><a href="https://docs.docker.com/docker-for-mac/install/">Install Instructions</a></li>
+
+<li><a href="https://download.docker.com/mac/stable/Docker.dmg">Binary (online)</a></li>
+
+<li><a href="Docker.dmg">Local Binary (if on USB)</a></li>
+</ul>
+
+<h3 id="windows">Windows</h3>
+
+<ul>
+<li><a href="https://docs.docker.com/docker-for-windows/install/">Install Instructions</a></li>
+
+<li><a href="https://download.docker.com/win/stable/InstallDocker.msi">Binary (online)</a></li>
+
+<li><a href="InstallDocker.msi">Local Binary (if on USB)</a></li>
+</ul>
+
+<h2 id="getcaffe2dockerimage">Get Caffe2 Docker Image</h2>
+
+<p>You have two ways to do this. If you're running this from a USB stick, then continue, if not, jump to the online option below.</p>
+
+<h3 id="localusbimportthecaffe2dockerimage">Local/USB: Import the Caffe2 Docker Image</h3>
+
+<p>This image is in a tar file on the USB stick. You can import it by using this command:</p>
+
+<pre><code>docker load -i &lt;path-to-image-tar-file&gt;
+</code></pre>
+
+<h3 id="onlinepullthecaffe2dockerimage">Online: Pull the Caffe2 Docker Image</h3>
+
+<p>For an image with optional dependencies like IPython & OpenCV:</p>
+
+<pre><code>docker pull caffe2ai/caffe2:cpu-fulloptions-ubuntu16.04
+</code></pre>
+
+<p>For the latest Docker image using GPU support and optional dependencies like IPython & OpenCV (does not work on Windows - see Troubleshooting notes):</p>
+
+<pre><code>docker pull caffe2ai/caffe2 && docker run -it caffe2ai/caffe2:latest
+</code></pre>
+
+<h2 id="launchtheimagewithjupyternotebook">Launch the Image with Jupyter Notebook</h2>
+
+<p>Once the loading of the image finishes, check your list of Docker images:</p>
+
+<pre><code>docker images
+</code></pre>
+
+<p>Assuming it's there you can now launch it:</p>
+
+<pre><code>docker run -it -p 8888:8888 c2.cpu.tutorial sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+</code></pre>
+
+<p>This will output a URL. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials.</p>
+<p>In some situations you can't access the Jupyter server on your browser via 0.0.0.0 or localhost. You need to pull the Docker IP address (run <code>docker-machine ip</code>) and use that to access the Jupyter server. If that doesn't work, check you computer's current IP address and try that instead.</p>
+
+<h3 id="troubleshooting">Troubleshooting</h3>
+<table class="c2table">
+  <thead>
+    <tr>
+      <th>Problem</th>
+      <th>Solution</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Docker won't start</td>
+      <td>Try this:
+<code>
+docker-machine restart default
+eval $(docker-machine env default)
+</code>
+      </tr>
+    <tr>
+      <td>More info on this setup</td>
+      <td>Found on the Caffe2 docs site in Install>OS>Docker and in Install>OS>Cloud. The Cloud page has info specific to forwarding Docker through your SSH tunnel to your cloud server.
+    </tr>
+    <tr>
+      <td>common_gpu.cc:42 Found an unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. I will set the available devices to be zero.</td>
+      <td>This may be a Docker-specific error where you need to launch the images while passing in GPU device flags: <code>sudo docker run -ti --device /dev/nvidia0:/dev/nvidia0 --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm mydocker-repo/mytag /bin/bash</code>. You will need to update those devices according to your hardware (however this should match a 1-GPU build) and you need to swap out <code class="highlighter-rouge">mydocker-repo/mytag</code> with the ID or the repo/tag of your Docker image.</td>
+    </tr>
+    <tr>
+      <td>HyperV is not available on Home editions. Please use Docker Toolbox.</td>
+      <td>Docker for Windows only works on Professional versions of Windows.</td>
+    </tr>
+    <tr>
+      <td>Solution</td>
+      <td>Install <a href="https://www.docker.com/products/docker-toolbox">Docker Toolbox</a>. Don’t worry, the Caffe2 images should still work for you!</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
