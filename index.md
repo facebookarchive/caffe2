@@ -41,8 +41,8 @@ id: home
         <p>Deep learning and neural networks can be applied to ANY problem. It excels at handling large data sets, facilitating automation, image processing, and statistical and mathematical operations, just to name a few areas. It can be applied to any kind of operation and can help find opportunities, solutions, and insights.</p>
         <div class="landing-row">
             <div class="landing-col-md-3 box">
-                <img src="./static/images/landing-audio.png">
-                <h4>Audio Recoginition</h4>
+                <img src="./static/images/landing-shades.png">
+                <h4>Computer Vision</h4>
             </div>
             <div class="landing-col-md-3 box">
                 <img src="./static/images/landing-chat.png">
@@ -55,8 +55,8 @@ id: home
         </div>
         <div class="landing-row">
             <div class="landing-col-md-3 box">
-                <img src="./static/images/landing-shades.png">
-                <h4>Computer Vision</h4>
+                <img src="./static/images/landing-audio.png">
+                <h4>Audio Recoginition</h4>
             </div>
             <div class="landing-col-md-3 box">
                 <img src="./static/images/landing-trans.png">
