@@ -7,8 +7,6 @@ permalink: /docs/tutorial-models-and-datasets.html
 
 New to Caffe and Deep Learning? Start here and find out more about the different models and datasets available to you.
 
-[Browse the IPython Tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Models_and_Datasets.ipynb)
-
 ## Caffe2, Models, and Datasets Overview
 
 In this tutorial we will experiment with an existing Caffe model. In other tutorials you can learn how to modify a model or create your own. You can also learn how to generate or modify a dataset. Here you will learn how to find a model, what required files are involved, and how to test the model with a dataset.
