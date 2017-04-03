@@ -115,18 +115,18 @@ ssh -N -f -L localhost:8888:localhost:8889 -i "your-public-cert.pem" ubuntu@supe
 |pip version | If you plan to use Python with Caffe2 then you need pip.|
 |Solution | `sudo apt-get install python-pip` and also try using pip2 instead of pip.|
 
-|Building from source
-----|-----
-OS version | Caffe2 requires Ubuntu 14.04 or greater.
-git | While you can download the Caffe2 source code and submodules directly from GitHub as a zip, using git makes it much easier.
-Solution | `sudo apt-get install git`
-protobuf | You may experience an error related to protobuf during the make step.
-Solution | Make sure you've installed protobuf in **both** of these two ways: `sudo apt-get install libprotobuf-dev protobuf-compiler && sudo pip install protobuf`
-libgflags2 error | This optional dependency is for Ubuntu 14.04.
-Solution | Use `apt-get install libgflags-dev` for Ubuntu 16.04.
+|Building from source||
+|----|-----|
+|OS version | Caffe2 requires Ubuntu 14.04 or greater.|
+|git | While you can download the Caffe2 source code and submodules directly from GitHub as a zip, using git makes it much easier.|
+|Solution | `sudo apt-get install git`|
+|protobuf | You may experience an error related to protobuf during the make step.|
+|Solution | Make sure you've installed protobuf in **both** of these two ways: `sudo apt-get install libprotobuf-dev protobuf-compiler && sudo pip install protobuf`|
+|libgflags2 error | This optional dependency is for Ubuntu 14.04.|
+|Solution | Use `apt-get install libgflags-dev` for Ubuntu 16.04.|
 
-| GPU Support
-----|-----
-GPU errors | Unsupported GPU or wrong version
-Solution | You need to know the specific `deb` for your version of Linux. `sudo dpkg -i cuda-repo-<distro>_<version>_<architecture>.deb` Refer to NVIDIA's [installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation).
-Build issues | Be warned that installing CUDA and cuDNN will increase the size of your build by about 4GB, so plan to have at least 12GB for your Ubuntu disk size.
+|GPU Support||
+|----|-----|
+|GPU errors | Unsupported GPU or wrong version|
+|Solution | You need to know the specific `deb` for your version of Linux. `sudo dpkg -i| |cuda-repo-<distro>_<version>_<architecture>.deb` Refer to NVIDIA's [installation guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation).|
+|Build issues | Be warned that installing CUDA and cuDNN will increase the size of your build by about 4GB, so plan to have at least 12GB for your Ubuntu disk size.|
