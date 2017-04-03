@@ -106,14 +106,14 @@ ssh -N -f -L localhost:8888:localhost:8889 -i "your-public-cert.pem" ubuntu@supe
 
 ### Troubleshooting
 
-|Python errors
-----|-----
-Python version | [Python](https://www.python.org/) is core to run Caffe2. We currently require [Python2.7](https://www.python.org/download/releases/2.7/). *Ubuntu 14.04 and greater have Python built in by default*, and that can be used to run Caffe2. To check your version: `python --version`
-Solution | If you want the developer version of python, you could install the `dev` package for Python: `sudo apt-get install python-dev`
-Python environment | You may have another version of Python installed or need to support Python version 3 for other projects.
-Solution | Try virtualenv or Anaconda. The [Anaconda](https://www.continuum.io/downloads) platform provides a single script to install many of the necessary packages for Caffe2, including Python. Using Anaconda is outside the scope of these instructions, but if you are interested, it may work well for you.
-pip version | If you plan to use Python with Caffe2 then you need pip.
-Solution | `sudo apt-get install python-pip` and also try using pip2 instead of pip.
+|Python errors||
+|----|-----|
+|Python version | [Python](https://www.python.org/) is core to run Caffe2. We currently require [Python2.7](https://www.python.org/download/releases/2.7/). *Ubuntu 14.04 and greater have Python built in by default*, and that can be used to run Caffe2. To check your version: `python --version`|
+|Solution | If you want the developer version of python, you could install the `dev` package for Python: `sudo apt-get install python-dev`|
+|Python environment | You may have another version of Python installed or need to support Python version 3 for other projects.|
+|Solution | Try virtualenv or Anaconda. The [Anaconda](https://www.continuum.io/downloads) platform provides a single script to install many of the necessary packages for Caffe2, including Python. Using Anaconda is outside the scope of these instructions, but if you are interested, it may work well for you.|
+|pip version | If you plan to use Python with Caffe2 then you need pip.|
+|Solution | `sudo apt-get install python-pip` and also try using pip2 instead of pip.|
 
 |Building from source
 ----|-----
