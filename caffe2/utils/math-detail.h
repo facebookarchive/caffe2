@@ -12,7 +12,7 @@ namespace detail {
 template<typename T, class Context, int FixedSize>
 struct ScaleImpl {
   inline void
-  operator()(const int N, const T alpha, const T* x, T* y, Context* context) {
+  operator()(const int N, const float alpha, const T* x, T* y, Context* context) {
     Scale(N, alpha, x, y, context);
   }
 };
@@ -22,7 +22,7 @@ template<typename T>
 struct ScaleImpl<T, CPUContext, 1> {
   inline void operator()(
       const int N,
-      const T alpha,
+      const float alpha,
       const T* x,
       T* y,
       CPUContext* context) {
@@ -34,7 +34,7 @@ struct ScaleImpl<T, CPUContext, 1> {
 template<typename T, class Context, int FixedSize>
 struct AxpyImpl {
   inline void
-  operator()(const int N, const T alpha, const T* x, T* y, Context* context) {
+  operator()(const int N, const float alpha, const T* x, T* y, Context* context) {
     Axpy(N, alpha, x, y, context);
   }
 };
@@ -44,7 +44,7 @@ template<typename T>
 struct AxpyImpl<T, CPUContext, 1> {
   inline void operator()(
       const int N,
-      const T alpha,
+      const float alpha,
       const T* x,
       T* y,
       CPUContext* context) {
@@ -58,13 +58,13 @@ struct AxpyImpl<T, CPUContext, 1> {
 
 template <typename T, class Context, int FixedSize>
 inline void
-ScaleFixedSize(const int N, const T alpha, const T* x, T* y, Context* context) {
+ScaleFixedSize(const int N, const float alpha, const T* x, T* y, Context* context) {
   detail::ScaleImpl<T, Context, FixedSize>()(N, alpha, x, y, context);
 }
 
 template <typename T, class Context, int FixedSize>
 inline void
-AxpyFixedSize(const int N, const T alpha, const T* x, T* y, Context* context) {
+AxpyFixedSize(const int N, const float alpha, const T* x, T* y, Context* context) {
   detail::AxpyImpl<T, Context, FixedSize>()(N, alpha, x, y, context);
 }
 
