@@ -16,34 +16,11 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
     CUDNN_ENFORCE(cudnnCreateActivationDescriptor(&activ_desc_));
     CUDNN_ENFORCE(cudnnSetActivationDescriptor(
         activ_desc_, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
-
-    // Choose function body for given math type
-    TensorProto_DataType math = TensorProto_DataType_FLOAT; // hardcode for now
-
-    switch (math) {
-      case TensorProto_DataType_FLOAT:
-        body_ = &CuDNNReluOp::DoRunWithMathType<float>;
-        break;
-      case TensorProto_DataType_FLOAT16:
-        body_ = &CuDNNReluOp::DoRunWithMathType<float16>;
-        break;
-      default:
-        CAFFE_THROW("Invalid math type specified");
-    }
   }
 
   ~CuDNNReluOp() {
     CUDNN_ENFORCE(cudnnDestroyTensorDescriptor(data_desc_));
     CUDNN_ENFORCE(cudnnDestroyActivationDescriptor(activ_desc_));
-  }
-
-  template <typename M>
-  bool DoRunWithMathType() {
-    return DispatchHelper<
-      TensorTypes<
-        float,
-        float16>,
-      M>::call(this, Input(0));
   }
 
   template <typename T, typename M>
@@ -92,7 +69,11 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
     auto* Y = Output(0);
     Y->ResizeLike(X);
 
-    return (this->*body_)();
+    if (X.IsType<float>()) {
+      return DoRunWithType<float,float>();
+    } else if (X.IsType<float16>()) {
+      return DoRunWithType<float16,float>();
+    }
   }
 
  protected:
@@ -122,20 +103,6 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
     CUDNN_ENFORCE(cudnnCreateActivationDescriptor(&activ_desc_));
     CUDNN_ENFORCE(cudnnSetActivationDescriptor(
         activ_desc_, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
-
-    // Choose function body for given math type
-    TensorProto_DataType math = TensorProto_DataType_FLOAT; // hardcode for now
-
-    switch (math) {
-      case TensorProto_DataType_FLOAT:
-        body_ = &CuDNNReluGradientOp::DoRunWithMathType<float>;
-        break;
-      case TensorProto_DataType_FLOAT16:
-        body_ = &CuDNNReluGradientOp::DoRunWithMathType<float16>;
-        break;
-      default:
-        CAFFE_THROW("Invalid math type specified");
-    }
   }
 
   ~CuDNNReluGradientOp() {
@@ -143,19 +110,11 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
     CUDNN_ENFORCE(cudnnDestroyActivationDescriptor(activ_desc_));
   }
 
-  template <typename M>
-  bool DoRunWithMathType() {
-    return DispatchHelper<
-      TensorTypes<
-        float,
-        float16>,
-      M>::call(this, Input(0));
-  }
-
   template <typename T, typename M>
   bool DoRunWithType() {
-    const auto& Y = Input(0);
-    const auto& dY = Input(1);
+    const auto& X = Input(0);
+    const auto& Y = Input(1);
+    const auto& dY = Input(2);
     auto* dX = Output(0);
     // See if we need to reshape.
     if (Y.dims() != cudnn_input_dims_) {
@@ -181,19 +140,17 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
           H,
           W));
     }
-    const typename cudnnTypeWrapper<T>::ScalingParamType kOne = 1;
-    const typename cudnnTypeWrapper<T>::ScalingParamType kZero = 0;
     CUDNN_ENFORCE(cudnnActivationBackward(
         cudnn_wrapper_.inline_cudnn_handle(),
         activ_desc_,
-        &kOne,
+        cudnnTypeWrapper<T>::kOne(),
         data_desc_,
         Y.template data<T>(),
         data_desc_,
         dY.template data<T>(),
         data_desc_,
-        Y.template data<T>(),
-        &kZero,
+        X.template data<T>(), // X data.
+        cudnnTypeWrapper<T>::kZero(),
         data_desc_,
         dX->template mutable_data<T>()));
     return true;
@@ -205,7 +162,12 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
     auto* dX = Output(0);
     dX->ResizeLike(Y);
 
-    return (this->*body_)();
+    if (Y.IsType<float>()) {
+      return DoRunWithType<float,float>();
+    } else if (Y.IsType<float16>()) {
+      return DoRunWithType<float16,float>();
+    }
+    // return (this->*body_)();
   }
 
  protected:
@@ -214,7 +176,7 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
   cudnnActivationDescriptor_t activ_desc_;
   vector<TIndex> cudnn_input_dims_;
   StorageOrder order_;
-  // Input: Y, dY; Output: dX
+  // Input: X, Y, dY; Output: dX
  private:
   bool (CuDNNReluGradientOp::*body_)();
 };
