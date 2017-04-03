@@ -6,7 +6,7 @@ namespace caffe2 {
 namespace {
 
 REGISTER_CPU_OPERATOR(ConvGradient, ConvGradientOp<float, CPUContext>);
-OPERATOR_SCHEMA(ConvGradient).NumInputs(2, 3).NumOutputs(2, 3);
+OPERATOR_SCHEMA(ConvGradient).NumInputs(2, 3).NumOutputs(1, 3);
 class GetConvGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   vector<OperatorDef> GetGradientDefs() override {
