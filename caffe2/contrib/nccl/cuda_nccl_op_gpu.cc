@@ -32,9 +32,10 @@ nccl::NCCLExecution getNCCLElements(
 
 namespace {
 // Check if all inputs are float
-bool AllInputsAreFloat(OperatorBase* op) {
+template <typename T>
+bool AllInputsAre(OperatorBase* op) {
   for (auto i = 0; i < op->def().input_size(); ++i) {
-    if (op->Input<TensorCUDA>(i).IsType<float>()) {
+    if (op->Input<TensorCUDA>(i).IsType<T>()) {
       continue;
     } else {
       return false;
@@ -42,19 +43,6 @@ bool AllInputsAreFloat(OperatorBase* op) {
   }
   return true;
 }
-
-// Check if all inputs are float16
-bool AllInputsAreFloat16(OperatorBase* op) {
-  for (auto i = 0; i < op->def().input_size(); ++i) {
-    if (op->Input<TensorCUDA>(i).IsType<float16>()) {
-      continue;
-    } else {
-      return false;
-    }
-  }
-  return true;
-}
-
 }; // namespace
 
 class NCCLAllreduceOp final : public Operator<CUDAContext> {
@@ -66,10 +54,10 @@ class NCCLAllreduceOp final : public Operator<CUDAContext> {
     if (InputSize() == 1)
       return true;
 
-    if (AllInputsAreFloat(this)) {
+    if (AllInputsAre<float>(this)) {
       nccl::NCCL<float>::AllReduce(getNCCLElements(this, context_));
       return true;
-    } else if (AllInputsAreFloat16(this)) {
+    } else if (AllInputsAre<float16>(this)) {
       nccl::NCCL<float16>::AllReduce(getNCCLElements(this, context_));
       return true;
     } else {
@@ -87,10 +75,10 @@ class NCCLBroadcastOp final : public Operator<CUDAContext> {
   bool RunOnDevice() override {
     if (InputSize() == 1)
       return true;
-    if (AllInputsAreFloat(this)) {
+    if (AllInputsAre<float>(this)) {
       nccl::NCCL<float>::Broadcast(getNCCLElements(this, context_));
       return true;
-    } else if (AllInputsAreFloat16(this)) {
+    } else if (AllInputsAre<float16>(this)) {
       nccl::NCCL<float16>::Broadcast(getNCCLElements(this, context_));
       return true;
     } else {
@@ -112,10 +100,10 @@ class NCCLReduceOp final : public Operator<CUDAContext> {
     CAFFE_ENFORCE_EQ(
         ex.root, 0, "NCCLReduce has spurious deadlocks for non-zero root");
 
-    if (AllInputsAreFloat(this)) {
+    if (AllInputsAre<float>(this)) {
       nccl::NCCL<float>::Reduce(ex);
       return true;
-    } else if (AllInputsAreFloat16(this)) {
+    } else if (AllInputsAre<float16>(this)) {
       nccl::NCCL<float16>::Reduce(ex);
       return true;
     } else {
@@ -133,10 +121,10 @@ class NCCLAllGatherOp final : public Operator<CUDAContext> {
   bool RunOnDevice() override {
     if (InputSize() == 1)
       return true;
-    if (AllInputsAreFloat(this)) {
+    if (AllInputsAre<float>(this)) {
       nccl::NCCL<float>::AllGather(getNCCLElements(this, context_));
       return true;
-    } else if (AllInputsAreFloat16(this)) {
+    } else if (AllInputsAre<float16>(this)) {
       nccl::NCCL<float16>::AllGather(getNCCLElements(this, context_));
       return true;
     } else {
