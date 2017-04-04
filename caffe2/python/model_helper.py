@@ -69,11 +69,13 @@ class ModelHelperBase(object):
             self.param_to_grad = param_model.param_to_grad
             self.params = param_model.params
             self.computed_params = param_model.computed_params
+            self.solverstate_params = param_model.solverstate_params
         else:
             self.param_init_net = core.Net(name + '_init')
             self.param_to_grad = {}
             self.params = []
             self.computed_params = []
+            self.solverstate_params = []
 
         self._param_info = []
         self._devices = []
