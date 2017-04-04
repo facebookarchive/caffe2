@@ -58,4 +58,6 @@ Performance will depend on the model, but for Resnet-50, we get ~7x speedup on 8
 
 [Gloo](https://github.com/facebookincubator/gloo) is a Facebook Incubator project that helps manage multi-host, multi-GPU machine learning applications.
 
-[Resnet-50 example code](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py) contains example code using `rendezvous` which is a feature not utilized in this synch SGD example, but is present in the [data_parallel_model module](/doxygen-python/html/namespacedata__parallel__model.html) that it used.
+[Resnet-50 example code](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py) contains example code using `rendezvous` which is a feature not specifically utilized in this synch SGD example, but is present in the [data_parallel_model module](/doxygen-python/html/namespacedata__parallel__model.html) that it used.
+
+[Deep Residual Learning for Image Recognition](https://arxiv.org/pdf/1512.03385.pdf) is the source research for Resnet-50, wherein they explore the results of building deeper and deeper networks, to over 1,000 layers, using residual learning on the ImageNet dataset. Resnet-50 is their residual network variation using 50 layers that performed quite well with the task of object detection, classification, and localization.
