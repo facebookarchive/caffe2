@@ -579,41 +579,114 @@ class Seq2SeqModelCaffe2:
     def _apply_norm_ratio(
         self, norm_ratio, model, params, learning_rate, scope, ONE
     ):
-        for param in params:
-            param_grad = model.param_to_grad[param]
-            nlr = model.net.Negative(
-                [learning_rate],
-                'negative_learning_rate',
+        with core.NameScope(scope):
+            update_coeff = model.net.Mul(
+                [learning_rate, norm_ratio],
+                'update_coeff',
+                broadcast=1,
             )
-            with core.NameScope(scope):
-                update_coeff = model.net.Mul(
-                    [nlr, norm_ratio],
-                    'update_coeff',
-                    broadcast=1,
-                )
-            if isinstance(param_grad, core.GradientSlice):
-                param_grad_values = param_grad.values
+        if(self.optimizer == "adagrad"):
+            neg_update_coeff = model.net.Negative(
+                [update_coeff],
+                'neg_update_coeff',
+            )
+            for param in params:
+                param_grad = model.param_to_grad[param]
+                grad_history = model.param_init_net.ConstantFill(
+                    [param], param + '_history', value=0.0)
 
-                model.net.ScatterWeightedSum(
-                    [
+                if isinstance(param_grad, core.GradientSlice):
+                    param_grad_values = param_grad.values
+                    param_grad_indices = param_grad.indices
+
+                    model.net.SparseAdagrad(
+                        [param, grad_history, param_grad_indices, param_grad_values, neg_update_coeff],
+                        [param, grad_history],
+                        epsilon=1.0)
+                else:
+                    model.net.Adagrad(
+                        [param, grad_history, param_grad, neg_update_coeff],
+                        [param, grad_history],
+                        epsilon=1.0)
+        elif(self.optimizer == "adam"):
+            neg_update_coeff = model.net.Negative(
+                [update_coeff],
+                'neg_update_coeff',
+            )
+            for param in params:
+                param_grad = model.param_to_grad[param]
+                param_momentum1 = model.param_init_net.ConstantFill(
+                    [param], param + '_momentum1', value=0.0)
+                param_momentum2 = model.param_init_net.ConstantFill(
+                    [param], param + '_momentum2', value=0.0)
+                if isinstance(param_grad, core.GradientSlice):
+                    param_grad_values = param_grad.values
+                    param_grad_indices = param_grad.indices
+                    model.net.SparseAdam(
+                        [param, param_momentum1, param_momentum2,
+                          param_grad_indices, param_grad_values, neg_update_coeff, self.global_step],
+                        [param, param_momentum1, param_momentum2],
+                        beta1=0.999,
+                        beta2=0.00000001,
+                        epsilon=1.0)
+                else:
+                    model.net.Adam(
+                        [param, param_momentum1, param_momentum2,
+                          param_grad, neg_update_coeff, self.global_step],
+                        [param, param_momentum1, param_momentum2],
+                        beta1=0.999,
+                        beta2=0.00000001,
+                        epsilon=1.0)
+        elif(self.optimizer == "momentum"):
+            for param in params:
+                param_grad = model.param_to_grad[param]
+                param_momentum = model.param_init_net.ConstantFill(
+                    [param], param + '_momentum', value=0.0)
+                if isinstance(param_grad, core.GradientSlice):
+                    param_grad_values = param_grad.values
+                    param_grad_indices = param_grad.indices
+
+                    model.net.SparseMomentumSGDUpdate(
+                        [param_grad_values, param_momentum, update_coeff, param, param_grad_indices],
+                        [param_grad_values, param_momentum, param],
+                        nesterov=False, momentum=0.9)
+                else:
+                    model.net.MomentumSGDUpdate(
+                        [param_grad, param_momentum, update_coeff, param],
+                        [param_grad, param_momentum, param],
+                        nesterov=False, momentum=0.9)
+        elif(self.optimizer == "sgd"):
+            neg_update_coeff = model.net.Negative(
+                [update_coeff],
+                'neg_update_coeff',
+            )
+            for param in params:
+                param_grad = model.param_to_grad[param]
+                if isinstance(param_grad, core.GradientSlice):
+                    param_grad_values = param_grad.values
+                    model.net.ScatterWeightedSum(
+                        [
+                            param,
+                            ONE,
+                            param_grad.indices,
+                            param_grad_values,
+                            neg_update_coeff,
+                        ],
                         param,
-                        ONE,
-                        param_grad.indices,
-                        param_grad_values,
-                        update_coeff,
-                    ],
-                    param,
-                )
-            else:
-                model.net.WeightedSum(
-                    [
+                    )
+                else:
+                    model.net.WeightedSum(
+                        [
+                            param,
+                            ONE,
+                            param_grad,
+                            neg_update_coeff,
+                        ],
                         param,
-                        ONE,
-                        param_grad,
-                        update_coeff,
-                    ],
-                    param,
-                )
+                    )
+        else:
+            raise ValueError('Unsupported optimizer type {}'.format(
+                self.optimizer))
 
     def norm_clipped_grad_update(self, model, scope):
 
@@ -697,6 +770,7 @@ class Seq2SeqModelCaffe2:
         target_vocab_size,
         num_gpus=1,
         num_cpus=1,
+        optimizer="sgd",
     ):
         self.model_params = model_params
         self.encoder_type = 'rnn'
@@ -705,6 +779,7 @@ class Seq2SeqModelCaffe2:
         self.target_vocab_size = target_vocab_size
         self.num_gpus = num_gpus
         self.num_cpus = num_cpus
+        self.optimizer= optimizer
         self.batch_size = model_params['batch_size']
 
         workspace.GlobalInit([
@@ -873,6 +948,7 @@ def run_seq2seq_model(args, model_params=None):
         target_vocab_size=len(target_vocab),
         num_gpus=args.num_gpus,
         num_cpus=20,
+        optimizer=args.optimizer,
     ) as model_obj:
         model_obj.initialize_from_scratch()
         for i in range(args.epochs):
@@ -969,6 +1045,8 @@ def main():
                         help='Size of softmax layer in the decoder')
     parser.add_argument('--num-gpus', type=int, default=0,
                         help='Number of GPUs for data parallel model')
+    parser.add_argument('--optimizer', type=str,
+                        help='Optimizer type')
 
     args = parser.parse_args()
 
