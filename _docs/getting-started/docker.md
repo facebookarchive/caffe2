@@ -103,7 +103,13 @@ The simplest test was already run during the build, but you can run it again.
 **Be warned that these tests only work with the optional dependencies images.**
 
 ```
-docker run -it caffe2 ipython
+docker run -it mydocker-repo/mytag ipython
+```
+
+For GPU support you will need to pass in several device parameters. Be warned that [Windows support for this is limited](https://github.com/NVIDIA/nvidia-docker/issues/197).
+
+```
+sudo docker run -ti --device /dev/nvidia0:/dev/nvidia0 --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm mydocker-repo/mytag ipython
 ```
 
 Then once in the IPython environment you can interact with Caffe2.
@@ -112,7 +118,13 @@ Then once in the IPython environment you can interact with Caffe2.
 In [1]: from caffe2.python import workspace
 ```
 
-Another test that you can use to put Caffe2 through its paces is by calling one of the [operator tests](https://github.com/caffe2/caffe2/blob/master/caffe2/python/operator_test/relu_op_test.py). Here's a [sample output](https://gist.github.com/aaronmarkham/dcdb284065c9ea4569214bcb0ca3a858).
+If you want to get in the image and play around with Python or C++ directly, just launch bash like so:
+
+```
+docker run -it mydocker-repo/mytag /bin/bash
+```
+
+Another test that you can use to put Caffe2 through its paces, including GPU support, is by calling one of the [operator tests](https://github.com/caffe2/caffe2/blob/master/caffe2/python/operator_test/relu_op_test.py). Here's a [sample output](https://gist.github.com/aaronmarkham/dcdb284065c9ea4569214bcb0ca3a858).
 
 ```
 docker run -it caffe2 python -m caffe2.python.operator_test.relu_op_test
