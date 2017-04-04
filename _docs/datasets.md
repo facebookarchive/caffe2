@@ -23,7 +23,6 @@ Check out the pre-trained models at [Caffe2's Model Zoo](zoo.html)!
 | [ImageNet](http://image-net.org/) 14,197,122 images, 21841 synsets indexed | ![large range of images](../static/images/imagenet.jpg) | [![download](../static/images/download.png)](http://image-net.org/download) |
 | [ImageNet ILSVRC](http://www.image-net.org/challenges/LSVRC/) | images | [![download](../static/images/download.png)](http://www.image-net.org/challenges/LSVRC/) |
 | [ImageNet ILSVRC12](http://www.image-net.org/challenges/LSVRC/2012/) | images | [![download](../static/images/download.png)](http://www.image-net.org/challenges/LSVRC/2012/nonpub-downloads) |
-| ImageNet ILSVRC13 RCNN | ImageNet | [![download](../static/images/download.png)](http://dl.caffe.berkeleyvision.org/bvlc_reference_rcnn_ilsvrc13.caffemodel)                     |
 | Inception | ImageNet | [![download](../static/images/download.png)](https://storage.googleapis.com/download.tensorflow.org/models/inception_dec_2015.zip) |
 | [Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) | ![flowers > classification](../static/images/iris.jpg)    | [![download](../static/images/download.png)](https://en.wikipedia.org/wiki/Iris_flower_data_set) |
 | [LSUN Scenes](http://lsun.cs.princeton.edu/2016/) millions of indoor/outdoor building scenes | ![scene classification](../static/images/kitchen.jpg) | [![download](../static/images/download.png)](https://github.com/fyu/lsun/blob/master/download.py) |
