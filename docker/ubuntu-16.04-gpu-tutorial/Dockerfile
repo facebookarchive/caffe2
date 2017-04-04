@@ -1,5 +1,5 @@
 #FROM ubuntu:16.04
-FROM caffe2ai/caffe2:cpu-fulloptions-ubuntu16.04
+FROM caffe2ai/caffe2:gpu-fulloptions-ubuntu16.04
 MAINTAINER Aaron Markham <aaronmarkham@fb.com>
 
 # caffe2 install with cpu support
