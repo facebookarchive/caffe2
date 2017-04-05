@@ -61,3 +61,65 @@ Performance will depend on the model, but for Resnet-50, we get ~7x speedup on 8
 [Resnet-50 example code](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py) contains example code using `rendezvous` which is a feature not specifically utilized in this synch SGD example, but is present in the [data_parallel_model module](/doxygen-python/html/namespacedata__parallel__model.html) that it used.
 
 [Deep Residual Learning for Image Recognition](https://arxiv.org/pdf/1512.03385.pdf) is the source research for Resnet-50, wherein they explore the results of building deeper and deeper networks, to over 1,000 layers, using residual learning on the ImageNet dataset. Resnet-50 is their residual network variation using 50 layers that performed quite well with the task of object detection, classification, and localization.
+
+### Test Out the Script Yourself
+
+We're assuming that you've successfully build Caffe2 and that you have a system with at least one GPU, but preferably more to test out the distributed features.
+
+First get yourself and image database ready in lmbd or leveldb format. In a pinch you can run the MNIST tutorial first, which will create both a train and test leveldb databases for you using the handwriting MNIST data set.
+
+[resnet50_trainer.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py) script default output:
+
+```
+usage: resnet50_trainer.py [-h] --train_data TRAIN_DATA
+                           [--test_data TEST_DATA] [--db_type DB_TYPE]
+                           [--gpus GPUS] [--num_gpus NUM_GPUS]
+                           [--num_channels NUM_CHANNELS]
+                           [--image_size IMAGE_SIZE] [--num_labels NUM_LABELS]
+                           [--batch_size BATCH_SIZE] [--epoch_size EPOCH_SIZE]
+                           [--num_epochs NUM_EPOCHS]
+                           [--base_learning_rate BASE_LEARNING_RATE]
+                           [--weight_decay WEIGHT_DECAY]
+                           [--num_shards NUM_SHARDS] [--shard_id SHARD_ID]
+                           [--run_id RUN_ID] [--redis_host REDIS_HOST]
+                           [--redis_port REDIS_PORT]
+                           [--file_store_path FILE_STORE_PATH]
+```
+
+Args to test:
+
+--train_data <path to db>
+--db_type <lmbd or leveldb> (default=lmdb)
+--num_gpus <#> (use this instead of listing out each one with `--gpus`)
+--test_data <path to db> (optional)
+
+Example using the MNIST database on an AWS instance after running the MNIST tutorial to setup the leveldb of handwriting images:
+
+```
+python resnet50_trainer.py --train_data /home/ec2-user/caffe2/caffe2/python/tutorials/tutorial_data/mnist/mnist-train-nchw-leveldb --db_type leveldb --gpus 0
+```
+
+|Required||
+|-------|--------|
+| `--train_data` | the path to the database of training data |
+
+|Optional||
+|-------|--------|
+| `--test_data` | the path to the database of test data
+| `--db_type DB_TYPE` | either `lmdb` or `leveldb`, defaults to `lmdb` |
+| `--gpus`| a list of GPU IDs, where 0 would be the first GPU device # |
+| `--num_gpus` | an integer for the total number of GPUs; alternative to using a list with `gpus` |
+| `--num_channels` | number of color channels, defaults to 3 |
+| `--image_size` | the height or width in pixels of the input images, assumes they're square, defaults to 227 |
+| `--num_labels` | number of labels, defaults to 1000 |
+| `--batch_size` | batch size, total over all GPUs, defaults to 32 |
+| `--epoch_size` | number of images per [epoch](https://deeplearning4j.org/glossary#epoch-vs-iteration), defaults to 1.5MM (1500000) |
+| `--num_epochs` | number of [epochs](https://deeplearning4j.org/glossary#epoch-vs-iteration) |
+| `--base_learning_rate` | initial learning rate, defaults to 0.1 |
+| `--weight_decay` | weight decay (L2 regularization) |
+| `--num_shards` | number of machines in a distributed run, defaults to 1 |
+| `--shard_id` | shard id, defaults to 0 |
+| `--run_id RUN_ID` | unique run identifier, e.g. uuid |
+| `--redis_host` | host of Redis server (for rendezvous) |
+| `--redis_port` | Redis port for rendezvous |
+| `--file_store_path` | path to directory to use for rendezvous |
