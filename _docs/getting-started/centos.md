@@ -208,6 +208,7 @@ ssh -N -f -L localhost:8888:localhost:8889 -i "your-public-cert.pem" ec2-user@su
 #### Troubleshooting
 
 caffe2.python not found | You may have some PATH or PYTHONPATH issues. Add `/home/ec2-user/caffe2/build` to your path and that can take care of those problems.
+error while loading shared libraries: libCaffe2_CPU.so: cannot open shared object file: No such file or directory | Try updating your LD_LIBRARY_PATH with `export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH`
 
 {{ outro | markdownify }}
 
