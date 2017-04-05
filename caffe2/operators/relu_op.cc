@@ -29,7 +29,6 @@ bool ReluOp<float, CPUContext>::RunOnDevice() {
 
 template <>
 bool ReluGradientOp<float, CPUContext>::RunOnDevice() {
-  auto& X = Input(0);
   auto& Y = Input(1);
   auto& dY = Input(2);
   auto* dX = Output(0);
