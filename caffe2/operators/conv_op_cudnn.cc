@@ -417,7 +417,6 @@ bool CudnnConvOp::RunOnDevice() {
                          float16,      // W
                          float16,      // B
                          float,      // Math
-                         // float16,      // Math
                          float16>();   // Y
   } else {
     LOG(FATAL) << "Unsupported type inputs";
@@ -749,7 +748,6 @@ bool CudnnConvGradientOp::RunOnDevice() {
                          float16,    //  W
                          float16,    //  b
                          float,    // Math
-                         // float16,    // Math
                          float16,    // dX
                          float16,    // dW
                          float16>(); // db
