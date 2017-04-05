@@ -9,7 +9,21 @@ Take advantage of the [Model Zoo](https://github.com/caffe2/caffe2/wiki/Model-Zo
 
 [Browse the IPython Tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Loading_Pretrained_Models.ipynb)
 
-In this tutorial, we'll use the `squeezenet` model to identify objects in images. The image location will pass in a URL to a photo or the location of a local file. The codes is a list of [AlexNet object codes](https://gist.githubusercontent.com/maraoz/388eddec39d60c6d52d4/raw/791d5b370e4e31a4e9058d49005be4888ca98472/gistfile1.txt), like "985" which equates to "daisy".
+## Model Download Options
+
+Check out the [Model Zoo for pre-trained models](zoo), or you can also use Caffe2's `models.download` module to acquire pre-trained models from [Github caffe2/models](http://github.com/caffe2/models)
+`caffe2.python.models.download` takes in an argument for the name of the model. Check the repo for the available models' names and swap out the `squeezenet` argument if you want to try something different. Example:
+
+```
+python -m caffe2.python.models.download -i squeezenet
+```
+
+If the above download worked then you should have a copy of squeezenet in your model folder or if you used the `-i` flag it will have installed the model locally in the `/caffe2/python/models` folder.
+Alternatively, you can clone the entire repo of models: `git clone https://github.com/caffe2/models`.
+
+## Overview
+
+In this tutorial, we'll use the `squeezenet` model to identify objects in images.
 
 If you came from the Image Pre-Processing Tutorial, you will see that we're using rescale and crop functions to prep the image, as well as reformatting the image to be CHW, BGR, and finally NCHW. We also correct the image mean, by either using the calculated mean from a provided npy file or statically removing 128 as a placeholder average.
 
@@ -36,11 +50,6 @@ The results come back as a multidimensional array of probabilities. Essentially 
 
 Settings are in a code block below. Most of the time these should run out of the box.
 
-### Download Options
-
-Use the `models.download` module to acquire pre-trained models from [Github caffe2/models](http://github.com/caffe2/models)
-`caffe2.python.models.download` takes in an argument for the name of the model. Check the repo for the available models' names and swap out the `squeezenet` argument if you want to try something different.
-
 **Note: other models are known to have some issues with this simple code and may require additional massaging to work!**
 
 
@@ -66,19 +75,11 @@ print("Required modules imported.")
     Required modules imported.
 
 
-If the above download worked then you should have a copy of squeezenet in your model folder.
 
+The image location will pass in a URL to a photo or the location of a local file. `codes` is a list of [AlexNet object codes](https://gist.githubusercontent.com/aaronmarkham/cd3a6b6ac071eca6f7b4a6e40e6038aa/raw/9edb4038a37da6b5a44c3b5bc52e448ff09bfe5b/alexnet_codes), like "985" which equates to "daisy".
 
 ```python
-# Configuration --- Change to your setup and preferences!
-
-# sample images you can try, or use any URL to a regular image.
-# IMAGE_LOCATION = "images/cat.jpg"
-IMAGE_LOCATION = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Whole-Lemon.jpg/1235px-Whole-Lemon.jpg"
-# IMAGE_LOCATION = "https://upload.wikimedia.org/wikipedia/commons/7/7b/Orange-Whole-%26-Split.jpg"
-# IMAGE_LOCATION = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Zucchini-Whole.jpg"
-# IMAGE_LOCATION = "https://upload.wikimedia.org/wikipedia/commons/a/ac/Pretzel.jpg"
-# IMAGE_LOCATION = "https://cdn.pixabay.com/photo/2015/02/10/21/28/flower-631765_1280.jpg"
+IMAGE_LOCATION =  "https://cdn.pixabay.com/photo/2015/02/10/21/28/flower-631765_1280.jpg"
 
 # What model are we using? You should have already converted or downloaded one.
 # format below is the model's:
@@ -86,10 +87,9 @@ IMAGE_LOCATION = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Whol
 # you can switch the comments on MODEL to try out different model conversions
 MODEL = 'squeezenet', 'init_net.pb', 'predict_net.pb', 'ilsvrc_2012_mean.npy', 227
 
-
 # codes - these help decypher the output and source from a list from AlexNet's object codes to provide an result like "tabby cat" or "lemon" depending on what's in the picture you submit to the neural network.
-# The list of output codes for the AlexNet models (squeezenet)
-codes =  "https://gist.githubusercontent.com/maraoz/388eddec39d60c6d52d4/raw/791d5b370e4e31a4e9058d49005be4888ca98472/gistfile1.txt"
+# The list of output codes for the AlexNet models (also squeezenet)
+codes =  "https://gist.githubusercontent.com/aaronmarkham/cd3a6b6ac071eca6f7b4a6e40e6038aa/raw/9edb4038a37da6b5a44c3b5bc52e448ff09bfe5b/alexnet_codes"
 print "Config set!"
 ```
 
@@ -246,7 +246,7 @@ print "results shape: ", results.shape
     results shape:  (1, 1, 1000, 1, 1)
 
 
-See that we have 1000 result there in the middle? If we had submitted more that one image in our batch then the array would be larger, but still have 1000 units there in the middle. It is holding the probability for each category in the pre-trained model. So when you look at the results, it's like saying, "Computer, what's the probability that this is a Beryllium sphere?" Or gila monster, or any of the other 998 groups of things in there.
+See that we have 1000 result there in the middle? If we had submitted more than one image in our batch then the array would be larger, but still have 1000 units there in the middle. It is holding the probability for each category in the pre-trained model. So when you look at the results, it's like saying, "Computer, what's the probability that this is a Beryllium sphere?" Or gila monster, or any of the other 998 groups of things in there.
 
 Let's see what you have! Run the next block for the result.
 
@@ -288,5 +288,4 @@ for line in response:
     daisy
 
 
-
-Now that you've run it, try out some different images. See how well it does across more complicated images or with multiple objects or subjects. Several different objects are available in the 2nd (configuration) code block.
+Now that you've run it, try out some different images. See how well it does across more complicated images or with multiple objects or subjects.
