@@ -73,7 +73,10 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
       return DoRunWithType<float,float>();
     } else if (X.IsType<float16>()) {
       return DoRunWithType<float16,float>();
+    } else {
+      LOG(FATAL) << "Unsupported input types";
     }
+    return true;
   }
 
  protected:
@@ -82,7 +85,6 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
   cudnnActivationDescriptor_t activ_desc_;
   vector<TIndex> cudnn_input_dims_;
   StorageOrder order_;
-  bool (CuDNNReluOp::*body_)();
 };
 
 
@@ -166,8 +168,10 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
       return DoRunWithType<float,float>();
     } else if (Y.IsType<float16>()) {
       return DoRunWithType<float16,float>();
+    } else {
+      LOG(FATAL) << "Unsupported input types";
     }
-    // return (this->*body_)();
+    return true;
   }
 
  protected:
@@ -177,8 +181,6 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
   vector<TIndex> cudnn_input_dims_;
   StorageOrder order_;
   // Input: X, Y, dY; Output: dX
- private:
-  bool (CuDNNReluGradientOp::*body_)();
 };
 
 namespace {

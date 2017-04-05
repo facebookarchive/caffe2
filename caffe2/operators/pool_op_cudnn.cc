@@ -108,7 +108,10 @@ class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
       return DoRunWithType<float,float>();
     } else if (X.IsType<float16>()) {
       return DoRunWithType<float16,float>();
+    } else {
+      LOG(FATAL) << "Unsupported input types";
     }
+    return true;
   }
 
  protected:
@@ -232,7 +235,10 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
       return DoRunWithType<float,float>();
     } else if (X.IsType<float16>()) {
       return DoRunWithType<float16,float>();
+    } else {
+      LOG(FATAL) << "Unsupported input types";
     }
+    return true;
   }
 
  protected:
@@ -247,7 +253,6 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
   // Input: X, Y, dY
   // Output: dX
   INPUT_TAGS(IN, OUT, OUT_GRAD);
- private:
 };
 
 namespace {

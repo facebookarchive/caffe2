@@ -420,8 +420,9 @@ bool CudnnConvOp::RunOnDevice() {
                          // float16,      // Math
                          float16>();   // Y
   } else {
-    CAFFE_THROW("Unsupported inputs");
+    LOG(FATAL) << "Unsupported type inputs";
   }
+  return true;
 }
 
 template <typename T_X, typename T_DY, typename T_W, typename T_B,
@@ -753,8 +754,9 @@ bool CudnnConvGradientOp::RunOnDevice() {
                          float16,    // dW
                          float16>(); // db
   } else {
-    CAFFE_THROW("Unsupported inputs");
+    LOG(FATAL) << "Unsupported input types";
   }
+  return true;
 }
 
 REGISTER_CUDNN_OPERATOR(Conv, CudnnConvOp);

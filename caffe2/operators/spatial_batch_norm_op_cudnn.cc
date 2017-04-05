@@ -216,8 +216,10 @@ bool CudnnSpatialBNOp::RunOnDevice() {
     return DoRunWithType<float,float>();
   } else if (Input(0).IsType<float16>()) {
     return DoRunWithType<float16,float>();
+  } else {
+    LOG(FATAL) << "Unsupported input types";
   }
-  return false;
+  return true;
 }
 
 template <typename T, typename M>
@@ -291,8 +293,10 @@ bool CudnnSpatialBNGradientOp::RunOnDevice() {
     return DoRunWithType<float,float>();
   } else if (Input(0).IsType<float16>()) {
     return DoRunWithType<float16,float>();
+  } else {
+    LOG(FATAL) << "Unsupported input types";
   }
-  return false;
+  return true;
 }
 
 namespace {
