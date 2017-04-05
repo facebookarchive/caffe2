@@ -14,7 +14,7 @@ void ReversePackedSegments_kernel(
       const LengthType* lengths_ptr,
       const T* data_ptr,
       T* rev_data_ptr) {
-  
+
   const int block_id = blockIdx.x;
 
   // index into [0, batch_size)
