@@ -123,21 +123,34 @@ class SparseMomentumSGDUpdateOp final : public Operator<Context> {
         nesterov_(OperatorBase::GetSingleArgument<int>("nesterov", 0)) {}
 
   bool RunOnDevice() override {
+    // Resize [potentially] out-of-place blobs
+    Output(OUTPUT_GRAD)->ResizeLike(Input(GRAD));
+
+    // Enforce types
+    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(GRAD));
+    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(MOMENTUM));
+    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(LR));
+    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(PARAM));
+    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(INDICES));
+    CAFFE_ENFORCE(OperatorBase::OutputIsType<Tensor<Context>>(OUTPUT_GRAD));
+
+    // Enforce shapes
+    CAFFE_ENFORCE(Input(LR).size() == 1);
+    CAFFE_ENFORCE(Input(PARAM).size() == Input(MOMENTUM).size());
+
+    // These must be in-place for the sparse op. If out-of-place is required,
+    // we need to copy input to output before running.
+    CAFFE_ENFORCE_EQ(&Input(MOMENTUM), Output(OUTPUT_MOMENTUM),
+        "MOMENTUM must be in-place");
+    CAFFE_ENFORCE_EQ(&Input(PARAM), Output(OUTPUT_PARAM),
+        "PARAM must be in-place");
+
     return DispatchHelper<TensorTypes<int32_t, int64_t>>::call(
         this, Input(INDICES));
   }
 
   template <typename SIndex>
   bool DoRunWithType() {
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(GRAD));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(MOMENTUM));
-    CAFFE_ENFORCE(Input(LR).size() == 1);
-    CAFFE_ENFORCE(Input(PARAM).size() == Input(MOMENTUM).size());
-
-    Output(OUTPUT_GRAD)->ResizeLike(Input(GRAD));
-    Output(OUTPUT_MOMENTUM)->ResizeLike(Input(MOMENTUM));
-    Output(OUTPUT_PARAM)->ResizeLike(Input(PARAM));
-
     auto block_size = Input(PARAM).size() / Input(PARAM).dim(0);
     auto n = Input(GRAD).size() / block_size;
 
