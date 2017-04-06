@@ -56,7 +56,7 @@ id: home
         <div class="landing-row">
             <div class="landing-col-md-3 box">
                 <img src="./static/images/landing-audio.png">
-                <h4>Audio Recoginition</h4>
+                <h4>Speech Recoginition</h4>
             </div>
             <div class="landing-col-md-3 box">
                 <img src="./static/images/landing-trans.png">
