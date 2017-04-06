@@ -59,9 +59,9 @@ pass.
 import argparse
 
 from caffe2.python import cnn, workspace
+import numpy as np
 
-
-def MLP(order):
+def MLP(order, mkl):
     model = cnn.CNNModelHelper()
     d = 256
     depth = 20
@@ -85,7 +85,7 @@ def MLP(order):
     return model, d
 
 
-def AlexNet(order):
+def AlexNet(order, mkl):
     model = cnn.CNNModelHelper(
         order, name="alexnet",
         use_cudnn=True, cudnn_exhaustive_search=True)
@@ -162,11 +162,12 @@ def AlexNet(order):
     )
     pred = model.Softmax(fc8, "pred")
     xent = model.LabelCrossEntropy([pred, "label"], "xent")
-    loss = model.AveragedLoss(xent, "loss")
+    if not mkl:
+        loss = model.AveragedLoss(xent, "loss")
     return model, 224
 
 
-def OverFeat(order):
+def OverFeat(order, mkl):
     model = cnn.CNNModelHelper(
         order, name="overfeat",
         use_cudnn=True, cudnn_exhaustive_search=True)
@@ -235,11 +236,12 @@ def OverFeat(order):
     )
     pred = model.Softmax(fc8, "pred")
     xent = model.LabelCrossEntropy([pred, "label"], "xent")
-    loss = model.AveragedLoss(xent, "loss")
+    if not mkl:
+        loss = model.AveragedLoss(xent, "loss")
     return model, 231
 
 
-def VGGA(order):
+def VGGA(order, mkl):
     model = cnn.CNNModelHelper(
         order, name='vgg-a',
         use_cudnn=True, cudnn_exhaustive_search=True)
@@ -351,7 +353,8 @@ def VGGA(order):
     )
     pred = model.Softmax(fcxi, "pred")
     xent = model.LabelCrossEntropy([pred, "label"], "xent")
-    loss = model.AveragedLoss(xent, "loss")
+    if not mkl:
+        loss = model.AveragedLoss(xent, "loss")
     return model, 231
 
 
@@ -416,7 +419,7 @@ def _InceptionModule(
     return output
 
 
-def Inception(order):
+def Inception(order, mkl):
     model = cnn.CNNModelHelper(
         order, name="inception",
         use_cudnn=True, cudnn_exhaustive_search=True)
@@ -488,7 +491,8 @@ def Inception(order):
     # backward pass.
     pred = model.Softmax(fc, "pred")
     xent = model.LabelCrossEntropy([pred, "label"], "xent")
-    loss = model.AveragedLoss(xent, "loss")
+    if not mkl:
+        loss = model.AveragedLoss(xent, "loss")
     return model, 224
 
 
@@ -504,7 +508,7 @@ def AddParameterUpdate(model):
 
 
 def Benchmark(model_gen, arg):
-    model, input_size = model_gen(arg.order)
+    model, input_size = model_gen(arg.order, arg.mkl)
     model.Proto().type = arg.net_type
     model.Proto().num_workers = arg.num_workers
 
@@ -524,17 +528,27 @@ def Benchmark(model_gen, arg):
         mean=0.0,
         std=1.0
     )
-    model.param_init_net.UniformIntFill(
-        [],
-        "label",
-        shape=[arg.batch_size, ],
-        min=0,
-        max=999
-    )
+    #MKL doesn't support int, so have to use numpy
+    if arg.mkl:
+        label = np.random.randint(low=0, high=1000, size=(arg.batch_size,)).astype(np.int32)
+        workspace.FeedBlob("label", label)
+    else:
+        model.param_init_net.UniformIntFill(
+            [],
+            "label",
+            shape=[arg.batch_size, ],
+            min=0,
+            max=999
+        )
 
     if arg.forward_only:
         print('{}: running forward only.'.format(arg.model))
     else:
+        if arg.mkl:
+            print(
+                '==WARNING==\n'
+                'forward-backward not supported yet in MKL, so exiting'
+            )
         print('{}: running forward-backward.'.format(arg.model))
         model.AddGradientOperators(["loss"])
         AddParameterUpdate(model)
@@ -546,8 +560,12 @@ def Benchmark(model_gen, arg):
             )
 
     if not arg.cpu:
-        model.param_init_net.RunAllOnGPU()
-        model.net.RunAllOnGPU()
+        if arg.mkl:
+            model.param_init_net.RunAllOnMKL()
+            model.net.RunAllOnMKL()
+        else:
+            model.param_init_net.RunAllOnGPU()
+            model.net.RunAllOnGPU()            
 
     if arg.engine:
         for op in model.net.Proto().op:
@@ -618,6 +636,11 @@ def GetArgumentParser():
         help="If True, run testing on CPU instead of GPU."
     )
     parser.add_argument(
+        "--mkl",
+        action='store_true',
+        help="If True, run testing on CPU-MKL instead of GPU."
+    )
+    parser.add_argument(
         "--engine",
         type=str,
         default="",
@@ -627,7 +650,8 @@ def GetArgumentParser():
         action='store_true',
         help="If True, dump the model prototxts to disk."
     )
-    parser.add_argument("--net_type", type=str, default="dag")
+    #parser.add_argument("--net_type", type=str, default="dag")
+    parser.add_argument("--net_type", type=str, default="simple")
     parser.add_argument("--num_workers", type=int, default=2)
     parser.add_argument("--use-nvtx", default=False, action='store_true')
     parser.add_argument("--htrace_span_log_path", type=str)

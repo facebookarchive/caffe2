@@ -22,11 +22,9 @@ template <typename T, typename PoolType>
 class MKLPoolOp final : public ConvPoolOpBase<MKLContext>{
 
   public:
-    USE_CONV_POOL_BASE_FUNCTIONS(MKLContext);
-    
+    USE_CONV_POOL_BASE_FUNCTIONS(MKLContext);    
     MKLPoolOp(const OperatorDef &operator_def, Workspace *ws)
         : ConvPoolOpBase<MKLContext>(operator_def, ws) {
-
       CAFFE_ENFORCE(
             dilation_h_ == 1 && dilation_w_ == 1,
             "Pooling op does not support dilation right now.");
@@ -48,21 +46,18 @@ class MKLPoolOp final : public ConvPoolOpBase<MKLContext>{
     bool RunOnDeviceWithOrderNCHW() override;
     bool RunOnDeviceWithOrderNHWC() override;
 
-     // Input: X
+    // Input: X
     // Output: Y
 private:
     vector<TIndex> cached_maxpool_input_dims_;
     vector<TIndex> cached_avgpool_input_dims_;   
-
     LayoutWrapper<T> workspace_layout_;
     T *workspace_buffer_ = nullptr;
     PrimitiveWrapper<T> primitive_;
     MKLMemory<T> buffer_;
-    void* resources_[dnnResourceNumber] = {0};
-  
+    void* resources_[dnnResourceNumber] = {0};  
 
-};
-    
+};    
 
 template <>
 bool MKLPoolOp<float, MaxPool>::RunOnDeviceWithOrderNCHW() {
@@ -78,10 +73,10 @@ bool MKLPoolOp<float, MaxPool>::RunOnDeviceWithOrderNCHW() {
         TensorCPU dummy_input(X.dims());
         TensorCPU dummy_output;
 
-        ConvPoolOpBase<MKLContext>::SetOutputSize(dummy_input, &dummy_output, X.dim32(1));
-               
+        ConvPoolOpBase<MKLContext>::SetOutputSize(dummy_input,
+                                                  &dummy_output, 
+                                                  X.dim32(1));               
         size_t dim = X.ndim();
-
         CAFFE_ENFORCE(4 == dim);
 
         int paddings[4] = {-pad_l_, -pad_t_, -pad_r_, -pad_b_};
@@ -102,7 +97,8 @@ bool MKLPoolOp<float, MaxPool>::RunOnDeviceWithOrderNCHW() {
        buffer_.Reset(dummy_output.dims(), primitive_, dnnResourceDst, true); 
 
        workspace_layout_.Reset(primitive_, dnnResourceWorkspace);
-       MKLDNN_SAFE_CALL(mkl::dnnAllocateBuffer<float>((void **)(&workspace_buffer_), workspace_layout_));    
+       MKLDNN_SAFE_CALL(mkl::dnnAllocateBuffer<float>((void **)(&workspace_buffer_),
+                                                         workspace_layout_));    
 
     } 
 
@@ -132,10 +128,10 @@ bool MKLPoolOp<float, AveragePool>::RunOnDeviceWithOrderNCHW() {
         TensorCPU dummy_input(X.dims());
         TensorCPU dummy_output;
 
-        ConvPoolOpBase<MKLContext>::SetOutputSize(dummy_input, &dummy_output, X.dim32(1));
-               
+        ConvPoolOpBase<MKLContext>::SetOutputSize(dummy_input, 
+                                                &dummy_output, 
+                                                X.dim32(1));               
         size_t dim = X.ndim();
-
         CAFFE_ENFORCE(4 == dim);
 
         int paddings[4] = {-pad_l_, -pad_t_, -pad_r_, -pad_b_};
@@ -156,7 +152,8 @@ bool MKLPoolOp<float, AveragePool>::RunOnDeviceWithOrderNCHW() {
        buffer_.Reset(dummy_output.dims(), primitive_, dnnResourceDst, true); 
 
        workspace_layout_.Reset(primitive_, dnnResourceWorkspace);
-       MKLDNN_SAFE_CALL(mkl::dnnAllocateBuffer<float>((void **)(&workspace_buffer_), workspace_layout_));
+       MKLDNN_SAFE_CALL(mkl::dnnAllocateBuffer<float>((void **)(&workspace_buffer_), 
+                                                        workspace_layout_));
     } 
 
     // Try to share from the output: this allows us to avoid unnecessary copy
@@ -181,15 +178,10 @@ template <>
 bool MKLPoolOp<float, AveragePool>::RunOnDeviceWithOrderNHWC() {
     CAFFE_NOT_IMPLEMENTED;    
 }  
-
-
-
 } // namespace mkl
-
 
 REGISTER_MKL_OPERATOR(AveragePool, mkl::MKLPoolOp<float,  AveragePool>);
 REGISTER_MKL_OPERATOR(MaxPool, mkl::MKLPoolOp<float,  MaxPool>);
-
 
 } // namespace caffe2
 

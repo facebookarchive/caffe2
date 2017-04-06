@@ -15,7 +15,7 @@ class MKLLRNOp final : public LRNOpBase<T, MKLContext>{
   public:        
     MKLLRNOp(const OperatorDef &operator_def, Workspace *ws)
         : LRNOpBase<T, MKLContext>(operator_def, ws) {}
-    
+
     ~MKLLRNOp() {
         if (workspace_buffer_ != NULL) {
       dnnReleaseBuffer<T>(workspace_buffer_);
@@ -28,19 +28,15 @@ class MKLLRNOp final : public LRNOpBase<T, MKLContext>{
      
 private:
     vector<TIndex> cached_input_dims_;
-
     LayoutWrapper<T> workspace_layout_;
     T *workspace_buffer_ = nullptr;
     PrimitiveWrapper<T> primitive_;
     MKLMemory<T> buffer_;
     void* resources_[dnnResourceNumber] = {0};  
-
-};
-    
+};    
 
 template <>
 bool MKLLRNOp<float>::RunOnDeviceWithOrderNCHW() {
-
     auto& X = OperatorBase::Input<MKLMemory<float>>(0);
     MKLMemory<float>* Y = OperatorBase::Output<MKLMemory<float>>(0);
 
@@ -81,12 +77,9 @@ bool MKLLRNOp<float>::RunOnDeviceWithOrderNHWC() {
     CAFFE_NOT_IMPLEMENTED;
 }
 
-
 } // namespace mkl
 
-
 REGISTER_MKL_OPERATOR(LRN, mkl::MKLLRNOp<float>);
-
 
 } // namespace caffe2
 

@@ -16,13 +16,12 @@ class MKLFullyConnectedOp final : public MKLOperator<T> {
         axis_(OperatorBase::GetSingleArgument<int32_t>("axis", 1)) {}
   ~MKLFullyConnectedOp() {}
 
-
   bool RunOnDevice() override {
     auto& X = OperatorBase::Input<MKLMemory<float>>(INPUT);
     auto& filter = OperatorBase::Input<MKLMemory<float>>(FILTER);
     auto& bias = OperatorBase::Input<MKLMemory<float>>(BIAS);
     MKLMemory<float>* Y = OperatorBase::Output<MKLMemory<float>>(0);
-    
+        
     CAFFE_ENFORCE(filter.ndim() == 2, filter.ndim());
     CAFFE_ENFORCE(bias.ndim() == 1, bias.ndim());
 
@@ -79,7 +78,7 @@ class MKLFullyConnectedOp final : public MKLOperator<T> {
     resources_[dnnResourceDst] = buffer_.buffer();
 
     MKLDNN_SAFE_CALL(mkl::dnnExecute<T>(primitive_, resources_));
-    buffer_.CopyTo(Y, primitive_, dnnResourceDst);
+    buffer_.CopyTo(Y, primitive_, dnnResourceDst);    
     return true;
   }
 

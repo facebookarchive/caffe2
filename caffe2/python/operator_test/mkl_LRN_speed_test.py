@@ -72,11 +72,6 @@ class TestMKLBasic(test_util.TestCase):
             workspace.FetchBlob("Y_mkl"),
             atol=1e-2,
             rtol=1e-2)
-        '''np.testing.assert_allclose(
-            workspace.FetchBlob("Y_Scale"),
-            workspace.FetchBlob("Y_Scale_mkl"),
-            atol=1e-2,
-            rtol=1e-2)'''
         runtime = workspace.BenchmarkNet(net.Proto().name, 1, 100, True)
         
 
