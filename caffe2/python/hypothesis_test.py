@@ -2246,6 +2246,5 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertDeviceChecks(dc, op, [X], [0, 1])
         self.assertReferenceChecks(gc, op, [X], histogram)
 
-
 if __name__ == "__main__":
     unittest.main()

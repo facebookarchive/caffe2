@@ -36,6 +36,11 @@ def CurrentDeviceScope():
         _threadlocal_scope.devicescope = None
     return _threadlocal_scope.devicescope
 
+def CurrentParamGroupScope():
+    global _threadlocal_scope
+    if not hasattr(_threadlocal_scope, "paramgroupscope"):
+        _threadlocal_scope.paramgroupscope = None
+    return _threadlocal_scope.paramgroupscope
 
 # NOTE: using NameScope is NOT thread-safe! (TODO t13621185)
 @contextlib.contextmanager
@@ -66,3 +71,16 @@ def DeviceScope(scope):
     assert _threadlocal_scope.devicescope == scope, \
         "The device scope is changed from outside DeviceScope() calls."
     _threadlocal_scope.devicescope = old_scope
+
+@contextlib.contextmanager
+def ParamGroupScope(scope):
+    global _threadlocal_scope
+    assert isinstance(scope, basestring)
+
+    old_scope = CurrentParamGroupScope()
+    _threadlocal_scope.paramgroupscope = scope
+    yield
+    assert _threadlocal_scope.paramgroupscope == scope, \
+        "The param group scope is changed from outside ParamGroupScope() calls."
+    _threadlocal_scope.paramgroupscope = old_scope
+

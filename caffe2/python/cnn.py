@@ -25,7 +25,7 @@ class CNNModelHelper(ModelHelperBase):
             skip_sparse_optim=skip_sparse_optim,
             name="CNN" if name is None else name,
             init_params=init_params,
-            param_model=param_model,
+            param_model=param_model
         )
 
         self.weights = []
@@ -136,6 +136,12 @@ class CNNModelHelper(ModelHelperBase):
         else:
             self.params.extend([weight])
 
+        # Add relevant parameters to scope if necessary
+        if not scope.CurrentParamGroupScope() is None:
+            if use_bias:
+                self.add_param_to_group(bias, scope.CurrentParamGroupScope())
+            self.add_param_to_group(weight, scope.CurrentParamGroupScope())
+
         self.weights.append(weight)
 
         if use_bias:
@@ -213,6 +219,12 @@ class CNNModelHelper(ModelHelperBase):
             bias = core.ScopedBlobReference(
                 blob_out + '_b', self.param_init_net)
         self.params.extend([weight, bias])
+
+        # Add relevant parameters to scope if necessary
+        if not scope.CurrentParamGroupScope() is None:
+            self.add_param_to_group(bias, scope.CurrentParamGroupScope())
+            self.add_param_to_group(weight, scope.CurrentParamGroupScope())
+
         self.weights.append(weight)
         self.biases.append(bias)
         if self.use_cudnn:
@@ -376,6 +388,12 @@ class CNNModelHelper(ModelHelperBase):
         else:
             self.params.extend([weight, bias])
 
+        # Add relevant parameters to scope if necessary
+        if not scope.CurrentParamGroupScope() is None:
+            if not 'freeze_bias' in kwargs:
+                self.add_param_to_group(bias, scope.CurrentParamGroupScope())
+            self.add_param_to_group(weight, scope.CurrentParamGroupScope())
+
         self.weights.append(weight)
         self.biases.append(bias)
         return op_call([blob_in, weight, bias], blob_out, **kwargs)
@@ -416,6 +434,13 @@ class CNNModelHelper(ModelHelperBase):
             **bias_init[1]
         )
         self.params.extend([u, v, bias])
+
+        # Add relevant parameters to scope if necessary
+        if not scope.CurrentParamGroupScope() is None:
+            self.add_param_to_group(bias, scope.CurrentParamGroupScope())
+            self.add_param_to_group(u, scope.CurrentParamGroupScope())
+            self.add_param_to_group(v, scope.CurrentParamGroupScope())
+
         return self.net.FC_Decomp([blob_in, u, v, bias], blob_out, **kwargs)
 
     def FC_Prune(
@@ -579,6 +604,9 @@ class CNNModelHelper(ModelHelperBase):
 
         self.params.extend([slope])
 
+        if not scope.CurrentParamGroupScope() is None:
+            self.add_param_to_group(slope, scope.CurrentParamGroupScope())
+
         return self.net.PRelu([blob_in, slope], [blob_out])
 
     def Relu(self, blob_in, blob_out, **kwargs):
@@ -660,6 +688,11 @@ class CNNModelHelper(ModelHelperBase):
                     blob_out + '_riv', self.param_init_net)
 
         self.params.extend([scale, bias])
+
+        if not scope.CurrentParamGroupScope() is None:
+            self.add_param_to_group(scale, scope.CurrentParamGroupScope())
+            self.add_param_to_group(bias, scope.CurrentParamGroupScope())
+
         self.computed_params.extend([running_mean, running_inv_var])
         self.weights.append(scale)
         self.biases.append(bias)

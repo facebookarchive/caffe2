@@ -18,17 +18,78 @@ dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/gloo:gloo_ops_gpu")
 log = logging.getLogger("data_parallel_model")
 log.setLevel(logging.INFO)
 
+def _GroupByParamGroups(device_grouped_params, device_grouped_gradients, devices, param_groups):
+
+    # { group_name : { device : [grads] } }
+    group_grad_device_map = {}
+    # { group_name : { device : [params] } }
+    group_param_device_map = {}
+    for group_name in param_groups:
+        stripped_params = set([stripParamName(param) for param in param_groups[group_name]])
+        stripped_grads = [param+"_grad" for param in stripped_params]
+
+        # { device : [grads] }
+        device_group_grad = {}
+        # { device : [params] }
+        device_group_param = {}
+        for device in devices:
+            grad_list = []
+            param_list = []
+            for param in stripped_params:
+                grad_list.append(device_grouped_gradients[param+"_grad"][device])
+                param_list.append(device_grouped_params[param][device])
+            device_group_grad[device] = grad_list
+            device_group_param[device] = param_list
+
+        group_grad_device_map[group_name] = device_group_grad
+        group_param_device_map[group_name] = device_group_param
+
+    return group_param_device_map, group_grad_device_map
+
+def _CoalesceParamGradGroups(model, devices):
+    device_grad_groups = model._device_grad_groups
+    device_param_groups = model._device_param_groups
+
+    # generate { group_name : { device : coalesced_{params,grads} } }
+    device_coalesced_params = {}
+    device_coalesced_grads = {}
+
+    for group_name in device_grad_groups:
+        coalesced_grads = {}
+        coalesced_params = {}
+        for device in devices:
+            with core.DeviceScope(core.DeviceOption(caffe2_pb2.CUDA, device)):
+                with core.NameScope('gpu_{}'.format(device)):
+                    grads = device_grad_groups[group_name][device]
+                    # actually coalesce
+                    coalesced_name = '{}_grad_coalesced'.format(group_name)
+                    g = model.Coalesce(grads, grads+[coalesced_name])
+                    coalesced_grads[device] = g[-1]
+
+                    params = device_param_groups[group_name][device]
+                    # Coalesce
+                    coalesced_name = '{}_coalesced'.format(group_name)
+                    p = model.Coalesce(params, params+[coalesced_name])
+                    coalesced_params[device] = p[-1]
+
+        device_coalesced_grads[group_name] = coalesced_grads
+        device_coalesced_params[group_name] = coalesced_params
+
+    return device_coalesced_params, device_coalesced_grads
 
 def Parallelize_GPU(
     model_helper_obj,
     input_builder_fun,
     forward_pass_builder_fun,
-    param_update_builder_fun,
+    param_update_builder_fun=None,
+    single_param_update_builder_fun=None,
+    global_param_update_builder_fun=None,
     devices=range(0, workspace.NumCudaDevices()),
     rendezvous=None,
     net_type='dag',
     broadcast_computed_params=True,
     optimize_gradient_memory=False,
+    use_aggregated_parameters=True
 ):
     '''
     Function to create a model that can run on many GPUs.
@@ -48,8 +109,21 @@ def Parallelize_GPU(
       param_update_builder_fun:
                         Function that adds operators that are run after
                         gradient update, such as updating the weights and
-                        weight decaying.
-                        Signature: param_update_builder_fun(model)
+                        weight decaying. Function is also passed the learning
+                        rate scaling factor. You should multiple the learning
+                        rate by the factor to maintain invariant of same
+                        results with same total batch size, regardless of
+                        number of gpus.
+                        Signature: param_update_builder_fun(model, lr_scale)
+      single_param_update_builder_fun:
+                        Function that adds parameter update operators for a
+                        single parameter. Requires global_param_update_builder_fun
+                        to also be defined
+                        Signature: single_param_update_builder_fun(model, param, param_grad)
+      global_param_update_builder_fun:
+                        Function that adds parameter update operators to be
+                        shared across all parameter updates (i.e. LR, weight decay)
+                        Signature: global_param_update_builder_fun(model, lr_scale)
       devices:          List of GPU ids, such as [0, 1, 2, 3],
       rendezvous:       used for rendezvous in distributed computation, if None
                         then only one node is used. To create rendezvous,
@@ -57,6 +131,7 @@ def Parallelize_GPU(
       net_type:         Network type
 
     '''
+
     log.info("Parallelizing model for devices: {}".format(devices))
     extra_workers = 8 if rendezvous is not None else 0  # best-guess
     model_helper_obj.net.Proto().num_workers = len(devices) * 4 + extra_workers
@@ -73,6 +148,9 @@ def Parallelize_GPU(
     # data parallel, so we need to handle them separately
     non_datapar_params = copy.copy(model_helper_obj.params)
 
+    have_update_fun = param_update_builder_fun is not None \
+            or (single_param_update_builder_fun is not None and global_param_update_builder_fun is not None)
+    assert have_update_fun, 'Must define a parameter update function'
     # Add input and model
     log.info("Create input and model training operators")
 
@@ -88,7 +166,7 @@ def Parallelize_GPU(
                 input_builder_fun(model_helper_obj)
                 losses = forward_pass_builder_fun(model_helper_obj, loss_scale)
                 # Losses are not needed for test net
-                if param_update_builder_fun is not None:
+                if have_update_fun:
                     assert isinstance(losses, list), \
                         'Model builder function must return list of loss blobs'
                     for loss in losses:
@@ -98,8 +176,8 @@ def Parallelize_GPU(
                 losses_by_gpu[device] = losses
 
     # Create parameter map
-    model_helper_obj._device_grouped_blobs =\
-        _GroupByDevice(devices, model_helper_obj.params, non_datapar_params)
+    device_grouped_params = _GroupByDevice(devices, model_helper_obj.params)
+    model_helper_obj._device_grouped_blobs = device_grouped_params
 
     # computed params
     computed_params_grouped =\
@@ -110,7 +188,7 @@ def Parallelize_GPU(
         model_helper_obj._device_grouped_blobs.keys()
     model_helper_obj._computed_param_names = computed_params_grouped.keys()
 
-    if (param_update_builder_fun is None):
+    if not have_update_fun:
         log.info("Parameter update function not defined --> only forward")
         _InferBlobDevice(model_helper_obj)
         return
@@ -134,6 +212,31 @@ def Parallelize_GPU(
 
     _InferBlobDevice(model_helper_obj)
 
+    using_parameter_groups = len(model_helper_obj.param_group) and\
+            use_aggregated_parameters
+    model_helper_obj._using_parameter_groups = using_parameter_groups
+
+    # Assemble parameter groups and coalesce them if necessary
+    if (using_parameter_groups):
+        log.info("Using parameter groups")
+        # Group by user-defined groups
+        # gets { group_name : { device : grouped_{params,grads} } }
+        device_param_groups, device_grad_groups = _GroupByParamGroups(
+                device_grouped_params,
+                gradients_grouped,
+                devices,
+                model_helper_obj.param_group)
+
+        # store in the model helper for ease-of-use
+        model_helper_obj._device_param_groups = device_param_groups
+        model_helper_obj._device_grad_groups = device_grad_groups
+
+        # get { group_name : { device : coalesced_{param, grad} } }
+        device_coalesced_params, device_coalesced_grads = _CoalesceParamGradGroups(model_helper_obj, devices)
+        # store in model_helper_obj
+        model_helper_obj._device_coalesced_params = device_coalesced_params
+        model_helper_obj._device_coalesced_grads = device_coalesced_grads
+
     log.info("Add gradient all-reduces for SyncSGD")
     if broadcast_computed_params:
         _BroadcastComputedParams(devices, model_helper_obj, rendezvous)
@@ -148,11 +251,32 @@ def Parallelize_GPU(
     if rendezvous is not None:
         assert num_shards > 1, \
             "Please use more than one shard for distributed training"
+    lr_scale = 1.0 / (len(devices) * num_shards)
+    if param_update_builder_fun is None:
+        log.info("running per-parameter update function")
+
     for device in devices:
         device_opt = core.DeviceOption(caffe2_pb2.CUDA, device)
         with core.DeviceScope(device_opt):
             with core.NameScope("gpu_{}".format(device)):
-                param_update_builder_fun(model_helper_obj)
+                if param_update_builder_fun is None:
+                    log.info("Using per-parameter update function")
+                    global_param_update_builder_fun(model_helper_obj, lr_scale)
+
+                    # handle individual updates
+                    if using_parameter_groups:
+                        for group_name in model_helper_obj.param_group:
+                            # get the coalesced parameters and their gradients
+                            coalesced_param = device_coalesced_params[group_name][device]
+                            coalesced_param_grad = device_coalesced_grads[group_name][device]
+
+                            single_param_update_builder_fun(model_helper_obj, coalesced_param, coalesced_param_grad)
+                    else:
+                        for param in model_helper_obj.GetParams():
+                            param_grad = model_helper_obj.param_to_grad[param]
+                            single_param_update_builder_fun(model_helper_obj, param, param_grad)
+                else:
+                    param_update_builder_fun(model_helper_obj)
 
     _InferBlobDevice(model_helper_obj)
     _AnalyzeOperators(model_helper_obj)
@@ -471,31 +595,47 @@ def _AllReduceGradientsSingleHost(devices, model):
     master_device_opt = core.DeviceOption(caffe2_pb2.CUDA, devices[0])
     last_out = None
 
-    for grad_name in reverse_ordered_grads:
-        # Group by grads for reduce.
-        grads_group = model._device_grouped_blobs[grad_name].values()
-        assert len(grads_group) == len(devices), \
-            "Each GPU from {}, should have a copy of {}.".format(
-                devices, grad_name)
+    # Reduce all gradients, or gradients per-group
+    if (model._using_parameter_groups):
+        # grab the coalesced gradients
+        device_coalesced_grads = model._device_coalesced_grads
 
-        if _IsGPUBlob(model, grad_name):
+        # aggregated reduction
+        for group_name in model.param_group:
             with core.DeviceScope(master_device_opt):
-                assert not isinstance(grads_group[0], core.GradientSlice), \
-                    "GPU sync of gradient slices not implemented"
+                grads_group = device_coalesced_grads[group_name].values()
                 model.NCCLAllreduce(
                     grads_group,
                     grads_group,
                     control_input=last_out,
                 )
+                last_out = grads_group[0]
+    else:
+        for grad_name in reverse_ordered_grads:
+            with core.DeviceScope(master_device_opt):
+                # Group by grads for reduce.
+                grads_group = model._device_grouped_blobs[grad_name].values()
+                assert len(grads_group) == len(devices), \
+                    "Each GPU from {}, should have a copy of {}.".format(
+                        devices, grad_name)
+                if _IsGPUBlob(model, grad_name):
+                    with core.DeviceScope(master_device_opt):
+                        assert not isinstance(grads_group[0], core.GradientSlice), \
+                            "GPU sync of gradient slices not implemented"
+                        model.NCCLAllreduce(
+                            grads_group,
+                            grads_group,
+                            control_input=last_out,
+                        )
                 # last_out is used to serialize the execution of nccls
                 last_out = grads_group[0]
-        else:
-            assert not isinstance(grads_group[0], core.GradientSlice), \
-                "Synchronizing gradient slices not supported"
-            with core.DeviceScope(core.DeviceOption(caffe2_pb2.CPU)):
-                # Poor man's allreduce
-                model.Sum(grads_group, grads_group[0])
-                _Broadcast(devices, model, grad_name)
+                else:
+                    assert not isinstance(grads_group[0], core.GradientSlice), \
+                        "Synchronizing gradient slices not supported"
+                    with core.DeviceScope(core.DeviceOption(caffe2_pb2.CPU)):
+                        # Poor man's allreduce
+                        model.Sum(grads_group, grads_group[0])
+                        _Broadcast(devices, model, grad_name)
 
 
 def _BroadcastComputedParams(devices, model, rendezvous):

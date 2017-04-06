@@ -60,7 +60,7 @@ class ModelHelperBase(object):
     """
 
     def __init__(self, name=None, init_params=True, allow_not_known_ops=True,
-                 skip_sparse_optim=False, param_model=None):
+                skip_sparse_optim=False, param_model=None):
         self.name = name or "model"
         self.net = core.Net(self.name)
 
@@ -81,6 +81,8 @@ class ModelHelperBase(object):
         self.init_params = init_params
         self.allow_not_known_ops = allow_not_known_ops
         self.skip_sparse_optim = skip_sparse_optim
+        # parameter groups, map from name -> [params]
+        self.param_group = {}
 
     def get_name(self):
         return self.name
@@ -122,6 +124,36 @@ class ModelHelperBase(object):
             length=length,
         ))
         return self._param_info[-1]
+
+    def add_param_to_group(self, param, group):
+        # A helper function to extract a parameter's name
+        def stripParamName(param):
+            # Format is "a/b/c/d" -> d
+            name = str(param)
+            sep = scope._NAMESCOPE_SEPARATOR
+            return name[name.rindex(sep) + 1:]
+
+        if not group in self.param_group:
+            self.param_group[group] = set()
+
+        # need to add non-namespaced
+        self.param_group[group].add(param)
+
+    # Get parameters from a group in the existing namespace
+    def get_param_group(self, group_name, namescope=None):
+        '''
+        Returns params from a group in the current namescope
+        '''
+        if namescope is None:
+            namescope = scope.CurrentNameScope()
+        else:
+            if not namescope.endswith(scope._NAMESCOPE_SEPARATOR):
+                namescope += scope._NAMESCOPE_SEPARATOR
+
+        if namescope == '':
+            return list(self.param_group[group_name])
+        else:
+            return [p for p in self.param_group[group_name] if p.GetNameScope() == namescope]
 
     def param_info(self, grad_type=None, id=None):
         self._update_param_info()
@@ -247,6 +279,9 @@ class ModelHelperBase(object):
             db=db, db_type=db_type)
         return self.net.TensorProtosDBInput(
             dbreader, blob_out, batch_size=batch_size)
+
+    def Coalesce(self, blob_in, blob_out, **kwargs):
+        return self.net.UnsafeCoalesce(blob_in, blob_out, **kwargs)
 
     def AddOperator(self, op_type, inputs, parameters, *args, **kwargs):
         """

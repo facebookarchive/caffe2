@@ -58,6 +58,47 @@ class WallClockTimeOp final : public Operator<Context> {
 
 const char kPrintFileExtension[] = ".log";
 
+template <class T, class Context>
+class UnsafeCoalesceOp final : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  using Operator<Context>::Operator;
+
+  bool RunOnDevice() override {
+    size_t coalesced_size = 0;
+    for (int i = 0; i < InputSize(); ++i) {
+      coalesced_size += Input(i).size();
+    }
+
+    auto* coalesced = Output(OutputSize() - 1);
+    coalesced->Resize(coalesced_size);
+    size_t coalesced_offset = 0;
+    for (auto i = 0; i < InputSize(); ++i) {
+      const auto input_size = Input(i).size();
+      // handle inplace - no need to copy after first iteration
+      if (Input(i).template data<T>() != coalesced->template mutable_data<T>() + coalesced_offset) {
+        context_.template Copy<T, Context, Context>(
+            input_size,
+            Input(i).template data<T>(),
+            coalesced->template mutable_data<T>() + coalesced_offset);
+      }
+
+      // Note: this could cause Input(i) to free it's data if
+      // Output(i) and Input(i) alias each other. This is safe on a
+      // GPU (as the copy will happen-before the free), but it's
+      // worth mentioning.
+
+      Output(i)->ResizeLike(Input(i));
+      Output(i)->ShareExternalPointer(
+          coalesced->template mutable_data<T>() + coalesced_offset, input_size);
+
+      coalesced_offset += input_size;
+    }
+    return true;
+  }
+};
+
+
 template <class Context>
 class PrintOp final : public Operator<Context> {
  public:
