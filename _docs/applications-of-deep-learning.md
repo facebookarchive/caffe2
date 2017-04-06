@@ -7,9 +7,17 @@ permalink: /docs/applications-of-deep-learning.html
 
 To better understand what Caffe2 is and how you can use it, we have provided a few examples of machine learning and deep learning in practice today.
 
-## Audio Recognition
+## Computer Vision
+
+Computer vision has been around for many years and has enabled advanced robotics, streamlined manufacturing, better medical devices, etc. There is even license plate recognition to automate giving people tickets for a number of moving violations like speeding and running red lights. Neural networks have significantly improved computer vision applications. Photo processing is being used for object recognition, answering questions such as "Is that a cat or a dog?".  Video processing is being used to automate scene classification or people recognition, answering questions such as "Is that a helicopter? Is there a person in the helicopter? Who is that person?".
+
+## Speech Recognition
 
 Many readers may have been exposed to Apple's Siri. This digital assistant's core interaction with users is through voice recognition. You ask Siri for directions, to make appointments on your calendar, and to look up information. Its ability to understand a variety of accents in English, let alone its multilingual settings and capabilities, is based on many of the enhancements made in Siri since 2014. These enhancements were [accomplished](https://backchannel.com/an-exclusive-look-at-how-ai-and-machine-learning-work-at-apple-8dbfb131932b#.eiae77d82) through the utilization of Deep Neural Networks (DNN), Convolutional Neural Networks, and other advances in machine learning.
+
+## Translation
+
+Another useful application of neural networks is with translation between languages. Translations can occur via voice, text, or even handwriting. One of the Caffe2 [tutorials](tutorials) shows how you can create a basic neural network that can identify handwriting of English text with over 95% accuracy. It is not only highly accurate, it is extremely fast.
 
 ## Chat Bots
 
@@ -20,14 +28,6 @@ A chat bot could be in action when you click on the support link on your bank's 
 ## IoT
 
 As we explore the full impact and capabilities of the Internet of Things (IoT), where common technology communicates with you - from your fridge, to your security system, to individual lights - a fairly simple AI can automatically (and in real-time) review security camera footage, faceprint visitors to distinguish between homeowner, guest, and trespasser, and adjust lighting, music, and alarm sounds accordingly. How the system distinguishes between parties can be accomplished by training a DNN and then a variety of systems such as [AWS's IoT platform](https://aws.amazon.com/iot/) can wrap this core detector to provide responses and actions.
-
-## Computer Vision
-
-Computer vision has been around for many years and has enabled advanced robotics, streamlined manufacturing, better medical devices, etc. There is even license plate recognition to automate giving people tickets for a number of moving violations like speeding and running red lights. Neural networks have significantly improved computer vision applications. Photo processing is being used for object recognition, answering questions such as "Is that a cat or a dog?".  Video processing is being used to automate scene classification or people recognition, answering questions such as "Is that a helicopter? Is there a person in the helicopter? Who is that person?".
-
-## Translation
-
-Another useful application of neural networks is with translation between languages. Translations can occur via voice, text, or even handwriting. One of the Caffe2 [tutorials](tutorials) shows how you can create a basic neural network that can identify handwriting of English text with over 95% accuracy. It is not only highly accurate, it is extremely fast.
 
 ## Medical
 
