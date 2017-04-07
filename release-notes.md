@@ -1,4 +1,4 @@
-# Caffe2 v0.6.0 Release Notes
+# Caffe2 v0.6.1 Release Notes
 
 ## Installation
 
