@@ -66,7 +66,7 @@ def downloadFromURLToFile(url, filename):
                     break
                 local_file.write(data_chunk)
                 downloaded_size += chunk
-                progressBar(100 * downloaded_size // size)
+                progressBar(int(100 * downloaded_size / size))
         print("")  # New line to fix for progress bar
     except HTTPError as e:
         raise Exception("Could not download model. [HTTP Error] {code}: {reason}."
