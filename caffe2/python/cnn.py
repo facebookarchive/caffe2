@@ -5,7 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from caffe2.python import core, scope
+from caffe2.python import core, scope, workspace
 from caffe2.python.model_helper import ModelHelperBase
 from caffe2.proto import caffe2_pb2
 
@@ -685,7 +685,14 @@ class CNNModelHelper(ModelHelperBase):
             [], blob_out, shape=[1], value=0, dtype=core.DataType.INT64,
             device_option=core.DeviceOption(caffe2_pb2.CPU, 0),
             **kwargs)
-        return self.net.Iter(blob_out, blob_out, **kwargs)
+        op = self.net.Iter(blob_out, blob_out, **kwargs)
+        self.solverstate_params.append(op)
+        return op
+
+    def LearningRate(self, *args, **kwargs):
+        op = self.net.LearningRate(*args, **kwargs)
+        self.solverstate_params.append(op)
+        return op
 
     def Accuracy(self, blob_in, blob_out, **kwargs):
         dev = kwargs['device_option'] if 'device_option' in kwargs \
@@ -758,3 +765,29 @@ class CNNModelHelper(ModelHelperBase):
         device_option.device_type = caffe2_pb2.CUDA
         device_option.cuda_gpu_id = gpu_id
         return device_option
+
+    def SaveBlobs(self, blobs, *args, **kwargs):
+        """Run a Save op which saves BLOBS to a db."""
+        op = core.CreateOperator('Save', blobs, [], *args, **kwargs)
+        workspace.RunOperatorOnce(op)
+
+    def SaveParamBlobs(self, *args, **kwargs):
+        blobs = self.params + self.computed_params
+        self.SaveBlobs(blobs, *args, **kwargs)
+
+    def SaveSolverstateBlobs(self, *args, **kwargs):
+        blobs = self.solverstate_params
+        self.SaveBlobs(blobs, *args, **kwargs)
+
+    def LoadBlobs(self, blobs, *args, **kwargs):
+        """Run a Load op which loads BLOBS from a db."""
+        op = core.CreateOperator('Load', [], blobs, *args, **kwargs)
+        workspace.RunOperatorOnce(op)
+
+    def LoadParamBlobs(self, *args, **kwargs):
+        blobs = self.params + self.computed_params
+        self.LoadBlobs(blobs, *args, **kwargs)
+
+    def LoadSolverstateBlobs(self, *args, **kwargs):
+        blobs = self.solverstate_params
+        self.LoadBlobs(blobs, *args, **kwargs)
