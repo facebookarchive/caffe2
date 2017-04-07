@@ -21,7 +21,7 @@ except ImportError:
     HTTPError = urllib.HTTPError
     URLError = urllib.URLError
 
-DOWNLOAD_BASE_URL = "https://github.com/caffe2/models/raw/master/"
+DOWNLOAD_BASE_URL = "https://s3.amazonaws.com/caffe2/models/"
 DOWNLOAD_COLUMNS = 70
 
 
