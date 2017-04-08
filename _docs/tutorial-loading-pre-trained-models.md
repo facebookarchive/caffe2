@@ -50,14 +50,12 @@ The results come back as a multidimensional array of probabilities. Essentially 
 
 Settings are in a code block below. Most of the time these should run out of the box.
 
-**Note: other models are known to have some issues with this simple code and may require additional massaging to work!**
-
 
 ```python
 # where you installed caffe2. Probably '~/caffe2' or '~/src/caffe2'.
 CAFFE2_ROOT = "~/caffe2"
 # assumes being a subdirectory of caffe2
-CAFFE_MODELS = "~/models"
+CAFFE_MODELS = "~/caffe2/caffe2/python/models"
 # if you have a mean file, place it in the same dir as the model
 
 %matplotlib inline

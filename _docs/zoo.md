@@ -37,19 +37,21 @@ An even better route exists! You can use caffe2.models.download to install model
 For example, downloading and installing BVLC's AlexNet model:
 
 ```bash
-python -m caffe2.python.models.download bvlc_alexnet
+python -m caffe2.python.models.download --install squeezenet
 ```
 
-Then you can use python to import the model directly as a module.
+Then you can use python to import the model directly as a module. If you have trouble, try running this with `sudo` and/or forcing the PYTHONPATH for `sudo` with `sudo PYTHONPATH=/usr/local python -m caffe2.python.models.download --install`
 
 ```python
-from caffe2.python import core, workspace
-from caffe2.python.models import bvlc_alexnet as AlexNet
-init_net = AlexNet.init_net
-predict_net = AlexNet.predict_net
-workspace.CreateNet(init_net)
+from caffe2.python import workspace
+from caffe2.python.models import squeezenet as mynet
+init_net = mynet.init_net
+predict_net = mynet.predict_net
+# you must name it something
+predict_net.name = "squeezenet_predict"
+workspace.RunNetOnce(init_net)
 workspace.CreateNet(predict_net)
-workspace.RunNet(predict_net)
+p = workspace.Predictor(init_net.SerializeToString(), predict_net.SerializeToString())
 ```
 
 This yields `init_net` and `predict_net` fully parsed protobufs that are ready to be loaded into a net, and within a few lines of Python you've instantiated a neural network from a pre-trained model.

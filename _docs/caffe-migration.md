@@ -53,3 +53,5 @@ This can currently be accomplished in a two step process where you convert to Ca
 ## Troubleshooting
 
 Some older versions of Caffe produced models that are not convertible by this translator. Generally speaking you can manage this with a custom script that stuffs your layers into [blobs](/doxygen-python/html/namespaceworkspace.html#a34cb41f806c820ea5ce1876ee3aa29f0) and you label them.
+
+[Utilize the appropriate upgrade binary from Caffe's tools](https://github.com/BVLC/caffe/tree/master/tools) to upgrade to the latest version of Caffe, then try our Caffe to Caffe2 translator.
