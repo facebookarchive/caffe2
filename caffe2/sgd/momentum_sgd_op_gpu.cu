@@ -103,7 +103,7 @@ template <>
 template <typename SIndex>
 bool SparseMomentumSGDUpdateOp<float, CUDAContext>::DoRunWithType() {
   auto N = Input(GRAD).size();
-  auto grad_slice_sz = Input(GRAD).size() / Input(GRAD).dim(0);
+  auto grad_slice_sz = Input(GRAD).size_from_dim(Input(INDICES).ndim());
 
   SparseMomentumSGDKernel<SIndex><<<
     CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS, 0,

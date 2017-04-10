@@ -72,6 +72,8 @@ class SparseAdagradOp final : public Operator<Context> {
     // Enforce shapes
     CAFFE_ENFORCE(Input(PARAM).size() == Input(MOMENT_1).size());
     CAFFE_ENFORCE(Input(LR).size() == 1);
+    CAFFE_ENFORCE(Input(PARAM).size_from_dim(1) ==
+            Input(GRAD).size_from_dim(Input(INDICES).ndim()));
 
     // These must be in-place for the sparse op. If out-of-place is required,
     // we need to copy input to output before running.
