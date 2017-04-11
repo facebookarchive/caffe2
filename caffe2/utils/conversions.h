@@ -17,8 +17,7 @@ namespace caffe2 {
 namespace convert {
 
 namespace {
-inline float16 cpu_float2half_rn(float f)
-{
+inline float16 cpu_float2half_rn(float f) {
     float16 ret;
 
     unsigned x = *((int*)(void*)(&f));
@@ -30,7 +29,7 @@ inline float16 cpu_float2half_rn(float f)
         ret.x = 0x7fffU;
         return ret;
     }
- 
+
     sign = ((x >> 16) & 0x8000);
 
     // Get rid of +Inf/-Inf, +0/-0.
@@ -67,15 +66,14 @@ inline float16 cpu_float2half_rn(float f)
             ++exponent;
             mantissa = 0;
         }
-    } 
+    }
 
     ret.x = (sign | (exponent << 10) | mantissa);
 
     return ret;
 }
 
-inline float cpu_half2float(float16 h)
-{
+inline float cpu_half2float(float16 h) {
     unsigned sign = ((h.x >> 15) & 1);
     unsigned exponent = ((h.x >> 10) & 0x1f);
     unsigned mantissa = ((h.x & 0x3ff) << 13);
