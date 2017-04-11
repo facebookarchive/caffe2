@@ -126,26 +126,11 @@ class SparseMomentumSGDUpdateOp final : public Operator<Context> {
     // Resize [potentially] out-of-place blobs
     Output(OUTPUT_GRAD)->ResizeLike(Input(GRAD));
 
-    // Enforce types
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(GRAD));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(MOMENTUM));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(LR));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(PARAM));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(INDICES));
-    CAFFE_ENFORCE(OperatorBase::OutputIsType<Tensor<Context>>(OUTPUT_GRAD));
-
     // Enforce shapes
-    CAFFE_ENFORCE(Input(LR).size() == 1);
-    CAFFE_ENFORCE(Input(PARAM).size() == Input(MOMENTUM).size());
-    CAFFE_ENFORCE(Input(PARAM).size_from_dim(1) ==
-            Input(GRAD).size_from_dim(Input(INDICES).ndim()));
-
-    // These must be in-place for the sparse op. If out-of-place is required,
-    // we need to copy input to output before running.
-    CAFFE_ENFORCE_EQ(&Input(MOMENTUM), Output(OUTPUT_MOMENTUM),
-        "MOMENTUM must be in-place");
-    CAFFE_ENFORCE_EQ(&Input(PARAM), Output(OUTPUT_PARAM),
-        "PARAM must be in-place");
+    CAFFE_ENFORCE_EQ(Input(LR).size(), 1);
+    CAFFE_ENFORCE_EQ(Input(PARAM).size(), Input(MOMENTUM).size());
+    CAFFE_ENFORCE_EQ(Input(PARAM).size_from_dim(1),
+        Input(GRAD).size_from_dim(Input(INDICES).ndim()));
 
     return DispatchHelper<TensorTypes<int32_t, int64_t>>::call(
         this, Input(INDICES));

@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 import functools
 
-from hypothesis import given
+from hypothesis import given, strategies as st
 import numpy as np
 
 from caffe2.python import core
@@ -21,14 +21,15 @@ class TestAdagrad(hu.HypothesisTestCase):
         param_out = param_in + grad_adj
         return (param_out, mom_out)
 
-    @given(inputs=hu.tensors(n=3), **hu.gcs)
-    def test_adagrad(self, inputs, gc, dc):
-        # Inputs
+    @given(inputs=hu.tensors(n=3),
+           lr=st.floats(min_value=0.01, max_value=0.99,
+                        allow_nan=False, allow_infinity=False),
+           epsilon=st.floats(min_value=0.01, max_value=0.99,
+                             allow_nan=False, allow_infinity=False),
+           **hu.gcs)
+    def test_adagrad(self, inputs, lr, epsilon, gc, dc):
         param, momentum, grad = inputs
-        lr = np.random.rand(1).astype(np.float32)
-
-        # Op parameters
-        epsilon = np.random.rand(1).astype(np.float32)[0]
+        lr = np.array([lr], dtype=np.float32)
 
         op = core.CreateOperator(
             "Adagrad",
@@ -43,18 +44,19 @@ class TestAdagrad(hu.HypothesisTestCase):
             [param, momentum, grad, lr],
             functools.partial(self.ref_adagrad, epsilon=epsilon))
 
-    @given(inputs=hu.tensors(n=3), **hu.gcs)
-    def test_sparse_adagrad(self, inputs, gc, dc):
-        # Inputs
+    @given(inputs=hu.tensors(n=3),
+           lr=st.floats(min_value=0.01, max_value=0.99,
+                        allow_nan=False, allow_infinity=False),
+           epsilon=st.floats(min_value=0.01, max_value=0.99,
+                             allow_nan=False, allow_infinity=False),
+           **hu.gcs)
+    def test_sparse_adagrad(self, inputs, lr, epsilon, gc, dc):
         param, momentum, grad = inputs
         indices = np.arange(grad.shape[0])
         indices = indices[indices % 2 == 0]
         grad = grad[indices]
         momentum = np.abs(momentum)
-        lr = np.random.rand(1).astype(np.float32)
-
-        # Op parameters
-        epsilon = np.random.rand(1).astype(np.float32)[0]
+        lr = np.array([lr], dtype=np.float32)
 
         op = core.CreateOperator(
             "SparseAdagrad",

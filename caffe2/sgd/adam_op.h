@@ -115,30 +115,12 @@ class SparseAdamOp final : public Operator<Context> {
         epsilon_(OperatorBase::GetSingleArgument<float>("epsilon", 1e-5f)) {}
 
   bool RunOnDevice() override {
-    // Enforce types
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(PARAM));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(MOMENT_1));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(MOMENT_2));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(INDICES));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(GRAD));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<Context>>(LR));
-    CAFFE_ENFORCE(OperatorBase::InputIsType<Tensor<CPUContext>>(ITER));
-
     // Enforce shapes
-    CAFFE_ENFORCE(Input(PARAM).size() == Input(MOMENT_1).size());
-    CAFFE_ENFORCE(Input(PARAM).size() == Input(MOMENT_2).size());
-    CAFFE_ENFORCE(Input(PARAM).size_from_dim(1) ==
-            Input(GRAD).size_from_dim(Input(INDICES).ndim()));
-    CAFFE_ENFORCE(Input(LR).size() == 1);
-
-    // These must be in-place for the sparse op. If out-of-place is required,
-    // we need to copy input to output before running.
-    CAFFE_ENFORCE_EQ(&Input(PARAM), Output(OUTPUT_PARAM),
-        "PARAM must be in-place");
-    CAFFE_ENFORCE_EQ(&Input(MOMENT_1), Output(OUTPUT_MOMENT_1),
-        "MOMENT_1 must be in-place");
-    CAFFE_ENFORCE_EQ(&Input(MOMENT_2), Output(OUTPUT_MOMENT_2),
-        "MOMENT_2 must be in-place");
+    CAFFE_ENFORCE_EQ(Input(PARAM).size(), Input(MOMENT_1).size());
+    CAFFE_ENFORCE_EQ(Input(PARAM).size(), Input(MOMENT_2).size());
+    CAFFE_ENFORCE_EQ(Input(PARAM).size_from_dim(1),
+        Input(GRAD).size_from_dim(Input(INDICES).ndim()));
+    CAFFE_ENFORCE_EQ(Input(LR).size(), 1);
 
     return DispatchHelper<TensorTypes<int32_t, int64_t>>::call(
         this, Input(INDICES));
