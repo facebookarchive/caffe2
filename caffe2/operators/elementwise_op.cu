@@ -265,7 +265,7 @@ REGISTER_CUDA_OPERATOR(SumReduceLike, SumReduceLikeOp<CUDAContext>);
 template <typename T, typename M>
 __global__
 void binary_add_kernel(const int N, const T* a, const T* b, T* r) {
-  for (int idx=threadIdx.x+blockIdx.x*blockDim.x; idx < N; idx+=blockDim.x*gridDim.x) {
+  CUDA_1D_KERNEL_LOOP(idx, N) {
     r[idx] = convert::To<M,T>( convert::To<T,M>(a[idx]) + convert::To<T,M>(b[idx]) );
   }
 };
