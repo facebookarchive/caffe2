@@ -8,7 +8,8 @@ Solution | `sudo pip install setuptools flask jupyter matplotlib scipy pydot tor
 matplotlib error | Sometimes you need setuptools first: `sudo pip install -U pip setuptools && sudo pip install matplotlib`
 model downloader error | If you need to run it as sudo (because it's trying to install the model in /usr/local/caffe2...), then PYTHONPATH might not be visible in that context.
 Solution | `sudo visudo` then add this line: `Defaults    env_keep += "PYTHONPATH"`
-
+"AttributeError: 'module' object has no attribute 'MakeArgument'" | Occurs when calling `core.CreateOperator`
+Solution | Check your install directory (`/usr/local/`), and remove the folder `/caffe2/python/utils`
 
 | Other Errors
 ----|-----

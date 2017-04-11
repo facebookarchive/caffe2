@@ -105,21 +105,21 @@ python resnet50_trainer.py --train_data /home/ec2-user/caffe2/caffe2/python/tuto
 
 |Optional||
 |-------|--------|
-| `--test_data` | the path to the database of test data
-| `--db_type DB_TYPE` | either `lmdb` or `leveldb`, defaults to `lmdb` |
-| `--gpus`| a list of GPU IDs, where 0 would be the first GPU device # |
+| `--test_data` | the path to the database of test data |
+| `--db_type` | either `lmdb` or `leveldb`, defaults to `lmdb` |
+| `--gpus`| a list of GPU IDs, where 0 would be the first GPU device #, comma separated |
 | `--num_gpus` | an integer for the total number of GPUs; alternative to using a list with `gpus` |
 | `--num_channels` | number of color channels, defaults to 3 |
-| `--image_size` | the height or width in pixels of the input images, assumes they're square, defaults to 227 |
+| `--image_size` | the height or width in pixels of the input images, assumes they're square, defaults to 227, might not handle small sizes |
 | `--num_labels` | number of labels, defaults to 1000 |
-| `--batch_size` | batch size, total over all GPUs, defaults to 32 |
-| `--epoch_size` | number of images per [epoch](https://deeplearning4j.org/glossary#epoch-vs-iteration), defaults to 1.5MM (1500000) |
+| `--batch_size` | batch size, total over all GPUs, defaults to 32, expand as you increase GPUs |
+| `--epoch_size` | number of images per [epoch](https://deeplearning4j.org/glossary#epoch-vs-iteration), defaults to 1.5MM (1500000), definitely change this |
 | `--num_epochs` | number of [epochs](https://deeplearning4j.org/glossary#epoch-vs-iteration) |
-| `--base_learning_rate` | initial learning rate, defaults to 0.1 |
+| `--base_learning_rate` | initial learning rate, defaults to 0.1 (based on 256 global batch size) |
 | `--weight_decay` | weight decay (L2 regularization) |
 | `--num_shards` | number of machines in a distributed run, defaults to 1 |
-| `--shard_id` | shard id, defaults to 0 |
+| `--shard_id` | shard/node id, defaults to 0, next node would be 1, and so forth |
 | `--run_id RUN_ID` | unique run identifier, e.g. uuid |
 | `--redis_host` | host of Redis server (for rendezvous) |
 | `--redis_port` | Redis port for rendezvous |
-| `--file_store_path` | path to directory to use for rendezvous |
+| `--file_store_path` | alternative to Redis, (NFS) path to shared directory to use for rendezvous temp files to coordinate between each shard/node |
