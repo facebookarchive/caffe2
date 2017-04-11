@@ -17,7 +17,10 @@ bool FullyConnectedOp<CUDAContext>::RunOnDevice() {
                          float16,    // B
                          float16,    // Y
                          float>(); // Math
+  } else {
+    CAFFE_THROW("Unsupported type");
   }
+  return false;
 }
 
 template <>
@@ -40,7 +43,10 @@ bool FullyConnectedGradientOp<CUDAContext>::RunOnDevice() {
                          float16,    // dW
                          float16,    // dB
                          float>(); // Math
+  } else {
+    CAFFE_THROW("Unsupported type");
   }
+  return false;
 }
 
 namespace {

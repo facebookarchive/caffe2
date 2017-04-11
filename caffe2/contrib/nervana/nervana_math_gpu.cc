@@ -13,7 +13,8 @@ template <>
 void Gemm<float, CUDAContext, NervanaEngine>(
     const CBLAS_TRANSPOSE TransA, const CBLAS_TRANSPOSE TransB,
     const int M, const int N, const int K, const float alpha, const float* A,
-    const float* B, const float beta, float* C, CUDAContext* context) {
+    const float* B, const float beta, float* C, CUDAContext* context,
+    TensorProto::DataType math_type) {
 
   // Note that cublas follows fortran order, so the order is different from
   // the cblas convention.
