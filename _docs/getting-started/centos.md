@@ -30,24 +30,26 @@ Many of the required dependencies don't show up in Amazon's enabled repositories
 sudo vim /etc/yum.repos.d/epel.repo
 ```
 
+![epel repo edit](../static/images/centos-epel.png)
+
 Next you should update yum and install Caffe2's core dependencies. These differ slightly from Ubuntu due to availability of ready-to-go packages.
 
 ```
 sudo yum update
 sudo yum install -y \
 automake \
-python-pip \
-python-devel \
-git \
 cmake3 \
-libtool \
-protobuf-devel \
 gcc \
 gcc-c++ \
+git \
 kernel-devel \
 leveldb-devel \
-snappy-devel \
-lmdb-devel
+lmdb-devel \
+libtool \
+protobuf-devel \
+python-devel \
+python-pip \
+snappy-devel
 ```
 
 glog is not found in yum for this version of Linux, so install from source:
@@ -57,7 +59,7 @@ git clone https://github.com/google/glog
 cd glog
 autoreconf -vfi
 ./configure
-make && sudo make install
+make && sudo make install && cd ..
 ```
 
 **Troubleshooting `glog` compilation**
@@ -117,6 +119,8 @@ Note that in this example, the upgrade was to 9.0.1. Use vim to open the `/usr/b
 sudo vim /usr/bin/pip
 ```
 
+![pip edit](../static/images/centos-pip.png)
+
 Once you've fixed the config file re-run the `sudo pip install flask graphviz...` command from above.
 
 #### Setup CUDA
@@ -127,6 +131,8 @@ This image doesn't come with cuDNN, however Caffe2 requires it. Here we're downl
 wget http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-7.5-linux-x64-v5.1.tgz
 tar xfvz cudnn-7.5-linux-x64-v5.1.tgz
 sudo rsync -av cuda /opt/nvidia/
+rm cudnn-7.5-linux-x64-v5.1.tgz
+rm -rf cuda
 ```
 
 Now you need to setup some environment variables for the build step.
@@ -136,14 +142,13 @@ export CUDA_HOME=/opt/nvidia/cuda
 export LD_LIBRARY_PATY=/opt/nvidia/cuda/lib64:/usr/local/bin
 ```
 
-Almost done. Now you need to clone Caffe2 repo and build it:
+Almost done. Now you need to clone Caffe2 repo and build it (note: update the `-j8` with your system's number of processors; to check this, run `nproc` from the terminal.):
 
 ```
 git clone --recursive https://github.com/caffe2/caffe2
-cd caffe2
-make
-cd build
-make install
+cd caffe2 && mkdir build
+cd build && cmake3 ..
+sudo make -j8 install
 ```
 
 #### Test it out!
