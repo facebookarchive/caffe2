@@ -6,6 +6,8 @@ Solution | Run the following: `python -c 'from caffe2.python import core' 2>/dev
 Dependencies missing | It's possible you're trying to run something that was using an optional dependency.
 Solution | `sudo pip install setuptools flask jupyter matplotlib scipy pydot tornado python-nvd3 scikit-image pyyaml`
 matplotlib error | Sometimes you need setuptools first: `sudo pip install -U pip setuptools && sudo pip install matplotlib`
+model downloader error | If you need to run it as sudo (because it's trying to install the model in /usr/local/caffe2...), then PYTHONPATH might not be visible in that context.
+Solution | `sudo visudo` then add this line: `Defaults    env_keep += "PYTHONPATH"`
 
 
 | Other Errors
