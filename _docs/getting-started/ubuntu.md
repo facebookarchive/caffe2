@@ -67,7 +67,7 @@ wget ${CUDNN_URL}
 sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local
 rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 ```
-<block class="ubuntu compile cloud" />
+<block class="ubuntu compile" />
 ### Optional Dependencies
 
 > Note `libgflags2` is for Ubuntu 14.04. `libgflags-dev` is for Ubuntu 16.04.
