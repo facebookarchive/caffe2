@@ -2,11 +2,12 @@
 
 <block class="ubuntu cloud" />
 
-This AMI is confirmed to work with the regular build from source instructions.
+Caffe2 is available as AWS (Amazon Web Services) Deep Learning AMI and Microsoft Azure Virtual Machine offerings.
 
-* [AWS Deep Learning AMI Ubuntu Version 14.04](https://aws.amazon.com/marketplace/pp/B06VSPXKDX?qid=1489099515180&sr=0-6&ref_=srh_res_product_title)
+* [AWS Deep Learning AMI - Ubuntu 14.04](https://aws.amazon.com/marketplace/pp/B06VSPXKDX?qid=1489099515180&sr=0-6&ref_=srh_res_product_title)
+* [Microsoft Azure Data Science Virtual Machine - Ubuntu 16.04)](https://)
 
-<block class="ubuntu compile cloud" />
+<block class="ubuntu compile" />
 
 [![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
