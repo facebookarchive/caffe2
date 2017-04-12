@@ -2,11 +2,12 @@
 
 <block class="ubuntu cloud" />
 
-This AMI is confirmed to work with the regular build from source instructions.
+Caffe2 is available as AWS (Amazon Web Services) Deep Learning AMI and Microsoft Azure Virtual Machine offerings.
 
-* [AWS Deep Learning AMI Ubuntu Version 14.04](https://aws.amazon.com/marketplace/pp/B06VSPXKDX?qid=1489099515180&sr=0-6&ref_=srh_res_product_title)
+* [AWS Deep Learning AMI - Ubuntu 14.04](https://aws.amazon.com/marketplace/pp/B06VSPXKDX?qid=1489099515180&sr=0-6&ref_=srh_res_product_title)
+* [Microsoft Azure Data Science Virtual Machine - Ubuntu 16.04](https://)
 
-<block class="ubuntu compile cloud" />
+<block class="ubuntu compile" />
 
 [![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
@@ -66,13 +67,24 @@ wget ${CUDNN_URL}
 sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local
 rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 ```
-<block class="ubuntu compile cloud" />
+<block class="ubuntu compile" />
 ### Optional Dependencies
 
+> Note `libgflags2` is for Ubuntu 14.04. `libgflags-dev` is for Ubuntu 16.04.
+
 ```bash
+# for Ubuntu 14.04
+sudo apt-get install -y --no-install-recommends libgflags2
+```
+
+```bash
+# for Ubuntu 16.04
+sudo apt-get install -y --no-install-recommends libgflags-dev
+```
+
+```bash
+# for both Ubuntu 14.04 and 16.04
 sudo apt-get install -y --no-install-recommends \
-      libgflags2 \
-      libgflags-dev \
       libgtest-dev \
       libiomp-dev \
       libleveldb-dev \
@@ -83,10 +95,20 @@ sudo apt-get install -y --no-install-recommends \
       openmpi-bin \
       openmpi-doc \
       python-pydot
-sudo pip install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image scipy setuptools tornado
+sudo pip install \
+      flask \
+      graphviz \
+      hypothesis \
+      jupyter \
+      matplotlib \
+      pydot python-nvd3 \
+      pyyaml \
+      requests \
+      scikit-image \
+      scipy \
+      setuptools \
+      tornado
 ```
-
-* Note for Ubuntu 16.04 `libgflags2` should be replaced with `libgflags-dev`.
 
 ### Clone & Build
 
