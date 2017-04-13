@@ -32,12 +32,12 @@ void adagrad_compute(
     float* nw,
     float* nh,
     float epsilon,
-    float lr,
+    const float* lr,
     Context* context) {
   for (auto i = 0; i < N; ++i) {
     float gi = g[i];
     float hi = nh[i] = h[i] + gi * gi;
-    nw[i] = w[i] + lr * gi / (std::sqrt(hi) + epsilon);
+    nw[i] = w[i] + lr[0] * gi / (std::sqrt(hi) + epsilon);
   }
 }
 
@@ -61,7 +61,7 @@ class AdagradOp final : public Operator<Context> {
         Output(OUTPUT_PARAM)->template mutable_data<T>(),
         Output(OUTPUT_MOMENT_1)->template mutable_data<T>(),
         epsilon_,
-        Input(LR).template data<T>()[0],
+        Input(LR).template data<T>(),
         &context_);
     return true;
   }
@@ -91,7 +91,7 @@ class SparseAdagradOp final : public Operator<Context> {
     Output(OUTPUT_PARAM)->ResizeLike(Input(PARAM));
     Output(OUTPUT_MOMENT_1)->ResizeLike(Input(MOMENT_1));
 
-    auto n = Input(GRAD).dim(0);
+    auto n = Input(INDICES).size();
 
     const auto* indices = Input(INDICES).template data<SIndex>();
     const auto* gradIn = Input(GRAD).template data<T>();
@@ -104,7 +104,8 @@ class SparseAdagradOp final : public Operator<Context> {
       return true;
     }
 
-    auto block_size = Input(GRAD).size_from_dim(1);
+    auto block_size = Input(PARAM).size_from_dim(1);
+    CAFFE_ENFORCE(Input(GRAD).size() == (n * block_size));
     for (auto i = 0; i < n; ++i) {
       auto idx = indices[i];
       if (block_size == 1) {
@@ -114,7 +115,7 @@ class SparseAdagradOp final : public Operator<Context> {
       } else {
         auto offsetI = i * block_size;
         auto offsetIdx = idx * block_size;
-        adagrad_compute(
+        adagrad_compute<Context>(
             block_size,
             paramIn + offsetIdx,
             gradIn + offsetI,
@@ -122,7 +123,7 @@ class SparseAdagradOp final : public Operator<Context> {
             paramOut + offsetIdx,
             momentOut + offsetIdx,
             epsilon_,
-            lr[0],
+            lr,
             &context_);
       }
     }
