@@ -80,6 +80,10 @@ This will output a URL. You just need to copy the provided URL/token combo into 
 
 > In some situations you can't access the Jupyter server on your browser via 0.0.0.0 or localhost. You need to pull the Docker IP address (run `docker-machine ip`) and use that to access the Jupyter server. If this doesn't work, check your computer's IP address and try that. If that doesn't work, kill the server, start docker-machine as mentioned in troubleshooting, check its IP, then start the Jupyter server and use the docker-machine IP.
 
+## Using Docker and GPUs
+
+To enable the power of your GPU while using Docker, you will want to install NVIDIA's [nvidia-docker](https://devblogs.nvidia.com/parallelforall/nvidia-docker-gpu-server-application-deployment-made-easy/). Use `nvidia-docker run ...` instead of `docker run...`.
+
 ### Troubleshooting
 
 Getting Docker to run after installation may take some prodding and setting up of the environment. Try this:

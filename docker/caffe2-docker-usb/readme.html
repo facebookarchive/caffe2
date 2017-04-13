@@ -114,6 +114,19 @@ docker run -it -p 8888:8888 c2.tutorial sh -c "jupyter notebook --no-browser --i
 <p>This will output a URL. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials.</p>
 <p>In some situations you can't access the Jupyter server on your browser via 0.0.0.0 or localhost. You need to pull the Docker IP address (run <code>docker-machine ip</code>) and use that to access the Jupyter server. If that doesn't work, check you computer's current IP address and try that instead.</p>
 
+<h2 id="usingdockerandgpus">Using Docker and GPUs</h2>
+
+<p>To enable the power of your GPU while using Docker, you will want to install NVIDIA's nvidia-docker. Use <code>nvidia-docker run ...</code> instead of <code>docker run...</code></p>
+<p>Installation instructions (open terminal and browse to the USB stick's root):</p>
+<pre>
+  <code>
+#Install nvidia-docker and nvidia-docker-plugin
+sudo dpkg -i nvidia-docker*.deb
+
+# Test nvidia-smi
+nvidia-docker run --rm nvidia/cuda nvidia-smi
+  </code>
+</pre>
 <h3 id="troubleshooting">Troubleshooting</h3>
 <table class="c2table">
   <thead>
