@@ -12,7 +12,7 @@ Training huge datasets like ImageNet's 14 million images is possible within minu
 
 ![chart images per second](/static/images/infograph-chart-ips.png)
 
-These speeds were tested with [NVIDIA Tesla P100 cards](NVIDIA Tesla P100 cards). You can add GPUs in a single machine, or scale horizontally with additional machines, each with one or more GPUs. As seen in the chart below, scaling is slightly sublinear due to some small overhead.
+These speeds were tested with [NVIDIA Tesla P100 cards](NVIDIA Tesla P100 cards) for ResNet-50. You can add GPUs in a single machine, or scale horizontally with additional machines, each with one or more GPUs. As seen in the chart below, scaling is slightly sublinear due to some small overhead.
 
 ![chart speedup](/static/images/infograph-chart-speedup.png)
 
