@@ -19,9 +19,9 @@ Caffe2 utilizes a newer format, usually found in the protobuf `.pb` file format,
 
 If you have existing Caffe models or have been using Caffe and want a quick jumpstart, checkout the [Caffe Migration](caffe-migration.html) to start.
 
-### Submission of Your Model for Caffe2's Zoo
+### Submitting Your Model to Caffe2's Model Zoo
 
-Please file an [Issue](https://github.com/caffe2/caffe2/issues) to have your project and related models added to the zoo.
+Please file an [Issue](https://github.com/caffe2/caffe2/issues) to have your project and related models added to the zoo, or if you're already a contributor to the project you can add your entry directly to the [wiki page](https://github.com/caffe2/caffe2/wiki/Model-Zoo).
 
 ### Downloading and Importing Caffe2 Models
 
