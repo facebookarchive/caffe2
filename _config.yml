@@ -3,7 +3,7 @@ permalink: /blog/:year/:month/:day/:title.html
 title: Caffe2
 tagline: Caffe2
 description: >
-  A deep learning, cross platform ML framework
+  A New Lightweight, Modular, and Scalable Deep Learning Framework
 fbappid: "1615782811974223"
 gacode: "UA-44373548-25"
 logo: /static/logo.svg
@@ -46,8 +46,10 @@ color:
 
 #Uncomment this if you want to enable Algolia doc search with your own values
 searchconfig:
-  apikey: "db61f241bad73c7053444a6de6184c01"
-  indexname: "caffe2"
+  #apikey: "db61f241bad73c7053444a6de6184c01"
+  apikey: "c1945434a590e280b0624b5b6b4b5e65"
+  #indexname: "caffe2"
+  indexname: "caffe2ref"
 
 # Blog posts are built into Jekyll by default, with the `_posts` directory.
 # Here you can specify other types of documentation. The names here are `docs`
@@ -90,6 +92,7 @@ gems:
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-sitemap
+  - algoliasearch-jekyll
 
 # Set default open graph image for all pages
 defaults:
