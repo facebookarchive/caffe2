@@ -262,6 +262,8 @@ bool SumReduceLikeOp<CUDAContext>::DoRunWithType() {
 
 REGISTER_CUDA_OPERATOR(SumReduceLike, SumReduceLikeOp<CUDAContext>);
 
+namespace {
+
 template <typename T, typename M>
 __global__
 void binary_add_kernel(const int N, const T* a, const T* b, T* r) {

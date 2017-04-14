@@ -23,7 +23,8 @@ inline float16 cpu_float2half_rn(float f) {
     static_assert(sizeof(unsigned int) == sizeof(float),
         "Programming error sizeof(unsigned int) != sizeof(float)");
 
-    unsigned x = *((int*)(void*)(&f));
+    unsigned* xp = reinterpret_cast<unsigned int*>(&f);
+    unsigned x = *xp;
     unsigned u = (x & 0x7fffffff), remainder, shift, lsb, lsb_s1, lsb_m1;
     unsigned sign, exponent, mantissa;
 
@@ -101,7 +102,8 @@ inline float cpu_half2float(float16 h) {
 
     int temp = ((sign << 31) | (exponent << 23) | mantissa);
 
-    return *((float*)((void*)&temp));
+    unsigned* rp = reinterpret_cast<unsigned *>(&temp);
+    return *rp;
 }
 
 };  // anonymous
