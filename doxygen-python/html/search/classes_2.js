@@ -5,13 +5,5 @@ var searchData=
   ['batchmseloss',['BatchMSELoss',['../classlayers_1_1batch__mse__loss_1_1BatchMSELoss.html',1,'layers::batch_mse_loss']]],
   ['batchsigmoidcrossentropyloss',['BatchSigmoidCrossEntropyLoss',['../classlayers_1_1batch__sigmoid__cross__entropy__loss_1_1BatchSigmoidCrossEntropyLoss.html',1,'layers::batch_sigmoid_cross_entropy_loss']]],
   ['batchsoftmaxloss',['BatchSoftmaxLoss',['../classlayers_1_1batch__softmax__loss_1_1BatchSoftmaxLoss.html',1,'layers::batch_softmax_loss']]],
-  ['blob',['Blob',['../classcaffe2_1_1Blob.html',1,'caffe2']]],
-  ['blobdeserializerbase',['BlobDeserializerBase',['../classcaffe2_1_1BlobDeserializerBase.html',1,'caffe2']]],
-  ['blobfeederbase',['BlobFeederBase',['../classcaffe2_1_1python_1_1BlobFeederBase.html',1,'caffe2::python']]],
-  ['blobfetcherbase',['BlobFetcherBase',['../classcaffe2_1_1python_1_1BlobFetcherBase.html',1,'caffe2::python']]],
-  ['blobreference',['BlobReference',['../classcore_1_1BlobReference.html',1,'core']]],
-  ['blobserializerbase',['BlobSerializerBase',['../classcaffe2_1_1BlobSerializerBase.html',1,'caffe2']]],
-  ['blobsqueue',['BlobsQueue',['../classcaffe2_1_1BlobsQueue.html',1,'caffe2']]],
-  ['blobstatgetter',['BlobStatGetter',['../structcaffe2_1_1BlobStatGetter.html',1,'caffe2']]],
-  ['blobstatregistry',['BlobStatRegistry',['../structcaffe2_1_1BlobStatRegistry.html',1,'caffe2']]]
+  ['blobreference',['BlobReference',['../classcore_1_1BlobReference.html',1,'core']]]
 ];

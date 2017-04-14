@@ -1,9 +1,10 @@
 var searchData=
 [
-  ['pinnedcpuallocator',['PinnedCPUAllocator',['../structcaffe2_1_1PinnedCPUAllocator.html',1,'caffe2']]],
-  ['predictor',['Predictor',['../classcaffe2_1_1Predictor.html',1,'caffe2']]],
-  ['primitivewrapper',['PrimitiveWrapper',['../classcaffe2_1_1mkl_1_1PrimitiveWrapper.html',1,'caffe2::mkl']]],
-  ['protodb',['ProtoDB',['../classcaffe2_1_1db_1_1ProtoDB.html',1,'caffe2::db']]],
-  ['protodbcursor',['ProtoDBCursor',['../classcaffe2_1_1db_1_1ProtoDBCursor.html',1,'caffe2::db']]],
-  ['protodbtransaction',['ProtoDBTransaction',['../classcaffe2_1_1db_1_1ProtoDBTransaction.html',1,'caffe2::db']]]
+  ['operator',['Operator',['../classcaffe2_1_1Operator.html',1,'caffe2']]],
+  ['operator_3c_20cudacontext_20_3e',['Operator&lt; CUDAContext &gt;',['../classcaffe2_1_1Operator.html',1,'caffe2']]],
+  ['operatorbase',['OperatorBase',['../classcaffe2_1_1OperatorBase.html',1,'caffe2']]],
+  ['operatornode',['OperatorNode',['../structcaffe2_1_1internal_1_1OperatorNode.html',1,'caffe2::internal']]],
+  ['opgraphnode',['OpGraphNode',['../structcaffe2_1_1internal_1_1OpGraphNode.html',1,'caffe2::internal']]],
+  ['opschema',['OpSchema',['../classcaffe2_1_1OpSchema.html',1,'caffe2']]],
+  ['opschemaregistry',['OpSchemaRegistry',['../classcaffe2_1_1OpSchemaRegistry.html',1,'caffe2']]]
 ];

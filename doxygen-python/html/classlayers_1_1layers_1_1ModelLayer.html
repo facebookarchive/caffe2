@@ -98,15 +98,29 @@ Inheritance diagram for layers.layers.ModelLayer:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a216ba07713bb1ab601ab099626dc5458"><td class="memItemLeft" align="right" valign="top"><a id="a216ba07713bb1ab601ab099626dc5458"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, model, prefix, input_record, tags=set(), kwargs)</td></tr>
-<tr class="separator:a216ba07713bb1ab601ab099626dc5458"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9e30259d4ffc85e5bb80f5885adcc6d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlayers_1_1layers_1_1ModelLayer.html#af9e30259d4ffc85e5bb80f5885adcc6d">__init__</a> (self, model, prefix, input_record, predict_input_record_fields=None, tags=None, kwargs)</td></tr>
+<tr class="separator:af9e30259d4ffc85e5bb80f5885adcc6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ab4a7db02535bfb9a9b4f000215ffc9"><td class="memItemLeft" align="right" valign="top"><a id="a6ab4a7db02535bfb9a9b4f000215ffc9"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_type</b> (self)</td></tr>
 <tr class="separator:a6ab4a7db02535bfb9a9b4f000215ffc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5be5644fbeaac5b03d2cc9ca21342128"><td class="memItemLeft" align="right" valign="top"><a id="a5be5644fbeaac5b03d2cc9ca21342128"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>get_output_schema</b> (self)</td></tr>
-<tr class="separator:a5be5644fbeaac5b03d2cc9ca21342128"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4250743976df23f1bfcb7d745647e3dc"><td class="memItemLeft" align="right" valign="top"><a id="a4250743976df23f1bfcb7d745647e3dc"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>predict_input_record</b> (self)</td></tr>
+<tr class="separator:a4250743976df23f1bfcb7d745647e3dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29d5563837835fe02f97203668033877"><td class="memItemLeft" align="right" valign="top"><a id="a29d5563837835fe02f97203668033877"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>input_record</b> (self)</td></tr>
+<tr class="separator:a29d5563837835fe02f97203668033877"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76b4b40d42c794cb924c9e5b3ebda33c"><td class="memItemLeft" align="right" valign="top"><a id="a76b4b40d42c794cb924c9e5b3ebda33c"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>predict_output_schema</b> (self)</td></tr>
+<tr class="separator:a76b4b40d42c794cb924c9e5b3ebda33c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2bb744e3490d89a9075d4452d3cd4a1"><td class="memItemLeft" align="right" valign="top"><a id="ab2bb744e3490d89a9075d4452d3cd4a1"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>predict_output_schema</b> (self, output_schema)</td></tr>
+<tr class="separator:ab2bb744e3490d89a9075d4452d3cd4a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01b59c5a87914ea03409139dd2dfc0ac"><td class="memItemLeft" align="right" valign="top"><a id="a01b59c5a87914ea03409139dd2dfc0ac"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>output_schema</b> (self)</td></tr>
+<tr class="separator:a01b59c5a87914ea03409139dd2dfc0ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39e73df4dc4b35f32a503e43705d7f56"><td class="memItemLeft" align="right" valign="top"><a id="a39e73df4dc4b35f32a503e43705d7f56"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>output_schema</b> (self, output_schema)</td></tr>
+<tr class="separator:a39e73df4dc4b35f32a503e43705d7f56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6f55aeb14b1c7b740aac76a796e334c"><td class="memItemLeft" align="right" valign="top"><a id="ac6f55aeb14b1c7b740aac76a796e334c"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_parameters</b> (self)</td></tr>
 <tr class="separator:ac6f55aeb14b1c7b740aac76a796e334c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,9 +135,15 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>add_operators</b> (sel
 <tr class="memitem:ac4489c98a8cd62239cb6b823409635af"><td class="memItemLeft" align="right" valign="top"><a id="ac4489c98a8cd62239cb6b823409635af"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>add_ops</b> (self, net)</td></tr>
 <tr class="separator:ac4489c98a8cd62239cb6b823409635af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa902f4422f5ee88ef19d496a3dee4a53"><td class="memItemLeft" align="right" valign="top"><a id="aa902f4422f5ee88ef19d496a3dee4a53"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>add_eval_ops</b> (self, net)</td></tr>
+<tr class="separator:aa902f4422f5ee88ef19d496a3dee4a53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53d71e91afdce7eaedec427981f08bd9"><td class="memItemLeft" align="right" valign="top"><a id="a53d71e91afdce7eaedec427981f08bd9"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>add_train_ops</b> (self, net)</td></tr>
 <tr class="separator:a53d71e91afdce7eaedec427981f08bd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6728a61b2d353faa271aa4ecb8000e3b"><td class="memItemLeft" align="right" valign="top"><a id="a6728a61b2d353faa271aa4ecb8000e3b"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>add_calibration_ops</b> (self, net)</td></tr>
+<tr class="separator:a6728a61b2d353faa271aa4ecb8000e3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -136,15 +156,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a676ef4fa1cce9c05173a74b79711d2f8"><td class="memItemLeft" align="right" valign="top"><a id="a676ef4fa1cce9c05173a74b79711d2f8"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>kwargs</b></td></tr>
 <tr class="separator:a676ef4fa1cce9c05173a74b79711d2f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae27261a71b2abe9afd6911f125da01e3"><td class="memItemLeft" align="right" valign="top"><a id="ae27261a71b2abe9afd6911f125da01e3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>input_record</b></td></tr>
-<tr class="separator:ae27261a71b2abe9afd6911f125da01e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee9d665511df11182681d8892fa3e483"><td class="memItemLeft" align="right" valign="top"><a id="aee9d665511df11182681d8892fa3e483"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>request_only</b></td></tr>
 <tr class="separator:aee9d665511df11182681d8892fa3e483"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada9f75368d0bab0d77b80f28687c727b"><td class="memItemLeft" align="right" valign="top"><a id="ada9f75368d0bab0d77b80f28687c727b"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>output_schema</b></td></tr>
-<tr class="separator:ada9f75368d0bab0d77b80f28687c727b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a037e70b2ff08baee0f5c416e74de99ea"><td class="memItemLeft" align="right" valign="top"><a id="a037e70b2ff08baee0f5c416e74de99ea"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>eval_output_schema</b></td></tr>
+<tr class="separator:a037e70b2ff08baee0f5c416e74de99ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f29e4d433fd07509fbfc877447b0bde"><td class="memItemLeft" align="right" valign="top"><a id="a7f29e4d433fd07509fbfc877447b0bde"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>tags</b></td></tr>
 <tr class="separator:a7f29e4d433fd07509fbfc877447b0bde"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,8 +171,86 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00059">59</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00082">82</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="af9e30259d4ffc85e5bb80f5885adcc6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9e30259d4ffc85e5bb80f5885adcc6d">&#9670;&nbsp;</a></span>__init__()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def layers.layers.ModelLayer.__init__ </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>prefix</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>input_record</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>predict_input_record_fields</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>tags</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>kwargs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Base class for model layers. Layer is an abstraction that allows to
+provide model description in terms of meta-operators, where each of the
+meta-operators can have different implementations for training,
+evaluation and prediction, that are instantiated later. As an example
+SampledSoftmax can do something related to sampling depending on
+supervision during the training and just apply softmax if it's used for
+prediction/evaluation.
+
+All inputs/outputs from layers are represented as a record (instance of
+schema bounded to blobs) and are accessible through input_record and
+output_schema. If Layer needs to have only a subset of inputs/provides
+subset of outputs during the inference - it should provide
+predict_input_record and predict_output_schema correspondingly (those
+records are expected to be a subset of input_record/output_schema).
+
+Each layer is also have list of Tags associated with it, that depends on
+current context and arguments. It's possible to use those tags during
+the instantiation time.</pre> 
+<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00085">85</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="adb385e96825c76f6efdf044bead5de5a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#adb385e96825c76f6efdf044bead5de5a">&#9670;&nbsp;</a></span>get_fp16_compatible_parameters()</h2>
 
@@ -172,7 +267,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Return a subset of parameters which can be converted to fp16</pre> 
-<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00088">88</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00175">175</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
 
 </div>
 </div>
@@ -183,7 +278,7 @@ Public Attributes</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:28 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

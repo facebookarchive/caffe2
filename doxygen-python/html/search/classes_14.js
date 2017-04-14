@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['unsupportedoperatorfeature',['UnsupportedOperatorFeature',['../classcaffe2_1_1UnsupportedOperatorFeature.html',1,'caffe2']]]
+  ['uniformsampling',['UniformSampling',['../classlayers_1_1uniform__sampling_1_1UniformSampling.html',1,'layers::uniform_sampling']]]
 ];

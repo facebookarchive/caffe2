@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['visualize',['visualize',['../namespacevisualize.html',1,'']]]
+  ['workspace',['workspace',['../namespaceworkspace.html',1,'']]]
 ];

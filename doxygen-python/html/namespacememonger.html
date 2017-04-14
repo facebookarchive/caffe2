@@ -64,6 +64,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -74,36 +75,63 @@ $(function() {
 <p>Module caffe2.python.memonger.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmemonger_1_1AssignmentAlgorithm.html">AssignmentAlgorithm</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a43a25bc5785aa496e2812455319a76d0"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#a43a25bc5785aa496e2812455319a76d0">share_grad_blobs</a> (net, losses, param_grads, namescope)</td></tr>
 <tr class="separator:a43a25bc5785aa496e2812455319a76d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0084584781a826ce44cfeca37c799010"><td class="memItemLeft" align="right" valign="top"><a id="a0084584781a826ce44cfeca37c799010"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>optimize_inference_for_dag</b> (net, input_blobs, namescope=&quot;&quot;)</td></tr>
+<tr class="separator:a0084584781a826ce44cfeca37c799010"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70649dd3a66a3028768181c9889bd7a8"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#a70649dd3a66a3028768181c9889bd7a8">topological_sort_traversal_longest_path</a> (g)</td></tr>
+<tr class="separator:a70649dd3a66a3028768181c9889bd7a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3a830e7a8195377192628568ed03fa1"><td class="memItemLeft" align="right" valign="top"><a id="aa3a830e7a8195377192628568ed03fa1"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>topological_sort_traversal</b> (g)</td></tr>
 <tr class="separator:aa3a830e7a8195377192628568ed03fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52532e95bc09748ddc5a368daa36498f"><td class="memItemLeft" align="right" valign="top"><a id="a52532e95bc09748ddc5a368daa36498f"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>compute_ranges</b> (linearized_ops)</td></tr>
-<tr class="separator:a52532e95bc09748ddc5a368daa36498f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31c19f95e0893189f0805659e25a985e"><td class="memItemLeft" align="right" valign="top"><a id="a31c19f95e0893189f0805659e25a985e"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>compute_ranges</b> (linearized_ops, blob_sizes=None)</td></tr>
+<tr class="separator:a31c19f95e0893189f0805659e25a985e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a01b72ce0d20ba3434359efdd930112d6"><td class="memItemLeft" align="right" valign="top"><a id="a01b72ce0d20ba3434359efdd930112d6"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>is_compatible</b> (candidate_range, assignment, static_blobs)</td></tr>
 <tr class="separator:a01b72ce0d20ba3434359efdd930112d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab8ee634279254101344696da8d282120"><td class="memItemLeft" align="right" valign="top"><a id="ab8ee634279254101344696da8d282120"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>compute_blob_assignments</b> (assignments)</td></tr>
 <tr class="separator:ab8ee634279254101344696da8d282120"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa57a9780a3395929d0e9265a6f71965a"><td class="memItemLeft" align="right" valign="top"><a id="aa57a9780a3395929d0e9265a6f71965a"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>compute_assignments</b> (ranges, static_blobs)</td></tr>
-<tr class="separator:aa57a9780a3395929d0e9265a6f71965a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa29c07d922b7b9e12e7393a79c952c52"><td class="memItemLeft" align="right" valign="top"><a id="aa29c07d922b7b9e12e7393a79c952c52"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>get_memory_usage</b> (assignments)</td></tr>
+<tr class="separator:aa29c07d922b7b9e12e7393a79c952c52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e32577a149b7cead9b1cdc34764e4df"><td class="memItemLeft" align="right" valign="top"><a id="a7e32577a149b7cead9b1cdc34764e4df"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>compute_assignments_greedy</b> (ranges_sorted, init_assignments=None)</td></tr>
+<tr class="separator:a7e32577a149b7cead9b1cdc34764e4df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac168133fbe09188a05f8f50c037ba178"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#ac168133fbe09188a05f8f50c037ba178">compute_assignments_dp</a> (ranges_sorted, init_assignment, counter=None)</td></tr>
+<tr class="separator:ac168133fbe09188a05f8f50c037ba178"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f2b6ef040f506ce8a6903c5c4831880"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#a8f2b6ef040f506ce8a6903c5c4831880">get_updated_ranges</a> (ranges, max_live=None)</td></tr>
+<tr class="separator:a8f2b6ef040f506ce8a6903c5c4831880"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46d14e670585b88a5c950c4d0a8dca46"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#a46d14e670585b88a5c950c4d0a8dca46">compute_assignments</a> (ranges, static_blobs, algo)</td></tr>
+<tr class="separator:a46d14e670585b88a5c950c4d0a8dca46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af61f3ecb4f5f429f4af294659c9fb5f6"><td class="memItemLeft" align="right" valign="top"><a id="af61f3ecb4f5f429f4af294659c9fb5f6"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>verify_assignments</b> (assignments)</td></tr>
+<tr class="separator:af61f3ecb4f5f429f4af294659c9fb5f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1338a53507c2120103219374ec4e558e"><td class="memItemLeft" align="right" valign="top"><a id="a1338a53507c2120103219374ec4e558e"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>compute_interference_graph</b> (ops)</td></tr>
 <tr class="separator:a1338a53507c2120103219374ec4e558e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3091b95bea8d87fb6656cb0c423e6a6d"><td class="memItemLeft" align="right" valign="top"><a id="a3091b95bea8d87fb6656cb0c423e6a6d"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_assignments</b> (net, blob_assignments)</td></tr>
 <tr class="separator:a3091b95bea8d87fb6656cb0c423e6a6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04c3c3e89024f27145ee1769266af044"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#a04c3c3e89024f27145ee1769266af044">optimize_interference</a> (net, static_blobs, ordering_function=topological_sort_traversal)</td></tr>
-<tr class="separator:a04c3c3e89024f27145ee1769266af044"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae06ea76f6a834a299b79fcc918d60a91"><td class="memItemLeft" align="right" valign="top"><a id="ae06ea76f6a834a299b79fcc918d60a91"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_recurrent_blob_assignments</b> (op, blob_assignments, canonical_name)</td></tr>
+<tr class="separator:ae06ea76f6a834a299b79fcc918d60a91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2a561a19772b488b8cbae6825fd9fa9"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#ac2a561a19772b488b8cbae6825fd9fa9">optimize_interference</a> (net, static_blobs, ordering_function=topological_sort_traversal, blob_sizes=None, algo=AssignmentAlgorithm.GREEDY)</td></tr>
+<tr class="separator:ac2a561a19772b488b8cbae6825fd9fa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea3c51ade7ad58a7fd5e9fd01a569b06"><td class="memItemLeft" align="right" valign="top"><a id="aea3c51ade7ad58a7fd5e9fd01a569b06"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>compute_statistics</b> (assignments)</td></tr>
 <tr class="separator:aea3c51ade7ad58a7fd5e9fd01a569b06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b300c02affaf4ac1d09f81c4e5d92d1"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#a0b300c02affaf4ac1d09f81c4e5d92d1">collect_blob_sizes</a> (net)</td></tr>
+<tr class="separator:a0b300c02affaf4ac1d09f81c4e5d92d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -111,7 +139,7 @@ Variables</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>log</b> = logging.getLogger(&quot;memonger&quot;)</td></tr>
 <tr class="separator:a9546e1f5f0b81348a25d6e19d0423e83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1dbb7ced87beb951a4dba6e8d6c3d384"><td class="memItemLeft" align="right" valign="top"><a id="a1dbb7ced87beb951a4dba6e8d6c3d384"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>LiveRange</b> = collections.namedtuple('LiveRange', [&quot;defined&quot;, &quot;used&quot;])</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>LiveRange</b> = collections.namedtuple('LiveRange', [&quot;defined&quot;, &quot;used&quot;, &quot;size&quot;])</td></tr>
 <tr class="separator:a1dbb7ced87beb951a4dba6e8d6c3d384"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7c3833d27154c1accc7608d39868776"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><b>Optimization</b></td></tr>
 <tr class="separator:ad7c3833d27154c1accc7608d39868776"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,8 +149,165 @@ Variables</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.memonger. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a04c3c3e89024f27145ee1769266af044"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a04c3c3e89024f27145ee1769266af044">&#9670;&nbsp;</a></span>optimize_interference()</h2>
+<a id="a0b300c02affaf4ac1d09f81c4e5d92d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b300c02affaf4ac1d09f81c4e5d92d1">&#9670;&nbsp;</a></span>collect_blob_sizes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def memonger.collect_blob_sizes </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>net</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">College blob sizes from worksapce </pre> 
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00766">766</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+
+</div>
+</div>
+<a id="a46d14e670585b88a5c950c4d0a8dca46"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46d14e670585b88a5c950c4d0a8dca46">&#9670;&nbsp;</a></span>compute_assignments()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def memonger.compute_assignments </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>ranges</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>static_blobs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>algo</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">algo: Method used to find assignments (AssignmentAlgorithm.GREEDY or
+      AssignmentAlgorithm.DYNAMIC_PROGRAMMING).
+      AssignmentAlgorithm.DYNAMIC_PROGRAMMING gives optimal soultion at the
+      cost of more computation.
+      AssignmentAlgorithm.GREEDY may be better in the case 'blob_sizes' is
+      not provided.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00590">590</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+
+</div>
+</div>
+<a id="ac168133fbe09188a05f8f50c037ba178"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac168133fbe09188a05f8f50c037ba178">&#9670;&nbsp;</a></span>compute_assignments_dp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def memonger.compute_assignments_dp </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>ranges_sorted</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>init_assignment</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>counter</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Compute assignment for blobs in 'ranges_sorted' on top of 'init_assignment'
+    using dynamic programming + recursion.
+
+    ranges_sorted: blobs sorted by 'used'
+    init_assignment: assignment to start with, blobs in 'ranges_sorted' should
+                     not be used in 'init_assignment'
+
+    Using f(b, k, init) to represent the best assignment for blobs b[0:k]
+    given initial assignment 'init', we have
+        f(b, k, init) = f(b, j, init) +
+                        find_best(b[j:k], f(b, j, init))
+    where j is the index of the last best assignment that is independent of
+    blob b[k - 1] (b[k - 1] is compatible with all assignments in
+    f(b, j, init)), and find_best(b1, init1) gives the best assignment
+    for blobs in 'b1' based on the initial assignment 'init1', and blobs
+    b1[0:-1] should be incompatible with with b1[-1]. f(b, len(b), []) gives
+    the best assignment for blobs 'b'.
+
+    For find_best(b, init), since b[0:-1] are not compatible with b[-1], we
+    could reduce it to a smaller problem to find best assignment for b[0:-1]
+    as
+        find_best(b, init) = min {
+            f(b[0:-1], len(b) - 1, init - x) + [x, b[-1]] for x in init, or
+            f(b[0:-1], len(b) - 1, init) + [b[-1]]
+        }
+    where min{} gives the assignment with minimum memory usage.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00443">443</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+
+</div>
+</div>
+<a id="a8f2b6ef040f506ce8a6903c5c4831880"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f2b6ef040f506ce8a6903c5c4831880">&#9670;&nbsp;</a></span>get_updated_ranges()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def memonger.get_updated_ranges </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>ranges</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>max_live</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Set LiveRange.defined = -1 if it is None
+    Set LiveRange.used = max_live if it is None
+    Set LiveRanee.size = 1 if it is None
+</pre> 
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00563">563</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+
+</div>
+</div>
+<a id="ac2a561a19772b488b8cbae6825fd9fa9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2a561a19772b488b8cbae6825fd9fa9">&#9670;&nbsp;</a></span>optimize_interference()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -143,7 +328,19 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>ordering_function</em> = <code>topological_sort_traversal</code>&#160;</td>
+          <td class="paramname"><em>ordering_function</em> = <code>topological_sort_traversal</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_sizes</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>algo</em> = <code>AssignmentAlgorithm.GREEDY</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -152,14 +349,24 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">1) Use a BFS traversal of the execution graph to generate an
+<pre class="fragment">ordering_function: topological_sort_traversal or
+                   topological_sort_traversal_longest_path.
+                   topological_sort_traversal_longest_path gives better
+                   results but needs a bit more computation.
+algo: Method used to find assignments (AssignmentAlgorithm.GREEDY or
+      AssignmentAlgorithm.DYNAMIC_PROGRAMMING).
+      AssignmentAlgorithm.DYNAMIC_PROGRAMMING gives optimal soultion at the
+      cost of more computation.
+      AssignmentAlgorithm.GREEDY may be better in the case 'blob_sizes' is
+      not provided.
+</pre><pre class="fragment">1) Use a BFS traversal of the execution graph to generate an
    ordering of the node executions.
 2) Generate use-def ranges for each `blob` in the BFS traversal
    order.
 3) Assign blobs to `canonical blobs`
 4) Rename blobs to canonical blobs
 </pre> 
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00242">242</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00703">703</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -207,7 +414,39 @@ deep networks.
 
 Returns an optimized protobuf (assign to net._net)
 </pre> 
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00021">21</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00022">22</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+
+</div>
+</div>
+<a id="a70649dd3a66a3028768181c9889bd7a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70649dd3a66a3028768181c9889bd7a8">&#9670;&nbsp;</a></span>topological_sort_traversal_longest_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def memonger.topological_sort_traversal_longest_path </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>g</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">The graph 'g' may contain several source nodes (nodes without incoming
+    edge), which could have be in any order and still being a valid
+    topoligical sorting result. We would like to arrange these source nodes
+    so that the average live spans of the computed blobs are shorter.
+    The idea is to sort the source nodes based on the length of their path to
+    the target node so that the one with longer path is used first.
+    This is done by:
+    - Add a single target node if there are multiple target nodes in 'g'.
+    - Find the longest path between each source and the target node.
+    - Convert the longest paths to a tree with the target node being the root
+      and source nodes being the leaves.
+    - Sort the nodes of the tree based on the height of the tree.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00313">313</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -224,7 +463,7 @@ Returns an optimized protobuf (assign to net._net)
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  collections.namedtuple(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&#39;Optimization&#39;</span>, [<span class="stringliteral">&#39;net&#39;</span>, <span class="stringliteral">&#39;assignments&#39;</span>, <span class="stringliteral">&#39;blob_assignments&#39;</span>])</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00224">224</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00653">653</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -240,7 +479,7 @@ Returns an optimized protobuf (assign to net._net)
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  collections.namedtuple(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&#39;Statistics&#39;</span>, [<span class="stringliteral">&#39;baseline_nbytes&#39;</span>, <span class="stringliteral">&#39;optimized_nbytes&#39;</span>])</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00272">272</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00747">747</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -248,7 +487,7 @@ Returns an optimized protobuf (assign to net._net)
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:28 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

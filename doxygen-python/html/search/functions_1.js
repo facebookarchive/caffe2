@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['add',['add',['../classcaffe2_1_1StatRegistry.html#afb8511c240761776463076b75bd67aba',1,'caffe2::StatRegistry']]],
   ['add_5fattribute',['add_attribute',['../classcore_1_1Net.html#a57e16fd50058bb7dad87e5e1b00e0472',1,'core::Net']]],
   ['addaccuracy',['AddAccuracy',['../namespacecifar10__training.html#a32334b2acc00d9702997ab39d2b71829',1,'cifar10_training']]],
   ['addargument',['AddArgument',['../namespacecaffe__translator.html#a180d4d2ebc051453b392144da7fc4063',1,'caffe_translator']]],
@@ -21,8 +20,10 @@ var searchData=
   ['allreduce8',['Allreduce8',['../namespacemuji.html#a2f440c7f28fc5ab70d51de14e8ee5369',1,'muji']]],
   ['allreducefallback',['AllreduceFallback',['../namespacemuji.html#a4bc35e413041cc92d8f2e2d5554e798f',1,'muji']]],
   ['analyze',['analyze',['../namespacenet__printer.html#a2baff126ab8753032a31c61d1f603fbf',1,'net_printer']]],
+  ['assertblobsequal',['assertBlobsEqual',['../classlayer__test__util_1_1LayersTestCase.html#a87e1fde8ee0bada1afc7d33e61805f16',1,'layer_test_util::LayersTestCase']]],
   ['assertdevicechecks',['assertDeviceChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a8e5a5ea6c1ca06b2ee50a56d10b0a0d5',1,'hypothesis_test_util::HypothesisTestCase']]],
   ['assertgradientchecks',['assertGradientChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a898f5288da927a19f596ec212e065017',1,'hypothesis_test_util::HypothesisTestCase']]],
+  ['assertnetcontainops',['assertNetContainOps',['../classlayer__test__util_1_1LayersTestCase.html#a3f10e585640989d08ce1c3f541b30485',1,'layer_test_util::LayersTestCase']]],
   ['assertreferencechecks',['assertReferenceChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a26430279848a5a6689f63432979bd61a',1,'hypothesis_test_util::HypothesisTestCase']]],
-  ['averagepool',['AveragePool',['../classcnn_1_1CNNModelHelper.html#ace33e54a068d5a9ec66d47ae874f3e34',1,'cnn::CNNModelHelper']]]
+  ['averagepool',['AveragePool',['../namespacepooling.html#a5f8afbecd20a681274a238036bec665c',1,'pooling']]]
 ];

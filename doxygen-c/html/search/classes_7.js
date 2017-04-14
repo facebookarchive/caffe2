@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['initregisterer',['InitRegisterer',['../classcaffe2_1_1InitRegisterer.html',1,'caffe2']]],
-  ['is_5ffundamental_3c_20caffe2_3a_3a_5f_5ff16_20_3e',['is_fundamental&lt; caffe2::__f16 &gt;',['../structstd_1_1is__fundamental_3_01caffe2_1_1____f16_01_4.html',1,'std']]]
+  ['generictensorimplementation',['GenericTensorImplementation',['../structcaffe2_1_1GenericTensorImplementation.html',1,'caffe2']]],
+  ['gpuexecutor',['GPUExecutor',['../classcaffe2_1_1gpu__single__thread_1_1GPUExecutor.html',1,'caffe2::gpu_single_thread']]],
+  ['gradientmakerbase',['GradientMakerBase',['../classcaffe2_1_1GradientMakerBase.html',1,'caffe2']]],
+  ['gradientnotimplementedyet',['GradientNotImplementedYet',['../structcaffe2_1_1GradientNotImplementedYet.html',1,'caffe2']]],
+  ['gradientopsmeta',['GradientOpsMeta',['../structcaffe2_1_1GradientOpsMeta.html',1,'caffe2']]],
+  ['gradientwrapper',['GradientWrapper',['../structcaffe2_1_1GradientWrapper.html',1,'caffe2']]]
 ];

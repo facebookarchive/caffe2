@@ -154,9 +154,20 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Reshape</b> (const ve
 <tr class="memitem:a8eae99b38aa6215a839b13cc2a3f77c1"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1Tensor.html#a8eae99b38aa6215a839b13cc2a3f77c1">ShareExternalPointer</a> (T *src, size_t capacity=0)</td></tr>
 <tr class="memdesc:a8eae99b38aa6215a839b13cc2a3f77c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shares the data with an externally managed pointer.  <a href="#a8eae99b38aa6215a839b13cc2a3f77c1">More...</a><br /></td></tr>
 <tr class="separator:a8eae99b38aa6215a839b13cc2a3f77c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6734e55254b658a9bc37fe35d3686837"><td class="memTemplParams" colspan="2">template&lt;typename T , typename Deleter &gt; </td></tr>
+<tr class="memitem:a6734e55254b658a9bc37fe35d3686837"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1Tensor.html#a6734e55254b658a9bc37fe35d3686837">ShareExternalPointer</a> (T *src, size_t capacity, Deleter &amp;&amp;d)</td></tr>
+<tr class="memdesc:a6734e55254b658a9bc37fe35d3686837"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shares the data with an externally managed pointer.  <a href="#a6734e55254b658a9bc37fe35d3686837">More...</a><br /></td></tr>
+<tr class="separator:a6734e55254b658a9bc37fe35d3686837"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a936350d54ad7cd9cd323bebae15a4ce5"><td class="memItemLeft" align="right" valign="top"><a id="a936350d54ad7cd9cd323bebae15a4ce5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ShareExternalPointer</b> (void *src, const <a class="el" href="classcaffe2_1_1TypeMeta.html">TypeMeta</a> &amp;<a class="el" href="classcaffe2_1_1Tensor.html#a5c8e05e982bbefa1dd7e438415574c8f">meta</a>, size_t capacity=0)</td></tr>
 <tr class="separator:a936350d54ad7cd9cd323bebae15a4ce5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a851eb7e0bbe466454aac6831c2ee27ec"><td class="memTemplParams" colspan="2"><a id="a851eb7e0bbe466454aac6831c2ee27ec"></a>
+template&lt;class Deleter &gt; </td></tr>
+<tr class="memitem:a851eb7e0bbe466454aac6831c2ee27ec"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ShareExternalPointer</b> (void *src, const <a class="el" href="classcaffe2_1_1TypeMeta.html">TypeMeta</a> &amp;<a class="el" href="classcaffe2_1_1Tensor.html#a5c8e05e982bbefa1dd7e438415574c8f">meta</a>, size_t capacity, Deleter &amp;&amp;d)</td></tr>
+<tr class="separator:a851eb7e0bbe466454aac6831c2ee27ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a905fd4a41ff9076c543b65a16682e94f"><td class="memItemLeft" align="right" valign="top"><a id="a905fd4a41ff9076c543b65a16682e94f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>shares_data</b> ()</td></tr>
+<tr class="separator:a905fd4a41ff9076c543b65a16682e94f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adccf463b5bdf9db0521f3049f2f6f52d"><td class="memItemLeft" align="right" valign="top">const void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1Tensor.html#adccf463b5bdf9db0521f3049f2f6f52d">raw_data</a> () const</td></tr>
 <tr class="memdesc:adccf463b5bdf9db0521f3049f2f6f52d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a const raw void* pointer of the underlying storage.  <a href="#adccf463b5bdf9db0521f3049f2f6f52d">More...</a><br /></td></tr>
 <tr class="separator:adccf463b5bdf9db0521f3049f2f6f52d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -188,6 +199,9 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cl
 <tr class="memitem:a7b30cefe34ea2200f322546fd512e895"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1Tensor.html#a7b30cefe34ea2200f322546fd512e895">nbytes</a> () const</td></tr>
 <tr class="memdesc:a7b30cefe34ea2200f322546fd512e895"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the total number of bytes of the storage.  <a href="#a7b30cefe34ea2200f322546fd512e895">More...</a><br /></td></tr>
 <tr class="separator:a7b30cefe34ea2200f322546fd512e895"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98a71b8fd2fa1524a49b8e98c73ab6e4"><td class="memItemLeft" align="right" valign="top"><a id="a98a71b8fd2fa1524a49b8e98c73ab6e4"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>capacity_nbytes</b> () const</td></tr>
+<tr class="separator:a98a71b8fd2fa1524a49b8e98c73ab6e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a515c08e2d154f0fce77c5f43ff5e278c"><td class="memItemLeft" align="right" valign="top"><a id="a515c08e2d154f0fce77c5f43ff5e278c"></a>
 const vector&lt; TIndex &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1Tensor.html#a515c08e2d154f0fce77c5f43ff5e278c">dims</a> () const</td></tr>
 <tr class="memdesc:a515c08e2d154f0fce77c5f43ff5e278c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the dimensions of the tensor as a vector. <br /></td></tr>
@@ -231,6 +245,9 @@ TIndex&#160;</td><td class="memItemRight" valign="bottom"><b>size_</b> = -1</td>
 <tr class="memitem:a078f526c2de038a8453943df98f3ad49"><td class="memItemLeft" align="right" valign="top"><a id="a078f526c2de038a8453943df98f3ad49"></a>
 std::shared_ptr&lt; void &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>data_</b></td></tr>
 <tr class="separator:a078f526c2de038a8453943df98f3ad49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95cd5391278de01202993ed489396c36"><td class="memItemLeft" align="right" valign="top"><a id="a95cd5391278de01202993ed489396c36"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>shares_data_</b> = false</td></tr>
+<tr class="separator:a95cd5391278de01202993ed489396c36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a916c0e842b004088d79c3974632fa87b"><td class="memItemLeft" align="right" valign="top"><a id="a916c0e842b004088d79c3974632fa87b"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>capacity_</b> = 0</td></tr>
 <tr class="separator:a916c0e842b004088d79c3974632fa87b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -392,7 +409,7 @@ template&lt;class Context&gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00550">550</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00579">579</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -461,7 +478,7 @@ template&lt;typename T &gt; </div>
 <p>Returns a typed pointer of the underlying storage. </p>
 <p><a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data()</a> or <a class="el" href="classcaffe2_1_1Tensor.html#aa5f3bf3984ee4cfa05570fe8b8362503" title="Returns a mutable raw pointer of the underlying storage. ">raw_mutable_data()</a> must have been called prior to this function call, and the data type must be of the correct type. If you want to get a void* pointer instead, use <a class="el" href="classcaffe2_1_1Tensor.html#adccf463b5bdf9db0521f3049f2f6f52d" title="Returns a const raw void* pointer of the underlying storage. ">raw_data()</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00412">412</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00439">439</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -526,7 +543,7 @@ template&lt;class Context&gt; </div>
 <p>Returns the i-th dimension of the tensor. </p>
 <p>Note that the passed in index must be between 0 (inclusive) and the number of dimensions, otherwise this function will produce a fatal message. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00583">583</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00612">612</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -559,7 +576,7 @@ template&lt;class Context&gt; </div>
 <p>Returns the i-th dimension of the tensor in int. </p>
 <p>This function returns an int value instead of TIndex, which depending on the typedef could be int64. If you want int64 dim values, make sure you call <a class="el" href="classcaffe2_1_1Tensor.html#a5f80415d52f358395478c434a39c3486" title="Returns the i-th dimension of the tensor. ">dim()</a> instead. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00571">571</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00600">600</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -644,7 +661,7 @@ template&lt;typename T &gt; </div>
 <p>Returns a typed pointer of the underlying storage. </p>
 <p>If the existing data does not match the desired type, it will be deleted and a new storage will be created. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00500">500</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00525">525</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -676,7 +693,7 @@ template&lt;class Context&gt; </div>
 <p>Returns the total number of bytes of the storage. </p>
 <p>This is equivalent to calling <a class="el" href="classcaffe2_1_1Tensor.html#a7409a89ec717a595df6af8246eaca407" title="Returns the size (i.e. ">size()</a> * <a class="el" href="classcaffe2_1_1Tensor.html#ab763a92b2d7e59c83920676f71b59609" title="Return the number of bytes each item takes in the tensor. ">itemsize()</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00525">525</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00550">550</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -708,7 +725,7 @@ template&lt;class Context&gt; </div>
 <p>Returns a const raw void* pointer of the underlying storage. </p>
 <p><a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data()</a> or <a class="el" href="classcaffe2_1_1Tensor.html#aa5f3bf3984ee4cfa05570fe8b8362503" title="Returns a mutable raw pointer of the underlying storage. ">raw_mutable_data()</a> must have been called prior to this function call. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00400">400</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00427">427</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -742,7 +759,7 @@ template&lt;class Context&gt; </div>
 <p>Since we will need to know the type of the data for allocation, a <a class="el" href="classcaffe2_1_1TypeMeta.html" title="TypeMeta is a thin class that allows us to store the type of a container such as a blob...">TypeMeta</a> object is passed in to specify the necessary information. This is conceptually equivalent of calling <a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data&lt;T&gt;()</a> where the <a class="el" href="classcaffe2_1_1TypeMeta.html" title="TypeMeta is a thin class that allows us to store the type of a container such as a blob...">TypeMeta</a> parameter meta is derived from the type T. This function differs from <a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data&lt;T&gt;()</a> in the sense that the type T can be specified during runtime via the <a class="el" href="classcaffe2_1_1TypeMeta.html" title="TypeMeta is a thin class that allows us to store the type of a container such as a blob...">TypeMeta</a> object.</p>
 <p>If the existing data does not match the desired type, it will be deleted and a new storage will be created. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00438">438</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00465">465</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -775,7 +792,7 @@ template&lt;class Context&gt; </div>
 <p>This can only be used when you know for sure that the underlying storage of the tensor is already created via an earlier raw_mutable_data(meta) call or a <a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data&lt;T&gt;()</a> call.</p>
 <p>If the existing data does not match the desired type, it will be deleted and a new storage will be created. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00484">484</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00510">510</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -918,7 +935,7 @@ template&lt;class Context&gt; </div>
 </div>
 </div>
 <a id="a8eae99b38aa6215a839b13cc2a3f77c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8eae99b38aa6215a839b13cc2a3f77c1">&#9670;&nbsp;</a></span>ShareExternalPointer()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8eae99b38aa6215a839b13cc2a3f77c1">&#9670;&nbsp;</a></span>ShareExternalPointer() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -958,7 +975,58 @@ template&lt;typename T &gt; </div>
 <p>Shares the data with an externally managed pointer. </p>
 <p>This is similar to <a class="el" href="classcaffe2_1_1Tensor.html#a6af983391893a6f6db43004cae62ce0d" title="Shares the data with another tensor. ">ShareData()</a> but the tensor does not take over ownership of the pointer, so the caller can explicitly manage the memory storage. One needs to make sure that the external memory is deallocated only after the tensor finishes using it. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00372">372</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00373">373</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+
+</div>
+</div>
+<a id="a6734e55254b658a9bc37fe35d3686837"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6734e55254b658a9bc37fe35d3686837">&#9670;&nbsp;</a></span>ShareExternalPointer() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Context&gt; </div>
+<div class="memtemplate">
+template&lt;typename T , typename Deleter &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classcaffe2_1_1Tensor.html">caffe2::Tensor</a>&lt; Context &gt;::ShareExternalPointer </td>
+          <td>(</td>
+          <td class="paramtype">T *&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Deleter &amp;&amp;&#160;</td>
+          <td class="paramname"><em>d</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Shares the data with an externally managed pointer. </p>
+<p>This overload takes a Deleter functor to be called when this tensor is reallocated or freed. </p>
+
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00384">384</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -1023,7 +1091,7 @@ template&lt;class Context&gt; </div>
 <p>Returns the size (i.e. </p>
 <p>the number of items) of the tensor. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00515">515</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00540">540</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -1034,7 +1102,7 @@ template&lt;class Context&gt; </div>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:21 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

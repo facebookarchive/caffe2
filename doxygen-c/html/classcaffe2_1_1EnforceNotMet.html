@@ -84,9 +84,9 @@ Inheritance diagram for caffe2::EnforceNotMet:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a830ba4db7e7ef3853644ea4f97859d92"><td class="memItemLeft" align="right" valign="top"><a id="a830ba4db7e7ef3853644ea4f97859d92"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>EnforceNotMet</b> (const char *file, const int line, const char *condition, const string &amp;msg)</td></tr>
-<tr class="separator:a830ba4db7e7ef3853644ea4f97859d92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae454e281da082ee4d859c6b44688e3d9"><td class="memItemLeft" align="right" valign="top"><a id="ae454e281da082ee4d859c6b44688e3d9"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>EnforceNotMet</b> (const char *file, const int line, const char *condition, const string &amp;msg, const void *caller=nullptr)</td></tr>
+<tr class="separator:ae454e281da082ee4d859c6b44688e3d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5d7769a33a8e4e8d020f6de86185d43"><td class="memItemLeft" align="right" valign="top"><a id="ab5d7769a33a8e4e8d020f6de86185d43"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AppendMessage</b> (const string &amp;msg)</td></tr>
 <tr class="separator:ab5d7769a33a8e4e8d020f6de86185d43"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -99,6 +99,9 @@ const vector&lt; string &gt; &amp;&#160;</td><td class="memItemRight" valign="bo
 <tr class="memitem:a6ed530a51687e65a0a91e1507dd4f079"><td class="memItemLeft" align="right" valign="top"><a id="a6ed530a51687e65a0a91e1507dd4f079"></a>
 const char *&#160;</td><td class="memItemRight" valign="bottom"><b>what</b> () const noexcept override</td></tr>
 <tr class="separator:a6ed530a51687e65a0a91e1507dd4f079"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9d05e52f13af84a39a015a47b01b14b"><td class="memItemLeft" align="right" valign="top"><a id="ac9d05e52f13af84a39a015a47b01b14b"></a>
+const void *&#160;</td><td class="memItemRight" valign="bottom"><b>caller</b> () const noexcept</td></tr>
+<tr class="separator:ac9d05e52f13af84a39a015a47b01b14b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
@@ -111,7 +114,7 @@ const char *&#160;</td><td class="memItemRight" valign="bottom"><b>what</b> () c
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:21 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

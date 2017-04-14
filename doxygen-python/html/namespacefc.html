@@ -63,20 +63,273 @@ $(function() {
 
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">fc Namespace Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Module caffe2.python.layers.fc.  
+<p>Module caffe2.python.helpers.fc.  
 <a href="#details">More...</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a9c60f93d85f42e367bdc88e4470965b3"><td class="memItemLeft" align="right" valign="top"><a id="a9c60f93d85f42e367bdc88e4470965b3"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>FC</b> (model, args, kwargs)</td></tr>
+<tr class="separator:a9c60f93d85f42e367bdc88e4470965b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1222cdee0d10c3f3a32f0e43ac98518b"><td class="memItemLeft" align="right" valign="top"><a id="a1222cdee0d10c3f3a32f0e43ac98518b"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>PackedFC</b> (model, args, kwargs)</td></tr>
+<tr class="separator:a1222cdee0d10c3f3a32f0e43ac98518b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11e3617e3bbc6556f5e47d4e0a3cb6cd"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefc.html#a11e3617e3bbc6556f5e47d4e0a3cb6cd">FC_Decomp</a> (model, blob_in, blob_out, dim_in, dim_out, rank_approx=5, weight_init=None, bias_init=None, kwargs)</td></tr>
+<tr class="separator:a11e3617e3bbc6556f5e47d4e0a3cb6cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a991431612f4e34df653f5eae2f23368d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefc.html#a991431612f4e34df653f5eae2f23368d">FC_Prune</a> (model, blob_in, blob_out, dim_in, dim_out, weight_init=None, bias_init=None, mask_init=None, threshold=0.00001, need_compress_rate=False, comp_lb=0.05, kwargs)</td></tr>
+<tr class="separator:a991431612f4e34df653f5eae2f23368d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ffc66d4f144c5cb1080b878e0f22563"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefc.html#a1ffc66d4f144c5cb1080b878e0f22563">FC_Sparse</a> (model, blob_in, blob_out, w_csr, iw, jw, bias, kwargs)</td></tr>
+<tr class="separator:a1ffc66d4f144c5cb1080b878e0f22563"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Module caffe2.python.layers.fc. </p>
-</div></div><!-- contents -->
+<div class="textblock"><p>Module caffe2.python.helpers.fc. </p>
+<p>Module caffe2.python.layers.fc.</p>
+<p>Module caffe2.python.helpers.pooling. </p>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a11e3617e3bbc6556f5e47d4e0a3cb6cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11e3617e3bbc6556f5e47d4e0a3cb6cd">&#9670;&nbsp;</a></span>FC_Decomp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def fc.FC_Decomp </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>dim_in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>dim_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>rank_approx</em> = <code>5</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>weight_init</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>bias_init</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>kwargs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">FC_Decomp version
+Here we assume that the rank of original input is bigger than 5.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="helpers_2fc_8py_source.html#l00068">68</a> of file <a class="el" href="helpers_2fc_8py_source.html">fc.py</a>.</p>
+
+</div>
+</div>
+<a id="a991431612f4e34df653f5eae2f23368d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a991431612f4e34df653f5eae2f23368d">&#9670;&nbsp;</a></span>FC_Prune()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def fc.FC_Prune </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>dim_in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>dim_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>weight_init</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>bias_init</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>mask_init</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>threshold</em> = <code>0.00001</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>need_compress_rate</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>comp_lb</em> = <code>0.05</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>kwargs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">FC_Prune version
+Runnable so far. Great!:)
+</pre> 
+<p class="definition">Definition at line <a class="el" href="helpers_2fc_8py_source.html#l00103">103</a> of file <a class="el" href="helpers_2fc_8py_source.html">fc.py</a>.</p>
+
+</div>
+</div>
+<a id="a1ffc66d4f144c5cb1080b878e0f22563"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ffc66d4f144c5cb1080b878e0f22563">&#9670;&nbsp;</a></span>FC_Sparse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def fc.FC_Sparse </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>w_csr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>iw</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>jw</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>bias</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>kwargs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">FC_Sparse: Only takes in alocated weights</pre> 
+<p class="definition">Definition at line <a class="el" href="helpers_2fc_8py_source.html#l00186">186</a> of file <a class="el" href="helpers_2fc_8py_source.html">fc.py</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:27 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

@@ -92,6 +92,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, jo
 <tr class="memitem:a18cfad046233b6e11744c0f77d6dd39d"><td class="memItemLeft" align="right" valign="top"><a id="a18cfad046233b6e11744c0f77d6dd39d"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>__call__</b> (self, client)</td></tr>
 <tr class="separator:a18cfad046233b6e11744c0f77d6dd39d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f2a9c5af4a8cc607d18cd1eadd6c459"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1JobRunner.html#a0f2a9c5af4a8cc607d18cd1eadd6c459">load_blobs_from_checkpoints</a> (self, blob_names, epoch, session)</td></tr>
+<tr class="separator:a0f2a9c5af4a8cc607d18cd1eadd6c459"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -119,15 +121,76 @@ this case, the job's init_group will not be run.
 
 Refer to checkpoint_test.py for an example.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="checkpoint_8py_source.html#l00221">221</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+<p class="definition">Definition at line <a class="el" href="checkpoint_8py_source.html#l00297">297</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a0f2a9c5af4a8cc607d18cd1eadd6c459"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f2a9c5af4a8cc607d18cd1eadd6c459">&#9670;&nbsp;</a></span>load_blobs_from_checkpoints()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def checkpoint.JobRunner.load_blobs_from_checkpoints </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_names</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>epoch</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>session</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Loads the necessary blobs from the checkpoints.
+
+Checkpoints store the snapshots of the workspace in each node.
+Sometimes we only need to load a subset of the blobs from the
+checkpoints. One common scenario is to load only the model blobs from
+the checkpoints for evaluation purpose. Given the names of the necessary
+blobs, this function goes over all the checkpoints of all the nodes, but
+only loads the blobs specified in the blob_names to the current
+workspace.
+
+Args:
+    blob_names: A list of strings. Each string is the name of a
+blob.
+    epoch: An integer. The checkpoint epoch to load from.
+    session: A Session object to execute the load ops.
+
+Raises:
+    ValueError: When the checkpoint manager is invalid.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="checkpoint_8py_source.html#l00356">356</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/python/<a class="el" href="checkpoint_8py_source.html">checkpoint.py</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:27 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

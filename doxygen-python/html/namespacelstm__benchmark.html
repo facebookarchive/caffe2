@@ -76,11 +76,11 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a0bdac09245d21b338d6c328f1514673e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelstm__benchmark.html#a0bdac09245d21b338d6c328f1514673e">generate_data</a> (T, shape)</td></tr>
-<tr class="separator:a0bdac09245d21b338d6c328f1514673e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a887f04d9e7bd04377b748b71d4868919"><td class="memItemLeft" align="right" valign="top"><a id="a887f04d9e7bd04377b748b71d4868919"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>create_model</b> (args, queue)</td></tr>
-<tr class="separator:a887f04d9e7bd04377b748b71d4868919"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d85da6a5c7a81079d2a53ac8e8d53c5"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelstm__benchmark.html#a0d85da6a5c7a81079d2a53ac8e8d53c5">generate_data</a> (T, shape, num_labels)</td></tr>
+<tr class="separator:a0d85da6a5c7a81079d2a53ac8e8d53c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf26fadadb0abb8c2c2ea2028295a17e"><td class="memItemLeft" align="right" valign="top"><a id="acf26fadadb0abb8c2c2ea2028295a17e"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>create_model</b> (args, queue, label_queue, input_shape)</td></tr>
+<tr class="separator:acf26fadadb0abb8c2c2ea2028295a17e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7341c21fb55ba90dbc3ce8d814baf9f4"><td class="memItemLeft" align="right" valign="top"><a id="a7341c21fb55ba90dbc3ce8d814baf9f4"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>Caffe2LSTM</b> (args)</td></tr>
 <tr class="separator:a7341c21fb55ba90dbc3ce8d814baf9f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -105,8 +105,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>args</b> = GetArgument
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.lstm_benchmark. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a0bdac09245d21b338d6c328f1514673e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0bdac09245d21b338d6c328f1514673e">&#9670;&nbsp;</a></span>generate_data()</h2>
+<a id="a0d85da6a5c7a81079d2a53ac8e8d53c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d85da6a5c7a81079d2a53ac8e8d53c5">&#9670;&nbsp;</a></span>generate_data()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -121,7 +121,13 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>args</b> = GetArgument
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>shape</em>&#160;</td>
+          <td class="paramname"><em>shape</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>num_labels</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -150,7 +156,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>args</b> = GetArgument
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  <a class="code" href="namespacecore.html#a1b4f274dbdd8bfefc1b8f8e3ef7a38f1">core.DeviceOption</a>(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;        caffe2_pb2.CUDA <span class="keywordflow">if</span> args.gpu <span class="keywordflow">else</span> caffe2_pb2.CPU, 0)</div><div class="ttc" id="namespacecore_html_a1b4f274dbdd8bfefc1b8f8e3ef7a38f1"><div class="ttname"><a href="namespacecore.html#a1b4f274dbdd8bfefc1b8f8e3ef7a38f1">core.DeviceOption</a></div><div class="ttdeci">def DeviceOption(device_type, cuda_gpu_id=0, random_seed=None)</div><div class="ttdef"><b>Definition:</b> <a href="core_8py_source.html#l00103">core.py:103</a></div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="lstm__benchmark_8py_source.html#l00173">173</a> of file <a class="el" href="lstm__benchmark_8py_source.html">lstm_benchmark.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="lstm__benchmark_8py_source.html#l00235">235</a> of file <a class="el" href="lstm__benchmark_8py_source.html">lstm_benchmark.py</a>.</p>
 
 </div>
 </div>
@@ -158,7 +164,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>args</b> = GetArgument
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:28 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

@@ -195,7 +195,7 @@ dictionary&#160;</td><td class="memItemRight" valign="bottom"><b>operator_regist
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01112">1112</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01119">1119</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a9f6d3e34217fc0324ce8fefcd7d39549"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9f6d3e34217fc0324ce8fefcd7d39549">&#9670;&nbsp;</a></span>__init__()</h2>
@@ -227,7 +227,7 @@ Args:
     name_or_proto:  If a NetDef is provided, clone it. Otherwise,
             create an empty net with the given name.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01133">1133</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01140">1140</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -266,7 +266,7 @@ Args:
 <pre class="fragment">Add `obj` to the list of attributes in this net under the given `name`.
 Attributes are user-defined objects and have no pre-defined semantics.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01213">1213</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01220">1220</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -322,7 +322,7 @@ Currently, this is hard-coded for float operators if there are branches
 (i.e. a blob is used as input to multiple operators). This is because
 the gradient accumulation (Sum) is float only right now.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01536">1536</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01543">1543</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -354,7 +354,7 @@ the gradient accumulation (Sum) is float only right now.
 <pre class="fragment">Returns true if the given BlobReference is produced as output of
 an operator in this net, or if it is provided as an external input.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01280">1280</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01287">1287</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -414,7 +414,7 @@ Args:
     op_id_mask:  optional list of operator indices to include in
          the cloned net. If not provided, all ops are included.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01320">1320</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01327">1327</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -481,7 +481,7 @@ new_net:       a new Net object.
 new_outputs:   list of BlobReferences corresponding to the
                outputs produced by new_net.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01387">1387</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01394">1394</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -513,7 +513,7 @@ new_outputs:   list of BlobReferences corresponding to the
 <pre class="fragment">Returns the list of attributes in this net for a given `name`.
 Attributes are user-defined objects added with `add_attribute'.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01220">1220</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01227">1227</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -546,7 +546,7 @@ Attributes are user-defined objects added with `add_attribute'.
 to it. If the blob is not produced by any op in this net,
 raises KeyError.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01302">1302</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01309">1309</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -579,7 +579,7 @@ raises KeyError.
 current net. It returns `BlobReference(prefix)`, if it's valid,
 otherwise `BlobReference(prefix) + '_auto_' + ?`. Different calls
 is guaranteed to return blob with different names.</pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01464">1464</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01471">1471</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -616,7 +616,7 @@ is guaranteed to return blob with different names.</pre>
 </div><div class="memdoc">
 <pre class="fragment">Returns the next name to be used, if you do not want to explicitly
 name your blob. [Deprecated, use NextBlob, NextScopedBlob instead]</pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01480">1480</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01487">1487</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -650,7 +650,7 @@ current net. It returns `ScopedBlobReference(prefix)`, if it's valid,
 otherwise `ScopedBlobReference(prefix) + '_auto_' + ?`. Different calls
 is guaranteed to return blob with different names.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01455">1455</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01462">1462</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -712,7 +712,7 @@ If `pass_workspace` is True, the signature is changed to
 is going to run on. This is potentially dangerous (as the op can
 manipulate the workspace directly), use on your own risk.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01719">1719</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01726">1726</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -748,7 +748,7 @@ manipulate the workspace directly), use on your own risk.
       </table>
 </div><div class="memdoc">
 <pre class="fragment">A convenient function to run everything on the GPU.</pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01669">1669</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01676">1676</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -794,7 +794,7 @@ If sequence_seed is set, the i-th op has rand_seed=`seed + i`
 If seed_on_op_def is set, the op rand_seed=hash(str(op))
 sequence_seed and seed_on_op_def cannot be both set to True.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01227">1227</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01234">1234</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -826,7 +826,7 @@ sequence_seed and seed_on_op_def cannot be both set to True.
 <pre class="fragment">Returns true iff the given BlobReference is used by any operator
 or this net, or if it is one of the external inputs of the net.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01290">1290</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01297">1297</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -837,7 +837,7 @@ or this net, or if it is one of the external inputs of the net.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:27 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

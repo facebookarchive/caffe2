@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['fc_5fdecomp',['FC_Decomp',['../classcnn_1_1CNNModelHelper.html#ab23c26f2acbec7347e685b304668e98e',1,'cnn::CNNModelHelper']]],
-  ['fc_5fprune',['FC_Prune',['../classcnn_1_1CNNModelHelper.html#a1d693db1d1adcae7543ae13ef02b2528',1,'cnn::CNNModelHelper']]],
-  ['fc_5fsparse',['FC_Sparse',['../classcnn_1_1CNNModelHelper.html#aeb7d743e67e77dc9529fded01fbfcae8',1,'cnn::CNNModelHelper']]],
+  ['fc_5fdecomp',['FC_Decomp',['../namespacefc.html#a11e3617e3bbc6556f5e47d4e0a3cb6cd',1,'fc']]],
+  ['fc_5fprune',['FC_Prune',['../namespacefc.html#a991431612f4e34df653f5eae2f23368d',1,'fc']]],
+  ['fc_5fsparse',['FC_Sparse',['../namespacefc.html#a1ffc66d4f144c5cb1080b878e0f22563',1,'fc']]],
   ['feedblob',['FeedBlob',['../namespaceworkspace.html#a34cb41f806c820ea5ce1876ee3aa29f0',1,'workspace']]],
   ['feedrecord',['FeedRecord',['../namespaceschema.html#a4b96503f1b415197188d8094e01d4ae3',1,'schema']]],
   ['fetchblob',['FetchBlob',['../namespaceworkspace.html#a7fc10c05fdcadb6c88057004fbd74926',1,'workspace']]],
@@ -12,7 +12,6 @@ var searchData=
   ['field_5fmetadata',['field_metadata',['../classschema_1_1Field.html#ad1d17307a4764fff882576fc89de9f31',1,'schema::Field']]],
   ['field_5fnames',['field_names',['../classdataset_1_1Dataset.html#a5724593b268669c7241f0571bd42fba4',1,'dataset.Dataset.field_names()'],['../classschema_1_1Field.html#a6b7a67ab9bb9f02dfc1877e6b02e229f',1,'schema.Field.field_names()']]],
   ['field_5ftypes',['field_types',['../classdataset_1_1Dataset.html#a8dd6065c197fd9c80d6e4eda8845ab6c',1,'dataset.Dataset.field_types()'],['../classschema_1_1Field.html#a85561b85e58a598fce0ec338d433d487',1,'schema.Field.field_types()']]],
-  ['file',['file',['../classcaffe2_1_1OpSchema.html#aa463ba826de1a266d647aca6a830d7ee',1,'caffe2::OpSchema']]],
   ['final_5foutput',['final_output',['../namespacetask.html#a6f12acd781b20917edab0ad97a69c1c6',1,'task']]],
   ['for',['For',['../namespacecontrol.html#a70e5286c7091856f2b0acd41312d97d1',1,'control']]],
   ['from_5fblob_5flist',['from_blob_list',['../namespaceschema.html#ab2399fae2e5bda116be52fdfce920a10',1,'schema']]],

@@ -8,6 +8,7 @@ var searchData=
   ['tensorprinter',['TensorPrinter',['../classcaffe2_1_1TensorPrinter.html',1,'caffe2']]],
   ['tensorserializer',['TensorSerializer',['../classcaffe2_1_1TensorSerializer.html',1,'caffe2']]],
   ['tensortypes',['TensorTypes',['../structcaffe2_1_1TensorTypes.html',1,'caffe2']]],
+  ['tensortypes2',['TensorTypes2',['../structcaffe2_1_1TensorTypes2.html',1,'caffe2']]],
   ['test_5fbenchmark',['TEST_Benchmark',['../classcaffe2_1_1NetBase.html#ad46da870e177e536ffe613ef5957d6d3',1,'caffe2::NetBase::TEST_Benchmark()'],['../classcaffe2_1_1SimpleNet.html#a130a5cdba80ddb6e52bd45c0da276e26',1,'caffe2::SimpleNet::TEST_Benchmark()'],['../classcaffe2_1_1DAGNetBase.html#a6d325ca3e2e4557bee26b773757465e3',1,'caffe2::DAGNetBase::TEST_Benchmark()']]],
   ['threadlocalcudaobjects',['ThreadLocalCUDAObjects',['../classcaffe2_1_1ThreadLocalCUDAObjects.html',1,'caffe2']]],
   ['throwinthetowelifgradientiscalled',['ThrowInTheTowelIfGradientIsCalled',['../structcaffe2_1_1ThrowInTheTowelIfGradientIsCalled.html',1,'caffe2']]],

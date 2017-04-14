@@ -75,20 +75,158 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aac14294d79065b85ef4ee59fa301bffa"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#aac14294d79065b85ef4ee59fa301bffa">recurrent_net</a> (net, cell_net, inputs, initial_cell_inputs, links, timestep=None, scope=None, outputs_with_grads=(0,))</td></tr>
-<tr class="separator:aac14294d79065b85ef4ee59fa301bffa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b19a0c908aab2907f8afb39b58f53d1"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#a4b19a0c908aab2907f8afb39b58f53d1">LSTM</a> (model, input_blob, seq_lengths, initial_states, dim_in, dim_out, scope, outputs_with_grads=(0,))</td></tr>
-<tr class="separator:a4b19a0c908aab2907f8afb39b58f53d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa182a92fd22ae2aafbce5ff453e7305b"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#aa182a92fd22ae2aafbce5ff453e7305b">LSTMWithAttention</a> (model, decoder_inputs, decoder_input_lengths, initial_decoder_hidden_state, initial_decoder_cell_state, initial_attention_weighted_encoder_context, encoder_output_dim, encoder_outputs, decoder_input_dim, decoder_state_dim, scope, attention_type=AttentionType.Regular, outputs_with_grads=(0, 4), weighted_encoder_outputs=None)</td></tr>
-<tr class="separator:aa182a92fd22ae2aafbce5ff453e7305b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46c7141c410d6befd57b213741408941"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#a46c7141c410d6befd57b213741408941">MILSTM</a> (model, input_blob, seq_lengths, initial_states, dim_in, dim_out, scope, outputs_with_grads=(0,))</td></tr>
-<tr class="separator:a46c7141c410d6befd57b213741408941"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab69867e50035f96dca52ace32af7ef65"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#ab69867e50035f96dca52ace32af7ef65">recurrent_net</a> (net, cell_net, inputs, initial_cell_inputs, links, timestep=None, scope=None, outputs_with_grads=(0,), recompute_blobs_on_backward=None)</td></tr>
+<tr class="separator:ab69867e50035f96dca52ace32af7ef65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3944f2c2b8ff7f2cb988d85563b879be"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#a3944f2c2b8ff7f2cb988d85563b879be">LSTM</a> (model, input_blob, seq_lengths, initial_states, dim_in, dim_out, scope, outputs_with_grads=(0,), return_params=False, memory_optimization=False, forget_bias=0.0)</td></tr>
+<tr class="separator:a3944f2c2b8ff7f2cb988d85563b879be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23d473b4bf5122f4a408b743ec9df9b9"><td class="memItemLeft" align="right" valign="top"><a id="a23d473b4bf5122f4a408b743ec9df9b9"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>GetLSTMParamNames</b> ()</td></tr>
+<tr class="separator:a23d473b4bf5122f4a408b743ec9df9b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae82d45ad028eb13ce103c98a4927253c"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#ae82d45ad028eb13ce103c98a4927253c">InitFromLSTMParams</a> (lstm_pblobs, param_values)</td></tr>
+<tr class="separator:ae82d45ad028eb13ce103c98a4927253c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60b7b75e75ad7648a9d0b7bbc20c3258"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#a60b7b75e75ad7648a9d0b7bbc20c3258">cudnn_LSTM</a> (model, input_blob, initial_states, dim_in, dim_out, scope, recurrent_params=None, input_params=None, num_layers=1, return_params=False)</td></tr>
+<tr class="separator:a60b7b75e75ad7648a9d0b7bbc20c3258"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa93b1229f0788766ff2e2b715dbfa758"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#aa93b1229f0788766ff2e2b715dbfa758">LSTMWithAttention</a> (model, decoder_inputs, decoder_input_lengths, initial_decoder_hidden_state, initial_decoder_cell_state, initial_attention_weighted_encoder_context, encoder_output_dim, encoder_outputs, decoder_input_dim, decoder_state_dim, scope, attention_type=AttentionType.Regular, outputs_with_grads=(0, 4), weighted_encoder_outputs=None, lstm_memory_optimization=False, attention_memory_optimization=False, forget_bias=0.0)</td></tr>
+<tr class="separator:aa93b1229f0788766ff2e2b715dbfa758"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87321c4812a653f166ef2087568ebdfd"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#a87321c4812a653f166ef2087568ebdfd">MILSTM</a> (model, input_blob, seq_lengths, initial_states, dim_in, dim_out, scope, outputs_with_grads=(0,), memory_optimization=False, forget_bias=0.0)</td></tr>
+<tr class="separator:a87321c4812a653f166ef2087568ebdfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.recurrent. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a4b19a0c908aab2907f8afb39b58f53d1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4b19a0c908aab2907f8afb39b58f53d1">&#9670;&nbsp;</a></span>LSTM()</h2>
+<a id="a60b7b75e75ad7648a9d0b7bbc20c3258"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60b7b75e75ad7648a9d0b7bbc20c3258">&#9670;&nbsp;</a></span>cudnn_LSTM()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def recurrent.cudnn_LSTM </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>input_blob</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>initial_states</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>dim_in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>dim_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>scope</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>recurrent_params</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>input_params</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>num_layers</em> = <code>1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>return_params</em> = <code>False</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">CuDNN version of LSTM for GPUs.
+input_blob          Blob containing the input. Will need to be available
+                    when param_init_net is run, because the sequence lengths
+                    and batch sizes will be inferred from the size of this
+                    blob.
+initial_states      tuple of (hidden_init, cell_init) blobs
+dim_in              input dimensions
+dim_out             output/hidden dimension
+scope               namescope to apply
+recurrent_params    dict of blobs containing values for recurrent
+                    gate weights, biases (if None, use random init values)
+                    See GetLSTMParamNames() for format.
+input_params        dict of blobs containing values for input
+                    gate weights, biases (if None, use random init values)
+                    See GetLSTMParamNames() for format.
+num_layers          number of LSTM layers
+return_params       if True, returns (param_extract_net, param_mapping)
+                    where param_extract_net is a net that when run, will
+                    populate the blobs specified in param_mapping with the
+                    current gate weights and biases (input/recurrent).
+                    Useful for assigning the values back to non-cuDNN
+                    LSTM.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00382">382</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
+
+</div>
+</div>
+<a id="ae82d45ad028eb13ce103c98a4927253c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae82d45ad028eb13ce103c98a4927253c">&#9670;&nbsp;</a></span>InitFromLSTMParams()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def recurrent.InitFromLSTMParams </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>lstm_pblobs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>param_values</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Set the parameters of LSTM based on predefined values
+</pre> 
+<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00351">351</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
+
+</div>
+</div>
+<a id="a3944f2c2b8ff7f2cb988d85563b879be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3944f2c2b8ff7f2cb988d85563b879be">&#9670;&nbsp;</a></span>LSTM()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -139,7 +277,25 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>&#160;</td>
+          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>return_params</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>memory_optimization</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>forget_bias</em> = <code>0.0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -167,13 +323,19 @@ dim_out: output dimention
 
 outputs_with_grads : position indices of output blobs which will receive
 external error gradient during backpropagation
+
+return_params: if True, will return a dictionary of parameters of the LSTM
+
+memory_optimization: if enabled, the LSTM step is recomputed on backward step
+               so that we don't need to store forward activations for each
+               timestep. Saves memory with cost of computation.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00222">222</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00260">260</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
 
 </div>
 </div>
-<a id="aa182a92fd22ae2aafbce5ff453e7305b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa182a92fd22ae2aafbce5ff453e7305b">&#9670;&nbsp;</a></span>LSTMWithAttention()</h2>
+<a id="aa93b1229f0788766ff2e2b715dbfa758"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa93b1229f0788766ff2e2b715dbfa758">&#9670;&nbsp;</a></span>LSTMWithAttention()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -260,7 +422,25 @@ external error gradient during backpropagation
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>weighted_encoder_outputs</em> = <code>None</code>&#160;</td>
+          <td class="paramname"><em>weighted_encoder_outputs</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>lstm_memory_optimization</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>attention_memory_optimization</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>forget_bias</em> = <code>0.0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -314,13 +494,18 @@ weights. In the basic case it's just linear transformation of
 encoder outputs (that the default, when weighted_encoder_outputs is None).
 However, it can be something more complicated - like a separate
 encoder network (for example, in case of convolutional encoder)
+
+lstm_memory_optimization: recompute LSTM activations on backward pass, so
+             we don't need to store their values in forward passes
+
+attention_memory_optimization: recompute attention for backward pass
 </pre> 
-<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00304">304</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00526">526</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
 
 </div>
 </div>
-<a id="a46c7141c410d6befd57b213741408941"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a46c7141c410d6befd57b213741408941">&#9670;&nbsp;</a></span>MILSTM()</h2>
+<a id="a87321c4812a653f166ef2087568ebdfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87321c4812a653f166ef2087568ebdfd">&#9670;&nbsp;</a></span>MILSTM()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -371,7 +556,19 @@ encoder network (for example, in case of convolutional encoder)
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>&#160;</td>
+          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>memory_optimization</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>forget_bias</em> = <code>0.0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -400,13 +597,17 @@ dim_out: output dimention
 
 outputs_with_grads : position indices of output blobs which will receive
 external error gradient during backpropagation
+
+memory_optimization: if enabled, the LSTM step is recomputed on backward step
+               so that we don't need to store forward activations for each
+               timestep. Saves memory with cost of computation.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00482">482</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00717">717</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
 
 </div>
 </div>
-<a id="aac14294d79065b85ef4ee59fa301bffa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac14294d79065b85ef4ee59fa301bffa">&#9670;&nbsp;</a></span>recurrent_net()</h2>
+<a id="ab69867e50035f96dca52ace32af7ef65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab69867e50035f96dca52ace32af7ef65">&#9670;&nbsp;</a></span>recurrent_net()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -457,7 +658,13 @@ external error gradient during backpropagation
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>&#160;</td>
+          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>recompute_blobs_on_backward</em> = <code>None</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -491,8 +698,12 @@ If not provided we generate a scope name automatically
 
 outputs_with_grads : position indices of output blobs which will receive
 error gradient (from outside recurrent network) during backpropagation
+
+recompute_blobs_on_backward: specify a list of blobs that will be
+             recomputed for backward pass, and thus need not to be
+             stored for each forward timestep.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00022">22</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00026">26</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
 
 </div>
 </div>
@@ -500,7 +711,7 @@ error gradient (from outside recurrent network) during backpropagation
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:28 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

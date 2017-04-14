@@ -85,14 +85,14 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a12d7c876a323b057b0279cfd2b8e18fc"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemodel__helper.html#a12d7c876a323b057b0279cfd2b8e18fc">ExtractPredictorNet</a> (net_proto, input_blobs, output_blobs, device=None, renames=None)</td></tr>
-<tr class="separator:a12d7c876a323b057b0279cfd2b8e18fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1d1738099cd02ab70f7463c4cb9e769"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemodel__helper.html#aa1d1738099cd02ab70f7463c4cb9e769">ExtractPredictorNet</a> (net_proto, input_blobs, output_blobs, device=None, renames=None, disabled_inputs=None)</td></tr>
+<tr class="separator:aa1d1738099cd02ab70f7463c4cb9e769"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.model_helper. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a12d7c876a323b057b0279cfd2b8e18fc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a12d7c876a323b057b0279cfd2b8e18fc">&#9670;&nbsp;</a></span>ExtractPredictorNet()</h2>
+<a id="aa1d1738099cd02ab70f7463c4cb9e769"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1d1738099cd02ab70f7463c4cb9e769">&#9670;&nbsp;</a></span>ExtractPredictorNet()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -125,7 +125,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>renames</em> = <code>None</code>&#160;</td>
+          <td class="paramname"><em>renames</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>disabled_inputs</em> = <code>None</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -142,8 +148,10 @@ input operators are removed.
 @param output_blobs list/set of blob names that are outputs of predictor
 @param device optional device option that is assigned
 @param renames dictionary of blob name to a new name (optional)
+@param disabled_inputs optional set of blobs that are 'switched off'. This
+            will cause branches with those blobs as inputs to be removed
 </pre> 
-<p class="definition">Definition at line <a class="el" href="model__helper_8py_source.html#l00349">349</a> of file <a class="el" href="model__helper_8py_source.html">model_helper.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="model__helper_8py_source.html#l00355">355</a> of file <a class="el" href="model__helper_8py_source.html">model_helper.py</a>.</p>
 
 </div>
 </div>
@@ -151,7 +159,7 @@ input operators are removed.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:28 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

@@ -84,9 +84,12 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a405e4f35cc258718a3a090432c3c75a0"><td class="memItemLeft" align="right" valign="top"><a id="a405e4f35cc258718a3a090432c3c75a0"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>init_data_input_workers</b> (net, input_blob_names, fetch_fun, batch_size, num_worker_threads=2, input_source_name=&quot;train&quot;, max_buffered_batches=800)</td></tr>
-<tr class="separator:a405e4f35cc258718a3a090432c3c75a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae17099a284acd3c483c3b2e4fa15bc1d"><td class="memItemLeft" align="right" valign="top"><a id="ae17099a284acd3c483c3b2e4fa15bc1d"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>get_worker_ids</b> (num_workers)</td></tr>
+<tr class="separator:ae17099a284acd3c483c3b2e4fa15bc1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0742ce40cb90b75926382b9de31bc53b"><td class="memItemLeft" align="right" valign="top"><a id="a0742ce40cb90b75926382b9de31bc53b"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>init_data_input_workers</b> (net, input_blob_names, fetch_fun, batch_size, num_worker_threads=2, input_source_name=&quot;train&quot;, max_buffered_batches=800, init_fun=None, external_loggers=None)</td></tr>
+<tr class="separator:a0742ce40cb90b75926382b9de31bc53b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0aaf7b12763441a3a82e4b34e69fed51"><td class="memItemLeft" align="right" valign="top"><a id="a0aaf7b12763441a3a82e4b34e69fed51"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>fetcher</b> (coordinator, worker_id, fetch_fun, batch_size, input_blob_names)</td></tr>
 <tr class="separator:a0aaf7b12763441a3a82e4b34e69fed51"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -100,7 +103,7 @@ Variables</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>log</b> = logging.getLogger(&quot;data_workers&quot;)</td></tr>
 <tr class="separator:a557b0f4d94bbc23822ada65888a0cc21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bda440e1284362a16cb64c7f41e50c4"><td class="memItemLeft" align="right" valign="top"><a id="a1bda440e1284362a16cb64c7f41e50c4"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>LOG_INT_SECS</b> = 1200</td></tr>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>LOG_INT_SECS</b> = 60</td></tr>
 <tr class="separator:a1bda440e1284362a16cb64c7f41e50c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8364b7de200ad0dd649cebb1ee164c6"><td class="memItemLeft" align="right" valign="top"><a id="ac8364b7de200ad0dd649cebb1ee164c6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>global_coordinator</b> = <a class="el" href="classdata__workers_1_1GlobalCoordinator.html">GlobalCoordinator</a>()</td></tr>
@@ -112,7 +115,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>LOG_INT_SECS</b> = 120
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:27 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

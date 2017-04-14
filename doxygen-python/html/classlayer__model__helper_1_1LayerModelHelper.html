@@ -140,28 +140,19 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>__getattr__</b> (self,
 <tr class="memitem:a847dc4eadaa1538bdef83a87a80da1e9"><td class="memItemLeft" align="right" valign="top"><a id="a847dc4eadaa1538bdef83a87a80da1e9"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>layers</b> (self)</td></tr>
 <tr class="separator:a847dc4eadaa1538bdef83a87a80da1e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aded9f5d2d9a99b4894e50a8538f63f1d"><td class="memItemLeft" align="right" valign="top"><a id="aded9f5d2d9a99b4894e50a8538f63f1d"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>SgdOptim</b> (self, base_lr=0.01, policy='fixed', kwargs)</td></tr>
-<tr class="separator:aded9f5d2d9a99b4894e50a8538f63f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acdfd4b82794788ce5e03e6dd0b854baf"><td class="memItemLeft" align="right" valign="top"><a id="acdfd4b82794788ce5e03e6dd0b854baf"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>AdagradOptim</b> (self, alpha=0.01, epsilon=1e-4, kwargs)</td></tr>
-<tr class="separator:acdfd4b82794788ce5e03e6dd0b854baf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6a43d8af46ec24f2c9e9428ac8580ba"><td class="memItemLeft" align="right" valign="top"><a id="ad6a43d8af46ec24f2c9e9428ac8580ba"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>FtrlOptim</b> (self, alpha=0.01, beta=1e-4, lambda1=0, lambda2=0, kwargs)</td></tr>
-<tr class="separator:ad6a43d8af46ec24f2c9e9428ac8580ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2a9f2f14d8b5ed8c67b7b250d349ca2"><td class="memItemLeft" align="right" valign="top"><a id="ac2a9f2f14d8b5ed8c67b7b250d349ca2"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>Adagrad</b> (self, net, param_init_net, param, grad, alpha, epsilon, sparse_dedup_aggregator=None, engine='')</td></tr>
-<tr class="separator:ac2a9f2f14d8b5ed8c67b7b250d349ca2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada1aca8e60b89ef961f32174289c2405"><td class="memItemLeft" align="right" valign="top"><a id="ada1aca8e60b89ef961f32174289c2405"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>Ftrl</b> (self, net, param_init_net, param, grad, alpha, beta, lambda1, lambda2, sparse_dedup_aggregator=None, engine='')</td></tr>
-<tr class="separator:ada1aca8e60b89ef961f32174289c2405"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a590875f0eae1be271d364f0f6cd9dd41"><td class="memItemLeft" align="right" valign="top"><a id="a590875f0eae1be271d364f0f6cd9dd41"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>Sgd</b> (self, net, param_init_net, param, grad, base_lr, policy, momentum=0.0, kwargs)</td></tr>
-<tr class="separator:a590875f0eae1be271d364f0f6cd9dd41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc65405b4ca0da84dcf1aa380fe34c48"><td class="memItemLeft" align="right" valign="top"><a id="acc65405b4ca0da84dcf1aa380fe34c48"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_optimizers</b> (self, train_net, train_init_net, grad_map)</td></tr>
+<tr class="separator:acc65405b4ca0da84dcf1aa380fe34c48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81b893d31b31b9a5305cab89e678316d"><td class="memItemLeft" align="right" valign="top"><a id="a81b893d31b31b9a5305cab89e678316d"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>NoOptim</b> (self, args, kwargs)</td></tr>
+<tr class="separator:a81b893d31b31b9a5305cab89e678316d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classmodel__helper_1_1ModelHelperBase"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmodel__helper_1_1ModelHelperBase')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmodel__helper_1_1ModelHelperBase.html">model_helper.ModelHelperBase</a></td></tr>
 <tr class="memitem:ad521c84315759391e77fa7a8fedb336c inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="ad521c84315759391e77fa7a8fedb336c"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, name=None, init_params=True, allow_not_known_ops=True, skip_sparse_optim=False, param_model=None)</td></tr>
 <tr class="separator:ad521c84315759391e77fa7a8fedb336c inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba8bb5cc787057d50a565963944853b4 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aba8bb5cc787057d50a565963944853b4"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>get_name</b> (self)</td></tr>
+<tr class="separator:aba8bb5cc787057d50a565963944853b4 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0d09a54d8ce88791e919afa1ecd05e0 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aa0d09a54d8ce88791e919afa1ecd05e0"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>add_param</b> (self, param, key=None, shape=None, length=None)</td></tr>
 <tr class="separator:aa0d09a54d8ce88791e919afa1ecd05e0 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -249,6 +240,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:aba037083b828218d912e5093334db9c1 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aba037083b828218d912e5093334db9c1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>skip_sparse_optim</b></td></tr>
 <tr class="separator:aba037083b828218d912e5093334db9c1 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67fa233844a0de4612ba919dc5e89300 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a67fa233844a0de4612ba919dc5e89300"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>weights</b></td></tr>
+<tr class="separator:a67fa233844a0de4612ba919dc5e89300 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2fa975954339c07ae732ec6b1258a64 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aa2fa975954339c07ae732ec6b1258a64"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>biases</b></td></tr>
+<tr class="separator:aa2fa975954339c07ae732ec6b1258a64 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9727196b7ff08abc7ee4fccaf195c5e0 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a9727196b7ff08abc7ee4fccaf195c5e0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>grad_map</b></td></tr>
 <tr class="separator:a9727196b7ff08abc7ee4fccaf195c5e0 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -263,7 +260,7 @@ As an example: one can easily instantiate predict and train nets from
 the same set of layers, where predict net will have subset of the
 operators from train net.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00018">18</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00016">16</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="adb3051e367d0c10992071b3bff003bbf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#adb3051e367d0c10992071b3bff003bbf">&#9670;&nbsp;</a></span>metrics_schema()</h2>
@@ -286,7 +283,7 @@ metric reporting.
 During the training/evaluation this schema will be appended to the
 schema that represents model output.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00169">169</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00167">167</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
 
 </div>
 </div>
@@ -297,7 +294,7 @@ schema that represents model output.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:28 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

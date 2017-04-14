@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['utils',['utils',['../namespaceutils.html',1,'']]]
+  ['visualize',['visualize',['../namespacevisualize.html',1,'']]]
 ];

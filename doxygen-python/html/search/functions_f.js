@@ -1,12 +1,24 @@
 var searchData=
 [
-  ['parallelize_5fgpu',['Parallelize_GPU',['../namespacedata__parallel__model.html#a1fe7262a0a66754f19998fa1603317b9',1,'data_parallel_model']]],
-  ['parsecaffecommandlineflags',['ParseCaffeCommandLineFlags',['../namespacecaffe2.html#a658a8d4d5b33a86502f0fbc5d2b82541',1,'caffe2']]],
-  ['pipe',['pipe',['../namespacepipeline.html#a7b871da9a33e004968fe37533774429b',1,'pipeline']]],
-  ['pipe_5fand_5foutput',['pipe_and_output',['../namespacepipeline.html#a9b519eb94a13241689b1c712020d8fd5',1,'pipeline']]],
-  ['play',['Play',['../classcore_1_1IR.html#a596b5653e73bc18c631431ae63c3fc10',1,'core::IR']]],
-  ['prelu',['PRelu',['../classcnn_1_1CNNModelHelper.html#a518251874d418f2371af73e94e23a903',1,'cnn::CNNModelHelper']]],
-  ['publish',['publish',['../classcaffe2_1_1StatRegistry.html#ac2626686bd8fff02c3c1289fab4894d1',1,'caffe2::StatRegistry']]],
-  ['put',['Put',['../classcaffe2_1_1db_1_1MiniDBTransaction.html#a612bbe3d67be8b3db8c3cda6594f1cb0',1,'caffe2::db::MiniDBTransaction::Put()'],['../classcaffe2_1_1db_1_1Transaction.html#a295ca16c016ebe0f6adf8f2405e8f84b',1,'caffe2::db::Transaction::Put()'],['../classcaffe2_1_1db_1_1LevelDBTransaction.html#a289303faa3ba113eb7452887fff20463',1,'caffe2::db::LevelDBTransaction::Put()'],['../classcaffe2_1_1db_1_1LMDBTransaction.html#a9138851d1fce3bf6b1d2da76a635ff20',1,'caffe2::db::LMDBTransaction::Put()'],['../classcaffe2_1_1db_1_1ProtoDBTransaction.html#aff9de20da72bd500c73486cd88ecee73',1,'caffe2::db::ProtoDBTransaction::Put()'],['../classcaffe2_1_1db_1_1RocksDBTransaction.html#aa0ab57b5412a5b6686266ebacf1e0e04',1,'caffe2::db::RocksDBTransaction::Put()']]],
-  ['python',['Python',['../classcore_1_1Net.html#a2a5ab3b04de28feef0a9f36b3b4a444c',1,'core::Net']]]
+  ['random_5freader',['random_reader',['../classdataset_1_1Dataset.html#a242776a266e2a74a710632ccd56cd2f0',1,'dataset::Dataset']]],
+  ['rawtuple',['RawTuple',['../namespaceschema.html#a8579e9f1f0170d4c1a24558a16bdb3cb',1,'schema']]],
+  ['read',['read',['../classdataio_1_1Reader.html#a0a2d930b88a799400966b05bf67a14ab',1,'dataio.Reader.read()'],['../classtext__file__reader_1_1TextFileReader.html#acee9fe684b15556ab5eb8e91fd6382ab',1,'text_file_reader.TextFileReader.read()']]],
+  ['read_5fex',['read_ex',['../classdataio_1_1Reader.html#a5179c5354531efed68c6bbcd7cb2a8f7',1,'dataio.Reader.read_ex()'],['../classdataio_1_1ReaderWithLimit.html#a83c9211ceb0832c367cc79f54885dd64',1,'dataio.ReaderWithLimit.read_ex()']]],
+  ['read_5frecord_5fex',['read_record_ex',['../classdataio_1_1Reader.html#acd753bbab113f4f937f0cd6e6d043636',1,'dataio::Reader']]],
+  ['reader',['reader',['../classdataset_1_1Dataset.html#a985fd3ba198df10ff681f6a6d0302d2b',1,'dataset::Dataset']]],
+  ['recurrent_5fnet',['recurrent_net',['../namespacerecurrent.html#ab69867e50035f96dca52ace32af7ef65',1,'recurrent']]],
+  ['register',['Register',['../classcaffe__translator_1_1TranslatorRegistry.html#a755d05297bd1b41291ad5b04729ded69',1,'caffe_translator::TranslatorRegistry']]],
+  ['registergradient',['RegisterGradient',['../classcore_1_1GradientRegistry.html#ac78dbd0e9c63985475d6ca72a5cacd4e',1,'core::GradientRegistry']]],
+  ['relu',['Relu',['../classcnn_1_1CNNModelHelper.html#a7019b1ee8ec49e55b9cb9032d17559e3',1,'cnn::CNNModelHelper']]],
+  ['report_5fnet',['report_net',['../classtask_1_1TaskGroup.html#a2c135ef9e3e4235c92eaa1001e158134',1,'task::TaskGroup']]],
+  ['report_5fstep',['report_step',['../classtask_1_1TaskGroup.html#aa46e2369a8c3fef51fe774aad3f6c817',1,'task::TaskGroup']]],
+  ['reset',['reset',['../classdataio_1_1Reader.html#a82de8d1221c15af96a7d3ba29b748cf2',1,'dataio::Reader']]],
+  ['resnet110',['ResNet110',['../namespacecifar10__training.html#a0a161d4709eecb9b7fa186229f2e6fd4',1,'cifar10_training']]],
+  ['resnet20',['ResNet20',['../namespacecifar10__training.html#a277d894f9993fb58fac7595104f3b3bf',1,'cifar10_training']]],
+  ['rnn_5fbidirectional_5fencoder',['rnn_bidirectional_encoder',['../namespaceseq2seq__util.html#a58bcd66ae9adf845974cf853c7ca529f',1,'seq2seq_util']]],
+  ['rnn_5funidirectional_5fencoder',['rnn_unidirectional_encoder',['../namespaceseq2seq__util.html#ae976344ca3aac3e9b7134e07f0a17306',1,'seq2seq_util']]],
+  ['runallongpu',['RunAllOnGPU',['../classcore_1_1Net.html#a3fa040cf7337c4a818925dd83d32d2cf',1,'core::Net']]],
+  ['runepoch',['RunEpoch',['../namespaceresnet50__trainer.html#abb6db70e37914d4a12cb4716699406cd',1,'resnet50_trainer']]],
+  ['runeverymillis',['RunEveryMillis',['../classcore_1_1ExecutionStep.html#a24f3ba35a5014a9df0c6dc26da86778c',1,'core::ExecutionStep']]],
+  ['runnet',['RunNet',['../namespaceworkspace.html#ad3c286000405bc3f9c1030ccfdf71a11',1,'workspace']]]
 ];

@@ -88,9 +88,12 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>prepare_batch</b> (bat
 <tr class="memitem:a9fe85c4de2dc74d6d05c8c089ebeeed5"><td class="memItemLeft" align="right" valign="top"><a id="a9fe85c4de2dc74d6d05c8c089ebeeed5"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>gen_vocab</b> (corpus, unk_threshold)</td></tr>
 <tr class="separator:a9fe85c4de2dc74d6d05c8c089ebeeed5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b3842a154ab82f291445627f3c52e27"><td class="memItemLeft" align="right" valign="top"><a id="a2b3842a154ab82f291445627f3c52e27"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>gen_batches</b> (source_corpus, target_corpus, source_vocab, target_vocab, batch_size)</td></tr>
-<tr class="separator:a2b3842a154ab82f291445627f3c52e27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9776f71b4bcf0b8b76405e14d53b94dd"><td class="memItemLeft" align="right" valign="top"><a id="a9776f71b4bcf0b8b76405e14d53b94dd"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>get_numberized_sentence</b> (sentence, vocab)</td></tr>
+<tr class="separator:a9776f71b4bcf0b8b76405e14d53b94dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cfb47afb77dbbee5e1bc66beb946072"><td class="memItemLeft" align="right" valign="top"><a id="a2cfb47afb77dbbee5e1bc66beb946072"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>gen_batches</b> (source_corpus, target_corpus, source_vocab, target_vocab, batch_size, max_length)</td></tr>
+<tr class="separator:a2cfb47afb77dbbee5e1bc66beb946072"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd548fe4d66bc160eba9ee6abb48a8f8"><td class="memItemLeft" align="right" valign="top"><a id="abd548fe4d66bc160eba9ee6abb48a8f8"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>run_seq2seq_model</b> (args, model_params=None)</td></tr>
 <tr class="separator:abd548fe4d66bc160eba9ee6abb48a8f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -136,7 +139,7 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>PAD</b> = '&lt;PAD&
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  collections.namedtuple(<span class="stringliteral">&#39;Batch&#39;</span>, [</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&#39;encoder_inputs&#39;</span>,</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;    <span class="stringliteral">&#39;encoder_lengths&#39;</span>,</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;    <span class="stringliteral">&#39;decoder_inputs&#39;</span>,</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    <span class="stringliteral">&#39;decoder_lengths&#39;</span>,</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    <span class="stringliteral">&#39;targets&#39;</span>,</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    <span class="stringliteral">&#39;target_weights&#39;</span>,</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;])</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="seq2seq_8py_source.html#l00022">22</a> of file <a class="el" href="seq2seq_8py_source.html">seq2seq.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="seq2seq_8py_source.html#l00027">27</a> of file <a class="el" href="seq2seq_8py_source.html">seq2seq.py</a>.</p>
 
 </div>
 </div>
@@ -144,7 +147,7 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>PAD</b> = '&lt;PAD&
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:28 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

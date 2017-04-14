@@ -85,19 +85,25 @@ Inheritance diagram for data_workers.DataInputCoordinator:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3ff2f8697f570e25d5293457c9292e51"><td class="memItemLeft" align="right" valign="top"><a id="a3ff2f8697f570e25d5293457c9292e51"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, net, input_blob_names, batch_size, device_option, namescope, input_source_name, queue)</td></tr>
-<tr class="separator:a3ff2f8697f570e25d5293457c9292e51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac889dd1460f4c240603e3b0bee17ec2e"><td class="memItemLeft" align="right" valign="top"><a id="ac889dd1460f4c240603e3b0bee17ec2e"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, net, input_blob_names, batch_size, device_option, namescope, input_source_name, queue, init_fun=None, external_loggers=None)</td></tr>
+<tr class="separator:ac889dd1460f4c240603e3b0bee17ec2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75959077167c75835785c0b5853e55d8"><td class="memItemLeft" align="right" valign="top"><a id="a75959077167c75835785c0b5853e55d8"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>is_active</b> (self)</td></tr>
 <tr class="separator:a75959077167c75835785c0b5853e55d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46de879b6731395a8303e9c484ce08bf"><td class="memItemLeft" align="right" valign="top"><a id="a46de879b6731395a8303e9c484ce08bf"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>init</b> (self, global_coordinator)</td></tr>
+<tr class="separator:a46de879b6731395a8303e9c484ce08bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af53e24f8733f1a125c4fb4961e281bc0"><td class="memItemLeft" align="right" valign="top"><a id="af53e24f8733f1a125c4fb4961e281bc0"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>put</b> (self, chunk)</td></tr>
 <tr class="separator:af53e24f8733f1a125c4fb4961e281bc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9d7fb63fa02947d58cf336696e4aaed"><td class="memItemLeft" align="right" valign="top"><a id="af9d7fb63fa02947d58cf336696e4aaed"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>put_metric</b> (self, key, value, count=True)</td></tr>
+<tr class="separator:af9d7fb63fa02947d58cf336696e4aaed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="data__workers_8py_source.html#l00111">111</a> of file <a class="el" href="data__workers_8py_source.html">data_workers.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="data__workers_8py_source.html#l00127">127</a> of file <a class="el" href="data__workers_8py_source.html">data_workers.py</a>.</p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/python/<a class="el" href="data__workers_8py_source.html">data_workers.py</a></li>
 </ul>
@@ -105,7 +111,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>put</b> (self, chunk)<
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 27 2017 17:24:27 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 14 2017 14:04:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

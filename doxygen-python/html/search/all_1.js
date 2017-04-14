@@ -2,7 +2,6 @@ var searchData=
 [
   ['adagradoptimizer',['AdagradOptimizer',['../classoptimizer_1_1AdagradOptimizer.html',1,'optimizer']]],
   ['adamoptimizer',['AdamOptimizer',['../classoptimizer_1_1AdamOptimizer.html',1,'optimizer']]],
-  ['add',['add',['../classcaffe2_1_1StatRegistry.html#afb8511c240761776463076b75bd67aba',1,'caffe2::StatRegistry']]],
   ['add_5fattribute',['add_attribute',['../classcore_1_1Net.html#a57e16fd50058bb7dad87e5e1b00e0472',1,'core::Net']]],
   ['addaccuracy',['AddAccuracy',['../namespacecifar10__training.html#a32334b2acc00d9702997ab39d2b71829',1,'cifar10_training']]],
   ['addargument',['AddArgument',['../namespacecaffe__translator.html#a180d4d2ebc051453b392144da7fc4063',1,'caffe_translator']]],
@@ -25,14 +24,13 @@ var searchData=
   ['analyze',['analyze',['../namespacenet__printer.html#a2baff126ab8753032a31c61d1f603fbf',1,'net_printer']]],
   ['analyzer',['Analyzer',['../classnet__printer_1_1Analyzer.html',1,'net_printer']]],
   ['app',['app',['../namespaceapp.html',1,'']]],
-  ['argumenthelper',['ArgumentHelper',['../classcaffe2_1_1ArgumentHelper.html',1,'caffe2']]],
+  ['assertblobsequal',['assertBlobsEqual',['../classlayer__test__util_1_1LayersTestCase.html#a87e1fde8ee0bada1afc7d33e61805f16',1,'layer_test_util::LayersTestCase']]],
   ['assertdevicechecks',['assertDeviceChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a8e5a5ea6c1ca06b2ee50a56d10b0a0d5',1,'hypothesis_test_util::HypothesisTestCase']]],
   ['assertgradientchecks',['assertGradientChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a898f5288da927a19f596ec212e065017',1,'hypothesis_test_util::HypothesisTestCase']]],
+  ['assertnetcontainops',['assertNetContainOps',['../classlayer__test__util_1_1LayersTestCase.html#a3f10e585640989d08ce1c3f541b30485',1,'layer_test_util::LayersTestCase']]],
   ['assertreferencechecks',['assertReferenceChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a26430279848a5a6689f63432979bd61a',1,'hypothesis_test_util::HypothesisTestCase']]],
-  ['asyncdagnet',['AsyncDAGNet',['../classcaffe2_1_1AsyncDAGNet.html',1,'caffe2']]],
+  ['assignmentalgorithm',['AssignmentAlgorithm',['../classmemonger_1_1AssignmentAlgorithm.html',1,'memonger']]],
   ['attention',['attention',['../namespaceattention.html',1,'']]],
   ['attentiontype',['AttentionType',['../classattention_1_1AttentionType.html',1,'attention']]],
-  ['averagepool',['AveragePool',['../classcnn_1_1CNNModelHelper.html#ace33e54a068d5a9ec66d47ae874f3e34',1,'cnn::CNNModelHelper']]],
-  ['axpyimpl',['AxpyImpl',['../structcaffe2_1_1math_1_1detail_1_1AxpyImpl.html',1,'caffe2::math::detail']]],
-  ['axpyimpl_3c_20t_2c_20cpucontext_2c_201_20_3e',['AxpyImpl&lt; T, CPUContext, 1 &gt;',['../structcaffe2_1_1math_1_1detail_1_1AxpyImpl_3_01T_00_01CPUContext_00_011_01_4.html',1,'caffe2::math::detail']]]
+  ['averagepool',['AveragePool',['../namespacepooling.html#a5f8afbecd20a681274a238036bec665c',1,'pooling']]]
 ];

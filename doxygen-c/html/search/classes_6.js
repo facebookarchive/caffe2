@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['gpuexecutor',['GPUExecutor',['../classcaffe2_1_1gpu__single__thread_1_1GPUExecutor.html',1,'caffe2::gpu_single_thread']]],
-  ['gradientmakerbase',['GradientMakerBase',['../classcaffe2_1_1GradientMakerBase.html',1,'caffe2']]],
-  ['gradientnotimplementedyet',['GradientNotImplementedYet',['../structcaffe2_1_1GradientNotImplementedYet.html',1,'caffe2']]],
-  ['gradientopsmeta',['GradientOpsMeta',['../structcaffe2_1_1GradientOpsMeta.html',1,'caffe2']]],
-  ['gradientwrapper',['GradientWrapper',['../structcaffe2_1_1GradientWrapper.html',1,'caffe2']]]
+  ['fixeddivisor',['FixedDivisor',['../classcaffe2_1_1FixedDivisor.html',1,'caffe2']]],
+  ['fixeddivisor_3c_20int32_5ft_20_3e',['FixedDivisor&lt; int32_t &gt;',['../classcaffe2_1_1FixedDivisor_3_01int32__t_01_4.html',1,'caffe2']]],
+  ['fixedvalues',['FixedValues',['../structcaffe2_1_1FixedValues.html',1,'caffe2']]]
 ];

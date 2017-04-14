@@ -1,9 +1,8 @@
 var searchData=
 [
-  ['blob',['Blob',['../classcaffe2_1_1Blob.html',1,'caffe2']]],
-  ['blobdeserializerbase',['BlobDeserializerBase',['../classcaffe2_1_1BlobDeserializerBase.html',1,'caffe2']]],
-  ['blobserializerbase',['BlobSerializerBase',['../classcaffe2_1_1BlobSerializerBase.html',1,'caffe2']]],
-  ['blobsqueue',['BlobsQueue',['../classcaffe2_1_1BlobsQueue.html',1,'caffe2']]],
-  ['blobstatgetter',['BlobStatGetter',['../structcaffe2_1_1BlobStatGetter.html',1,'caffe2']]],
-  ['blobstatregistry',['BlobStatRegistry',['../structcaffe2_1_1BlobStatRegistry.html',1,'caffe2']]]
+  ['argumenthelper',['ArgumentHelper',['../classcaffe2_1_1ArgumentHelper.html',1,'caffe2']]],
+  ['asyncdagnet',['AsyncDAGNet',['../classcaffe2_1_1AsyncDAGNet.html',1,'caffe2']]],
+  ['avgexportedstat',['AvgExportedStat',['../classcaffe2_1_1AvgExportedStat.html',1,'caffe2']]],
+  ['axpyimpl',['AxpyImpl',['../structcaffe2_1_1math_1_1detail_1_1AxpyImpl.html',1,'caffe2::math::detail']]],
+  ['axpyimpl_3c_20t_2c_20cpucontext_2c_201_20_3e',['AxpyImpl&lt; T, CPUContext, 1 &gt;',['../structcaffe2_1_1math_1_1detail_1_1AxpyImpl_3_01T_00_01CPUContext_00_011_01_4.html',1,'caffe2::math::detail']]]
 ];
