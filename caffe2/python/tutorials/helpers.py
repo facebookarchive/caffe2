@@ -1,3 +1,5 @@
+## @package helpers
+# Module caffe2.python.tutorials.helpers
 import numpy as np
 import skimage.io
 import skimage.transform
