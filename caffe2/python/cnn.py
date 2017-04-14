@@ -169,6 +169,9 @@ class CNNModelHelper(ModelHelper):
             self, *args, use_cudnn=self.use_cudnn, order=self.order, **kwargs
         )
 
+    def MaxPoolWithIndex(self, *args, **kwargs):
+        return model_helpers.MaxPoolWithIndex(self, *args, order=self.order, **kwargs)
+
     def AveragePool(self, *args, **kwargs):
         return brew.average_pool(
             self, *args, use_cudnn=self.use_cudnn, order=self.order, **kwargs
