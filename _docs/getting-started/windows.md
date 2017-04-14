@@ -6,13 +6,13 @@ Windows 10 or greater is required to run Caffe2.
 
 ## Prebuilt
 
-** LINK TO WINDOWS BINARY HERE **
+No binaries available.
 
 <block class="windows compile" />
 
 [![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
-Windows build is in testing and beta mode. When in doubt, build from source for the dependencies.
+Windows build is in testing and beta mode. For the easiest route, use the docker images for now in CPU-only mode.
 
 ### Required Dependencies
 

@@ -4,7 +4,7 @@
 
 [![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
-See the Troubleshooting section below for tips.
+Mac build is currently in testing. Use Ubuntu or Docker if you want the easiest install route. See the Troubleshooting section below for tips.
 
 ### Required Dependencies
 
