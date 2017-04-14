@@ -20,6 +20,9 @@ namespace {
 inline float16 cpu_float2half_rn(float f) {
     float16 ret;
 
+    static_assert(sizeof(unsigned int) == sizeof(float),
+        "Programming error sizeof(unsigned int) != sizeof(float)");
+
     unsigned x = *((int*)(void*)(&f));
     unsigned u = (x & 0x7fffffff), remainder, shift, lsb, lsb_s1, lsb_m1;
     unsigned sign, exponent, mantissa;
