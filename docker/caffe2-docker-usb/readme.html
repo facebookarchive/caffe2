@@ -43,8 +43,8 @@
 
 <p><strong>Assumes you have Docker and are using a Mac</strong></p>
 
-<pre><code>docker load -i /Volumes/CAFFE2/caffe2-tutorial-docker.tar
-docker run -it -p 8888:8888 c2.tutorial sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+<pre><code>docker load -i /Volumes/CAFFE2/docker/c2.gpu.tutorial.0.7.0.tar
+docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
 </code></pre>
 
 <p>Windows users: you can just change "/Volumes" to "D:\" or whatever the drive letter the USB was assigned and it should work.</p>
@@ -63,7 +63,7 @@ docker run -it -p 8888:8888 c2.tutorial sh -c "jupyter notebook --no-browser --i
 
 <li><a href="https://download.docker.com/mac/stable/Docker.dmg">Binary (online)</a></li>
 
-<li><a href="Docker.dmg">Local Binary (if on USB)</a></li>
+<li><a href="docker/Docker.dmg">Local Binary (if on USB)</a></li>
 </ul>
 
 <h3 id="windows">Windows</h3>
@@ -73,7 +73,7 @@ docker run -it -p 8888:8888 c2.tutorial sh -c "jupyter notebook --no-browser --i
 
 <li><a href="https://download.docker.com/win/stable/InstallDocker.msi">Binary (online)</a></li>
 
-<li><a href="InstallDocker.msi">Local Binary (if on USB)</a></li>
+<li><a href="docker/InstallDocker.msi">Local Binary (if on USB)</a></li>
 </ul>
 
 <h2 id="getcaffe2dockerimage">Get Caffe2 Docker Image</h2>
@@ -84,7 +84,7 @@ docker run -it -p 8888:8888 c2.tutorial sh -c "jupyter notebook --no-browser --i
 
 <p>This image is in a tar file on the USB stick. You can import it by using this command:</p>
 
-<pre><code>docker load -i &lt;path-to-image-tar-file&gt;
+<pre><code>docker load -i c2.gpu.tutorial.0.7.0.tar
 </code></pre>
 
 <h3 id="onlinepullthecaffe2dockerimage">Online: Pull the Caffe2 Docker Image</h3>
@@ -108,7 +108,7 @@ docker run -it -p 8888:8888 c2.tutorial sh -c "jupyter notebook --no-browser --i
 
 <p>Assuming it's there you can now launch it:</p>
 
-<pre><code>docker run -it -p 8888:8888 c2.cpu.tutorial sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+<pre><code>docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
 </code></pre>
 
 <p>This will output a URL. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials.</p>
@@ -117,16 +117,21 @@ docker run -it -p 8888:8888 c2.tutorial sh -c "jupyter notebook --no-browser --i
 <h2 id="usingdockerandgpus">Using Docker and GPUs</h2>
 
 <p>To enable the power of your GPU while using Docker, you will want to install NVIDIA's nvidia-docker. Use <code>nvidia-docker run ...</code> instead of <code>docker run...</code></p>
-<p>Installation instructions (open terminal and browse to the USB stick's root):</p>
+<p>Installation instructions (open terminal and browse to the USB stick's root/docker folder):</p>
 <pre>
   <code>
 #Install nvidia-docker and nvidia-docker-plugin
 sudo dpkg -i nvidia-docker*.deb
 
 # Test nvidia-smi
-nvidia-docker run --rm nvidia/cuda nvidia-smi
+nvidia-docker run --rm c2.gpu.tutorial.0.7.0 nvidia-smi
   </code>
 </pre>
+
+<p> Once you've installed nvidia-docker, run the notebooks with this call instead and you'll be using your GPU(s)!
+<pre><code>nvidia-docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+</code></pre>
+
 <h3 id="troubleshooting">Troubleshooting</h3>
 <table class="c2table">
   <thead>
