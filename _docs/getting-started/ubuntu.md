@@ -3,8 +3,8 @@
 <block class="ubuntu cloud" />
 You can easily try out Caffe2 by using the Cloud services. Caffe2 is available as AWS (Amazon Web Services) Deep Learning AMI and Microsoft Azure Virtual Machine offerings. You can run run Caffe2 in the Cloud at any scale.
 
-* [AWS Deep Learning AMI - Ubuntu 14.04](https://aws.amazon.com/marketplace/pp/B06VSPXKDX?qid=1489099515180&sr=0-6&ref_=srh_res_product_title)
-* [Microsoft Azure Data Science Virtual Machine - Ubuntu 16.04](https://)
+* [AWS Deep Learning AMI (Ubuntu)](https://aws.amazon.com/marketplace/pp/B06VSPXKDX?qid=1489099515180&sr=0-6&ref_=srh_res_product_title)
+* [Microsoft Azure Data Science Virtual Machine for Linux (Ubuntu)](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/microsoft-ads.linux-data-science-vm-ubuntu?tab=Overview)
 
 <block class="ubuntu compile" />
 
