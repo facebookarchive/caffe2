@@ -1,5 +1,3 @@
-## @package helpers
-# Module caffe2.python.tutorials.helpers
 import numpy as np
 import skimage.io
 import skimage.transform
@@ -73,13 +71,14 @@ def parseResults(results):
     print "Raw top 3 results:", sorted(arr, key=lambda x: x[1], reverse=True)[:3]
 
     # now we can grab the code list
-    response = urllib2.urlopen("https://gist.githubusercontent.com/aaronmarkham/cd3a6b6ac071eca6f7b4a6e40e6038aa/raw/9edb4038a37da6b5a44c3b5bc52e448ff09bfe5b/alexnet_codes"
-    )
-    for line in response:
-        code, result = line.partition(":")[::2]
-        if (code.strip() == str(index)):
-            answer = "The image contains a %s with a %s percent probability." % (result.strip()[1:-2], highest*100)
-            return answer
+    with open('inference_codes.txt', 'r') as f:
+        for line in f:
+            code, result = line.partition(":")[::2]
+            if (code.strip() == str(index)):
+                answer = "The image contains a %s with a %s percent probability." % \
+                (result.strip()[1:-2], highest*100)
+    f.closed
+    return answer
 
 def loadToNCHW(img, mean, input_size):
     img = load(img)
