@@ -100,9 +100,6 @@ if (ANDROID OR IOS)
       ${CAFFE2_THIRD_PARTY_ROOT}/NNPACK/src/relu-input-gradient.c
   )
   add_library(CAFFE2_NNPACK STATIC ${CAFFE2_NNPACK_SRCS})
-  if (ANDROID)
-    target_link_libraries(CAFFE2_NNPACK cpufeatures)
-  endif()
   target_include_directories(CAFFE2_NNPACK PRIVATE
       ${CAFFE2_THIRD_PARTY_ROOT}/NNPACK/include
       ${CAFFE2_THIRD_PARTY_ROOT}/NNPACK/src
@@ -118,7 +115,9 @@ if (ANDROID OR IOS)
       ${CAFFE2_THIRD_PARTY_ROOT}/NNPACK_deps/pthreadpool/include)
   set(NNPACK_LIBRARIES $<TARGET_FILE:CAFFE2_NNPACK> $<TARGET_FILE:CAFFE2_PTHREADPOOL>)
   set(NNPACK_LIBRARY_DIRS $<TARGET_FILE_DIR:CAFFE2_NNPACK> $<TARGET_FILE_DIR:CAFFE2_PTHREADPOOL>)
-
+  if (ANDROID)
+    set(NNPACK_LIBRARIES ${NNPACK_LIBRARIES} cpufeatures)
+  endif()
   return()
 endif()
 
