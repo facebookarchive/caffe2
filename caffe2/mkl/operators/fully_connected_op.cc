@@ -10,7 +10,6 @@ namespace mkl {
 template <typename T>
 class MKLFullyConnectedOp final : public MKLOperator<T> {
  public:
-
   MKLFullyConnectedOp(const OperatorDef& operator_def, Workspace* ws)
       : MKLOperator<T>(operator_def, ws),
         axis_(OperatorBase::GetSingleArgument<int32_t>("axis", 1)) {}
@@ -25,40 +24,34 @@ class MKLFullyConnectedOp final : public MKLOperator<T> {
     CAFFE_ENFORCE(filter.ndim() == 2, filter.ndim());
     CAFFE_ENFORCE(bias.ndim() == 1, bias.ndim());
 
-    if (cached_input_dims_ != X.dims() ||
-        cached_filter_dims_ != filter.dims()) {
-      cached_input_dims_ = X.dims();
-      cached_filter_dims_ = filter.dims();
+    bool dims_changed;
+    CHECK_INPUT_FILTER_DIMS(dims_changed);
+    if (dims_changed) {
+      const int N = filter.dim32(0);
+      CAFFE_ENFORCE(N == bias.dim32(0));
 
-        const int N = filter.dim32(0);
-        CAFFE_ENFORCE(N == bias.dim32(0));
-        
-        auto Y_shape = X.dims();
-        Y_shape[1] = N;        
-        Y_shape.resize(2);
-        
-        size_t inputSizes[4];
-        if (X.ndim() == 2) {
-          inputSizes[0] = X.dim32(1);
-          inputSizes[1] = X.dim32(0);
-        } else {
-          inputSizes[0] = X.dim32(3);
-          inputSizes[1] = X.dim32(2);
-          inputSizes[2] = X.dim32(1);
-          inputSizes[3] = X.dim32(0);
-        }
-       
-        size_t outputSizes[2] = {Y_shape[1], Y_shape[0]};
-        
-        primitive_.Reset(
-          dnnInnerProductCreateForwardBias<float>,
-          nullptr,
-          X.ndim(),
-          inputSizes,
-        outputSizes[0]);
+      auto Y_shape = X.dims();
+      Y_shape[1] = N;
+      Y_shape.resize(2);
+
+      size_t inputSizes[4];
+      if (X.ndim() == 2) {
+        inputSizes[0] = X.dim32(1);
+        inputSizes[1] = X.dim32(0);
+      } else {
+        inputSizes[0] = X.dim32(3);
+        inputSizes[1] = X.dim32(2);
+        inputSizes[2] = X.dim32(1);
+        inputSizes[3] = X.dim32(0);
+      }
+
+      size_t outputSizes[2] = {Y_shape[1], Y_shape[0]};
+
+      primitive_.Reset(dnnInnerProductCreateForwardBias<float>, nullptr,
+                       X.ndim(), inputSizes, outputSizes[0]);
 
       Y->Reset(Y_shape, primitive_, dnnResourceDst);
-      buffer_.Reset(Y_shape, primitive_, dnnResourceDst, true);    
+      buffer_.Reset(Y_shape, primitive_, dnnResourceDst, true);
 
       input_layout_.Reset(primitive_, dnnResourceSrc);
       filter_layout_.Reset(primitive_, dnnResourceFilter);
@@ -69,22 +62,21 @@ class MKLFullyConnectedOp final : public MKLOperator<T> {
     // layout as the buffer has.
     buffer_.ShareFrom(*Y);
 
-    std::shared_ptr<void> X_view = X.View(
-        input_layout_, primitive_, dnnResourceSrc);
-    std::shared_ptr<void> filter_view = filter.View(
-        filter_layout_, primitive_, dnnResourceFilter);
-            
+    std::shared_ptr<void> X_view =
+        X.View(input_layout_, primitive_, dnnResourceSrc);
+    std::shared_ptr<void> filter_view =
+        filter.View(filter_layout_, primitive_, dnnResourceFilter);
+
     resources_[dnnResourceSrc] = X_view.get();
     resources_[dnnResourceFilter] = filter_view.get();
-    
+
     resources_[dnnResourceBias] = bias.buffer();
     resources_[dnnResourceDst] = buffer_.buffer();
 
     MKLDNN_SAFE_CALL(mkl::dnnExecute<T>(primitive_, resources_));
-    buffer_.CopyTo(Y, primitive_, dnnResourceDst);    
+    buffer_.CopyTo(Y, primitive_, dnnResourceDst);
     return true;
   }
-
 
  private:
   // Input: X, W, b
@@ -101,11 +93,10 @@ class MKLFullyConnectedOp final : public MKLOperator<T> {
   INPUT_TAGS(INPUT, FILTER, BIAS);
 };
 
-} // namespace mkl
-
+}  // namespace mkl
 
 REGISTER_MKL_OPERATOR(FC, mkl::MKLFullyConnectedOp<float>);
 
 }  // namespace caffe2
 
-#endif // CAFFE2_HAS_MKL_DNN
+#endif  // CAFFE2_HAS_MKL_DNN
