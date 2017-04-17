@@ -3,11 +3,13 @@
 
 #include "caffe2/core/common.h"
 #include "caffe2/core/context.h"
-#include "caffe2/core/context_gpu.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/proto/caffe2.pb.h"
+#include "caffe2/utils/mkl_utils.h"
 
+#ifdef CAFFE2_HAS_MKL_DNN
 namespace caffe2 {
+namespace mkl {
 
 /**
  * @brief A templated class to allow one to wrap a CPU operator as an MKL
@@ -33,14 +35,14 @@ namespace caffe2 {
  * can use the SkipOutputCopy template argument to do that. For example, if
  * MyMagic produces two outputs and the first output is always going to live on
  * the CPU, you can do
- *     REGISTER_CUDA_OPERATOR(MyMagic,
+ *     REGISTER_MKL_OPERATOR(MyMagic,
  *                            MKLFallbackOp<MyMagicOp, SkipIndices<0>>);
  */
 template <class CPUOp, typename SkipOutputCopy = SkipIndices<>>
 class MKLFallbackOp final : public Operator<MKLContext> {
  public:
   USE_OPERATOR_FUNCTIONS(MKLContext);
-  MKLFallbackOp(const OperatorDef& def, Workspace* ws)
+  MKLFallbackOp(const OperatorDef &def, Workspace *ws)
       : Operator<MKLContext>(def, ws) {
     CAFFE_ENFORCE_EQ(def.device_option().device_type(), MKLDNN);
     OperatorDef base_def_(def);
@@ -48,12 +50,12 @@ class MKLFallbackOp final : public Operator<MKLContext> {
     base_def_.clear_device_option();
     base_def_.mutable_device_option()->set_device_type(CPU);
     // Set up the symbols for the local workspace.
-    for (const string& name : def.input()) {
+    for (const string &name : def.input()) {
       local_input_blobs_.push_back(local_ws_.CreateBlob(name));
       CHECK_NOTNULL(local_input_blobs_.back());
     }
     base_op_.reset(new CPUOp(base_def_, &local_ws_));
-    for (const string& name : def.output()) {
+    for (const string &name : def.output()) {
       local_output_blobs_.push_back(local_ws_.GetBlob(name));
       CHECK_NOTNULL(local_output_blobs_.back());
     }
@@ -73,7 +75,7 @@ class MKLFallbackOp final : public Operator<MKLContext> {
         // local_input_blobs will only be used as const blob input for the
         // base op so we are still fine.
         local_input_blobs_[i]->ShareExternal(
-            const_cast<void*>(OperatorBase::Inputs()[i]->GetRaw()),
+            const_cast<void *>(OperatorBase::Inputs()[i]->GetRaw()),
             OperatorBase::Inputs()[i]->meta());
       }
     }
@@ -89,23 +91,22 @@ class MKLFallbackOp final : public Operator<MKLContext> {
         VLOG(1) << "Copy output: index " << i << " skipped.";
         continue;
       }
-      CAFFE_ENFORCE(
-          local_output_blobs_[i]->template IsType<TensorCPU>(),
-          "MKL fallback op currently does not support non-TensorCPU "
-          "output type who needs copying.");
-      const auto& src = local_output_blobs_[i]->template Get<TensorCPU>();
+      CAFFE_ENFORCE(local_output_blobs_[i]->template IsType<TensorCPU>(),
+                    "MKL fallback op currently does not support non-TensorCPU "
+                    "output type who needs copying.");
+      const auto &src = local_output_blobs_[i]->template Get<TensorCPU>();
       if (src.IsType<float>()) {
-        Blob* dst = OperatorBase::OutputBlob(i);
+        Blob *dst = OperatorBase::OutputBlob(i);
         if (!dst->IsType<MKLMemory<float>>() ||
             dst->Get<MKLMemory<float>>().dims() != src.dims()) {
-          dst->Reset(new MKLMemory<float>(src.dims());
+          dst->Reset(new MKLMemory<float>(src.dims()));
         }
         dst->GetMutable<MKLMemory<float>>()->CopyFrom(src);
       } else if (src.IsType<double>()) {
-        Blob* dst = OperatorBase::OutputBlob(i);
+        Blob *dst = OperatorBase::OutputBlob(i);
         if (!dst->IsType<MKLMemory<double>>() ||
             dst->Get<MKLMemory<double>>().dims() != src.dims()) {
-          dst->Reset(new MKLMemory<double>(src.dims());
+          dst->Reset(new MKLMemory<double>(src.dims()));
         }
         dst->GetMutable<MKLMemory<double>>()->CopyFrom(src);
       } else {
@@ -117,11 +118,13 @@ class MKLFallbackOp final : public Operator<MKLContext> {
 
  protected:
   Workspace local_ws_;
-  vector<Blob*> local_input_blobs_;
-  vector<Blob*> local_output_blobs_;
+  vector<Blob *> local_input_blobs_;
+  vector<Blob *> local_output_blobs_;
   std::unique_ptr<CPUOp> base_op_;
 };
+} 
 
-} // namespace caffe2
+}  // namespace caffe2
 
-#endif // CAFFE2_OPERATORS_OPERATOR_FALLBACK_H_
+#endif  // CAFFE2_HAS_MKL_DNN
+#endif  // CAFFE2_OPERATORS_OPERATOR_FALLBACK_H_

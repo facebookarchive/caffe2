@@ -34,6 +34,31 @@
         error);                     \
   } while (0)
 
+#define CHECK_INPUT_FILTER_DIMS(condition)  \
+  do {                                           \
+    if (cached_input_dims_ != X.dims() ||        \
+        cached_filter_dims_ != filter.dims()){   \
+      cached_input_dims_ = X.dims();             \
+      cached_filter_dims_ = filter.dims();       \
+      condition = true;                          \
+    }                                            \
+    else{                                        \
+      condition = false;                         \
+    }                                            \
+  } while (0)
+
+#define CHECK_INPUT_DIMS(condition)  \
+  do {                                           \
+    if (cached_input_dims_ != X.dims()){         \
+      cached_input_dims_ = X.dims();             \
+      condition = true;                          \
+    }                                            \
+    else{                                        \
+      condition = false;                         \
+    }                                            \
+  } while (0)
+
+
 // All caffe2 mkl related headers
 
 #ifdef CAFFE2_HAS_MKL_DNN
@@ -49,3 +74,4 @@
 
 #endif // CAFFE2_USE_MKL
 #endif // CAFFE2_UTILS_MKL_UTILS_H_
+
