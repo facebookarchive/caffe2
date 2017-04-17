@@ -16,7 +16,7 @@ Windows build is in testing and beta mode. For the easiest route, use the docker
 
 ### Required Dependencies
 
-The first thing you want to do is to assess whether or not you're going to use GPU acceleration with Caffe2. If you have an NVIDIA GPU and you plan on training some neural networks, then it's probably worth the extra installation an effort. If you're just going to play around with pre-trained models then skip the video drivers and CUDA/cuDNN installation steps.
+The first thing you want to do is to assess whether or not you're going to use GPU acceleration with Caffe2. If you have an [NVIDIA GPU](https://www.nvidia.com/en-us/deep-learning-ai/solutions/) and you plan on training some neural networks, then it's probably worth the extra installation an effort. If you're just going to play around with pre-trained models then skip the video drivers and NVIDIA CUDA/cuDNN installation steps.
 
 1. **Update your video drivers**: assuming you have an NVIDIA card, use NVIDIA GeForce Experience to run the latest update.
 2. [NVIDIA CUDA/cuDNN](https://developer.nvidia.com/cuda-downloads): if you have GPU(s) then go ahead and install
