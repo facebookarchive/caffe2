@@ -27,7 +27,7 @@ or
 
 Check if your model uses in-place blobs and that blob is passed forward to another operator. It cannot keep track of the input needed for the gradient for the first operator. If you attempt a backward pass, it needs to have the original input to create the gradients. This message basically tells you that you should not do an in-place op for "gpu0/tmp2". Once that is addressed, you should be able to generate the backward pass.
 
-[Source code details](http://betadocs.caffe2.ai/doxygen-python/html/core_8py_source.html#l00410)
+[Source code details](http://caffe2.ai/doxygen-python/html/core_8py_source.html#l00410)
 
 ## Operator Usage
 
