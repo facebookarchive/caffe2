@@ -47,33 +47,33 @@
 docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
 </code></pre>
 
-<p>Windows users: you can just change "/Volumes" to "D:\" or whatever the drive letter the USB was assigned and it should work.</p>
+<p>Windows users: you can just change the file path to the image (e.g. D:\docker\c2.gpu.tutorial.0.7.0.tar) and it should work.</p>
 
 <h2 id="setupdocker">Setup Docker</h2>
 
-<p>You'll need Docker installed on your local PC. Skip ahead if you've done this already. To be sure run this command:</p>
-
-<pre><code>docker version
-</code></pre>
+<p>You'll need Docker installed on your local PC. If you already have Docker, make sure it is started up and skip to the "Get Caffe2 Docker Image" step below.</p>
 
 <h3 id="mac">Mac</h3>
 
 <ul>
-<li><a href="https://docs.docker.com/docker-for-mac/install/">Install Instructions</a></li>
+<li><a href="https://docs.docker.com/docker-for-mac/install/">Install Instructions</a> (or --> just run the <a href="docker/Docker.dmg">Local Install</a>, drag the docker icon to Applications, then run it and follow the prompts)</li>
 
-<li><a href="https://download.docker.com/mac/stable/Docker.dmg">Binary (online)</a></li>
+<li><a href="docker/Docker.dmg">Local Install</a></li>
 
-<li><a href="docker/Docker.dmg">Local Binary (if on USB)</a></li>
+<li><a href="https://download.docker.com/mac/stable/Docker.dmg">Online Install</a></li>
+
 </ul>
 
 <h3 id="windows">Windows</h3>
 
 <ul>
-<li><a href="https://docs.docker.com/docker-for-windows/install/">Install Instructions</a></li>
+<li><a href="https://docs.docker.com/docker-for-windows/install/">Install Instructions</a> (or --> just run the <a href="docker/InstallDocker.msi">Local Install</a>, follow the prompts, and if you can't import and run the image, check troubleshooting below with regard to running <code>docker-machine restart default</code>
+and then doing the steps from the output of <code>docker-machine env default</code>)</li>
 
-<li><a href="https://download.docker.com/win/stable/InstallDocker.msi">Binary (online)</a></li>
+<li><a href="docker/InstallDocker.msi">Local Install</a></li>
 
-<li><a href="docker/InstallDocker.msi">Local Binary (if on USB)</a></li>
+<li><a href="https://download.docker.com/win/stable/InstallDocker.msi">Online Install</a></li>
+
 </ul>
 
 <h2 id="getcaffe2dockerimage">Get Caffe2 Docker Image</h2>
@@ -82,17 +82,12 @@ docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-b
 
 <h3 id="localusbimportthecaffe2dockerimage">Local/USB: Import the Caffe2 Docker Image</h3>
 
-<p>This image is in a tar file on the USB stick. You can import it by using this command:</p>
+<p>This image is in a tar file on the USB stick. You can import it by using this command in your terminal (browse to the usb/docker folder first):</p>
 
 <pre><code>docker load -i c2.gpu.tutorial.0.7.0.tar
 </code></pre>
 
 <h3 id="onlinepullthecaffe2dockerimage">Online: Pull the Caffe2 Docker Image</h3>
-
-<p>For an image with optional dependencies like IPython & OpenCV:</p>
-
-<pre><code>docker pull caffe2ai/caffe2:cpu-fulloptions-ubuntu16.04
-</code></pre>
 
 <p>For the latest Docker image using GPU support and optional dependencies like IPython & OpenCV (does not work on Windows - see Troubleshooting notes):</p>
 
@@ -106,7 +101,7 @@ docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-b
 <pre><code>docker images
 </code></pre>
 
-<p>Assuming it's there you can now launch it:</p>
+<p>Assuming it's there you can now launch it (if you pulled the latest from online, then change c2.gpu.tutorial.0.7.0 to caff2ai/caffe2:latest):</p>
 
 <pre><code>docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
 </code></pre>
