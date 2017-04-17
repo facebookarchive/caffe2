@@ -5,10 +5,11 @@ MAINTAINER Aaron Markham <aaronmarkham@fb.com>
 # caffe2 install with cpu support
 
 ########## INSTALLATION STEPS ###################
-RUN apt-get install unzip
+RUN apt-get install unzip vim -y --no-install-recommends
+RUN pip install requests
 WORKDIR "/"
 RUN rm -rf caffe2
-RUN git clone --recursive https://github.com/caffe2/caffe2.git 
+RUN git clone --recursive https://github.com/caffe2/caffe2.git
 
 ########## REBUILD ###################
 WORKDIR "/caffe2"
@@ -24,12 +25,13 @@ RUN python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || 
 ########## SETUP TUTORIAL FILES #################
 # get model files for Loading Pre-Trained Models
 RUN python -m caffe2.python.models.download -i squeezenet
-RUN python -m caffe2.python.models.download -i bvlc_alexnet 
-RUN python -m caffe2.python.models.download -i bvlc_googlenet
-RUN python -m caffe2.python.models.download -i bvlc_reference_caffenet
-# throws error, so holding off until fixed
+# not installing these by default to keep the image smaller
+# RUN python -m caffe2.python.models.download -i bvlc_alexnet
+# RUN python -m caffe2.python.models.download -i bvlc_googlenet
+# RUN python -m caffe2.python.models.download -i bvlc_reference_caffenet
+# rcnn model throws error, so holding off until fixed
 # RUN python -m caffe2.python.models.download -i bvlc_reference_rcnn_ilsvrc13
-RUN python -m caffe2.python.models.download -i finetune_flickr_style
+# RUN python -m caffe2.python.models.download -i finetune_flickr_style
 # get MNIST dataset for MNIST
 WORKDIR "/caffe2/caffe2/python/tutorials"
 RUN mkdir tutorial_data && cd tutorial_data
