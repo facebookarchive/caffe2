@@ -12,7 +12,7 @@ id: home
         <div class="landing-row">
             <div class="landing-col-md-2 box what">
                 <a class="iconImages" href="/docs/learn-more.html"><img src="./static/images/landing-scale.png"></a>
-                <h4>WHAT IS IT?</h4>
+                <h4>WHAT IS CAFFE2?</h4>
                 <p>Caffe2 aims to provide an easy and straightforward way for you to experiment with deep learning and leverage community contributions of new models and algorithms. You can bring your creations to scale using the power of GPUs in the cloud or to the masses on mobile with Caffe2's cross-platform libraries.</p>
             </div>
             <div class="landing-col-md-2 box how">
