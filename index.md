@@ -56,7 +56,7 @@ id: home
         <div class="landing-row">
             <div class="landing-col-md-3 box">
                 <a class="iconImages" href="/docs/applications-of-deep-learning.html#speech-recognition"><img src="./static/images/landing-audio.png"></a>
-                <h4>Speech Recoginition</h4>
+                <h4>Speech Recognition</h4>
             </div>
             <div class="landing-col-md-3 box">
                 <a class="iconImages" href="/docs/applications-of-deep-learning.html#translation"><img src="./static/images/landing-trans.png"></a>
