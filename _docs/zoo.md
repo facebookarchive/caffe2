@@ -25,16 +25,9 @@ Please file an [Issue](https://github.com/caffe2/caffe2/issues) to have your pro
 
 ### Downloading and Importing Caffe2 Models
 
-A great new model downloading and importing feature has been added to Caffe2. It is simple to use, and allows you to setup and run a pre-trained model very quickly.
+A great new model downloading and importing feature has been added to Caffe2. It is simple to use, and allows you to setup and run a pre-trained model very quickly. It has an `--install` or `-i` argument that will install the model as a python module. If you don't use the install switch, it simply downloads the model into your current directory.
 
-```bash
-python download.py -i <model_name>
-```
-
-It has an `--install` or `-i` argument that will install the model as a python module. If you don't use the install switch, it simply downloads the model into your current directory.
-
-An even better route exists! You can use caffe2.models.download to install models for direct use in your python scripts.
-For example, downloading and installing BVLC's AlexNet model:
+For example, downloading and installing the squeezenet model:
 
 ```bash
 python -m caffe2.python.models.download --install squeezenet
