@@ -6,18 +6,6 @@ permalink: /docs/distributed-training.html
 ---
 One of Caffe2's most significant features is easy, built-in distributed training. This means that you can very quickly scale up or down without refactoring your design.
 
-## Scaling Out with Multi-GPU Machines
-
-Training huge datasets like ImageNet's 14 million images is possible within minutes or even seconds. Thinking bigger, this means even now you'll be able to process tens of thousands of images per second and continue to scale this upward. Recent results for training ImageNet with Caffe2 are shown below.
-
-![results overview](/static/images/infograph-overview.png)
-![chart images per second](/static/images/infograph-resnet-throughput-sub.png)
-
-These speeds were tested with [NVIDIA Tesla P100 cards](NVIDIA Tesla P100 cards). You can add GPUs in a single machine, or scale horizontally with additional machines, each with one or more GPUs. As seen in the chart below, scaling is slightly sublinear due to some small overhead.
-
-![chart speedup](/static/images/infograph-resnet-scale-sub.png)
-![chart inception](/static/images/infograph-inception-sub.png)
-
 For a deeper dive and examples of distributed training, check out [SynchronousSGD](sync-sgd), where you'll be taught the programming principles for using Caffe's [data_parallel_model](https://github.com/caffe2/caffe2/blob/master/caffe2/python/data_parallel_model.py).
 
 ## Under the Hood
