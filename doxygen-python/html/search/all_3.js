@@ -23,7 +23,7 @@ var searchData=
   ['compiledrunnable',['CompiledRunnable',['../classsession_1_1CompiledRunnable.html',1,'session']]],
   ['compute_5fassignments',['compute_assignments',['../namespacememonger.html#a46d14e670585b88a5c950c4d0a8dca46',1,'memonger']]],
   ['compute_5fassignments_5fdp',['compute_assignments_dp',['../namespacememonger.html#ac168133fbe09188a05f8f50c037ba178',1,'memonger']]],
-  ['concat',['Concat',['../classlayers_1_1concat_1_1Concat.html',1,'layers.concat.Concat'],['../namespaceconcat.html',1,'concat'],['../classcnn_1_1CNNModelHelper.html#aee52ef5a308ce56f9131005193f01752',1,'cnn.CNNModelHelper.Concat()']]],
+  ['concat',['Concat',['../classlayers_1_1concat_1_1Concat.html',1,'layers.concat.Concat'],['../namespaceconcat.html',1,'concat'],['../namespacearray__helpers.html#a10520183896e5caa5a3040b2e71cb5b1',1,'array_helpers.Concat()']]],
   ['const',['Const',['../namespacedataset.html#a15ea74e9a4fd4e401d4a13952b91b501',1,'dataset']]],
   ['constrecord',['ConstRecord',['../namespaceschema.html#af74411f6624ef7d0c3c826f0d5ea9818',1,'schema']]],
   ['content',['content',['../classdataset_1_1Dataset.html#ab6ceb96921c923d77d66b9a2e2df51fa',1,'dataset::Dataset']]],
@@ -31,12 +31,12 @@ var searchData=
   ['contextinfo',['ContextInfo',['../classcontext_1_1ContextInfo.html',1,'context']]],
   ['contextmanager',['ContextManager',['../classcontext_1_1ContextManager.html',1,'context']]],
   ['control',['control',['../namespacecontrol.html',1,'']]],
-  ['conv',['Conv',['../classcnn_1_1CNNModelHelper.html#a27163c7d1c44d563baafa11de0476be6',1,'cnn::CNNModelHelper']]],
+  ['conv',['conv',['../namespaceconv.html',1,'conv'],['../namespaceconv.html#a0a134b87fe2036937af53332e2ec32d4',1,'conv.Conv()']]],
   ['convertprototobinary',['ConvertProtoToBinary',['../namespaceutils.html#a2ec94e603ff1cacc225fee57a8ffca10',1,'utils']]],
   ['converttensorprotostoinitnet',['ConvertTensorProtosToInitNet',['../namespacecaffe__translator.html#a2aecefb40d81ad42733ffea5597aa15a',1,'caffe_translator']]],
-  ['convnd',['ConvNd',['../classcnn_1_1CNNModelHelper.html#a41e75238355c5e7b16ab1bf6bdd251de',1,'cnn::CNNModelHelper']]],
+  ['convnd',['ConvNd',['../namespaceconv.html#a04e5a4d90e7415ff2f4b1b6d544b4fe9',1,'conv']]],
   ['convnet_5fbenchmarks',['convnet_benchmarks',['../namespaceconvnet__benchmarks.html',1,'']]],
-  ['convtranspose',['ConvTranspose',['../classcnn_1_1CNNModelHelper.html#a73d2419aa859e072d3638aebb89e0a7f',1,'cnn::CNNModelHelper']]],
+  ['convtranspose',['ConvTranspose',['../namespaceconv.html#a9c6f0f9469d3a6b89c38f382087b6927',1,'conv']]],
   ['core',['core',['../namespacecore.html',1,'']]],
   ['counterreader',['CounterReader',['../classdataio_1_1CounterReader.html',1,'dataio']]],
   ['create_5fpredict_5finit_5fnet',['create_predict_init_net',['../namespacepredictor__py__utils.html#accaf0a6a78c325bed10fa7905bc1be1d',1,'predictor_py_utils']]],
@@ -46,5 +46,5 @@ var searchData=
   ['createpythonoperator',['CreatePythonOperator',['../namespacecore.html#a41202972687f2bf069668cd3b6aedfb9',1,'core']]],
   ['crf',['crf',['../namespacecrf.html',1,'']]],
   ['crfwithloss',['CRFWithLoss',['../classcrf_1_1CRFWithLoss.html',1,'crf']]],
-  ['cudnn_5flstm',['cudnn_LSTM',['../namespacerecurrent.html#a60b7b75e75ad7648a9d0b7bbc20c3258',1,'recurrent']]]
+  ['cudnn_5flstm',['cudnn_LSTM',['../namespacernn__cell.html#ae7d5735f59492099e4f82bd935c56463',1,'rnn_cell']]]
 ];

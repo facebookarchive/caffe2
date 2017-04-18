@@ -96,6 +96,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self)</t
 <tr class="memitem:ac65eaba16e186738261550c02f62cabe"><td class="memItemLeft" align="right" valign="top"><a id="ac65eaba16e186738261550c02f62cabe"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>__call__</b> (self, net, param_init_net, param, grad)</td></tr>
 <tr class="separator:ac65eaba16e186738261550c02f62cabe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff236330461a3e80158a3f33056890aa"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classoptimizer_1_1Optimizer.html#aff236330461a3e80158a3f33056890aa">get_auxiliary_parameters</a> (self)</td></tr>
+<tr class="separator:aff236330461a3e80158a3f33056890aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -108,15 +110,52 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>dedup</b> (net, sparse
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="optimizer_8py_source.html#l00012">12</a> of file <a class="el" href="optimizer_8py_source.html">optimizer.py</a>.</p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+<p class="definition">Definition at line <a class="el" href="optimizer_8py_source.html#l00014">14</a> of file <a class="el" href="optimizer_8py_source.html">optimizer.py</a>.</p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="aff236330461a3e80158a3f33056890aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff236330461a3e80158a3f33056890aa">&#9670;&nbsp;</a></span>get_auxiliary_parameters()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def optimizer.Optimizer.get_auxiliary_parameters </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Returns a list of auxiliary parameters.
+
+Returns:
+    aux_params: A namedtuple, AuxParams.
+
+    aux_params.local stores a list of blobs. Each blob is a local
+    auxiliary parameter. A local auxiliary parameter is a parameter in
+    parallel to a learning rate parameter. Take adagrad as an example,
+    the local auxiliary parameter is the squared sum parameter, because
+    every learning rate has a squared sum associated with it.
+
+    aux_params.shared also stores a list of blobs. Each blob is a shared
+    auxiliary parameter. A shared auxiliary parameter is a parameter
+    that is shared across all the learning rate parameters. Take adam as
+    an example, the iteration parameter is a shared parameter, because
+    all the learning rates share the same iteration parameter.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="optimizer_8py_source.html#l00059">59</a> of file <a class="el" href="optimizer_8py_source.html">optimizer.py</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/python/<a class="el" href="optimizer_8py_source.html">optimizer.py</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 14 2017 14:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

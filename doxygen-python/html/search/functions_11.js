@@ -10,7 +10,7 @@ var searchData=
   ['train_5fparam_5fblobs',['train_param_blobs',['../classlayers_1_1sampling__trainable__mixin_1_1SamplingTrainableMixin.html#a3e1b65ff421a018c769e3f0703aef440',1,'layers::sampling_trainable_mixin::SamplingTrainableMixin']]],
   ['transfcrelu',['transFCRelu',['../namespaceSparseTransformer.html#abc52daec3efa1eeab9ee63e9202ed319',1,'SparseTransformer']]],
   ['translateinput',['TranslateInput',['../namespacecaffe__translator.html#a755396dee7c81e5b8d2d42ee2d5cdd45',1,'caffe_translator']]],
-  ['transpose',['Transpose',['../classcnn_1_1CNNModelHelper.html#a16cb74bff5718c66c86ec5a1bffde574',1,'cnn::CNNModelHelper']]],
+  ['transpose',['Transpose',['../namespacealgebra.html#a784991a8a5b768de4e0e42323e70ce0c',1,'algebra']]],
   ['tryreadprotowithclass',['TryReadProtoWithClass',['../namespaceutils.html#ad67071d51cc3150ea50cd04f4f1b0cb1',1,'utils']]],
   ['tt_5fsvd',['tt_svd',['../namespacett__core.html#a4ce99cd0ac7ffb459a9cb4191979cd3f',1,'tt_core']]],
   ['tuple',['Tuple',['../namespaceschema.html#a51fac36ad9ff7feeeb34aaec55eeb01b',1,'schema']]]

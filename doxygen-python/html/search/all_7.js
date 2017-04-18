@@ -7,6 +7,7 @@ var searchData=
   ['get',['get',['../classschema_1_1Scalar.html#a790d0e4ea9edd8b32e2d8b8977b85e5e',1,'schema::Scalar']]],
   ['get_5fall_5fattributes',['get_all_attributes',['../classcore_1_1ExecutionStep.html#a82b3270332a3d632065b5e9b2144edcc',1,'core.ExecutionStep.get_all_attributes()'],['../classcore_1_1Plan.html#ad90a0adf6f3edead2cf0d3b7b0300a5d',1,'core.Plan.get_all_attributes()']]],
   ['get_5fattributes',['get_attributes',['../classcore_1_1Net.html#a83127fbbc42d1dd6095cae912ffcd801',1,'core::Net']]],
+  ['get_5fauxiliary_5fparameters',['get_auxiliary_parameters',['../classoptimizer_1_1Optimizer.html#aff236330461a3e80158a3f33056890aa',1,'optimizer::Optimizer']]],
   ['get_5fblobs',['get_blobs',['../classdataset_1_1Dataset.html#a6f69f0863dad5413532f940156de7b43',1,'dataset::Dataset']]],
   ['get_5ffp16_5fcompatible_5fparameters',['get_fp16_compatible_parameters',['../classlayers_1_1layers_1_1ModelLayer.html#adb385e96825c76f6efdf044bead5de5a',1,'layers::layers::ModelLayer']]],
   ['get_5fmeta_5fnet_5fdef',['get_meta_net_def',['../namespacepredictor__exporter.html#ae00e8596b1b856b3061f2be103432a85',1,'predictor_exporter']]],
@@ -16,6 +17,7 @@ var searchData=
   ['get_5fpatch_5fshape',['get_patch_shape',['../classvisualize_1_1PatchVisualizer.html#af7eda3eaa678f397485f549cb540b600',1,'visualize::PatchVisualizer']]],
   ['get_5fpython_5fcmake_5fflags',['get_python_cmake_flags',['../namespaceget__python__cmake__flags.html',1,'']]],
   ['get_5fssa',['get_ssa',['../namespacecore.html#a0b214cc9ec83086e82d98f06294c2a40',1,'core']]],
+  ['get_5fstate_5fnames',['get_state_names',['../classrnn__cell_1_1RNNCell.html#a1073f2d9e399b5832cd1ceb94d4594f6',1,'rnn_cell::RNNCell']]],
   ['get_5ftraining_5fnets',['get_training_nets',['../classlayer__test__util_1_1LayersTestCase.html#a2b18073f4b5e5d58bfc418cb92438800',1,'layer_test_util::LayersTestCase']]],
   ['get_5fundefined_5fblobs',['get_undefined_blobs',['../namespacecore.html#a7fb79f59cfd6282bbe6783460c9ba136',1,'core']]],
   ['get_5fupdated_5franges',['get_updated_ranges',['../namespacememonger.html#a8f2b6ef040f506ce8a6903c5c4831880',1,'memonger']]],
@@ -40,6 +42,6 @@ var searchData=
   ['gradient_5fchecker',['gradient_checker',['../namespacegradient__checker.html',1,'']]],
   ['gradientchecker',['GradientChecker',['../classgradient__checker_1_1GradientChecker.html',1,'gradient_checker']]],
   ['gradientregistry',['GradientRegistry',['../classcore_1_1GradientRegistry.html',1,'core']]],
-  ['groupconv',['GroupConv',['../classcnn_1_1CNNModelHelper.html#a782f95f79b7c969c6af16d5d1ccb2e85',1,'cnn::CNNModelHelper']]],
-  ['groupconv_5fdeprecated',['GroupConv_Deprecated',['../classcnn_1_1CNNModelHelper.html#a960e96e236c0c5a451e3dd8f18154588',1,'cnn::CNNModelHelper']]]
+  ['groupconv',['GroupConv',['../namespaceconv.html#a1b949934f286ae5062ff0b282b576f87',1,'conv']]],
+  ['groupconv_5fdeprecated',['GroupConv_Deprecated',['../namespaceconv.html#a29f47501e8c09a719e8da5cfb2a1d0ea',1,'conv']]]
 ];

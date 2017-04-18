@@ -15,6 +15,7 @@ var searchData=
   ['addparameterupdate',['AddParameterUpdate',['../namespaceconvnet__benchmarks.html#ac095378d9a77f65064a88ed77e89b4a8',1,'convnet_benchmarks']]],
   ['addtrainingoperators',['AddTrainingOperators',['../namespacecifar10__training.html#a200d25425a18b4e44ee0cc8cc0ccc27f',1,'cifar10_training']]],
   ['addweightdecay',['AddWeightDecay',['../classcnn_1_1CNNModelHelper.html#a26379c6a454f79a5bbdc3f907cdea046',1,'cnn::CNNModelHelper']]],
+  ['algebra',['algebra',['../namespacealgebra.html',1,'']]],
   ['all_5fscalars',['all_scalars',['../classschema_1_1Field.html#aa964d4f1a84c5db9d3364b83abf10de6',1,'schema::Field']]],
   ['allreduce',['Allreduce',['../namespacemuji.html#afc1328e2a98cfb4b7ef0662e7c4dc178',1,'muji']]],
   ['allreduce2',['Allreduce2',['../namespacemuji.html#aecbd856bcfb7cea32b3c0e33b50480a6',1,'muji']]],
@@ -24,6 +25,8 @@ var searchData=
   ['analyze',['analyze',['../namespacenet__printer.html#a2baff126ab8753032a31c61d1f603fbf',1,'net_printer']]],
   ['analyzer',['Analyzer',['../classnet__printer_1_1Analyzer.html',1,'net_printer']]],
   ['app',['app',['../namespaceapp.html',1,'']]],
+  ['arra_5fhelpers',['arra_helpers',['../namespacearra__helpers.html',1,'']]],
+  ['array_5fhelpers',['array_helpers',['../namespacearray__helpers.html',1,'']]],
   ['assertblobsequal',['assertBlobsEqual',['../classlayer__test__util_1_1LayersTestCase.html#a87e1fde8ee0bada1afc7d33e61805f16',1,'layer_test_util::LayersTestCase']]],
   ['assertdevicechecks',['assertDeviceChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a8e5a5ea6c1ca06b2ee50a56d10b0a0d5',1,'hypothesis_test_util::HypothesisTestCase']]],
   ['assertgradientchecks',['assertGradientChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a898f5288da927a19f596ec212e065017',1,'hypothesis_test_util::HypothesisTestCase']]],
@@ -32,5 +35,5 @@ var searchData=
   ['assignmentalgorithm',['AssignmentAlgorithm',['../classmemonger_1_1AssignmentAlgorithm.html',1,'memonger']]],
   ['attention',['attention',['../namespaceattention.html',1,'']]],
   ['attentiontype',['AttentionType',['../classattention_1_1AttentionType.html',1,'attention']]],
-  ['averagepool',['AveragePool',['../namespacepooling.html#a5f8afbecd20a681274a238036bec665c',1,'pooling']]]
+  ['averagepool',['AveragePool',['../namespacepooling.html#af446d38fe26e88e0e334ec34733e8f8a',1,'pooling']]]
 ];

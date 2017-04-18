@@ -31,7 +31,7 @@ var searchData=
   ['showsingle',['ShowSingle',['../classvisualize_1_1PatchVisualizer.html#a78ad7e6d98587aac77a5b88961ab00e8',1,'visualize::PatchVisualizer']]],
   ['simple_5foperator_5flayers',['simple_operator_layers',['../namespacesimple__operator__layers.html',1,'']]],
   ['slice',['slice',['../classschema_1_1Field.html#a98a892aaf9cda03689ce359862dfac5f',1,'schema::Field']]],
-  ['softmax',['Softmax',['../classcnn_1_1CNNModelHelper.html#a1f40b2ac87f791c114bd153549bfb3f3',1,'cnn::CNNModelHelper']]],
+  ['softmax',['Softmax',['../namespacenormalization.html#a476da1e2a75ebb6d58ea05acba46038d',1,'normalization']]],
   ['sparse_5flookup',['sparse_lookup',['../namespacesparse__lookup.html',1,'']]],
   ['sparse_5fto_5fdense',['sparse_to_dense',['../namespacesparse__to__dense.html',1,'']]],
   ['sparselookup',['SparseLookup',['../classlayers_1_1sparse__lookup_1_1SparseLookup.html',1,'layers::sparse_lookup']]],
@@ -48,7 +48,7 @@ var searchData=
   ['storeopstests',['StoreOpsTests',['../classstore__ops__test__util_1_1StoreOpsTests.html',1,'store_ops_test_util']]],
   ['stringifyproto',['StringifyProto',['../namespaceworkspace.html#a890c61889dd6459d5e1bffb349e09f07',1,'workspace']]],
   ['struct',['Struct',['../classschema_1_1Struct.html',1,'schema']]],
-  ['sum',['Sum',['../classcnn_1_1CNNModelHelper.html#ab01f9186a346a3d46c297f3adf422a91',1,'cnn::CNNModelHelper']]],
+  ['sum',['Sum',['../namespacealgebra.html#ab8eae2826a59f079ec2916d19a4bdf3b',1,'algebra']]],
   ['switch',['Switch',['../namespacecontrol.html#ac385a0069d753cc500d946e8f4e35a42',1,'control']]],
   ['switchnot',['SwitchNot',['../namespacecontrol.html#a9a52a2d2efc33b116a380b16d04d3df3',1,'control']]]
 ];

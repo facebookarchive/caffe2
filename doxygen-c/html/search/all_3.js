@@ -16,7 +16,7 @@ var searchData=
   ['cpuallocator',['CPUAllocator',['../structcaffe2_1_1CPUAllocator.html',1,'caffe2']]],
   ['cpucontext',['CPUContext',['../classcaffe2_1_1CPUContext.html',1,'caffe2']]],
   ['createblob',['CreateBlob',['../classcaffe2_1_1Workspace.html#a224e2d844e235c2db1804b7f45cd6822',1,'caffe2::Workspace']]],
-  ['createnet',['CreateNet',['../classcaffe2_1_1Workspace.html#aecf8f5f81097074e1e0d7726c4f4974e',1,'caffe2::Workspace']]],
+  ['createnet',['CreateNet',['../classcaffe2_1_1Workspace.html#ac8c465ceb6cecbd5a2311f3d5bf4c35e',1,'caffe2::Workspace::CreateNet()'],['../namespacecaffe2.html#aa9463003c6ef9000d089ffeaf9296c05',1,'caffe2::CreateNet()']]],
   ['ctor',['ctor',['../classcaffe2_1_1TypeMeta.html#a26b48098acd84d759bd9449aada955d8',1,'caffe2::TypeMeta']]],
   ['cublasgeterrorstring',['cublasGetErrorString',['../namespacecaffe2.html#ab643532704982b9c6cd53fefb8c9015d',1,'caffe2']]],
   ['cudacontext',['CUDAContext',['../classcaffe2_1_1CUDAContext.html',1,'caffe2']]],

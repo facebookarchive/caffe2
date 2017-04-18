@@ -10,7 +10,7 @@ var searchData=
   ['init_5fempty',['init_empty',['../classdataset_1_1Dataset.html#ab3465dcbe1e2fd4c51294e814d6a1e0d',1,'dataset::Dataset']]],
   ['init_5ffrom_5fdataframe',['init_from_dataframe',['../classdataset_1_1Dataset.html#a9fb8b5d289d586f1e8c5e565b7a362a2',1,'dataset::Dataset']]],
   ['init_5ftt_5fcores',['init_tt_cores',['../namespacett__core.html#a18c955d14bd0996f7a270d113e294f91',1,'tt_core']]],
-  ['initfromlstmparams',['InitFromLSTMParams',['../namespacerecurrent.html#ae82d45ad028eb13ce103c98a4927253c',1,'recurrent']]],
+  ['initfromlstmparams',['InitFromLSTMParams',['../namespacernn__cell.html#a69770d16d277bf62580bc97ab65ccf87',1,'rnn_cell']]],
   ['initopslibrary',['InitOpsLibrary',['../namespacedyndep.html#afec863a3735820c9b3ac7aa75dce7f58',1,'dyndep']]],
   ['insertinput',['insertInput',['../classSparseTransformer_1_1NetDefNode.html#aa48b3092517614c6ec1d5dd5162c5eb3',1,'SparseTransformer::NetDefNode']]]
 ];

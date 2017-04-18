@@ -10,7 +10,7 @@ var searchData=
   ['copy',['copy',['../classcaffe2_1_1TypeMeta.html#a087c6e4c3e8069057fec594369de9a55',1,'caffe2::TypeMeta']]],
   ['copyfrom',['CopyFrom',['../classcaffe2_1_1Tensor.html#a8882e06c5240e1705fd00a535834a245',1,'caffe2::Tensor::CopyFrom(const Tensor&lt; SrcContext &gt; &amp;src, ContextForCopy *context)'],['../classcaffe2_1_1Tensor.html#a5cbee7d7cd88ebb963f75582e14cf92e',1,'caffe2::Tensor::CopyFrom(const Tensor&lt; SrcContext &gt; &amp;src)']]],
   ['createblob',['CreateBlob',['../classcaffe2_1_1Workspace.html#a224e2d844e235c2db1804b7f45cd6822',1,'caffe2::Workspace']]],
-  ['createnet',['CreateNet',['../classcaffe2_1_1Workspace.html#aecf8f5f81097074e1e0d7726c4f4974e',1,'caffe2::Workspace']]],
+  ['createnet',['CreateNet',['../classcaffe2_1_1Workspace.html#ac8c465ceb6cecbd5a2311f3d5bf4c35e',1,'caffe2::Workspace::CreateNet()'],['../namespacecaffe2.html#aa9463003c6ef9000d089ffeaf9296c05',1,'caffe2::CreateNet()']]],
   ['ctor',['ctor',['../classcaffe2_1_1TypeMeta.html#a26b48098acd84d759bd9449aada955d8',1,'caffe2::TypeMeta']]],
   ['cublasgeterrorstring',['cublasGetErrorString',['../namespacecaffe2.html#ab643532704982b9c6cd53fefb8c9015d',1,'caffe2']]],
   ['cudaversion',['CudaVersion',['../namespacecaffe2.html#ad503e334918c94362ff2758be80b0f56',1,'caffe2']]],

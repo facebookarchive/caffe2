@@ -640,8 +640,8 @@ template&lt;class Iter &gt; </td></tr>
 <tr class="memitem:a9c758cfbab43b5b5dd2c240949b738b7"><td class="memItemLeft" align="right" valign="top"><a id="a9c758cfbab43b5b5dd2c240949b738b7"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_DEFINE_REGISTRY</b> (NetRegistry, <a class="el" href="classcaffe2_1_1NetBase.html">NetBase</a>, const NetDef &amp;, <a class="el" href="classcaffe2_1_1Workspace.html">Workspace</a> *)</td></tr>
 <tr class="separator:a9c758cfbab43b5b5dd2c240949b738b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9463003c6ef9000d089ffeaf9296c05"><td class="memItemLeft" align="right" valign="top"><a id="aa9463003c6ef9000d089ffeaf9296c05"></a>
-unique_ptr&lt; <a class="el" href="classcaffe2_1_1NetBase.html">NetBase</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateNet</b> (const NetDef &amp;net_def, <a class="el" href="classcaffe2_1_1Workspace.html">Workspace</a> *ws)</td></tr>
+<tr class="memitem:aa9463003c6ef9000d089ffeaf9296c05"><td class="memItemLeft" align="right" valign="top">unique_ptr&lt; <a class="el" href="classcaffe2_1_1NetBase.html">NetBase</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecaffe2.html#aa9463003c6ef9000d089ffeaf9296c05">CreateNet</a> (const NetDef &amp;net_def, <a class="el" href="classcaffe2_1_1Workspace.html">Workspace</a> *ws)</td></tr>
+<tr class="memdesc:aa9463003c6ef9000d089ffeaf9296c05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a network, accessing / creating blobs in the given workspace.  <a href="#aa9463003c6ef9000d089ffeaf9296c05">More...</a><br /></td></tr>
 <tr class="separator:aa9463003c6ef9000d089ffeaf9296c05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5ca2b6522bebb92fd1fc58ba14f44c4"><td class="memItemLeft" align="right" valign="top"><a id="af5ca2b6522bebb92fd1fc58ba14f44c4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_DECLARE_REGISTRY</b> (NetRegistry, <a class="el" href="classcaffe2_1_1NetBase.html">NetBase</a>, const NetDef &amp;, <a class="el" href="classcaffe2_1_1Workspace.html">Workspace</a> *)</td></tr>
@@ -1034,6 +1034,39 @@ constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>k_limit_defa
 </ol>
 <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="aa9463003c6ef9000d089ffeaf9296c05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9463003c6ef9000d089ffeaf9296c05">&#9670;&nbsp;</a></span>CreateNet()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unique_ptr&lt; <a class="el" href="classcaffe2_1_1NetBase.html">NetBase</a> &gt; caffe2::CreateNet </td>
+          <td>(</td>
+          <td class="paramtype">const NetDef &amp;&#160;</td>
+          <td class="paramname"><em>net_def</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classcaffe2_1_1Workspace.html">Workspace</a> *&#160;</td>
+          <td class="paramname"><em>ws</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates a network, accessing / creating blobs in the given workspace. </p>
+<p>Note that this is different from <a class="el" href="classcaffe2_1_1Workspace.html#ac8c465ceb6cecbd5a2311f3d5bf4c35e" title="Creates a network with the given NetDef, and returns the pointer to the network. ">Workspace::CreateNet</a>. The latter adds the created net object to the workspace's net map, while this function returns a standalone net object. </p>
+
+<p class="definition">Definition at line <a class="el" href="net_8cc_source.html#l00066">66</a> of file <a class="el" href="net_8cc_source.html">net.cc</a>.</p>
+
+</div>
+</div>
 <a id="ad37066071313fa865f8b2d22b900b3a3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad37066071313fa865f8b2d22b900b3a3">&#9670;&nbsp;</a></span>GetCudaMemoryPoolType()</h2>
 
@@ -1308,7 +1341,7 @@ constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>k_limit_defa
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 14 2017 14:04:21 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Apr 18 2017 14:26:57 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

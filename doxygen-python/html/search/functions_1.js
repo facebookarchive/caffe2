@@ -25,5 +25,5 @@ var searchData=
   ['assertgradientchecks',['assertGradientChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a898f5288da927a19f596ec212e065017',1,'hypothesis_test_util::HypothesisTestCase']]],
   ['assertnetcontainops',['assertNetContainOps',['../classlayer__test__util_1_1LayersTestCase.html#a3f10e585640989d08ce1c3f541b30485',1,'layer_test_util::LayersTestCase']]],
   ['assertreferencechecks',['assertReferenceChecks',['../classhypothesis__test__util_1_1HypothesisTestCase.html#a26430279848a5a6689f63432979bd61a',1,'hypothesis_test_util::HypothesisTestCase']]],
-  ['averagepool',['AveragePool',['../namespacepooling.html#a5f8afbecd20a681274a238036bec665c',1,'pooling']]]
+  ['averagepool',['AveragePool',['../namespacepooling.html#af446d38fe26e88e0e334ec34733e8f8a',1,'pooling']]]
 ];

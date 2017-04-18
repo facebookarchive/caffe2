@@ -17,7 +17,7 @@ var searchData=
   ['showmultiple',['ShowMultiple',['../classvisualize_1_1PatchVisualizer.html#a78290245d736f3ec307b4c92ba8b8527',1,'visualize::PatchVisualizer']]],
   ['showsingle',['ShowSingle',['../classvisualize_1_1PatchVisualizer.html#a78ad7e6d98587aac77a5b88961ab00e8',1,'visualize::PatchVisualizer']]],
   ['slice',['slice',['../classschema_1_1Field.html#a98a892aaf9cda03689ce359862dfac5f',1,'schema::Field']]],
-  ['softmax',['Softmax',['../classcnn_1_1CNNModelHelper.html#a1f40b2ac87f791c114bd153549bfb3f3',1,'cnn::CNNModelHelper']]],
+  ['softmax',['Softmax',['../namespacenormalization.html#a476da1e2a75ebb6d58ea05acba46038d',1,'normalization']]],
   ['startmint',['StartMint',['../namespaceworkspace.html#a28935578845f9dc696b471b94a32d220',1,'workspace']]],
   ['stop',['stop',['../classnet__builder_1_1Operations.html#aeb6b5fe8f8225de32f9c7afa489b053a',1,'net_builder::Operations']]],
   ['stop_5fblob',['stop_blob',['../classnet__builder_1_1NetBuilder.html#ab7704cd4edebac1d4710aa69b762ee95',1,'net_builder::NetBuilder']]],
@@ -25,7 +25,7 @@ var searchData=
   ['stop_5fif',['stop_if',['../classnet__builder_1_1Operations.html#ab957fe0ae34c478ec4767b3a5372120a',1,'net_builder::Operations']]],
   ['stopimmediate',['StopImmediate',['../namespaceworkspace.html#a221e1a3a501d657f78e69b1c12d6642b',1,'workspace']]],
   ['stringifyproto',['StringifyProto',['../namespaceworkspace.html#a890c61889dd6459d5e1bffb349e09f07',1,'workspace']]],
-  ['sum',['Sum',['../classcnn_1_1CNNModelHelper.html#ab01f9186a346a3d46c297f3adf422a91',1,'cnn::CNNModelHelper']]],
+  ['sum',['Sum',['../namespacealgebra.html#ab8eae2826a59f079ec2916d19a4bdf3b',1,'algebra']]],
   ['switch',['Switch',['../namespacecontrol.html#ac385a0069d753cc500d946e8f4e35a42',1,'control']]],
   ['switchnot',['SwitchNot',['../namespacecontrol.html#a9a52a2d2efc33b116a380b16d04d3df3',1,'control']]]
 ];

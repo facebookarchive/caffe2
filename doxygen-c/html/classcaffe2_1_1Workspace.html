@@ -143,9 +143,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>PrintBlobSizes</b> ()
 <tr class="memitem:a5ace110b4af72d7be5db1a483688c344"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcaffe2_1_1Blob.html">Blob</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1Workspace.html#a5ace110b4af72d7be5db1a483688c344">GetBlob</a> (const string &amp;name)</td></tr>
 <tr class="memdesc:a5ace110b4af72d7be5db1a483688c344"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the blob with the given name as a mutable pointer.  <a href="#a5ace110b4af72d7be5db1a483688c344">More...</a><br /></td></tr>
 <tr class="separator:a5ace110b4af72d7be5db1a483688c344"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aecf8f5f81097074e1e0d7726c4f4974e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcaffe2_1_1NetBase.html">NetBase</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1Workspace.html#aecf8f5f81097074e1e0d7726c4f4974e">CreateNet</a> (const NetDef &amp;net_def)</td></tr>
-<tr class="memdesc:aecf8f5f81097074e1e0d7726c4f4974e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a network with the given NetDef, and returns the pointer to the network.  <a href="#aecf8f5f81097074e1e0d7726c4f4974e">More...</a><br /></td></tr>
-<tr class="separator:aecf8f5f81097074e1e0d7726c4f4974e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8c465ceb6cecbd5a2311f3d5bf4c35e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcaffe2_1_1NetBase.html">NetBase</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1Workspace.html#ac8c465ceb6cecbd5a2311f3d5bf4c35e">CreateNet</a> (const NetDef &amp;net_def, bool overwrite=false)</td></tr>
+<tr class="memdesc:ac8c465ceb6cecbd5a2311f3d5bf4c35e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a network with the given NetDef, and returns the pointer to the network.  <a href="#ac8c465ceb6cecbd5a2311f3d5bf4c35e">More...</a><br /></td></tr>
+<tr class="separator:ac8c465ceb6cecbd5a2311f3d5bf4c35e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a349d5fad35b8fe3f22fba5102ad6ec8b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcaffe2_1_1NetBase.html">NetBase</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1Workspace.html#a349d5fad35b8fe3f22fba5102ad6ec8b">GetNet</a> (const string &amp;net_name)</td></tr>
 <tr class="memdesc:a349d5fad35b8fe3f22fba5102ad6ec8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the pointer to a created net.  <a href="#a349d5fad35b8fe3f22fba5102ad6ec8b">More...</a><br /></td></tr>
 <tr class="separator:a349d5fad35b8fe3f22fba5102ad6ec8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -291,8 +291,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ExecuteStepRecursive<
 
 </div>
 </div>
-<a id="aecf8f5f81097074e1e0d7726c4f4974e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aecf8f5f81097074e1e0d7726c4f4974e">&#9670;&nbsp;</a></span>CreateNet()</h2>
+<a id="ac8c465ceb6cecbd5a2311f3d5bf4c35e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8c465ceb6cecbd5a2311f3d5bf4c35e">&#9670;&nbsp;</a></span>CreateNet()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -301,14 +301,25 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ExecuteStepRecursive<
           <td class="memname"><a class="el" href="classcaffe2_1_1NetBase.html">NetBase</a> * caffe2::Workspace::CreateNet </td>
           <td>(</td>
           <td class="paramtype">const NetDef &amp;&#160;</td>
-          <td class="paramname"><em>net_def</em></td><td>)</td>
+          <td class="paramname"><em>net_def</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>overwrite</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Creates a network with the given NetDef, and returns the pointer to the network. </p>
-<p>If there is anything wrong during the creation of the network, a nullptr is returned. The <a class="el" href="classcaffe2_1_1Workspace.html" title="Workspace is a class that holds all the related objects created during runtime: (1) all blobs...">Workspace</a> keeps ownership of the pointer. </p>
+<p>If there is anything wrong during the creation of the network, a nullptr is returned. The <a class="el" href="classcaffe2_1_1Workspace.html" title="Workspace is a class that holds all the related objects created during runtime: (1) all blobs...">Workspace</a> keeps ownership of the pointer.</p>
+<p>If there is already a net created in the workspace with the given name, CreateNet will overwrite it if overwrite=true is specified. Otherwise, an exception is thrown. </p>
 
 <p class="definition">Definition at line <a class="el" href="workspace_8cc_source.html#l00259">259</a> of file <a class="el" href="workspace_8cc_source.html">workspace.cc</a>.</p>
 
@@ -379,7 +390,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ExecuteStepRecursive<
 <p>Gets the pointer to a created net. </p>
 <p>The workspace keeps ownership of the network. </p>
 
-<p class="definition">Definition at line <a class="el" href="workspace_8cc_source.html#l00281">281</a> of file <a class="el" href="workspace_8cc_source.html">workspace.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="workspace_8cc_source.html#l00288">288</a> of file <a class="el" href="workspace_8cc_source.html">workspace.cc</a>.</p>
 
 </div>
 </div>
@@ -425,7 +436,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ExecuteStepRecursive<
 <p>Finds and runs the instantiated network with the given name. </p>
 <p>If the network does not exist or there are errors running the network, the function returns false. </p>
 
-<p class="definition">Definition at line <a class="el" href="workspace_8cc_source.html#l00295">295</a> of file <a class="el" href="workspace_8cc_source.html">workspace.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="workspace_8cc_source.html#l00302">302</a> of file <a class="el" href="workspace_8cc_source.html">workspace.cc</a>.</p>
 
 </div>
 </div>
@@ -437,7 +448,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ExecuteStepRecursive<
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 14 2017 14:04:21 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Apr 18 2017 14:26:57 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

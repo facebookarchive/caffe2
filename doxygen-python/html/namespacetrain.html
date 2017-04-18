@@ -109,6 +109,12 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>debug_sparse_mlp_decom
 <tr class="memitem:aa930d052a0406202b1e8aa9925d7f55f"><td class="memItemLeft" align="right" valign="top"><a id="aa930d052a0406202b1e8aa9925d7f55f"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>debug_sparse_mlp_prune_model</b> (args, model, input_data)</td></tr>
 <tr class="separator:aa930d052a0406202b1e8aa9925d7f55f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a750d1b577028ef643b0405d8d2c6c1a3"><td class="memItemLeft" align="right" valign="top"><a id="a750d1b577028ef643b0405d8d2c6c1a3"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>Iter</b> (model, blob_out, kwargs)</td></tr>
+<tr class="separator:a750d1b577028ef643b0405d8d2c6c1a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7d5f27e5d14388e644515a5f9b6f4f6"><td class="memItemLeft" align="right" valign="top"><a id="ab7d5f27e5d14388e644515a5f9b6f4f6"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>Accuracy</b> (model, blob_in, blob_out, kwargs)</td></tr>
+<tr class="separator:ab7d5f27e5d14388e644515a5f9b6f4f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -155,6 +161,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>data_gen</b> = NNLoade
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.experiments.python.train. </p>
+<p>Module caffe2.python.helpers.train. </p>
 </div><h2 class="groupheader">Variable Documentation</h2>
 <a id="a40e37aff6f0f8eccf500ef41d35f0100"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a40e37aff6f0f8eccf500ef41d35f0100">&#9670;&nbsp;</a></span>InputData</h2>
@@ -168,7 +175,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>data_gen</b> = NNLoade
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  namedtuple(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&#39;InputData&#39;</span>, [<span class="stringliteral">&#39;data&#39;</span>, <span class="stringliteral">&#39;label&#39;</span>, <span class="stringliteral">&#39;weight&#39;</span>, <span class="stringliteral">&#39;prod_pred&#39;</span>, <span class="stringliteral">&#39;sparse_segments&#39;</span>])</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="train_8py_source.html#l00061">61</a> of file <a class="el" href="train_8py_source.html">train.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="experiments_2python_2train_8py_source.html#l00061">61</a> of file <a class="el" href="experiments_2python_2train_8py_source.html">train.py</a>.</p>
 
 </div>
 </div>
@@ -184,7 +191,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>data_gen</b> = NNLoade
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  {</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&#39;mlp&#39;</span>: mlp_model,</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;    <span class="stringliteral">&#39;mlp_decomp&#39;</span>: mlp_decomp_model,</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;    <span class="stringliteral">&#39;mlp_prune&#39;</span>: mlp_prune_model,</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    <span class="stringliteral">&#39;sparse_mlp&#39;</span>: sparse_mlp_model,</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    <span class="stringliteral">&#39;debug_sparse_mlp&#39;</span>: debug_sparse_mlp_model,</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    <span class="stringliteral">&#39;debug_sparse_mlp_decomposition&#39;</span>: debug_sparse_mlp_decomposition_model,</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    <span class="stringliteral">&#39;debug_sparse_mlp_prune&#39;</span>: debug_sparse_mlp_prune_model,</div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <span class="comment"># Add more model_type functions here.</span></div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;}</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="train_8py_source.html#l00259">259</a> of file <a class="el" href="train_8py_source.html">train.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="experiments_2python_2train_8py_source.html#l00259">259</a> of file <a class="el" href="experiments_2python_2train_8py_source.html">train.py</a>.</p>
 
 </div>
 </div>
@@ -192,7 +199,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>data_gen</b> = NNLoade
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 14 2017 14:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

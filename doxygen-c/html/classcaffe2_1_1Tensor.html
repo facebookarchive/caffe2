@@ -409,7 +409,7 @@ template&lt;class Context&gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00579">579</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00573">573</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -444,7 +444,7 @@ template&lt;class SrcContext &gt; </div>
 <p>Copies the data from a source tensor. </p>
 <p>Note that this may have a potential performance hit, since a temporary context object will be created for the memory copy. Prefer explicitly providing a context for copy if you can. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00172">172</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00166">166</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -478,7 +478,7 @@ template&lt;typename T &gt; </div>
 <p>Returns a typed pointer of the underlying storage. </p>
 <p><a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data()</a> or <a class="el" href="classcaffe2_1_1Tensor.html#aa5f3bf3984ee4cfa05570fe8b8362503" title="Returns a mutable raw pointer of the underlying storage. ">raw_mutable_data()</a> must have been called prior to this function call, and the data type must be of the correct type. If you want to get a void* pointer instead, use <a class="el" href="classcaffe2_1_1Tensor.html#adccf463b5bdf9db0521f3049f2f6f52d" title="Returns a const raw void* pointer of the underlying storage. ">raw_data()</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00439">439</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00433">433</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -510,7 +510,7 @@ template&lt;class Context&gt; </div>
 <p>A utility function to print the debug string for the tensor. </p>
 <p>Note that this is very slow since it involves quite some string operations, so do not use it in your performance-critical code. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00323">323</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00317">317</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -543,7 +543,7 @@ template&lt;class Context&gt; </div>
 <p>Returns the i-th dimension of the tensor. </p>
 <p>Note that the passed in index must be between 0 (inclusive) and the number of dimensions, otherwise this function will produce a fatal message. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00612">612</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00606">606</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -576,7 +576,7 @@ template&lt;class Context&gt; </div>
 <p>Returns the i-th dimension of the tensor in int. </p>
 <p>This function returns an int value instead of TIndex, which depending on the typedef could be int64. If you want int64 dim values, make sure you call <a class="el" href="classcaffe2_1_1Tensor.html#a5f80415d52f358395478c434a39c3486" title="Returns the i-th dimension of the tensor. ">dim()</a> instead. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00600">600</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00594">594</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -627,7 +627,7 @@ template&lt;class ContextForCopy &gt; </div>
 <p>Extends the outer-most dimension of this tensor by num elements, preserving the existing data. </p>
 <p>The underlying data may be reallocated in order to accommodate the new elements, in which case this tensors' capacity is grown at a factor of growthPct. This ensures that Extend runs on an amortized O(1) time complexity. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00189">189</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00183">183</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -661,7 +661,7 @@ template&lt;typename T &gt; </div>
 <p>Returns a typed pointer of the underlying storage. </p>
 <p>If the existing data does not match the desired type, it will be deleted and a new storage will be created. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00525">525</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00519">519</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -693,7 +693,7 @@ template&lt;class Context&gt; </div>
 <p>Returns the total number of bytes of the storage. </p>
 <p>This is equivalent to calling <a class="el" href="classcaffe2_1_1Tensor.html#a7409a89ec717a595df6af8246eaca407" title="Returns the size (i.e. ">size()</a> * <a class="el" href="classcaffe2_1_1Tensor.html#ab763a92b2d7e59c83920676f71b59609" title="Return the number of bytes each item takes in the tensor. ">itemsize()</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00550">550</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00544">544</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -725,7 +725,7 @@ template&lt;class Context&gt; </div>
 <p>Returns a const raw void* pointer of the underlying storage. </p>
 <p><a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data()</a> or <a class="el" href="classcaffe2_1_1Tensor.html#aa5f3bf3984ee4cfa05570fe8b8362503" title="Returns a mutable raw pointer of the underlying storage. ">raw_mutable_data()</a> must have been called prior to this function call. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00427">427</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00421">421</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -759,7 +759,7 @@ template&lt;class Context&gt; </div>
 <p>Since we will need to know the type of the data for allocation, a <a class="el" href="classcaffe2_1_1TypeMeta.html" title="TypeMeta is a thin class that allows us to store the type of a container such as a blob...">TypeMeta</a> object is passed in to specify the necessary information. This is conceptually equivalent of calling <a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data&lt;T&gt;()</a> where the <a class="el" href="classcaffe2_1_1TypeMeta.html" title="TypeMeta is a thin class that allows us to store the type of a container such as a blob...">TypeMeta</a> parameter meta is derived from the type T. This function differs from <a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data&lt;T&gt;()</a> in the sense that the type T can be specified during runtime via the <a class="el" href="classcaffe2_1_1TypeMeta.html" title="TypeMeta is a thin class that allows us to store the type of a container such as a blob...">TypeMeta</a> object.</p>
 <p>If the existing data does not match the desired type, it will be deleted and a new storage will be created. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00465">465</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00459">459</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -792,7 +792,7 @@ template&lt;class Context&gt; </div>
 <p>This can only be used when you know for sure that the underlying storage of the tensor is already created via an earlier raw_mutable_data(meta) call or a <a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data&lt;T&gt;()</a> call.</p>
 <p>If the existing data does not match the desired type, it will be deleted and a new storage will be created. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00510">510</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00504">504</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -825,7 +825,7 @@ template&lt;class Context&gt; </div>
 <p>Resizes the tensor without touching underlying storage. </p>
 <p>This requires the total size of the tensor to remains constant. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00296">296</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00290">290</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -861,7 +861,7 @@ template&lt;typename... Ts&gt; </div>
 <p>Resize takes in a vector of ints specifying the dimensions of the tensor. You can pass in an empty vector to specify that it is a scalar (i.e. containing one single item).</p>
 <p>The underlying storage may be deleted after calling Resize: if the new shape leads to a different number of items in the tensor, the old memory is deleted and new memory will be allocated next time you call <a class="el" href="classcaffe2_1_1Tensor.html#a5fbe65f2d062db6f1f5ab319b0f811fd" title="Returns a typed pointer of the underlying storage. ">mutable_data()</a>. However, if the shape is different but the total number of items is the same, the underlying storage is kept. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00269">269</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00263">263</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -896,7 +896,7 @@ template&lt;class OtherContext &gt; </div>
 <p>Resize the tensor like the source tensor. </p>
 <p>Note that this is just a sugar wrapper that essentially calls Resize(src_tensor.dims()). </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00285">285</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00279">279</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -930,7 +930,7 @@ template&lt;class Context&gt; </div>
 <p>To share data between two tensors, the sizes of the two tensors must be equal already. The reason we do not implicitly do a Resize to make the two tensors have the same shape is that we want to allow tensors of different shapes but the same number of items to still be able to share data. This allows one to e.g. have a n-dimensional <a class="el" href="classcaffe2_1_1Tensor.html" title="Tensor is the basic class in Caffe2 that stores a contiguous memory with its shape information...">Tensor</a> and a flattened version sharing the same underlying storage.</p>
 <p>The source tensor should already have its data allocated. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00346">346</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00340">340</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -975,7 +975,7 @@ template&lt;typename T &gt; </div>
 <p>Shares the data with an externally managed pointer. </p>
 <p>This is similar to <a class="el" href="classcaffe2_1_1Tensor.html#a6af983391893a6f6db43004cae62ce0d" title="Shares the data with another tensor. ">ShareData()</a> but the tensor does not take over ownership of the pointer, so the caller can explicitly manage the memory storage. One needs to make sure that the external memory is deallocated only after the tensor finishes using it. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00373">373</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00367">367</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -1026,7 +1026,7 @@ template&lt;typename T , typename Deleter &gt; </div>
 <p>Shares the data with an externally managed pointer. </p>
 <p>This overload takes a Deleter functor to be called when this tensor is reallocated or freed. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00384">384</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00378">378</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -1059,7 +1059,7 @@ template&lt;class Context&gt; </div>
 <p>Shrinks the outer-most dimension to given size, keeping the data. </p>
 <p>This method guarantees that no re-allocations are carried out, which means that the extra capacity after the end of the shurnk tensor is maintained. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00242">242</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00236">236</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -1091,7 +1091,7 @@ template&lt;class Context&gt; </div>
 <p>Returns the size (i.e. </p>
 <p>the number of items) of the tensor. </p>
 
-<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00540">540</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="tensor_8h_source.html#l00534">534</a> of file <a class="el" href="tensor_8h_source.html">tensor.h</a>.</p>
 
 </div>
 </div>
@@ -1102,7 +1102,7 @@ template&lt;class Context&gt; </div>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 14 2017 14:04:21 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Apr 18 2017 14:26:57 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

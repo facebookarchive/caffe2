@@ -9,7 +9,7 @@ var searchData=
   ['recurrent_5fnet',['recurrent_net',['../namespacerecurrent.html#ab69867e50035f96dca52ace32af7ef65',1,'recurrent']]],
   ['register',['Register',['../classcaffe__translator_1_1TranslatorRegistry.html#a755d05297bd1b41291ad5b04729ded69',1,'caffe_translator::TranslatorRegistry']]],
   ['registergradient',['RegisterGradient',['../classcore_1_1GradientRegistry.html#ac78dbd0e9c63985475d6ca72a5cacd4e',1,'core::GradientRegistry']]],
-  ['relu',['Relu',['../classcnn_1_1CNNModelHelper.html#a7019b1ee8ec49e55b9cb9032d17559e3',1,'cnn::CNNModelHelper']]],
+  ['relu',['Relu',['../namespacenonlinearity.html#a69167861bed640a7442b1bc3ccafd355',1,'nonlinearity']]],
   ['report_5fnet',['report_net',['../classtask_1_1TaskGroup.html#a2c135ef9e3e4235c92eaa1001e158134',1,'task::TaskGroup']]],
   ['report_5fstep',['report_step',['../classtask_1_1TaskGroup.html#aa46e2369a8c3fef51fe774aad3f6c817',1,'task::TaskGroup']]],
   ['reset',['reset',['../classdataio_1_1Reader.html#a82de8d1221c15af96a7d3ba29b748cf2',1,'dataio::Reader']]],

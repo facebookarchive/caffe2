@@ -19,6 +19,8 @@ var searchData=
   ['nhwc',['NHWC',['../classvisualize_1_1NHWC.html',1,'visualize']]],
   ['node',['Node',['../classtask_1_1Node.html',1,'task']]],
   ['nodes',['nodes',['../classtask_1_1Cluster.html#a12a84ad15edd26e71295dfbc9c478d58',1,'task::Cluster']]],
+  ['nonlinearity',['nonlinearity',['../namespacenonlinearity.html',1,'']]],
+  ['normalization',['normalization',['../namespacenormalization.html',1,'']]],
   ['normalize_5fprocessor_5foutput',['normalize_processor_output',['../namespacepipeline.html#a64553e37e4cd49c8a21c0be11465c1ab',1,'pipeline']]],
   ['notnet',['NotNet',['../namespacecontrol.html#a1eeddca89e9b2029129b23f2f520eb09',1,'control']]]
 ];
