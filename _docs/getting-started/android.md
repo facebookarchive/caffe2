@@ -31,4 +31,4 @@ cd caffe2
 
 Caffe2 for Android must be built using the Android build script.
 
-<block class="android cloud" />
+<block class="android" />
