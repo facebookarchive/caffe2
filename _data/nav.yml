@@ -10,6 +10,10 @@
   href: /docs/api-intro
   category: docs
 
+- title: Blog
+  href: /blog/
+  category: blog
+
 - title: GitHub
   href: http://github.com/caffe2/caffe2
   category: external
