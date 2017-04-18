@@ -112,14 +112,7 @@ malloc error | If you are using homebrew leveldb on a Mac OS, you might see an e
 
 ### Prebuilt Caffe2 Python Wheel
 
-- [Download the prebuilt Caffe2 Python Wheel](** ADD LINK TO PREBUILT WHEEL HERE **)
-- Then run:
-
-```bash
-pip install caffe2.whl
-```
-
-This will also install various [third party](#whats-in-third-party) tools as well.
+Coming soon!
 
 <block class="mac docker" />
 
