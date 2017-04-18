@@ -100,7 +100,7 @@ defaults:
     scope:
       path: ""
     values:
-      image: /static/og_image.png
+      image: /static/og_image_caffe2.png
 
 exclude:
   - doc-type-examples/
