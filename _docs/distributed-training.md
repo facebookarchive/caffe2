@@ -6,7 +6,7 @@ permalink: /docs/distributed-training.html
 ---
 One of Caffe2's most significant features is easy, built-in distributed training. This means that you can very quickly scale up or down without refactoring your design.
 
-For a deeper dive and examples of distributed training, check out [SynchronousSGD](sync-sgd), where you'll be taught the programming principles for using Caffe's [data_parallel_model](https://github.com/caffe2/caffe2/blob/master/caffe2/python/data_parallel_model.py).
+For a deeper dive and examples of distributed training, check out [SynchronousSGD](/docs/SynchronousSGD.html), where you'll be taught the programming principles for using Caffe's [data_parallel_model](https://github.com/caffe2/caffe2/blob/master/caffe2/python/data_parallel_model.py).
 
 ## Under the Hood
 
