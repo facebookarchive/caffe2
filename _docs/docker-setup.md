@@ -10,8 +10,8 @@ permalink: /docs/docker-setup.html
 **Assumes you have Docker and are using a Mac**
 
 ```
-docker load -i /Volumes/CAFFE2/caffe2-tutorial-docker.tar
-docker run -it -p 8888:8888 c2.cpu.tutorial sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+docker load -i /Volumes/CAFFE2/c2.gpu.tutorial.0.7.0.tar
+docker run -it -p 8888:8888 cc2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
 ```
 
 Windows users: you can just change "/Volumes" to "D:\" or whatever the drive letter the USB was assigned and it should work.
@@ -73,7 +73,7 @@ docker images
 Assuming it's there you can now launch it:
 
 ```
-docker run -it -p 8888:8888 c2.cpu.tutorial sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
 ```
 
 This will output a URL. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials.
