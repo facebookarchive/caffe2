@@ -339,7 +339,7 @@ print("New network proto:\n\n{}".format(net.Proto()))
 
 
 
-You might have boserved a few differences from the earlier `core.CreateOperator` call. Basically, when we have a net, you can direct create an operator *and* add it to the net at the same time using Python tricks: essentially, if you call `net.SomeOp` where SomeOp is a registered type string of an operator, this essentially gets translated to
+You might have observed a few differences from the earlier `core.CreateOperator` call. Basically, when we have a net, you can direct create an operator *and* add it to the net at the same time using Python tricks: essentially, if you call `net.SomeOp` where SomeOp is a registered type string of an operator, this essentially gets translated to
 ```
 op = core.CreateOperator("SomeOp", ...)
 net.Proto().op.append(op)
