@@ -30,7 +30,7 @@ Detailed build matrix (hit refresh if you see icons not showing up due to heroku
 
     brew install automake protobuf
     mkdir build && cd build
-    cmake ..
+    cmake .. -DUSE_LEVELDB=OFF
     make
 
 ### Ubuntu
