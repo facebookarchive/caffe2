@@ -21,13 +21,13 @@ Want to see some examples of how deep learning works without doing all of the se
 
 ### Style Transfer
 
-Style transfer is a technique to change a photo or video to reflect a particular style. You may have seen examples of this in Photoshop over the years or recently filters that turn photos into van Gogh's Starry Night or Munch's Scream. Deep learning has allowed this process to optimized to the point where you don't need expensive photo editing tools or a powerful desktop computer. It can run on the phone and it can even be applied to video in real-time. Check out video below for an example of the style transfer features [Caffe2 enabled for Facebook's Messenger app](https://code.facebook.com/posts/196146247499076).
+Style transfer is a technique to change a photo or video to reflect a particular style. You may have seen examples of this in Photoshop over the years or recently filters that turn photos into van Gogh's Starry Night or Munch's Scream. Deep learning has allowed this process to be optimized to the point where you don't need expensive photo editing tools or a powerful desktop computer. It can run on the phone and it can even be applied to video in real-time. Check out video below for an example of the style transfer features [Caffe2 enabled for Facebook's Messenger app](https://code.facebook.com/posts/196146247499076).
 
 <iframe src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2FEngineering%2Fvideos%2F10154607751647200%2F&show_text=0&width=560" width="560" height="315" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true" allowFullScreen="true"></iframe>
 
 ### Caffe Neural Network for Image Classification
 
-Caffe is well know for its capability for image-base neural networks which can be useful in automatically identifying objects in images and video. This example lets you upload images and it will return the top five results for what was detected in the image.
+Caffe is well known for its capability for image-based neural networks which can be useful in automatically identifying objects in images and video. This example lets you upload images and it will return the top five results for what was detected in the image.
 
 [![screenshot of CNN demo page](/static/images/CNN-demo.png)](http://demo.caffe.berkeleyvision.org/classify_url?imageurl=http%3A%2F%2Fi1.kym-cdn.com%2Fentries%2Ficons%2Foriginal%2F000%2F014%2F959%2FScreenshot_116.png)
 
