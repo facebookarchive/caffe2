@@ -19,6 +19,8 @@
       <a href="javascript:void(0);" class="button-windows" onclick="display('platform', 'windows')">Windows</a>
       <a href="javascript:void(0);" class="button-ios" onclick="display('platform', 'ios')">iOS</a>
       <a href="javascript:void(0);" class="button-android" onclick="display('platform', 'android')">Android</a>
+      <a href="javascript:void(0);" class="button-raspbian" onclick="display('platform', 'raspbian')">Raspbian</a>
+      <a href="javascript:void(0);" class="button-tegra" onclick="display('platform', 'tegra')">Tegra</a>
       </td>
       </tr>
       <tr>
@@ -33,7 +35,7 @@
       </table>
     </div>
     {{ content }}
-    <block class="mac ubuntu centos windows ios android compile prebuilt docker cloud" />
+    <block class="mac ubuntu centos windows ios android raspbian tegra compile prebuilt docker cloud" />
     <p><a class="edit-page-link" href="https://github.com/{{ site.ghrepo }}/tree/gh-pages/{{ page.path }}" target="_blank">Edit on GitHub</a></p>
   </article>
   {% include doc_paging.html %}
@@ -141,6 +143,10 @@ if (window.location.hash !== '' && window.location.hash !== 'content') { // cont
             targetPlatform = 'ios';
           } else if (parent.className.indexOf('android') > -1) {
             targetPlatform = 'android';
+          } else if (parent.className.indexOf('raspbian') > -1) {
+            targetPlatform = 'raspbian';
+          } else if (parent.className.indexOf('tegra') > -1) {
+            targetPlatform = 'tegra';
           } else {
             break; // assume we don't have anything.
           }
