@@ -108,6 +108,9 @@ This yields `init_net` and `predict_net` fully parsed protobufs that are ready t
 | [Yearbook Photo](https://gist.github.com/katerakelly/842f948d568d7f1f0044) | faces > yearbook | VGG-16 + train_val,solver | [![caffemodel](../static/images/download-c1.png)](https://www.dropbox.com/s/6bbbckxwa14ainq/yearbook_cleaned.caffemodel?dl=0) | |
 | [Emotion Recognition](http://www.openu.ac.il/home/hassner/projects/cnn_emotions/) | faces > emotion | | [zip](https://dl.dropboxusercontent.com/u/38822310/DemoDir.zip) | |
 | [Facial Landmark Detection](http://www.openu.ac.il/home/hassner/projects/tcnn_landmarks/) | faces > landmark | | [![caffemodel](../static/images/download-c1.png)](https://github.com/ishay2b/VanillaCNN/blob/master/ZOO/vanillaCNN.caffemodel) | |
+| [Pose-Aware CNN Models (PAMs)](http://goo.gl/forms/NK6adyd7DFJhlmHG2) | faces > recognition | CASIA WebFaces | [![caffemodel](https://github.com/caffe2/caffe2/blob/gh-pages/static/images/download-c1.png)](http://goo.gl/forms/NK6adyd7DFJhlmHG2) | |
+| [ResFace-101](http://www.openu.ac.il/home/hassner/projects/augmented_faces/) | faces > recognition | 3D Augmented CASIA | [![caffemodel](https://github.com/caffe2/caffe2/blob/gh-pages/static/images/download-c1.png)](http://www.openu.ac.il/home/hassner/projects/augmented_faces/) | |
+| [ResNet-101 for regressing 3DMMs](http://www.openu.ac.il/home/hassner/projects/CNN3DMM/) | faces > recognition, 3D shape and texture | 3DMMs on CASIA | [![caffemodel](https://github.com/caffe2/caffe2/blob/gh-pages/static/images/download-c1.png)](http://www.openu.ac.il/home/hassner/projects/CNN3DMM/) | |
 
 ### Video Processing
 
