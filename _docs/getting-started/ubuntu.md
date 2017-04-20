@@ -13,7 +13,7 @@ You can easily try out Caffe2 by using the Cloud services. Caffe2 is available a
 This build is confirmed for:
 
 * Ubuntu 14.04
-* Ubuntu 16.06
+* Ubuntu 16.04
 
 ### Required Dependencies
 
