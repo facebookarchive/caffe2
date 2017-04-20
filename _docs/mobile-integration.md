@@ -138,7 +138,3 @@ CAFFE_DECLARE_REGISTRY(
 REGISTER_CPU_OPERATOR(Conv, ConvOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(ConvGradient, ConvGradientOp<float, CPUContext>);
 ```
-
-This has some effects (at least in theory) on startup, since these static initializers are constructed before main (so the code gets paged in). The total amount of work is pretty small (~8 map insertions), but it is generally recommended in Wilde to avoid pre-main work.
-
-To avoid use, use the Caffe2Framework, which shims the Caffe2 library behind a call to dlopen, which delays all Caffe2-related instantiations until the first usage.
