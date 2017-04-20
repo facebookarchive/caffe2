@@ -7,7 +7,7 @@ permalink: /docs/workspace.html
 These two classes are highlighted as they're commonly used in examples and tutorials. Workspace is a key component of Caffe2 while [CNNModelHelper](workspace.html#cnnmodelhelper) is useful in quickly creating CNNs.
 
 ## Workspace
-**Code:** [workspace.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/workspace.py) 
+**Code:** [workspace.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/workspace.py)
 | **API Docs:** [Module caffe2.python.workspace](/doxygen-python/html/namespaceworkspace.html#details)
 
 Workspace is a class that holds all the related objects created during runtime:
@@ -160,7 +160,7 @@ Returns|
 | True or an exception.
 
 ```python
-workspace.RunNetOnce(name, num_iter)
+workspace.RunNet(name, num_iter)
 ```
 
 ### RunNetOnce
