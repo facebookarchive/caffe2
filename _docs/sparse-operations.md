@@ -118,7 +118,7 @@ data = [[1, 4],
         [5, 8]])
 segment_ids = [0, 0, 0, 1, 1]
 SortedSegmentSum([data, segment_ids]) ->
-  [[  9.   7.]
+  [[ 12.   7.]
    [ 14.  12.]]
 ```
 

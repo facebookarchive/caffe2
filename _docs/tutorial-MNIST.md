@@ -75,7 +75,7 @@ def GenerateDB(image, label, name):
     print "Creating database with: ", syscall
     os.system(syscall)
 
-# (Re)generate the levledb database (known to get corrupted...)
+# (Re)generate the leveldb database (known to get corrupted...)
 GenerateDB(image_file_train, label_file_train, "mnist-train-nchw-leveldb")
 GenerateDB(image_file_test, label_file_test, "mnist-test-nchw-leveldb")
 

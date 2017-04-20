@@ -33,10 +33,6 @@ As we explore the full impact and capabilities of the Internet of Things (IoT), 
 
 Customs agencies have used [thermal image processing](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3016318/) to identify people who may be suffering from a fever in order to enforce quarantines and limit the spread of infection disease. Image segmentation is a common task for in medical imaging to help identify different types of tissue, scan for anomalies, and provide assistance to physicians analyzing imagery in a variety of disciplines such as radiology and oncology. Medical records can be processed with ML and DNN to find insights and correlations in these massive data sets.    
 
-## Advertising
-
-Outdoor advertising agencies have experimented with systems that identify the gender of the passerby and displays an advertisement that [targets their specific gender](http://www.psfk.com/2015/06/astra-beer-gender-detection-billboard-advertises-to-women.html). This can be done with many types of identifiers such as race, age, clothing, height, weight, mood, and so forth. Several models for these kinds of identifiers have already been created in Caffe and can be used off-the-shelf. Here is an example for [age and gender classification](https://gist.github.com/GilLevi/c9e99062283c719c03de).
-
 ## Other applications
 
 Deep learning and neural networks can be applied to ANY problem. It excels at handling large data sets, facilitating automation, image processing, and statistical and mathematical operations, just to name a few areas. It can be applied to any kind of operation and can help find opportunities, solutions, and insights. Depending on your role you may find a different attractor for Caffe2 and deep learning.
