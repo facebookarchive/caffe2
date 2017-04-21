@@ -1683,6 +1683,12 @@ class Net(object):
             for op in self._net.op:
                 op.engine = "CUDNN"
 
+    def RunAllOnMKL(self):
+        """A convenient function to run everything on the GPU."""
+        device_option = caffe2_pb2.DeviceOption()
+        device_option.device_type = caffe2_pb2.MKLDNN
+        self._net.device_option.CopyFrom(device_option)
+
     def _CreateAndAddToSelf(self, op_type, inputs, outputs=None, **kwargs):
         """A helper function to create an operator and add it to self.
         """

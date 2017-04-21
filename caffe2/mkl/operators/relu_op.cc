@@ -14,9 +14,12 @@ class MKLReluOp : public MKLOperator<T> {
   USE_MKLOPERATOR_FUNCTIONS(T);
   USE_SIMPLE_MKL_CTOR_DTOR(MKLReluOp, T);
   bool RunOnDevice() override {
-    auto& X = Input(0);
-    auto* Y = Output(0);
-    if (input_size_cache_.size() != 1 || input_size_cache_[0] != X.dims()) {
+    auto &X = Input(0);
+    auto *Y = Output(0);
+    
+    bool dims_changed;
+    CHECK_INPUT_DIMS(dims_changed);
+    if (dims_changed) {
       // First run or changed input size, will need to recreate environment
       primitive_.Reset(dnnReLUCreateForward<T>, nullptr, X.layout(), 0.f);
       Y->Reset(X.dims(), primitive_, dnnResourceDst);
@@ -32,6 +35,9 @@ class MKLReluOp : public MKLOperator<T> {
     buffer_.CopyTo(Y, primitive_, dnnResourceDst);
     return true;
   }
+
+ private:
+  vector<TIndex> cached_input_dims_;
 };
 
 template <typename T>
@@ -40,13 +46,13 @@ class MKLReluGradientOp : public MKLOperator<T> {
   USE_MKLOPERATOR_FUNCTIONS(T);
   USE_SIMPLE_MKL_CTOR_DTOR(MKLReluGradientOp, T);
   bool RunOnDevice() override {
-    auto& Y = Input(0);
-    auto& dY = Input(1);
-    auto* dX = Output(0);
+    auto &Y = Input(0);
+    auto &dY = Input(1);
+    auto *dX = Output(0);
     if (input_size_cache_.size() != 1 || input_size_cache_[0] != Y.dims()) {
       // First run or changed input size, will need to recreate environment
-      primitive_.Reset(
-          dnnReLUCreateBackward<T>, nullptr, dY.layout(), Y.layout(), 0.f);
+      primitive_.Reset(dnnReLUCreateBackward<T>, nullptr, dY.layout(),
+                       Y.layout(), 0.f);
       dX->Reset(Y.dims(), primitive_, dnnResourceDiffSrc);
       buffer_.Reset(Y.dims(), primitive_, dnnResourceDiffSrc, true);
     }
@@ -62,11 +68,11 @@ class MKLReluGradientOp : public MKLOperator<T> {
     return true;
   }
 };
-} // namespace mkl
+}  // namespace mkl
 
 REGISTER_MKL_OPERATOR(Relu, mkl::MKLReluOp<float>);
 REGISTER_MKL_OPERATOR(ReluGradient, mkl::MKLReluGradientOp<float>);
 
-} // namespace caffe2
+}  // namespace caffe2
 
-#endif // CAFFE2_HAS_MKL_DNN
+#endif  // CAFFE2_HAS_MKL_DNN
