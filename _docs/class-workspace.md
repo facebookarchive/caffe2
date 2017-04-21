@@ -36,7 +36,7 @@ workspace.RunNet(predict_net)
 
 You will notice that the CreateNet methods require a net. These are NetDefs that are created from data from datasets, pre-trained models, protobuf data describing the nets and models need to be instantiated as prototype objects inheriting the characteristics from Caffe2's protobuf spec. These will then be managed in the workspace. Also, note that we've loaded the init_net first, which will setup references to blobs that should be filled by predict_net once you load that net.
 
-For more examples of the basics of workspaces, check out the [basics tutorial](../tutorials/basics.ipynb).
+For more examples of the basics of workspaces, check out the [basics tutorial](../tutorials/Basics.ipynb).
 
 ### CreateNet
 
