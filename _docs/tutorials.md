@@ -187,16 +187,12 @@ zeromq
 
 Instructions on how to setup Jupyter Notebook, which is the latest, greatest way to use and create interactive code notebooks (ipynb files) is found at [http://jupyter.org](http://jupyter.org/install.html).
 
-Note: if you've already successfully installed Caffe2 with Anaconda Python, then great news! You already have Jupyter Notebook. Starting it is easy:
+Note: if you've already successfully installed Caffe2 with Anaconda Python, then great news! You already have Jupyter Notebook. Starting it is easy.
 
-```
-jupyter notebook
-```
-
-Or you can run the shell script included in the tutorial folder:
+Run the shell script included in the `caffe2/caffe2/python/tutorials` folder:
 
 ```bash
 ./start_ipython_notebook.sh
 ```
 
-When your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in the [`tutorials`](/tutorials) directory. Opening them this way will launch their interactive features.
+Or you can run `jupyter notebook`, and when your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in the `caffe2/caffe2/python/tutorials` directory. Opening them this way will launch their interactive features just like the shell script mentioned above. The script has the additional feature of setting your PYTHONPATH environment variable.
