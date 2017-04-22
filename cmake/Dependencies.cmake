@@ -197,8 +197,13 @@ if(USE_FFMPEG)
 endif()
 
 # ---[ EIGEN
-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/eigen)
 add_definitions(-DEIGEN_MPL2_ONLY)
+find_package(Eigen3)
+if (EIGEN3_FOUND)
+  include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
+else()
+  include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/eigen)
+endif()
 
 # ---[ Python + Numpy
 if (BUILD_PYTHON)
