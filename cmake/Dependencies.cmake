@@ -325,7 +325,12 @@ endif()
 
 # ---[ CUB
 if(USE_CUDA)
-  include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/cub)
+  find_package(CUB)
+  if (CUB_FOUND)
+    include_directories(SYSTEM ${CUB_INCLUDE_DIRS})
+  else()
+    include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/cub)
+  endif()
 endif()
 
 # ---[ CNMEM
