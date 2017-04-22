@@ -89,8 +89,15 @@ endif()
 if (BUILD_TEST)
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/googletest)
   include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include)
-  add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/benchmark)
-  include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/benchmark/include)
+
+  find_package(Benchmark)
+  if (Benchmark_FOUND)
+    list(APPEND Caffe2_DEPENDENCY_LIBS ${Benchmark_LIBRARIES})
+    include_directories(SYSTEM ${Benchmark_INCLUDE_DIRS})
+  else()
+    add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/benchmark)
+    include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/benchmark/include)
+  endif()
 endif()
 
 # ---[ LMDB
