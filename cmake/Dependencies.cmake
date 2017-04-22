@@ -221,7 +221,12 @@ if (BUILD_PYTHON)
 endif()
 
 # ---[ pybind11
-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/pybind11/include)
+find_package(pybind11)
+if (pybind11_FOUND)
+  include_directories(SYSTEM ${pybind11_INCLUDE_DIRS})
+else()
+  include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third_party/pybind11/include)
+endif()
 
 # ---[ MPI
 if(USE_MPI)
