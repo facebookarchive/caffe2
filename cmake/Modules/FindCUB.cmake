@@ -1,4 +1,4 @@
-# Try to find the Google CUB library and headers.
+# Try to find the CUB library and headers.
 #  CUB_FOUND        - system has CUB
 #  CUB_INCLUDE_DIRS - the CUB include directory
 
