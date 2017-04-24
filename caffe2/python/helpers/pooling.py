@@ -26,3 +26,12 @@ def average_pool(model, blob_in, blob_out, use_cudnn=False, order="NCHW",
         order=order,
         **kwargs
     )
+
+def MaxPoolWithIndex(model, blob_in, blob_out, order="NCHW", **kwargs):
+    """Max pooling with an explicit index of max position"""
+    return model.net.MaxPoolWithIndex(
+        blob_in,
+        [blob_out, blob_out+"_index"],
+        order=order,
+        **kwargs
+    )[0]
