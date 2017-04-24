@@ -1,11 +1,11 @@
 #ifndef CAFFE2_CUDA_RTC_COMMON_RTC_H_
 #define CAFFE2_CUDA_RTC_COMMON_RTC_H_
 
+#include <sstream>
+#include <string>
+
 #include <cuda.h>
 #include <nvrtc.h>
-
-#include <string>
-#include <sstream>
 
 #define NVRTC_CHECK(condition)                                                 \
   do {                                                                         \
