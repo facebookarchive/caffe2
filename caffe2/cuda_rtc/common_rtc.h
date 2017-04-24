@@ -99,7 +99,7 @@ class CudaRTCFunction {
 };
 
 // TODO: this is in no way unique and is just a hack right now.
-inline string GetUniqueName() {
+inline std::string GetUniqueName() {
   static constexpr int len = 20;
   static const char alpha[] =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
