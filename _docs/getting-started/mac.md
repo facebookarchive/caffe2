@@ -38,18 +38,19 @@ In the instance that you have a NVIDIA supported GPU in your Mac, then you shoul
 ```
 conda install -y \
 --channel https://conda.anaconda.org/conda-forge \
-automake \
 graphviz \
 hypothesis \
 leveldb \
 lmdb \
 requests \
+unzip \
 zeromq
 ```
 
 ### Options that get installed already with other packages
 
 * flask (already installed)
+* gflags (already installed)
 * jupyter (comes with anaconda)
 * matplotlib (probably can skip as it comes with numpy)
 * pydot (not found, found pydot-ng)
@@ -64,24 +65,42 @@ zeromq
 
 ```bash
 git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
-make && cd build && sudo make install
+```
+
+We're going to build without CUDA, using the `-DUSE_CUDA=OFF` flag, since it would be rare at this point for your Mac to have GPU card with CUDA support.
+
+```
+mkdir build && cd build
+cmake -DUSE_CUDA=OFF ..
+sudo make install
+```
+
+Now test Caffe2:
+
+```
 python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 ```
 
 ### Python Configuration
 
-You will want to add the build folder to your PYTHONPATH. `echo $PYTHONPATH` and if it's not in there add `export PYTHONPATH=~/caffe2/build:$PATH` to .zshrc or whatever you're using. Modify the path according to where your Caffe2 build folder is.
+You might need setup a PYTHONPATH environment variable. `echo $PYTHONPATH` and if it's not in there add `export PYTHONPATH=~/usr/local` to `.zshrc`, `.bash_profile` or whatever you're using.
+
+Change to a different folder and test Caffe2 again. If you are using Anaconda or had multiple versions of Python on your system the test may fail once out of the build folder. You will want to update the Python bindings:
+
+```
+sudo install_name_tool -change libpython2.7.dylib ~/anaconda/lib/libpython2.7.dylib /usr/local/caffe2/python/caffe2_pybind11_state.so
+```
 
 ### Troubleshooting
 
 |Python errors
 ----|-----
 Python version | [Python](https://www.python.org/) is core to run Caffe2. We currently require [Python2.7](https://www.python.org/download/releases/2.7/). MacOSx Sierra comes pre-installed with Python 2.7.10, but you may need to update to run Caffe2. To check your version: `python --version`
-Solution | You can install the package for Python: `brew install python`
+Solution | You can install the package for Python: `brew install python` or install [Anaconda](https://www.continuum.io/downloads).
 Python environment | You may have another version of Python installed or need to support Python version 3 for other projects.
 Solution | Try virtualenv or Anaconda. The [Anaconda](https://www.continuum.io/downloads) platform provides a single script to install many of the necessary packages for Caffe2, including Python. Using Anaconda is outside the scope of these instructions, but if you are interested, it may work well for you.
 pip version | If you plan to use Python with Caffe2 then you need pip or Anaconda to install packages.
-Solution | pip comes along with `brew install python`
+Solution | `pip` comes along with [Homebrew's python package](https://brew.sh/) or `conda` with [Anaconda](https://www.continuum.io/downloads).
 
 |Building from source
 ----|-----
@@ -93,7 +112,7 @@ OS version | Caffe2 is known to work on Sierra (others TBD after testing)
 git | While you can download the Caffe2 source code and submodules directly from GitHub as a zip, using git makes it much easier.
 Solution | `brew install git`
 protobuf | You may experience an error related to protobuf during the make step.
-Solution | Make sure you've installed protobuf in **both** of these two ways: `brew install protbuf && sudo pip install protobuf`
+Solution | Make sure you've installed protobuf in **both** of these two ways: `brew install protobuf && sudo pip install protobuf` OR `brew install protobuf && conda install -y --channel https://conda.anaconda.org/conda-forge protobuf=3.2.0`
 xcode | You may need to install [Xcode](https://developer.apple.com/xcode/) or at a minimum xcode command line tools.
 Solution | You can install it via terminal using `xcode-select --install`
 
