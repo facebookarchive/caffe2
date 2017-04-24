@@ -143,7 +143,7 @@ workspace.ResetWorkspace()
 
 Operators in Caffe2 are kind of like functions. From the C++ side, they all derive from a common interface, and are registered by type, so that we can call different operators during runtime. The interface of operators is defined in `caffe2/proto/caffe2.proto`. Basically, it takes in a bunch of inputs, and produces a bunch of outputs.
 
-Remember, when we say "create an operator" in Caffe2 Python, nothing gets run yet. All it does is to create the protocol buffere that specifies what the operator should be. At a later time it will be sent to the C++ backend for execution. If you are not familiar with protobuf, it is a json-like serialization tool for structured data. Find more about protocol buffers [here](https://developers.google.com/protocol-buffers/).
+Remember, when we say "create an operator" in Caffe2 Python, nothing gets run yet. All it does is to create the protocol buffer that specifies what the operator should be. At a later time it will be sent to the C++ backend for execution. If you are not familiar with protobuf, it is a json-like serialization tool for structured data. Find more about protocol buffers [here](https://developers.google.com/protocol-buffers/).
 
 Let's see an actual example.
 
