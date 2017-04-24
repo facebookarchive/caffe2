@@ -4,6 +4,9 @@
 #include <cuda.h>
 #include <nvrtc.h>
 
+#include <string>
+#include <sstream>
+
 #define NVRTC_CHECK(condition)                                                 \
   do {                                                                         \
     nvrtcResult result = condition;                                            \
