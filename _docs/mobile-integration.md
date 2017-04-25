@@ -62,7 +62,7 @@ One key point is that all the initialization is in a sense “statically” veri
 
 #### Performance considerations
 
-Currently Caffe2 is optimized for ARM CPUs with NEON (basically any ARM CPU since 2012). Perhaps surprisingly, ARM CPUs outperform the on-board GPUs (our NNPACK ARM CPU implementation outperforms Apple's MPSCNNConvolution for all devices except the iPhone 7). There are other advantages to offloading compute onto the GPU/DSP, and it's an active work in progress to expose these in Caffe2.
+Currently Caffe2 is optimized for ARM CPUs with NEON (basically any ARM CPU since 2012). Perhaps surprisingly, ARM CPUs outperform the on-board GPUs (our NNPACK ARM CPU implementation outperforms Apple's MPSCNNConvolution on devices older than iPhone 6s). There are other advantages to offloading compute onto the GPU/DSP, and it's an active work in progress to expose these in Caffe2.
 
 For a convolutional implementation, it is recommended to use NNPACK since that's substantially faster (~2x-3x) than the standard `im2col/sgemm` implementation used in most frameworks. Setting `OperatorDef::engine` to NNPACK is recommended here. Example:
 
