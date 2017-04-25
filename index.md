@@ -18,7 +18,7 @@ id: home
             <div class="landing-col-md-2 box how">
                 <a class="iconImages" href="/docs/getting-started.html"><img src="./static/images/landing-stack.png"></a>
                 <h4>HOW DO YOU USE IT?</h4>
-                <p>Try out our quickstart tutorials or jump in and start developing. Caffe2 comes with Python & C++ APIs so you can prototype now, easily optimize later. Use cloud services, Docker, or install on Mac, Windows, or Ubuntu. It integrates with Visual Studio, Android Studio, and XCode for mobile development.</p>
+                <p>Try out our quickstart tutorials or jump in and start developing. Caffe2 comes with Python & C++ APIs so you can prototype now, easily optimize later. Use cloud services, Docker, or install on Mac, Windows, or Ubuntu. It integrates with Visual Studio, Android Studio, and Xcode for mobile development.</p>
             </div>
         </div>
     </div>
