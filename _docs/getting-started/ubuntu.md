@@ -33,7 +33,7 @@ sudo pip install numpy protobuf
 <block class="ubuntu compile" />
 ### Optional GPU Support
 
-If you plan to use GPU instead of CPU only, then you should install NVIDIA CUDA and cuDNN, a GPU-accelerated library of primitives for deep neural networks.
+If you plan to use GPU instead of CPU only, then you should install NVIDIA CUDA 8 and cuDNN v5.1 or v6.0, a GPU-accelerated library of primitives for deep neural networks.
 [NVIDIA's detailed instructions](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation) or if you're feeling lucky try the quick install set of commands below.
 
 **Update your graphics card drivers first!** Otherwise you may suffer from a wide range of difficult to diagnose errors.
@@ -60,12 +60,17 @@ sudo apt-get install cuda
 
 #### Install cuDNN (all Ubuntu versions)
 
+**Version 5.1**
 ```
 CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz"
 wget ${CUDNN_URL}
 sudo tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local
 rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 ```
+
+**Version 6.0**
+Visit [NVIDIA's cuDNN download](https://developer.nvidia.com/rdp/cudnn-download) to register and download the archive. Follow the same instructions above switching out for the updated library.
+
 <block class="ubuntu compile" />
 ### Optional Dependencies
 

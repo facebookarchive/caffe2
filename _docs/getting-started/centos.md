@@ -127,6 +127,8 @@ Once you've fixed the config file re-run the `sudo pip install flask graphviz...
 
 This image doesn't come with cuDNN, however Caffe2 requires it. Here we're downloading the files, extracting them, and copying them into existing folders where CUDA is currently installed.
 
+**Note: recent developments indicate that you should try to upgrade to CUDA 8 and cuDNN 6, however these instructions provide a working build with v7.5 and cuDNN 5.1.**
+
 ```
 wget http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-7.5-linux-x64-v5.1.tgz
 tar xfvz cudnn-7.5-linux-x64-v5.1.tgz
