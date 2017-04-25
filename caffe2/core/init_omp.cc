@@ -11,7 +11,7 @@
 #include "caffe2/core/init.h"
 
 CAFFE2_DEFINE_int(
-    caffe2_omp_num_threads, 0,
+    caffe2_omp_num_threads, 2,
     "The number of openmp threads. 0 to use default value. "
     "Does not have effect if OpenMP is disabled.");
 CAFFE2_DEFINE_int(
