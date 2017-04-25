@@ -6,8 +6,12 @@ permalink: /docs/caffe-migration.html
 ---
 
 Some of the most commonly asked questions about Caffe2 are:
+
 > What does Caffe2 do well?
-> How is it different from Caffe or other deep learning frameworks. Modularity and designed for both scale and mobile deployments are the high-level answers to the first question. In many ways Caffe2 is an un-framework because it is so flexible and modular. The answer to the second question is captured below with some commentary from [Yangqing Jia](https://github.com/yangqing), Caffe's creator and Caffe2's lead developer, as well notes from [Evan Shelhamer](https://github.com/shelhamer), Caffe's lead developer.
+
+> How is it different from Caffe or other deep learning frameworks?
+
+Modularity and being designed for both scale and mobile deployments are the high-level answers to the first question. In many ways Caffe2 is an un-framework because it is so flexible and modular. The answer to the second question is captured below with some commentary from [Yangqing Jia](https://github.com/yangqing), Caffe's creator and Caffe2's lead developer, as well notes from [Evan Shelhamer](https://github.com/shelhamer), Caffe's lead developer.
 
 ## How Does Caffe Compare to Caffe2?
 
