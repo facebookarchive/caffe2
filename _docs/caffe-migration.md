@@ -5,13 +5,35 @@ layout: docs
 permalink: /docs/caffe-migration.html
 ---
 
-## What's new in Caffe2?
+Some of the most commonly asked questions about Caffe2 are:
+> What does Caffe2 do well?
+> How is it different from Caffe or other deep learning frameworks. Modularity and designed for both scale and mobile deployments are the high-level answers to the first question. In many ways Caffe2 is an un-framework because it is so flexible and modular. The answer to the second question is captured below with some commentary from [Yangqing Jia](https://github.com/yangqing), Caffe's creator and Caffe2's lead developer, as well notes from [Evan Shelhamer](https://github.com/shelhamer), Caffe's lead developer.
 
-One of basic units of computation in Caffe2 are the `Operators`. Each operator contains the logic necessary to compute the output given the appropriate number and types of inputs and parameters. The overall difference between operators' functionality in Caffe and Caffe2 is illustrated in the following graphic, respectively:
+## How Does Caffe Compare to Caffe2?
 
-![operators comparison](../static/images/operators-comparison.png)
+The original Caffe framework was useful for large-scale product use cases, especially with its unparalleled performance and well tested C++ codebase. Caffe has some design choices that are inherited from its original use case: conventional CNN applications. As new computation patterns have emerged, especially distributed computation, mobile, reduced precision computation, and more non-vision use cases, its design has shown some limitations.
 
-We've added a ton of operators to cover a wide range of functionality. You can browse the [Operator Catalogue](operators-catalogue.html), check out our amazing [Sparse Operations](sparse-operations.html), and learn how to write [custom operators](custom-operators.html).
+Caffe2 improves Caffe 1.0 in a series of directions:
+
+* first-class support for large-scale distributed training
+* mobile deployment
+* new hardware support (in addition to CPU and CUDA)
+* flexibility for future directions such as quantized computation
+* stress tested by the vast scale of Facebook applications
+
+At Facebook, the use of Caffe inspired ideas for a better deep learning platform design. By early 2016, an early version of Caffe2 was developed from improvements on Caffe, in particular, a modern computation graph design, minimalist modularity, and flexibility to port to multiple platforms with ease.
+
+Caffe 1.0 and Caffe2 differ in the strong/weak typing of the layer/op schema:
+
+Caffe 1.0 defines a message type for every layer type in its schema. This documents the existing layers and their arguments, but requires re-compilation on modification and causes contention when adding new layers, which both make extension more painful than it should be.
+
+Caffe2 defines a generic type and argument schema that is invariant to the number, types, and configurability of ops. This falls back to op definition for documentation, but that's no problem, and makes it simple to add or drop ops for a given project or deployment.
+
+This is made evident by the caffe.proto weighing in at 1000+ lines and the caffe2.proto only needing 300 lines. The Caffe2 arrangement is more extensible and requires less coordination of contributions.
+
+## What's New in Caffe2?
+
+One of basic units of computation in Caffe2 are the `Operators`. You can think of these as a more flexible version of the layers from Caffe. Caffe2 comes with over 400 different operators and provides guidance for the community to create and contribute to this growing resource. For more information, check out [operators information](operators.html) and run through the [intro tutorial](intro-tutorial.html).
 
 ## Caffe to Caffe2
 
