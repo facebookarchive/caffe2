@@ -134,7 +134,7 @@ CONVERSIONS_DECL float16 To(const float in) {
 #if __CUDA_ARCH__
   // hacky interface between C2 fp16 and CUDA
   float16 ret;
-  __half r;
+  // __half r;
   // r.x = __float2half_rn(in);
   // ret.x = inf_clip(r).x;
   ret.x = __float2half(in).x;
