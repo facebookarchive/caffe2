@@ -107,6 +107,8 @@ bool MaxPoolWithIndexOp::DoRunWithType() {
 bool MaxPoolWithIndexOp::RunOnDevice() {
   auto& X = Input(0);
 
+  CAFFE_ENFORCE(X.ndim() == 4, "Operator only supports 4D tensors");
+
   if (X.IsType<float>()) {
     return DoRunWithType<float>();
   } else if (X.IsType<float16>()) {
@@ -123,6 +125,8 @@ bool MaxPoolWithIndexGradientOp::DoRunWithType() {
   auto& dY = Input(1);
   auto& mask = Input(2);
   auto* dX = Output(0);
+
+  CAFFE_ENFORCE(X.ndim() == 4, "Operator only supports 4D tensors");
 
   dX->ResizeLike(X);
   ConvPoolOpBase<CUDAContext>::ComputePads(vector<int>{X.dim32(2), X.dim32(3)});
