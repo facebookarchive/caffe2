@@ -43,37 +43,19 @@ void transform_kernel(const int N, const int C, const int H, const int W,
 
 template <typename T_IN, typename T_OUT, class Context>
 bool TransformOnGPU(Tensor<Context>& X, Tensor<Context> *Y, float mean, float std, Context *context) {
+  // data comes in as NHWC
+  const int N = X.dim32(0), C = X.dim32(3), H = X.dim32(1), W = X.dim32(2);
+  // data goes out as NCHW
+  Y->Resize(std::vector<int>{N,C,H,W});
+
+  auto* input_data = X.template data<T_IN>();
+  auto* output_data = Y->template mutable_data<T_OUT>();
+
+  transform_kernel<T_IN,T_OUT><<<N, dim3(16,16), 0, context->cuda_stream()>>>(N,C,H,W, mean, std, input_data, output_data);
   return true;
 };
 
-template <>
-bool TransformOnGPU<uint8_t, float, CUDAContext>(Tensor<CUDAContext>& X, Tensor<CUDAContext> *Y, float std, float mean, CUDAContext *context)
-{
-  // data comes in as NHWC
-  const int N = X.dim32(0), C = X.dim32(3), H = X.dim32(1), W = X.dim32(2);
-  // data goes out as NCHW
-  Y->Resize(std::vector<int>{N,C,H,W});
-
-  auto* input_data = X.data<uint8_t>();
-  auto* output_data = Y->mutable_data<float>();
-
-  transform_kernel<uint8_t,float><<<N, dim3(16,16), 0, context->cuda_stream()>>>(N,C,H,W, mean, std, input_data, output_data);
-  return true;
-}
-
-template <>
-bool TransformOnGPU<uint8_t, float16, CUDAContext>(Tensor<CUDAContext>& X, Tensor<CUDAContext> *Y, float std, float mean, CUDAContext *context)
-{
-  // data comes in as NHWC
-  const int N = X.dim32(0), C = X.dim32(3), H = X.dim32(1), W = X.dim32(2);
-  // data goes out as NCHW
-  Y->Resize(std::vector<int>{N,C,H,W});
-
-  auto* input_data = X.data<uint8_t>();
-  auto* output_data = Y->mutable_data<float16>();
-
-  transform_kernel<uint8_t,float16><<<N, dim3(16,16), 0, context->cuda_stream()>>>(N,C,H,W, mean, std, input_data, output_data);
-  return true;
-}
+template bool TransformOnGPU<uint8_t, float, CUDAContext>(Tensor<CUDAContext>& X, Tensor<CUDAContext> *Y, float std, float mean, CUDAContext *context);
+template bool TransformOnGPU<uint8_t, float16, CUDAContext>(Tensor<CUDAContext>& X, Tensor<CUDAContext> *Y, float std, float mean, CUDAContext *context);
 
 }  // namespace caffe2
