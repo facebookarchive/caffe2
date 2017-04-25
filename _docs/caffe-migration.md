@@ -25,8 +25,6 @@ Caffe2 improves Caffe 1.0 in a series of directions:
 * flexibility for future directions such as quantized computation
 * stress tested by the vast scale of Facebook applications
 
-At Facebook, the use of Caffe inspired ideas for a better deep learning platform design. By early 2016, an early version of Caffe2 was developed from improvements on Caffe, in particular, a modern computation graph design, minimalist modularity, and flexibility to port to multiple platforms with ease.
-
 ## What's New in Caffe2?
 
 One of basic units of computation in Caffe2 are the `Operators`. You can think of these as a more flexible version of the layers from Caffe. Caffe2 comes with over 400 different operators and provides guidance for the community to create and contribute to this growing resource. For more information, check out [operators information](operators.html) and run through the [intro tutorial](intro-tutorial.html).
