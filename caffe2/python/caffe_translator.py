@@ -576,6 +576,30 @@ def TranslateReduction(layer, pretrained_blobs, is_test):
     return caffe_op, []
 
 
+@TranslatorRegistry.Register("BatchNorm")
+def TranslateBatchNorm(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "SpatialBN")
+    output = caffe_op.output[0]
+    param = layer.batch_norm_param
+    AddArgument(caffe_op, "is_test", is_test)
+    AddArgument(caffe_op, "epsilon", param.eps)
+    AddArgument(caffe_op, "order", "NCHW")
+
+    caffe_op.input.extend([output + "_scale", output + "_bias", output + "_mean", output + "_var"])
+    if not is_test:
+        caffe_op.output.extend([output + "_mean", output + "_var", output + "_saved_mean", output + "_saved_var"])
+
+    mean = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_mean')
+    var = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[1], output + '_var')
+    scale = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[2], output + '_scale')
+    
+    # Create a zero bias array the same size as the scale, we'll let the following
+    # Scale (Mul + Add operators in Caffe2) layer handle any bias, just like Caffe
+    bias = utils.NumpyArrayToCaffe2Tensor(np.zeros_like(pretrained_blobs[2]), output + '_bias')
+
+    return caffe_op, [scale, bias, mean, var]
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Utilitity to convert pretrained caffe models to Caffe2 models.")
