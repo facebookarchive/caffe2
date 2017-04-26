@@ -61,11 +61,13 @@ class ImageInputOp final
   bool is_test_;
   bool use_caffe_datum_;
   bool gpu_transform_;
-  TensorProto_DataType output_type_;
 
   // thread pool for parse + decode
   int num_decode_threads_;
   std::shared_ptr<TaskThreadPool> thread_pool_;
+
+  // Output type for GPU transform path
+  TensorProto_DataType output_type_;
 };
 
 
