@@ -12,11 +12,10 @@ Please participate in our survey (https://www.surveymonkey.com/r/caffe2). We wil
 
 Caffe2 is released under the [BSD 2-Clause license](https://github.com/Yangqing/caffe2/blob/master/LICENSE).
 
-## Building Caffe2
+### Build Status
 
 [![Travis Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
-### Detailed Build Status
 
 | Target      | Status |
 |-------------|----|
@@ -24,6 +23,7 @@ Caffe2 is released under the [BSD 2-Clause license](https://github.com/Yangqing/
 | Android     | [![Build Android](https://travis-matrix-badges.herokuapp.com/repos/caffe2/caffe2/branches/master/3)](https://travis-ci.org/caffe2/caffe2) |
 | iOS         | [![Build iOS](https://travis-matrix-badges.herokuapp.com/repos/caffe2/caffe2/branches/master/5)](https://travis-ci.org/caffe2/caffe2) |
 | Linux + MKL | [![Build LinuxMKL](https://travis-matrix-badges.herokuapp.com/repos/caffe2/caffe2/branches/master/6)](https://travis-ci.org/caffe2/caffe2) |
+
 
 ### Further Resources on [Caffe2.ai](http://caffe2.ai)
 
