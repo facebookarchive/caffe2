@@ -211,39 +211,43 @@ def create_resnet50(
     conv1_kernel=7,
     conv1_stride=2,
     final_avg_kernel=7,
+    spatial_batch_norm=True
 ):
     # conv1 + maxpool
     model.Conv(data, 'conv1', num_input_channels, 64, weight_init=("MSRAFill", {}),
                kernel=conv1_kernel, stride=conv1_stride, pad=3, no_bias=no_bias)
 
-    model.SpatialBN('conv1', 'conv1_spatbn_relu', 64,
-                    epsilon=1e-3, momentum=0.1, is_test=is_test)
-    model.Relu('conv1_spatbn_relu', 'conv1_spatbn_relu')
-    model.MaxPool('conv1_spatbn_relu', 'pool1', kernel=3, stride=2)
+    conv1 = 'conv1'
+    if spatial_batch_norm:
+        model.SpatialBN('conv1', 'conv1_spatbn_relu', 64,
+                        epsilon=1e-3, momentum=0.1, is_test=is_test)
+        conv1 = 'conv1_spatbn_relu'
+    model.Relu(conv1, conv1)
+    model.MaxPool(conv1, 'pool1', kernel=3, stride=2)
 
     # Residual blocks...
     builder = ResNetBuilder(model, 'pool1', no_bias=no_bias,
                             is_test=is_test, spatial_bn_mom=0.1)
 
     # conv2_x (ref Table 1 in He et al. (2015))
-    builder.add_bottleneck(64, 64, 256)
-    builder.add_bottleneck(256, 64, 256)
-    builder.add_bottleneck(256, 64, 256)
+    builder.add_bottleneck(64, 64, 256, False, spatial_batch_norm)
+    builder.add_bottleneck(256, 64, 256, False, spatial_batch_norm)
+    builder.add_bottleneck(256, 64, 256, False, spatial_batch_norm)
 
     # conv3_x
-    builder.add_bottleneck(256, 128, 512, down_sampling=True)
+    builder.add_bottleneck(256, 128, 512, True, spatial_batch_norm)
     for i in range(1, 4):
-        builder.add_bottleneck(512, 128, 512)
+        builder.add_bottleneck(512, 128, 512, False, spatial_batch_norm)
 
     # conv4_x
-    builder.add_bottleneck(512, 256, 1024, down_sampling=True)
+    builder.add_bottleneck(512, 256, 1024, True, spatial_batch_norm)
     for i in range(1, 6):
-        builder.add_bottleneck(1024, 256, 1024)
+        builder.add_bottleneck(1024, 256, 1024, False, spatial_batch_norm)
 
     # conv5_x
-    builder.add_bottleneck(1024, 512, 2048, down_sampling=True)
-    builder.add_bottleneck(2048, 512, 2048)
-    builder.add_bottleneck(2048, 512, 2048)
+    builder.add_bottleneck(1024, 512, 2048, True, spatial_batch_norm)
+    builder.add_bottleneck(2048, 512, 2048, False, spatial_batch_norm)
+    builder.add_bottleneck(2048, 512, 2048, False, spatial_batch_norm)
 
     # Final layers
     final_avg = model.AveragePool(
