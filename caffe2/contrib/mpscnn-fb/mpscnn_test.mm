@@ -11,6 +11,7 @@
 #include "caffe2/core/workspace.h"
 #include "caffe2/utils/proto_utils.h"
 
+#define CHECK_NEAR(A, B, C) assert(abs(A-B) < C);
 namespace caffe2 {
 
 void testMPSCNN() {
