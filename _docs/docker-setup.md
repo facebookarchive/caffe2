@@ -14,6 +14,7 @@ docker load -i /Volumes/CAFFE2/c2.gpu.tutorial.0.7.0.tar
 docker run -it -p 8888:8888 cc2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
 ```
 
+Essentially you need to locate the tar file, whatever its name is and import it with `docker load -i <path-to-image-tar-file>`
 Windows users: you can just change "/Volumes" to "D:\" or whatever the drive letter the USB was assigned and it should work.
 
 ## Setup Docker
@@ -49,12 +50,6 @@ docker load -i <path-to-image-tar-file>
 ```
 
 ### Online: Pull the Caffe2 Docker Image
-
-For an image with optional dependencies like IPython & OpenCV:
-
-```
-docker pull caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04
-```
 
 For the latest Docker image using GPU support and optional dependencies like IPython & OpenCV (don't bother on Windows - see Troubleshooting notes):
 
