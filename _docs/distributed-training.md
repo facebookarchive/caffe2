@@ -6,21 +6,21 @@ permalink: /docs/distributed-training.html
 ---
 One of Caffe2's most significant features is easy, built-in distributed training. This means that you can very quickly scale up or down without refactoring your design.
 
-For a deeper dive and examples of distributed training, check out [SynchronousSGD](/docs/SynchronousSGD.html), where you'll be taught the programming principles for using Caffe's [data_parallel_model](https://github.com/caffe2/caffe2/blob/master/caffe2/python/data_parallel_model.py).
+For a deeper dive and examples of distributed training, check out [SynchronousSGD](/docs/SynchronousSGD.html), where you'll be taught the programming principles for using Caffe2's [data_parallel_model](https://github.com/caffe2/caffe2/blob/master/caffe2/python/data_parallel_model.py).
 
 ## Under the Hood
 
 * [Gloo](https://github.com/facebookincubator/gloo): Caffe2 leverages, Gloo, a communications library for multi-machine training.
 * [NCCL](https://github.com/nvidia/nccl): Caffe2 also utilize's NVIDIA's NCCL for multi-GPU communications.
-* [Redis](https://redis.io/) To facilitate management of nodes in distributed training, Caffe can use a simple NFS share between nodes, or you can provide a Redis server to handle the nodes' communications.
+* [Redis](https://redis.io/) To facilitate management of nodes in distributed training, Caffe2 can use a simple NFS share between nodes, or you can provide a Redis server to handle the nodes' communications.
 
 For an example of distributed training with Caffe2 you can run the [resnet50_trainer](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py) script on a single GPU machine. The defaults assume that you've already loaded the training data into a [lmdb database](https://symas.com/offerings/lightning-memory-mapped-database/), but you have the additional option of using [LevelDB](https://github.com/google/leveldb). A guide for using the script is below.
 
 ## Try Distributed Training
 
-We're assuming that you've successfully build Caffe2 and that you have a system with at least one GPU, but preferably more to test out the distributed features.
+We're assuming that you've successfully built Caffe2 and that you have a system with at least one GPU, but preferably more to test out the distributed features.
 
-First get yourself an training image database ready in [lmdb database](https://symas.com/offerings/lightning-memory-mapped-database/) or [LevelDB](https://github.com/google/leveldb) format. You can browse and download a variety of [datasets here](datasets).
+First get yourself a training image database ready in [lmdb database](https://symas.com/offerings/lightning-memory-mapped-database/) or [LevelDB](https://github.com/google/leveldb) format. You can browse and download a variety of [datasets here](datasets).
 
 [resnet50_trainer.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py) script default output:
 
