@@ -16,6 +16,16 @@
 #include "caffe2/utils/windows_cpu_supports.h"
 #endif
 
+#if PY_MAJOR_VERSION >= 3
+  #define PyString_Check PyUnicode_Check
+  #if PY_VERSION_HEX < 0x03030000
+    #error "Python 3.0 - 3.2 are not supported."
+  #else
+  #define PyString_AsString(ob) \
+    (PyUnicode_Check(ob)? PyUnicode_AsUTF8(ob): PyBytes_AsString(ob))
+  #endif
+#endif
+
 namespace caffe2 {
 namespace python {
 
