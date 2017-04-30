@@ -6,6 +6,8 @@
 # for any cross-compilation as we will need to convert the protobuf source
 # files to cc files.
 #
+# --other-flags accepts flags that should be passed to cmake. Optional.
+#
 # After the execution of the file, one should be able to find the host protoc
 # binary at build_host_protoc/bin/protoc.
 
