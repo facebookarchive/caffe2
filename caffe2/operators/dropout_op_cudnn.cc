@@ -42,7 +42,7 @@ class CuDNNDropoutOp final : public Operator<CUDAContext> {
   float ratio_;
   bool is_test_;
 
-  size_t states_size_in_bytes_, reserve_space_size_in_bytes_;
+  int states_size_in_bytes_, reserve_space_size_in_bytes_;
   // Input: X, Output: Y, mask, states
 };
 
@@ -81,7 +81,7 @@ class CuDNNDropoutGradientOp final : public Operator<CUDAContext> {
   float ratio_;
   bool is_test_;
 
-  size_t states_size_in_bytes_, reserve_space_size_in_bytes_;
+  int states_size_in_bytes_, reserve_space_size_in_bytes_;
   // Input: dY, states, Output: dX
 };
 
