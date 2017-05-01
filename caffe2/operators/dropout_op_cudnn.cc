@@ -19,7 +19,8 @@ class CuDNNDropoutOp final : public Operator<CUDAContext> {
     CUDNN_ENFORCE(cudnnCreateTensorDescriptor(&data_desc_));
 
     CUDNN_ENFORCE(cudnnCreateDropoutDescriptor(&dropout_desc_));
-    CUDNN_ENFORCE(cudnnDropoutGetStatesSize(cudnn_wrapper_.inline_cudnn_handle(), &states_size_in_bytes_));
+    CUDNN_ENFORCE(cudnnDropoutGetStatesSize(cudnn_wrapper_.inline_cudnn_handle(),
+          reinterpret_cast<size_t*>(&states_size_in_bytes_)));
   }
 
   ~CuDNNDropoutOp() {
@@ -59,7 +60,8 @@ class CuDNNDropoutGradientOp final : public Operator<CUDAContext> {
     CUDNN_ENFORCE(cudnnCreateTensorDescriptor(&data_desc_));
 
     CUDNN_ENFORCE(cudnnCreateDropoutDescriptor(&dropout_desc_));
-    CUDNN_ENFORCE(cudnnDropoutGetStatesSize(cudnn_wrapper_.inline_cudnn_handle(), &states_size_in_bytes_));
+    CUDNN_ENFORCE(cudnnDropoutGetStatesSize(cudnn_wrapper_.inline_cudnn_handle(),
+          reinterpret_cast<size_t*>(&states_size_in_bytes_)));
   }
 
   ~CuDNNDropoutGradientOp() {
@@ -110,7 +112,7 @@ bool CuDNNDropoutOp::DoRunWithType() {
           1));
     // get the reserve space we need
     CUDNN_ENFORCE(cudnnDropoutGetReserveSpaceSize(
-          data_desc_, &reserve_space_size_in_bytes_));
+          data_desc_, reinterpret_cast<size_t*>(&reserve_space_size_in_bytes_)));
     // store both reserve and states in the same tensor
     vector<int> state_size{(reserve_space_size_in_bytes_ + states_size_in_bytes_ + sizeof(T)) / sizeof(T)};
     // resize the output
@@ -187,7 +189,7 @@ bool CuDNNDropoutGradientOp::DoRunWithType() {
           1));
     // get the reserve space we need
     CUDNN_ENFORCE(cudnnDropoutGetReserveSpaceSize(
-          data_desc_, &reserve_space_size_in_bytes_));
+          data_desc_, reinterpret_cast<size_t*>(&reserve_space_size_in_bytes_)));
 
     // set the dropout descriptor
     CUDNN_ENFORCE(cudnnSetDropoutDescriptor(
