@@ -127,7 +127,7 @@ bool CuDNNDropoutOp::DoRunWithType() {
           dropout_desc_,
           cudnn_wrapper_.inline_cudnn_handle(),
           ratio_,
-          reserve_data + reserve_space_size_in_bytes_ / elem_size;
+          reserve_data + reserve_space_size_in_bytes_ / elem_size,
           states_size_in_bytes_,
           0 // seed
     ));
