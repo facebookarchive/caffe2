@@ -114,7 +114,8 @@ bool CuDNNDropoutOp::DoRunWithType() {
     CUDNN_ENFORCE(cudnnDropoutGetReserveSpaceSize(
           data_desc_, reinterpret_cast<size_t*>(&reserve_space_size_in_bytes_)));
     // store both reserve and states in the same tensor
-    vector<int> state_size{(reserve_space_size_in_bytes_ + states_size_in_bytes_ + sizeof(T)) / sizeof(T)};
+    int elem_size = static_cast<int>(sizeof(T));
+    vector<int> state_size{(reserve_space_size_in_bytes_ + states_size_in_bytes_ + elem_size) / elem_size};
     // resize the output
     reserve->Resize(state_size);
 
@@ -126,7 +127,7 @@ bool CuDNNDropoutOp::DoRunWithType() {
           dropout_desc_,
           cudnn_wrapper_.inline_cudnn_handle(),
           ratio_,
-          reserve_data + reserve_space_size_in_bytes_ / sizeof(T),
+          reserve_data + reserve_space_size_in_bytes_ / elem_size;
           states_size_in_bytes_,
           0 // seed
     ));
@@ -191,12 +192,13 @@ bool CuDNNDropoutGradientOp::DoRunWithType() {
     CUDNN_ENFORCE(cudnnDropoutGetReserveSpaceSize(
           data_desc_, reinterpret_cast<size_t*>(&reserve_space_size_in_bytes_)));
 
+    const int elem_size = static_cast<int>(sizeof(T));
     // set the dropout descriptor
     CUDNN_ENFORCE(cudnnSetDropoutDescriptor(
           dropout_desc_,
           cudnn_wrapper_.inline_cudnn_handle(),
           ratio_,
-          const_cast<T*>(states.template data<T>()) + reserve_space_size_in_bytes_ / sizeof(T),
+          const_cast<T*>(states.template data<T>()) + reserve_space_size_in_bytes_ / elem_size,
           states_size_in_bytes_,
           0 // seed
     ));
