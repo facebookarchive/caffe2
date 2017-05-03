@@ -3,7 +3,6 @@
 import numpy as np
 import skimage.io
 import skimage.transform
-import urllib2
 
 def crop_center(img,cropx,cropy):
     y,x,c = img.shape
@@ -70,7 +69,7 @@ def parseResults(results):
             index = i
 
     # top 3 results
-    print "Raw top 3 results:", sorted(arr, key=lambda x: x[1], reverse=True)[:3]
+    print("Raw top 3 results:", sorted(arr, key=lambda x: x[1], reverse=True)[:3])
 
     # now we can grab the code list
     with open('inference_codes.txt', 'r') as f:

@@ -34,7 +34,7 @@ class TestDB(unittest.TestCase):
         data = []
         while cursor.valid():
             data.append((cursor.key(), cursor.value()))
-            cursor.next()
+            next(cursor)
         del cursor
 
         db.close()  # test explicit db closer

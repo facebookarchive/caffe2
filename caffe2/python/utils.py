@@ -213,7 +213,7 @@ class DebugMode(object):
                 'Entering interactive debugger. Type "bt" to print '
                 'the full stacktrace. Type "help" to see command listing.')
             print(sys.exc_info()[1])
-            print
+            print('')
 
             pdb.post_mortem()
             sys.exit(1)

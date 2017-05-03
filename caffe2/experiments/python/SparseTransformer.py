@@ -61,7 +61,7 @@ def transFCRelu(cur, id2node, name2id, ops, model):
     """
     # 1. add trans before the start of this chain
     # assuming that cur is an FC_Prune, and it has only one input
-    pre = cur.prev.itervalues().next()
+    pre = next(cur.prev.itervalues())
     # Create an node /op and insert it.
     # TODO(wyiming): check whether it is correct here
     current_blob = model.Transpose(cur.op.input[0], cur.op.input[0] + "_trans")
@@ -106,13 +106,13 @@ def transFCRelu(cur, id2node, name2id, ops, model):
         cur.visited = True
         pre = cur
         flag = False
-        for _, temp in cur.ops.iteritems():
+        for _, temp in cur.ops.items():
             if temp.optype == "Relu" or temp.optype == "FC_Prune":
                 flag = True
                 cur = temp
         if not flag:
             # assume that there is only 1 output that is not PrintOP
-            cur = cur.ops.itervalues().next()
+            cur = next(cur.ops.itervalues())
             cur.deleteInput(pre)
             print("No FC/RElu children")
             print(cur.op.type)
@@ -134,7 +134,7 @@ def Prune2Sparse(cur, id2node, name2id, ops, model):
         transFCRelu(cur, id2node, name2id, ops, model)
 
     cur.visited = True
-    for name, n in cur.ops.iteritems():
+    for name, n in cur.ops.items():
         Prune2Sparse(n, id2node, name2id, ops, model)
 
 
@@ -145,13 +145,13 @@ def net2list(net_root):
     bfs_queue = []
     op_list = []
     cur = net_root
-    for _, n in cur.ops.iteritems():
+    for _, n in cur.ops.items():
         bfs_queue.append(n)
     while bfs_queue:
         node = bfs_queue[0]
         bfs_queue = bfs_queue[1:]
         op_list.append(node.op)
-        for _, n in node.ops.iteritems():
+        for _, n in node.ops.items():
             bfs_queue.append(n)
 
     return op_list

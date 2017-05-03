@@ -47,7 +47,7 @@ def visualize_summary(filename):
         y_axis_format='.03g'
     )
     if args.sample < 0:
-        step = max(data.shape[0] / -args.sample, 1)
+        step = max(data.shape[0] // -args.sample, 1)
     else:
         step = args.sample
     xdata = np.arange(0, data.shape[0], step)
@@ -74,14 +74,14 @@ def visualize_print_log(filename):
         y_axis_format='.03g'
     )
     if args.sample < 0:
-        step = max(data.shape[0] / -args.sample, 1)
+        step = max(data.shape[0] // -args.sample, 1)
     else:
         step = args.sample
     xdata = np.arange(0, data.shape[0], step)
     # if there is only one curve, we also show the running min and max
     if data.shape[1] == 1:
         # We also print the running min and max for the steps.
-        trunc_size = data.shape[0] / step
+        trunc_size = data.shape[0] // step
         running_mat = data[:trunc_size * step].reshape((trunc_size, step))
         chart.add_serie(
             x=xdata[:trunc_size],

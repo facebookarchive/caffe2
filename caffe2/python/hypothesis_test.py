@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
 import numpy as np
 import copy
 from functools import partial, reduce
@@ -1263,7 +1265,7 @@ class TestOperators(hu.HypothesisTestCase):
           original matrices.
         """
         import threading
-        import Queue
+        import queue
         op = core.CreateOperator(
             "CreateBlobsQueue",
             [],
@@ -1275,7 +1277,7 @@ class TestOperators(hu.HypothesisTestCase):
 
         xs = [np.random.randn(num_elements, 5).astype(np.float32)
               for _ in range(num_blobs)]
-        q = Queue.Queue()
+        q = queue.Queue()
         for i in range(num_elements):
             q.put([x[i] for x in xs])
 
@@ -1293,7 +1295,7 @@ class TestOperators(hu.HypothesisTestCase):
                         self.ws.create_blob(feed_blob).feed(
                             elem, device_option=do)
                     self.ws.run(op)
-                except Queue.Empty:
+                except queue.Empty:
                     return
 
         # Create all blobs before racing on multiple threads
