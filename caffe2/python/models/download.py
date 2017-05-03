@@ -4,6 +4,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
 import argparse
 import os
 import sys
@@ -53,7 +55,7 @@ def progressBar(percentage):
 def downloadFromURLToFile(url, filename):
     try:
         print("Downloading from {url}".format(url=url))
-        response = urllib.urlopen(url)
+        response = urllib.request.urlopen(url)
         size = int(response.info().getheader('Content-Length').strip())
         downloaded_size = 0
         chunk = min(size, 8192)
@@ -107,6 +109,7 @@ def downloadModel(model, args):
             try:
                 response = raw_input(query)
             except NameError:
+                # python3 variant
                 response = input(query)
             if response.upper() == 'N' or not response:
                 print("Cancelling download...")

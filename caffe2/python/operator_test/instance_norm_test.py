@@ -2,10 +2,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from builtins import zip
+
 import numpy as np
 from hypothesis import given, assume
 import hypothesis.strategies as st
-from itertools import izip
+
 
 from caffe2.python import core, cnn
 import caffe2.python.hypothesis_test_util as hu
@@ -46,7 +48,7 @@ class TestInstanceNorm(hu.HypothesisTestCase):
 
     def _feed_inputs(self, input_blobs, device_option):
         names = ['input', 'scale', 'bias']
-        for name, blob in izip(names, input_blobs):
+        for name, blob in zip(names, input_blobs):
             self.ws.create_blob(name).feed(blob, device_option=device_option)
 
     @given(gc=hu.gcs['gc'],

@@ -5,6 +5,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+# Python 2 and 3 compatibility: test if basestring exists
+try:
+    basestring  # NOQA
+except NameError:
+    # This is python3 so we define basestring.
+    basestring = str
+
 import sys
 import copy
 

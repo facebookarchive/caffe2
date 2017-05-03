@@ -5,6 +5,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from future import standard_library
+standard_library.install_aliases()
 
 '''
 This module provides a python-land multithreaded data input mechanism
@@ -59,7 +61,7 @@ for each GPU. Note that the 'coordinator' returned by the function is same
 each time.
 '''
 
-import Queue
+import queue
 import logging
 import threading
 import atexit
@@ -221,7 +223,7 @@ class DataInputCoordinator(object):
         while self.is_active():
             try:
                 return self._internal_queue.get(block=True, timeout=0.5)
-            except Queue.Empty:
+            except queue.Empty:
                 continue
         return None
 
@@ -240,7 +242,7 @@ class DataInputCoordinator(object):
                 self._internal_queue.put(chunk, block=True, timeout=0.5)
                 self._log_inputs_per_interval(chunk[0].shape[0])
                 return
-            except Queue.Full:
+            except queue.Full:
                 log.debug("Queue full: stalling fetchers...")
                 continue
 
@@ -298,7 +300,7 @@ class DataInputCoordinator(object):
                 cur_batch = trimmed_batch
                 try:
                     self._internal_queue.put(leftover, block=False)
-                except Queue.Full:
+                except queue.Full:
                     pass
 
                 assert cur_batch[0].shape[first_batch_col] == self._batch_size
@@ -424,7 +426,7 @@ class GlobalCoordinator(object):
     def get_queue(self, queue_name, max_buffered_batches):
         assert isinstance(max_buffered_batches, int)
         if queue_name not in self._queues:
-            self._queues[queue_name] = Queue.Queue(maxsize=max_buffered_batches)
+            self._queues[queue_name] = queue.Queue(maxsize=max_buffered_batches)
         return self._queues[queue_name]
 
     def start(self):
