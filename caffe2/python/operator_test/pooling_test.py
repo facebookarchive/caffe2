@@ -140,6 +140,7 @@ class TestPooling(hu.HypothesisTestCase):
         if method not in ('MaxPool'):
             self.assertGradientChecks(gc, op, [X], 0, [0])
 
+    @unittest.skipIf(not workspace.has_gpu_support, "No GPU support")
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(1, 5),
