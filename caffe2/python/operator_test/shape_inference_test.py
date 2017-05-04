@@ -23,13 +23,13 @@ class TestShapeInference(test_util.TestCase):
             {'data': [64, 96]}
         )
 
-        self.assertEquals(shapes['data'], [64, 96])
-        self.assertEquals(shapes['fc1_w'], [32, 96])
-        self.assertEquals(shapes['fc1_b'], [32])
-        self.assertEquals(shapes['fc1'], [64, 32])
-        self.assertEquals(shapes['fc2_w'], [55, 32])
-        self.assertEquals(shapes['fc2_b'], [55])
-        self.assertEquals(shapes['fc2'], [64, 55])
+        self.assertEqual(shapes['data'], [64, 96])
+        self.assertEqual(shapes['fc1_w'], [32, 96])
+        self.assertEqual(shapes['fc1_b'], [32])
+        self.assertEqual(shapes['fc1'], [64, 32])
+        self.assertEqual(shapes['fc2_w'], [55, 32])
+        self.assertEqual(shapes['fc2_b'], [55])
+        self.assertEqual(shapes['fc2'], [64, 55])
 
     def testShapeInferenceDistances(self):
         model = model_helper.ModelHelper(name="test_model")
