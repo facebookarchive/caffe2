@@ -2112,9 +2112,11 @@ def execution_step(default_name,
         step.AddNet(steps_or_nets)
     elif isinstance(steps_or_nets, list):
         if all(isinstance(x, Net) for x in steps_or_nets):
-            map(step.AddNet, steps_or_nets)
+            for n in steps_or_nets:
+                step.AddNet(n)
         else:
-            map(step.AddSubstep, map(to_execution_step, steps_or_nets))
+            for s in steps_or_nets:
+                step.AddSubstep(to_execution_step(s))
     elif steps_or_nets:
         raise ValueError(
             'steps_or_nets must be a step, a net, or a list of nets or steps.')

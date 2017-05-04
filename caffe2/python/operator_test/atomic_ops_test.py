@@ -43,7 +43,7 @@ class TestAtomicOps(TestCase):
         plan.AddStep(super_step)
         workspace.RunPlan(plan)
         # checksum = sum[i=1..20000](i) = 20000 * 20001 / 2 = 200010000
-        self.assertEquals(workspace.FetchBlob(checksum), 200010000)
+        self.assertEqual(workspace.FetchBlob(checksum), 200010000)
 
 if __name__ == "__main__":
     import unittest
