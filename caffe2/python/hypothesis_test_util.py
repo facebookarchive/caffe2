@@ -248,7 +248,7 @@ gcs_gpu_only = dict(gc=st.sampled_from([gpu_do]), dc=st.just([gpu_do]))
 
 
 @contextlib.contextmanager
-def temp_workspace(name=b"temp_ws"):
+def temp_workspace(name="temp_ws"):
     old_ws_name = workspace.CurrentWorkspace()
     workspace.SwitchWorkspace(name, True)
     yield
