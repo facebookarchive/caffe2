@@ -818,7 +818,7 @@ void addGlobalMethods(py::module& m) {
         if (device_option != py::none()) {
           // If we have a device option passed in, read it.
           CAFFE_ENFORCE(ParseProtobufFromLargeString(
-              py::bytes(device_option).cast<std::string>(), &option));
+              py::bytes(device_option), &option));
         }
         auto* blob = gWorkspace->CreateBlob(name);
         if (PyArray_Check(arg.ptr())) { // numpy array
