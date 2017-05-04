@@ -263,8 +263,8 @@ class TestDatasetOps(TestCase):
             expected_fields, schema.field_names(), schema.field_types()
         )
         for (ref_name, ref_type), name, dtype in zipped:
-            self.assertEquals(ref_name, name)
-            self.assertEquals(np.dtype(ref_type), dtype)
+            self.assertEqual(ref_name, name)
+            self.assertEqual(np.dtype(ref_type), dtype)
         """
         2. The contents of our dataset.
 
@@ -446,7 +446,7 @@ class TestDatasetOps(TestCase):
         """
         subschema = Struct(('top_level', schema.int_lists.values))
         int_list_contents = contents.int_lists.values.field_names()
-        self.assertEquals(len(subschema.field_names()), len(int_list_contents))
+        self.assertEqual(len(subschema.field_names()), len(int_list_contents))
         """
         7. Random Access a dataset
 

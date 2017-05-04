@@ -53,19 +53,19 @@ class TestCheckpoint(TestCase):
         session, checkpoint = builder()
         compiled_job = job.compile(LocalSession)
         num_epochs = JobRunner(compiled_job, checkpoint)(session)
-        self.assertEquals(num_epochs, len(EXPECTED_TOTALS))
-        self.assertEquals(fetch_total(session), EXPECTED_TOTALS[-1])
+        self.assertEqual(num_epochs, len(EXPECTED_TOTALS))
+        self.assertEqual(fetch_total(session), EXPECTED_TOTALS[-1])
 
         for initial_epoch in range(1, num_epochs + 1):
             session, checkpoint = builder()
             JobRunner(
                 compiled_job,
                 checkpoint, resume_from_epoch=initial_epoch)(session)
-            self.assertEquals(fetch_total(session), EXPECTED_TOTALS[-1])
+            self.assertEqual(fetch_total(session), EXPECTED_TOTALS[-1])
 
         for epoch in range(1, num_epochs + 1):
             session.run(checkpoint.load(epoch))
-            self.assertEquals(fetch_total(session), EXPECTED_TOTALS[epoch - 1])
+            self.assertEqual(fetch_total(session), EXPECTED_TOTALS[epoch - 1])
 
     def test_single_checkpoint(self):
         # test single node
@@ -106,14 +106,14 @@ class TestCheckpoint(TestCase):
                 compiled_job = job.compile(LocalSession)
                 job_runner = JobRunner(compiled_job, checkpoint)
                 num_epochs = job_runner(session)
-                self.assertEquals(num_epochs, len(EXPECTED_TOTALS))
+                self.assertEqual(num_epochs, len(EXPECTED_TOTALS))
 
                 # There are 16 blobs after finishing up the job runner.
-                self.assertEquals(len(ws.blobs), 16)
+                self.assertEqual(len(ws.blobs), 16)
 
             ws = workspace.C.Workspace()
             session = LocalSession(ws)
-            self.assertEquals(len(ws.blobs), 0)
+            self.assertEqual(len(ws.blobs), 0)
             model_blob_names = ['reader:1/task/GivenTensorInt64Fill:0',
                                 'reader:2/task/GivenTensorInt64Fill:0']
             checkpoint = MultiNodeCheckpointManager(tmpdir, 'minidb')
@@ -135,7 +135,7 @@ class TestCheckpoint(TestCase):
                 # Check that all the model blobs are loaded.
                 for blob_name in model_blob_names:
                     self.assertTrue(ws.has_blob(blob_name))
-                    self.assertEquals(ws.fetch_blob(blob_name),
+                    self.assertEqual(ws.fetch_blob(blob_name),
                                       np.array([EXPECTED_TOTALS[epoch - 1]]))
             self.assertFalse(
                 job_runner.load_blobs_from_checkpoints(

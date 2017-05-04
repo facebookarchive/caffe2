@@ -81,7 +81,7 @@ class TestNetBuilder(unittest.TestCase):
         ]
         for b, expected in expected:
             actual = ws.blobs[str(b)].fetch()
-            self.assertEquals(actual, expected)
+            self.assertEqual(actual, expected)
 
     def _expected_loop(self):
         total = 0
@@ -127,7 +127,7 @@ class TestNetBuilder(unittest.TestCase):
             expected = self._expected_loop()
             actual = [o.fetch() for o in out_actual]
             for e, a in zip(expected, actual):
-                self.assertEquals(e, a)
+                self.assertEqual(e, a)
 
     def test_setup(self):
         with Task() as task:
@@ -149,6 +149,6 @@ class TestNetBuilder(unittest.TestCase):
             o7_2 = final_output(seven_2)
         with LocalSession() as session:
             session.run(task)
-            self.assertEquals(o6.fetch(), 6)
-            self.assertEquals(o7_1.fetch(), 7)
-            self.assertEquals(o7_2.fetch(), 7)
+            self.assertEqual(o6.fetch(), 6)
+            self.assertEqual(o7_1.fetch(), 7)
+            self.assertEqual(o7_2.fetch(), 7)
