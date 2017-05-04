@@ -236,7 +236,7 @@ def _RectifyInputOutput(blobs, net=None):
     elif type(blobs) is BlobReference:
         # If blob is a BlobReference, simply put it as a list.
         return [blobs]
-    elif type(blobs) in (list, tuple):
+    elif type(blobs) in (list, tuple, map):
         # If blob is a list, we go through it and type check.
         rectified = []
         for blob in blobs:
