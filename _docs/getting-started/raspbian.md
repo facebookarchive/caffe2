@@ -18,7 +18,3 @@ For Raspbian, run scripts/build_raspbian.sh on the Raspberry Pi.
 cd caffe2
 ./scripts/build_raspbian.sh
 ```
-
-## Troubleshooting
-
-You may need to [disable Gloo in the build script](https://github.com/caffe2/caffe2/issues/299).
