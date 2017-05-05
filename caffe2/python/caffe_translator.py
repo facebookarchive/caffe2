@@ -589,10 +589,12 @@ def TranslateBatchNorm(layer, pretrained_blobs, is_test):
     if not is_test:
         caffe_op.output.extend([output + "_mean", output + "_var", output + "_saved_mean", output + "_saved_var"])
 
+    n_channels = pretrained_blobs[0].shape[0] # get C
     mean = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_mean')
     var = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[1], output + '_var')
+    pretrained_blobs[2] = np.tile(pretrained_blobs[2], (n_channels, )) # set C
     scale = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[2], output + '_scale')
-    
+
     # Create a zero bias array the same size as the scale, we'll let the following
     # Scale (Mul + Add operators in Caffe2) layer handle any bias, just like Caffe
     bias = utils.NumpyArrayToCaffe2Tensor(np.zeros_like(pretrained_blobs[2]), output + '_bias')
