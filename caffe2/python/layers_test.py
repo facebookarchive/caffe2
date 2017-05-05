@@ -3,16 +3,30 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import hypothesis.strategies as st
 import numpy as np
+import numpy.testing as npt
+
+from hypothesis import given
+
+import caffe2.python.hypothesis_test_util as hu
 
 from caffe2.python import (
     layer_model_instantiator,
     schema,
     workspace,
 )
+from caffe2.python.layers.layers import (
+    InstantiationContext,
+)
+from caffe2.python.layers.tags import Tags
 from caffe2.python.layer_test_util import (
     LayersTestCase,
     OpSpec,
+)
+from caffe2.python.layers.layers import (
+    set_request_only,
+    is_request_only_scalar,
 )
 
 
@@ -22,6 +36,7 @@ class TestLayers(LayersTestCase):
         output_dims = 2
         fc_without_bias = self.model.FCWithoutBias(
             self.model.input_feature_schema.float_features, output_dims)
+        self.model.output_schema = fc_without_bias
 
         self.assertEqual(
             schema.Scalar((np.float32, (output_dims, ))),
@@ -66,6 +81,7 @@ class TestLayers(LayersTestCase):
             "FC",
             output_dims,
         )
+        self.model.output_schema = sampled_fc
 
         # Check that we don't add prediction layer into the model
         self.assertEqual(1, len(self.model.layers))
@@ -152,6 +168,14 @@ class TestLayers(LayersTestCase):
         loss = self.model.BatchLRLoss(input_record)
         self.assertEqual(schema.Scalar((np.float32, tuple())), loss)
 
+    def testBatchMSELoss(self):
+        input_record = self.new_record(schema.Struct(
+            ('label', schema.Scalar((np.float64, (1,)))),
+            ('prediction', schema.Scalar((np.float32, (2,)))),
+        ))
+        loss = self.model.BatchMSELoss(input_record)
+        self.assertEqual(schema.Scalar((np.float32, tuple())), loss)
+
     def testBatchSigmoidCrossEntropyLoss(self):
         input_record = self.new_record(schema.Struct(
             ('label', schema.Scalar((np.float32, (32,)))),
@@ -170,6 +194,19 @@ class TestLayers(LayersTestCase):
             ('softmax', schema.Scalar((np.float32, (32,)))),
             ('loss', schema.Scalar(np.float32)),
         ), loss)
+
+    @given(
+        X=hu.arrays(dims=[5, 2]),
+        num_to_collect=st.integers(min_value=1, max_value=10),
+    )
+    def testLastNWindowCollector(self, X, num_to_collect):
+        input_record = self.new_record(schema.Scalar(np.float32))
+        schema.FeedRecord(input_record, [X])
+        last_n = self.model.LastNWindowCollector(input_record, num_to_collect)
+        self.run_train_net_forward_only()
+        output_record = schema.FetchRecord(last_n)
+        start = max(0, 5 - num_to_collect)
+        npt.assert_array_equal(X[start:], output_record())
 
     def testUniformSampling(self):
         input_record = self.new_record(schema.Scalar(np.int32))
@@ -339,6 +376,48 @@ class TestLayers(LayersTestCase):
             indices
         )
 
+    def testSelectRecordByContext(self):
+        float_features = self.model.input_feature_schema.float_features
+
+        float_array = np.array([1.0, 2.0], dtype=np.float32)
+
+        schema.FeedRecord(float_features, [float_array])
+
+        with Tags(Tags.EXCLUDE_FROM_PREDICTION):
+            log_float_features, = self.model.Log(float_features, 1)
+        joined = self.model.SelectRecordByContext(
+            schema.Struct(
+                (InstantiationContext.PREDICTION, float_features),
+                (InstantiationContext.TRAINING, log_float_features),
+                # TODO: TRAIN_ONLY layers are also generated in eval
+                (InstantiationContext.EVAL, log_float_features),
+            )
+        )
+
+        # model.output_schema has to a struct
+        self.model.output_schema = schema.Struct((
+            'joined', joined
+        ))
+        predict_net = layer_model_instantiator.generate_predict_net(self.model)
+        workspace.RunNetOnce(predict_net)
+        predict_output = schema.FetchRecord(predict_net.output_record())
+        npt.assert_array_equal(float_array,
+                               predict_output['joined']())
+        eval_net = layer_model_instantiator.generate_eval_net(self.model)
+        workspace.RunNetOnce(eval_net)
+        eval_output = schema.FetchRecord(eval_net.output_record())
+        npt.assert_array_equal(np.log(float_array),
+                               eval_output['joined']())
+        _, train_net = (
+            layer_model_instantiator.generate_training_nets_forward_only(
+                self.model
+            )
+        )
+        workspace.RunNetOnce(train_net)
+        train_output = schema.FetchRecord(train_net.output_record())
+        npt.assert_array_equal(np.log(float_array),
+                               train_output['joined']())
+
     def testFunctionalLayer(self):
         def normalize(net, in_record, out_record):
             mean = net.ReduceFrontMean(in_record(), 1)
@@ -352,7 +431,7 @@ class TestLayers(LayersTestCase):
 
         # Attach metadata to one of the outputs and use it in FC
         normalized[0].set_type((np.float32, 32))
-        self.model.FC(normalized[0], 2)
+        self.model.output_schema = self.model.FC(normalized[0], 2)
 
         predict_net = layer_model_instantiator.generate_predict_net(
             self.model)
@@ -376,7 +455,7 @@ class TestLayers(LayersTestCase):
             1, broadcast=1)
         # Attach metadata to one of the outputs and use it in FC
         normalized[0].set_type((np.float32, (32,)))
-        self.model.FC(normalized[0], 2)
+        self.model.output_schema = self.model.FC(normalized[0], 2)
 
         predict_net = layer_model_instantiator.generate_predict_net(
             self.model)
@@ -398,7 +477,7 @@ class TestLayers(LayersTestCase):
         assert len(softsign.field_types()) == 1
         assert softsign.field_types()[0].base == np.float32
         assert softsign.field_types()[0].shape == (32,)
-        self.model.FC(softsign[0], 2)
+        self.model.output_schema = self.model.FC(softsign[0], 2)
 
         predict_net = layer_model_instantiator.generate_predict_net(
             self.model)
@@ -449,3 +528,44 @@ class TestLayers(LayersTestCase):
         self.assertEqual(1, len(loss.field_types()))
         self.assertEqual(np.float32, loss.field_types()[0].base)
         self.assertEqual((1,), loss.field_types()[0].shape)
+
+    def testPropagateRequestOnly(self):
+        # test case when output is request only
+        input_record = self.new_record(schema.Struct(
+            ('input1', schema.Scalar((np.float32, (32, )))),
+            ('input2', schema.Scalar((np.float32, (64, )))),
+            ('input3', schema.Scalar((np.float32, (16, )))),
+        ))
+
+        set_request_only(input_record)
+        concat_output = self.model.Concat(input_record)
+        self.assertEqual(is_request_only_scalar(concat_output), True)
+
+        # test case when output is not request only
+        input_record2 = self.new_record(schema.Struct(
+            ('input4', schema.Scalar((np.float32, (100, ))))
+        )) + input_record
+
+        concat_output2 = self.model.Concat(input_record2)
+        self.assertEqual(is_request_only_scalar(concat_output2), False)
+
+    def testSetRequestOnly(self):
+        input_record = schema.Scalar(np.int64)
+        schema.attach_metadata_to_scalars(
+            input_record,
+            schema.Metadata(
+                categorical_limit=100000000,
+                expected_value=99,
+                feature_specs=schema.FeatureSpec(
+                    feature_ids=[1, 100, 1001]
+                )
+            )
+        )
+
+        set_request_only(input_record)
+        self.assertEqual(input_record.metadata.categorical_limit, 100000000)
+        self.assertEqual(input_record.metadata.expected_value, 99)
+        self.assertEqual(
+            input_record.metadata.feature_specs.feature_ids,
+            [1, 100, 1001]
+        )

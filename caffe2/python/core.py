@@ -1093,8 +1093,14 @@ def clone_and_bind_net(net, name, prefix, blob_remap=None, inputs=None,
         assert original is not None
         # TODO(azzolini): improve schema type checking
         diff = set(original.field_names()) - set(inputs.field_names())
-        assert len(diff) == 0, \
-            "Schemas don't match, extra fields {} found in the net".format(diff)
+        assert len(diff) == 0, (
+            "Schemas don't match, extra fields {diff} found in the net {name}. "
+            "original: {original}; inputs: {inputs}"
+            .format(
+                diff=diff, name=net.Name(), original=original.field_names(),
+                inputs=inputs.field_names()
+            )
+        )
         original_mapping = dict(zip(original.field_names(),
                                     original.field_blobs()))
         for fn, fb in zip(inputs.field_names(), inputs.field_blobs()):
@@ -1207,12 +1213,20 @@ class Net(object):
     def AppendNet(self, net):
         assert isinstance(net, Net)
         self._ExtendOps(net.Proto().op)
-        self.Proto().external_input.extend(
-            [i for i in net.Proto().external_input
-                if i not in self.Proto().external_input])
+
+        for i in net.Proto().external_input:
+            if (
+                i not in self.Proto().external_input and
+                i not in self._op_outputs
+            ):
+                self.Proto().external_input.append(i)
+
         self.Proto().external_output.extend(
-            [o for o in net.Proto().external_output
-                if o not in self.Proto().external_output])
+            [
+                o for o in net.Proto().external_output
+                if o not in self.Proto().external_output
+            ]
+        )
         return self
 
     def LogInfo(self, *msg_or_blobs):
@@ -1640,7 +1654,7 @@ class Net(object):
         assert self._output_record is None, (
             'Output record cannot be reset')
         for blob in record.field_blobs():
-            assert self.BlobIsDefined(blob)
+            assert self.BlobIsDefined(blob), "{} is not defined".format(blob)
         for blob in record.field_blobs():
             self.AddExternalOutput(blob)
         self._output_record = record

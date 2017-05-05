@@ -298,6 +298,7 @@ class Struct(Field):
         for id, (_, field) in enumerate(self.fields.items()):
             field._set_parent(self, id)
         Field.__init__(self, self.fields.values())
+        self._frozen = True
 
     def _struct_from_nested_name(self, nested_name, field):
         def create_internal(nested_name, field):
@@ -415,6 +416,15 @@ class Struct(Field):
         except KeyError:
             raise AttributeError(item)
 
+    def __setattr__(self, key, value):
+        # Disable setting attributes after initialization to prevent false
+        # impression of being able to overwrite a field.
+        # Allowing setting internal states mainly so that _parent can be set
+        # post initialization.
+        if getattr(self, '_frozen', None) and not key.startswith('_'):
+            raise TypeError('Struct.__setattr__() is disabled after __init__()')
+        super(Struct, self).__setattr__(key, value)
+
     def __add__(self, other):
         """
         Allows to merge fields of two schema.Struct using '+' operator.
@@ -504,7 +514,7 @@ class Scalar(Field):
 
     def __init__(self, dtype=None, blob=None, metadata=None):
         self._metadata = None
-        self.set(dtype, blob, metadata)
+        self.set(dtype, blob, metadata, unsafe=True)
         Field.__init__(self, [])
 
     def field_names(self):
@@ -564,15 +574,15 @@ class Scalar(Field):
                 "`categorical_limit` can be specified only in integral " + \
                 "fields but got {}".format(self.dtype)
 
-    def set_value(self, blob, throw_on_type_mismatch=False):
+    def set_value(self, blob, throw_on_type_mismatch=False, unsafe=False):
         """Sets only the blob field still validating the existing dtype"""
         if self.dtype.base != np.void and throw_on_type_mismatch:
-            assert isinstance(blob, np.ndarray)
+            assert isinstance(blob, np.ndarray), "Got {!r}".format(blob)
             assert blob.dtype.base == self.dtype.base, (
-                "Expected {}, got {}".format(blob.dtype.base, blob.dtype.base))
-        self.set(dtype=self._original_dtype, blob=blob)
+                "Expected {}, got {}".format(self.dtype.base, blob.dtype.base))
+        self.set(dtype=self._original_dtype, blob=blob, unsafe=unsafe)
 
-    def set(self, dtype=None, blob=None, metadata=None):
+    def set(self, dtype=None, blob=None, metadata=None, unsafe=False):
         """Set the type and/or blob of this scalar. See __init__ for details.
 
         Args:
@@ -587,6 +597,12 @@ class Scalar(Field):
             metadata: optional instance of Metadata, if provided overrides
                       the metadata information of the scalar
         """
+        if not unsafe:
+            logger.warning(
+                "Scalar should be considered immutable. Only call Scalar.set() "
+                "on newly created Scalar with unsafe=True. This will become an "
+                "error soon."
+            )
         if blob is not None and isinstance(blob, core.basestring):
             raise ValueError(
                 'Passing str blob to Scalar.set() is ambiguous. '
@@ -856,7 +872,7 @@ def from_blob_list(schema, values, throw_on_type_mismatch=False):
         'Values must have %d elements, got %d.' % (len(scalars), len(values))
     )
     for scalar, value in zip(scalars, values):
-        scalar.set_value(value, throw_on_type_mismatch)
+        scalar.set_value(value, throw_on_type_mismatch, unsafe=True)
     return record
 
 
@@ -935,7 +951,8 @@ def NewRecord(net, schema):
     if isinstance(schema, Scalar):
         result = schema.clone()
         result.set_value(
-            blob=net.NextScopedBlob('unnamed_scalar')
+            blob=net.NextScopedBlob('unnamed_scalar'),
+            unsafe=True,
         )
         return result
 

@@ -27,7 +27,7 @@ class BatchMSELoss(ModelLayer):
             ),
             input_record
         )
-        self.tags.update({Tags.TRAIN_ONLY})
+        self.tags.update(Tags.TRAIN_ONLY)
 
         self.output_schema = schema.Scalar(
             np.float32,
@@ -40,8 +40,20 @@ class BatchMSELoss(ModelLayer):
             dims=[1]
         )
 
+        label = self.input_record.label.field_blobs()
+        if self.input_record.label.field_type().base != (
+                self.input_record.prediction.field_type().base):
+
+            label = net.Cast(
+                label,
+                net.NextScopedBlob('cast_label'),
+                to=schema.data_type_for_dtype(
+                    self.input_record.prediction.field_type()
+                )
+            )
+
         label = net.StopGradient(
-            self.input_record.label(),
+            label,
             net.NextScopedBlob('stopped_label')
         )
 

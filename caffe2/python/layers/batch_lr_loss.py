@@ -30,7 +30,7 @@ class BatchLRLoss(ModelLayer):
             ),
             input_record
         )
-        self.tags.update({Tags.TRAIN_ONLY})
+        self.tags.update(Tags.TRAIN_ONLY)
 
         self.output_schema = schema.Scalar(
             np.float32,

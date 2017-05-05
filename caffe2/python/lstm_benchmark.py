@@ -41,10 +41,13 @@ def generate_data(T, shape, num_labels):
     np.random.seed(2603)
 
     for t in range(T):
-        if (t % 50 == 0):
+        if (t % (max(10, T // 10)) == 0):
             print("Generating data {}/{}".format(t, T))
         # Randomize the seqlength
-        random_shape = [np.random.randint(1, shape[0])] + shape[1:]
+        random_shape = (
+            [np.random.randint(1, shape[0])] + shape[1:]
+            if t > 0 else shape
+        )
         X = np.random.rand(*random_shape).astype(np.float32)
         batch_size = random_shape[1]
         L = num_labels * batch_size
@@ -60,40 +63,48 @@ def generate_data(T, shape, num_labels):
 
 def create_model(args, queue, label_queue, input_shape):
     model = cnn.CNNModelHelper(name="LSTM_bench")
-    seq_lengths, hidden_init, cell_init, target = \
+    seq_lengths, target = \
         model.net.AddExternalInputs(
             'seq_lengths',
-            'hidden_init',
-            'cell_init',
             'target',
         )
+
     input_blob = model.DequeueBlobs(queue, "input_data")
     labels = model.DequeueBlobs(label_queue, "label")
 
+    init_blobs = []
     if args.implementation == "own":
+        for i in range(args.num_layers):
+            init_blobs.append("hidden_init_{}".format(i))
+            init_blobs.append("cell_init_{}".format(i))
+        model.net.AddExternalInputs(init_blobs)
+
         output, last_hidden, _, last_state = rnn_cell.LSTM(
             model=model,
             input_blob=input_blob,
             seq_lengths=seq_lengths,
-            initial_states=(hidden_init, cell_init),
+            initial_states=init_blobs,
             dim_in=args.input_dim,
-            dim_out=args.hidden_dim,
+            dim_out=[args.hidden_dim] * args.num_layers,
             scope="lstm1",
             memory_optimization=args.memory_optimization,
             forward_only=args.forward_only,
+            drop_states=True,
+            return_last_layer_only=True,
         )
     elif args.implementation == "cudnn":
         # We need to feed a placeholder input so that RecurrentInitOp
         # can infer the dimensions.
+        init_blobs = model.net.AddExternalInputs("hidden_init", "cell_init")
         model.param_init_net.ConstantFill([], input_blob, shape=input_shape)
         output, last_hidden, _ = rnn_cell.cudnn_LSTM(
             model=model,
             input_blob=input_blob,
-            initial_states=(hidden_init, cell_init),
+            initial_states=init_blobs,
             dim_in=args.input_dim,
             dim_out=args.hidden_dim,
             scope="cudnnlstm",
-            num_layers=1,
+            num_layers=args.num_layers,
         )
 
     else:
@@ -109,15 +120,15 @@ def create_model(args, queue, label_queue, input_shape):
         model.AddGradientOperators([loss])
 
     # carry states over
-    model.net.Copy(last_hidden, hidden_init)
-    model.net.Copy(last_hidden, cell_init)
+    for init_blob in init_blobs:
+        model.net.Copy(last_hidden, init_blob)
 
-    workspace.FeedBlob(hidden_init, np.zeros(
-        [1, args.batch_size, args.hidden_dim], dtype=np.float32
-    ))
-    workspace.FeedBlob(cell_init, np.zeros(
-        [1, args.batch_size, args.hidden_dim], dtype=np.float32
-    ))
+        sz = args.hidden_dim
+        if args.implementation == "cudnn":
+            sz *= args.num_layers
+        workspace.FeedBlob(init_blob, np.zeros(
+            [1, args.batch_size, sz], dtype=np.float32
+        ))
     return model, output
 
 
@@ -143,11 +154,23 @@ def Caffe2LSTM(args):
     start_time = last_time
     num_iters = T // args.seq_length
     entries_per_iter = args.seq_length * args.batch_size
+    total_iters = 0
 
     # Run the Benchmark
+    log.info("------ Warming up ------")
+    workspace.RunNet(model.net.Proto().name)
+    num_iters = num_iters - 1
+
+    if (args.gpu):
+        log.info("Memory stats:")
+        stats = utils.GetGPUMemoryUsageStats()
+        log.info("GPU memory:\t{} MB".format(stats['max_total'] / 1024 / 1024))
+
     log.info("------ Starting benchmark ------")
+    start_time = time.time()
     for iteration in range(0, num_iters, args.iters_to_report):
         iters_once = min(args.iters_to_report, num_iters - iteration)
+        total_iters += iters_once
         workspace.RunNet(model.net.Proto().name, iters_once)
 
         new_time = time.time()
@@ -158,8 +181,8 @@ def Caffe2LSTM(args):
         ))
         last_time = new_time
 
-    log.info("Done. Total EPS: {}k".format(
-        entries_per_iter * num_iters / (time.time() - start_time) // 1000,
+    log.info("Done. Total EPS excluding 1st iteration: {}k".format(
+        total_iters * entries_per_iter / (time.time() - start_time) // 1000,
     ))
 
     if (args.gpu):
@@ -173,10 +196,11 @@ def Caffe2LSTM(args):
             )
             log.warning("This means that costly deallocations occured.")
 
+    return time.time() - start_time
 
-@utils.debug
+
 def Benchmark(args):
-    Caffe2LSTM(args)
+    return Caffe2LSTM(args)
 
 
 def GetArgumentParser():
@@ -185,7 +209,7 @@ def GetArgumentParser():
     parser.add_argument(
         "--hidden_dim",
         type=int,
-        default=40,
+        default=800,
         help="Hidden dimension",
     )
     parser.add_argument(
@@ -238,6 +262,13 @@ def GetArgumentParser():
         "--forward_only",
         action="store_true",
         help="Whether to run only forward pass"
+    )
+    parser.add_argument(
+        "--num_layers",
+        type=int,
+        default=1,
+        help="Number of LSTM layers. All output dimensions are going to be"
+             "of hidden_dim size",
     )
 
     return parser
