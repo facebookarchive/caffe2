@@ -6,6 +6,7 @@
 #include <exception>
 #include <typeinfo>
 #include <vector>
+#include <array>
 
 #include "caffe2/core/blob.h"
 #include "caffe2/core/common.h"
