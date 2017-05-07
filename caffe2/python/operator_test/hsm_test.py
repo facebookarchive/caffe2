@@ -224,7 +224,7 @@ class TestHsm(hu.HypothesisTestCase):
         workspace.RunOperatorOnce(op)
         huffmanTreeOutput = workspace.FetchBlob('huffman_tree')
         treeOutput = hsm_pb2.TreeProto()
-        treeOutput.ParseFromString(huffmanTreeOutput[0])
+        treeOutput.ParseFromString(huffmanTreeOutput[0].encode('utf-8'))
         treePathOutput = hsmu.create_hierarchy(treeOutput)
 
         label_to_path = {}
