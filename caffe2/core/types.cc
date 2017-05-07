@@ -24,6 +24,7 @@ CAFFE_KNOWN_TYPE(std::unique_ptr<std::mutex>);
 CAFFE_KNOWN_TYPE(std::unique_ptr<std::atomic<bool>>);
 CAFFE_KNOWN_TYPE(std::vector<int64_t>);
 CAFFE_KNOWN_TYPE(std::vector<unsigned long>);
+CAFFE_KNOWN_TYPE(std::vector<uint8_t>);
 
 #ifdef CAFFE2_UNIQUE_LONG_TYPEMETA
 CAFFE_KNOWN_TYPE(long);

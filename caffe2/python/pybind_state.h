@@ -86,7 +86,8 @@ class TensorFetcher : public BlobFetcherBase {
 
   bool NeedsCopy(const TypeMeta& meta) const {
     return !std::is_same<Context, CPUContext>::value ||
-        CaffeToNumpyType(meta) == NPY_OBJECT;
+        CaffeToNumpyType(meta) == NPY_OBJECT ||
+        CaffeToNumpyType(meta) == NPY_UNICODE;
   }
 
   FetchedBlob FetchTensor(const Tensor<Context>& tensor, bool force_copy) {
@@ -105,9 +106,17 @@ class TensorFetcher : public BlobFetcherBase {
     result.copied = force_copy || NeedsCopy(tensor.meta());
     void* outPtr;
     if (result.copied) {
-      result.obj = pybind11::object(
-          PyArray_SimpleNew(tensor.ndim(), npy_dims.data(), numpy_type),
+      if (numpy_type == NPY_UNICODE) {
+        PyObject* item = PyUnicode_FromString(tensor.template data<std::string>()->c_str());
+        PyArray_Descr* descr = PyArray_DescrFromScalar(item);
+        result.obj = pybind11::object(
+          PyArray_SimpleNewFromDescr(tensor.ndim(), npy_dims.data(), descr),
           /* borrowed */ false);
+      } else {
+        result.obj = pybind11::object(
+            PyArray_SimpleNew(tensor.ndim(), npy_dims.data(), numpy_type),
+            /* borrowed */ false);
+      }
       outPtr = static_cast<void*>(
           PyArray_DATA(reinterpret_cast<PyArrayObject*>(result.obj.ptr())));
     } else {
@@ -118,21 +127,39 @@ class TensorFetcher : public BlobFetcherBase {
           /* borrowed */ false);
     }
 
-    if (numpy_type == NPY_OBJECT) {
-      PyObject** outObj = reinterpret_cast<PyObject**>(outPtr);
-      auto* str = tensor.template data<std::string>();
-      for (int i = 0; i < tensor.size(); ++i) {
-        outObj[i] = PyBytes_FromStringAndSize(str->data(), str->size());
-        str++;
-        // cleanup on failure
-        if (outObj[i] == nullptr) {
-          for (int j = 0; j < i; ++j) {
-            Py_DECREF(outObj[j]);
-          }
-          CAFFE_THROW("Failed to allocate string for ndarray of strings.");
-        }
-      }
-      return result;
+    switch(numpy_type) {
+        case NPY_UNICODE: {
+            PyObject** outObj = reinterpret_cast<PyObject**>(outPtr);
+            auto* str = tensor.template data<std::string>();
+            for (int i = 0; i < tensor.size(); ++i) {
+                outObj[i] = PyUnicode_FromStringAndSize(str->data(), str->size());
+                str++;
+                // cleanup on failure
+                if (outObj[i] == nullptr) {
+                    for (int j = 0; j < i; ++j) {
+                        Py_DECREF(outObj[j]);
+                    }
+                    CAFFE_THROW("Failed to allocate string for ndarray of strings.");
+                }
+            }
+            return result;
+        } break;
+        case NPY_OBJECT: {
+            PyObject** outObj = reinterpret_cast<PyObject**>(outPtr);
+            auto* obj = tensor.template data<std::vector<uint8_t>>();
+            for (int i = 0; i < tensor.size(); ++i) {
+                outObj[i] = PyBytes_FromStringAndSize((const char *)obj->data(), obj->size());
+                obj++;
+                // cleanup on failure
+                if (outObj[i] == nullptr) {
+                    for (int j = 0; j < i; ++j) {
+                        Py_DECREF(outObj[j]);
+                    }
+                    CAFFE_THROW("Failed to allocate string for ndarray of strings.");
+                }
+            }
+            return result;
+        } break;
     }
 
     if (result.copied) {
@@ -175,16 +202,29 @@ class TensorFeeder : public BlobFeederBase {
 
     // Now, copy the data to the tensor.
     switch (npy_type) {
+      case NPY_UNICODE: {
+        auto* outPtr = tensor->template mutable_data<std::string>();
+
+        for (int i = 0; i < tensor->size(); ++i) {
+            PyObject* item = PyArray_GETITEM(array, (char *)PyArray_GETPTR1(array, i));
+          Py_ssize_t strSize;
+          char* str = PyUnicode_AsUTF8AndSize(item, &strSize);
+          CAFFE_ENFORCE(
+               str != NULL,
+              "Unsupported python object type passed into ndarray.");
+          outPtr[i] = std::string(str, strSize);
+        }
+      } break;
       case NPY_OBJECT: {
         PyObject** input = reinterpret_cast<PyObject**>(PyArray_DATA(array));
-        auto* outPtr = tensor->template mutable_data<std::string>();
+        auto* outPtr = tensor->template mutable_data<std::vector<uint8_t>>();
         for (int i = 0; i < tensor->size(); ++i) {
           char* str;
           Py_ssize_t strSize;
           CAFFE_ENFORCE(
               PyBytes_AsStringAndSize(input[i], &str, &strSize) != -1,
               "Unsupported python object type passed into ndarray.");
-          outPtr[i] = std::string(str, strSize);
+          outPtr[i] = std::vector<uint8_t>(str, str + strSize);
         }
       } break;
       default:
