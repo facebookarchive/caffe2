@@ -6,7 +6,7 @@ from future import standard_library
 standard_library.install_aliases()
 import numpy as np
 import copy
-from functools import partial, reduce
+from functools import partial, reduce, cmp_to_key
 from hypothesis import assume, given, settings
 import hypothesis.strategies as st
 import unittest
@@ -958,7 +958,7 @@ class TestOperators(hu.HypothesisTestCase):
                 # we no longer have cmp function in python 3
                 pred_sorted = sorted([
                     [item, j] for j, item in enumerate(prediction[i])],
-                    cmp=lambda x, y: int(y[0] > x[0]) - int(y[0] < x[0]))
+                    key=cmp_to_key(lambda x, y: int(y[0] > x[0]) - int(y[0] < x[0])))
                 max_ids = [x[1] for x in pred_sorted[0:top_k]]
                 for m in max_ids:
                     if m == labels[i]:
