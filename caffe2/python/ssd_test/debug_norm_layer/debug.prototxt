@@ -1,0 +1,34 @@
+layer {
+	name: "data"
+	type: "Input"
+	top: "data"
+	input_param {
+	shape {
+			dim: 1
+			dim: 512
+			dim: 38
+			dim: 38
+	}
+	}
+}
+
+layer {
+	name: "conv4_3_norm"
+	type: "Normalize"
+	bottom: "data"
+	top: "conv4_3_norm"
+	norm_param {
+		across_spatial: false
+		scale_filler {
+			type: "constant"
+			value: 20
+		}
+		channel_shared: false
+	}
+}
+
+layer {
+	name: "silence"
+	type: "Silence"
+	bottom: "conv4_3_norm"
+}

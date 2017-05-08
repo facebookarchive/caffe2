@@ -1,0 +1,39 @@
+input: "data"
+input_shape {
+	dim: 1
+	dim: 3
+	dim: 300
+	dim: 300
+}
+
+input: "conv4_norm"
+input_shape {
+	dim: 1
+	dim: 512
+	dim: 38
+	dim: 38
+}
+
+layer {
+  name: "conv4_3_norm_mbox_priorbox"
+	type: "PriorBox"
+	bottom: "conv4_norm"
+	bottom: "data"
+	top: "conv4_3_norm_mbox_priorbox"
+	prior_box_param {
+		min_size: 21.0
+		min_size: 30.0
+		max_size: 45.0
+		max_size: 60.0
+		aspect_ratio: 2
+		aspect_ratio: 3
+		aspect_ratio: 8
+		flip: true
+		clip: false
+		variance: 0.1
+		variance: 0.1
+		variance: 0.2
+		variance: 0.2
+		step: 8
+	}
+}
