@@ -404,7 +404,15 @@ message LayerParameter {
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
   optional NormalizeParameter norm_param = 206;
+  optional PermuteParameter permute_param = 202;
   optional PriorBoxParameter prior_box_param = 203;
+}
+
+message PermuteParameter {
+  // The new orders of the axes of data. Notice it should be with
+  // in the same range as the input data, and it starts from 0.
+  // Do not provide repeated order.
+  repeated uint32 order = 1;
 }
 
 // Message that store parameters used by PriorBoxLayer

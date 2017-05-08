@@ -618,7 +618,7 @@ def TranslateNormalize(layer, pretrained_blobs, is_test):
     return caffe_op, [scale]
 
 @TranslatorRegistry.Register("PriorBox")
-def TranslateNormalize(layer, pretrained_blobs, is_test):
+def TranslatePriorBox(layer, pretrained_blobs, is_test):
     caffe_op = BaseTranslate(layer, "PriorBox")
     output = caffe_op.output[0]
     param = layer.prior_box_param
@@ -636,6 +636,16 @@ def TranslateNormalize(layer, pretrained_blobs, is_test):
     AddArgument(caffe_op, "step_w", param.step_w)
     AddArgument(caffe_op, "offset", param.offset)
     AddArgument(caffe_op, "order", "NCHW")
+
+    return caffe_op, []
+
+@TranslatorRegistry.Register("Permute")
+def TranslatePermute(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "Transpose")
+    param = layer.permute_param
+    num_orders = len(param.order)
+    assert num_orders == 4
+    AddArgument(caffe_op, "axes", [param.order[i] for i in range(num_orders)])
 
     return caffe_op, []
 
