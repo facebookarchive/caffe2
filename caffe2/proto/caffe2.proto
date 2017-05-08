@@ -98,10 +98,12 @@ message Argument {
   optional string name = 1;
   optional float f = 2;
   optional int64 i = 3;
-  optional bytes s = 4;
-  repeated float floats = 5;
-  repeated int64 ints = 6;
-  repeated bytes strings = 7;
+  optional string s = 4;
+  optional bytes b = 5;
+  repeated float floats = 6;
+  repeated int64 ints = 7;
+  repeated string strings = 8;
+  repeated bytes bytes = 9;
 }
 
 // DeviceType that Caffe2 currently supports.

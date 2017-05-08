@@ -82,8 +82,9 @@ def MakeArgument(key, value):
         # int.
         argument.i = value
     elif isinstance(value, basestring):
-        argument.s = (value if type(value) is bytes
-                      else value.encode('utf-8'))
+        argument.s = value
+    elif isinstance(value, bytes):
+        argument.b = value
     elif isinstance(value, Message):
         argument.s = value.SerializeToString()
     elif iterable and all(type(v) in [float, np.float_] for v in value):
@@ -91,10 +92,11 @@ def MakeArgument(key, value):
     elif iterable and all(type(v) in [int, bool, long, np.int_] for v in value):
         argument.ints.extend(value)
     elif iterable and all(isinstance(v, basestring) for v in value):
-        argument.strings.extend([
-            (v if type(v) is bytes else v.encode('utf-8')) for v in value])
+        argument.strings.extend(value)
+    elif iterable and all(isinstance(v, bytes) for v in value):
+        argument.bytes.extend(value)
     elif iterable and all(isinstance(v, Message) for v in value):
-        argument.strings.extend([v.SerializeToString() for v in value])
+        argument.bytes.extend([v.SerializeToString() for v in value])
     else:
         raise ValueError(
             "Unknown argument type: key=%s value=%s, value type=%s" %
