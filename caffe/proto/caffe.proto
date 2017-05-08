@@ -403,6 +403,61 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+  optional NormalizeParameter norm_param = 206;
+  optional PriorBoxParameter prior_box_param = 203;
+}
+
+// Message that store parameters used by PriorBoxLayer
+message PriorBoxParameter {
+  // Encode/decode type.
+  enum CodeType {
+    CORNER = 1;
+    CENTER_SIZE = 2;
+    CORNER_SIZE = 3;
+  }
+  // Minimum box size (in pixels). Required!
+  repeated float min_size = 1;
+  // Maximum box size (in pixels). Required!
+  repeated float max_size = 2;
+  // Various of aspect ratios. Duplicate ratios will be ignored.
+  // If none is provided, we use default ratio 1.
+  repeated float aspect_ratio = 3;
+  // If true, will flip each aspect ratio.
+  // For example, if there is aspect ratio "r",
+  // we will generate aspect ratio "1.0/r" as well.
+  optional bool flip = 4 [default = true];
+  // If true, will clip the prior so that it is within [0, 1]
+  optional bool clip = 5 [default = false];
+  // Variance for adjusting the prior bboxes.
+  repeated float variance = 6;
+  // By default, we calculate img_height, img_width, step_x, step_y based on
+  // bottom[0] (feat) and bottom[1] (img). Unless these values are explicitely
+  // provided.
+  // Explicitly provide the img_size.
+  optional uint32 img_size = 7;
+  // Either img_size or img_h/img_w should be specified; not both.
+  optional uint32 img_h = 8;
+  optional uint32 img_w = 9;
+
+  // Explicitly provide the step size.
+  optional float step = 10;
+  // Either step or step_h/step_w should be specified; not both.
+  optional float step_h = 11;
+  optional float step_w = 12;
+
+  // Offset to the top left corner of each cell.
+  optional float offset = 13 [default = 0.5];
+}
+
+// Message that stores parameters used by NormalizeLayer
+message NormalizeParameter {
+  optional bool across_spatial = 1 [default = true];
+  // Initial value of scale. Default is 1.0 for all
+  optional FillerParameter scale_filler = 2;
+  // Whether or not scale parameters are shared across channels.
+  optional bool channel_shared = 3 [default = true];
+  // Epsilon for not dividing by zero while normalizing variance
+  optional float eps = 4 [default = 1e-10];
 }
 
 // Message that stores parameters used to apply transformation

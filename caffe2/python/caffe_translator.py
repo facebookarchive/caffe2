@@ -6,6 +6,7 @@ import argparse
 import copy
 import logging
 import numpy as np  # noqa
+import sys
 
 from caffe2.proto import caffe2_pb2, caffe2_legacy_pb2
 from caffe.proto import caffe_pb2
@@ -593,13 +594,50 @@ def TranslateBatchNorm(layer, pretrained_blobs, is_test):
     var = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[1], output + '_var')
     pretrained_blobs[2] = np.tile(pretrained_blobs[2], (n_channels, ))
     scale = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[2], output + '_scale')
-
+    
     # Create a zero bias array the same size as the scale, we'll let the following
     # Scale (Mul + Add operators in Caffe2) layer handle any bias, just like Caffe
     bias = utils.NumpyArrayToCaffe2Tensor(np.zeros_like(pretrained_blobs[2]), output + '_bias')
 
     return caffe_op, [scale, bias, mean, var]
 
+@TranslatorRegistry.Register("Normalize")
+def TranslateNormalize(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "Norm")
+    output = caffe_op.output[0]
+    param = layer.norm_param
+    AddArgument(caffe_op, "across_spatial", param.across_spatial)
+    AddArgument(caffe_op, "eps", param.eps)
+    AddArgument(caffe_op, "channel_shared", param.channel_shared)
+    AddArgument(caffe_op, "order", "NCHW")
+
+    caffe_op.input.extend([output + "_scale"])
+    scale = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_scale')
+    
+
+    return caffe_op, [scale]
+
+@TranslatorRegistry.Register("PriorBox")
+def TranslateNormalize(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "PriorBox")
+    output = caffe_op.output[0]
+    param = layer.prior_box_param
+    AddArgument(caffe_op, "min_sizes", [param.min_size[i] for i in range(len(param.min_size))])
+    AddArgument(caffe_op, "max_sizes", [param.max_size[i] for i in range(len(param.max_size))])
+    AddArgument(caffe_op, "aspect_ratios", [param.aspect_ratio[i] for i in range(len(param.aspect_ratio))])
+    AddArgument(caffe_op, "flip", param.flip)
+    AddArgument(caffe_op, "clip", param.clip)
+    AddArgument(caffe_op, "variance", [param.variance[i] for i in range(len(param.variance))])
+    AddArgument(caffe_op, "img_size", param.img_size)
+    AddArgument(caffe_op, "img_w", param.img_w)
+    AddArgument(caffe_op, "img_h", param.img_h)
+    AddArgument(caffe_op, "step", param.step)
+    AddArgument(caffe_op, "step_h", param.step_h)
+    AddArgument(caffe_op, "step_w", param.step_w)
+    AddArgument(caffe_op, "offset", param.offset)
+    AddArgument(caffe_op, "order", "NCHW")
+
+    return caffe_op, []
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -616,7 +654,7 @@ if __name__ == '__main__':
     input_caffemodel = args.caffemodel
     output_init_net = args.init_net
     output_predict_net = args.predict_net
-
+    
     text_format.Merge(
         open(input_proto).read(), caffenet
     )

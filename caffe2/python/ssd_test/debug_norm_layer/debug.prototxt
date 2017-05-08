@@ -27,8 +27,3 @@ layer {
 	}
 }
 
-layer {
-	name: "silence"
-	type: "Silence"
-	bottom: "conv4_3_norm"
-}
