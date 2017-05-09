@@ -72,6 +72,7 @@ def main(args):
 
 
     caffe2_out = workspace.FetchBlob(args.blob)
+    np.save('./caffe2_det.npy', caffe2_out)
 
     #print net_def
     #print caffe1_out.shape, caffe2_out.shape
