@@ -1,0 +1,2227 @@
+name: "VGG_VOC0712_SSD_300x300_deploy"
+op {
+  input: "data"
+  input: "conv1_1_w"
+  input: "conv1_1_b"
+  output: "conv1_1"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv1_1"
+  output: "conv1_1"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv1_1"
+  input: "conv1_2_w"
+  input: "conv1_2_b"
+  output: "conv1_2"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv1_2"
+  output: "conv1_2"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv1_2"
+  output: "pool1"
+  type: "MaxPool"
+  arg {
+    name: "stride"
+    i: 2
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 2
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  arg {
+    name: "legacy_pad"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "pool1"
+  input: "conv2_1_w"
+  input: "conv2_1_b"
+  output: "conv2_1"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv2_1"
+  output: "conv2_1"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv2_1"
+  input: "conv2_2_w"
+  input: "conv2_2_b"
+  output: "conv2_2"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv2_2"
+  output: "conv2_2"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv2_2"
+  output: "pool2"
+  type: "MaxPool"
+  arg {
+    name: "stride"
+    i: 2
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 2
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  arg {
+    name: "legacy_pad"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "pool2"
+  input: "conv3_1_w"
+  input: "conv3_1_b"
+  output: "conv3_1"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv3_1"
+  output: "conv3_1"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv3_1"
+  input: "conv3_2_w"
+  input: "conv3_2_b"
+  output: "conv3_2"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv3_2"
+  output: "conv3_2"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv3_2"
+  input: "conv3_3_w"
+  input: "conv3_3_b"
+  output: "conv3_3"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv3_3"
+  output: "conv3_3"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv3_3"
+  output: "pool3"
+  type: "MaxPool"
+  arg {
+    name: "stride"
+    i: 2
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 2
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  arg {
+    name: "legacy_pad"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "pool3"
+  input: "conv4_1_w"
+  input: "conv4_1_b"
+  output: "conv4_1"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_1"
+  output: "conv4_1"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_1"
+  input: "conv4_2_w"
+  input: "conv4_2_b"
+  output: "conv4_2"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_2"
+  output: "conv4_2"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_2"
+  input: "conv4_3_w"
+  input: "conv4_3_b"
+  output: "conv4_3"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3"
+  output: "conv4_3"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3"
+  output: "pool4"
+  type: "MaxPool"
+  arg {
+    name: "stride"
+    i: 2
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 2
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  arg {
+    name: "legacy_pad"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "pool4"
+  input: "conv5_1_w"
+  input: "conv5_1_b"
+  output: "conv5_1"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  arg {
+    name: "dilation"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv5_1"
+  output: "conv5_1"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv5_1"
+  input: "conv5_2_w"
+  input: "conv5_2_b"
+  output: "conv5_2"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  arg {
+    name: "dilation"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv5_2"
+  output: "conv5_2"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv5_2"
+  input: "conv5_3_w"
+  input: "conv5_3_b"
+  output: "conv5_3"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  arg {
+    name: "dilation"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv5_3"
+  output: "conv5_3"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv5_3"
+  output: "pool5"
+  type: "MaxPool"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  arg {
+    name: "legacy_pad"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "pool5"
+  input: "fc6_w"
+  input: "fc6_b"
+  output: "fc6"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 6
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  arg {
+    name: "dilation"
+    i: 6
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc6"
+  output: "fc6"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc6"
+  input: "fc7_w"
+  input: "fc7_b"
+  output: "fc7"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc7"
+  output: "fc7"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc7"
+  input: "conv6_1_w"
+  input: "conv6_1_b"
+  output: "conv6_1"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_1"
+  output: "conv6_1"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_1"
+  input: "conv6_2_w"
+  input: "conv6_2_b"
+  output: "conv6_2"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 2
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_2"
+  output: "conv6_2"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_2"
+  input: "conv7_1_w"
+  input: "conv7_1_b"
+  output: "conv7_1"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_1"
+  output: "conv7_1"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_1"
+  input: "conv7_2_w"
+  input: "conv7_2_b"
+  output: "conv7_2"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 2
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_2"
+  output: "conv7_2"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_2"
+  input: "conv8_1_w"
+  input: "conv8_1_b"
+  output: "conv8_1"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_1"
+  output: "conv8_1"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_1"
+  input: "conv8_2_w"
+  input: "conv8_2_b"
+  output: "conv8_2"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_2"
+  output: "conv8_2"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_2"
+  input: "conv9_1_w"
+  input: "conv9_1_b"
+  output: "conv9_1"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv9_1"
+  output: "conv9_1"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv9_1"
+  input: "conv9_2_w"
+  input: "conv9_2_b"
+  output: "conv9_2"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 0
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv9_2"
+  output: "conv9_2"
+  type: "Relu"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3"
+  input: "conv4_3_norm_scale"
+  output: "conv4_3_norm"
+  type: "Norm"
+  arg {
+    name: "across_spatial"
+    i: 0
+  }
+  arg {
+    name: "eps"
+    f: 1.00000001335e-10
+  }
+  arg {
+    name: "channel_shared"
+    i: 0
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+}
+op {
+  input: "conv4_3_norm"
+  input: "conv4_3_norm_mbox_loc_w"
+  input: "conv4_3_norm_mbox_loc_b"
+  output: "conv4_3_norm_mbox_loc"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3_norm_mbox_loc"
+  output: "conv4_3_norm_mbox_loc_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3_norm_mbox_loc_perm"
+  output: "conv4_3_norm_mbox_loc_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3_norm"
+  input: "conv4_3_norm_mbox_conf_w"
+  input: "conv4_3_norm_mbox_conf_b"
+  output: "conv4_3_norm_mbox_conf"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3_norm_mbox_conf"
+  output: "conv4_3_norm_mbox_conf_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3_norm_mbox_conf_perm"
+  output: "conv4_3_norm_mbox_conf_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3_norm"
+  input: "data"
+  output: "conv4_3_norm_mbox_priorbox"
+  type: "PriorBox"
+  arg {
+    name: "min_sizes"
+    floats: 30.0
+  }
+  arg {
+    name: "max_sizes"
+    floats: 60.0
+  }
+  arg {
+    name: "aspect_ratios"
+    floats: 2.0
+  }
+  arg {
+    name: "flip"
+    i: 1
+  }
+  arg {
+    name: "clip"
+    i: 0
+  }
+  arg {
+    name: "variance"
+    floats: 0.10000000149
+    floats: 0.10000000149
+    floats: 0.20000000298
+    floats: 0.20000000298
+  }
+  arg {
+    name: "img_size"
+    i: 0
+  }
+  arg {
+    name: "img_w"
+    i: 0
+  }
+  arg {
+    name: "img_h"
+    i: 0
+  }
+  arg {
+    name: "step"
+    f: 8.0
+  }
+  arg {
+    name: "step_h"
+    f: 0.0
+  }
+  arg {
+    name: "step_w"
+    f: 0.0
+  }
+  arg {
+    name: "offset"
+    f: 0.5
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+}
+op {
+  input: "fc7"
+  input: "fc7_mbox_loc_w"
+  input: "fc7_mbox_loc_b"
+  output: "fc7_mbox_loc"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc7_mbox_loc"
+  output: "fc7_mbox_loc_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc7_mbox_loc_perm"
+  output: "fc7_mbox_loc_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc7"
+  input: "fc7_mbox_conf_w"
+  input: "fc7_mbox_conf_b"
+  output: "fc7_mbox_conf"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc7_mbox_conf"
+  output: "fc7_mbox_conf_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc7_mbox_conf_perm"
+  output: "fc7_mbox_conf_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "fc7"
+  input: "data"
+  output: "fc7_mbox_priorbox"
+  type: "PriorBox"
+  arg {
+    name: "min_sizes"
+    floats: 60.0
+  }
+  arg {
+    name: "max_sizes"
+    floats: 111.0
+  }
+  arg {
+    name: "aspect_ratios"
+    floats: 2.0
+    floats: 3.0
+  }
+  arg {
+    name: "flip"
+    i: 1
+  }
+  arg {
+    name: "clip"
+    i: 0
+  }
+  arg {
+    name: "variance"
+    floats: 0.10000000149
+    floats: 0.10000000149
+    floats: 0.20000000298
+    floats: 0.20000000298
+  }
+  arg {
+    name: "img_size"
+    i: 0
+  }
+  arg {
+    name: "img_w"
+    i: 0
+  }
+  arg {
+    name: "img_h"
+    i: 0
+  }
+  arg {
+    name: "step"
+    f: 16.0
+  }
+  arg {
+    name: "step_h"
+    f: 0.0
+  }
+  arg {
+    name: "step_w"
+    f: 0.0
+  }
+  arg {
+    name: "offset"
+    f: 0.5
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+}
+op {
+  input: "conv6_2"
+  input: "conv6_2_mbox_loc_w"
+  input: "conv6_2_mbox_loc_b"
+  output: "conv6_2_mbox_loc"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_2_mbox_loc"
+  output: "conv6_2_mbox_loc_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_2_mbox_loc_perm"
+  output: "conv6_2_mbox_loc_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_2"
+  input: "conv6_2_mbox_conf_w"
+  input: "conv6_2_mbox_conf_b"
+  output: "conv6_2_mbox_conf"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_2_mbox_conf"
+  output: "conv6_2_mbox_conf_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_2_mbox_conf_perm"
+  output: "conv6_2_mbox_conf_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv6_2"
+  input: "data"
+  output: "conv6_2_mbox_priorbox"
+  type: "PriorBox"
+  arg {
+    name: "min_sizes"
+    floats: 111.0
+  }
+  arg {
+    name: "max_sizes"
+    floats: 162.0
+  }
+  arg {
+    name: "aspect_ratios"
+    floats: 2.0
+    floats: 3.0
+  }
+  arg {
+    name: "flip"
+    i: 1
+  }
+  arg {
+    name: "clip"
+    i: 0
+  }
+  arg {
+    name: "variance"
+    floats: 0.10000000149
+    floats: 0.10000000149
+    floats: 0.20000000298
+    floats: 0.20000000298
+  }
+  arg {
+    name: "img_size"
+    i: 0
+  }
+  arg {
+    name: "img_w"
+    i: 0
+  }
+  arg {
+    name: "img_h"
+    i: 0
+  }
+  arg {
+    name: "step"
+    f: 32.0
+  }
+  arg {
+    name: "step_h"
+    f: 0.0
+  }
+  arg {
+    name: "step_w"
+    f: 0.0
+  }
+  arg {
+    name: "offset"
+    f: 0.5
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+}
+op {
+  input: "conv7_2"
+  input: "conv7_2_mbox_loc_w"
+  input: "conv7_2_mbox_loc_b"
+  output: "conv7_2_mbox_loc"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_2_mbox_loc"
+  output: "conv7_2_mbox_loc_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_2_mbox_loc_perm"
+  output: "conv7_2_mbox_loc_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_2"
+  input: "conv7_2_mbox_conf_w"
+  input: "conv7_2_mbox_conf_b"
+  output: "conv7_2_mbox_conf"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_2_mbox_conf"
+  output: "conv7_2_mbox_conf_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_2_mbox_conf_perm"
+  output: "conv7_2_mbox_conf_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv7_2"
+  input: "data"
+  output: "conv7_2_mbox_priorbox"
+  type: "PriorBox"
+  arg {
+    name: "min_sizes"
+    floats: 162.0
+  }
+  arg {
+    name: "max_sizes"
+    floats: 213.0
+  }
+  arg {
+    name: "aspect_ratios"
+    floats: 2.0
+    floats: 3.0
+  }
+  arg {
+    name: "flip"
+    i: 1
+  }
+  arg {
+    name: "clip"
+    i: 0
+  }
+  arg {
+    name: "variance"
+    floats: 0.10000000149
+    floats: 0.10000000149
+    floats: 0.20000000298
+    floats: 0.20000000298
+  }
+  arg {
+    name: "img_size"
+    i: 0
+  }
+  arg {
+    name: "img_w"
+    i: 0
+  }
+  arg {
+    name: "img_h"
+    i: 0
+  }
+  arg {
+    name: "step"
+    f: 64.0
+  }
+  arg {
+    name: "step_h"
+    f: 0.0
+  }
+  arg {
+    name: "step_w"
+    f: 0.0
+  }
+  arg {
+    name: "offset"
+    f: 0.5
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+}
+op {
+  input: "conv8_2"
+  input: "conv8_2_mbox_loc_w"
+  input: "conv8_2_mbox_loc_b"
+  output: "conv8_2_mbox_loc"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_2_mbox_loc"
+  output: "conv8_2_mbox_loc_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_2_mbox_loc_perm"
+  output: "conv8_2_mbox_loc_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_2"
+  input: "conv8_2_mbox_conf_w"
+  input: "conv8_2_mbox_conf_b"
+  output: "conv8_2_mbox_conf"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_2_mbox_conf"
+  output: "conv8_2_mbox_conf_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_2_mbox_conf_perm"
+  output: "conv8_2_mbox_conf_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv8_2"
+  input: "data"
+  output: "conv8_2_mbox_priorbox"
+  type: "PriorBox"
+  arg {
+    name: "min_sizes"
+    floats: 213.0
+  }
+  arg {
+    name: "max_sizes"
+    floats: 264.0
+  }
+  arg {
+    name: "aspect_ratios"
+    floats: 2.0
+  }
+  arg {
+    name: "flip"
+    i: 1
+  }
+  arg {
+    name: "clip"
+    i: 0
+  }
+  arg {
+    name: "variance"
+    floats: 0.10000000149
+    floats: 0.10000000149
+    floats: 0.20000000298
+    floats: 0.20000000298
+  }
+  arg {
+    name: "img_size"
+    i: 0
+  }
+  arg {
+    name: "img_w"
+    i: 0
+  }
+  arg {
+    name: "img_h"
+    i: 0
+  }
+  arg {
+    name: "step"
+    f: 100.0
+  }
+  arg {
+    name: "step_h"
+    f: 0.0
+  }
+  arg {
+    name: "step_w"
+    f: 0.0
+  }
+  arg {
+    name: "offset"
+    f: 0.5
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+}
+op {
+  input: "conv9_2"
+  input: "conv9_2_mbox_loc_w"
+  input: "conv9_2_mbox_loc_b"
+  output: "conv9_2_mbox_loc"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv9_2_mbox_loc"
+  output: "conv9_2_mbox_loc_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv9_2_mbox_loc_perm"
+  output: "conv9_2_mbox_loc_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv9_2"
+  input: "conv9_2_mbox_conf_w"
+  input: "conv9_2_mbox_conf_b"
+  output: "conv9_2_mbox_conf"
+  type: "Conv"
+  arg {
+    name: "stride"
+    i: 1
+  }
+  arg {
+    name: "pad"
+    i: 1
+  }
+  arg {
+    name: "kernel"
+    i: 3
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv9_2_mbox_conf"
+  output: "conv9_2_mbox_conf_perm"
+  type: "Transpose"
+  arg {
+    name: "axes"
+    ints: 0
+    ints: 2
+    ints: 3
+    ints: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv9_2_mbox_conf_perm"
+  output: "conv9_2_mbox_conf_flat"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv9_2"
+  input: "data"
+  output: "conv9_2_mbox_priorbox"
+  type: "PriorBox"
+  arg {
+    name: "min_sizes"
+    floats: 264.0
+  }
+  arg {
+    name: "max_sizes"
+    floats: 315.0
+  }
+  arg {
+    name: "aspect_ratios"
+    floats: 2.0
+  }
+  arg {
+    name: "flip"
+    i: 1
+  }
+  arg {
+    name: "clip"
+    i: 0
+  }
+  arg {
+    name: "variance"
+    floats: 0.10000000149
+    floats: 0.10000000149
+    floats: 0.20000000298
+    floats: 0.20000000298
+  }
+  arg {
+    name: "img_size"
+    i: 0
+  }
+  arg {
+    name: "img_w"
+    i: 0
+  }
+  arg {
+    name: "img_h"
+    i: 0
+  }
+  arg {
+    name: "step"
+    f: 300.0
+  }
+  arg {
+    name: "step_h"
+    f: 0.0
+  }
+  arg {
+    name: "step_w"
+    f: 0.0
+  }
+  arg {
+    name: "offset"
+    f: 0.5
+  }
+  arg {
+    name: "order"
+    s: "NCHW"
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+}
+op {
+  input: "conv4_3_norm_mbox_loc_flat"
+  input: "fc7_mbox_loc_flat"
+  input: "conv6_2_mbox_loc_flat"
+  input: "conv7_2_mbox_loc_flat"
+  input: "conv8_2_mbox_loc_flat"
+  input: "conv9_2_mbox_loc_flat"
+  output: "mbox_loc"
+  output: "_mbox_loc_dims"
+  type: "Concat"
+  arg {
+    name: "axis"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3_norm_mbox_conf_flat"
+  input: "fc7_mbox_conf_flat"
+  input: "conv6_2_mbox_conf_flat"
+  input: "conv7_2_mbox_conf_flat"
+  input: "conv8_2_mbox_conf_flat"
+  input: "conv9_2_mbox_conf_flat"
+  output: "mbox_conf"
+  output: "_mbox_conf_dims"
+  type: "Concat"
+  arg {
+    name: "axis"
+    i: 1
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "conv4_3_norm_mbox_priorbox"
+  input: "fc7_mbox_priorbox"
+  input: "conv6_2_mbox_priorbox"
+  input: "conv7_2_mbox_priorbox"
+  input: "conv8_2_mbox_priorbox"
+  input: "conv9_2_mbox_priorbox"
+  output: "mbox_priorbox"
+  output: "_mbox_priorbox_dims"
+  type: "Concat"
+  arg {
+    name: "axis"
+    i: 2
+  }
+  device_option {
+    device_type: 0
+  }
+}
+op {
+  input: "mbox_conf"
+  output: "mbox_conf_reshape"
+  output: "_mbox_conf_dims"
+  type: "Reshape"
+  arg {
+    name: "shape"
+    ints: 0
+    ints: -1
+    ints: 21
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "mbox_conf_reshape"
+  output: "mbox_conf_softmax"
+  type: "Softmax"
+  arg {
+    name: "axis"
+    i: 2
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "mbox_conf_softmax"
+  output: "mbox_conf_flatten"
+  type: "Flatten"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+  engine: "CUDNN"
+}
+op {
+  input: "mbox_loc"
+  input: "mbox_conf_flatten"
+  input: "mbox_priorbox"
+  output: "detection_out"
+  type: "DetectionOutput"
+  arg {
+    name: "num_classes"
+    i: 21
+  }
+  arg {
+    name: "share_location"
+    i: 1
+  }
+  arg {
+    name: "background_label_id"
+    i: 0
+  }
+  arg {
+    name: "nms_threshold"
+    f: 0.449999988079
+  }
+  arg {
+    name: "top_k"
+    i: 400
+  }
+  arg {
+    name: "eta"
+    f: 1.0
+  }
+  arg {
+    name: "code_type"
+    i: 2
+  }
+  arg {
+    name: "variance_encoded_in_target"
+    i: 0
+  }
+  arg {
+    name: "keep_top_k"
+    i: 200
+  }
+  arg {
+    name: "confidence_threshold"
+    f: 0.00999999977648
+  }
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 3
+  }
+}
+external_input: "data"
+external_input: "conv1_1_w"
+external_input: "conv1_1_b"
+external_input: "conv1_2_w"
+external_input: "conv1_2_b"
+external_input: "conv2_1_w"
+external_input: "conv2_1_b"
+external_input: "conv2_2_w"
+external_input: "conv2_2_b"
+external_input: "conv3_1_w"
+external_input: "conv3_1_b"
+external_input: "conv3_2_w"
+external_input: "conv3_2_b"
+external_input: "conv3_3_w"
+external_input: "conv3_3_b"
+external_input: "conv4_1_w"
+external_input: "conv4_1_b"
+external_input: "conv4_2_w"
+external_input: "conv4_2_b"
+external_input: "conv4_3_w"
+external_input: "conv4_3_b"
+external_input: "conv5_1_w"
+external_input: "conv5_1_b"
+external_input: "conv5_2_w"
+external_input: "conv5_2_b"
+external_input: "conv5_3_w"
+external_input: "conv5_3_b"
+external_input: "fc6_w"
+external_input: "fc6_b"
+external_input: "fc7_w"
+external_input: "fc7_b"
+external_input: "conv6_1_w"
+external_input: "conv6_1_b"
+external_input: "conv6_2_w"
+external_input: "conv6_2_b"
+external_input: "conv7_1_w"
+external_input: "conv7_1_b"
+external_input: "conv7_2_w"
+external_input: "conv7_2_b"
+external_input: "conv8_1_w"
+external_input: "conv8_1_b"
+external_input: "conv8_2_w"
+external_input: "conv8_2_b"
+external_input: "conv9_1_w"
+external_input: "conv9_1_b"
+external_input: "conv9_2_w"
+external_input: "conv9_2_b"
+external_input: "conv4_3_norm_scale"
+external_input: "conv4_3_norm_mbox_loc_w"
+external_input: "conv4_3_norm_mbox_loc_b"
+external_input: "conv4_3_norm_mbox_conf_w"
+external_input: "conv4_3_norm_mbox_conf_b"
+external_input: "fc7_mbox_loc_w"
+external_input: "fc7_mbox_loc_b"
+external_input: "fc7_mbox_conf_w"
+external_input: "fc7_mbox_conf_b"
+external_input: "conv6_2_mbox_loc_w"
+external_input: "conv6_2_mbox_loc_b"
+external_input: "conv6_2_mbox_conf_w"
+external_input: "conv6_2_mbox_conf_b"
+external_input: "conv7_2_mbox_loc_w"
+external_input: "conv7_2_mbox_loc_b"
+external_input: "conv7_2_mbox_conf_w"
+external_input: "conv7_2_mbox_conf_b"
+external_input: "conv8_2_mbox_loc_w"
+external_input: "conv8_2_mbox_loc_b"
+external_input: "conv8_2_mbox_conf_w"
+external_input: "conv8_2_mbox_conf_b"
+external_input: "conv9_2_mbox_loc_w"
+external_input: "conv9_2_mbox_loc_b"
+external_input: "conv9_2_mbox_conf_w"
+external_input: "conv9_2_mbox_conf_b"
+external_output: "detection_out"

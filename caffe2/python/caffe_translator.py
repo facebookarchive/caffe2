@@ -375,6 +375,8 @@ def TranslateDropout(layer, pretrained_blobs, is_test):
 @TranslatorRegistry.Register("Softmax")
 def TranslateSoftmax(layer, pretrained_blobs, is_test):
     caffe_op = BaseTranslate(layer, "Softmax")
+    param = layer.softmax_param
+    AddArgument(caffe_op, "axis", param.axis)
     return caffe_op, []
 
 
@@ -650,6 +652,24 @@ def TranslatePermute(layer, pretrained_blobs, is_test):
     AddArgument(caffe_op, "axes", [param.order[i] for i in range(num_orders)])
 
     return caffe_op, []
+
+@TranslatorRegistry.Register("DetectionOutput")
+def TranslateDetectionOutput(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "DetectionOutput")
+    param = layer.detection_output_param
+    AddArgument(caffe_op, "num_classes", param.num_classes)
+    AddArgument(caffe_op, "share_location", param.share_location)
+    AddArgument(caffe_op, "background_label_id", param.background_label_id)
+    AddArgument(caffe_op, "nms_threshold", param.nms_param.nms_threshold)
+    AddArgument(caffe_op, "top_k", param.nms_param.top_k)
+    AddArgument(caffe_op, "eta", param.nms_param.eta)
+    AddArgument(caffe_op, "code_type", param.code_type)
+    AddArgument(caffe_op, "variance_encoded_in_target", param.variance_encoded_in_target)
+    AddArgument(caffe_op, "keep_top_k", param.keep_top_k)
+    AddArgument(caffe_op, "confidence_threshold", param.confidence_threshold)
+
+    return caffe_op, []
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
