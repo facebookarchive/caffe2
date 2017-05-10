@@ -17,9 +17,18 @@ However, due to different implementation details, the results might differ sligh
 ### Getting started
 * Clone my caffe2 & Build Caffe2: Follow the official instructions.
 
-### Download the model
+### Models
 - [VGGNet_VOC0712_SSD_300x300_ft](https://pan.baidu.com/s/1gfceC6Z)
 
-###
-
-
+### VGGNet_VOC0712_SSD_300x300_ft
+After download the models_VGGNet_VOC0712_SSD_300x300_ft.tar.gz model, 
+put it to {CAFFE2_HOME/caffe2/python/examples/ssd} and extract it:
+* Run
+```
+cd {CAFFE2_HOME/caffe2/python}
+cp models_VGGNet_VOC0712_SSD_300x300_ft.tar.gz ./examples/ssd
+tar -xvf examples/ssd/models_VGGNet_VOC0712_SSD_300x300_ft.tar.gz
+# Get the prototxt and caffemodel
+```
+* Convert deploy.prototxt and VGG_VOC0712_SSD_300x300_ft_iter_120000.caffemodel
+to caffe2.
