@@ -20,10 +20,9 @@ However, due to different implementation details, the results might differ sligh
 ### Models
 - [VGGNet_VOC0712_SSD_300x300_ft](https://pan.baidu.com/s/1gfceC6Z)
 
-### VGGNet_VOC0712_SSD_300x300_ft
-After download the models_VGGNet_VOC0712_SSD_300x300_ft.tar.gz model, 
-put it to {CAFFE2_HOME}/caffe2/python/examples/ssd and extract it:
-* Run
+### Example
+After download the original SSD model, put it to `{CAFFE2_HOME}/caffe2/python/examples/ssd` and extract it:
+1. Run
 ```
 # change folder
 cd {CAFFE2_HOME}/caffe2/python/examples/ssd
@@ -32,7 +31,7 @@ cp {Download}/models_VGGNet_VOC0712_SSD_300x300_ft.tar.gz .
 # get the prototxt and caffemodel
 tar -xvf models_VGGNet_VOC0712_SSD_300x300_ft.tar.gz
 ```
-* Convert deploy.prototxt and VGG_VOC0712_SSD_300x300_ft_iter_120000.caffemodel
+2. Convert deploy.prototxt and VGG_VOC0712_SSD_300x300_ft_iter_120000.caffemodel
 to caffe2.
 ```
 # change to {CAFFE2_HOME}/caffe2/python
@@ -44,4 +43,5 @@ python caffe_translator.py
 	--init_net examples/ssd/VGG_VOC0712_SSD_300x300_ft_iter_120000_model.pb 
 	--predict_net examples/ssd/VGG_VOC0712_SSD_300x300_ft_iter_120000_deploy.pb
 ```
-* Detection
+3. Detection
+Check out `examples/ssd/visualize_caffe2_implementation_det.ipynb` on how to detect objects using a caffe2 SSD model.
