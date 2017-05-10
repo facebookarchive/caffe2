@@ -17,7 +17,7 @@ Caffe2 with FP16 support will allow machine learning developers using NVIDIA Tes
 
 NVIDIA using the Tesla V100 and Caffe2 has initially seen 2.5x faster training with FP16 compared to Tesla P100, and up to 5x faster than Tesla K80 GPUs.
 
-**FP 16 training performance with NVIDIA® Tesla® GPUs (ResNet-50, Batch size: 64)**
+**FP 16 training performance with NVIDIA Tesla GPUs (ResNet-50, Batch size: 64)**
 
 
 ![](/static/images/Caffe2-FP16-Chart.png)
@@ -31,7 +31,7 @@ Caffe2 is open source and available at [GitHub](https://github.com/caffe2/caffe2
 
 We will have our first Caffe2 meetup in San Francisco bay area at the end of May. Please join our [Caffe2 meetup group](https://www.meetup.com/Caffe2-Bay-Area/).
 
-* [Homepage](https://caffe2.ai/)
-* [Github](https://github.com/caffe2/caffe2)
-* [Survey](https://www.surveymonkey.com/r/caffe2)
-* [Meetup](https://www.meetup.com/Caffe2-Bay-Area)
+* Homepage: [https://caffe2.ai/](https://caffe2.ai/)
+* Github: [https://github.com/caffe2/caffe2](https://github.com/caffe2/caffe2)
+* Survey: [https://www.surveymonkey.com/r/caffe2](https://www.surveymonkey.com/r/caffe2)
+* Meetup: [https://www.meetup.com/Caffe2-Bay-Area](https://www.meetup.com/Caffe2-Bay-Area)
