@@ -12,13 +12,14 @@ However, due to different implementation details, the results might differ sligh
 
 ### Timeline
 - [x] VGGNet_VOC0712_SSD_300x300_ft
-
+- [x] VGG_VOC0712Plus_SSD_300x300_ft
 
 ### Getting started
 * Clone my caffe2 & Build Caffe2: Follow the official instructions.
 
 ### Models
 - [VGGNet_VOC0712_SSD_300x300_ft](https://pan.baidu.com/s/1gfceC6Z)
+- [VGG_VOC0712Plus_SSD_300x300_ft]
 
 ### Example
 After download the original SSD model, put it to `{CAFFE2_HOME}/caffe2/python/examples/ssd` and extract it:
@@ -45,3 +46,4 @@ python caffe_translator.py
 ```
 3. Detection
 Check out `examples/ssd/visualize_caffe2_implementation_det.ipynb` on how to detect objects using a caffe2 SSD model.
+Check out `examples/ssd/visualize_caffe_implementation_det.ipynb` to compare the result of caffe with caffe2.
