@@ -46,5 +46,4 @@ python caffe_translator.py
 ```
 3. Detection
 Check out `examples/ssd/visualize_caffe2_implementation_det.ipynb` on how to detect objects using a caffe2 SSD model.
-
 Check out `examples/ssd/visualize_caffe_implementation_det.ipynb` to compare the result of caffe with caffe2.
