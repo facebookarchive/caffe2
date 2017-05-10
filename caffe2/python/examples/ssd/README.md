@@ -44,6 +44,5 @@ python caffe_translator.py
 	--init_net examples/ssd/VGG_VOC0712_SSD_300x300_ft_iter_120000_model.pb 
 	--predict_net examples/ssd/VGG_VOC0712_SSD_300x300_ft_iter_120000_deploy.pb
 ```
-3. Detection
-Check out `examples/ssd/visualize_caffe2_implementation_det.ipynb` on how to detect objects using a caffe2 SSD model.
+3. Check out `examples/ssd/visualize_caffe2_implementation_det.ipynb` on how to detect objects using a caffe2 SSD model.
 Check out `examples/ssd/visualize_caffe_implementation_det.ipynb` to compare the result of caffe with caffe2.
