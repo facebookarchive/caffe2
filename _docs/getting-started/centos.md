@@ -52,14 +52,19 @@ python-pip \
 snappy-devel
 ```
 
-glog is not found in yum for this version of Linux, so install from source:
+gflags and glog is not found in yum for this version of Linux, so install from source:
 
 ```
-git clone https://github.com/google/glog
-cd glog
-autoreconf -vfi
-./configure
-make && sudo make install && cd ..
+git clone https://github.com/gflags/gflags.git && \
+cd gflags && \
+mkdir build && cd build && \
+cmake3 -DCMAKE_CXX_FLAGS='-fPIC' .. && \
+make -j 8 && sudo make install && cd ../.. && \
+git clone https://github.com/google/glog && \
+cd glog && \
+mkdir build && cd build && \
+cmake3 -DCMAKE_CXX_FLAGS='-fPIC' .. && \
+make -j 8 && sudo make install && cd ../..
 ```
 
 **Troubleshooting `glog` compilation**
