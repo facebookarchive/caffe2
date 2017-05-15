@@ -565,6 +565,7 @@ end = time.time()
 print('Run time per RunNetOnce: {}'.format((end - start) / 1000))
 
 start = time.time()
+workspace.CreateNet(net)
 for i in range(1000):
     workspace.RunNet(net.Proto().name)
 end = time.time()
