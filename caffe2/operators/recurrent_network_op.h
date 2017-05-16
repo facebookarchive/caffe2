@@ -299,11 +299,15 @@ class RecurrentNetworkOp final : public Operator<Context> {
       stepWorkspaces.resize(seqLen);
     }
 
+    if (!has_backward_pass && stepWorkspaces.size() != 2) {
+      // Use alternating stepWorkspaces when forward_only=True
+      stepWorkspaces.resize(2);
+    }
+
     for (auto t = 0; t < seqLen; ++t) {
       auto& currentStepWorkspace =
-          (has_backward_pass ? stepWorkspaces[t] : sharedBlobsWs);
+          (has_backward_pass ? stepWorkspaces[t] : stepWorkspaces[t % 2]);
       if (!currentStepWorkspace) {
-        CHECK(has_backward_pass);
         currentStepWorkspace = std::make_shared<Workspace>(sharedBlobsWs.get());
       }
 
@@ -406,7 +410,7 @@ class RecurrentNetworkGradientOp final : public Operator<Context> {
       p.param = def().input(param[i] + gradInputs_.size());
       // See GetRecurrentNetworkGradient to understand offseting here
       p.grad = def().output(i + numSequences_);
-      p.cellGradient = param_grads.empty() ? "" : param_grads[i];
+      p.cellGradient = param_grads.empty() ? "" : remappedName(param_grads[i]);
       p.accGrad = p.grad + "_acc";
       params.push_back(p);
     }
