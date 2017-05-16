@@ -1,3 +1,4 @@
+#if defined(__linux__)
 #include <gtest/gtest.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -132,3 +133,4 @@ TEST(fatalSignalTest, SIGBUS8) {
 TEST(fatalSignalTest, SIGSEGV8) {
   TEST_FATAL_SIGNAL(SIGSEGV, "SIGSEGV", 8);
 }
+#endif // defined(__linux__)

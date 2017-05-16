@@ -25,7 +25,7 @@ class SignalHandler {
   unsigned long my_sighup_count_;
 };
 
-#if !defined(_MSC_VER)
+#if defined(__linux__)
 
 namespace internal {
 

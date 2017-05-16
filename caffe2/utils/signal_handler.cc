@@ -50,36 +50,6 @@ std::atomic<int> sigintCount(0);
 std::atomic<int> sighupCount(0);
 std::atomic<int> hookedUpCount(0);
 
-// We need to hold a reference to call the previous SIGUSR2 handler in case
-// we didn't signal it
-struct sigaction previousSigusr2;
-// Flag dictating whether the SIGUSR2 handler falls back to previous handlers
-// or is intercepted in order to print a stack trace.
-std::atomic<bool> fatalSignalReceived(false);
-// Global state set when a fatal signal is received so that backtracing threads
-// know why they're printing a stacktrace.
-const char* fatalSignalName("<UNKNOWN>");
-int fatalSignum(-1);
-// This wait condition is used to wait for other threads to finish writing
-// their stack trace when in fatal sig handler (we can't use pthread_join
-// because there's no way to convert from a tid to a pthread_t).
-pthread_cond_t writingCond = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t writingMutex = PTHREAD_MUTEX_INITIALIZER;
-
-struct {
-  const char* name;
-  int signum;
-  struct sigaction previous;
-} kSignalHandlers[] = {
-  { "SIGABRT",  SIGABRT,  {} },
-  { "SIGINT",   SIGINT,   {} },
-  { "SIGILL",   SIGILL,   {} },
-  { "SIGFPE",   SIGFPE,   {} },
-  { "SIGBUS",   SIGBUS,   {} },
-  { "SIGSEGV",  SIGSEGV,  {} },
-  { nullptr,    0,        {} }
-};
-
 void handleSignal(int signal) {
   switch (signal) {
     // TODO: what if the previous handler uses sa_sigaction?
@@ -138,6 +108,38 @@ void unhookHandler() {
     LOG(FATAL) << "Cannot uninstall SIGINT handler.";
   }
 }
+
+#if defined(__linux__)
+// We need to hold a reference to call the previous SIGUSR2 handler in case
+// we didn't signal it
+struct sigaction previousSigusr2;
+// Flag dictating whether the SIGUSR2 handler falls back to previous handlers
+// or is intercepted in order to print a stack trace.
+std::atomic<bool> fatalSignalReceived(false);
+// Global state set when a fatal signal is received so that backtracing threads
+// know why they're printing a stacktrace.
+const char* fatalSignalName("<UNKNOWN>");
+int fatalSignum(-1);
+// This wait condition is used to wait for other threads to finish writing
+// their stack trace when in fatal sig handler (we can't use pthread_join
+// because there's no way to convert from a tid to a pthread_t).
+pthread_cond_t writingCond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t writingMutex = PTHREAD_MUTEX_INITIALIZER;
+
+struct {
+  const char* name;
+  int signum;
+  struct sigaction previous;
+} kSignalHandlers[] = {
+  { "SIGABRT",  SIGABRT,  {} },
+  { "SIGINT",   SIGINT,   {} },
+  { "SIGILL",   SIGILL,   {} },
+  { "SIGFPE",   SIGFPE,   {} },
+  { "SIGBUS",   SIGBUS,   {} },
+  { "SIGSEGV",  SIGSEGV,  {} },
+  { nullptr,    0,        {} }
+};
+
 
 struct sigaction* getPreviousSigaction(int signum) {
   for (auto handler = kSignalHandlers; handler->name != nullptr; handler++) {
@@ -286,6 +288,8 @@ void stacktraceSignalHandler(int signum, siginfo_t* info, void* ctx) {
   }
 }
 
+#endif // defined(__linux__)
+
 } // namespace
 
 namespace caffe2 {
@@ -333,6 +337,8 @@ SignalHandler::Action SignalHandler::CheckForSignals() {
   return SignalHandler::Action::NONE;
 }
 
+#if defined(__linux__)
+
 namespace internal {
 
 // Installs SIGABRT signal handler so that we get stack traces
@@ -372,6 +378,8 @@ REGISTER_CAFFE2_EARLY_INIT_FUNCTION(
 
 } // namepsace internal
 
+#endif // defined(__linux__)
+
 }  // namespace caffe2
 
-#endif // defined(_MSC_VER)
+#endif // !defined(_MSC_VER)
