@@ -8,7 +8,10 @@ project(Caffe2 CXX C)
 # one is building from a git checkout.
 find_package(Git)
 if (GIT_FOUND)
-  execute_process(COMMAND git submodule update --init)
+  execute_process(
+    COMMAND git submodule update --init
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
 endif()
 
 # Useful functions.
