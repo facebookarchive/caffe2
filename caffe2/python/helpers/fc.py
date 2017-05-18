@@ -13,22 +13,41 @@ def _FC_or_packed_FC(
     bias_init=None, **kwargs
 ):
     """FC"""
+    dtype = kwargs['dtype']
     weight_init = weight_init or ('XavierFill', {})
     bias_init = bias_init or ('ConstantFill', {})
     blob_out = blob_out or model.net.NextName()
     if model.init_params:
-        weight = model.param_init_net.__getattr__(weight_init[0])(
-            [],
-            blob_out + '_w',
-            shape=[dim_out, dim_in],
-            **weight_init[1]
-        )
-        bias = model.param_init_net.__getattr__(bias_init[0])(
-            [],
-            blob_out + '_b',
-            shape=[dim_out, ],
-            **bias_init[1]
-        )
+        if dtype == "float16":
+            weight_fp32 = model.param_init_net.__getattr__(weight_init[0])(
+                [],
+                blob_out + '_w_fp32',
+                shape=[dim_out, dim_in],
+                **weight_init[1]
+            )
+            weight = model.param_init_net.FloatToHalf(weight_fp32, blob_out+'_w')
+            model.param_to_float_copy[weight] = weight_fp32
+            bias_fp32 = model.param_init_net.__getattr__(bias_init[0])(
+                [],
+                blob_out + '_b_fp32',
+                shape=[dim_out, ],
+                **bias_init[1]
+            )
+            bias = model.param_init_net.FloatToHalf(bias_fp32, blob_out+'_b')
+            model.param_to_float_copy[bias] = bias_fp32
+        else:
+            weight = model.param_init_net.__getattr__(weight_init[0])(
+                [],
+                blob_out + '_w',
+                shape=[dim_out, dim_in],
+                **weight_init[1]
+            )
+            bias = model.param_init_net.__getattr__(bias_init[0])(
+                [],
+                blob_out + '_b',
+                shape=[dim_out, ],
+                **bias_init[1]
+            )
     else:
         weight = core.ScopedBlobReference(
             blob_out + '_w', model.param_init_net)

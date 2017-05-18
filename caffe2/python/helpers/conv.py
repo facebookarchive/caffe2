@@ -26,6 +26,7 @@ def _ConvBase(
     ws_nbytes_limit=None,
     **kwargs
 ):
+    dtype = kwargs['dtype']
     kernels = []
     if is_nd:
         if not isinstance(kernel, list):
@@ -55,19 +56,39 @@ def _ConvBase(
         weight_shape.append(int(dim_in / group))
 
     if model.init_params:
-        weight = model.param_init_net.__getattr__(weight_init[0])(
-            [],
-            blob_out + '_w',
-            shape=weight_shape,
-            **weight_init[1]
-        )
-        if use_bias:
-            bias = model.param_init_net.__getattr__(bias_init[0])(
+        if dtype == "float16":
+            # initialize in fp32, cast down to fp16
+            weight_fp32 = model.param_init_net.__getattr__(weight_init[0])(
                 [],
-                blob_out + '_b',
-                shape=[dim_out, ],
-                **bias_init[1]
+                blob_out + '_w_fp32',
+                shape=weight_shape,
+                **weight_init[1]
             )
+            weight = model.param_init_net.FloatToHalf(weight_fp32, blob_out+'_w')
+            model.param_to_float_copy[weight] = weight_fp32
+            if use_bias:
+                bias_fp32 = model.param_init_net.__getattr__(bias_init[0])(
+                    [],
+                    blob_out + '_b_fp32',
+                    shape=[dim_out, ],
+                    **bias_init[1]
+                )
+                bias = model.param_init_net.FloatToHalf(bias_fp32, blob_out+'_b')
+                model.param_to_float_copy[bias] = bias_fp32
+        else:
+            weight = model.param_init_net.__getattr__(weight_init[0])(
+                [],
+                blob_out + '_w',
+                shape=weight_shape,
+                **weight_init[1]
+            )
+            if use_bias:
+                bias = model.param_init_net.__getattr__(bias_init[0])(
+                    [],
+                    blob_out + '_b',
+                    shape=[dim_out, ],
+                    **bias_init[1]
+                )
     else:
         weight = core.ScopedBlobReference(
             blob_out + '_w', model.param_init_net)

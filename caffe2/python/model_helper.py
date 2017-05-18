@@ -143,6 +143,7 @@ class ModelHelper(object):
             'use_cudnn': True,
             'cudnn_exhaustive_search': False,
         }
+        self.param_to_float_copy = {}
         if arg_scope is not None:
             # Please notice value as None is not acceptable. We are not checking it
             # here because we already have check in MakeArgument.
