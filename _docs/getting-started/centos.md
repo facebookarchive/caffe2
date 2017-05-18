@@ -146,7 +146,7 @@ Now you need to setup some environment variables for the build step.
 
 ```
 export CUDA_HOME=/opt/nvidia/cuda
-export LD_LIBRARY_PATY=/opt/nvidia/cuda/lib64:/usr/local/bin
+export LD_LIBRARY_PATH=/opt/nvidia/cuda/lib64:/usr/local/bin
 ```
 
 Almost done. Now you need to clone Caffe2 repo and build it (note: update the `-j8` with your system's number of processors; to check this, run `nproc` from the terminal.):
