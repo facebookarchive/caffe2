@@ -64,8 +64,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">seq2seq_util Namespace Reference</div>  </div>
 </div><!--header-->
@@ -74,23 +74,63 @@ $(function() {
 <p>Module caffe2.python.examples.seq2seq_util.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classseq2seq__util_1_1ModelHelper.html">ModelHelper</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ae976344ca3aac3e9b7134e07f0a17306"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceseq2seq__util.html#ae976344ca3aac3e9b7134e07f0a17306">rnn_unidirectional_encoder</a> (model, embedded_inputs, input_lengths, initial_hidden_state, initial_cell_state, embedding_size, encoder_num_units, use_attention)</td></tr>
-<tr class="separator:ae976344ca3aac3e9b7134e07f0a17306"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58bcd66ae9adf845974cf853c7ca529f"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceseq2seq__util.html#a58bcd66ae9adf845974cf853c7ca529f">rnn_bidirectional_encoder</a> (model, embedded_inputs, input_lengths, initial_hidden_state, initial_cell_state, embedding_size, encoder_num_units, use_attention)</td></tr>
-<tr class="separator:a58bcd66ae9adf845974cf853c7ca529f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5f976fd0de01280aafbf11a48eeda71"><td class="memItemLeft" align="right" valign="top"><a id="af5f976fd0de01280aafbf11a48eeda71"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>gen_vocab</b> (corpus, unk_threshold)</td></tr>
+<tr class="separator:af5f976fd0de01280aafbf11a48eeda71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7790ae3095df9bb4307746ab95111a9e"><td class="memItemLeft" align="right" valign="top"><a id="a7790ae3095df9bb4307746ab95111a9e"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>get_numberized_sentence</b> (sentence, vocab)</td></tr>
+<tr class="separator:a7790ae3095df9bb4307746ab95111a9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed25f26c422d986160dea1c9733906c7"><td class="memItemLeft" align="right" valign="top"><a id="aed25f26c422d986160dea1c9733906c7"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>build_embeddings</b> (model, vocab_size, embedding_size, name, freeze_embeddings)</td></tr>
+<tr class="separator:aed25f26c422d986160dea1c9733906c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06b2591e508cd90dd037cdcb37b7f2a5"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceseq2seq__util.html#a06b2591e508cd90dd037cdcb37b7f2a5">rnn_unidirectional_encoder</a> (model, embedded_inputs, input_lengths, initial_hidden_state, initial_cell_state, embedding_size, encoder_num_units, use_attention, scope=None)</td></tr>
+<tr class="separator:a06b2591e508cd90dd037cdcb37b7f2a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adebffff56a337d69053a842248ed3b33"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceseq2seq__util.html#adebffff56a337d69053a842248ed3b33">rnn_bidirectional_encoder</a> (model, embedded_inputs, input_lengths, initial_hidden_state, initial_cell_state, embedding_size, encoder_num_units, use_attention, scope=None)</td></tr>
+<tr class="separator:adebffff56a337d69053a842248ed3b33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acbe16cc5526e8b850d5454f4625aa232"><td class="memItemLeft" align="right" valign="top"><a id="acbe16cc5526e8b850d5454f4625aa232"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>build_embedding_encoder</b> (model, encoder_params, inputs, input_lengths, vocab_size, embeddings, embedding_size, use_attention, num_gpus=0, scope=None)</td></tr>
+<tr class="separator:acbe16cc5526e8b850d5454f4625aa232"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aace295d9c377a81a0170639192c25d00"><td class="memItemLeft" align="right" valign="top"><a id="aace295d9c377a81a0170639192c25d00"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>build_initial_rnn_decoder_states</b> (model, encoder_num_units, decoder_num_units, final_encoder_hidden_state, final_encoder_cell_state, use_attention)</td></tr>
+<tr class="separator:aace295d9c377a81a0170639192c25d00"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af37ce394bc81736c473ed39d55f55262"><td class="memItemLeft" align="right" valign="top"><a id="af37ce394bc81736c473ed39d55f55262"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>output_projection</b> (model, decoder_outputs, decoder_output_size, target_vocab_size, decoder_softmax_size)</td></tr>
+<tr class="separator:af37ce394bc81736c473ed39d55f55262"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a702c6bb1ad7e2ec89bbe6b16a01fa762"><td class="memItemLeft" align="right" valign="top"><a id="a702c6bb1ad7e2ec89bbe6b16a01fa762"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>PAD_ID</b> = 0</td></tr>
+<tr class="separator:a702c6bb1ad7e2ec89bbe6b16a01fa762"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a2e7ca53a6599461225c17eef2fc4b4"><td class="memItemLeft" align="right" valign="top"><a id="a6a2e7ca53a6599461225c17eef2fc4b4"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>PAD</b> = '&lt;PAD&gt;'</td></tr>
+<tr class="separator:a6a2e7ca53a6599461225c17eef2fc4b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3fb97ffc6e87d016434e5cd94113b34f"><td class="memItemLeft" align="right" valign="top"><a id="a3fb97ffc6e87d016434e5cd94113b34f"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>GO_ID</b> = 1</td></tr>
+<tr class="separator:a3fb97ffc6e87d016434e5cd94113b34f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8dc3211a2d255df2b567fd69c016750d"><td class="memItemLeft" align="right" valign="top"><a id="a8dc3211a2d255df2b567fd69c016750d"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>GO</b> = '&lt;GO&gt;'</td></tr>
+<tr class="separator:a8dc3211a2d255df2b567fd69c016750d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17903efaf2e494133dca0673003436cb"><td class="memItemLeft" align="right" valign="top"><a id="a17903efaf2e494133dca0673003436cb"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>EOS_ID</b> = 2</td></tr>
+<tr class="separator:a17903efaf2e494133dca0673003436cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0de5d7e570a153569fc7e1c605555832"><td class="memItemLeft" align="right" valign="top"><a id="a0de5d7e570a153569fc7e1c605555832"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>EOS</b> = '&lt;EOS&gt;'</td></tr>
+<tr class="separator:a0de5d7e570a153569fc7e1c605555832"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c8994a4e2a314a3e74f08a5d424739f"><td class="memItemLeft" align="right" valign="top"><a id="a7c8994a4e2a314a3e74f08a5d424739f"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>UNK_ID</b> = 3</td></tr>
+<tr class="separator:a7c8994a4e2a314a3e74f08a5d424739f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af66ee1a10db88ff23153c2a6fd7c1328"><td class="memItemLeft" align="right" valign="top"><a id="af66ee1a10db88ff23153c2a6fd7c1328"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>UNK</b> = '&lt;UNK&gt;'</td></tr>
+<tr class="separator:af66ee1a10db88ff23153c2a6fd7c1328"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.examples.seq2seq_util. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a58bcd66ae9adf845974cf853c7ca529f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a58bcd66ae9adf845974cf853c7ca529f">&#9670;&nbsp;</a></span>rnn_bidirectional_encoder()</h2>
+<a id="adebffff56a337d69053a842248ed3b33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adebffff56a337d69053a842248ed3b33">&#9670;&nbsp;</a></span>rnn_bidirectional_encoder()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -141,7 +181,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>use_attention</em>&#160;</td>
+          <td class="paramname"><em>use_attention</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>scope</em> = <code>None</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -151,12 +197,12 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Bidirectional (forward pass and backward pass) LSTM encoder.</pre> 
-<p class="definition">Definition at line <a class="el" href="seq2seq__util_8py_source.html#l00091">91</a> of file <a class="el" href="seq2seq__util_8py_source.html">seq2seq_util.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="seq2seq__util_8py_source.html#l00111">111</a> of file <a class="el" href="seq2seq__util_8py_source.html">seq2seq_util.py</a>.</p>
 
 </div>
 </div>
-<a id="ae976344ca3aac3e9b7134e07f0a17306"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae976344ca3aac3e9b7134e07f0a17306">&#9670;&nbsp;</a></span>rnn_unidirectional_encoder()</h2>
+<a id="a06b2591e508cd90dd037cdcb37b7f2a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06b2591e508cd90dd037cdcb37b7f2a5">&#9670;&nbsp;</a></span>rnn_unidirectional_encoder()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -207,7 +253,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>use_attention</em>&#160;</td>
+          <td class="paramname"><em>use_attention</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>scope</em> = <code>None</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -217,7 +269,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Unidirectional (forward pass) LSTM encoder.</pre> 
-<p class="definition">Definition at line <a class="el" href="seq2seq__util_8py_source.html#l00066">66</a> of file <a class="el" href="seq2seq__util_8py_source.html">seq2seq_util.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="seq2seq__util_8py_source.html#l00085">85</a> of file <a class="el" href="seq2seq__util_8py_source.html">seq2seq_util.py</a>.</p>
 
 </div>
 </div>
@@ -225,7 +277,7 @@ Functions</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:10 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

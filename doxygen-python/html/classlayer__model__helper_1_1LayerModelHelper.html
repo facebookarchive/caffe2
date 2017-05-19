@@ -81,15 +81,15 @@ Inheritance diagram for layer_model_helper.LayerModelHelper:</div>
  <div class="center">
   <img src="classlayer__model__helper_1_1LayerModelHelper.png" usemap="#layer_5Fmodel_5Fhelper.LayerModelHelper_map" alt=""/>
   <map id="layer_5Fmodel_5Fhelper.LayerModelHelper_map" name="layer_5Fmodel_5Fhelper.LayerModelHelper_map">
-<area href="classmodel__helper_1_1ModelHelperBase.html" alt="model_helper.ModelHelperBase" shape="rect" coords="0,56,234,80"/>
+<area href="classmodel__helper_1_1ModelHelper.html" alt="model_helper.ModelHelper" shape="rect" coords="0,56,234,80"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a786d1c306f4e0cad6bb85aa3d471cd41"><td class="memItemLeft" align="right" valign="top"><a id="a786d1c306f4e0cad6bb85aa3d471cd41"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, name, input_feature_schema, trainer_extra_schema)</td></tr>
-<tr class="separator:a786d1c306f4e0cad6bb85aa3d471cd41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1444b75bcdb6d1172524313cbff882d9"><td class="memItemLeft" align="right" valign="top"><a id="a1444b75bcdb6d1172524313cbff882d9"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, name, input_feature_schema, trainer_extra_schema, keep_blobs=False)</td></tr>
+<tr class="separator:a1444b75bcdb6d1172524313cbff882d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a761feecf930824c5e098bc07d3d0a6b1"><td class="memItemLeft" align="right" valign="top"><a id="a761feecf930824c5e098bc07d3d0a6b1"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>add_metric_field</b> (self, name, value)</td></tr>
 <tr class="separator:a761feecf930824c5e098bc07d3d0a6b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,54 +146,60 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_optimizers</b> (
 <tr class="memitem:a81b893d31b31b9a5305cab89e678316d"><td class="memItemLeft" align="right" valign="top"><a id="a81b893d31b31b9a5305cab89e678316d"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>NoOptim</b> (self, args, kwargs)</td></tr>
 <tr class="separator:a81b893d31b31b9a5305cab89e678316d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classmodel__helper_1_1ModelHelperBase"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmodel__helper_1_1ModelHelperBase')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmodel__helper_1_1ModelHelperBase.html">model_helper.ModelHelperBase</a></td></tr>
-<tr class="memitem:ad521c84315759391e77fa7a8fedb336c inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="ad521c84315759391e77fa7a8fedb336c"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, name=None, init_params=True, allow_not_known_ops=True, skip_sparse_optim=False, param_model=None)</td></tr>
-<tr class="separator:ad521c84315759391e77fa7a8fedb336c inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba8bb5cc787057d50a565963944853b4 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aba8bb5cc787057d50a565963944853b4"></a>
+<tr class="inherit_header pub_methods_classmodel__helper_1_1ModelHelper"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmodel__helper_1_1ModelHelper')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmodel__helper_1_1ModelHelper.html">model_helper.ModelHelper</a></td></tr>
+<tr class="memitem:a64ca19518876985a16b9f092ff36eebf inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a64ca19518876985a16b9f092ff36eebf"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, name=None, init_params=True, allow_not_known_ops=True, skip_sparse_optim=False, param_model=None, arg_scope=None)</td></tr>
+<tr class="separator:a64ca19518876985a16b9f092ff36eebf inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a403536563d30b101fbbad125d8347ddd inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a403536563d30b101fbbad125d8347ddd"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>arg_scope</b> (self)</td></tr>
+<tr class="separator:a403536563d30b101fbbad125d8347ddd inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7da32d16a8014bdbd40e229ed0785af9 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a7da32d16a8014bdbd40e229ed0785af9"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_name</b> (self)</td></tr>
-<tr class="separator:aba8bb5cc787057d50a565963944853b4 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0d09a54d8ce88791e919afa1ecd05e0 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aa0d09a54d8ce88791e919afa1ecd05e0"></a>
+<tr class="separator:a7da32d16a8014bdbd40e229ed0785af9 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c09a9c5cc9411ec20f8db452154c7f9 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a7c09a9c5cc9411ec20f8db452154c7f9"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>add_param</b> (self, param, key=None, shape=None, length=None)</td></tr>
-<tr class="separator:aa0d09a54d8ce88791e919afa1ecd05e0 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99546ab421432b7ee2d927a6274557a4 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a99546ab421432b7ee2d927a6274557a4"></a>
+<tr class="separator:a7c09a9c5cc9411ec20f8db452154c7f9 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26adfd388c370299d36f19484d961911 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a26adfd388c370299d36f19484d961911"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>param_info</b> (self, grad_type=None, id=None)</td></tr>
-<tr class="separator:a99546ab421432b7ee2d927a6274557a4 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6f35f9a99be28a8e6e8c17c11576e9a0 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelperBase.html#a6f35f9a99be28a8e6e8c17c11576e9a0">GetParams</a> (self, namescope=None, top_scope=False)</td></tr>
-<tr class="separator:a6f35f9a99be28a8e6e8c17c11576e9a0 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a050e5bab27e601a0f4f724893e3e0b57 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a050e5bab27e601a0f4f724893e3e0b57"></a>
+<tr class="separator:a26adfd388c370299d36f19484d961911 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c39940a2617e720f59259ae9d3bcda0 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelper.html#a5c39940a2617e720f59259ae9d3bcda0">GetParams</a> (self, namescope=None, top_scope=False)</td></tr>
+<tr class="separator:a5c39940a2617e720f59259ae9d3bcda0 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1cdf46dbccaefa0ce93ad6bbd7c2a9d inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="aa1cdf46dbccaefa0ce93ad6bbd7c2a9d"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>Proto</b> (self)</td></tr>
-<tr class="separator:a050e5bab27e601a0f4f724893e3e0b57 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ace44908b4ae4fa3a46ff2543e3cd22 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a4ace44908b4ae4fa3a46ff2543e3cd22"></a>
+<tr class="separator:aa1cdf46dbccaefa0ce93ad6bbd7c2a9d inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaaa4b9a343bb2ea3404eef5094199104 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="aaaa4b9a343bb2ea3404eef5094199104"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>InitProto</b> (self)</td></tr>
-<tr class="separator:a4ace44908b4ae4fa3a46ff2543e3cd22 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2cdc3a54e91b90ef96fd00aa7aaddfd2 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a2cdc3a54e91b90ef96fd00aa7aaddfd2"></a>
+<tr class="separator:aaaa4b9a343bb2ea3404eef5094199104 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab324c21738ab27f1403923e9a1e46600 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="ab324c21738ab27f1403923e9a1e46600"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>RunAllOnGPU</b> (self, args, kwargs)</td></tr>
-<tr class="separator:a2cdc3a54e91b90ef96fd00aa7aaddfd2 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61f252549563017530ebb35ee7e93557 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a61f252549563017530ebb35ee7e93557"></a>
+<tr class="separator:ab324c21738ab27f1403923e9a1e46600 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a49485f424f15bea823bca74e045284 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a1a49485f424f15bea823bca74e045284"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>CreateDB</b> (self, blob_out, db, db_type, kwargs)</td></tr>
-<tr class="separator:a61f252549563017530ebb35ee7e93557 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef1a5acd56c37b1f5e69817a089ebd49 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aef1a5acd56c37b1f5e69817a089ebd49"></a>
+<tr class="separator:a1a49485f424f15bea823bca74e045284 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add5bdccf96698b6710d726dfa7f14109 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="add5bdccf96698b6710d726dfa7f14109"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>AddGradientOperators</b> (self, args, kwargs)</td></tr>
-<tr class="separator:aef1a5acd56c37b1f5e69817a089ebd49 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5db74a6453273130b36145f7647a73f inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelperBase.html#af5db74a6453273130b36145f7647a73f">get_param_to_grad</a> (self, params)</td></tr>
-<tr class="separator:af5db74a6453273130b36145f7647a73f inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18eeecdb52a2b8e9d109298de2e57f9f inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelperBase.html#a18eeecdb52a2b8e9d109298de2e57f9f">GetOptimizationPairs</a> (self, params=None)</td></tr>
-<tr class="separator:a18eeecdb52a2b8e9d109298de2e57f9f inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac99c89c0e752eaaafa9f407659ec5ffa inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelperBase.html#ac99c89c0e752eaaafa9f407659ec5ffa">GetComputedParams</a> (self, namescope=None)</td></tr>
-<tr class="separator:ac99c89c0e752eaaafa9f407659ec5ffa inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab498776bed23f98dcb30831582f7dfaf inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="ab498776bed23f98dcb30831582f7dfaf"></a>
+<tr class="separator:add5bdccf96698b6710d726dfa7f14109 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e16d734d6834a9c09e22626ff51613c inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelper.html#a4e16d734d6834a9c09e22626ff51613c">get_param_to_grad</a> (self, params)</td></tr>
+<tr class="separator:a4e16d734d6834a9c09e22626ff51613c inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d47928a509c7db4fc15e5fc241ea1d4 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelper.html#a5d47928a509c7db4fc15e5fc241ea1d4">GetOptimizationPairs</a> (self, params=None)</td></tr>
+<tr class="separator:a5d47928a509c7db4fc15e5fc241ea1d4 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac691d345dee913ed8ea408d078c4c17b inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelper.html#ac691d345dee913ed8ea408d078c4c17b">GetComputedParams</a> (self, namescope=None)</td></tr>
+<tr class="separator:ac691d345dee913ed8ea408d078c4c17b inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d28b7cefe560777fc7e9f6480785356 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a5d28b7cefe560777fc7e9f6480785356"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>GetAllParams</b> (self, namescope=None)</td></tr>
-<tr class="separator:ab498776bed23f98dcb30831582f7dfaf inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae09d760d09e02954387533e85768e445 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelperBase.html#ae09d760d09e02954387533e85768e445">TensorProtosDBInput</a> (self, unused_blob_in, blob_out, batch_size, db, db_type, kwargs)</td></tr>
-<tr class="separator:ae09d760d09e02954387533e85768e445 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2cd406d0725daafd0a263b41670711fe inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelperBase.html#a2cd406d0725daafd0a263b41670711fe">AddOperator</a> (self, op_type, inputs, parameters, args, kwargs)</td></tr>
-<tr class="separator:a2cd406d0725daafd0a263b41670711fe inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab326350bfbaebb821ba1c40292a43ab0 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="ab326350bfbaebb821ba1c40292a43ab0"></a>
+<tr class="separator:a5d28b7cefe560777fc7e9f6480785356 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a434ea23add7814c9c4bdd7636b65c9f2 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelper.html#a434ea23add7814c9c4bdd7636b65c9f2">TensorProtosDBInput</a> (self, unused_blob_in, blob_out, batch_size, db, db_type, kwargs)</td></tr>
+<tr class="separator:a434ea23add7814c9c4bdd7636b65c9f2 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a219a65e96c0fa8155438109d16ffba07 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelper.html#a219a65e96c0fa8155438109d16ffba07">AddOperator</a> (self, op_type, inputs, parameters, args, kwargs)</td></tr>
+<tr class="separator:a219a65e96c0fa8155438109d16ffba07 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32fd9d8ded9f6774c7a90e14ff947a30 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a32fd9d8ded9f6774c7a90e14ff947a30"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>GetDevices</b> (self)</td></tr>
-<tr class="separator:ab326350bfbaebb821ba1c40292a43ab0 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba08619eb1a0ff1398c11caebdeffa47 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelperBase.html#aba08619eb1a0ff1398c11caebdeffa47">__getattr__</a> (self, op_type)</td></tr>
-<tr class="separator:aba08619eb1a0ff1398c11caebdeffa47 inherit pub_methods_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a32fd9d8ded9f6774c7a90e14ff947a30 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a127b21b4750fb9058176d7f5b4017183 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1ModelHelper.html#a127b21b4750fb9058176d7f5b4017183">__getattr__</a> (self, op_type)</td></tr>
+<tr class="separator:a127b21b4750fb9058176d7f5b4017183 inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acacbb38cb5d85f6d3da72dd1a9eb272e inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="acacbb38cb5d85f6d3da72dd1a9eb272e"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__dir__</b> (self)</td></tr>
+<tr class="separator:acacbb38cb5d85f6d3da72dd1a9eb272e inherit pub_methods_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -209,46 +215,46 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a10e4bd95e6dcc4948d6ee986de880e80"><td class="memItemLeft" align="right" valign="top"><a id="a10e4bd95e6dcc4948d6ee986de880e80"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>global_constant_initializers</b></td></tr>
 <tr class="separator:a10e4bd95e6dcc4948d6ee986de880e80"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_attribs_classmodel__helper_1_1ModelHelperBase"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classmodel__helper_1_1ModelHelperBase')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classmodel__helper_1_1ModelHelperBase.html">model_helper.ModelHelperBase</a></td></tr>
-<tr class="memitem:aa6e79b7aa97180ad75bd36aa4a35d04f inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aa6e79b7aa97180ad75bd36aa4a35d04f"></a>
+<tr class="inherit_header pub_attribs_classmodel__helper_1_1ModelHelper"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classmodel__helper_1_1ModelHelper')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classmodel__helper_1_1ModelHelper.html">model_helper.ModelHelper</a></td></tr>
+<tr class="memitem:a4532d6628f9dc36552c10383125f80b6 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a4532d6628f9dc36552c10383125f80b6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
-<tr class="separator:aa6e79b7aa97180ad75bd36aa4a35d04f inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9dde9ad0ccd1d0004788b52c08297b2a inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a9dde9ad0ccd1d0004788b52c08297b2a"></a>
+<tr class="separator:a4532d6628f9dc36552c10383125f80b6 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9842ff93964ef2efd46e3b3e5c4184bc inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a9842ff93964ef2efd46e3b3e5c4184bc"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>net</b></td></tr>
-<tr class="separator:a9dde9ad0ccd1d0004788b52c08297b2a inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5ca586b69fd0430322271f4a7d4a220 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="ae5ca586b69fd0430322271f4a7d4a220"></a>
+<tr class="separator:a9842ff93964ef2efd46e3b3e5c4184bc inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af97c396c3e54bd3f4fd7e6cd357cdbf5 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="af97c396c3e54bd3f4fd7e6cd357cdbf5"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>param_init_net</b></td></tr>
-<tr class="separator:ae5ca586b69fd0430322271f4a7d4a220 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a6d6c760037741dc72dd8a37fdd44ba inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a6a6d6c760037741dc72dd8a37fdd44ba"></a>
+<tr class="separator:af97c396c3e54bd3f4fd7e6cd357cdbf5 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b1a067e07196cb65e104a028267a04a inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a4b1a067e07196cb65e104a028267a04a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>param_to_grad</b></td></tr>
-<tr class="separator:a6a6d6c760037741dc72dd8a37fdd44ba inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a299a7186e14508a789778b759c0b69fb inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a299a7186e14508a789778b759c0b69fb"></a>
+<tr class="separator:a4b1a067e07196cb65e104a028267a04a inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add47f9b7cbca17e452eec23b8275986d inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="add47f9b7cbca17e452eec23b8275986d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>params</b></td></tr>
-<tr class="separator:a299a7186e14508a789778b759c0b69fb inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a389be70b851b15abffe7f024723e613d inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a389be70b851b15abffe7f024723e613d"></a>
+<tr class="separator:add47f9b7cbca17e452eec23b8275986d inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad934c2e2e470d8b1d6e026913e14b027 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="ad934c2e2e470d8b1d6e026913e14b027"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>computed_params</b></td></tr>
-<tr class="separator:a389be70b851b15abffe7f024723e613d inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48c15d20838858079daa61797fc3521d inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a48c15d20838858079daa61797fc3521d"></a>
+<tr class="separator:ad934c2e2e470d8b1d6e026913e14b027 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7d39ca2a25c0cfa1e664b7544b22812 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="aa7d39ca2a25c0cfa1e664b7544b22812"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>gradient_ops_added</b></td></tr>
-<tr class="separator:a48c15d20838858079daa61797fc3521d inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19231ec7dc5927d2cf1d88ac8ceffb3c inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a19231ec7dc5927d2cf1d88ac8ceffb3c"></a>
+<tr class="separator:aa7d39ca2a25c0cfa1e664b7544b22812 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4a7f833858eff8a0775f64e634ecd84 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="aa4a7f833858eff8a0775f64e634ecd84"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>init_params</b></td></tr>
-<tr class="separator:a19231ec7dc5927d2cf1d88ac8ceffb3c inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac07253a0b346d16557d233a79ce7f55f inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="ac07253a0b346d16557d233a79ce7f55f"></a>
+<tr class="separator:aa4a7f833858eff8a0775f64e634ecd84 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19f08544108359b418ca3aa63387ef96 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a19f08544108359b418ca3aa63387ef96"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>allow_not_known_ops</b></td></tr>
-<tr class="separator:ac07253a0b346d16557d233a79ce7f55f inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba037083b828218d912e5093334db9c1 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aba037083b828218d912e5093334db9c1"></a>
+<tr class="separator:a19f08544108359b418ca3aa63387ef96 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c95d33a7942fa0bf6052d66c87fe19f inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a6c95d33a7942fa0bf6052d66c87fe19f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>skip_sparse_optim</b></td></tr>
-<tr class="separator:aba037083b828218d912e5093334db9c1 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67fa233844a0de4612ba919dc5e89300 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a67fa233844a0de4612ba919dc5e89300"></a>
+<tr class="separator:a6c95d33a7942fa0bf6052d66c87fe19f inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aead1ddf8b87e5aab28e8a8a65e4e09c8 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="aead1ddf8b87e5aab28e8a8a65e4e09c8"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>weights</b></td></tr>
-<tr class="separator:a67fa233844a0de4612ba919dc5e89300 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2fa975954339c07ae732ec6b1258a64 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="aa2fa975954339c07ae732ec6b1258a64"></a>
+<tr class="separator:aead1ddf8b87e5aab28e8a8a65e4e09c8 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0441662356361c6fa2fe0125701f7a1 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="ae0441662356361c6fa2fe0125701f7a1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>biases</b></td></tr>
-<tr class="separator:aa2fa975954339c07ae732ec6b1258a64 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9727196b7ff08abc7ee4fccaf195c5e0 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memItemLeft" align="right" valign="top"><a id="a9727196b7ff08abc7ee4fccaf195c5e0"></a>
+<tr class="separator:ae0441662356361c6fa2fe0125701f7a1 inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8637b331ec895d18524aa4db37b05a1c inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memItemLeft" align="right" valign="top"><a id="a8637b331ec895d18524aa4db37b05a1c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>grad_map</b></td></tr>
-<tr class="separator:a9727196b7ff08abc7ee4fccaf195c5e0 inherit pub_attribs_classmodel__helper_1_1ModelHelperBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a8637b331ec895d18524aa4db37b05a1c inherit pub_attribs_classmodel__helper_1_1ModelHelper"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">Model helper for building models on top of layers abstractions.
@@ -283,7 +289,7 @@ metric reporting.
 During the training/evaluation this schema will be appended to the
 schema that represents model output.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00167">167</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00169">169</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
 
 </div>
 </div>
@@ -294,7 +300,7 @@ schema that represents model output.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

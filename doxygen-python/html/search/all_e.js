@@ -6,6 +6,7 @@ var searchData=
   ['operatordoc',['OperatorDoc',['../classgenerator_1_1OperatorDoc.html',1,'generator']]],
   ['operatorengine',['OperatorEngine',['../classgenerator_1_1OperatorEngine.html',1,'generator']]],
   ['optimize_5finterference',['optimize_interference',['../namespacememonger.html#ac2a561a19772b488b8cbae6825fd9fa9',1,'memonger']]],
+  ['optimizegradientmemory',['OptimizeGradientMemory',['../namespacedata__parallel__model.html#afe15de0fc503825c9f2b55fc06884b2c',1,'data_parallel_model']]],
   ['optimizer',['Optimizer',['../classoptimizer_1_1Optimizer.html',1,'optimizer.Optimizer'],['../namespaceoptimizer.html',1,'optimizer']]],
   ['optimizer_5ftest_5futil',['optimizer_test_util',['../namespaceoptimizer__test__util.html',1,'']]],
   ['optimizercontext',['OptimizerContext',['../classlayers_1_1optimizers_1_1OptimizerContext.html',1,'layers::optimizers']]],

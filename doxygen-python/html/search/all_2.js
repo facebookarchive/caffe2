@@ -11,10 +11,14 @@ var searchData=
   ['batchmseloss',['BatchMSELoss',['../classlayers_1_1batch__mse__loss_1_1BatchMSELoss.html',1,'layers::batch_mse_loss']]],
   ['batchsigmoidcrossentropyloss',['BatchSigmoidCrossEntropyLoss',['../classlayers_1_1batch__sigmoid__cross__entropy__loss_1_1BatchSigmoidCrossEntropyLoss.html',1,'layers::batch_sigmoid_cross_entropy_loss']]],
   ['batchsoftmaxloss',['BatchSoftmaxLoss',['../classlayers_1_1batch__softmax__loss_1_1BatchSoftmaxLoss.html',1,'layers::batch_softmax_loss']]],
+  ['beam_5fsearch',['beam_search',['../namespacebeam__search.html',1,'']]],
+  ['beamsearchforwardonly',['BeamSearchForwardOnly',['../classbeam__search_1_1BeamSearchForwardOnly.html',1,'beam_search']]],
   ['blobisdefined',['BlobIsDefined',['../classcore_1_1Net.html#abccc9ed5d30c5e85590b94c189b8eb5f',1,'core::Net']]],
   ['blobreference',['BlobReference',['../classcore_1_1BlobReference.html',1,'core']]],
   ['boolnet',['BoolNet',['../namespacecontrol.html#af168cf06222b91303a1ffecbe04fcb32',1,'control']]],
+  ['brew',['brew',['../namespacebrew.html',1,'']]],
   ['build',['build',['../classrecord__queue_1_1RecordQueue.html#a78baf95fed9be3e9a9cd50bf67c5555b',1,'record_queue::RecordQueue']]],
   ['build_5fcrf_5fnet',['build_crf_net',['../classcrf_1_1CRFWithLoss.html#af70a72b063ca8b9d78939221d4cb2cc5',1,'crf::CRFWithLoss']]],
+  ['build_5findex',['build_index',['../namespacebuild__index.html',1,'']]],
   ['buildgradientgenerators',['BuildGradientGenerators',['../classcore_1_1IR.html#a2fe337e136e7a0c259eaa7a466c18b97',1,'core::IR']]]
 ];

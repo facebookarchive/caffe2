@@ -75,22 +75,24 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aea5a0b8a2badc204c295799cfa264421"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepooling.html#aea5a0b8a2badc204c295799cfa264421">MaxPool</a> (model, blob_in, blob_out, use_cudnn=False, order=&quot;NCHW&quot;, kwargs)</td></tr>
-<tr class="separator:aea5a0b8a2badc204c295799cfa264421"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af446d38fe26e88e0e334ec34733e8f8a"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepooling.html#af446d38fe26e88e0e334ec34733e8f8a">AveragePool</a> (model, blob_in, blob_out, use_cudnn=False, order=&quot;NCHW&quot;, kwargs)</td></tr>
-<tr class="separator:af446d38fe26e88e0e334ec34733e8f8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fd3ca802f7d226e6b4230d575165785"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepooling.html#a4fd3ca802f7d226e6b4230d575165785">max_pool</a> (model, blob_in, blob_out, use_cudnn=False, order=&quot;NCHW&quot;, kwargs)</td></tr>
+<tr class="separator:a4fd3ca802f7d226e6b4230d575165785"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afae79d8a5fbdf2f7478a60085d62cad8"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepooling.html#afae79d8a5fbdf2f7478a60085d62cad8">average_pool</a> (model, blob_in, blob_out, use_cudnn=False, order=&quot;NCHW&quot;, kwargs)</td></tr>
+<tr class="separator:afae79d8a5fbdf2f7478a60085d62cad8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a368ffcd25f52f15a8dc2fde6cae997f2"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepooling.html#a368ffcd25f52f15a8dc2fde6cae997f2">max_pool_with_index</a> (model, blob_in, blob_out, order=&quot;NCHW&quot;, kwargs)</td></tr>
+<tr class="separator:a368ffcd25f52f15a8dc2fde6cae997f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.helpers.pooling. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="af446d38fe26e88e0e334ec34733e8f8a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af446d38fe26e88e0e334ec34733e8f8a">&#9670;&nbsp;</a></span>AveragePool()</h2>
+<a id="afae79d8a5fbdf2f7478a60085d62cad8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afae79d8a5fbdf2f7478a60085d62cad8">&#9670;&nbsp;</a></span>average_pool()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">def pooling.AveragePool </td>
+          <td class="memname">def pooling.average_pool </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>model</em>, </td>
@@ -137,14 +139,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aea5a0b8a2badc204c295799cfa264421"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aea5a0b8a2badc204c295799cfa264421">&#9670;&nbsp;</a></span>MaxPool()</h2>
+<a id="a4fd3ca802f7d226e6b4230d575165785"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4fd3ca802f7d226e6b4230d575165785">&#9670;&nbsp;</a></span>max_pool()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">def pooling.MaxPool </td>
+          <td class="memname">def pooling.max_pool </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>model</em>, </td>
@@ -191,11 +193,59 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a368ffcd25f52f15a8dc2fde6cae997f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a368ffcd25f52f15a8dc2fde6cae997f2">&#9670;&nbsp;</a></span>max_pool_with_index()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def pooling.max_pool_with_index </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>order</em> = <code>&quot;NCHW&quot;</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>kwargs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Max pooling with an explicit index of max position</pre> 
+<p class="definition">Definition at line <a class="el" href="pooling_8py_source.html#l00031">31</a> of file <a class="el" href="pooling_8py_source.html">pooling.py</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

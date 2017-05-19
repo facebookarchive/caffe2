@@ -75,28 +75,28 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ac8e7335bb38c810dc7dba23f5aa168c4"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenormalization.html#ac8e7335bb38c810dc7dba23f5aa168c4">LRN</a> (model, blob_in, blob_out, kwargs)</td></tr>
-<tr class="separator:ac8e7335bb38c810dc7dba23f5aa168c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a476da1e2a75ebb6d58ea05acba46038d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenormalization.html#a476da1e2a75ebb6d58ea05acba46038d">Softmax</a> (model, blob_in, blob_out=None, use_cudnn=False, kwargs)</td></tr>
-<tr class="separator:a476da1e2a75ebb6d58ea05acba46038d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36ed549fdd5f1cf408632ee66ca18c1a"><td class="memItemLeft" align="right" valign="top"><a id="a36ed549fdd5f1cf408632ee66ca18c1a"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>InstanceNorm</b> (model, blob_in, blob_out, dim_in, order=&quot;NCHW&quot;, kwargs)</td></tr>
-<tr class="separator:a36ed549fdd5f1cf408632ee66ca18c1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab2c3221bada20c06a2c1c672c5764fbe"><td class="memItemLeft" align="right" valign="top"><a id="ab2c3221bada20c06a2c1c672c5764fbe"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>SpatialBN</b> (model, blob_in, blob_out, dim_in, order=&quot;NCHW&quot;, kwargs)</td></tr>
-<tr class="separator:ab2c3221bada20c06a2c1c672c5764fbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a532e31d456fe892874a4e88a24ed8453"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenormalization.html#a532e31d456fe892874a4e88a24ed8453">lrn</a> (model, blob_in, blob_out, order=&quot;NCHW&quot;, use_cudnn=False, kwargs)</td></tr>
+<tr class="separator:a532e31d456fe892874a4e88a24ed8453"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a581d02ed37f436d33cdcd96330f18ac6"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenormalization.html#a581d02ed37f436d33cdcd96330f18ac6">softmax</a> (model, blob_in, blob_out=None, use_cudnn=False, kwargs)</td></tr>
+<tr class="separator:a581d02ed37f436d33cdcd96330f18ac6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0840dfedc4b20f394c77d614b6fd361"><td class="memItemLeft" align="right" valign="top"><a id="ae0840dfedc4b20f394c77d614b6fd361"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>instance_norm</b> (model, blob_in, blob_out, dim_in, order=&quot;NCHW&quot;, kwargs)</td></tr>
+<tr class="separator:ae0840dfedc4b20f394c77d614b6fd361"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb0f4ef1c08d3acca93c0f2d190049e6"><td class="memItemLeft" align="right" valign="top"><a id="afb0f4ef1c08d3acca93c0f2d190049e6"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>spatial_bn</b> (model, blob_in, blob_out, dim_in, order=&quot;NCHW&quot;, kwargs)</td></tr>
+<tr class="separator:afb0f4ef1c08d3acca93c0f2d190049e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.helpers.normalization. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="ac8e7335bb38c810dc7dba23f5aa168c4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac8e7335bb38c810dc7dba23f5aa168c4">&#9670;&nbsp;</a></span>LRN()</h2>
+<a id="a532e31d456fe892874a4e88a24ed8453"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a532e31d456fe892874a4e88a24ed8453">&#9670;&nbsp;</a></span>lrn()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">def normalization.LRN </td>
+          <td class="memname">def normalization.lrn </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>model</em>, </td>
@@ -117,6 +117,18 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>SpatialBN</b> (model, 
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>order</em> = <code>&quot;NCHW&quot;</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>use_cudnn</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
           <td class="paramname"><em>kwargs</em>&#160;</td>
         </tr>
         <tr>
@@ -131,14 +143,14 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>SpatialBN</b> (model, 
 
 </div>
 </div>
-<a id="a476da1e2a75ebb6d58ea05acba46038d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a476da1e2a75ebb6d58ea05acba46038d">&#9670;&nbsp;</a></span>Softmax()</h2>
+<a id="a581d02ed37f436d33cdcd96330f18ac6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a581d02ed37f436d33cdcd96330f18ac6">&#9670;&nbsp;</a></span>softmax()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">def normalization.Softmax </td>
+          <td class="memname">def normalization.softmax </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>model</em>, </td>
@@ -175,7 +187,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>SpatialBN</b> (model, 
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Softmax.</pre> 
-<p class="definition">Definition at line <a class="el" href="normalization_8py_source.html#l00021">21</a> of file <a class="el" href="normalization_8py_source.html">normalization.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="normalization_8py_source.html#l00031">31</a> of file <a class="el" href="normalization_8py_source.html">normalization.py</a>.</p>
 
 </div>
 </div>
@@ -183,7 +195,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>SpatialBN</b> (model, 
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

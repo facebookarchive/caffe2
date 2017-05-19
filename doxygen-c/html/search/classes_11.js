@@ -3,6 +3,7 @@ var searchData=
   ['task',['Task',['../structcaffe2_1_1gpu__single__thread_1_1Task.html',1,'caffe2::gpu_single_thread']]],
   ['taskthreadpool',['TaskThreadPool',['../classTaskThreadPool.html',1,'']]],
   ['tensor',['Tensor',['../classcaffe2_1_1Tensor.html',1,'caffe2']]],
+  ['tensor_3c_20cpucontext_20_3e',['Tensor&lt; CPUContext &gt;',['../classcaffe2_1_1Tensor.html',1,'caffe2']]],
   ['tensordeserializer',['TensorDeserializer',['../classcaffe2_1_1TensorDeserializer.html',1,'caffe2']]],
   ['tensorprinter',['TensorPrinter',['../classcaffe2_1_1TensorPrinter.html',1,'caffe2']]],
   ['tensorserializer',['TensorSerializer',['../classcaffe2_1_1TensorSerializer.html',1,'caffe2']]],

@@ -124,13 +124,16 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>metadata</b> (self)</t
 <tr class="memitem:ab89570b9283ecaa64c21d04bd5e28fea"><td class="memItemLeft" align="right" valign="top"><a id="ab89570b9283ecaa64c21d04bd5e28fea"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>set_metadata</b> (self, value)</td></tr>
 <tr class="separator:ab89570b9283ecaa64c21d04bd5e28fea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13411f653e752e0e3dc05a43a41df215"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classschema_1_1Scalar.html#a13411f653e752e0e3dc05a43a41df215">set_value</a> (self, blob)</td></tr>
-<tr class="separator:a13411f653e752e0e3dc05a43a41df215"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad96c7067e2f1e916bf57e44a0cbf212b"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classschema_1_1Scalar.html#ad96c7067e2f1e916bf57e44a0cbf212b">set</a> (self, dtype=None, blob=None, metadata=None)</td></tr>
-<tr class="separator:ad96c7067e2f1e916bf57e44a0cbf212b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85390b1fc563a3b5593b9687b94c7c78"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classschema_1_1Scalar.html#a85390b1fc563a3b5593b9687b94c7c78">set_value</a> (self, blob, throw_on_type_mismatch=False, unsafe=False)</td></tr>
+<tr class="separator:a85390b1fc563a3b5593b9687b94c7c78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a566db67068cd62bc2d1b18750a8959"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classschema_1_1Scalar.html#a0a566db67068cd62bc2d1b18750a8959">set</a> (self, dtype=None, blob=None, metadata=None, unsafe=False)</td></tr>
+<tr class="separator:a0a566db67068cd62bc2d1b18750a8959"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67ba4efb800129933b6a2e780e67e355"><td class="memItemLeft" align="right" valign="top"><a id="a67ba4efb800129933b6a2e780e67e355"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (self, dtype)</td></tr>
 <tr class="separator:a67ba4efb800129933b6a2e780e67e355"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b2da0b4bd395cab61f9109265c79c1e"><td class="memItemLeft" align="right" valign="top"><a id="a3b2da0b4bd395cab61f9109265c79c1e"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__repr__</b> (self)</td></tr>
+<tr class="separator:a3b2da0b4bd395cab61f9109265c79c1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b5e8835afb0e525500ce39b06ba4e11"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classschema_1_1Scalar.html#a0b5e8835afb0e525500ce39b06ba4e11">id</a> (self)</td></tr>
 <tr class="separator:a0b5e8835afb0e525500ce39b06ba4e11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classschema_1_1Field"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classschema_1_1Field')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classschema_1_1Field.html">schema.Field</a></td></tr>
@@ -208,7 +211,7 @@ actual contents of the Scalar, or a BlobReference, which represents a
 blob living in a caffe2 Workspace. If blob of different types are passed,
 a conversion to numpy.ndarray is attempted.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00450">450</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00470">470</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a9cc8baf595dc665b480d29952a1c22e5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9cc8baf595dc665b480d29952a1c22e5">&#9670;&nbsp;</a></span>__call__()</h2>
@@ -226,7 +229,7 @@ a conversion to numpy.ndarray is attempted.
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Shortcut for self.get()</pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00534">534</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00554">554</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -246,7 +249,7 @@ a conversion to numpy.ndarray is attempted.
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Gets the current blob of this Scalar field.</pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00529">529</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00549">549</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -269,12 +272,12 @@ a conversion to numpy.ndarray is attempted.
 Used in order to index into the field_blob list returned by readers or
 accepted by writers.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00629">629</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00664">664</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
-<a id="ad96c7067e2f1e916bf57e44a0cbf212b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad96c7067e2f1e916bf57e44a0cbf212b">&#9670;&nbsp;</a></span>set()</h2>
+<a id="a0a566db67068cd62bc2d1b18750a8959"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a566db67068cd62bc2d1b18750a8959">&#9670;&nbsp;</a></span>set()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -301,7 +304,13 @@ accepted by writers.
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>metadata</em> = <code>None</code>&#160;</td>
+          <td class="paramname"><em>metadata</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>unsafe</em> = <code>False</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -324,12 +333,12 @@ Args:
     metadata: optional instance of Metadata, if provided overrides
       the metadata information of the scalar
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00561">561</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00585">585</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
-<a id="a13411f653e752e0e3dc05a43a41df215"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a13411f653e752e0e3dc05a43a41df215">&#9670;&nbsp;</a></span>set_value()</h2>
+<a id="a85390b1fc563a3b5593b9687b94c7c78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a85390b1fc563a3b5593b9687b94c7c78">&#9670;&nbsp;</a></span>set_value()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -344,7 +353,19 @@ Args:
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>blob</em>&#160;</td>
+          <td class="paramname"><em>blob</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>throw_on_type_mismatch</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>unsafe</em> = <code>False</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -354,7 +375,7 @@ Args:
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Sets only the blob field still validating the existing dtype</pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00557">557</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00577">577</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -365,7 +386,7 @@ Args:
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

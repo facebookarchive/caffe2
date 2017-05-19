@@ -65,7 +65,8 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">rnn_cell Namespace Reference</div>  </div>
 </div><!--header-->
@@ -76,6 +77,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1AttentionCell.html">AttentionCell</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1LSTMCell.html">LSTMCell</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1LSTMWithAttentionCell.html">LSTMWithAttentionCell</a></td></tr>
@@ -84,13 +87,13 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1MILSTMWithAttentionCell.html">MILSTMWithAttentionCell</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1MultiRNNCell.html">MultiRNNCell</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1RNNCell.html">RNNCell</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a0154c043821aaf4b0dea61dda1725b1b"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacernn__cell.html#a0154c043821aaf4b0dea61dda1725b1b">LSTM</a> (model, input_blob, seq_lengths, initial_states, dim_in, dim_out, scope, outputs_with_grads=(0,), return_params=False, memory_optimization=False, forget_bias=0.0)</td></tr>
-<tr class="separator:a0154c043821aaf4b0dea61dda1725b1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64f6f6913efa18c4ff170221572515c1"><td class="memItemLeft" align="right" valign="top"><a id="a64f6f6913efa18c4ff170221572515c1"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>GetLSTMParamNames</b> ()</td></tr>
 <tr class="separator:a64f6f6913efa18c4ff170221572515c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -98,10 +101,20 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>GetLSTMParamNames</b> 
 <tr class="separator:a69770d16d277bf62580bc97ab65ccf87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7d5735f59492099e4f82bd935c56463"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacernn__cell.html#ae7d5735f59492099e4f82bd935c56463">cudnn_LSTM</a> (model, input_blob, initial_states, dim_in, dim_out, scope, recurrent_params=None, input_params=None, num_layers=1, return_params=False)</td></tr>
 <tr class="separator:ae7d5735f59492099e4f82bd935c56463"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aefd0ecb2e2a0ed3fee23e92fb736c93b"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacernn__cell.html#aefd0ecb2e2a0ed3fee23e92fb736c93b">LSTMWithAttention</a> (model, decoder_inputs, decoder_input_lengths, initial_decoder_hidden_state, initial_decoder_cell_state, initial_attention_weighted_encoder_context, encoder_output_dim, encoder_outputs, decoder_input_dim, decoder_state_dim, scope, attention_type=AttentionType.Regular, outputs_with_grads=(0, 4), weighted_encoder_outputs=None, lstm_memory_optimization=False, attention_memory_optimization=False, forget_bias=0.0)</td></tr>
-<tr class="separator:aefd0ecb2e2a0ed3fee23e92fb736c93b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afcdb303b6cd0a82332b4ad044362a86c"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacernn__cell.html#afcdb303b6cd0a82332b4ad044362a86c">MILSTM</a> (model, input_blob, seq_lengths, initial_states, dim_in, dim_out, scope, outputs_with_grads=(0,), memory_optimization=False, forget_bias=0.0)</td></tr>
-<tr class="separator:afcdb303b6cd0a82332b4ad044362a86c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83f6d4a7f8ed168f8c9953dc70952725"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacernn__cell.html#a83f6d4a7f8ed168f8c9953dc70952725">LSTMWithAttention</a> (model, decoder_inputs, decoder_input_lengths, initial_decoder_hidden_state, initial_decoder_cell_state, initial_attention_weighted_encoder_context, encoder_output_dim, encoder_outputs, decoder_input_dim, decoder_state_dim, scope, attention_type=AttentionType.Regular, outputs_with_grads=(0, 4), weighted_encoder_outputs=None, lstm_memory_optimization=False, attention_memory_optimization=False, forget_bias=0.0, forward_only=False)</td></tr>
+<tr class="separator:a83f6d4a7f8ed168f8c9953dc70952725"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a7ae56ca623285dfef2179b8a86d5e6de"><td class="memItemLeft" align="right" valign="top"><a id="a7ae56ca623285dfef2179b8a86d5e6de"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>LSTM</b> = functools.partial(_LSTM, <a class="el" href="classrnn__cell_1_1LSTMCell.html">LSTMCell</a>)</td></tr>
+<tr class="separator:a7ae56ca623285dfef2179b8a86d5e6de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a936031c2a2c1914e848125f93d4c44f9"><td class="memItemLeft" align="right" valign="top"><a id="a936031c2a2c1914e848125f93d4c44f9"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MILSTM</b> = functools.partial(_LSTM, <a class="el" href="classrnn__cell_1_1MILSTMCell.html">MILSTMCell</a>)</td></tr>
+<tr class="separator:a936031c2a2c1914e848125f93d4c44f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14c5f0dc62e6e89777defb7821825427"><td class="memItemLeft" align="right" valign="top"><a id="a14c5f0dc62e6e89777defb7821825427"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>layered_LSTM</b> = functools.partial(_layered_LSTM, create_lstm=LSTM)</td></tr>
+<tr class="separator:a14c5f0dc62e6e89777defb7821825427"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.rnn_cell. </p>
@@ -202,7 +215,7 @@ return_params       if True, returns (param_extract_net, param_mapping)
                     Useful for assigning the values back to non-cuDNN
                     LSTM.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00289">289</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00975">975</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
 
 </div>
 </div>
@@ -233,121 +246,12 @@ return_params       if True, returns (param_extract_net, param_mapping)
 </div><div class="memdoc">
 <pre class="fragment">Set the parameters of LSTM based on predefined values
 </pre> 
-<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00258">258</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00944">944</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
 
 </div>
 </div>
-<a id="a0154c043821aaf4b0dea61dda1725b1b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0154c043821aaf4b0dea61dda1725b1b">&#9670;&nbsp;</a></span>LSTM()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def rnn_cell.LSTM </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>model</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>input_blob</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>seq_lengths</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>initial_states</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>dim_in</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>dim_out</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>scope</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>return_params</em> = <code>False</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>memory_optimization</em> = <code>False</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>forget_bias</em> = <code>0.0</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Adds a standard LSTM recurrent network operator to a model.
-
-model: CNNModelHelper object new operators would be added to
-
-input_blob: the input sequence in a format T x N x D
-where T is sequence size, N - batch size and D - input dimention
-
-seq_lengths: blob containing sequence lengths which would be passed to
-LSTMUnit operator
-
-initial_states: a tupple of (hidden_input_blob, cell_input_blob)
-which are going to be inputs to the cell net on the first iteration
-
-dim_in: input dimention
-
-dim_out: output dimention
-
-outputs_with_grads : position indices of output blobs which will receive
-external error gradient during backpropagation
-
-return_params: if True, will return a dictionary of parameters of the LSTM
-
-memory_optimization: if enabled, the LSTM step is recomputed on backward step
-               so that we don't need to store forward activations for each
-               timestep. Saves memory with cost of computation.
-</pre> 
-<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00202">202</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
-
-</div>
-</div>
-<a id="aefd0ecb2e2a0ed3fee23e92fb736c93b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aefd0ecb2e2a0ed3fee23e92fb736c93b">&#9670;&nbsp;</a></span>LSTMWithAttention()</h2>
+<a id="a83f6d4a7f8ed168f8c9953dc70952725"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83f6d4a7f8ed168f8c9953dc70952725">&#9670;&nbsp;</a></span>LSTMWithAttention()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -452,7 +356,13 @@ memory_optimization: if enabled, the LSTM step is recomputed on backward step
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>forget_bias</em> = <code>0.0</code>&#160;</td>
+          <td class="paramname"><em>forget_bias</em> = <code>0.0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>forward_only</em> = <code>False</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -472,10 +382,10 @@ The model uses encoder-decoder naming conventions,
 where the decoder is the sequence the op is iterating over,
 while computing the attention context over the encoder.
 
-model: CNNModelHelper object new operators would be added to
+model: ModelHelper object new operators would be added to
 
 decoder_inputs: the input sequence in a format T x N x D
-where T is sequence size, N - batch size and D - input dimention
+where T is sequence size, N - batch size and D - input dimension
 
 decoder_input_lengths: blob containing sequence lengths
 which would be passed to LSTMUnit operator
@@ -491,7 +401,7 @@ encoder_output_dim: dimension of encoder outputs
 encoder_outputs: the sequence, on which we compute the attention context
 at every iteration
 
-decoder_input_dim: input dimention (last dimension on decoder_inputs)
+decoder_input_dim: input dimension (last dimension on decoder_inputs)
 
 decoder_state_dim: size of hidden states of LSTM
 
@@ -511,110 +421,10 @@ lstm_memory_optimization: recompute LSTM activations on backward pass, so
              we don't need to store their values in forward passes
 
 attention_memory_optimization: recompute attention for backward pass
+
+forward_only: whether to create only forward pass
 </pre> 
-<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00590">590</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
-
-</div>
-</div>
-<a id="afcdb303b6cd0a82332b4ad044362a86c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afcdb303b6cd0a82332b4ad044362a86c">&#9670;&nbsp;</a></span>MILSTM()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def rnn_cell.MILSTM </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>model</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>input_blob</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>seq_lengths</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>initial_states</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>dim_in</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>dim_out</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>scope</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>memory_optimization</em> = <code>False</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>forget_bias</em> = <code>0.0</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Adds MI flavor of standard LSTM recurrent network operator to a model.
-See https://arxiv.org/pdf/1606.06630.pdf
-
-model: CNNModelHelper object new operators would be added to
-
-input_blob: the input sequence in a format T x N x D
-where T is sequence size, N - batch size and D - input dimention
-
-seq_lengths: blob containing sequence lengths which would be passed to
-LSTMUnit operator
-
-initial_states: a tupple of (hidden_input_blob, cell_input_blob)
-which are going to be inputs to the cell net on the first iteration
-
-dim_in: input dimention
-
-dim_out: output dimention
-
-outputs_with_grads : position indices of output blobs which will receive
-external error gradient during backpropagation
-
-memory_optimization: if enabled, the LSTM step is recomputed on backward step
-               so that we don't need to store forward activations for each
-               timestep. Saves memory with cost of computation.
-</pre> 
-<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00793">793</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l01125">1125</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
 
 </div>
 </div>
@@ -622,7 +432,7 @@ memory_optimization: if enabled, the LSTM step is recomputed on backward step
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

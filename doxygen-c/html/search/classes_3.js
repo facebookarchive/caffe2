@@ -2,9 +2,11 @@ var searchData=
 [
   ['caffe2flagparser',['Caffe2FlagParser',['../classcaffe2_1_1Caffe2FlagParser.html',1,'caffe2']]],
   ['caffe2initializeregistry',['Caffe2InitializeRegistry',['../classcaffe2_1_1internal_1_1Caffe2InitializeRegistry.html',1,'caffe2::internal']]],
+  ['closerebatchingqueueop',['CloseRebatchingQueueOp',['../classcaffe2_1_1CloseRebatchingQueueOp.html',1,'caffe2']]],
   ['compiledexecutionstep',['CompiledExecutionStep',['../structcaffe2_1_1CompiledExecutionStep.html',1,'caffe2']]],
   ['cpuallocator',['CPUAllocator',['../structcaffe2_1_1CPUAllocator.html',1,'caffe2']]],
   ['cpucontext',['CPUContext',['../classcaffe2_1_1CPUContext.html',1,'caffe2']]],
+  ['createrebatchingqueueop',['CreateRebatchingQueueOp',['../classcaffe2_1_1CreateRebatchingQueueOp.html',1,'caffe2']]],
   ['cudacontext',['CUDAContext',['../classcaffe2_1_1CUDAContext.html',1,'caffe2']]],
   ['cudartcfunction',['CudaRTCFunction',['../classcaffe2_1_1CudaRTCFunction.html',1,'caffe2']]],
   ['cudnnfilterdescwrapper',['cudnnFilterDescWrapper',['../classcaffe2_1_1cudnnFilterDescWrapper.html',1,'caffe2']]],

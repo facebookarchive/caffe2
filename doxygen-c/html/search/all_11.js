@@ -4,6 +4,7 @@ var searchData=
   ['raw_5fdata',['raw_data',['../classcaffe2_1_1Tensor.html#adccf463b5bdf9db0521f3049f2f6f52d',1,'caffe2::Tensor']]],
   ['raw_5fmutable_5fdata',['raw_mutable_data',['../classcaffe2_1_1Tensor.html#a83bade6123fa388bf59497f2bad998d4',1,'caffe2::Tensor::raw_mutable_data(const TypeMeta &amp;meta)'],['../classcaffe2_1_1Tensor.html#aa5f3bf3984ee4cfa05570fe8b8362503',1,'caffe2::Tensor::raw_mutable_data()']]],
   ['read',['Read',['../classcaffe2_1_1db_1_1DBReader.html#a8abcacf2c3b2052b984cc99f5231a1bc',1,'caffe2::db::DBReader']]],
+  ['rebatchingqueue',['RebatchingQueue',['../classcaffe2_1_1RebatchingQueue.html',1,'caffe2']]],
   ['registerer',['Registerer',['../classcaffe2_1_1Registerer.html',1,'caffe2']]],
   ['registrar',['Registrar',['../structcaffe2_1_1BlobStatRegistry_1_1Registrar.html',1,'caffe2::BlobStatRegistry']]],
   ['registry',['Registry',['../classcaffe2_1_1Registry.html',1,'caffe2']]],

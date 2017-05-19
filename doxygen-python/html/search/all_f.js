@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['parallelize_5fgpu',['Parallelize_GPU',['../namespacedata__parallel__model.html#a1fe7262a0a66754f19998fa1603317b9',1,'data_parallel_model']]],
+  ['parallelize_5fgpu',['Parallelize_GPU',['../namespacedata__parallel__model.html#a6c0174811e1cac46b085e20efe2c2dcf',1,'data_parallel_model']]],
+  ['parallelize_5fgpu_5fbmuf',['Parallelize_GPU_BMUF',['../namespacedata__parallel__model.html#a33cd9cdbefd6688309ea144e85dd42a5',1,'data_parallel_model']]],
   ['param_5fblobs',['param_blobs',['../classlayers_1_1sampling__trainable__mixin_1_1SamplingTrainableMixin.html#a93df3baa3e54849f90fd3296af57eb63',1,'layers::sampling_trainable_mixin::SamplingTrainableMixin']]],
   ['parameterinfo',['ParameterInfo',['../classmodel__helper_1_1ParameterInfo.html',1,'model_helper']]],
   ['parametertype',['ParameterType',['../classmodel__helper_1_1ParameterType.html',1,'model_helper']]],
@@ -17,12 +18,12 @@ var searchData=
   ['predictor_5fexporter',['predictor_exporter',['../namespacepredictor__exporter.html',1,'']]],
   ['predictor_5fpy_5futils',['predictor_py_utils',['../namespacepredictor__py__utils.html',1,'']]],
   ['predictorexportmeta',['PredictorExportMeta',['../classpredictor__exporter_1_1PredictorExportMeta.html',1,'predictor_exporter']]],
-  ['prelu',['PRelu',['../namespacenonlinearity.html#a3564614facbc277f13cee86d4270ee7a',1,'nonlinearity']]],
+  ['prelu',['prelu',['../namespacenonlinearity.html#a53efe751d90279c541cd72075582ac82',1,'nonlinearity']]],
   ['prepare_5finput',['prepare_input',['../classrnn__cell_1_1RNNCell.html#aeb3f68908037595c4b2c2659f8f4c8c9',1,'rnn_cell::RNNCell']]],
   ['prepare_5fprediction_5fnet',['prepare_prediction_net',['../namespacepredictor__exporter.html#a0860179ee903d1d06cb5178fa668e263',1,'predictor_exporter']]],
   ['printer',['Printer',['../classnet__printer_1_1Printer.html',1,'net_printer']]],
   ['process',['process',['../namespaceprocess.html',1,'']]],
   ['processingreader',['ProcessingReader',['../classpipeline_1_1ProcessingReader.html',1,'pipeline']]],
   ['publish',['publish',['../namespacepublish.html',1,'']]],
-  ['python',['Python',['../classcore_1_1Net.html#a2a5ab3b04de28feef0a9f36b3b4a444c',1,'core::Net']]]
+  ['python',['Python',['../classcore_1_1Net.html#a655150e80f0cf907f372196af9353d94',1,'core::Net']]]
 ];

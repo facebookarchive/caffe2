@@ -81,18 +81,20 @@ Inheritance diagram for rnn_cell.RNNCell:</div>
  <div class="center">
   <img src="classrnn__cell_1_1RNNCell.png" usemap="#rnn_5Fcell.RNNCell_map" alt=""/>
   <map id="rnn_5Fcell.RNNCell_map" name="rnn_5Fcell.RNNCell_map">
-<area href="classrnn__cell_1_1LSTMCell.html" alt="rnn_cell.LSTMCell" shape="rect" coords="0,112,204,136"/>
-<area href="classrnn__cell_1_1LSTMWithAttentionCell.html" alt="rnn_cell.LSTMWithAttentionCell" shape="rect" coords="214,112,418,136"/>
-<area href="classrnn__cell_1_1MILSTMCell.html" alt="rnn_cell.MILSTMCell" shape="rect" coords="0,168,204,192"/>
+<area href="classrnn__cell_1_1AttentionCell.html" alt="rnn_cell.AttentionCell" shape="rect" coords="107,112,311,136"/>
+<area href="classrnn__cell_1_1LSTMCell.html" alt="rnn_cell.LSTMCell" shape="rect" coords="428,112,632,136"/>
+<area href="classrnn__cell_1_1MultiRNNCell.html" alt="rnn_cell.MultiRNNCell" shape="rect" coords="642,112,846,136"/>
+<area href="classrnn__cell_1_1LSTMWithAttentionCell.html" alt="rnn_cell.LSTMWithAttentionCell" shape="rect" coords="0,168,204,192"/>
 <area href="classrnn__cell_1_1MILSTMWithAttentionCell.html" alt="rnn_cell.MILSTMWithAttentionCell" shape="rect" coords="214,168,418,192"/>
+<area href="classrnn__cell_1_1MILSTMCell.html" alt="rnn_cell.MILSTMCell" shape="rect" coords="428,168,632,192"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a583099ef649a2d61e3cfa2007f826850"><td class="memItemLeft" align="right" valign="top"><a id="a583099ef649a2d61e3cfa2007f826850"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, name)</td></tr>
-<tr class="separator:a583099ef649a2d61e3cfa2007f826850"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3755a76a5d1450cd36434daf9220f7e"><td class="memItemLeft" align="right" valign="top"><a id="aa3755a76a5d1450cd36434daf9220f7e"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, name, dropout_ratio=None, forward_only=False)</td></tr>
+<tr class="separator:aa3755a76a5d1450cd36434daf9220f7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6c9a3a073ea436c0ecf21198ebdcb76"><td class="memItemLeft" align="right" valign="top"><a id="ab6c9a3a073ea436c0ecf21198ebdcb76"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>scope</b> (self, name)</td></tr>
 <tr class="separator:ab6c9a3a073ea436c0ecf21198ebdcb76"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -104,6 +106,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>apply</b> (self, model
 <tr class="separator:a22b7b28e2053a3b4b6881006a7163ed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb3f68908037595c4b2c2659f8f4c8c9"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1RNNCell.html#aeb3f68908037595c4b2c2659f8f4c8c9">prepare_input</a> (self, model, input_blob)</td></tr>
 <tr class="separator:aeb3f68908037595c4b2c2659f8f4c8c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5182c8234b47fe7427adc3ffa75fbcb5"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1RNNCell.html#a5182c8234b47fe7427adc3ffa75fbcb5">get_output_state_index</a> (self)</td></tr>
+<tr class="separator:a5182c8234b47fe7427adc3ffa75fbcb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1073f2d9e399b5832cd1ceb94d4594f6"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1RNNCell.html#a1073f2d9e399b5832cd1ceb94d4594f6">get_state_names</a> (self)</td></tr>
 <tr class="separator:a1073f2d9e399b5832cd1ceb94d4594f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -115,6 +119,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a0bf90871044ca0c0a80ec0dddf5e36f0"><td class="memItemLeft" align="right" valign="top"><a id="a0bf90871044ca0c0a80ec0dddf5e36f0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>recompute_blobs</b></td></tr>
 <tr class="separator:a0bf90871044ca0c0a80ec0dddf5e36f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42cc46cab79e0a69f65e897c094845ed"><td class="memItemLeft" align="right" valign="top"><a id="a42cc46cab79e0a69f65e897c094845ed"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>forward_only</b></td></tr>
+<tr class="separator:a42cc46cab79e0a69f65e897c094845ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff010dc200d6929a3f6d243bda7905d3"><td class="memItemLeft" align="right" valign="top"><a id="aff010dc200d6929a3f6d243bda7905d3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>dropout_ratio</b></td></tr>
+<tr class="separator:aff010dc200d6929a3f6d243bda7905d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">Base class for writing recurrent / stateful operations.
@@ -123,8 +133,29 @@ One needs to implement 3 methods: _apply, prepare_input and get_state_names.
 As a result base class will provice apply_over_sequence method, which
 allows you to apply recurrent operations over a sequence of any length.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00020">20</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00021">21</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a5182c8234b47fe7427adc3ffa75fbcb5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5182c8234b47fe7427adc3ffa75fbcb5">&#9670;&nbsp;</a></span>get_output_state_index()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def rnn_cell.RNNCell.get_output_state_index </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Return index into state list of the "primary" step-wise output.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00138">138</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
+
+</div>
+</div>
 <a id="a1073f2d9e399b5832cd1ceb94d4594f6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1073f2d9e399b5832cd1ceb94d4594f6">&#9670;&nbsp;</a></span>get_state_names()</h2>
 
@@ -144,7 +175,7 @@ allows you to apply recurrent operations over a sequence of any length.
 It's required by apply_over_sequence method in order to allocate
 recurrent states for all steps with meaningful names.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00111">111</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00144">144</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
 
 </div>
 </div>
@@ -182,13 +213,13 @@ recurrent states for all steps with meaningful names.
 <pre class="fragment">If some operations in _apply method depend only on the input,
 not on recurrent states, they could be computed in advance.
 
-model: CNNModelHelper object new operators would be added to
+model: ModelHelper object new operators would be added to
 
 input_blob: either the whole input sequence with shape
 (sequence_length, batch_size, input_dim) or a single input with shape
 (1, batch_size, input_dim).
 </pre> 
-<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00098">98</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00125">125</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
 
 </div>
 </div>
@@ -199,7 +230,7 @@ input_blob: either the whole input sequence with shape
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

@@ -2,6 +2,8 @@ var searchData=
 [
   ['make',['Make',['../classcaffe2_1_1TypeMeta.html#a883a496f664bb647722739b4b751b19f',1,'caffe2::TypeMeta']]],
   ['matchgradstoparams',['MatchGradsToParams',['../classcaffe2_1_1GradientMakerBase.html#aee76543ce1ca853f02e884d0716d3a92',1,'caffe2::GradientMakerBase']]],
+  ['maxoutputdimension',['maxOutputDimension',['../classcaffe2_1_1Params.html#a82ef9221f606209e318b3bffcd67205f',1,'caffe2::Params']]],
+  ['maxoutputframes',['maxOutputFrames',['../classcaffe2_1_1Params.html#a01ab0b3066e11fab2faedaf999f0accf',1,'caffe2::Params']]],
   ['maxpoolgradientrtcop',['MaxPoolGradientRTCOp',['../classcaffe2_1_1MaxPoolGradientRTCOp.html',1,'caffe2']]],
   ['maxpoolrtcop',['MaxPoolRTCOp',['../classcaffe2_1_1MaxPoolRTCOp.html',1,'caffe2']]],
   ['memoryallocationreporter',['MemoryAllocationReporter',['../classcaffe2_1_1MemoryAllocationReporter.html',1,'caffe2']]],

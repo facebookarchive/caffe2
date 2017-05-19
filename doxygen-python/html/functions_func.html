@@ -77,7 +77,7 @@ $(function() {
 </li>
 <li>__getattr__()
 : <a class="el" href="classcore_1_1BlobReference.html#acce5e1da50581ce1ade246a9d1cd0e83">core.BlobReference</a>
-, <a class="el" href="classmodel__helper_1_1ModelHelperBase.html#aba08619eb1a0ff1398c11caebdeffa47">model_helper.ModelHelperBase</a>
+, <a class="el" href="classmodel__helper_1_1ModelHelper.html#a127b21b4750fb9058176d7f5b4017183">model_helper.ModelHelper</a>
 , <a class="el" href="classnet__builder_1_1Operations.html#a2345e54c342138aa2d34a7ab248f72a8">net_builder.Operations</a>
 , <a class="el" href="classschema_1_1List.html#a0a37655dbf34acb8842dfe1e38a272c1">schema.List</a>
 </li>
@@ -94,6 +94,7 @@ $(function() {
 , <a class="el" href="classlayers_1_1layers_1_1ModelLayer.html#af9e30259d4ffc85e5bb80f5885adcc6d">layers.layers.ModelLayer</a>
 , <a class="el" href="classlayers_1_1sparse__to__dense_1_1SparseToDense.html#a56afd0ef20c4c4aa84daf49d259b08c8">layers.sparse_to_dense.SparseToDense</a>
 , <a class="el" href="classrecord__queue_1_1__QueueReader.html#a6f6a5eba50628527ed6fc44cefba394c">record_queue._QueueReader</a>
+, <a class="el" href="classrnn__cell_1_1MultiRNNCell.html#aa75a9709b4965cfed24d1324756dfb12">rnn_cell.MultiRNNCell</a>
 , <a class="el" href="classschema_1_1Field.html#a82990f45929dad788cb6a5f654ad2d93">schema.Field</a>
 , <a class="el" href="classschema_1_1Struct.html#aa87d64972901d0bd715a7413b327988d">schema.Struct</a>
 , <a class="el" href="classtask_1_1Task.html#a96e7c28d89a0131c7c1fbed9f7508035">task.Task</a>
@@ -110,13 +111,10 @@ $(function() {
 : <a class="el" href="classcore_1_1Net.html#a62e9740947d7ef041a932c42d9aeab54">core.Net</a>
 </li>
 <li>AddOperator()
-: <a class="el" href="classmodel__helper_1_1ModelHelperBase.html#a2cd406d0725daafd0a263b41670711fe">model_helper.ModelHelperBase</a>
+: <a class="el" href="classmodel__helper_1_1ModelHelper.html#a219a65e96c0fa8155438109d16ffba07">model_helper.ModelHelper</a>
 </li>
 <li>AddParam()
-: <a class="el" href="classseq2seq__util_1_1ModelHelper.html#aa649145df9d1176c8c802ac4bdefe024">seq2seq_util.ModelHelper</a>
-</li>
-<li>AddWeightDecay()
-: <a class="el" href="classcnn_1_1CNNModelHelper.html#a26379c6a454f79a5bbdc3f907cdea046">cnn.CNNModelHelper</a>
+: <a class="el" href="classseq2seq__model__helper_1_1Seq2SeqModelHelper.html#a2784fda6ba8121a0d4370b87ca55d054">seq2seq_model_helper.Seq2SeqModelHelper</a>
 </li>
 <li>all_scalars()
 : <a class="el" href="classschema_1_1Field.html#aa964d4f1a84c5db9d3364b83abf10de6">schema.Field</a>
@@ -243,8 +241,11 @@ $(function() {
 <li>get_fp16_compatible_parameters()
 : <a class="el" href="classlayers_1_1layers_1_1ModelLayer.html#adb385e96825c76f6efdf044bead5de5a">layers.layers.ModelLayer</a>
 </li>
+<li>get_output_state_index()
+: <a class="el" href="classrnn__cell_1_1RNNCell.html#a5182c8234b47fe7427adc3ffa75fbcb5">rnn_cell.RNNCell</a>
+</li>
 <li>get_param_to_grad()
-: <a class="el" href="classmodel__helper_1_1ModelHelperBase.html#af5db74a6453273130b36145f7647a73f">model_helper.ModelHelperBase</a>
+: <a class="el" href="classmodel__helper_1_1ModelHelper.html#a4e16d734d6834a9c09e22626ff51613c">model_helper.ModelHelper</a>
 </li>
 <li>get_patch_shape()
 : <a class="el" href="classvisualize_1_1PatchVisualizer.html#af7eda3eaa678f397485f549cb540b600">visualize.PatchVisualizer</a>
@@ -263,13 +264,16 @@ $(function() {
 : <a class="el" href="classcore_1_1Net.html#a4426babfd48d88042aa123bb022cf9f8">core.Net</a>
 </li>
 <li>GetComputedParams()
-: <a class="el" href="classmodel__helper_1_1ModelHelperBase.html#ac99c89c0e752eaaafa9f407659ec5ffa">model_helper.ModelHelperBase</a>
+: <a class="el" href="classmodel__helper_1_1ModelHelper.html#ac691d345dee913ed8ea408d078c4c17b">model_helper.ModelHelper</a>
+</li>
+<li>GetNonTrainableParams()
+: <a class="el" href="classseq2seq__model__helper_1_1Seq2SeqModelHelper.html#a23bfac4074f557f26b511c087ebb6940">seq2seq_model_helper.Seq2SeqModelHelper</a>
 </li>
 <li>GetOptimizationPairs()
-: <a class="el" href="classmodel__helper_1_1ModelHelperBase.html#a18eeecdb52a2b8e9d109298de2e57f9f">model_helper.ModelHelperBase</a>
+: <a class="el" href="classmodel__helper_1_1ModelHelper.html#a5d47928a509c7db4fc15e5fc241ea1d4">model_helper.ModelHelper</a>
 </li>
 <li>GetParams()
-: <a class="el" href="classmodel__helper_1_1ModelHelperBase.html#a6f35f9a99be28a8e6e8c17c11576e9a0">model_helper.ModelHelperBase</a>
+: <a class="el" href="classmodel__helper_1_1ModelHelper.html#a5c39940a2617e720f59259ae9d3bcda0">model_helper.ModelHelper</a>
 </li>
 </ul>
 
@@ -290,9 +294,6 @@ $(function() {
 </li>
 <li>If()
 : <a class="el" href="classnet__builder_1_1Operations.html#a4ddfe5f8132071c35b353f1e7d34114e">net_builder.Operations</a>
-</li>
-<li>ImageInput()
-: <a class="el" href="classcnn_1_1CNNModelHelper.html#a4da84bc6aad9b78509bb200a4638a060">cnn.CNNModelHelper</a>
 </li>
 <li>init()
 : <a class="el" href="classcheckpoint_1_1CheckpointManager.html#a589fc2e02123b4245fc1321aa7c3c1db">checkpoint.CheckpointManager</a>
@@ -380,7 +381,7 @@ $(function() {
 : <a class="el" href="classrnn__cell_1_1RNNCell.html#aeb3f68908037595c4b2c2659f8f4c8c9">rnn_cell.RNNCell</a>
 </li>
 <li>Python()
-: <a class="el" href="classcore_1_1Net.html#a2a5ab3b04de28feef0a9f36b3b4a444c">core.Net</a>
+: <a class="el" href="classcore_1_1Net.html#a655150e80f0cf907f372196af9353d94">core.Net</a>
 </li>
 </ul>
 
@@ -421,6 +422,9 @@ $(function() {
 <li>RunAllOnGPU()
 : <a class="el" href="classcore_1_1Net.html#a3fa040cf7337c4a818925dd83d32d2cf">core.Net</a>
 </li>
+<li>RunAllOnMKL()
+: <a class="el" href="classcore_1_1Net.html#a632a3cb0fc8ccc8f37e641a5a1919677">core.Net</a>
+</li>
 <li>RunEveryMillis()
 : <a class="el" href="classcore_1_1ExecutionStep.html#a24f3ba35a5014a9df0c6dc26da86778c">core.ExecutionStep</a>
 </li>
@@ -435,7 +439,7 @@ $(function() {
 : <a class="el" href="classdataio_1_1Reader.html#a92e993974271957bbca19fc2ca818dd6">dataio.Reader</a>
 </li>
 <li>set()
-: <a class="el" href="classschema_1_1Scalar.html#ad96c7067e2f1e916bf57e44a0cbf212b">schema.Scalar</a>
+: <a class="el" href="classschema_1_1Scalar.html#a0a566db67068cd62bc2d1b18750a8959">schema.Scalar</a>
 </li>
 <li>set_rand_seed()
 : <a class="el" href="classcore_1_1Net.html#a9432c6758f6ae1dc4123da30c494267b">core.Net</a>
@@ -444,7 +448,7 @@ $(function() {
 : <a class="el" href="classexperiment__util_1_1ExternalLogger.html#a6958df366dcf4503578e4fee11340f52">experiment_util.ExternalLogger</a>
 </li>
 <li>set_value()
-: <a class="el" href="classschema_1_1Scalar.html#a13411f653e752e0e3dc05a43a41df215">schema.Scalar</a>
+: <a class="el" href="classschema_1_1Scalar.html#a85390b1fc563a3b5593b9687b94c7c78">schema.Scalar</a>
 </li>
 <li>SetReportNet()
 : <a class="el" href="classcore_1_1ExecutionStep.html#a49a77533154befc82738d0b9b9d14c81">core.ExecutionStep</a>
@@ -452,6 +456,9 @@ $(function() {
 <li>setup_ex()
 : <a class="el" href="classdataio_1_1Reader.html#a5461f2c38da9a2ee4f7cd96d6e609849">dataio.Reader</a>
 , <a class="el" href="classdataio_1_1Writer.html#a58e5ca55f4ea25cdf47435d0dd5e2622">dataio.Writer</a>
+</li>
+<li>setup_example()
+: <a class="el" href="classlayer__test__util_1_1LayersTestCase.html#a7d5d1a5254e491a8035680bfbd0cb9e6">layer_test_util.LayersTestCase</a>
 </li>
 <li>ShowChannels()
 : <a class="el" href="classvisualize_1_1PatchVisualizer.html#afbabeeed6779df0720a6bd51df4019f6">visualize.PatchVisualizer</a>
@@ -473,6 +480,9 @@ $(function() {
 </li>
 <li>stop_blob()
 : <a class="el" href="classnet__builder_1_1NetBuilder.html#ab7704cd4edebac1d4710aa69b762ee95">net_builder.NetBuilder</a>
+</li>
+<li>stop_coordinator()
+: <a class="el" href="classdata__workers_1_1GlobalCoordinator.html#ad44ae4d3b98c084b74f47241db0aa34c">data_workers.GlobalCoordinator</a>
 </li>
 <li>stop_guard()
 : <a class="el" href="classnet__builder_1_1Operations.html#a0b635dff17823fa667a4997daf373727">net_builder.Operations</a>
@@ -497,7 +507,7 @@ $(function() {
 : <a class="el" href="classnet__builder_1_1Operations.html#adf00a36baf1b52b547e066c5b0927b93">net_builder.Operations</a>
 </li>
 <li>TensorProtosDBInput()
-: <a class="el" href="classmodel__helper_1_1ModelHelperBase.html#ae09d760d09e02954387533e85768e445">model_helper.ModelHelperBase</a>
+: <a class="el" href="classmodel__helper_1_1ModelHelper.html#a434ea23add7814c9c4bdd7636b65c9f2">model_helper.ModelHelper</a>
 </li>
 <li>train_param_blobs()
 : <a class="el" href="classlayers_1_1sampling__trainable__mixin_1_1SamplingTrainableMixin.html#a3e1b65ff421a018c769e3f0703aef440">layers.sampling_trainable_mixin.SamplingTrainableMixin</a>
@@ -531,7 +541,7 @@ $(function() {
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:10 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

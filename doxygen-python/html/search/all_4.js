@@ -11,7 +11,8 @@ var searchData=
   ['debug_5fnet',['debug_net',['../namespacenet__printer.html#a0dd4ea9bc5ef439a7f7ef5f77cab9a20',1,'net_printer']]],
   ['debugmode',['DebugMode',['../classutils_1_1DebugMode.html',1,'utils']]],
   ['define_5fcontext',['define_context',['../classcontext_1_1define__context.html',1,'context']]],
-  ['depthconcat',['DepthConcat',['../classcnn_1_1CNNModelHelper.html#aad6aaee9c53aae5deb97791487bddd57',1,'cnn.CNNModelHelper.DepthConcat()'],['../namespacearray__helpers.html#a70d4566400c704e6ff1c1cff3f95b5d5',1,'array_helpers.DepthConcat()']]],
+  ['depth_5fconcat',['depth_concat',['../namespacearray__helpers.html#ac6198d25d051506c9adf6329489f6a9d',1,'array_helpers']]],
+  ['depthconcat',['DepthConcat',['../classcnn_1_1CNNModelHelper.html#aad6aaee9c53aae5deb97791487bddd57',1,'cnn::CNNModelHelper']]],
   ['device_5fchecker',['device_checker',['../namespacedevice__checker.html',1,'']]],
   ['devicechecker',['DeviceChecker',['../classdevice__checker_1_1DeviceChecker.html',1,'device_checker']]],
   ['diagnose_5fprotobuf',['diagnose_protobuf',['../namespacediagnose__protobuf.html',1,'']]],
@@ -25,6 +26,6 @@ var searchData=
   ['dountil',['DoUntil',['../namespacecontrol.html#a50616b610a4942631a1af2d585503aff',1,'control']]],
   ['dowhile',['DoWhile',['../namespacecontrol.html#a7299c1728c33357dbe45cee77570ebe7',1,'control']]],
   ['download',['download',['../namespacedownload.html',1,'']]],
-  ['dropout',['dropout',['../namespacedropout.html',1,'dropout'],['../namespacedropout.html#a7efef7e02d6515d761bc348f14237b3d',1,'dropout.Dropout()']]],
+  ['dropout',['dropout',['../namespacedropout.html',1,'dropout'],['../namespacedropout.html#ab25b66117798e8d41658ee83b9be0b4b',1,'dropout.dropout()']]],
   ['dyndep',['dyndep',['../namespacedyndep.html',1,'']]]
 ];

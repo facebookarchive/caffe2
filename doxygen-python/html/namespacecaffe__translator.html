@@ -95,9 +95,15 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateModel</b> (ar
 def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecaffe__translator.html#a755396dee7c81e5b8d2d42ee2d5cdd45">TranslateInput</a> (layer, pretrained_blobs, is_test)</td></tr>
 <tr class="memdesc:a755396dee7c81e5b8d2d42ee2d5cdd45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common translators for layers. <br /></td></tr>
 <tr class="separator:a755396dee7c81e5b8d2d42ee2d5cdd45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe6c3543face93a5ad324af0a23509e4"><td class="memItemLeft" align="right" valign="top"><a id="abe6c3543face93a5ad324af0a23509e4"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateVideoData</b> (layer, pretrained_blobs, is_test)</td></tr>
+<tr class="separator:abe6c3543face93a5ad324af0a23509e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8106e8c93d51fe431098308da533352c"><td class="memItemLeft" align="right" valign="top"><a id="a8106e8c93d51fe431098308da533352c"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateData</b> (layer, pretrained_blobs, is_test)</td></tr>
 <tr class="separator:a8106e8c93d51fe431098308da533352c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedb2fa9fbf82d428afced78a3881e5a7"><td class="memItemLeft" align="right" valign="top"><a id="aedb2fa9fbf82d428afced78a3881e5a7"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateConvNd</b> (layer, pretrained_blobs, is_test)</td></tr>
+<tr class="separator:aedb2fa9fbf82d428afced78a3881e5a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a078daec809e88dc6c98f941c42ec24ca"><td class="memItemLeft" align="right" valign="top"><a id="a078daec809e88dc6c98f941c42ec24ca"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateConv</b> (layer, pretrained_blobs, is_test)</td></tr>
 <tr class="separator:a078daec809e88dc6c98f941c42ec24ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -110,6 +116,9 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateRelu</b> (lay
 <tr class="memitem:ae73482bb2dbc00c869f737bb9ebb6e00"><td class="memItemLeft" align="right" valign="top"><a id="ae73482bb2dbc00c869f737bb9ebb6e00"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslatePool</b> (layer, pretrained_blobs, is_test)</td></tr>
 <tr class="separator:ae73482bb2dbc00c869f737bb9ebb6e00"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e4f7b514a6c6fd697bf57e1a2516944"><td class="memItemLeft" align="right" valign="top"><a id="a8e4f7b514a6c6fd697bf57e1a2516944"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslatePool3D</b> (layer, pretrained_blobs, is_test)</td></tr>
+<tr class="separator:a8e4f7b514a6c6fd697bf57e1a2516944"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39bccdcd5376224485c496b241863f8e"><td class="memItemLeft" align="right" valign="top"><a id="a39bccdcd5376224485c496b241863f8e"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateLRN</b> (layer, pretrained_blobs, is_test)</td></tr>
 <tr class="separator:a39bccdcd5376224485c496b241863f8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -137,6 +146,9 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateTanH</b> (lay
 <tr class="memitem:a38aedfc8d8887e234055ba485a218300"><td class="memItemLeft" align="right" valign="top"><a id="a38aedfc8d8887e234055ba485a218300"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateInstanceNorm</b> (layer, pretrained_blobs, is_test)</td></tr>
 <tr class="separator:a38aedfc8d8887e234055ba485a218300"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae93985b461fb6b12e36a34151a5b756"><td class="memItemLeft" align="right" valign="top"><a id="aae93985b461fb6b12e36a34151a5b756"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateBatchNorm</b> (layer, pretrained_blobs, is_test)</td></tr>
+<tr class="separator:aae93985b461fb6b12e36a34151a5b756"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa036a215c63675b93773fe70ef06635a"><td class="memItemLeft" align="right" valign="top"><a id="aa036a215c63675b93773fe70ef06635a"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>TranslateElementWise</b> (layer, pretrained_blobs, is_test)</td></tr>
 <tr class="separator:aa036a215c63675b93773fe70ef06635a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -334,7 +346,7 @@ parameters.
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  argparse.ArgumentParser(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;        description=<span class="stringliteral">&quot;Utilitity to convert pretrained caffe models to Caffe2 models.&quot;</span>)</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="caffe__translator_8py_source.html#l00580">580</a> of file <a class="el" href="caffe__translator_8py_source.html">caffe_translator.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="caffe__translator_8py_source.html#l00691">691</a> of file <a class="el" href="caffe__translator_8py_source.html">caffe_translator.py</a>.</p>
 
 </div>
 </div>
@@ -342,7 +354,7 @@ parameters.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:08 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

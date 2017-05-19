@@ -103,6 +103,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:aaa136f08dcca13c507aeb28d6dc5249e inherit pub_attribs_classrnn__cell_1_1LSTMCell"><td class="memItemLeft" align="right" valign="top"><a id="aaa136f08dcca13c507aeb28d6dc5249e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>memory_optimization</b></td></tr>
 <tr class="separator:aaa136f08dcca13c507aeb28d6dc5249e inherit pub_attribs_classrnn__cell_1_1LSTMCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0848855f94f378d9e4449d10bbc26123 inherit pub_attribs_classrnn__cell_1_1LSTMCell"><td class="memItemLeft" align="right" valign="top"><a id="a0848855f94f378d9e4449d10bbc26123"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>drop_states</b></td></tr>
+<tr class="separator:a0848855f94f378d9e4449d10bbc26123 inherit pub_attribs_classrnn__cell_1_1LSTMCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b49b4d3f2653da423c0b813a201010d inherit pub_attribs_classrnn__cell_1_1LSTMCell"><td class="memItemLeft" align="right" valign="top"><a id="a4b49b4d3f2653da423c0b813a201010d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>recompute_blobs</b></td></tr>
 <tr class="separator:a4b49b4d3f2653da423c0b813a201010d inherit pub_attribs_classrnn__cell_1_1LSTMCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -113,13 +116,19 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a0bf90871044ca0c0a80ec0dddf5e36f0 inherit pub_attribs_classrnn__cell_1_1RNNCell"><td class="memItemLeft" align="right" valign="top"><a id="a0bf90871044ca0c0a80ec0dddf5e36f0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>recompute_blobs</b></td></tr>
 <tr class="separator:a0bf90871044ca0c0a80ec0dddf5e36f0 inherit pub_attribs_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42cc46cab79e0a69f65e897c094845ed inherit pub_attribs_classrnn__cell_1_1RNNCell"><td class="memItemLeft" align="right" valign="top"><a id="a42cc46cab79e0a69f65e897c094845ed"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>forward_only</b></td></tr>
+<tr class="separator:a42cc46cab79e0a69f65e897c094845ed inherit pub_attribs_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff010dc200d6929a3f6d243bda7905d3 inherit pub_attribs_classrnn__cell_1_1RNNCell"><td class="memItemLeft" align="right" valign="top"><a id="aff010dc200d6929a3f6d243bda7905d3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>dropout_ratio</b></td></tr>
+<tr class="separator:aff010dc200d6929a3f6d243bda7905d3 inherit pub_attribs_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_methods_classrnn__cell_1_1LSTMCell"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classrnn__cell_1_1LSTMCell')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classrnn__cell_1_1LSTMCell.html">rnn_cell.LSTMCell</a></td></tr>
-<tr class="memitem:aa89fe0704dbf3361aa074ec98c0ff31c inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memItemLeft" align="right" valign="top"><a id="aa89fe0704dbf3361aa074ec98c0ff31c"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, input_size, hidden_size, forget_bias, memory_optimization, name)</td></tr>
-<tr class="separator:aa89fe0704dbf3361aa074ec98c0ff31c inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1fd3192cdec3976fe247a400624cc6b8 inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memItemLeft" align="right" valign="top"><a id="a1fd3192cdec3976fe247a400624cc6b8"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, input_size, hidden_size, forget_bias, memory_optimization, drop_states=False, kwargs)</td></tr>
+<tr class="separator:a1fd3192cdec3976fe247a400624cc6b8 inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a30e509077b96b0fa78a1389896b86c06 inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memItemLeft" align="right" valign="top"><a id="a30e509077b96b0fa78a1389896b86c06"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_input_params</b> (self)</td></tr>
 <tr class="separator:a30e509077b96b0fa78a1389896b86c06 inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,16 +141,13 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>prepare_input</b> (sel
 <tr class="memitem:ade2e8e2a5f377a9bbe85c19e616808a3 inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memItemLeft" align="right" valign="top"><a id="ade2e8e2a5f377a9bbe85c19e616808a3"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_state_names</b> (self)</td></tr>
 <tr class="separator:ade2e8e2a5f377a9bbe85c19e616808a3 inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac8f19392d51e9c0dd6629fe077f6dd2b inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memItemLeft" align="right" valign="top"><a id="ac8f19392d51e9c0dd6629fe077f6dd2b"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>get_outputs_with_grads</b> (self)</td></tr>
-<tr class="separator:ac8f19392d51e9c0dd6629fe077f6dd2b inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ff7297b4ab9722912a1c70a941e4de5 inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memItemLeft" align="right" valign="top"><a id="a2ff7297b4ab9722912a1c70a941e4de5"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_output_size</b> (self)</td></tr>
 <tr class="separator:a2ff7297b4ab9722912a1c70a941e4de5 inherit pub_methods_classrnn__cell_1_1LSTMCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classrnn__cell_1_1RNNCell"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classrnn__cell_1_1RNNCell')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classrnn__cell_1_1RNNCell.html">rnn_cell.RNNCell</a></td></tr>
-<tr class="memitem:a583099ef649a2d61e3cfa2007f826850 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memItemLeft" align="right" valign="top"><a id="a583099ef649a2d61e3cfa2007f826850"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, name)</td></tr>
-<tr class="separator:a583099ef649a2d61e3cfa2007f826850 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3755a76a5d1450cd36434daf9220f7e inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memItemLeft" align="right" valign="top"><a id="aa3755a76a5d1450cd36434daf9220f7e"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, name, dropout_ratio=None, forward_only=False)</td></tr>
+<tr class="separator:aa3755a76a5d1450cd36434daf9220f7e inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6c9a3a073ea436c0ecf21198ebdcb76 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memItemLeft" align="right" valign="top"><a id="ab6c9a3a073ea436c0ecf21198ebdcb76"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>scope</b> (self, name)</td></tr>
 <tr class="separator:ab6c9a3a073ea436c0ecf21198ebdcb76 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -153,12 +159,14 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>apply</b> (self, model
 <tr class="separator:a22b7b28e2053a3b4b6881006a7163ed4 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb3f68908037595c4b2c2659f8f4c8c9 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1RNNCell.html#aeb3f68908037595c4b2c2659f8f4c8c9">prepare_input</a> (self, model, input_blob)</td></tr>
 <tr class="separator:aeb3f68908037595c4b2c2659f8f4c8c9 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5182c8234b47fe7427adc3ffa75fbcb5 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1RNNCell.html#a5182c8234b47fe7427adc3ffa75fbcb5">get_output_state_index</a> (self)</td></tr>
+<tr class="separator:a5182c8234b47fe7427adc3ffa75fbcb5 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1073f2d9e399b5832cd1ceb94d4594f6 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrnn__cell_1_1RNNCell.html#a1073f2d9e399b5832cd1ceb94d4594f6">get_state_names</a> (self)</td></tr>
 <tr class="separator:a1073f2d9e399b5832cd1ceb94d4594f6 inherit pub_methods_classrnn__cell_1_1RNNCell"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00668">668</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rnn__cell_8py_source.html#l00279">279</a> of file <a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a>.</p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/python/<a class="el" href="rnn__cell_8py_source.html">rnn_cell.py</a></li>
 </ul>
@@ -166,7 +174,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>apply</b> (self, model
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

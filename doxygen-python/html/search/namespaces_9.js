@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['last_5fn_5fwindow_5fcollector',['last_n_window_collector',['../namespacelast__n__window__collector.html',1,'']]],
   ['layer_5fmodel_5fhelper',['layer_model_helper',['../namespacelayer__model__helper.html',1,'']]],
   ['layer_5fmodel_5finstantiator',['layer_model_instantiator',['../namespacelayer__model__instantiator.html',1,'']]],
   ['layer_5ftest_5futil',['layer_test_util',['../namespacelayer__test__util.html',1,'']]],

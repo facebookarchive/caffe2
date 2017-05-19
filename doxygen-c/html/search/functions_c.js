@@ -2,6 +2,8 @@ var searchData=
 [
   ['make',['Make',['../classcaffe2_1_1TypeMeta.html#a883a496f664bb647722739b4b751b19f',1,'caffe2::TypeMeta']]],
   ['matchgradstoparams',['MatchGradsToParams',['../classcaffe2_1_1GradientMakerBase.html#aee76543ce1ca853f02e884d0716d3a92',1,'caffe2::GradientMakerBase']]],
+  ['maxoutputdimension',['maxOutputDimension',['../classcaffe2_1_1Params.html#a82ef9221f606209e318b3bffcd67205f',1,'caffe2::Params']]],
+  ['maxoutputframes',['maxOutputFrames',['../classcaffe2_1_1Params.html#a01ab0b3066e11fab2faedaf999f0accf',1,'caffe2::Params']]],
   ['meta',['meta',['../classcaffe2_1_1Blob.html#a0be60fcbeb701c6dd3c3bfa7e3b03ce3',1,'caffe2::Blob::meta()'],['../classcaffe2_1_1Tensor.html#a5c8e05e982bbefa1dd7e438415574c8f',1,'caffe2::Tensor::meta()']]],
   ['microseconds',['MicroSeconds',['../classcaffe2_1_1Timer.html#a24c7ffbd7426e2f8a1ce166a1072b75d',1,'caffe2::Timer']]],
   ['milliseconds',['MilliSeconds',['../classcaffe2_1_1Timer.html#aeea6eac523d6882b96f005aa39dc2edf',1,'caffe2::Timer']]],

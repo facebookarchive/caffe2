@@ -76,16 +76,27 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a1fe7262a0a66754f19998fa1603317b9"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model.html#a1fe7262a0a66754f19998fa1603317b9">Parallelize_GPU</a> (model_helper_obj, input_builder_fun, forward_pass_builder_fun, param_update_builder_fun, devices=range(0, workspace.NumCudaDevices()), rendezvous=None, net_type='dag', broadcast_computed_params=True, optimize_gradient_memory=False)</td></tr>
-<tr class="separator:a1fe7262a0a66754f19998fa1603317b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c0174811e1cac46b085e20efe2c2dcf"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model.html#a6c0174811e1cac46b085e20efe2c2dcf">Parallelize_GPU</a> (model_helper_obj, input_builder_fun, forward_pass_builder_fun, param_update_builder_fun, devices=range(0, workspace.NumCudaDevices()), rendezvous=None, net_type='dag', broadcast_computed_params=True, optimize_gradient_memory=False, use_nccl=False)</td></tr>
+<tr class="separator:a6c0174811e1cac46b085e20efe2c2dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33cd9cdbefd6688309ea144e85dd42a5"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model.html#a33cd9cdbefd6688309ea144e85dd42a5">Parallelize_GPU_BMUF</a> (model_helper_obj, input_builder_fun, forward_pass_builder_fun, param_update_builder_fun, block_learning_rate=1.0, block_momentum=None, devices=range(0, workspace.NumCudaDevices()), net_type='dag', master_gpu=None)</td></tr>
+<tr class="separator:a33cd9cdbefd6688309ea144e85dd42a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dc25226acf3166806e281b34eaf3079"><td class="memItemLeft" align="right" valign="top"><a id="a7dc25226acf3166806e281b34eaf3079"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>RunInitNet</b> (model)</td></tr>
+<tr class="separator:a7dc25226acf3166806e281b34eaf3079"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50d37f193e39d4528d29ec31dd20dea3"><td class="memItemLeft" align="right" valign="top"><a id="a50d37f193e39d4528d29ec31dd20dea3"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>RunNet</b> (model, num_iterations)</td></tr>
+<tr class="separator:a50d37f193e39d4528d29ec31dd20dea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c4bd80dfa3243526cb86c75e817b0b0"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model.html#a4c4bd80dfa3243526cb86c75e817b0b0">ExtractPredictorNet</a> (model, inputs, outputs, device)</td></tr>
 <tr class="separator:a4c4bd80dfa3243526cb86c75e817b0b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac8afa618b222c522d42260e6f74531b"><td class="memItemLeft" align="right" valign="top"><a id="aac8afa618b222c522d42260e6f74531b"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>FinalizeAfterCheckpoint</b> (model, blobs, sync_iter=True)</td></tr>
-<tr class="separator:aac8afa618b222c522d42260e6f74531b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abce7bdef068c7961e610e30fbb2fc11e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model.html#abce7bdef068c7961e610e30fbb2fc11e">GetCheckpointParams</a> (model)</td></tr>
+<tr class="separator:abce7bdef068c7961e610e30fbb2fc11e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeaf6f1994dee2a119718c0fff65962ba"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model.html#aeaf6f1994dee2a119718c0fff65962ba">FinalizeAfterCheckpoint</a> (model, blobs=None)</td></tr>
+<tr class="separator:aeaf6f1994dee2a119718c0fff65962ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a805d98b583b2b940d58a3a9d63ac04e8"><td class="memItemLeft" align="right" valign="top"><a id="a805d98b583b2b940d58a3a9d63ac04e8"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>stripParamName</b> (param)</td></tr>
 <tr class="separator:a805d98b583b2b940d58a3a9d63ac04e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe15de0fc503825c9f2b55fc06884b2c"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model.html#afe15de0fc503825c9f2b55fc06884b2c">OptimizeGradientMemory</a> (model, input_shapes, excluded_blobs, recycle_activations)</td></tr>
+<tr class="separator:afe15de0fc503825c9f2b55fc06884b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -136,12 +147,115 @@ Variables</h2></td></tr>
 <pre class="fragment">Returns (net, params) that can be exported to be used as a prediction
 net.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00202">202</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00399">399</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
-<a id="a1fe7262a0a66754f19998fa1603317b9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1fe7262a0a66754f19998fa1603317b9">&#9670;&nbsp;</a></span>Parallelize_GPU()</h2>
+<a id="aeaf6f1994dee2a119718c0fff65962ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeaf6f1994dee2a119718c0fff65962ba">&#9670;&nbsp;</a></span>FinalizeAfterCheckpoint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def data_parallel_model.FinalizeAfterCheckpoint </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blobs</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">This function should be called after loading parameters from a
+checkpoint / initial parameters file.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00434">434</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+
+</div>
+</div>
+<a id="abce7bdef068c7961e610e30fbb2fc11e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abce7bdef068c7961e610e30fbb2fc11e">&#9670;&nbsp;</a></span>GetCheckpointParams()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def data_parallel_model.GetCheckpointParams </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Returns a set of blobs that are needed for a complete check point.
+They are blobs for the first gpu and iteration blobs.
+</pre> 
+<p class="definition">Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00423">423</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+
+</div>
+</div>
+<a id="afe15de0fc503825c9f2b55fc06884b2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe15de0fc503825c9f2b55fc06884b2c">&#9670;&nbsp;</a></span>OptimizeGradientMemory()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def data_parallel_model.OptimizeGradientMemory </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>input_shapes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>excluded_blobs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>recycle_activations</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Optimize memory usage of the backward pass by recycling blobs for gradient
+inputs that have been 'used'.
+input_shapes:  dict of blob name to shape for the inputs of the model.
+               Pass empty dictionary if not known.
+excluded_blobs: list of blobs that cannot be recycled. These are blobs
+               that you will access externally.
+recycle_activations: whether to also recycle forward pass activations
+</pre> 
+<p class="definition">Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00994">994</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+
+</div>
+</div>
+<a id="a6c0174811e1cac46b085e20efe2c2dcf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c0174811e1cac46b085e20efe2c2dcf">&#9670;&nbsp;</a></span>Parallelize_GPU()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -198,7 +312,13 @@ net.
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>optimize_gradient_memory</em> = <code>False</code>&#160;</td>
+          <td class="paramname"><em>optimize_gradient_memory</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>use_nccl</em> = <code>False</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -208,7 +328,7 @@ net.
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Function to create a model that can run on many GPUs.
-  model_helper_obj: an object of ModelHelperBase, such as CNNModelHelper
+  model_helper_obj: an object of ModelHelper, such as CNNModelHelper
   input_builder_fun:
                      Function that adds the input operators
                      Note: Remember to instantiate reader outside of this
@@ -230,8 +350,89 @@ net.
   rendezvous:       used for rendezvous in distributed computation, if None
                     then only one node is used. To create rendezvous,
                     use &lt;TBD&gt;.
-  net_type:         Network type</pre> 
-<p class="definition">Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00032">32</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+  net_type:         Network type
+  optimize_gradient_memory: whether to apply 'memonger' to share blobs
+                    in gradient computation to reduce memory footprint</pre> 
+<p class="definition">Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00033">33</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+
+</div>
+</div>
+<a id="a33cd9cdbefd6688309ea144e85dd42a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33cd9cdbefd6688309ea144e85dd42a5">&#9670;&nbsp;</a></span>Parallelize_GPU_BMUF()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def data_parallel_model.Parallelize_GPU_BMUF </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model_helper_obj</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>input_builder_fun</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>forward_pass_builder_fun</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>param_update_builder_fun</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>block_learning_rate</em> = <code>1.0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>block_momentum</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>devices</em> = <code>range(0,&#160;workspace.NumCudaDevices())</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>net_type</em> = <code>'dag'</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>master_gpu</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Function to create model that run on many GPUs and creates a net for
+parameter_updates that can be run independently for number of iterations
+then followed by another net that runs once to compute the final parameter
+updates according to block wise model update filtering rule described
+in : Scalable Training of Deep Learning Machines by Incremental Block
+Training with Intra-block Parallel Optimization and Blockwise Model-Update
+Filtering (ICASSP 2016).
+</pre> 
+<p class="definition">Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00219">219</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -239,7 +440,7 @@ net.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

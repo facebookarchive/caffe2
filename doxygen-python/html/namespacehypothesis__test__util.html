@@ -100,15 +100,15 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>tensor</b> (min_dim=1,
 <tr class="memitem:ab18f15a232e5329290d5508c5a0fb70c"><td class="memItemLeft" align="right" valign="top"><a id="ab18f15a232e5329290d5508c5a0fb70c"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>segment_ids</b> (size, is_sorted)</td></tr>
 <tr class="separator:ab18f15a232e5329290d5508c5a0fb70c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6948185219ead429effe022c60fc1e60"><td class="memItemLeft" align="right" valign="top"><a id="a6948185219ead429effe022c60fc1e60"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>lengths</b> (size, kwargs)</td></tr>
-<tr class="separator:a6948185219ead429effe022c60fc1e60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13c8f56c6a1bb7ac76ddc033498d6d33"><td class="memItemLeft" align="right" valign="top"><a id="a13c8f56c6a1bb7ac76ddc033498d6d33"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>lengths</b> (size, min_segments=None, max_segments=None, kwargs)</td></tr>
+<tr class="separator:a13c8f56c6a1bb7ac76ddc033498d6d33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0247d0c9fb182fa29b8696b00de8afc3"><td class="memItemLeft" align="right" valign="top"><a id="a0247d0c9fb182fa29b8696b00de8afc3"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>segmented_tensor</b> (min_dim=1, max_dim=4, dtype=np.float32, is_sorted=True, elements=None, segment_generator=segment_ids, allow_empty=False, kwargs)</td></tr>
 <tr class="separator:a0247d0c9fb182fa29b8696b00de8afc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab484074900c83e70d277d5184def631c"><td class="memItemLeft" align="right" valign="top"><a id="ab484074900c83e70d277d5184def631c"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>lengths_tensor</b> (args, kwargs)</td></tr>
-<tr class="separator:ab484074900c83e70d277d5184def631c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d789fd9f266821188cb4ae8a9f41e18"><td class="memItemLeft" align="right" valign="top"><a id="a0d789fd9f266821188cb4ae8a9f41e18"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>lengths_tensor</b> (min_segments=None, max_segments=None, args, kwargs)</td></tr>
+<tr class="separator:a0d789fd9f266821188cb4ae8a9f41e18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8853d31c9db84dc4204a1d472b179cd4"><td class="memItemLeft" align="right" valign="top"><a id="a8853d31c9db84dc4204a1d472b179cd4"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>sparse_segmented_tensor</b> (min_dim=1, max_dim=4, dtype=np.float32, is_sorted=True, elements=None, allow_empty=False, segment_generator=segment_ids, kwargs)</td></tr>
 <tr class="separator:a8853d31c9db84dc4204a1d472b179cd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -169,7 +169,7 @@ list&#160;</td><td class="memItemRight" valign="bottom"><b>device_options</b> = 
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  [cpu_do] + (</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    [caffe2_pb2.DeviceOption(device_type=caffe2_pb2.CUDA, cuda_gpu_id=i)</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;     <span class="keywordflow">for</span> i <span class="keywordflow">in</span> range(<a class="code" href="namespaceworkspace.html#af7171c83b707654579f2c7a7e6fc390e">workspace.NumCudaDevices</a>())]</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;    <span class="keywordflow">if</span> workspace.has_gpu_support <span class="keywordflow">else</span> [])</div><div class="ttc" id="namespaceworkspace_html_af7171c83b707654579f2c7a7e6fc390e"><div class="ttname"><a href="namespaceworkspace.html#af7171c83b707654579f2c7a7e6fc390e">workspace.NumCudaDevices</a></div><div class="ttdeci">NumCudaDevices</div><div class="ttdef"><b>Definition:</b> <a href="workspace_8py_source.html#l00039">workspace.py:39</a></div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="hypothesis__test__util_8py_source.html#l00213">213</a> of file <a class="el" href="hypothesis__test__util_8py_source.html">hypothesis_test_util.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hypothesis__test__util_8py_source.html#l00227">227</a> of file <a class="el" href="hypothesis__test__util_8py_source.html">hypothesis_test_util.py</a>.</p>
 
 </div>
 </div>
@@ -185,7 +185,7 @@ list&#160;</td><td class="memItemRight" valign="bottom"><b>device_options</b> = 
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  dict(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    gc=gradient_checker_device_option(),</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;    dc=device_checker_device_options()</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;)</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="hypothesis__test__util_8py_source.html#l00227">227</a> of file <a class="el" href="hypothesis__test__util_8py_source.html">hypothesis_test_util.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hypothesis__test__util_8py_source.html#l00241">241</a> of file <a class="el" href="hypothesis__test__util_8py_source.html">hypothesis_test_util.py</a>.</p>
 
 </div>
 </div>
@@ -193,7 +193,7 @@ list&#160;</td><td class="memItemRight" valign="bottom"><b>device_options</b> = 
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

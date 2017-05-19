@@ -102,6 +102,11 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>GetContentFromProtoStr
 <tr class="separator:a66298cab320cc01c7cf4bab7e92f9c8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ec94e603ff1cacc225fee57a8ffca10"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a2ec94e603ff1cacc225fee57a8ffca10">ConvertProtoToBinary</a> (proto_class, filename, out_filename)</td></tr>
 <tr class="separator:a2ec94e603ff1cacc225fee57a8ffca10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a557630a1ecb858be6d1f1e5aacf46799"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a557630a1ecb858be6d1f1e5aacf46799">GetGPUMemoryUsageStats</a> ()</td></tr>
+<tr class="separator:a557630a1ecb858be6d1f1e5aacf46799"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa81b39355a68c15bce1d4d5f2cb726c1"><td class="memItemLeft" align="right" valign="top"><a id="aa81b39355a68c15bce1d4d5f2cb726c1"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>ResetBlobs</b> (blobs)</td></tr>
+<tr class="separator:aa81b39355a68c15bce1d4d5f2cb726c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68543be3c44bfa46cb5441cc17144469"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a68543be3c44bfa46cb5441cc17144469">debug</a> (f)</td></tr>
 <tr class="separator:a68543be3c44bfa46cb5441cc17144469"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -175,7 +180,7 @@ Example:
 @debug
 def test_foo(self):
     raise Exception("Bar")</pre> 
-<p class="definition">Definition at line <a class="el" href="utils_8py_source.html#l00190">190</a> of file <a class="el" href="utils_8py_source.html">utils.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="utils_8py_source.html#l00223">223</a> of file <a class="el" href="utils_8py_source.html">utils.py</a>.</p>
 
 </div>
 </div>
@@ -207,6 +212,26 @@ def test_foo(self):
 <pre class="fragment">Gets a specific field from a protocol buffer that matches the given class
 </pre> 
 <p class="definition">Definition at line <a class="el" href="utils_8py_source.html#l00128">128</a> of file <a class="el" href="utils_8py_source.html">utils.py</a>.</p>
+
+</div>
+</div>
+<a id="a557630a1ecb858be6d1f1e5aacf46799"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a557630a1ecb858be6d1f1e5aacf46799">&#9670;&nbsp;</a></span>GetGPUMemoryUsageStats()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def utils.GetGPUMemoryUsageStats </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Get GPU memory usage stats from CUDAContext. This requires flag
+   --caffe2_gpu_memory_tracking to be enabled</pre> 
+<p class="definition">Definition at line <a class="el" href="utils_8py_source.html#l00154">154</a> of file <a class="el" href="utils_8py_source.html">utils.py</a>.</p>
 
 </div>
 </div>
@@ -285,7 +310,7 @@ Throws:
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:10 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

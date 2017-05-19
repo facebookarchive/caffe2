@@ -75,32 +75,32 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a9c60f93d85f42e367bdc88e4470965b3"><td class="memItemLeft" align="right" valign="top"><a id="a9c60f93d85f42e367bdc88e4470965b3"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>FC</b> (model, args, kwargs)</td></tr>
-<tr class="separator:a9c60f93d85f42e367bdc88e4470965b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1222cdee0d10c3f3a32f0e43ac98518b"><td class="memItemLeft" align="right" valign="top"><a id="a1222cdee0d10c3f3a32f0e43ac98518b"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>PackedFC</b> (model, args, kwargs)</td></tr>
-<tr class="separator:a1222cdee0d10c3f3a32f0e43ac98518b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a11e3617e3bbc6556f5e47d4e0a3cb6cd"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefc.html#a11e3617e3bbc6556f5e47d4e0a3cb6cd">FC_Decomp</a> (model, blob_in, blob_out, dim_in, dim_out, rank_approx=5, weight_init=None, bias_init=None, kwargs)</td></tr>
-<tr class="separator:a11e3617e3bbc6556f5e47d4e0a3cb6cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a991431612f4e34df653f5eae2f23368d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefc.html#a991431612f4e34df653f5eae2f23368d">FC_Prune</a> (model, blob_in, blob_out, dim_in, dim_out, weight_init=None, bias_init=None, mask_init=None, threshold=0.00001, need_compress_rate=False, comp_lb=0.05, kwargs)</td></tr>
-<tr class="separator:a991431612f4e34df653f5eae2f23368d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ffc66d4f144c5cb1080b878e0f22563"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefc.html#a1ffc66d4f144c5cb1080b878e0f22563">FC_Sparse</a> (model, blob_in, blob_out, w_csr, iw, jw, bias, kwargs)</td></tr>
-<tr class="separator:a1ffc66d4f144c5cb1080b878e0f22563"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4176c05449c0ffaa76f10b8375c52402"><td class="memItemLeft" align="right" valign="top"><a id="a4176c05449c0ffaa76f10b8375c52402"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>fc</b> (model, args, kwargs)</td></tr>
+<tr class="separator:a4176c05449c0ffaa76f10b8375c52402"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3580405a0b27a787da94ce8702322c19"><td class="memItemLeft" align="right" valign="top"><a id="a3580405a0b27a787da94ce8702322c19"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>packed_fc</b> (model, args, kwargs)</td></tr>
+<tr class="separator:a3580405a0b27a787da94ce8702322c19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25a862ee676a2e191d5c00e3ebe8c4be"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefc.html#a25a862ee676a2e191d5c00e3ebe8c4be">fc_decomp</a> (model, blob_in, blob_out, dim_in, dim_out, rank_approx=5, weight_init=None, bias_init=None, kwargs)</td></tr>
+<tr class="separator:a25a862ee676a2e191d5c00e3ebe8c4be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89ad981a562cad9e1fe407edafa01960"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefc.html#a89ad981a562cad9e1fe407edafa01960">fc_prune</a> (model, blob_in, blob_out, dim_in, dim_out, weight_init=None, bias_init=None, mask_init=None, threshold=0.00001, need_compress_rate=False, comp_lb=0.05, kwargs)</td></tr>
+<tr class="separator:a89ad981a562cad9e1fe407edafa01960"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7daf22970cb4df8dbf2b43702687196"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefc.html#aa7daf22970cb4df8dbf2b43702687196">fc_sparse</a> (model, blob_in, blob_out, w_csr, iw, jw, bias, kwargs)</td></tr>
+<tr class="separator:aa7daf22970cb4df8dbf2b43702687196"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.helpers.fc. </p>
 <p>Module caffe2.python.layers.fc.</p>
 <p>Module caffe2.python.helpers.pooling. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a11e3617e3bbc6556f5e47d4e0a3cb6cd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a11e3617e3bbc6556f5e47d4e0a3cb6cd">&#9670;&nbsp;</a></span>FC_Decomp()</h2>
+<a id="a25a862ee676a2e191d5c00e3ebe8c4be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25a862ee676a2e191d5c00e3ebe8c4be">&#9670;&nbsp;</a></span>fc_decomp()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">def fc.FC_Decomp </td>
+          <td class="memname">def fc.fc_decomp </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>model</em>, </td>
@@ -167,14 +167,14 @@ Here we assume that the rank of original input is bigger than 5.
 
 </div>
 </div>
-<a id="a991431612f4e34df653f5eae2f23368d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a991431612f4e34df653f5eae2f23368d">&#9670;&nbsp;</a></span>FC_Prune()</h2>
+<a id="a89ad981a562cad9e1fe407edafa01960"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89ad981a562cad9e1fe407edafa01960">&#9670;&nbsp;</a></span>fc_prune()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">def fc.FC_Prune </td>
+          <td class="memname">def fc.fc_prune </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>model</em>, </td>
@@ -259,14 +259,14 @@ Runnable so far. Great!:)
 
 </div>
 </div>
-<a id="a1ffc66d4f144c5cb1080b878e0f22563"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1ffc66d4f144c5cb1080b878e0f22563">&#9670;&nbsp;</a></span>FC_Sparse()</h2>
+<a id="aa7daf22970cb4df8dbf2b43702687196"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7daf22970cb4df8dbf2b43702687196">&#9670;&nbsp;</a></span>fc_sparse()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">def fc.FC_Sparse </td>
+          <td class="memname">def fc.fc_sparse </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>model</em>, </td>
@@ -329,7 +329,7 @@ Runnable so far. Great!:)
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

@@ -80,6 +80,11 @@ Functions</h2></td></tr>
 <tr class="separator:abbe1069a57159acb3e208bbfa4d49cf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48d8f51ae7765cfdd498d234089077d9"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceresnet50__trainer.html#a48d8f51ae7765cfdd498d234089077d9">AddMomentumParameterUpdate</a> (train_model, LR)</td></tr>
 <tr class="separator:a48d8f51ae7765cfdd498d234089077d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2def030eac816cf41f0fc1bfa271df73"><td class="memItemLeft" align="right" valign="top"><a id="a2def030eac816cf41f0fc1bfa271df73"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>SaveModel</b> (args, train_model, epoch)</td></tr>
+<tr class="separator:a2def030eac816cf41f0fc1bfa271df73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d78aa8f60d6e04d7697be5a8e74651f"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceresnet50__trainer.html#a8d78aa8f60d6e04d7697be5a8e74651f">LoadModel</a> (path, model)</td></tr>
+<tr class="separator:a8d78aa8f60d6e04d7697be5a8e74651f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb6db70e37914d4a12cb4716699406cd"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceresnet50__trainer.html#abb6db70e37914d4a12cb4716699406cd">RunEpoch</a> (args, epoch, train_model, test_model, total_batch_size, num_shards, expname, explog)</td></tr>
 <tr class="separator:abb6db70e37914d4a12cb4716699406cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17178af364e274248a7816fe8ab5cb7a"><td class="memItemLeft" align="right" valign="top"><a id="a17178af364e274248a7816fe8ab5cb7a"></a>
@@ -138,7 +143,7 @@ Variables</h2></td></tr>
 <pre class="fragment">Image input operator that loads data from reader and
 applies certain transformations to the images.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="resnet50__trainer_8py_source.html#l00043">43</a> of file <a class="el" href="resnet50__trainer_8py_source.html">resnet50_trainer.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="resnet50__trainer_8py_source.html#l00047">47</a> of file <a class="el" href="resnet50__trainer_8py_source.html">resnet50_trainer.py</a>.</p>
 
 </div>
 </div>
@@ -169,7 +174,38 @@ applies certain transformations to the images.
 </div><div class="memdoc">
 <pre class="fragment">Add the momentum-SGD update.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="resnet50__trainer_8py_source.html#l00063">63</a> of file <a class="el" href="resnet50__trainer_8py_source.html">resnet50_trainer.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="resnet50__trainer_8py_source.html#l00067">67</a> of file <a class="el" href="resnet50__trainer_8py_source.html">resnet50_trainer.py</a>.</p>
+
+</div>
+</div>
+<a id="a8d78aa8f60d6e04d7697be5a8e74651f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d78aa8f60d6e04d7697be5a8e74651f">&#9670;&nbsp;</a></span>LoadModel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def resnet50_trainer.LoadModel </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>model</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Load pretrained model from file
+</pre> 
+<p class="definition">Definition at line <a class="el" href="resnet50__trainer_8py_source.html#l00119">119</a> of file <a class="el" href="resnet50__trainer_8py_source.html">resnet50_trainer.py</a>.</p>
 
 </div>
 </div>
@@ -237,7 +273,7 @@ applies certain transformations to the images.
 <pre class="fragment">Run one epoch of the trainer.
 TODO: add checkpointing here.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="resnet50__trainer_8py_source.html#l00094">94</a> of file <a class="el" href="resnet50__trainer_8py_source.html">resnet50_trainer.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="resnet50__trainer_8py_source.html#l00145">145</a> of file <a class="el" href="resnet50__trainer_8py_source.html">resnet50_trainer.py</a>.</p>
 
 </div>
 </div>
@@ -245,7 +281,7 @@ TODO: add checkpointing here.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

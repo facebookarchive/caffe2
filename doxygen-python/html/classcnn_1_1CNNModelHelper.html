@@ -89,14 +89,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a06a7f9614789d607c48ef9a480d9b9f7"><td class="memItemLeft" align="right" valign="top"><a id="a06a7f9614789d607c48ef9a480d9b9f7"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, order=&quot;NCHW&quot;, name=None, use_cudnn=True, cudnn_exhaustive_search=False, ws_nbytes_limit=None, init_params=True, skip_sparse_optim=False, param_model=None)</td></tr>
 <tr class="separator:a06a7f9614789d607c48ef9a480d9b9f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adff567260f914575c62c199a9da350aa"><td class="memItemLeft" align="right" valign="top"><a id="adff567260f914575c62c199a9da350aa"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>GetWeights</b> (self, namescope=None)</td></tr>
-<tr class="separator:adff567260f914575c62c199a9da350aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a26d7d384fb2987cefd7052d32dbe3460"><td class="memItemLeft" align="right" valign="top"><a id="a26d7d384fb2987cefd7052d32dbe3460"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>GetBiases</b> (self, namescope=None)</td></tr>
-<tr class="separator:a26d7d384fb2987cefd7052d32dbe3460"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4da84bc6aad9b78509bb200a4638a060"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcnn_1_1CNNModelHelper.html#a4da84bc6aad9b78509bb200a4638a060">ImageInput</a> (self, blob_in, blob_out, use_gpu_transform=False, kwargs)</td></tr>
+<tr class="memitem:a4da84bc6aad9b78509bb200a4638a060"><td class="memItemLeft" align="right" valign="top"><a id="a4da84bc6aad9b78509bb200a4638a060"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>ImageInput</b> (self, blob_in, blob_out, use_gpu_transform=False, kwargs)</td></tr>
 <tr class="separator:a4da84bc6aad9b78509bb200a4638a060"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75ba397c9fc9fbb7be88098212290642"><td class="memItemLeft" align="right" valign="top"><a id="a75ba397c9fc9fbb7be88098212290642"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>VideoInput</b> (self, blob_in, blob_out, kwargs)</td></tr>
+<tr class="separator:a75ba397c9fc9fbb7be88098212290642"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7fe68424c9cd4c8c04b67f6fc8db36f"><td class="memItemLeft" align="right" valign="top"><a id="ae7fe68424c9cd4c8c04b67f6fc8db36f"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>PadImage</b> (self, blob_in, blob_out, kwargs)</td></tr>
 <tr class="separator:ae7fe68424c9cd4c8c04b67f6fc8db36f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -171,6 +169,9 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>Accuracy</b> (self, ar
 <tr class="memitem:a9376bfc5ef6cf51d0d815a522419095f"><td class="memItemLeft" align="right" valign="top"><a id="a9376bfc5ef6cf51d0d815a522419095f"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>MaxPool</b> (self, args, kwargs)</td></tr>
 <tr class="separator:a9376bfc5ef6cf51d0d815a522419095f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ce1dd4d6a77d52528c5c33290c0766b"><td class="memItemLeft" align="right" valign="top"><a id="a4ce1dd4d6a77d52528c5c33290c0766b"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>MaxPoolWithIndex</b> (self, args, kwargs)</td></tr>
+<tr class="separator:a4ce1dd4d6a77d52528c5c33290c0766b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53d0b1139328187feb273e7fc2538fa1"><td class="memItemLeft" align="right" valign="top"><a id="a53d0b1139328187feb273e7fc2538fa1"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>AveragePool</b> (self, args, kwargs)</td></tr>
 <tr class="separator:a53d0b1139328187feb273e7fc2538fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,7 +187,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>MSRAInit</b> (self)</t
 <tr class="memitem:a688d427e6923759c3c2f43f5e78990f4"><td class="memItemLeft" align="right" valign="top"><a id="a688d427e6923759c3c2f43f5e78990f4"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>ZeroInit</b> (self)</td></tr>
 <tr class="separator:a688d427e6923759c3c2f43f5e78990f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a26379c6a454f79a5bbdc3f907cdea046"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcnn_1_1CNNModelHelper.html#a26379c6a454f79a5bbdc3f907cdea046">AddWeightDecay</a> (self, weight_decay)</td></tr>
+<tr class="memitem:a26379c6a454f79a5bbdc3f907cdea046"><td class="memItemLeft" align="right" valign="top"><a id="a26379c6a454f79a5bbdc3f907cdea046"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>AddWeightDecay</b> (self, weight_decay)</td></tr>
 <tr class="separator:a26379c6a454f79a5bbdc3f907cdea046"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbdc8d2a131f16656a28b0f02bdd124b"><td class="memItemLeft" align="right" valign="top"><a id="adbdc8d2a131f16656a28b0f02bdd124b"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>CPU</b> (self)</td></tr>
@@ -214,44 +216,8 @@ Public Attributes</h2></td></tr>
 <div class="textblock"><pre class="fragment">A helper model so we can write CNN models more easily, without having to
 manually define parameter initializations and operators separately.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="cnn_8py_source.html#l00013">13</a> of file <a class="el" href="cnn_8py_source.html">cnn.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="cnn_8py_source.html#l00014">14</a> of file <a class="el" href="cnn_8py_source.html">cnn.py</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a26379c6a454f79a5bbdc3f907cdea046"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a26379c6a454f79a5bbdc3f907cdea046">&#9670;&nbsp;</a></span>AddWeightDecay()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def cnn.CNNModelHelper.AddWeightDecay </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>weight_decay</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Adds a decay to weights in the model.
-
-This is a form of L2 regularization.
-
-Args:
-    weight_decay: strength of the regularization
-</pre> 
-<p class="definition">Definition at line <a class="el" href="cnn_8py_source.html#l00200">200</a> of file <a class="el" href="cnn_8py_source.html">cnn.py</a>.</p>
-
-</div>
-</div>
 <a id="aad6aaee9c53aae5deb97791487bddd57"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aad6aaee9c53aae5deb97791487bddd57">&#9670;&nbsp;</a></span>DepthConcat()</h2>
 
@@ -284,55 +250,7 @@ Args:
       </table>
 </div><div class="memdoc">
 <pre class="fragment">The old depth concat function - we should move to use concat.</pre> 
-<p class="definition">Definition at line <a class="el" href="cnn_8py_source.html#l00159">159</a> of file <a class="el" href="cnn_8py_source.html">cnn.py</a>.</p>
-
-</div>
-</div>
-<a id="a4da84bc6aad9b78509bb200a4638a060"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4da84bc6aad9b78509bb200a4638a060">&#9670;&nbsp;</a></span>ImageInput()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def cnn.CNNModelHelper.ImageInput </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>blob_in</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>blob_out</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>use_gpu_transform</em> = <code>False</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>kwargs</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Image Input.</pre> 
-<p class="definition">Definition at line <a class="el" href="cnn_8py_source.html#l00060">60</a> of file <a class="el" href="cnn_8py_source.html">cnn.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="cnn_8py_source.html#l00178">178</a> of file <a class="el" href="cnn_8py_source.html">cnn.py</a>.</p>
 
 </div>
 </div>
@@ -343,7 +261,7 @@ Args:
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

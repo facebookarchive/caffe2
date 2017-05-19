@@ -1,7 +1,9 @@
 var searchData=
 [
+  ['params',['Params',['../classcaffe2_1_1Params.html',1,'caffe2']]],
   ['parsecaffecommandlineflags',['ParseCaffeCommandLineFlags',['../namespacecaffe2.html#a658a8d4d5b33a86502f0fbc5d2b82541',1,'caffe2']]],
   ['pinnedcpuallocator',['PinnedCPUAllocator',['../structcaffe2_1_1PinnedCPUAllocator.html',1,'caffe2']]],
+  ['pixelformat',['pixelFormat',['../classcaffe2_1_1Params.html#a315f574fdc25e35c50653b64896f16e9',1,'caffe2::Params']]],
   ['predictor',['Predictor',['../classcaffe2_1_1Predictor.html',1,'caffe2']]],
   ['primitivewrapper',['PrimitiveWrapper',['../classcaffe2_1_1mkl_1_1PrimitiveWrapper.html',1,'caffe2::mkl']]],
   ['protodb',['ProtoDB',['../classcaffe2_1_1db_1_1ProtoDB.html',1,'caffe2::db']]],

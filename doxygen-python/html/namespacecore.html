@@ -123,8 +123,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>DeviceOption</b> (devi
 <tr class="separator:ac1d245fb23a63603b0879a75c037ed9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5cf95c727a1996382c8a4a7502148a5"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecore.html#af5cf95c727a1996382c8a4a7502148a5">CreateOperator</a> (operator_type, inputs, outputs, name='', control_input=None, device_option=None, arg=None, engine=None, kwargs)</td></tr>
 <tr class="separator:af5cf95c727a1996382c8a4a7502148a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41202972687f2bf069668cd3b6aedfb9"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecore.html#a41202972687f2bf069668cd3b6aedfb9">CreatePythonOperator</a> (f, inputs, outputs, grad_f=None, pass_workspace=False, args, kwargs)</td></tr>
-<tr class="separator:a41202972687f2bf069668cd3b6aedfb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a182f0ca0fbfaa28cbfa9cb10d677c13d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecore.html#a182f0ca0fbfaa28cbfa9cb10d677c13d">CreatePythonOperator</a> (f, inputs, outputs, grad_f=None, pass_workspace=False, python_func_type=None, name=None, args, kwargs)</td></tr>
+<tr class="separator:a182f0ca0fbfaa28cbfa9cb10d677c13d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a608e124f50c502a8baab5ebfb0fdf548"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecore.html#a608e124f50c502a8baab5ebfb0fdf548">GetIndexFromGradientList</a> (g_list, name)</td></tr>
 <tr class="separator:a608e124f50c502a8baab5ebfb0fdf548"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b214cc9ec83086e82d98f06294c2a40"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecore.html#a0b214cc9ec83086e82d98f06294c2a40">get_ssa</a> (net, blob_versions=None)</td></tr>
@@ -247,7 +247,7 @@ Returns:
     clone_net:  the cloned Net
     blob_remap: a map from original blob names into remapped blob names
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01057">1057</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01076">1076</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -322,12 +322,12 @@ Returns:
 operator type. The type should be a string corresponding to an operator
 registered with Caffe2.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00259">259</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00269">269</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
-<a id="a41202972687f2bf069668cd3b6aedfb9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a41202972687f2bf069668cd3b6aedfb9">&#9670;&nbsp;</a></span>CreatePythonOperator()</h2>
+<a id="a182f0ca0fbfaa28cbfa9cb10d677c13d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a182f0ca0fbfaa28cbfa9cb10d677c13d">&#9670;&nbsp;</a></span>CreatePythonOperator()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -366,6 +366,18 @@ registered with Caffe2.
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>python_func_type</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>name</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
           <td class="paramname"><em>args</em>, </td>
         </tr>
         <tr>
@@ -388,7 +400,7 @@ If `pass_workspace` is True, the signature is changed to
 is going to run on. This is potentially dangerous (as the op can manipulate
 the workspace directly), use on your own risk.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00322">322</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00341">341</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -466,7 +478,7 @@ the workspace directly), use on your own risk.
   - Be sure to handle race conditions if setting from concurrent threads.
 - if no should_stop_blob or num_iter is provided, defaults to num_iter=1
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l02018">2018</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l02076">2076</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -512,7 +524,7 @@ of op indices that are necessary in order to generate the blobs in
 `outputs`, given blobs in `inputs`.
 Consider that the `inputs` are given in their latest version.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01034">1034</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01053">1053</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -535,7 +547,7 @@ Consider that the `inputs` are given in their latest version.
 versioned blob into the operator index that produces that version of
 the blob. A versioned blob is a tuple (blob_name, version).
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01021">1021</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01040">1040</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -580,7 +592,7 @@ Returns:
     blob_versions:  updated map with latest version of each blob found in
                     the net.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00969">969</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00988">988</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -602,7 +614,7 @@ Returns:
 <pre class="fragment">Given a ssa in the format produced by get_ssa(), return a set of blobs that
 are used before they are defined, which corresponds to inputs at version 0.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01010">1010</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01029">1029</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -633,7 +645,7 @@ are used before they are defined, which corresponds to inputs at version 0.
 </div><div class="memdoc">
 <pre class="fragment">A helper function to get the index from a gradient list, None if not
 matching.</pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00337">337</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00356">356</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -662,7 +674,7 @@ Args:
 Returns:
     A list of BlobReferences.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01771">1771</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l01829">1829</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -698,7 +710,7 @@ Returns:
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Same as execution_step() except that the step name is scoped.</pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l02066">2066</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l02124">2124</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -734,7 +746,7 @@ Returns:
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Returns a blob reference with scope prefixed.</pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00212">212</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00222">222</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -754,7 +766,7 @@ Returns:
       </table>
 </div><div class="memdoc">
 <pre class="fragment">prefix the name with the current scope.</pre> 
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00207">207</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00217">217</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -794,7 +806,7 @@ Used for example for registering caffe python operators.
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  namedtuple(<span class="stringliteral">&#39;SparseGradGenMeta&#39;</span>, [</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&#39;grad_op_indices&#39;</span>, <span class="stringliteral">&#39;idx_indices&#39;</span>,</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;    <span class="stringliteral">&#39;grad_op_values&#39;</span>, <span class="stringliteral">&#39;idx_values&#39;</span>,</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;    <span class="stringliteral">&#39;gradient&#39;</span>,</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;])</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00351">351</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="core_8py_source.html#l00370">370</a> of file <a class="el" href="core_8py_source.html">core.py</a>.</p>
 
 </div>
 </div>
@@ -802,7 +814,7 @@ Used for example for registering caffe python operators.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

@@ -19,5 +19,6 @@ var searchData=
   ['size_5ffrom_5fdim_5f',['size_from_dim_',['../namespacecaffe2.html#a57dab6c8becb4bb52f6e74e5c1063487',1,'caffe2']]],
   ['size_5fto_5fdim',['size_to_dim',['../classcaffe2_1_1QTensor.html#af2e31e65a2a812b7b56e691a430c11a0',1,'caffe2::QTensor']]],
   ['start',['Start',['../classcaffe2_1_1Timer.html#a2cd2082f328f09afdae05de39ccb04f0',1,'caffe2::Timer']]],
+  ['streamindex',['streamIndex',['../classcaffe2_1_1Params.html#ace6a51cd483e13c2c2016b877ef69fd5',1,'caffe2::Params']]],
   ['swap',['swap',['../classcaffe2_1_1Blob.html#a808d8b69c54d3d69db8c447bdc2212a2',1,'caffe2::Blob']]]
 ];

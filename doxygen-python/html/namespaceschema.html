@@ -105,13 +105,13 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>NamedTuple</b> (name_p
 <tr class="separator:ab6a8ab29767000fdbe1a48221efe93c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c4b8b4ea83ee93df212d50f0f73d57e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceschema.html#a3c4b8b4ea83ee93df212d50f0f73d57e">from_column_list</a> (col_names, col_types=None, col_blobs=None, col_metadata=None)</td></tr>
 <tr class="separator:a3c4b8b4ea83ee93df212d50f0f73d57e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab2399fae2e5bda116be52fdfce920a10"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceschema.html#ab2399fae2e5bda116be52fdfce920a10">from_blob_list</a> (schema, values)</td></tr>
-<tr class="separator:ab2399fae2e5bda116be52fdfce920a10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cf4513e2a6ecfe11d22a014253fc7d6"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceschema.html#a3cf4513e2a6ecfe11d22a014253fc7d6">from_blob_list</a> (schema, values, throw_on_type_mismatch=False)</td></tr>
+<tr class="separator:a3cf4513e2a6ecfe11d22a014253fc7d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae0e37d1cbbfab71c0a31b2e398942932"><td class="memItemLeft" align="right" valign="top"><a id="ae0e37d1cbbfab71c0a31b2e398942932"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>as_record</b> (value)</td></tr>
 <tr class="separator:ae0e37d1cbbfab71c0a31b2e398942932"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afdfa798843d71bae72e1ee4f83ef015e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceschema.html#afdfa798843d71bae72e1ee4f83ef015e">FetchRecord</a> (blob_record, ws=None)</td></tr>
-<tr class="separator:afdfa798843d71bae72e1ee4f83ef015e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3a107d29bf246164e52ee57b2fd9ea9"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceschema.html#ab3a107d29bf246164e52ee57b2fd9ea9">FetchRecord</a> (blob_record, ws=None, throw_on_type_mismatch=False)</td></tr>
+<tr class="separator:ab3a107d29bf246164e52ee57b2fd9ea9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b96503f1b415197188d8094e01d4ae3"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceschema.html#a4b96503f1b415197188d8094e01d4ae3">FeedRecord</a> (blob_record, arrays, ws=None)</td></tr>
 <tr class="separator:a4b96503f1b415197188d8094e01d4ae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae58d200a533eca71ca078d968ec6e0b"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceschema.html#aae58d200a533eca71ca078d968ec6e0b">NewRecord</a> (net, schema)</td></tr>
@@ -124,9 +124,9 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>InitEmptyRecord</b> (n
 <tr class="memitem:a57e5f6a88231c47b01af74cf303fc08c"><td class="memItemLeft" align="right" valign="top"><a id="a57e5f6a88231c47b01af74cf303fc08c"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>is_schema_subset</b> (schema, original_schema)</td></tr>
 <tr class="separator:a57e5f6a88231c47b01af74cf303fc08c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38909e976a2320bc93c7fbe51b038617"><td class="memItemLeft" align="right" valign="top"><a id="a38909e976a2320bc93c7fbe51b038617"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>equal_schemas</b> (schema, original_schema)</td></tr>
-<tr class="separator:a38909e976a2320bc93c7fbe51b038617"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a767964a4202d80d6d3044d8a6249e446"><td class="memItemLeft" align="right" valign="top"><a id="a767964a4202d80d6d3044d8a6249e446"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>equal_schemas</b> (schema, original_schema, check_field_names=True, check_field_types=True, check_field_metas=False)</td></tr>
+<tr class="separator:a767964a4202d80d6d3044d8a6249e446"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad64d0970e3a087315e07505f1bf343a6"><td class="memItemLeft" align="right" valign="top"><a id="ad64d0970e3a087315e07505f1bf343a6"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>schema_check</b> (schema, previous=None)</td></tr>
 <tr class="separator:ad64d0970e3a087315e07505f1bf343a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,7 +179,7 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>FIELD_SEPARATOR</b>
 <pre class="fragment">Given a record of arrays, returns a record of blobs,
 initialized with net.Const.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00931">931</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00967">967</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -218,12 +218,12 @@ initialized with net.Const.
 a list of numpy arrays or a Record containing numpy arrays, feeds the
 record to the current workspace.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00881">881</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00916">916</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
-<a id="afdfa798843d71bae72e1ee4f83ef015e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afdfa798843d71bae72e1ee4f83ef015e">&#9670;&nbsp;</a></span>FetchRecord()</h2>
+<a id="ab3a107d29bf246164e52ee57b2fd9ea9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3a107d29bf246164e52ee57b2fd9ea9">&#9670;&nbsp;</a></span>FetchRecord()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -238,7 +238,13 @@ record to the current workspace.
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>ws</em> = <code>None</code>&#160;</td>
+          <td class="paramname"><em>ws</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>throw_on_type_mismatch</em> = <code>False</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -250,12 +256,12 @@ record to the current workspace.
 <pre class="fragment">Given a record containing BlobReferences, return a new record with same
 schema, containing numpy arrays, fetched from the current active workspace.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00862">862</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00897">897</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
-<a id="ab2399fae2e5bda116be52fdfce920a10"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab2399fae2e5bda116be52fdfce920a10">&#9670;&nbsp;</a></span>from_blob_list()</h2>
+<a id="a3cf4513e2a6ecfe11d22a014253fc7d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3cf4513e2a6ecfe11d22a014253fc7d6">&#9670;&nbsp;</a></span>from_blob_list()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -270,7 +276,13 @@ schema, containing numpy arrays, fetched from the current active workspace.
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>values</em>&#160;</td>
+          <td class="paramname"><em>values</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>throw_on_type_mismatch</em> = <code>False</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -282,7 +294,7 @@ schema, containing numpy arrays, fetched from the current active workspace.
 <pre class="fragment">Create a schema that clones the given schema, but containing the given
 list of values.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00826">826</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00861">861</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -325,7 +337,7 @@ list of values.
 </div><div class="memdoc">
 <pre class="fragment">Given a list of names, types, and optionally values, construct a Schema.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00781">781</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00816">816</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -362,7 +374,7 @@ a Caffe2 schema containing `Struct` and `Scalar` types.
 
 Fields containing byte offsets are not currently supported.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00675">675</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00710">710</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -412,7 +424,7 @@ Fields containing byte offsets are not currently supported.
 <pre class="fragment">A map is a List of Struct containing keys and values fields.
 Optionally, you can provide custom name for the key and value fields.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00644">644</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00679">679</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -447,7 +459,7 @@ is NextScopedBlob(field_name), which guarantees unique name in the current
 net. Use NameScope explicitly to avoid name conflictions between different
 nets.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00908">908</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00943">943</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -478,7 +490,7 @@ nets.
 </div><div class="memdoc">
 <pre class="fragment">Creates a tuple of `num_field` untyped scalars.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00666">666</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00701">701</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -499,7 +511,7 @@ nets.
 </div><div class="memdoc">
 <pre class="fragment">Creates a Struct with default, sequential, field names of given types.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00659">659</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="schema_8py_source.html#l00694">694</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -524,7 +536,7 @@ nets.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

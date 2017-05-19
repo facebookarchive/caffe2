@@ -104,8 +104,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>RunOperatorsOnce</b> (
 <tr class="memitem:a5091290efb146d1f07f993b31aae1930"><td class="memItemLeft" align="right" valign="top"><a id="a5091290efb146d1f07f993b31aae1930"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>RunNetOnce</b> (net)</td></tr>
 <tr class="separator:a5091290efb146d1f07f993b31aae1930"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3c286000405bc3f9c1030ccfdf71a11"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceworkspace.html#ad3c286000405bc3f9c1030ccfdf71a11">RunNet</a> (name, num_iter=1)</td></tr>
-<tr class="separator:ad3c286000405bc3f9c1030ccfdf71a11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a891fcfb507f42db682db342d863b75ae"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceworkspace.html#a891fcfb507f42db682db342d863b75ae">RunNet</a> (name, num_iter=1, allow_fail=False)</td></tr>
+<tr class="separator:a891fcfb507f42db682db342d863b75ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accea1ff3de91a17ceaa2cbb28d6d64fd"><td class="memItemLeft" align="right" valign="top"><a id="accea1ff3de91a17ceaa2cbb28d6d64fd"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>RunPlan</b> (plan_or_step)</td></tr>
 <tr class="separator:accea1ff3de91a17ceaa2cbb28d6d64fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -265,7 +265,7 @@ Inputs:
 Returns:
   True or False, stating whether the feed is successful.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00229">229</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00230">230</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
 
 </div>
 </div>
@@ -291,7 +291,7 @@ Inputs:
 Returns:
   Fetched blob (numpy array or string) if successful
 </pre> 
-<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00276">276</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00277">277</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
 
 </div>
 </div>
@@ -317,7 +317,7 @@ Inputs:
 Returns:
     list of fetched blobs
 </pre> 
-<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00265">265</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00266">266</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
 
 </div>
 </div>
@@ -336,7 +336,7 @@ Returns:
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Return the current namescope string. To be used to fetch blobs</pre> 
-<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00287">287</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00288">288</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
 
 </div>
 </div>
@@ -374,12 +374,12 @@ Inputs:
 Returns:
   A tuple of (shapes, types) dictionaries keyed by blob name.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00184">184</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00185">185</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
 
 </div>
 </div>
-<a id="ad3c286000405bc3f9c1030ccfdf71a11"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad3c286000405bc3f9c1030ccfdf71a11">&#9670;&nbsp;</a></span>RunNet()</h2>
+<a id="a891fcfb507f42db682db342d863b75ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a891fcfb507f42db682db342d863b75ae">&#9670;&nbsp;</a></span>RunNet()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -394,7 +394,13 @@ Returns:
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>num_iter</em> = <code>1</code>&#160;</td>
+          <td class="paramname"><em>num_iter</em> = <code>1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>allow_fail</em> = <code>False</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -408,6 +414,7 @@ Returns:
 Inputs:
   name: the name of the net, or a reference to the net.
   num_iter: number of iterations to run
+  allow_fail: if True, does not assert on net exec failure but returns False
 Returns:
   True or an exception.
 </pre> 
@@ -465,7 +472,7 @@ writing up some fix is a todo item.
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Stops an immediate mode run.</pre> 
-<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00401">401</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="workspace_8py_source.html#l00402">402</a> of file <a class="el" href="workspace_8py_source.html">workspace.py</a>.</p>
 
 </div>
 </div>
@@ -501,7 +508,7 @@ AttributeError: if the passed in object does not have the right attribute.</pre>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:10 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

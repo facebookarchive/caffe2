@@ -81,18 +81,20 @@ Inheritance diagram for layers.layers.ModelLayer:</div>
  <div class="center">
   <img src="classlayers_1_1layers_1_1ModelLayer.png" usemap="#layers.layers.ModelLayer_map" alt=""/>
   <map id="layers.layers.ModelLayer_map" name="layers.layers.ModelLayer_map">
-<area href="classlayers_1_1batch__distill__lr__loss_1_1BatchDistillLRLoss.html" alt="layers.batch_distill_lr_loss.BatchDistillLRLoss" shape="rect" coords="278,112,546,136"/>
-<area href="classlayers_1_1batch__lr__loss_1_1BatchLRLoss.html" alt="layers.batch_lr_loss.BatchLRLoss" shape="rect" coords="278,168,546,192"/>
-<area href="classlayers_1_1batch__mse__loss_1_1BatchMSELoss.html" alt="layers.batch_mse_loss.BatchMSELoss" shape="rect" coords="278,224,546,248"/>
-<area href="classlayers_1_1concat_1_1Concat.html" alt="layers.concat.Concat" shape="rect" coords="278,280,546,304"/>
-<area href="classlayers_1_1dot__product_1_1DotProduct.html" alt="layers.dot_product.DotProduct" shape="rect" coords="278,336,546,360"/>
-<area href="classlayers_1_1expand__dims_1_1ExpandDims.html" alt="layers.expand_dims.ExpandDims" shape="rect" coords="278,392,546,416"/>
-<area href="classlayers_1_1fc_1_1FC.html" alt="layers.fc.FC" shape="rect" coords="278,448,546,472"/>
-<area href="classlayers_1_1fc__without__bias_1_1FCWithoutBias.html" alt="layers.fc_without_bias.FCWithoutBias" shape="rect" coords="278,504,546,528"/>
-<area href="classlayers_1_1functional_1_1Functional.html" alt="layers.functional.Functional" shape="rect" coords="278,560,546,584"/>
-<area href="classlayers_1_1sparse__lookup_1_1SparseLookup.html" alt="layers.sparse_lookup.SparseLookup" shape="rect" coords="278,616,546,640"/>
-<area href="classlayers_1_1sparse__to__dense_1_1SparseToDense.html" alt="layers.sparse_to_dense.SparseToDense" shape="rect" coords="278,672,546,696"/>
-<area href="classlayers_1_1split_1_1Split.html" alt="layers.split.Split" shape="rect" coords="278,728,546,752"/>
+<area href="classlayers_1_1batch__distill__lr__loss_1_1BatchDistillLRLoss.html" alt="layers.batch_distill_lr_loss.BatchDistillLRLoss" shape="rect" coords="344,112,678,136"/>
+<area href="classlayers_1_1batch__lr__loss_1_1BatchLRLoss.html" alt="layers.batch_lr_loss.BatchLRLoss" shape="rect" coords="344,168,678,192"/>
+<area href="classlayers_1_1batch__mse__loss_1_1BatchMSELoss.html" alt="layers.batch_mse_loss.BatchMSELoss" shape="rect" coords="344,224,678,248"/>
+<area href="classlayers_1_1concat_1_1Concat.html" alt="layers.concat.Concat" shape="rect" coords="344,280,678,304"/>
+<area href="classlayers_1_1dot__product_1_1DotProduct.html" alt="layers.dot_product.DotProduct" shape="rect" coords="344,336,678,360"/>
+<area href="classlayers_1_1expand__dims_1_1ExpandDims.html" alt="layers.expand_dims.ExpandDims" shape="rect" coords="344,392,678,416"/>
+<area href="classlayers_1_1fc_1_1FC.html" alt="layers.fc.FC" shape="rect" coords="344,448,678,472"/>
+<area href="classlayers_1_1fc__without__bias_1_1FCWithoutBias.html" alt="layers.fc_without_bias.FCWithoutBias" shape="rect" coords="344,504,678,528"/>
+<area href="classlayers_1_1functional_1_1Functional.html" alt="layers.functional.Functional" shape="rect" coords="344,560,678,584"/>
+<area href="classlayers_1_1last__n__window__collector_1_1LastNWindowCollector.html" alt="layers.last_n_window_collector.LastNWindowCollector" shape="rect" coords="344,616,678,640"/>
+<area href="classlayers_1_1select__record__by__context_1_1SelectRecordByContext.html" alt="layers.select_record_by_context.SelectRecordByContext" shape="rect" coords="344,672,678,696"/>
+<area href="classlayers_1_1sparse__lookup_1_1SparseLookup.html" alt="layers.sparse_lookup.SparseLookup" shape="rect" coords="344,728,678,752"/>
+<area href="classlayers_1_1sparse__to__dense_1_1SparseToDense.html" alt="layers.sparse_to_dense.SparseToDense" shape="rect" coords="344,784,678,808"/>
+<area href="classlayers_1_1split_1_1Split.html" alt="layers.split.Split" shape="rect" coords="344,840,678,864"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -141,9 +143,9 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>add_eval_ops</b> (self
 <tr class="memitem:a53d71e91afdce7eaedec427981f08bd9"><td class="memItemLeft" align="right" valign="top"><a id="a53d71e91afdce7eaedec427981f08bd9"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>add_train_ops</b> (self, net)</td></tr>
 <tr class="separator:a53d71e91afdce7eaedec427981f08bd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6728a61b2d353faa271aa4ecb8000e3b"><td class="memItemLeft" align="right" valign="top"><a id="a6728a61b2d353faa271aa4ecb8000e3b"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>add_calibration_ops</b> (self, net)</td></tr>
-<tr class="separator:a6728a61b2d353faa271aa4ecb8000e3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3412a0a3d45e488ef3f4a2c22ab10c1b"><td class="memItemLeft" align="right" valign="top"><a id="a3412a0a3d45e488ef3f4a2c22ab10c1b"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>add_ops_to_accumulate_pred</b> (self, net)</td></tr>
+<tr class="separator:a3412a0a3d45e488ef3f4a2c22ab10c1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -171,7 +173,7 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00082">82</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00126">126</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="af9e30259d4ffc85e5bb80f5885adcc6d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af9e30259d4ffc85e5bb80f5885adcc6d">&#9670;&nbsp;</a></span>__init__()</h2>
@@ -246,7 +248,7 @@ records are expected to be a subset of input_record/output_schema).
 Each layer is also have list of Tags associated with it, that depends on
 current context and arguments. It's possible to use those tags during
 the instantiation time.</pre> 
-<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00085">85</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00129">129</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
 
 </div>
 </div>
@@ -267,7 +269,7 @@ the instantiation time.</pre>
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Return a subset of parameters which can be converted to fp16</pre> 
-<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00175">175</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="layers_8py_source.html#l00221">221</a> of file <a class="el" href="layers_8py_source.html">layers.py</a>.</p>
 
 </div>
 </div>
@@ -278,7 +280,7 @@ the instantiation time.</pre>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

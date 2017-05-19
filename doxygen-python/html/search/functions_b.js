@@ -4,8 +4,8 @@ var searchData=
   ['map',['Map',['../namespaceschema.html#a68f09235cee356f4148efb0bdd02bf37',1,'schema']]],
   ['masknallocate',['maskNallocate',['../namespaceSparseTransformer.html#ae644ca926619d1d661a3c9efdd2b009c',1,'SparseTransformer']]],
   ['matrix_5fto_5ftt',['matrix_to_tt',['../namespacett__core.html#a68c3765d2b23c995d3711f4f4ffbeda8',1,'tt_core']]],
-  ['maxpool',['MaxPool',['../namespacepooling.html#aea5a0b8a2badc204c295799cfa264421',1,'pooling']]],
+  ['max_5fpool',['max_pool',['../namespacepooling.html#a4fd3ca802f7d226e6b4230d575165785',1,'pooling']]],
+  ['max_5fpool_5fwith_5findex',['max_pool_with_index',['../namespacepooling.html#a368ffcd25f52f15a8dc2fde6cae997f2',1,'pooling']]],
   ['mergeconditionnets',['MergeConditionNets',['../namespacecontrol.html#a20875d154e701fd14edb35191ab8a3b6',1,'control']]],
-  ['metrics_5fschema',['metrics_schema',['../classlayer__model__helper_1_1LayerModelHelper.html#adb3051e367d0c10992071b3bff003bbf',1,'layer_model_helper::LayerModelHelper']]],
-  ['milstm',['MILSTM',['../namespacerecurrent.html#a87321c4812a653f166ef2087568ebdfd',1,'recurrent.MILSTM()'],['../namespacernn__cell.html#afcdb303b6cd0a82332b4ad044362a86c',1,'rnn_cell.MILSTM()']]]
+  ['metrics_5fschema',['metrics_schema',['../classlayer__model__helper_1_1LayerModelHelper.html#adb3051e367d0c10992071b3bff003bbf',1,'layer_model_helper::LayerModelHelper']]]
 ];

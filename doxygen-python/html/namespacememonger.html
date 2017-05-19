@@ -82,8 +82,8 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a43a25bc5785aa496e2812455319a76d0"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#a43a25bc5785aa496e2812455319a76d0">share_grad_blobs</a> (net, losses, param_grads, namescope)</td></tr>
-<tr class="separator:a43a25bc5785aa496e2812455319a76d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2eae62c86fd7e98cf8016a34e61f00bb"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacememonger.html#a2eae62c86fd7e98cf8016a34e61f00bb">share_grad_blobs</a> (net, losses, param_grads, namescope, dont_share_blobs=None, share_activations=True, blob_shapes=None)</td></tr>
+<tr class="separator:a2eae62c86fd7e98cf8016a34e61f00bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0084584781a826ce44cfeca37c799010"><td class="memItemLeft" align="right" valign="top"><a id="a0084584781a826ce44cfeca37c799010"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>optimize_inference_for_dag</b> (net, input_blobs, namescope=&quot;&quot;)</td></tr>
 <tr class="separator:a0084584781a826ce44cfeca37c799010"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -164,8 +164,8 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">College blob sizes from worksapce </pre> 
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00766">766</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<pre class="fragment">Collect blob sizes from workspace </pre> 
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00876">876</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -202,12 +202,12 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <pre class="fragment">algo: Method used to find assignments (AssignmentAlgorithm.GREEDY or
       AssignmentAlgorithm.DYNAMIC_PROGRAMMING).
-      AssignmentAlgorithm.DYNAMIC_PROGRAMMING gives optimal soultion at the
+      AssignmentAlgorithm.DYNAMIC_PROGRAMMING gives optimal solution at the
       cost of more computation.
       AssignmentAlgorithm.GREEDY may be better in the case 'blob_sizes' is
       not provided.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00590">590</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00700">700</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -269,7 +269,7 @@ Variables</h2></td></tr>
         }
     where min{} gives the assignment with minimum memory usage.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00443">443</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00553">553</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -302,7 +302,7 @@ Variables</h2></td></tr>
     Set LiveRange.used = max_live if it is None
     Set LiveRanee.size = 1 if it is None
 </pre> 
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00563">563</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00673">673</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -355,7 +355,7 @@ Variables</h2></td></tr>
                    results but needs a bit more computation.
 algo: Method used to find assignments (AssignmentAlgorithm.GREEDY or
       AssignmentAlgorithm.DYNAMIC_PROGRAMMING).
-      AssignmentAlgorithm.DYNAMIC_PROGRAMMING gives optimal soultion at the
+      AssignmentAlgorithm.DYNAMIC_PROGRAMMING gives optimal solution at the
       cost of more computation.
       AssignmentAlgorithm.GREEDY may be better in the case 'blob_sizes' is
       not provided.
@@ -366,12 +366,12 @@ algo: Method used to find assignments (AssignmentAlgorithm.GREEDY or
 3) Assign blobs to `canonical blobs`
 4) Rename blobs to canonical blobs
 </pre> 
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00703">703</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00813">813</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
-<a id="a43a25bc5785aa496e2812455319a76d0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a43a25bc5785aa496e2812455319a76d0">&#9670;&nbsp;</a></span>share_grad_blobs()</h2>
+<a id="a2eae62c86fd7e98cf8016a34e61f00bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2eae62c86fd7e98cf8016a34e61f00bb">&#9670;&nbsp;</a></span>share_grad_blobs()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -398,7 +398,25 @@ algo: Method used to find assignments (AssignmentAlgorithm.GREEDY or
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>namescope</em>&#160;</td>
+          <td class="paramname"><em>namescope</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>dont_share_blobs</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>share_activations</em> = <code>True</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>blob_shapes</em> = <code>None</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -414,7 +432,7 @@ deep networks.
 
 Returns an optimized protobuf (assign to net._net)
 </pre> 
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00022">22</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00032">32</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -434,8 +452,8 @@ Returns an optimized protobuf (assign to net._net)
       </table>
 </div><div class="memdoc">
 <pre class="fragment">The graph 'g' may contain several source nodes (nodes without incoming
-    edge), which could have be in any order and still being a valid
-    topoligical sorting result. We would like to arrange these source nodes
+    edge), which could be in any order and still be a valid
+    topological sorting result. We would like to arrange these source nodes
     so that the average live spans of the computed blobs are shorter.
     The idea is to sort the source nodes based on the length of their path to
     the target node so that the one with longer path is used first.
@@ -446,7 +464,7 @@ Returns an optimized protobuf (assign to net._net)
       and source nodes being the leaves.
     - Sort the nodes of the tree based on the height of the tree.
 </pre> 
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00313">313</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00423">423</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -463,7 +481,7 @@ Returns an optimized protobuf (assign to net._net)
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  collections.namedtuple(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&#39;Optimization&#39;</span>, [<span class="stringliteral">&#39;net&#39;</span>, <span class="stringliteral">&#39;assignments&#39;</span>, <span class="stringliteral">&#39;blob_assignments&#39;</span>])</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00653">653</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00763">763</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -479,7 +497,7 @@ Returns an optimized protobuf (assign to net._net)
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  collections.namedtuple(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&#39;Statistics&#39;</span>, [<span class="stringliteral">&#39;baseline_nbytes&#39;</span>, <span class="stringliteral">&#39;optimized_nbytes&#39;</span>])</div></div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00747">747</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="memonger_8py_source.html#l00857">857</a> of file <a class="el" href="memonger_8py_source.html">memonger.py</a>.</p>
 
 </div>
 </div>
@@ -487,7 +505,7 @@ Returns an optimized protobuf (assign to net._net)
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

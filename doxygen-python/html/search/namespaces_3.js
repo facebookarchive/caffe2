@@ -3,7 +3,6 @@ var searchData=
   ['caffe_5ftranslator',['caffe_translator',['../namespacecaffe__translator.html',1,'']]],
   ['char_5frnn',['char_rnn',['../namespacechar__rnn.html',1,'']]],
   ['checkpoint',['checkpoint',['../namespacecheckpoint.html',1,'']]],
-  ['cifar10_5ftraining',['cifar10_training',['../namespacecifar10__training.html',1,'']]],
   ['cnn',['cnn',['../namespacecnn.html',1,'']]],
   ['concat',['concat',['../namespaceconcat.html',1,'']]],
   ['context',['context',['../namespacecontext.html',1,'']]],

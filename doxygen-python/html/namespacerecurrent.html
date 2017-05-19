@@ -75,118 +75,14 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab69867e50035f96dca52ace32af7ef65"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#ab69867e50035f96dca52ace32af7ef65">recurrent_net</a> (net, cell_net, inputs, initial_cell_inputs, links, timestep=None, scope=None, outputs_with_grads=(0,), recompute_blobs_on_backward=None)</td></tr>
-<tr class="separator:ab69867e50035f96dca52ace32af7ef65"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a87321c4812a653f166ef2087568ebdfd"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#a87321c4812a653f166ef2087568ebdfd">MILSTM</a> (model, input_blob, seq_lengths, initial_states, dim_in, dim_out, scope, outputs_with_grads=(0,), memory_optimization=False, forget_bias=0.0)</td></tr>
-<tr class="separator:a87321c4812a653f166ef2087568ebdfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7466d46d7cb837c9f828ec7740151a4d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#a7466d46d7cb837c9f828ec7740151a4d">recurrent_net</a> (net, cell_net, inputs, initial_cell_inputs, links, timestep=None, scope=None, outputs_with_grads=(0,), recompute_blobs_on_backward=None, forward_only=False)</td></tr>
+<tr class="separator:a7466d46d7cb837c9f828ec7740151a4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.recurrent. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a87321c4812a653f166ef2087568ebdfd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a87321c4812a653f166ef2087568ebdfd">&#9670;&nbsp;</a></span>MILSTM()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def recurrent.MILSTM </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>model</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>input_blob</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>seq_lengths</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>initial_states</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>dim_in</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>dim_out</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>scope</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>memory_optimization</em> = <code>False</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>forget_bias</em> = <code>0.0</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Adds MI flavor of standard LSTM recurrent network operator to a model.
-See https://arxiv.org/pdf/1606.06630.pdf
-
-model: CNNModelHelper object new operators would be added to
-
-input_blob: the input sequence in a format T x N x D
-where T is sequence size, N - batch size and D - input dimention
-
-seq_lengths: blob containing sequence lengths which would be passed to
-LSTMUnit operator
-
-initial_states: a tupple of (hidden_input_blob, cell_input_blob)
-which are going to be inputs to the cell net on the first iteration
-
-dim_in: input dimention
-
-dim_out: output dimention
-
-outputs_with_grads : position indices of output blobs which will receive
-external error gradient during backpropagation
-
-memory_optimization: if enabled, the LSTM step is recomputed on backward step
-               so that we don't need to store forward activations for each
-               timestep. Saves memory with cost of computation.
-</pre> 
-<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00252">252</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
-
-</div>
-</div>
-<a id="ab69867e50035f96dca52ace32af7ef65"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab69867e50035f96dca52ace32af7ef65">&#9670;&nbsp;</a></span>recurrent_net()</h2>
+<a id="a7466d46d7cb837c9f828ec7740151a4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7466d46d7cb837c9f828ec7740151a4d">&#9670;&nbsp;</a></span>recurrent_net()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -243,7 +139,13 @@ memory_optimization: if enabled, the LSTM step is recomputed on backward step
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>recompute_blobs_on_backward</em> = <code>None</code>&#160;</td>
+          <td class="paramname"><em>recompute_blobs_on_backward</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>forward_only</em> = <code>False</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -281,8 +183,10 @@ error gradient (from outside recurrent network) during backpropagation
 recompute_blobs_on_backward: specify a list of blobs that will be
              recomputed for backward pass, and thus need not to be
              stored for each forward timestep.
+
+forward_only: if True, only forward steps are executed
 </pre> 
-<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00018">18</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="recurrent_8py_source.html#l00017">17</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
 
 </div>
 </div>
@@ -290,7 +194,7 @@ recompute_blobs_on_backward: specify a list of blobs that will be
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 18 2017 14:26:55 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 19 2017 15:34:09 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.14
 </small></address>

@@ -20,7 +20,6 @@ var menudata={children:[
 {text:"s",url:"namespacemembers.html#index_s"},
 {text:"t",url:"namespacemembers.html#index_t"},
 {text:"u",url:"namespacemembers.html#index_u"},
-{text:"v",url:"namespacemembers.html#index_v"},
 {text:"w",url:"namespacemembers.html#index_w"}]},
 {text:"Functions",url:"namespacemembers_func.html",children:[
 {text:"a",url:"namespacemembers_func.html#index_a"},
@@ -40,7 +39,6 @@ var menudata={children:[
 {text:"s",url:"namespacemembers_func.html#index_s"},
 {text:"t",url:"namespacemembers_func.html#index_t"},
 {text:"u",url:"namespacemembers_func.html#index_u"},
-{text:"v",url:"namespacemembers_func.html#index_v"},
 {text:"w",url:"namespacemembers_func.html#index_w"}]}]}]},
 {text:"Classes",url:"annotated.html",children:[
 {text:"Class List",url:"annotated.html"},
