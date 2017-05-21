@@ -58,27 +58,13 @@ gflags and glog is not found in yum for this version of Linux, so install from s
 git clone https://github.com/gflags/gflags.git && \
 cd gflags && \
 mkdir build && cd build && \
-cmake3 -DCMAKE_CXX_FLAGS='-fPIC' .. && \
+cmake3 -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_FLAGS='-fPIC' .. && \
 make -j 8 && sudo make install && cd ../.. && \
 git clone https://github.com/google/glog && \
 cd glog && \
 mkdir build && cd build && \
 cmake3 -DCMAKE_CXX_FLAGS='-fPIC' .. && \
 make -j 8 && sudo make install && cd ../..
-```
-
-**Troubleshooting `glog` compilation**
-
-`/bin/sh: aclocal-1.14: command not found`
-
-You need to run `autoreconf -vfi`. This is found as part of `automake`. `autoreconf` also requires `libtool` to process `glog`, so these are now part of the install prerequisites above.
-
-**Resuming the regular install**
-
-Install `gflags` now; this [conflicts](https://github.com/google/glog/issues/140) with `glog`, so you must do it in this order:
-
-```
-sudo yum install gflags-devel
 ```
 
 #### Python Dependencies
