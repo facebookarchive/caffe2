@@ -67,6 +67,7 @@ def main(args):
     
     caffe_data = np.load('./input.npy')
     caffe_dets = np.load('./detections.npy')
+    caffe_blobs = np.load('{}.npy'.format(args.blob))
     workspace.FeedBlob('data', caffe_data[np.newaxis, :, :, :], final_dev)
     workspace.RunNet(net_def.name, 1)
 
@@ -76,9 +77,11 @@ def main(args):
 
     #print net_def
     #print caffe1_out.shape, caffe2_out.shape
-    print np.sum(np.abs(caffe_dets - caffe2_out))
-    print np.allclose(caffe_dets, caffe2_out)
-    
+    #print np.sum(np.abs(caffe_dets - caffe2_out))
+    #print np.allclose(caffe_dets, caffe2_out)
+    print caffe2_out
+    print caffe_blobs
+    print np.sum(np.abs(caffe2_out - caffe_blobs))
 
 if __name__ == '__main__':
     args = parse_args()

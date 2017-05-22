@@ -1,4 +1,4 @@
-name: "VGG_VOC0712_SSD_300x300_deploy"
+name: "VGG_VOC0712_SSD_300x300_ft_deploy"
 op {
   input: "data"
   input: "conv1_1_w"
@@ -477,10 +477,6 @@ op {
     name: "kernel"
     i: 3
   }
-  arg {
-    name: "dilation"
-    i: 1
-  }
   device_option {
     device_type: 1
     cuda_gpu_id: 3
@@ -515,10 +511,6 @@ op {
     name: "kernel"
     i: 3
   }
-  arg {
-    name: "dilation"
-    i: 1
-  }
   device_option {
     device_type: 1
     cuda_gpu_id: 3
@@ -552,10 +544,6 @@ op {
   arg {
     name: "kernel"
     i: 3
-  }
-  arg {
-    name: "dilation"
-    i: 1
   }
   device_option {
     device_type: 1
@@ -1082,11 +1070,11 @@ op {
   type: "PriorBox"
   arg {
     name: "min_sizes"
-    floats: 30.0
+    floats: 21.0
   }
   arg {
     name: "max_sizes"
-    floats: 60.0
+    floats: 45.0
   }
   arg {
     name: "aspect_ratios"
@@ -1253,11 +1241,11 @@ op {
   type: "PriorBox"
   arg {
     name: "min_sizes"
-    floats: 60.0
+    floats: 45.0
   }
   arg {
     name: "max_sizes"
-    floats: 111.0
+    floats: 99.0
   }
   arg {
     name: "aspect_ratios"
@@ -1425,11 +1413,11 @@ op {
   type: "PriorBox"
   arg {
     name: "min_sizes"
-    floats: 111.0
+    floats: 99.0
   }
   arg {
     name: "max_sizes"
-    floats: 162.0
+    floats: 153.0
   }
   arg {
     name: "aspect_ratios"
@@ -1597,11 +1585,11 @@ op {
   type: "PriorBox"
   arg {
     name: "min_sizes"
-    floats: 162.0
+    floats: 153.0
   }
   arg {
     name: "max_sizes"
-    floats: 213.0
+    floats: 207.0
   }
   arg {
     name: "aspect_ratios"
@@ -1769,11 +1757,11 @@ op {
   type: "PriorBox"
   arg {
     name: "min_sizes"
-    floats: 213.0
+    floats: 207.0
   }
   arg {
     name: "max_sizes"
-    floats: 264.0
+    floats: 261.0
   }
   arg {
     name: "aspect_ratios"
@@ -1940,7 +1928,7 @@ op {
   type: "PriorBox"
   arg {
     name: "min_sizes"
-    floats: 264.0
+    floats: 261.0
   }
   arg {
     name: "max_sizes"

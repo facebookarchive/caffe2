@@ -77,7 +77,20 @@ float JaccardOverlap(const NormalizedBBox& bbox1, const NormalizedBBox& bbox2,
 void IntersectBBox(const NormalizedBBox& bbox1, const NormalizedBBox& bbox2,
                    NormalizedBBox* intersect_bbox);
 
+template <typename Dtype>
+void ApplyNMSFast(const Dtype* bboxes, const Dtype* scores, const int num,
+      const float score_threshold, const float nms_threshold,
+      const float eta, const int top_k, vector<int>* indices);
 
+template <typename Dtype>
+void GetMaxScoreIndex(const Dtype* scores, const int num, const float threshold,
+      const int top_k, vector<pair<Dtype, int> >* score_index_vec);
+
+template <typename Dtype>
+Dtype JaccardOverlap(const Dtype* bbox1, const Dtype* bbox2);
+
+template <typename Dtype>
+Dtype BBoxSize(const Dtype* bbox, const bool normalized = true);
 
 } // namspace caffe2
 

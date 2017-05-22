@@ -2,8 +2,8 @@ import sys
 import numpy as np
 sys.path.insert(0, '/data2/obj_detect/ssd/caffe/python')
 import caffe
-ssd_pt = '/data2/obj_detect/learn/pybind11/learn/caffe2/caffe2/python/ssd_test/debug_det_layer/deploy.prototxt'
-ssd_md = '/home/ky/obj_detect/ssd/caffe/pretrain/models/VGGNet/VOC0712/SSD_300x300_ft/VGG_VOC0712_SSD_300x300_ft_iter_120000.caffemodel'
+ssd_pt = '/data_shared/obj_det_models/ssd_leader_board/VGG_VOC0712_SSD_300x300_ft/deploy.prototxt'
+ssd_md = '/data_shared/obj_det_models/ssd_leader_board/VGG_VOC0712_SSD_300x300_ft/VGG_VOC0712_SSD_300x300_ft_iter_120000.caffemodel'
 ssd_img = '/data2/obj_detect/ssd/caffe/examples/images/fish-bike.jpg'
 
 net = caffe.Net(ssd_pt, ssd_md, caffe.TEST)
