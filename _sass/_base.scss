@@ -482,6 +482,14 @@ section#intro {
           }
         }
 
+        ul#markdown-toc:after {
+          content: "";
+          display: block;
+          height: 0;
+          clear: both;
+          visibility: hidden;
+        }
+
         .post-header {
           h1 {
             font-size: 250%;
