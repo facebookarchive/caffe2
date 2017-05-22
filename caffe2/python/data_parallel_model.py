@@ -198,15 +198,7 @@ def Parallelize_GPU(
     # if in a multi-precision environment, make sure that the broadcast parameters
     # (low-precision) are still in sync with the high-precision copies.
     # Otherwise training goes badly
-    # todo(slayton): Work with non-fp16 low-precision copies
-    for device in devices:
-        device_opt = core.DeviceOption(caffe2_pb2.CUDA, device)
-        with core.DeviceScope(device_opt):
-            with core.NameScope("gpu_{}".format(device)):
-                for param in model_helper_obj.GetParams():
-                    if param in model_helper_obj.param_to_float_copy:
-                        param_float = model_helper_obj.param_to_float_copy[param]
-                        model_helper_obj.HalfToFloat(param, param_float)
+    _UpdateFloatCopies(devices, model_helper_obj)
 
     if optimize_gradient_memory:
         _OptimizeGradientMemoryDEPRECATED(
@@ -551,6 +543,21 @@ def _AllReduce(devices, model, net, param, use_nccl=False, control_input=None):
 def _SyncParams(devices, model, net, unique_param_names):
     for param in unique_param_names:
         _Broadcast(devices, model, net, param)
+
+def _UpdateFloatCopies(devices, model):
+    # todo(slayton): Work with non-fp16 low-precision copies
+    for device in devices:
+        device_opt = core.DeviceOption(caffe2_pb2.CUDA, device)
+        with core.DeviceScope(device_opt):
+            with core.NameScope("gpu_{}".format(device)):
+                params = model.GetParams()
+                for param in params:
+                    if param in model.param_to_float_copy:
+                        param_float = model.param_to_float_copy[param]
+                        model.param_init_net.HalfToFloat(
+                                param,
+                                param_float
+                        )
 
 def _AddDistributedParameterSync(
     devices,
