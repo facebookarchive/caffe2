@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import os
 import time
@@ -14,8 +15,9 @@ def AddInput(model, batch_size, db, db_type, param_type="float", is_test=False):
         db=db,
         db_type=db_type)
 
-    # Note: Using C2 datum for this test
-    data, label = model.ImageInput(
+    # Note: Using Caffe datum for this test
+    data, label = brew.image_input(
+        model,
         [reader], ["data", "label"],
         use_gpu_transform=True,
         batch_size=batch_size, use_caffe_datum=True,
@@ -26,22 +28,28 @@ def AddInput(model, batch_size, db, db_type, param_type="float", is_test=False):
 
     return data, label
 
-# Move conv1 to fp16 only
-def AddCifar10Model(model, data, param_type):
+def AddCifar10Model(model, data, param_type="float"):
 
-    with brew.arg_scope([brew.conv, brew.fc], dtype="float16"):
+    with brew.arg_scope([brew.conv, brew.fc], dtype=param_type):
         conv1 = brew.conv(model, data, 'conv1', 3, 32, 5,
-                weight_init=('GaussianFill', {'std':0.0001, 'mean' : 0.0}), pad=2)
-        pool1 = brew.max_pool(model, conv1, 'pool1', kernel=3, stride=2) #14 or 15
+                    weight_init=('GaussianFill', {'std':0.0001, 'mean' : 0.0}),
+                    pad=2)
+        pool1 = brew.max_pool(model, conv1, 'pool1', kernel=3, stride=2)
         relu1 = brew.relu(model, pool1, "relu1")
-        conv2 = brew.conv(model, relu1, 'conv2', 32, 32, 5, weight_init=('GaussianFill', {'std' : 0.01}), pad=2)
+        conv2 = brew.conv(model, relu1, 'conv2', 32, 32, 5,
+                    weight_init=('GaussianFill', {'std' : 0.01}),
+                    pad=2)
         conv2 = brew.relu(model, conv2, conv2)
-        pool2 = brew.average_pool(model, conv2, 'pool2', kernel=3, stride=2) #5 or 6
-        conv3 = brew.conv(model, pool2, 'conv3', 32, 64, 5, weight_init=('GaussianFill', {'std' : 0.01}), pad=2)
+        pool2 = brew.average_pool(model, conv2, 'pool2', kernel=3, stride=2)
+        conv3 = brew.conv(model, pool2, 'conv3', 32, 64, 5,
+                    weight_init=('GaussianFill', {'std' : 0.01}),
+                    pad=2)
         conv3 = brew.relu(model, conv3, conv3)
         pool3 = brew.average_pool(model, conv3, 'pool3', kernel=3, stride=2)
-        fc1 = brew.fc(model, pool3, 'fc1', 64 * 3 * 3, 64, weight_init=('GaussianFill', {'std' : 0.1}))
-        fc2 = brew.fc(model, fc1, 'fc2', 64, 10, weight_init=('GaussianFill', {'std' : 0.1}))
+        fc1 = brew.fc(model, pool3, 'fc1', 64 * 3 * 3, 64,
+                    weight_init=('GaussianFill', {'std' : 0.1}))
+        fc2 = brew.fc(model, fc1, 'fc2', 64, 10,
+                    weight_init=('GaussianFill', {'std' : 0.1}))
 
     # Final cast out -> fp32
     if param_type == "float16":
@@ -54,19 +62,17 @@ def AddCifar10Model(model, data, param_type):
 def AddAccuracy(model, softmax, label):
     """Adds an accuracy op to the model"""
 
-    accuracy = model.Accuracy([softmax, label], "accuracy", top_k=1)
+    accuracy = brew.accuracy(model, [softmax, label], "accuracy", top_k=1)
     return accuracy
 
-def AddTrainingOperators(model, softmax, label, using_snapshot, use_fp16=False):
+def AddTrainingOperators(model, softmax, label, param_type="float"):
     """Adds training operators to the model."""
     xent = model.LabelCrossEntropy([softmax, label], 'xent')
     loss = model.AveragedLoss(xent, "loss")
 
     AddAccuracy(model, softmax, label)
 
-    print("adding gradient ops")
     model.AddGradientOperators([loss])
-
 
     ITER = brew.iter(model, "ITER")
     LR = model.LearningRate(
@@ -77,69 +83,63 @@ def AddTrainingOperators(model, softmax, label, using_snapshot, use_fp16=False):
 
     for param in model.params:
         param_grad = model.param_to_grad[param]
-        # Check if we need to use the full precision version of parameters for update
+        # Check if we need to use full precision version of parameter for update
         if param in model.param_to_float_copy:
             param_fp32 = model.param_to_float_copy[param]
-            # Initialize the momentum from the full fp32 version of the parameters
-            param_mom = model.param_init_net.ConstantFill([param_fp32], param_grad+'_mom', value=0.)
+            # Initialize the momentum from the fp32 version of the parameters
+            param_mom = model.param_init_net.ConstantFill([param_fp32],
+                                                          param_grad+'_mom',
+                                                          value=0.)
 
             # cast fp16 gradients -> fp32 and update
             grad_fp32 = model.HalfToFloat(param_grad, param_grad+'_fp32')
-            model.MomentumSGDUpdate([grad_fp32, param_mom, LR, param_fp32], [grad_fp32, param_mom, param_fp32],
+            model.MomentumSGDUpdate([grad_fp32, param_mom, LR, param_fp32],
+                                    [grad_fp32, param_mom, param_fp32],
                                     momentum=0.9, nesterov=False)
             # update the fp16 copy of params
             param = model.FloatToHalf(param_fp32, param)
         else:
-            param_mom = model.param_init_net.ConstantFill([param], param_grad+'_mom', value=0.)
-            model.MomentumSGDUpdate([param_grad, param_mom, LR, param], [param_grad, param_mom, param], momentum=0.9, nesterov=False)
+            param_mom = model.param_init_net.ConstantFill([param],
+                                                          param_grad+'_mom',
+                                                          value=0.)
+            model.MomentumSGDUpdate([param_grad, param_mom, LR, param],
+                                    [param_grad, param_mom, param],
+                                    momentum=0.9, nesterov=False)
 
-def AddBookkeepingOperators(model):
-    """This adds a few bookkeeping operators that we can inspect later.
-
-    These operators do not affect the training procedure: they only collect
-    statistics and prints them to file or to logs.
-    """
-    model.Print('accuracy', [], to_file=1)
-    model.Print('loss', [], to_file=1)
-    for param in model.params:
-        model.Summarize(param, [], to_file=1)
-        model.Summarize(model.param_to_grad[param], [], to_file=1)
-
-def createTrainModel(param_type="float"):
+def createTrainModel(args):
     order_scope = { 'order' : 'NCHW' }
     train_model = ModelHelper(name="cifar10_quick_train", arg_scope=order_scope)
 
-    with core.DeviceScope(core.DeviceOption(caffe2_pb2.CUDA, 0)):
+    with core.DeviceScope(core.DeviceOption(caffe2_pb2.CUDA, args.gpus[0])):
         data, label = AddInput(
-            train_model, batch_size=100,
+            train_model, batch_size=args.batch_size,
             db='cifar10_train_lmdb',
-            db_type='lmdb', param_type=param_type
+            db_type='lmdb', param_type=args.param_type
             )
 
-        softmax = AddCifar10Model(train_model, data, param_type)
+        softmax = AddCifar10Model(train_model, data, args.param_type)
 
-        AddTrainingOperators(train_model, softmax, label, param_type)
-        # AddBookkeepingOperators(train_model)
+        AddTrainingOperators(train_model, softmax, label, args.param_type)
 
     train_model.net.Proto().type = 'dag'
     train_model.net.Proto().num_workers = 3
 
     return train_model
 
-def createTestModel(param_type="float"):
+def createTestModel(args):
     order_scope = { 'order' : 'NCHW' }
     test_model = ModelHelper(
         name="cifar10_quick_test", init_params=False, arg_scope=order_scope)
 
-    with core.DeviceScope(core.DeviceOption(caffe2_pb2.CUDA, 0)):
+    with core.DeviceScope(core.DeviceOption(caffe2_pb2.CUDA, args.gpus[0])):
         data, label = AddInput(
-            test_model, batch_size=100,
+            test_model, batch_size=args.test_batch_size,
             db='cifar10_test_lmdb',
             db_type='lmdb',
-            param_type=param_type,
+            param_type=args.param_type,
             is_test=True)
 
-        softmax = AddCifar10Model(test_model, data, param_type)
+        softmax = AddCifar10Model(test_model, data, args.param_type)
         AddAccuracy(test_model, softmax, label)
 
     test_model.net.Proto().type = 'dag'
@@ -180,7 +180,9 @@ def train_test(train_model, test_model):
             time_per_iter = accumulated_time / display
             samples_per_sec= 100 / time_per_iter
             accumulated_time = 0.
-            print("Iteration {:4d}, lr = {:8f}, samples / second = {:4f}".format(i, lr[i], samples_per_sec))
+            print("Iteration {:4d}, lr = {:8f}, samples / second = {:4f}".format(
+                i, lr[i], samples_per_sec)
+            )
             print("    Train net: loss = {:6f}".format(loss[i]))
 
         if(i % test_interval == 0 and i > 0):
@@ -192,17 +194,49 @@ def train_test(train_model, test_model):
             print("Iteration {:4d}, lr = {:8f}".format(i, lr[i]))
             print("    Test net: accuracy = {:4f}".format(test_accuracy.mean()))
 
+def getArgs():
+    """Return command-line arguments."""
+    CURDIR = os.path.dirname(__file__)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--train-lmdb', help='Path to training LMDB',
+                        default=os.path.join(CURDIR, 'cifar10_train_lmdb'))
+    parser.add_argument('--test-lmdb', help='Path to test LMDB',
+                        default=os.path.join(CURDIR, 'cifar10_test_lmdb'))
+    parser.add_argument('--batch-size', help='Size of train batch per device',
+                        default=100)
+    parser.add_argument('--test-batch-size',
+                        help='Size of testbatch per device',
+                        default=100)
+    parser.add_argument('--param-type', help='Type for parameters',
+                        default='float')
+    # deal with specifying GPUs
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--gpus',
+                        help='Comma separated list of GPU devices to use')
+    group.add_argument('--num_gpus', type=int, default=1,
+                        help='Number of GPU devices (instead of --gpus)')
+    args = parser.parse_args()
+
+    # Extra processing for GPU flags
+    if args.gpus is not None:
+        args.gpus = [int(x) for x in args.gpus.split(',')]
+        args.num_gpus = len(args.gpus)
+    else:
+        args.gpus = range(args.num_gpus)
+        args.num_gpus = args.num_gpus
+    return args
 
 def main():
     core.GlobalInit(['caffe2', '--caffe2_log_level=0'])
 
-    data_folder = '/home/slayton/git/caffe/examples/cifar10'
-    stats_folder = data_folder+'/stats'
+    args = getArgs()
+    abs_path = os.path.abspath(__file__)
+    stats_folder = os.path.dirname(abs_path)
     workspace.ResetWorkspace(stats_folder)
 
-    param_type = "float16"
-    train_model = createTrainModel(param_type)
-    test_model = createTestModel(param_type)
+    train_model = createTrainModel(args)
+    test_model = createTestModel(args)
 
     train_test(train_model, test_model)
 
