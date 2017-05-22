@@ -4,11 +4,11 @@
 
 [![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
-Mac build is currently in testing. Use Ubuntu or Docker if you want the easiest install route. See the Troubleshooting section below for tips.
+The Mac build works easiest with Anaconda. Always pull the latest from github, so you get any build fixes. See the Troubleshooting section below for tips.
 
 ### Required Dependencies
 
-[Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended.
+[Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended. See below for a brew/pip install path instead of Anaconda.
 
 [Homebrew](https://brew.sh/). Install Homebrew or use your favorite package manager to install the following dependencies:
 
@@ -47,19 +47,36 @@ unzip \
 zeromq
 ```
 
-### Options that get installed already with other packages
+### Brew and Pip Install Path
 
-* flask (already installed)
-* gflags (already installed)
-* jupyter (comes with anaconda)
-* matplotlib (probably can skip as it comes with numpy)
-* pydot (not found, found pydot-ng)
-* pyyaml (already installed)
-* scikit-image (probably can skip - comes with numpy)
-* scipy (probably can skip - comes with numpy)
-* setuptools (already installed)
-* tornado (already installed)
+Follow these instructions if you want to build Caffe2 without Anaconda. Make sure when you use pip that you're pointing to a specific version of Python or that you're using environments.
 
+```bash
+brew install \
+automake \
+cmake \
+git \
+glog \
+protobuf \
+python
+```
+
+```bash
+sudo -H pip install \
+flask \
+glog \
+jupyter \
+matplotlib \
+numpy \
+protobuf \
+pydot \
+python-gflags \
+pyyaml \
+scikit-image \
+scipy \
+setuptools \
+tornado
+```
 
 ### Clone & Build
 
@@ -131,7 +148,13 @@ malloc error | If you are using homebrew leveldb on a Mac OS, you might see an e
 
 ### Prebuilt Caffe2 Python Wheel
 
-Coming soon!
+This installer is in testing. It is expecting that you're running Python 2.7.13.
+
+[https://s3.amazonaws.com/caffe2/installers/Caffe2-0.7.0-cp27-cp27m-macosx_10_12_x86_64.whl](https://s3.amazonaws.com/caffe2/installers/Caffe2-0.7.0-cp27-cp27m-macosx_10_12_x86_64.whl)
+
+```bash
+pip install Caffe2-0.7.0-cp27-cp27m-macosx_10_12_x86_64.whl
+```
 
 <block class="mac docker" />
 
