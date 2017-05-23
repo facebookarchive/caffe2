@@ -5,8 +5,13 @@ layout: docs
 permalink: /docs/cnn.html
 ---
 
+> `brew` is Caffe2's new API for building models. The `CNNModelHelper` filled this role in the past, but since Caffe2 has expanded well beyond excelling at CNNs it made sense to provide a `ModelHelper` object that is more generic. You may notice that the new `ModelHelper` has much the same functionality as `CNNModelHelper`. `brew` wraps the new `ModelHelper` making building models even easier than before.
+
+**CNNModelHelper is being deprecated.**
+Refer to [brew](brew.html) and [python/model_helper.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/model_helper.py) for its replacements.
+
 ## CNNModelHelper
-**Code:** [cnn.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/cnn.py) 
+**Code:** [cnn.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/cnn.py)
 | **API Docs:** [cnn.CNNModelHelper](/doxygen-python/html/classcnn_1_1CNNModelHelper.html)
 
 `CNNModelHelper` is a helper class so you can write CNN models more easily, without having to manually define parameter initializations and operators separately. You will find many built-in helper functions as well as automatic support for a collection of operators that are listed below.
