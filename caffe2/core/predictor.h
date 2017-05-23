@@ -24,7 +24,7 @@ class Predictor {
 
   // Postcondition:
   //   outputs->size() == run_net.external_inputs.size()
-  void run(const TensorVector& inputs, TensorVector* outputs);
+  void run(const TensorVector& inputs, TensorVector* outputs = nullptr);
 
   const NetDef& def() const {
     return run_net_;
