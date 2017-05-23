@@ -515,8 +515,8 @@ def _AllReduce(devices, model, net, param, use_nccl=False, control_input=None):
         with core.DeviceScope(device_opt):
             # Copy from d2 to d1
             d2_copy = 'gpu_{}/{}_copy'.format(d1, param)
-            model.Copy(blobs_group[d2], d2_copy)
-            net.Sum([blobs_group[d1], d2_copy], [blobs_group[d1]])
+            model.Copy(blobs_group[d2i], d2_copy)
+            net.Sum([blobs_group[d1i], d2_copy], [blobs_group[d1i]])
     if len(devices) == 8:
         # Special tree reduction for 8 gpus, TODO generalize like in muji.py
         for j in range(4):
