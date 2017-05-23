@@ -30,6 +30,7 @@
   - id: operators-catalogue
   - id: custom-operators
   - id: sparse-operations
+  - id: brew
   - id: cnn
   - id: workspace
 - title: API
