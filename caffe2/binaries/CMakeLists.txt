@@ -29,3 +29,6 @@ endif()
 if (USE_OPENCV)
   caffe2_binary_target("make_image_db.cc")
 endif()
+
+# ---[ tutorials
+caffe2_binary_target("tutorial_blob.cc")
