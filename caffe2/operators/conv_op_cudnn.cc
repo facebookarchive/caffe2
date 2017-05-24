@@ -31,6 +31,14 @@ inline void LogCuDNNPerfStats(
             << stat.memory;
   }
 }
+
+// Easier indexing into force_algo_ vector
+enum {
+  ALGO_FWD = 0,
+  ALGO_WGRAD = 1,
+  ALGO_DGRAD = 2
+} algoIndex_t;
+
 }  // namespace
 
 class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
@@ -64,6 +72,23 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
         dilation_h() == 1 && dilation_w() == 1,
         "The cudnn convolution does not support dilation yet.");
 #endif
+
+    bool individual_force_algo = OperatorBase::HasArgument("force_algo_fwd") ||
+                                 OperatorBase::HasArgument("force_algo_dgrad") ||
+                                 OperatorBase::HasArgument("force_algo_wgrad");
+    if (OperatorBase::HasArgument("force_algo")) {
+      CAFFE_ENFORCE(!individual_force_algo,
+                   "Cannot specify both force_algo and any of",
+                   "force_algo_fwd, force_algo_dgrad, force_algo_wgrad");
+    } else {
+      force_algo_ = std::vector<int>{-1,-1,-1};
+      force_algo_[ALGO_FWD] =
+          OperatorBase::GetSingleArgument<int>("force_algo_fwd", -1);
+      force_algo_[ALGO_DGRAD] =
+          OperatorBase::GetSingleArgument<int>("force_algo_dgrad", -1);
+      force_algo_[ALGO_WGRAD] =
+          OperatorBase::GetSingleArgument<int>("force_algo_wgrad", -1);
+    }
 
     CUDNN_ENFORCE(cudnnCreateTensorDescriptor(&bottom_desc_));
     CUDNN_ENFORCE(cudnnCreateFilterDescriptor(&filter_desc_));
@@ -310,8 +335,8 @@ bool CudnnConvOp::DoRunWithType() {
         1,
         CUDNN_CROSS_CORRELATION));
 #endif
-    if (force_algo_[0] >= 0) {
-      algo_ = (cudnnConvolutionFwdAlgo_t)force_algo_[0];
+    if (force_algo_[ALGO_FWD] >= 0) {
+      algo_ = (cudnnConvolutionFwdAlgo_t)force_algo_[ALGO_FWD];
     } else if (deterministic_) {
       algo_ = CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM;
     } else if (exhaustive_search_) {
@@ -548,8 +573,8 @@ bool CudnnConvGradientOp::DoRunWithType() {
     size_t bwd_filter_ws_size, bwd_data_ws_size;
 
     // Choose dW algorithm
-    if (force_algo_[1] >= 0) {
-      bwd_filter_algo_ = (cudnnConvolutionBwdFilterAlgo_t)force_algo_[1];
+    if (force_algo_[ALGO_WGRAD] >= 0) {
+      bwd_filter_algo_ = (cudnnConvolutionBwdFilterAlgo_t)force_algo_[ALGO_WGRAD];
     } else if (deterministic_) {
       bwd_filter_algo_ = CUDNN_CONVOLUTION_BWD_FILTER_ALGO_1;
     } else if (exhaustive_search_) {
@@ -604,8 +629,8 @@ bool CudnnConvGradientOp::DoRunWithType() {
     }
     // Pick dX algo if needed
     if (OutputSize() == 3 || (no_bias_ && (OutputSize() == 2))) {
-      if (force_algo_[2] >= 0) {
-        bwd_data_algo_ = (cudnnConvolutionBwdDataAlgo_t)force_algo_[2];
+      if (force_algo_[ALGO_DGRAD] >= 0) {
+        bwd_data_algo_ = (cudnnConvolutionBwdDataAlgo_t)force_algo_[ALGO_DGRAD];
       } else if (deterministic_) {
         bwd_data_algo_ = CUDNN_CONVOLUTION_BWD_DATA_ALGO_1;
       } else if (exhaustive_search_) {
