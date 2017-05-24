@@ -29,6 +29,8 @@ import time
 # These are the droids you are looking for.
 from caffe2.python import core, workspace
 from caffe2.proto import caffe2_pb2
+# Let's show all plots inline.
+%matplotlib inline
 ```
 
 You might see a warning saying that caffe2 does not have GPU support. That means you are running a CPU-only build. Don't be alarmed - anything CPU is still runnable without problem.
