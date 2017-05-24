@@ -1,7 +1,7 @@
 #include "caffe2/utils/signal_handler.h"
 #include "caffe2/core/logging.h"
 
-#if defined(__linux__)
+#if defined(CAFFE2_SUPPORTS_SIGNAL_HANDLER)
 
 // Normal signal handler implementation.
 #include <cxxabi.h>
@@ -353,7 +353,7 @@ REGISTER_CAFFE2_EARLY_INIT_FUNCTION(
 } // namepsace internal
 }  // namespace caffe2
 
-#else // defined(__linux__)
+#else // defined(CAFFE2_SUPPORTS_SIGNAL_HANDLER)
 
 // TODO: Currently we do not support signal handling in non-Linux yet - below is
 // a minimal implementation that makes things compile.
@@ -373,4 +373,4 @@ SignalHandler::Action SignalHandler::CheckForSignals() {
 }
 } // namespace caffe2
 
-#endif // defined(__linux__)
+#endif // defined(CAFFE2_SUPPORTS_SIGNAL_HANDLER)
