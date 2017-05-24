@@ -25,4 +25,10 @@ class SignalHandler {
   unsigned long my_sighup_count_;
 };
 
+#if defined(__linux__)      
+namespace internal {     
+bool Caffe2InitFatalSignalHandler(int* pargc, char*** pargv);      
+} // namespace internal       
+#endif // defined(__linux__)
+
 }  // namespace caffe2
