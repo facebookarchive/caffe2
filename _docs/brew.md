@@ -20,6 +20,7 @@ Before we dig into `brew` we should review some conventions in Caffe2 and how la
 We often refer to operators as an "Op" or a collection of operators as "Ops". For example, the `FC` Op represents a Fully-Connected operator that has weighted connections to every neuron in the previous layer and to every neuron on the next layer. For example, you can create an `FC` Op with:
 
 ```py
+model = model_helper.ModelHelper(name='fancy_descriptive_name')
 model.net.FC([blob_in, weights, bias], blob_out)
 ```
 
@@ -29,13 +30,15 @@ Or you can create a `Copy` Op with:
 model.net.Copy(blob_in, blob_out)
 ```
 
-> A list of Operators handled by `ModelHelper` is at the bottom of this document. The 29 Ops that are most commonly used are currently included. This is a subset of the 400+ Ops Caffe2 has at the time of this writing.
+> A list of Operators handled by `ModelHelper` is at the bottom of this document. The 29 Ops that are most commonly used are currently included. This is a subset of the 400+ Ops Caffe2 has at the time of this writing. You can create custom helper functions to hook into these other operators. This process is described later in this document.
 
-It should also be noted that you can also create an operator without annotating `net`. For example, just like in the previous example where we created a `Copy` Op, we can use the following code to create a `Copy` operator on `model.net`:
+It should also be noted that you may see code where an operator is created without annotating `net`. For example, just like in the previous example where we created a `Copy` Op, we can use the following code to create a `Copy` operator on `model.net`:
 
 ```py
 model.Copy(blob_in, blob_out)
 ```
+
+While this is possible, it is recommended to use `model.net.Op` to keep from confusing references where people are not sure if you're calling a Python function or an Op.
 
 ### Helper Functions
 
@@ -65,11 +68,6 @@ model.net.FC([blob_in, weights, bias], blob_out, **kwargs)
 Luckily Caffe2 helper functions are here to help. Helper functions are wrappers functions that create a complete layer for a model. The helper function will typically handle parameter initialization, operator definition, and engine selection. Caffe2 default helper functions are named in Python PEP8 function convention. For example, using [python/helpers/fc.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/helpers/fc.py), implementing an `FC` Op via the helper function `fc` is much simpler:
 
 **An easier way using a helper function:**
-
-```
-fc(model, blob_in, blob_out, ...) # does all param inits for you!
-```
-
 
 ```
 fcLayer = fc(model, blob_in, blob_out, **kwargs) # returns a model.net.FC object
@@ -127,6 +125,14 @@ with brew.arg_scope([brew.conv], weight_init=('XavierFill', {})):
      brew.conv(model, ...) # no weight_init needed here!
      brew.conv(model, ...)
      ...
+```
+
+Another example setting the image format order (default is NCHW, so you don't need to do this unless you're using a different order):
+
+```py
+arg_scope = {"order": "NHWC"}
+train_model = model_helper.ModelHelper(name="train", arg_scope=arg_scope)
+
 ```
 
 ### Custom Helper Function
