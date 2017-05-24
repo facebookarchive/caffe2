@@ -44,7 +44,7 @@ Building your model/network using merely single operators could be painstaking s
 **This is the longer, manual way:**
 
 ```py
-train_model = model_helper.ModelHelper(name="train")
+model = model_helper.ModelHelper(name="train")
 # initialize your weight
 weight = model.param_init_net.XavierFill(
     [],
@@ -60,7 +60,7 @@ bias = model.param_init_net.ConstantFill(
     **kwargs,
 )
 # finally building FC
-train_model.net.FC([blob_in, weights, bias], blob_out, **kwargs)
+model.net.FC([blob_in, weights, bias], blob_out, **kwargs)
 ```
 
 Luckily Caffe2 helper functions are here to help. Helper functions are wrappers functions that create a complete layer for a model. The helper function will typically handle parameter initialization, operator definition, and engine selection. Caffe2 default helper functions are named in Python PEP8 function convention. For example, using [python/helpers/fc.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/helpers/fc.py), implementing an `FC` Op via the helper function `fc` is much simpler:
