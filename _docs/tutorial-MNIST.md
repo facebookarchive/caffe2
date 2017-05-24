@@ -23,7 +23,7 @@ import os
 import shutil
 
 
-from caffe2.python import core, cnn, net_drawer, workspace, visualize
+from caffe2.python import core, cnn, net_drawer, workspace, visualize, brew
 
 # If you would like to see some really detailed initializations,
 # you can change --caffe2_log_level=0 to --caffe2_log_level=-1
@@ -46,8 +46,7 @@ If these folders are missing then you will need to [download the MNIST dataset](
 
 ```python
 # This section preps your image and test set in a leveldb
-# if you didn't download the dataset yet go back to Models and Datasets and get it there
-current_folder = os.getcwd()
+current_folder = os.path.join(os.path.expanduser('~'), 'caffe2_notebooks')
 
 data_folder = os.path.join(current_folder, 'tutorial_data', 'mnist')
 root_folder = os.path.join(current_folder, 'tutorial_files', 'tutorial_mnist')
@@ -63,35 +62,42 @@ def DownloadDataset(url, path):
     r = requests.get(url, stream=True)
     z = zipfile.ZipFile(StringIO.StringIO(r.content))
     z.extractall(path)
+
+def GenerateDB(image, label, name):
+    name = os.path.join(data_folder, name)
+    print 'DB: ', name
+    if not os.path.exists(name):
+        syscall = "/usr/local/binaries/make_mnist_db --channel_first --db leveldb --image_file " + image + " --label_file " + label + " --output_file " + name
+        # print "Creating database with: ", syscall
+        os.system(syscall)
+    else:
+        print "Database exists already. Delete the folder if you have issues/corrupted DB, then rerun this."
+        if os.path.exists(os.path.join(name, "LOCK")):
+            # print "Deleting the pre-existing lock file"
+            os.remove(os.path.join(name, "LOCK"))
+
 if not os.path.exists(data_folder):
     os.makedirs(data_folder)
 if not os.path.exists(label_file_train):
     DownloadDataset("https://s3.amazonaws.com/caffe2/datasets/mnist/mnist.zip", data_folder)
 
-def GenerateDB(image, label, name):
-    name = os.path.join(data_folder, name)
-    print 'DB name: ', name
-    syscall = "/usr/local/binaries/make_mnist_db --channel_first --db leveldb --image_file " + image + " --label_file " + label + " --output_file " + name
-    print "Creating database with: ", syscall
-    os.system(syscall)
+if os.path.exists(root_folder):
+    print("Looks like you ran this before, so we need to cleanup those old files...")
+    shutil.rmtree(root_folder)
+
+os.makedirs(root_folder)
+workspace.ResetWorkspace(root_folder)
 
 # (Re)generate the leveldb database (known to get corrupted...)
 GenerateDB(image_file_train, label_file_train, "mnist-train-nchw-leveldb")
 GenerateDB(image_file_test, label_file_test, "mnist-test-nchw-leveldb")
 
 
-if os.path.exists(root_folder):
-    print("Looks like you ran this before, so we need to cleanup those old workspace files...")
-    shutil.rmtree(root_folder)
-
-os.makedirs(root_folder)
-workspace.ResetWorkspace(root_folder)
-
-print("training data folder:"+data_folder)
-print("workspace root folder:"+root_folder)
+print("training data folder:" + data_folder)
+print("workspace root folder:" + root_folder)
 ```
 
-We will be using the `CNNModelHelper`, which has a set of wrapper functions that automatically separates the parameter intialization and the actual computation into two networks. Under the hood, a `CNNModelHelper` object has two underlying nets, `param_init_net` and `net`, that keeps record of the initialization network and the main network respectively.
+We will be using the `ModelHelper` class to represent our main model and using `brew` module and `Operators` to build our model. `brew` module has a set of wrapper functions that automatically separates the parameter intialization and the actual computation into two networks. Under the hood, a `ModelHelper` object has two underlying nets, `param_init_net` and `net`, that keeps record of the initialization network and the main network respectively.
 
 For the sake of modularity, we will separate the model to multiple different parts:
 
@@ -111,8 +117,6 @@ For better numerical stability, instead of representing data in [0, 255] range, 
 Note that we are doing in-place computation for this operator: we don't need the pre-scale data.
 Now, when computing the backward pass, we will not need the gradient computation for the backward pass. `StopGradient` does exactly that: in the forward pass it does nothing and in the backward pass all it does is to tell the gradient generator "the gradient does not need to pass through me".
 
-
-
 ```python
 def AddInput(model, batch_size, db, db_type):
     # load the data
@@ -126,36 +130,42 @@ def AddInput(model, batch_size, db, db_type):
     # don't need the gradient for the backward pass
     data = model.StopGradient(data, data)
     return data, label
-print("Input function created.")
 ```
-
-    Input function created.
-
 
 At this point we need to take a look at the predictions coming out of the network at convert them into probabilities.
 "What's the probability that this number we're looking at is a 5", or "is this a 7", and so forth.
 
 The results will be conformed into a range between 0 and 1 such that the closer you are to 1 the more likely the number matches the prediction. The process that we can use to do this is available in LeNet and will provide us the *softmax* prediction. The `AddLeNetModel` function below will output the `softmax`. However, in this case, it does much more than the softmax - it is the computed model with its convoluted layers, as well as the softmax.
 
-TODO: include image of the model below
+[An explanation of kernels in image processing](https://en.wikipedia.org/wiki/Kernel_%28image_processing%29) might be useful for more info on why `kernel=5` is used in the convolutional layers below. `dim_in` is the number of input channels and `dim_out` is the number of output channels.
 
+As you can see below `conv1` has 1 channel coming in (`dim_in`) and 20 going out (`dim_out`), whereas `conv2` has 20 going in and 50 going out and `fc3` has 50 going in and 500 going out. The images are transformed to smaller sizes along each convolution.
+
+This part is the standard LeNet model: from data to the softmax prediction.
+For each convolutional layer we specify dim_in - number of input channels
+and dim_out - number or output channels. Also each Conv and MaxPool layer changes the image size. For example, kernel of size 5 reduces each side of an image by 4.
+While when we have kernel and stride sizes equal 2 in a MaxPool layer, it divides
+each side in half.
+
+TODO: include image of the model below
 
 ```python
 def AddLeNetModel(model, data):
-    conv1 = model.Conv(data, 'conv1', 1, 20, 5)
-    pool1 = model.MaxPool(conv1, 'pool1', kernel=2, stride=2)
-    conv2 = model.Conv(pool1, 'conv2', 20, 50, 5)
-    pool2 = model.MaxPool(conv2, 'pool2', kernel=2, stride=2)
-    fc3 = model.FC(pool2, 'fc3', 50 * 4 * 4, 500)
-    fc3 = model.Relu(fc3, fc3)
-    pred = model.FC(fc3, 'pred', 500, 10)
-    softmax = model.Softmax(pred, 'softmax')
+    # Image size: 28 x 28 -> 24 x 24
+    conv1 = brew.conv(model, data, 'conv1', dim_in=1, dim_out=20, kernel=5)
+    # Image size: 24 x 24 -> 12 x 12
+    pool1 = brew.max_pool(model, conv1, 'pool1', kernel=2, stride=2)
+    # Image size: 12 x 12 -> 8 x 8
+    conv2 = brew.conv(model, pool1, 'conv2', dim_in=20, dim_out=50, kernel=5)
+    # Image size: 8 x 8 -> 4 x 4
+    pool2 = brew.max_pool(model, conv2, 'pool2', kernel=2, stride=2)
+    # 50 * 4 * 4 stands for dim_out from previous layer multiplied by the image size
+    fc3 = brew.fc(model, pool2, 'fc3', dim_in=50 * 4 * 4, dim_out=500)
+    fc3 = brew.relu(model, fc3, fc3)
+    pred = brew.fc(model, fc3, 'pred', 500, 10)
+    softmax = brew.softmax(model, pred, 'softmax')
     return softmax
-print("Model function created.")
 ```
-
-    Model function created.
-
 
 The `AddAccuracy` function below adds an accuracy operator to the model. We will use this in the next function to keep track of the model's accuracy.
 
@@ -164,11 +174,7 @@ The `AddAccuracy` function below adds an accuracy operator to the model. We will
 def AddAccuracy(model, softmax, label):
     accuracy = model.Accuracy([softmax, label], "accuracy")
     return accuracy
-print("Accuracy function created.")
 ```
-
-    Accuracy function created.
-
 
 The next function, `AddTrainingOperators`, adds training operators to the model.
 
@@ -188,7 +194,6 @@ The next line is the key part of the training model: we add all the gradient ope
 
     model.AddGradientOperators([loss])
 
-
 The next handful of lines support a very simple stochastic gradient descent.
 --- TODO(jiayq): We are working on wrapping these SGD operations in a cleaner fashion, and we will update this when it is ready. For now, you can see how we basically express the SGD algorithms with basic operators.
 It isn't necessary to fully understand this part at the moment, but we'll walk you through the process anyway.
@@ -206,7 +211,7 @@ ONE is a constant value that is used in the gradient update. We only need to cre
 
     ONE = model.param_init_net.ConstantFill([], "ONE", shape=[1], value=1.0)
 
-Now, for each parameter, we do the gradient updates. Note how we get the gradient of each parameter - CNNModelHelper keeps track of that. The update is a simple weighted sum: param = param + param_grad * LR
+Now, for each parameter, we do the gradient updates. Note how we get the gradient of each parameter - ModelHelper keeps track of that. The update is a simple weighted sum: param = param + param_grad * LR
 
     for param in model.params:
         param_grad = model.param_to_grad[param]
@@ -239,7 +244,7 @@ def AddTrainingOperators(model, softmax, label):
     ONE = model.param_init_net.ConstantFill([], "ONE", shape=[1], value=1.0)
     # Now, for each parameter, we do the gradient updates.
     for param in model.params:
-        # Note how we get the gradient of each parameter - CNNModelHelper keeps
+        # Note how we get the gradient of each parameter - ModelHelper keeps
         # track of that.
         param_grad = model.param_to_grad[param]
         # The update is a simple weighted sum: param = param + param_grad * LR
@@ -249,14 +254,9 @@ def AddTrainingOperators(model, softmax, label):
     model.Checkpoint([ITER] + model.params, [],
                    db="mnist_lenet_checkpoint_%05d.leveldb",
                    db_type="leveldb", every=20)
-print("Training function created.")
 ```
 
-    Training function created.
-
-
 The following function, `AddBookkeepingOperations`, adds a few bookkeeping operators that we can inspect later. These operators do not affect the training procedure: they only collect statistics and prints them to file or to logs.
-
 
 ```python
 def AddBookkeepingOperators(model):
@@ -289,7 +289,8 @@ Before we can do the data input though we need to define our training model. We 
 
 
 ```python
-train_model = cnn.CNNModelHelper(order="NCHW", name="mnist_train")
+arg_scope = {"order": "NCHW"}
+train_model = model_helper.ModelHelper(name="mnist_train", arg_scope=arg_scope)
 data, label = AddInput(
     train_model, batch_size=64,
     db=os.path.join(data_folder, 'mnist-train-nchw-leveldb'),
@@ -303,8 +304,8 @@ AddBookkeepingOperators(train_model)
 # For the testing model, we need the data input part, the main LeNetModel
 # part, and an accuracy part. Note that init_params is set False because
 # we will be using the parameters obtained from the train model.
-test_model = cnn.CNNModelHelper(
-    order="NCHW", name="mnist_test", init_params=False)
+test_model = model_helper.ModelHelper(
+    name="mnist_test", arg_scope=arg_scope, init_params=False)
 data, label = AddInput(
     test_model, batch_size=100,
     db=os.path.join(data_folder, 'mnist-test-nchw-leveldb'),
@@ -313,16 +314,13 @@ softmax = AddLeNetModel(test_model, data)
 AddAccuracy(test_model, softmax, label)
 
 # Deployment model. We simply need the main LeNetModel part.
-deploy_model = cnn.CNNModelHelper(
-    order="NCHW", name="mnist_deploy", init_params=False)
+deploy_model = model_helper.ModelHelper(
+    name="mnist_deploy", arg_scope=arg_scope, init_params=False)
 AddLeNetModel(deploy_model, "data")
 # You may wonder what happens with the param_init_net part of the deploy_model.
 # No, we will not use them, since during deployment time we will not randomly
 # initialize the parameters, but load the parameters from the db.
-
-print('Created training and deploy models.')
 ```
-
 
 Now, let's take a look what the training and deploy models look like, using the simple graph visualization tool that Caffe2 has. If the following command fails for you, it might be because that the machine you run on does not have graphviz installed. You can usually install that by:
 
@@ -362,7 +360,7 @@ display.Image(graph.create_png(), width=800)
 
 Now, when we run the network, one way is to directly run it from Python. Remember as we are running the network, we can periodically pull blobs from the network - Let's first show how we do this.
 
-Before, that, let's re-iterate the fact that, the CNNModelHelper class has not executed anything yet. All it does is to *declare* the network, which is basically creating the protocol buffers. For example, we will show a portion of the serialized protocol buffer for the training models' param init net.
+Before, that, let's re-iterate the fact that, the ModelHelper class has not executed anything yet. All it does is to *declare* the network, which is basically creating the protocol buffers. For example, we will show a portion of the serialized protocol buffer for the training models' param init net.
 
 
 ```python
