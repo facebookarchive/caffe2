@@ -68,7 +68,7 @@ Luckily Caffe2 helper functions are here to help. Helper functions are wrappers 
 **An easier way using a helper function:**
 
 ```py
-fcLayer = fc(model, blob_in, blob_out, **kwargs) # returns a model.net.FC object
+fcLayer = fc(model, blob_in, blob_out, **kwargs) # returns a blob reference
 ```
 
 > Some helper functions build much more than 1 operator. For example, the LSTM function in [python/rnn_cell.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/rnn_cell.py) is helping you building a whole LSTM unit in your network.
