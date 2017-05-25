@@ -493,7 +493,6 @@ def _Broadcast(devices, model, net, param, use_nccl=False):
         if _IsGPUBlob(model, param):
             master_device_opt = core.DeviceOption(caffe2_pb2.CUDA, master_gpu)
             with core.DeviceScope(master_device_opt):
-                log.info('Use NCCL for Broadcast')
 
                 model.NCCLBroadcast(
                     model._device_grouped_blobs[param].values(),
