@@ -10,6 +10,8 @@ The Mac build works easiest with Anaconda. Always pull the latest from github, s
 
 [Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended. See below for a brew/pip install path instead of Anaconda.
 
+If your default Anaconda Python is not 2.7, you can install a different version of Python using `conda create --name python2 python=2` (`python2` can be any name you like.)  Subsequently, if you `source activate python2`, your path will be adjusted so that you get `python2`.
+
 [Homebrew](https://brew.sh/). Install Homebrew or use your favorite package manager to install the following dependencies:
 
 ```bash
@@ -17,8 +19,7 @@ brew install \
 automake \
 cmake \
 git \
-glog \
-protobuf
+glog
 ```
 
 ```
@@ -26,7 +27,7 @@ conda install -y --channel https://conda.anaconda.org/conda-forge  \
 gflags \
 glog  \
 numpy \
-protobuf=3.2.0
+protobuf=3.1.0
 ```
 
 ### Optional GPU Support
