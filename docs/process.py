@@ -31,11 +31,11 @@ for root, dirs, files in os.walk("."):
             print("filepath: " + filepath)
             directory = os.path.dirname(filepath)[2:]
             directory = directory.replace("/",".")
-            print "directory: " + directory
+            print("directory: " + directory)
             name = os.path.splitext(file)[0]
             first_line = "## @package " + name
             description = "\n# Module " + directory + "." + name + "\n"
-            print first_line,description
+            print(first_line,description)
             insert(filepath,first_line,description)
 
 if os.path.exists("doxygen/doxygen-python"):

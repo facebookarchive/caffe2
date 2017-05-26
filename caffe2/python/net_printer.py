@@ -72,13 +72,16 @@ class Analyzer(Visitor):
 
 @Analyzer.register(OperatorDef)
 def analyze_op(analyzer, op):
-    map(analyzer.need_blob, op.input)
-    map(analyzer.define_blob, op.output)
+    for i in op.input:
+        analyzer.need_blob(i)
+    for o in op.output:
+        analyzer.define_blob(o)
 
 
 @Analyzer.register(Net)
 def analyze_net(analyzer, net):
-    map(analyzer, net.Proto().op)
+    for op in net.Proto().op:
+        analyzer(op)
 
 
 @Analyzer.register(ExecutionStep)
@@ -100,7 +103,8 @@ def analyze_step(analyzer, step):
                 'Error: Blobs created by multiple parallel steps: %s' % (
                     ', '.join(all_new_blobs & new_blobs)))
             all_new_blobs |= new_blobs
-    map(analyzer.define_blob, all_new_blobs)
+    for blob in all_new_blobs:
+        analyzer.define_blob(blob)
 
 
 @Analyzer.register(Task)
