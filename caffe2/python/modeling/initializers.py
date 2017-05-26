@@ -33,7 +33,6 @@ class pFP16Initializer(object):
     def __init__(self, operator_name=None, **kwargs):
         self.operator_name = operator_name
         self.operator_kwargs = kwargs
-        print("constructed with {}".format(self.operator_name))
 
     def update(self, operator_name, kwargs):
         if self.operator_name is not None:

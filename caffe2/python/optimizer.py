@@ -15,7 +15,6 @@ _OPTIMIZER_ITERATION_NAME = "optimizer_iteration"
 
 AuxOptimizerParams = namedtuple("AuxOptimizerParams", ["local", "shared"])
 
-
 class Optimizer(object):
     def __init__(self):
         self._aux_params = AuxOptimizerParams(local=[], shared=[])
@@ -157,7 +156,7 @@ class SgdOptimizer(Optimizer):
 
         if self.momentum > 0:
             momentum_data = param_init_net.ConstantFill(
-                param, str(param) + "_momentum", value=0.)
+                [param], param + '_momentum', value=0.)
             self._aux_params.local.append(momentum_data)
 
         if isinstance(grad, core.GradientSlice):
@@ -194,7 +193,6 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
         self.init_kwargs = kwargs
 
     def _run(self, net, param_init_net, param_info):
-        print('running MPSGD')
         param = param_info.blob
         param_fp32 = param_info.blob_copy['float'] if param_info.blob_copy is not None else None
 
@@ -218,7 +216,7 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
         self._aux_params.shared.append(ONE)
 
         momentum_data = param_init_net.ConstantFill(
-            param, str(param) + "_momentum", value=0.)
+            [param], param + "_momentum", value=0.)
         self._aux_params.local.append(momentum_data)
 
         assert not isinstance(grad, core.GradientSlice), \
