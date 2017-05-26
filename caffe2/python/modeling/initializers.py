@@ -30,7 +30,14 @@ class Initializer(object):
         )
 
 class pFP16Initializer(object):
-    def __init__(self, operator_name, **kwargs):
+    def __init__(self, operator_name=None, **kwargs):
+        self.operator_name = operator_name
+        self.operator_kwargs = kwargs
+        print("constructed with {}".format(self.operator_name))
+
+    def update(self, operator_name, kwargs):
+        if self.operator_name is not None:
+            raise Exception("Operator name overwrites are not allowed")
         self.operator_name = operator_name
         self.operator_kwargs = kwargs
 
@@ -47,10 +54,10 @@ class pFP16Initializer(object):
             param_id=None,
             param=param,
             shape=shape,
-            param_copy={'float' : param_fp32}
+            blob_copy={'float' : param_fp32}
         )
 
-def update_initializer(initializer,
+def update_initializer(initializer_class,
                        operator_name_and_kwargs,
                        default_operator_name_and_kwargs):
     '''
