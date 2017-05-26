@@ -205,6 +205,11 @@ def Parallelize_GPU(
         devices, model_helper_obj, model_helper_obj.param_init_net, sync_names
     )
 
+    # if in a multi-precision environment, make sure that the broadcast parameters
+    # (low-precision) are still in sync with the high-precision copies.
+    # Otherwise training goes badly
+    _UpdateFloatCopies(devices, model_helper_obj)
+
     if optimize_gradient_memory:
         _OptimizeGradientMemoryDEPRECATED(
             model_helper_obj, losses_by_gpu, devices
@@ -549,6 +554,20 @@ def _SyncParams(devices, model, net, unique_param_names):
     for param in unique_param_names:
         _Broadcast(devices, model, net, param)
 
+def _UpdateFloatCopies(devices, model):
+    # todo(slayton): Work with non-fp16 low-precision copies
+    for device in devices:
+        device_opt = core.DeviceOption(caffe2_pb2.CUDA, device)
+        with core.DeviceScope(device_opt):
+            with core.NameScope("gpu_{}".format(device)):
+                params = model.GetParams()
+                for param in params:
+                    if param in model.param_to_float_copy:
+                        param_float = model.param_to_float_copy[param]
+                        model.param_init_net.HalfToFloat(
+                                param,
+                                param_float
+                        )
 
 def _AddDistributedParameterSync(
     devices,
