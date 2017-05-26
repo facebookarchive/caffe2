@@ -26,6 +26,7 @@ class ParameterInfo(object):
         self.length = max(1, length if length is not None else 1)
         self.grad = grad
         self._cloned_init_net = None
+        self.blob_copy = param_copy
 
     def grad_type(self):
         # self.grad could be None for model parallelism with parameter server

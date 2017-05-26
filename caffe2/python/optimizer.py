@@ -185,6 +185,62 @@ class SgdOptimizer(Optimizer):
         self.base_learning_rate *= scale
         return
 
+class MultiPrecisionSgdOptimizer(SgdOptimizer):
+    def __init__(self, base_learning_rate, momentum, policy, **kwargs):
+        super(SgdOptimizer, self).__init__() # self, base_learning_rate, **kwargs)
+        self.base_learning_rate = base_learning_rate
+        self.momentum = momentum
+        self.policy = policy
+        self.init_kwargs = kwargs
+
+    def _run(self, net, param_init_net, param_info):
+        print('running MPSGD')
+        param = param_info.blob
+        param_fp32 = param_info.blob_copy['float'] if param_info.blob_copy is not None else None
+
+        # If we have a straight fp32 parameter, run the base class
+        if param_fp32 == None:
+            return SgdOptimizer._run(self, net, param_init_net, param_info)
+
+        grad = param_info.grad
+        if self.base_learning_rate <= 0:
+            return
+
+        lr, _ = self.build_lr(
+            net, param_init_net,
+            base_learning_rate=-self.base_learning_rate,
+            learning_rate_blob=str(param) + "_lr",
+            policy=self.policy,
+            **(self.init_kwargs)
+        )
+
+        ONE = param_init_net.ConstantFill([], "ONE", shape=[1], value=1.0)
+        self._aux_params.shared.append(ONE)
+
+        momentum_data = param_init_net.ConstantFill(
+            param, str(param) + "_momentum", value=0.)
+        self._aux_params.local.append(momentum_data)
+
+        assert not isinstance(grad, core.GradientSlice), \
+                "Doesn't support sparse gradients"
+
+        # Copy gradient to fp32
+        net.HalfToFloat(grad, grad+"_fp32")
+
+        # update (fused) in fp32
+        net.MomentumSGDUpdate(
+            [grad+"_fp32", momentum_data, lr, param_fp32],
+            [grad, momentum_data, param_fp32],
+            momentum=self.momentum,
+            nesterov=0)
+
+        # Copy updated param back to fp16
+        net.FloatToHalf(param_fp32, param)
+
+    def scale_learning_rate(self, scale):
+        self.base_learning_rate *= scale
+        return
+
 
 class AdagradOptimizer(Optimizer):
     def __init__(self, alpha=0.01, epsilon=1e-4, policy="fixed",
@@ -386,6 +442,12 @@ def _build(model, optimizer):
 def build_sgd(model, base_learning_rate, **kwargs):
     sgd_optimizer = SgdOptimizer(base_learning_rate, **kwargs)
     return _build(model, sgd_optimizer)
+
+def build_multi_precision_sgd(model, base_learning_rate, **kwargs):
+    sgd_optimizer = MultiPrecisionSgdOptimizer(base_learning_rate, **kwargs)
+    for param_info in model.GetOptimizationParamInfo():
+        sgd_optimizer(model.net, model.param_init_net, param_info)
+    return sgd_optimizer
 
 
 def build_ftrl(model, engine="SIMD", **kwargs):
