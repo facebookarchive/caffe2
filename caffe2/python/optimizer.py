@@ -140,7 +140,7 @@ class SgdOptimizer(Optimizer):
 
         if self.momentum > 0:
             momentum_data = param_init_net.ConstantFill(
-                param, str(param) + "_momentum", value=0.)
+                param, param + "_momentum", value=0.)
             self._aux_params.local.append(momentum_data)
 
         if isinstance(grad, core.GradientSlice):
@@ -197,7 +197,7 @@ class AdagradOptimizer(Optimizer):
 
         param_squared_sum = param_init_net.ConstantFill(
             [param],
-            str(param) + "_squared_sum",
+            param + "_squared_sum",
             value=0.0
         )
         self._aux_params.local.append(param_squared_sum)
@@ -243,7 +243,7 @@ class FtrlOptimizer(Optimizer):
 
         nz = param_init_net.ConstantFill(
             [param],
-            str(param) + "_ftrl_nz",
+            param + "_ftrl_nz",
             extra_shape=[2],
             value=0.0
         )
