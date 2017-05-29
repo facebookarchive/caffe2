@@ -59,7 +59,11 @@ for each GPU. Note that the 'coordinator' returned by the function is same
 each time.
 '''
 
-import Queue
+try:
+    import Queue
+except ImportError:
+    # Py3
+    import queue as Queue
 import logging
 import threading
 import atexit
@@ -140,7 +144,6 @@ class DataInputCoordinator(object):
                  device_option, namescope, input_source_name, queue,
                  init_fun=None, external_loggers=None, dont_rebatch=False,
                  batch_columns=None):
-        self._net = net
         self._counter = 0
         self._input_blob_names = input_blob_names
         self._batch_size = batch_size
@@ -154,7 +157,8 @@ class DataInputCoordinator(object):
         self._workers = []
         self._input_source_name = input_source_name
         self._c2_queue_capacity = 4
-        self._create_caffe2_queues_and_ops()
+        self._create_caffe2_queues(net)
+        self._create_caffe2_ops(net)
         self._inputs = 0
         self._prev_seconds = 0
         self._last_warning = time.time()
@@ -319,13 +323,14 @@ class DataInputCoordinator(object):
             "_scratch_" + self._input_source_name
         blob = core.BlobReference(scratch_name)
         status = core.BlobReference(scratch_name + "_status")
+        if blob not in self._scratch_blobs:
+            self._scratch_blobs.add(blob)
+            self._scratch_blobs.add(status)
         workspace.FeedBlob(
             blob,
             data_arr,
             device_option=self._device_option
         )
-        self._scratch_blobs.add(blob)
-        self._scratch_blobs.add(status)
 
         op = core.CreateOperator(
             "SafeEnqueueBlobs",
@@ -335,10 +340,9 @@ class DataInputCoordinator(object):
         )
         workspace.RunOperatorOnce(op)
 
-    def _create_caffe2_queues_and_ops(self):
+    def _create_caffe2_queues(self, net):
         '''
-        Creates queues on caffe2 side, and respective operators
-        to pull (dequeue) blobs from the queues.
+        Creates queues on caffe2 side
         '''
         def create_queue(queue_name, num_blobs, capacity):
             workspace.RunOperatorOnce(
@@ -355,10 +359,14 @@ class DataInputCoordinator(object):
                 qname, num_blobs=1, capacity=self._c2_queue_capacity
             )
             self._queues.append(q)
-            print("Created queue: {}".format(q))
 
+    def _create_caffe2_ops(self, net):
+        '''
+        Creates dequeue-ops on caffe2 side
+        '''
+        for q, blob_name in zip(self._queues, self._input_blob_names):
             # Add operator to the Caffe2 network to dequeue
-            self._net.DequeueBlobs(q, blob_name)
+            net.DequeueBlobs(q, blob_name)
 
     def _log_inputs_per_interval(self, inputs, force=False):
         self._inputs += inputs
@@ -432,11 +440,12 @@ class GlobalCoordinator(object):
             c.init(self)
             c._start()
 
-    def set_batch_size(self, name, batch_size):
-        log.info("Set batch size {}: {}".format(name, batch_size))
+    def reset_data_input(self, namescope, name, net, batch_size):
+        log.info("Reset data input {}, batch size {}: ".format(name, batch_size))
         for c in self._coordinators:
-            if c._input_source_name == name:
+            if c._input_source_name == name and c._namescope == namescope:
                 c._batch_size = batch_size
+                c._create_caffe2_ops(net)
 
     def stop(self):
         all_success = True

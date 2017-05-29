@@ -142,10 +142,8 @@ def _compute_blob_recycling_for_dag(
         for inp in op.input:
             if is_shareable(inp) or inp in heads:
                 if inp in optim_op_outputs:
-                    # Ignore in-place transformation ops (self-cycles)
-                    if inp not in op.output:
-                        blobs_to_ops[inp].append(i)
-                        op_inputs[i] += 1
+                    blobs_to_ops[inp].append(i)
+                    op_inputs[i] += 1
                 else:
                     # For external blobs, we don't increase the op_inputs
                     # count.
@@ -224,7 +222,8 @@ def _compute_blob_recycling_for_dag(
             else:
                 if nf not in blob_sizes:
                     blob_sizes[nf] = infer_blob_size(outp)
-
+                assert nf not in free_blobs, \
+                    "Blob {} double-inserted to free_blobs".format(nf)
                 free_blobs.append(nf)
 
         free_blobs_fwd = free_blobs
@@ -259,10 +258,6 @@ def _compute_blob_recycling_for_dag(
             renamed[b] = namescope + "__m{}_shared".format(j)
         else:
             renamed[b] = b
-
-    # Final mapping
-    for k, v in mapping.items():
-        mapping[k] = renamed[v]
 
     # Add the originators
     mapping.update(renamed)

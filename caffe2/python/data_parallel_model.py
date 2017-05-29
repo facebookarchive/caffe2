@@ -30,6 +30,7 @@ def Parallelize_GPU(
     broadcast_computed_params=True,
     optimize_gradient_memory=False,
     use_nccl=False,
+    max_concurrent_distributed_ops=4,
 ):
     '''
     Function to create a model that can run on many GPUs.
@@ -62,7 +63,10 @@ def Parallelize_GPU(
     '''
     log.info("Parallelizing model for devices: {}".format(devices))
     extra_workers = 8 if rendezvous is not None else 0  # best-guess
-    model_helper_obj.net.Proto().num_workers = len(devices) * 4 + extra_workers
+    num_workers = len(devices) * 4 + extra_workers
+    max_concurrent_distributed_ops =\
+        min(max_concurrent_distributed_ops, num_workers - 1)
+    model_helper_obj.net.Proto().num_workers = num_workers
     model_helper_obj.net.Proto().type = net_type
 
     # Store some information in the model -- a bit ugly
@@ -146,7 +150,13 @@ def Parallelize_GPU(
         _BroadcastComputedParams(devices, model_helper_obj, rendezvous)
 
     if len(model_helper_obj._grad_names) > 0:
-        _AllReduceGradients(devices, model_helper_obj, rendezvous, use_nccl)
+        _AllReduceGradients(
+            devices,
+            model_helper_obj,
+            rendezvous,
+            use_nccl,
+            max_concurrent_distributed_ops,
+        )
     else:
         log.info("NOTE: Param builder function did not create any parameters.")
 
@@ -196,9 +206,7 @@ def Parallelize_GPU(
     )
 
     if optimize_gradient_memory:
-        _OptimizeGradientMemoryDEPRECATED(
-            model_helper_obj, losses_by_gpu, devices
-        )
+        _OptimizeGradientMemorySimple(model_helper_obj, losses_by_gpu, devices)
 
     model_helper_obj._data_parallel_model_init_nets = [
         model_helper_obj.param_init_net,
@@ -216,6 +224,7 @@ def Parallelize_GPU_BMUF(
     devices=range(0, workspace.NumCudaDevices()),
     net_type='dag',
     master_gpu=None,
+    optimize_gradient_memory=False
 ):
     '''
     Function to create model that run on many GPUs and creates a net for
@@ -274,6 +283,9 @@ def Parallelize_GPU_BMUF(
 
     model_helper_obj._device_grouped_blobs =\
         _GroupByDevice(devices, model_helper_obj.params, non_datapar_params)
+
+    model_helper_obj._param_names =\
+        model_helper_obj._device_grouped_blobs.keys()
 
     _AddGradientOperators(
         devices, model_helper_obj, model_helper_obj._losses_by_gpu
@@ -340,6 +352,11 @@ def Parallelize_GPU_BMUF(
                 model_helper_obj._global_model_param_updates_net,
                 param_name
             )
+
+    if optimize_gradient_memory:
+        _OptimizeGradientMemorySimple(
+            model_helper_obj, model_helper_obj._losses_by_gpu, devices
+        )
 
     model_helper_obj._data_parallel_model_init_nets = [
         model_helper_obj.param_init_net,
@@ -594,17 +611,24 @@ def _AddDistributedParameterSync(
                 net.CopyCPUToGPU(param_cpu, param)
 
 
-def _AllReduceGradients(devices, model, rendezvous, use_nccl):
+def _AllReduceGradients(devices, model, rendezvous, use_nccl,
+                        max_concurrent_distributed_ops):
     if rendezvous is None:
         _AllReduceGradientsSingleHost(devices, model, use_nccl)
     else:
-        _AllReduceGradientsDistributed(devices, model, rendezvous)
+        _AllReduceGradientsDistributed(
+            devices,
+            model,
+            rendezvous,
+            max_concurrent_distributed_ops,
+        )
 
 
 def _AllReduceGradientsDistributed(
     devices,
     model,
     rendezvous,
+    max_concurrent_distributed_ops,
 ):
     num_workers = model.net.Proto().num_workers
     assert num_workers > 1, "Please specify more than 1 worker"
@@ -618,7 +642,7 @@ def _AllReduceGradientsDistributed(
 
     # We need to specify a partial order using control_input to ensure
     # progress (all machines need to do same allreduce in parallel)
-    num_controls = min(4, num_workers - 1)
+    num_controls = max_concurrent_distributed_ops
     cyclical_controls = []
 
     # Since num_controls determines the partial ordering of
@@ -726,6 +750,7 @@ def _AllReduceGradientsSingleHost(devices, model, use_nccl):
     # Pick GPU #0 as a master GPU.
     master_device_opt = core.DeviceOption(caffe2_pb2.CUDA, devices[0])
     last_out = None
+    concatenated_idx = set()
 
     for grad_name in reverse_ordered_grads:
         # Group by grads for reduce.
@@ -746,16 +771,29 @@ def _AllReduceGradientsSingleHost(devices, model, use_nccl):
                 else:
                     # Sparse gradients: all-gather for indices and values
                     master_ns = "gpu_{}".format(devices[0])
-                    grad_idx_concat, _ = model.net.Concat(
-                        [g.indices for g in grads_group],
-                        ["{}/{}_index_concat".format(master_ns, grad_name),
-                         "{}/{}_index_splitinfo".format(master_ns, grad_name)],
-                        axis=0,
-                        name="note:data_parallel_model")
-                    for gpu, g in model._device_grouped_blobs[grad_name].items():
-                        device_opt = core.DeviceOption(caffe2_pb2.CUDA, gpu)
-                        with core.DeviceScope(device_opt):
-                            model.Copy(grad_idx_concat, g.indices)
+                    '''
+                    Skip if we have already copied concatenated indices
+                    to the indices of GradientSlice. This happens when two
+                    or more grad blobs are gathered with the same indices
+                    blob
+                    '''
+                    skip_idx_concat = False
+                    for g in grads_group:
+                        if g.indices in concatenated_idx:
+                            skip_idx_concat = True
+
+                    if not skip_idx_concat:
+                        grad_idx_concat, _ = model.net.Concat(
+                            [g.indices for g in grads_group],
+                            ["{}/{}_index_concat".format(master_ns, grad_name),
+                             "{}/{}_index_splitinfo".format(master_ns, grad_name)],
+                            axis=0,
+                            name="note:data_parallel_model")
+                        for gpu, g in model._device_grouped_blobs[grad_name].items():
+                            device_opt = core.DeviceOption(caffe2_pb2.CUDA, gpu)
+                            with core.DeviceScope(device_opt):
+                                model.Copy(grad_idx_concat, g.indices)
+                                concatenated_idx.add(g.indices)
 
                     grad_val_concat, _ = model.net.Concat(
                         [g.values for g in grads_group],
@@ -768,7 +806,7 @@ def _AllReduceGradientsSingleHost(devices, model, use_nccl):
                             model.Copy(grad_val_concat, g.values)
 
         else:
-            assert isinstance(grads_group[0], core.GradientSlice), \
+            assert not isinstance(grads_group[0], core.GradientSlice), \
                 "Synchronizing gradient slices not supported"
             with core.DeviceScope(core.DeviceOption(caffe2_pb2.CPU)):
                 # Poor man's allreduce
@@ -976,7 +1014,7 @@ def _ComputeBlobsToSync(model):
     return (blobs_to_sync, sync_names)
 
 
-def _OptimizeGradientMemoryDEPRECATED(model, losses_by_gpu, devices):
+def _OptimizeGradientMemorySimple(model, losses_by_gpu, devices):
     log.warning("------- DEPRECATED API, please use " +
                    "data_parallel_model.OptimizeGradientMemory() ----- ")
     for device in devices:

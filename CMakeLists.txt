@@ -4,13 +4,6 @@ project(Caffe2 CXX C)
 
 # TODO(bwasti): versioning
 
-# We want to make sure that all submodules are being properly initialized, if
-# one is building from a git checkout.
-find_package(Git)
-if (GIT_FOUND)
-  execute_process(COMMAND git submodule update --init)
-endif()
-
 # Useful functions.
 function (exclude OUTPUT INPUT)
 set(EXCLUDES ${ARGN})
@@ -66,11 +59,8 @@ include(cmake/Summary.cmake)
 # options that do not affect the main binaries, but affects testing binaries
 option(BUILD_TEST "Build C++ test binaries (need gtest and gbenchmark)" ON)
 
-# options that takes in strings instead of on and off statemens.
-option(CAFFE2_CPU_FLAGS "Flags to specify CPU features." "")
-option(CAFFE2_WHITELIST
-       "A whitelist file of files that one should build."
-       "")
+set(CAFFE2_CPU_FLAGS "" CACHE STRING "Flags to specify CPU features.")
+set(CAFFE2_WHITELIST "" CACHE STRING "A whitelist file of files that one should build.")
 
 # Set default build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -113,6 +103,10 @@ else()
   endif()
 endif()
 
+if(NOT APPLE AND UNIX)
+  list(APPEND Caffe2_DEPENDENCY_LIBS dl)
+endif()
+
 if (CAFFE2_CPU_FLAGS)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAFFE2_CPU_FLAGS}")
 endif()
@@ -128,36 +122,5 @@ add_subdirectory(caffe/proto)
 
 # ---[ Main build
 add_subdirectory(caffe2)
-
-# ---[ Copy all python files to build directory
-if (BUILD_PYTHON)
-  # Generate and create all needed __init__.py files, if they aren't already
-  # present in the current source tree.
-  message(STATUS "Automatically generating missing __init__.py files.")
-  caffe_autogen_init_py_files()
-
-  # Create a custom target that copies all python files.
-  file(GLOB_RECURSE PYTHON_SRCS RELATIVE ${PROJECT_SOURCE_DIR}
-       "${PROJECT_SOURCE_DIR}/caffe2/*.py")
-  add_custom_target(python_copy_files ALL)
-  foreach(python_src ${PYTHON_SRCS})
-    get_filename_component(dir ${python_src} DIRECTORY)
-    add_custom_command(
-        TARGET python_copy_files PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${PROJECT_SOURCE_DIR}/${python_src} ${CMAKE_BINARY_DIR}/${dir})
-  endforeach()
-
-  # Install commands
-  # Pick up static python files
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION ${CMAKE_INSTALL_PREFIX}
-          FILES_MATCHING PATTERN "*.py")
-  # Caffe proto files
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe DESTINATION ${CMAKE_INSTALL_PREFIX}
-          FILES_MATCHING PATTERN "*.py")
-  # Caffe2 proto files
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION ${CMAKE_INSTALL_PREFIX}
-          FILES_MATCHING PATTERN "*.py")
-endif()
 
 Caffe2_print_configuration_summary()
