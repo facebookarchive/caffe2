@@ -530,10 +530,10 @@ def _AllReduce(devices, model, net, param, use_nccl=False, control_input=None):
         d2 = model._devices[d2i]
         device_opt = core.DeviceOption(caffe2_pb2.CUDA, d1)
         with core.DeviceScope(device_opt):
-            net.Sum(
-                [blobs_group[d1], blobs_group[d2]], [blobs_group[d1]],
-                name="dpm",
-            )
+            # Copy from d2 to d1
+            d2_copy = 'gpu_{}/{}_copy'.format(d1, param)
+            model.Copy(blobs_group[d2i], d2_copy)
+            net.Sum([blobs_group[d1i], d2_copy], [blobs_group[d1i]])
     if len(devices) == 8:
         # Special tree reduction for 8 gpus, TODO generalize like in muji.py
         for j in range(4):
@@ -548,7 +548,7 @@ def _AllReduce(devices, model, net, param, use_nccl=False, control_input=None):
         sum2(0, 2)
         _Broadcast(devices, model, net, param)
     else:
-        net.Sum(blobs_group, blobs_group[0], name="dpm")
+        sum2(0, 1)
         _Broadcast(devices, model, net, param)
 
 
@@ -867,8 +867,6 @@ def _AnalyzeOperators(model):
     '''
     for op in model.Proto().op:
         if "NCCL" in op.type or "Copy" in op.type or "Concat" in op.type:
-            continue
-        if "Sum" == op.type and op.name == "dpm":
             continue
         if "Allreduce" in op.type and "GLOO" in op.engine:
             continue
