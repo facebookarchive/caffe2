@@ -18,8 +18,8 @@ def _ConvBase(
     kernel,
     weight_init=None,
     bias_init=None,
-    weight_initializer=None,
-    bias_initializer=None,
+    WeightInitializer=None,
+    BiasInitializer=None,
     group=1,
     transform_inputs=None,
     use_cudnn=False,
@@ -54,23 +54,23 @@ def _ConvBase(
         weight_shape.extend(kernels)
         weight_shape.append(int(dim_in / group))
 
-    weight_initializer = initializers.update_initializer(
-        weight_initializer, weight_init, ("XavierFill", {})
+    WeightInitializer = initializers.update_initializer(
+        WeightInitializer, weight_init, ("XavierFill", {})
     )
-    bias_initializer = initializers.update_initializer(
-        bias_initializer, bias_init, ("ConstantFill", {})
+    BiasInitializer = initializers.update_initializer(
+        BiasInitializer, bias_init, ("ConstantFill", {})
     )
 
     if model.init_params:
         weight = model.create_param(
             param_name=blob_out+'_w',
             shape=weight_shape,
-            initializer=weight_initializer)
+            initializer=WeightInitializer)
         if use_bias:
             bias = model.create_param(
                 param_name=blob_out+'_b',
                 shape=[dim_out, ],
-                initializer=bias_initializer)
+                initializer=BiasInitializer)
     else:
         weight = core.ScopedBlobReference(
             blob_out + '_w', model.param_init_net)
@@ -149,8 +149,8 @@ def conv(
     kernel,
     weight_init=None,
     bias_init=None,
-    weight_initializer=None,
-    bias_initializer=None,
+    WeightInitializer=None,
+    BiasInitializer=None,
     group=1,
     transform_inputs=None,
     **kwargs
@@ -158,7 +158,7 @@ def conv(
     """2-dimensional convolution.
     """
     return _ConvBase(model, False, blob_in, blob_out, dim_in, dim_out, kernel,
-                     weight_init, bias_init, weight_initializer, bias_initializer, group, transform_inputs, **kwargs)
+                     weight_init, bias_init, WeightInitializer, BiasInitializer, group, transform_inputs, **kwargs)
 
 
 def conv_transpose(
