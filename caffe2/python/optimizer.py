@@ -212,7 +212,16 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
             **(self.init_kwargs)
         )
 
-        ONE = param_init_net.ConstantFill([], "ONE", shape=[1], value=1.0)
+        dev = scope.CurrentDeviceScope()
+        if dev is None:
+            dev = core.DeviceOption(caffe2_pb2.CPU)
+
+        ONE = param_init_net.ConstantFill(
+            [],
+            "ONE_{}_{}".format(dev.device_type, dev.cuda_gpu_id),
+            shape=[1],
+            value=1.0
+        )
         self._aux_params.shared.append(ONE)
 
         momentum_data = param_init_net.ConstantFill(
@@ -443,9 +452,10 @@ def build_sgd(model, base_learning_rate, **kwargs):
 
 def build_multi_precision_sgd(model, base_learning_rate, **kwargs):
     sgd_optimizer = MultiPrecisionSgdOptimizer(base_learning_rate, **kwargs)
-    for param_info in model.GetOptimizationParamInfo():
-        sgd_optimizer(model.net, model.param_init_net, param_info)
-    return sgd_optimizer
+    return _build(model, sgd_optimizer)
+    #for param_info in model.GetOptimizationParamInfo():
+    #    sgd_optimizer(model.net, model.param_init_net, param_info)
+    #return sgd_optimizer
 
 
 def build_ftrl(model, engine="SIMD", **kwargs):
