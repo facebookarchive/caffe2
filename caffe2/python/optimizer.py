@@ -216,18 +216,18 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
         self._aux_params.shared.append(ONE)
 
         momentum_data = param_init_net.ConstantFill(
-            [param], param + "_momentum", value=0.)
+            [param_fp32], param + "_momentum", value=0.)
         self._aux_params.local.append(momentum_data)
 
         assert not isinstance(grad, core.GradientSlice), \
                 "Doesn't support sparse gradients"
 
         # Copy gradient to fp32
-        net.HalfToFloat(grad, grad+"_fp32")
+        grad_fp32 = net.HalfToFloat(grad, grad + "_fp32")
 
         # update (fused) in fp32
         net.MomentumSGDUpdate(
-            [grad+"_fp32", momentum_data, lr, param_fp32],
+            [grad_fp32, momentum_data, lr, param_fp32],
             [grad, momentum_data, param_fp32],
             momentum=self.momentum,
             nesterov=0)

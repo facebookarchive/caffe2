@@ -26,6 +26,8 @@ class ParameterInfo(object):
         self.length = max(1, length if length is not None else 1)
         self.grad = grad
         self._cloned_init_net = None
+        # Optionally store equivalent copies of the blob
+        # in different precisions (i.e. half and float copies)
         self.blob_copy = blob_copy
 
     def grad_type(self):

@@ -29,10 +29,9 @@ class Initializer(object):
             shape=shape,
         )
 
-class pFP16Initializer(object):
+class pFP16Initializer(Initializer):
     def __init__(self, operator_name=None, **kwargs):
-        self.operator_name = operator_name
-        self.operator_kwargs = kwargs
+        super(pFP16Initializer, self).__init__(operator_name, **kwargs)
 
     def update(self, operator_name, kwargs):
         if self.operator_name is not None:
@@ -43,11 +42,11 @@ class pFP16Initializer(object):
     def create_param(self, param_name, init_net, shape):
         # create master fp32 copy
         param_fp32 = init_net.__getattr__(self.operator_name)(
-            [], param_name+'_fp32', shape=shape,
+            [], param_name + "_fp32", shape=shape,
             **self.operator_kwargs)
         # cast to fp16 copy
         param = init_net.FloatToHalf(
-            param_name+"_fp32", param_name)
+            param_fp32, param_name)
 
         return ParameterInfo(
             param_id=None,
