@@ -115,7 +115,6 @@ bool forkAndPipe(
 #define TEST_FATAL_SIGNAL_NO_PRINT(signum, name, threadCount) \
   _TEST_FATAL_SIGNAL(signum, name, threadCount, false, 0)
 
-
 TEST(fatalSignalTest, SIGABRT8) {
   TEST_FATAL_SIGNAL(SIGABRT, "SIGABRT", 8);
 }
