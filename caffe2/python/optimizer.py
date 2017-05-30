@@ -207,7 +207,7 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
         lr, _ = self.build_lr(
             net, param_init_net,
             base_learning_rate=-self.base_learning_rate,
-            learning_rate_blob=str(param) + "_lr",
+            learning_rate_blob=param + "_lr",
             policy=self.policy,
             **(self.init_kwargs)
         )
