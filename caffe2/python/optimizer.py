@@ -212,18 +212,6 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
             **(self.init_kwargs)
         )
 
-        dev = scope.CurrentDeviceScope()
-        if dev is None:
-            dev = core.DeviceOption(caffe2_pb2.CPU)
-
-        ONE = param_init_net.ConstantFill(
-            [],
-            "ONE_{}_{}".format(dev.device_type, dev.cuda_gpu_id),
-            shape=[1],
-            value=1.0
-        )
-        self._aux_params.shared.append(ONE)
-
         momentum_data = param_init_net.ConstantFill(
             [param_fp32], param + "_momentum", value=0.)
         self._aux_params.local.append(momentum_data)
@@ -243,11 +231,6 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
 
         # Copy updated param back to fp16
         net.FloatToHalf(param_fp32, param)
-
-    def scale_learning_rate(self, scale):
-        self.base_learning_rate *= scale
-        return
-
 
 class AdagradOptimizer(Optimizer):
     def __init__(self, alpha=0.01, epsilon=1e-4, policy="fixed",
@@ -453,9 +436,6 @@ def build_sgd(model, base_learning_rate, **kwargs):
 def build_multi_precision_sgd(model, base_learning_rate, **kwargs):
     sgd_optimizer = MultiPrecisionSgdOptimizer(base_learning_rate, **kwargs)
     return _build(model, sgd_optimizer)
-    #for param_info in model.GetOptimizationParamInfo():
-    #    sgd_optimizer(model.net, model.param_init_net, param_info)
-    #return sgd_optimizer
 
 
 def build_ftrl(model, engine="SIMD", **kwargs):
