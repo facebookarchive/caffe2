@@ -203,8 +203,9 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
             return SgdOptimizer._run(self, net, param_init_net, param_info)
 
         grad = param_info.grad
-        if self.base_learning_rate <= 0:
+        if self.base_learning_rate == 0:
             return
+        assert self.base_learning_rate > 0
 
         lr, _ = self.build_lr(
             net, param_init_net,
