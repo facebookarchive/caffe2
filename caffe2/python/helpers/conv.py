@@ -54,10 +54,10 @@ def _ConvBase(
         weight_shape.extend(kernels)
         weight_shape.append(int(dim_in / group))
 
-    WeightInitializer = initializers.update_initializer(
+    weight_initializer = initializers.update_initializer(
         WeightInitializer, weight_init, ("XavierFill", {})
     )
-    BiasInitializer = initializers.update_initializer(
+    bias_initializer = initializers.update_initializer(
         BiasInitializer, bias_init, ("ConstantFill", {})
     )
 
@@ -65,12 +65,12 @@ def _ConvBase(
         weight = model.create_param(
             param_name=blob_out + '_w',
             shape=weight_shape,
-            initializer=WeightInitializer)
+            initializer=weight_initializer)
         if use_bias:
             bias = model.create_param(
                 param_name=blob_out + '_b',
                 shape=[dim_out, ],
-                initializer=BiasInitializer)
+                initializer=bias_initializer)
     else:
         weight = core.ScopedBlobReference(
             blob_out + '_w', model.param_init_net)

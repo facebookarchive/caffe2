@@ -195,7 +195,8 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
 
     def _run(self, net, param_init_net, param_info):
         param = param_info.blob
-        param_fp32 = param_info.blob_copy['float'] if param_info.blob_copy is not None else None
+        param_fp32 = param_info.blob_copy[core.DataType.FLOAT] \
+                if param_info.blob_copy is not None else None
 
         # If we have a straight fp32 parameter, run the base class
         if param_fp32 == None:

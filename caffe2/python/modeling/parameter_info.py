@@ -28,6 +28,7 @@ class ParameterInfo(object):
         self._cloned_init_net = None
         # Optionally store equivalent copies of the blob
         # in different precisions (i.e. half and float copies)
+        # stored as a dict of TensorProto.DataType -> BlobReference
         self.blob_copy = blob_copy
 
     def grad_type(self):

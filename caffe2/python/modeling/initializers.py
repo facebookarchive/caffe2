@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from caffe2.python.modeling.parameter_info import ParameterInfo
+from caffe2.python.core import DataType
 
 
 class Initializer(object):
@@ -49,7 +50,7 @@ class pFP16Initializer(Initializer):
             param_id=None,
             param=param,
             shape=shape,
-            blob_copy={'float' : param_fp32}
+            blob_copy={DataType.FLOAT : param_fp32}
         )
 
 def update_initializer(initializer_class,
