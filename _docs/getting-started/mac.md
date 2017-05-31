@@ -23,10 +23,12 @@ protobuf
 
 ```
 conda install -y --channel https://conda.anaconda.org/conda-forge  \
+future \
 gflags \
 glog  \
 numpy \
-protobuf=3.2.0
+protobuf=3.2.0 \
+six
 ```
 
 ### Optional GPU Support
@@ -64,6 +66,7 @@ python
 ```bash
 sudo -H pip install \
 flask \
+future \
 glog \
 jupyter \
 matplotlib \
@@ -75,6 +78,7 @@ pyyaml \
 scikit-image \
 scipy \
 setuptools \
+six \
 tornado
 ```
 

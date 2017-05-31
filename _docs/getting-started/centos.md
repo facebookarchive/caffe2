@@ -74,6 +74,7 @@ Now we need the Python dependencies. Note the troubleshooting info below... the 
 ```
 sudo pip install \
 flask \
+future \
 graphviz \
 hypothesis \
 jupyter \
@@ -87,6 +88,7 @@ requests \
 scikit-image \
 scipy \
 setuptools \
+six \
 tornado
 ```
 

@@ -38,9 +38,11 @@ Install [Python 2.7.13](https://www.python.org/download/releases/python-2713/) a
 Assuming you have already added `C:\Python27` and `C:\Python27\scripts` to your Path environment variable, you can go ahead and use pip to install the Python dependencies.
 
 ```
-pip install numpy ^
+pip install future ^
+            hypothesis ^
+            numpy ^
             protobuf ^
-            hypothesis
+            six
 ```
 
 While these are optional, they're recommended if you want to run the tutorials and utilize much of the provided materials.
