@@ -63,12 +63,12 @@ def _ConvBase(
 
     if model.init_params:
         weight = model.create_param(
-            param_name=blob_out+'_w',
+            param_name=blob_out + '_w',
             shape=weight_shape,
             initializer=WeightInitializer)
         if use_bias:
             bias = model.create_param(
-                param_name=blob_out+'_b',
+                param_name=blob_out + '_b',
                 shape=[dim_out, ],
                 initializer=BiasInitializer)
     else:

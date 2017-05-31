@@ -156,7 +156,7 @@ class SgdOptimizer(Optimizer):
 
         if self.momentum > 0:
             momentum_data = param_init_net.ConstantFill(
-                param, str(param) + '_momentum', value=0.)
+                param, str(param) + "_momentum", value=0.)
             self._aux_params.local.append(momentum_data)
 
         if isinstance(grad, core.GradientSlice):
@@ -438,7 +438,7 @@ def build_multi_precision_sgd(model, base_learning_rate, **kwargs):
     multi_prec_sgd_optimizer = MultiPrecisionSgdOptimizer(
             base_learning_rate, **kwargs
     )
-    return _build(model, sgd_optimizer)
+    return _build(model, multi_prec_sgd_optimizer)
 
 
 def build_ftrl(model, engine="SIMD", **kwargs):

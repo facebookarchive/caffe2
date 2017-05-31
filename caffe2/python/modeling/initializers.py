@@ -30,9 +30,6 @@ class Initializer(object):
         )
 
 class pFP16Initializer(Initializer):
-    def __init__(self, operator_name=None, **kwargs):
-        super(pFP16Initializer, self).__init__(operator_name, **kwargs)
-
     def update(self, operator_name, kwargs):
         if self.operator_name is not None:
             raise Exception("Operator name overwrites are not allowed")
