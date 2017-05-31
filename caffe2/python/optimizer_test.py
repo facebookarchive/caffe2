@@ -7,7 +7,9 @@ from caffe2.python.optimizer import (
 from caffe2.python.optimizer_test_util import OptimizerTestBase
 from caffe2.python.test_util import TestCase
 from caffe2.python import workspace
+from caffe2.python.core import DataType
 import numpy as np
+import unittest
 
 
 class TestSgd(OptimizerTestBase, TestCase):
@@ -34,6 +36,10 @@ class TestMultiPrecisionSgd(OptimizerTestBase, TestCase):
         for param in optimizer.get_auxiliary_parameters().shared:
             tensor = workspace.FetchBlob(param)
             np.testing.assert_allclose(np.array([1.0]), tensor, atol=1e-5)
+
+    @unittest.skipIf(not workspace.has_gpu_support, "No GPU support")
+    def testGPUDense(self):
+        super(TestMultiPrecisionSgd, self).testGPUDense(DataType.FLOAT16)
 
 
 class TestFtrl(OptimizerTestBase, TestCase):
