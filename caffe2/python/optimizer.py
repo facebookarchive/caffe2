@@ -185,7 +185,8 @@ class SgdOptimizer(Optimizer):
         return
 
 class MultiPrecisionSgdOptimizer(SgdOptimizer):
-    def __init__(self, base_learning_rate, momentum, policy, nesterov=1, **kwargs):
+    def __init__(self, base_learning_rate=0.1, momentum=0.0,
+                 policy="fixed", nesterov=1, **kwargs):
         super(SgdOptimizer, self).__init__()
         self.base_learning_rate = base_learning_rate
         self.momentum = momentum
