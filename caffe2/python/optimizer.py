@@ -156,7 +156,7 @@ class SgdOptimizer(Optimizer):
 
         if self.momentum > 0:
             momentum_data = param_init_net.ConstantFill(
-                [param], param + '_momentum', value=0.)
+                param, str(param) + '_momentum', value=0.)
             self._aux_params.local.append(momentum_data)
 
         if isinstance(grad, core.GradientSlice):
@@ -185,11 +185,12 @@ class SgdOptimizer(Optimizer):
         return
 
 class MultiPrecisionSgdOptimizer(SgdOptimizer):
-    def __init__(self, base_learning_rate, momentum, policy, **kwargs):
-        super(SgdOptimizer, self).__init__() # self, base_learning_rate, **kwargs)
+    def __init__(self, base_learning_rate, momentum, policy, nesterov=1, **kwargs):
+        super(SgdOptimizer, self).__init__()
         self.base_learning_rate = base_learning_rate
         self.momentum = momentum
         self.policy = policy
+        self.nesterov = nesterov
         self.init_kwargs = kwargs
 
     def _run(self, net, param_init_net, param_info):
@@ -213,7 +214,7 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
         )
 
         momentum_data = param_init_net.ConstantFill(
-            [param_fp32], param + "_momentum", value=0.)
+            param_fp32, str(param) + "_momentum", value=0.)
         self._aux_params.local.append(momentum_data)
 
         assert not isinstance(grad, core.GradientSlice), \
@@ -227,7 +228,7 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
             [grad_fp32, momentum_data, lr, param_fp32],
             [grad, momentum_data, param_fp32],
             momentum=self.momentum,
-            nesterov=0)
+            nesterov=self.nesterov)
 
         # Copy updated param back to fp16
         net.FloatToHalf(param_fp32, param)
@@ -434,7 +435,9 @@ def build_sgd(model, base_learning_rate, **kwargs):
     return _build(model, sgd_optimizer)
 
 def build_multi_precision_sgd(model, base_learning_rate, **kwargs):
-    sgd_optimizer = MultiPrecisionSgdOptimizer(base_learning_rate, **kwargs)
+    multi_prec_sgd_optimizer = MultiPrecisionSgdOptimizer(
+            base_learning_rate, **kwargs
+    )
     return _build(model, sgd_optimizer)
 
 
