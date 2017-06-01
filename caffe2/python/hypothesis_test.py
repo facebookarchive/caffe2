@@ -627,7 +627,7 @@ class TestOperators(hu.HypothesisTestCase):
            lr=st.floats(min_value=0.1, max_value=0.9),
            epsilon=st.floats(min_value=1e-5, max_value=1e-2),
            engine=st.sampled_from([None, "SIMD"]),
-           **hu.gcs_cpu_only)
+           **hu.gcs)
     def test_adagrad_sgd(self, inputs, in_place, lr, epsilon, engine,
                          gc, dc):
         w, grad, h = inputs
@@ -648,7 +648,7 @@ class TestOperators(hu.HypothesisTestCase):
            lr=st.floats(min_value=0.1, max_value=0.9),
            epsilon=st.floats(min_value=1e-5, max_value=1e-2),
            engine=st.sampled_from([None, "SIMD"]),
-           **hu.gcs_cpu_only)
+           **hu.gcs)
     def test_sparse_adagrad_sgd(self, inputs, lr, epsilon,
                                 engine, gc, dc):
         w, grad, h = inputs
@@ -682,7 +682,7 @@ class TestOperators(hu.HypothesisTestCase):
            lr=st.floats(min_value=0.1, max_value=0.9),
            iters=st.integers(min_value=1, max_value=10000),
            epsilon=st.floats(min_value=1e-5, max_value=1e-2),
-           **hu.gcs_cpu_only)
+           **hu.gcs)
     def test_adam_sgd(self, inputs, in_place, beta1, beta2, lr, iters, epsilon,
                       gc, dc):
         w, grad, m1, m2 = inputs
@@ -713,7 +713,7 @@ class TestOperators(hu.HypothesisTestCase):
            lr=st.floats(min_value=0.1, max_value=0.9),
            iters=st.integers(min_value=1, max_value=10000),
            epsilon=st.floats(min_value=1e-5, max_value=1e-2),
-           **hu.gcs_cpu_only)
+           **hu.gcs)
     def test_sparse_adam_sgd(self, inputs, beta1, beta2, lr, iters,
                              epsilon, gc, dc):
 
@@ -743,7 +743,8 @@ class TestOperators(hu.HypothesisTestCase):
             m2[i] = nm2
             return (w, m1, m2)
 
-        self.assertReferenceChecks(gc, op, inputs, adam)
+        self.assertReferenceChecks(gc, op, inputs, adam,
+                                   input_device_options=input_device_options)
 
     # Reference
     @staticmethod
