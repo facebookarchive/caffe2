@@ -22,6 +22,7 @@ def init_tt_cores(inp_sizes, out_sizes, tt_ranks, seed=1234):
     """
     Initialize randomized orthogonalized TT-cores.
 
+    This method should be used when a TT-layer is trained from scratch. The
     sizes of each of the cores are specified by the inp_sizes and out_sizes, and
     the respective tt_ranks will dictate the ranks of each of the cores. Note
     that a larger set of tt_ranks will result in slower computation but will
