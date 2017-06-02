@@ -311,7 +311,7 @@ class ModelHelper(object):
         dbreader_name = "dbreader_" + db
         dbreader = self.param_init_net.CreateDB(
             [], dbreader_name,
-            db=db, db_type=db_type)
+            db=db, db_type=db_type,**kwargs)
         return self.net.TensorProtosDBInput(
             dbreader, blob_out, batch_size=batch_size)
 
