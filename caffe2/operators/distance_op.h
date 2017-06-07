@@ -2,8 +2,10 @@
 #define CAFFE2_OPERATORS_DISTANCE_OP_H_
 
 #include "caffe2/core/context.h"
+#include <iostream>
 #include "caffe2/core/operator.h"
 #include "caffe2/utils/math.h"
+#include "caffe2/utils/thread_pool.h"
 
 namespace caffe2 {
 

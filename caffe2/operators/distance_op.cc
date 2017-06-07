@@ -116,11 +116,18 @@ bool DotProductOp<float, CPUContext>::RunOnDevice() {
   float* result_data = result->template mutable_data<float>();
   const float* X_data = X.template data<float>();
   const float* Y_data = Y.template data<float>();
-  for (int i = 0; i < N; ++i) { // TODO: multithreading
+  auto _thread_pool = std::make_shared<TaskThreadPool>(std::thread::hardware_concurrency());
+  for (int i = 0; i < N; ++i) {
     auto offset = i * D;
-    math::Dot<float, CPUContext>(
-        D, X_data + offset, Y_data + offset, result_data + i, &context_);
+    _thread_pool->runTask(std::bind(
+                math::Dot<float, CPUContext>,
+                D,
+                X_data + offset,
+                Y_data + offset,
+                result_data + i,
+                &context_));
   }
+  _thread_pool->waitWorkComplete();
   return true;
 }
 
