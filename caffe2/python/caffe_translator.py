@@ -488,10 +488,10 @@ def TranslateInstanceNorm(layer, pretrained_blobs, is_test):
     caffe_op = BaseTranslate(layer, "InstanceNorm")
     output = caffe_op.output[0]
     weight = utils.NumpyArrayToCaffe2Tensor(
-        pretrained_blobs[0].flatten(), output + '_w')
+        pretrained_blobs[0].flatten(), output + '_scale')
     bias = utils.NumpyArrayToCaffe2Tensor(
-        pretrained_blobs[1].flatten(), output + '_b')
-    caffe_op.input.extend([output + '_w', output + '_b'])
+        pretrained_blobs[1].flatten(), output + '_bias')
+    caffe_op.input.extend([output + '_scale', output + '_bias'])
     AddArgument(caffe_op, "order", "NCHW")
     return caffe_op, [weight, bias]
 
