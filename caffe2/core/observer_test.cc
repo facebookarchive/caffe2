@@ -129,7 +129,6 @@ TEST(ObserverTest, TestNotifyAfterDetach) {
       make_unique<DummyObserver<SimpleNet>>(
           *(caffe2::dynamic_cast_if_rtti<SimpleNet*>(net.get())));
   net_ob.get()->Deactivate();
-  counter = 0;
   net.get()->Run();
   auto count_after = counter.load();
   EXPECT_EQ(0, count_after - count_before);
