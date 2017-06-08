@@ -32,8 +32,6 @@ if (NOT __NCCL_INCLUDED)
     set(NCCL_LIBRARIES ${nccl_PREFIX}/build/lib/libnccl_static.a)
     set(NCCL_LIBRARY_DIRS ${nccl_PREFIX}/build/lib)
     set(NCCL_EXTERNAL TRUE)
-
-    list(APPEND external_project_dependencies nccl_external)
   endif()
 
 endif()
