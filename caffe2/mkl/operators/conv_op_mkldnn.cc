@@ -121,6 +121,8 @@ class ConvMKLDNNOp final : public ConvPoolOpBase<CPUContext> {
 
 REGISTER_CPU_OPERATOR_WITH_ENGINE(Conv, MKLDNN, mkl::ConvMKLDNNOp<float>);
 
+REGISTER_MKL_OPERATOR(Conv, mkl::ConvMKLDNNOp<float>);
+
 }  // namespace caffe2
 
 #endif // CAFFE2_HAS_MKL_DNN
