@@ -92,36 +92,50 @@ class TranslatorRegistry(object):
                 'only accepts new style layers that are stored in the '
                 'layer field.'
             )
-        for layer in caffe_net.layer:
-            if not _ShouldInclude(net_state, layer):
+        i = 0
+        pretrained_layers = [l for l in pretrained_net.layer] +\
+                            [l for l in pretrained_net.layers]
+        while i < len(caffe_net.layer):
+            if not _ShouldInclude(net_state, caffe_net.layer[i]):
                 log.info('Current net state does not need layer {}'
-                            .format(layer.name))
+                            .format(caffe_net.layer[i].name))
                 continue
-            log.info('Translate layer {}'.format(layer.name))
+            log.info('Translate layer {}'.format(caffe_net.layer[i].name))
             # Get pretrained one
-            pretrained_layers = (
-                [l for l in pretrained_net.layer
-                 if l.name == layer.name] + [l
-                                             for l in pretrained_net.layers
-                                             if l.name == layer.name]
-            )
-            if len(pretrained_layers) > 1:
+            layers_index = [l for l in xrange(len(pretrained_layers))
+                 if pretrained_layers[l].name == caffe_net.layer[i].name]
+            is_bn = False
+            if len(layers_index) > 1:
                 raise ValueError(
                     'huh? more than one pretrained layer of one name?')
-            elif len(pretrained_layers) == 1:
-                pretrained_blobs = [
-                    utils.CaffeBlobToNumpyArray(blob)
-                    for blob in pretrained_layers[0].blobs
-                ]
+            elif len(layers_index) == 1:
+                if pretrained_layers[layers_index[0]].type == "BatchNorm":
+                    # A Scale layer should follow BatchNorm layer
+                    # according to paper https://arxiv.org/abs/1502.03167.
+                    assert pretrained_layers[layers_index[0]+1].type == "Scale"
+                    pretrained_blobs = [utils.CaffeBlobToNumpyArray(blob)
+                    for blob in pretrained_layers[layers_index[0] + 1].blobs] +\
+                        [utils.CaffeBlobToNumpyArray(blob)
+                    for blob in pretrained_layers[layers_index[0]].blobs]
+                    is_bn = True
+                else:
+                    pretrained_blobs = [
+                        utils.CaffeBlobToNumpyArray(blob)
+                        for blob in pretrained_layers[layers_index[0]].blobs
+                    ]
             else:
                 # No pretrained layer for the given layer name. We'll just pass
                 # no parameter blobs.
                 # print 'No pretrained layer for layer', layer.name
                 pretrained_blobs = []
             operators, params = cls.TranslateLayer(
-                layer, pretrained_blobs, is_test)
+                caffe_net.layer[i], pretrained_blobs, is_test)
             net.op.extend(operators)
             net_params.protos.extend(params)
+            if is_bn:
+                i += 2
+            else:
+                i += 1
         return net, net_params
 
 
@@ -685,6 +699,27 @@ def TranslateReduction(layer, pretrained_blobs, is_test):
     AddArgument(caffe_op, "num_reduce_dim", num_reduce_dim)
 
     return caffe_op, []
+
+
+@TranslatorRegistry.Register("BatchNorm")
+def TranslateBatchNorm(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "SpatialBN")
+    output = caffe_op.output[0]
+    param = layer.batch_norm_param
+    AddArgument(caffe_op, "is_test", is_test)
+    AddArgument(caffe_op, "epsilon", param.eps)
+    AddArgument(caffe_op, "order", "NCHW")
+
+    caffe_op.input.extend([output + "_scale", output + "_bias", output + "_mean", output + "_var"])
+    if not is_test:
+        caffe_op.output.extend([output + "_mean", output + "_var", output + "_saved_mean", output + "_saved_var"])
+
+    scale = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_scale')
+    bias = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[1], output + '_bias')
+    mean = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[2] / pretrained_blobs[4], output + '_mean')
+    var = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[3] / pretrained_blobs[4], output + '_var')
+
+    return caffe_op, [scale, bias, mean, var]
 
 
 if __name__ == '__main__':
