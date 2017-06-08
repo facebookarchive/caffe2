@@ -48,9 +48,11 @@ void Predictor::run(const TensorVector& inputs, TensorVector* outputs) {
 
   CAFFE_ENFORCE(ws_.RunNet(run_net_.name()));
 
-  outputs->resize(run_net_.external_output_size());
-  for (auto i = 0; i < outputs->size(); ++i) {
-    (*outputs)[i] = extractOutputTensor(&ws_, run_net_.external_output(i));
+  if (outputs != nullptr) {
+    outputs->resize(run_net_.external_output_size());
+    for (auto i = 0; i < outputs->size(); ++i) {
+      (*outputs)[i] = extractOutputTensor(&ws_, run_net_.external_output(i));
+    }
   }
 }
 }
