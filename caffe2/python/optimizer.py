@@ -6,7 +6,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from collections import namedtuple
-from caffe2.python import core
+from past.builtins import basestring
+
+from caffe2.python import core, scope
 from caffe2.python.modeling import parameter_info
 from caffe2.proto import caffe2_pb2
 
@@ -14,7 +16,6 @@ from caffe2.proto import caffe2_pb2
 _OPTIMIZER_ITERATION_NAME = "optimizer_iteration"
 
 AuxOptimizerParams = namedtuple("AuxOptimizerParams", ["local", "shared"])
-
 
 class Optimizer(object):
     def __init__(self):
@@ -33,7 +34,7 @@ class Optimizer(object):
             assert isinstance(param, parameter_info.ParameterInfo)
             assert param.grad is not None
         else:
-            if isinstance(param, str):
+            if isinstance(param, basestring):
                 param = core.BlobReference(param)
             param = parameter_info.ParameterInfo(
                 param_id=None, param=param, grad=grad)
@@ -114,28 +115,45 @@ class Optimizer(object):
 
 class SgdOptimizer(Optimizer):
     def __init__(self, base_learning_rate=0.01, policy='fixed',
-                 momentum=0.0, **kwargs):
+                 momentum=0.0, nesterov=1, **kwargs):
         super(SgdOptimizer, self).__init__()
         self.base_learning_rate = base_learning_rate
         self.policy = policy
         self.momentum = momentum
+        self.nesterov = nesterov
         self.init_kwargs = kwargs
 
     def _run(self, net, param_init_net, param_info):
         param = param_info.blob
         grad = param_info.grad
-        if self.base_learning_rate <= 0:
+        if self.base_learning_rate == 0:
             return
+        assert self.base_learning_rate > 0
 
+        # We need negative sign for LR when used directly with WeightedSum
+        # below.
+        lr_sign = -1 if self.momentum else 1
         lr, _ = self.build_lr(
             net, param_init_net,
-            base_learning_rate=self.base_learning_rate,
+            base_learning_rate=self.base_learning_rate * lr_sign,
             learning_rate_blob=str(param) + "_lr",
             policy=self.policy,
             **(self.init_kwargs)
         )
 
-        ONE = param_init_net.ConstantFill([], "ONE", shape=[1], value=1.0)
+        dev = scope.CurrentDeviceScope()
+        if dev is None:
+            dev = core.DeviceOption(caffe2_pb2.CPU)
+
+        # Each GPU/CPU must have its own ONE blob, thus modify the name
+        # to include device information.
+        ONE = param_init_net.ConstantFill(
+            [],
+            "ONE_{}_{}".format(dev.device_type, dev.cuda_gpu_id),
+            shape=[1],
+            value=1.0
+        )
+
         self._aux_params.shared.append(ONE)
 
         if self.momentum > 0:
@@ -151,22 +169,104 @@ class SgdOptimizer(Optimizer):
             )
         else:
             if self.momentum > 0.:
-                net.MomentumSGD(
-                    [grad, momentum_data, lr], [grad, momentum_data],
+                net.MomentumSGDUpdate(
+                    [grad, momentum_data, lr, param],
+                    [grad, momentum_data, param],
                     momentum=self.momentum,
-                    nesterov=1)
-                coeff = ONE
+                    nesterov=self.nesterov)
             else:
                 coeff = lr
 
-            net.WeightedSum(
-                [param, ONE, grad, coeff],
-                param
-            )
+                net.WeightedSum(
+                    [param, ONE, grad, coeff],
+                    param
+                )
 
     def scale_learning_rate(self, scale):
         self.base_learning_rate *= scale
         return
+
+
+class MultiPrecisionSgdOptimizer(SgdOptimizer):
+    def __init__(self, base_learning_rate=0.1, momentum=0.0,
+                 policy="fixed", nesterov=1, **kwargs):
+        super(SgdOptimizer, self).__init__()
+        self.base_learning_rate = base_learning_rate
+        self.momentum = momentum
+        self.policy = policy
+        self.nesterov = nesterov
+        self.init_kwargs = kwargs
+
+    def _run(self, net, param_init_net, param_info):
+        param = param_info.blob
+        param_fp32 = param_info.blob_copy[core.DataType.FLOAT] \
+                if param_info.blob_copy is not None else None
+
+        # If we have a straight fp32 parameter, run the base class
+        if param_fp32 == None:
+            return SgdOptimizer._run(self, net, param_init_net, param_info)
+
+        grad = param_info.grad
+        if self.base_learning_rate == 0:
+            return
+        assert self.base_learning_rate > 0
+
+        lr, _ = self.build_lr(
+            net, param_init_net,
+            base_learning_rate=-self.base_learning_rate,
+            learning_rate_blob=param + "_lr",
+            policy=self.policy,
+            **(self.init_kwargs)
+        )
+
+        momentum_data = param_init_net.ConstantFill(
+            param_fp32, str(param) + "_momentum", value=0.)
+        self._aux_params.local.append(momentum_data)
+
+        assert not isinstance(grad, core.GradientSlice), \
+                "Doesn't support sparse gradients"
+
+        # Copy gradient to fp32
+        grad_fp32 = net.HalfToFloat(grad, grad + "_fp32")
+
+        # update (fused) in fp32
+        net.MomentumSGDUpdate(
+            [grad_fp32, momentum_data, lr, param_fp32],
+            [grad, momentum_data, param_fp32],
+            momentum=self.momentum,
+            nesterov=self.nesterov)
+
+        # Copy updated param back to fp16
+        net.FloatToHalf(param_fp32, param)
+
+
+class WeightDecayBuilder(Optimizer):
+    def __init__(self, weight_decay):
+        self.weight_decay = weight_decay
+
+    def _run(self, net, param_init_net, param_info):
+        dev = scope.CurrentDeviceScope()
+        if dev is None:
+            dev = core.DeviceOption(caffe2_pb2.CPU)
+
+        ONE = param_init_net.ConstantFill(
+            [],
+            "ONE_{}_{}".format(dev.device_type, dev.cuda_gpu_id),
+            shape=[1],
+            value=1.0
+        )
+        WD = param_init_net.ConstantFill(
+            [], "wd_{}_{}".format(dev.device_type, dev.cuda_gpu_id),
+            shape=[1], value=self.weight_decay
+        )
+
+        if isinstance(param_info.grad, core.GradientSlice):
+            assert "Weight decay does not yet support sparse gradients"
+        else:
+            net.WeightedSum(
+                [param_info.grad, ONE, param_info.blob, WD],
+                param_info.grad,
+            )
 
 
 class AdagradOptimizer(Optimizer):
@@ -339,11 +439,79 @@ class AdamOptimizer(Optimizer):
         self.alpha *= scale
         return
 
+
+def _get_param_to_device(model):
+    # Infer blob devices by going through the net and param_init_net
+    # ops and observing the device used to create or use the blob.
+    param_to_device = core.InferBlobDevices(model.net)
+    param_to_device.update(core.InferBlobDevices(model.param_init_net))
+    return param_to_device
+
+
+def _build(model, optimizer, weights_only=False):
+    param_to_device = _get_param_to_device(model)
+
+    # Validate there are no duplicate params
+    model.Validate()
+
+    # Call optimizer for each param
+    for param_info in model.GetOptimizationParamInfo():
+        if weights_only:
+            if param_info.blob not in model.weights:
+                continue
+        param_name = str(param_info.blob)
+
+        # We first check if parameter's device has been inferred. If not,
+        # we check the gradient. This can happen if parameter is not output
+        # by any blob but created by a FetchBlob.
+        device = None
+        if param_name in param_to_device:
+            device = param_to_device[param_name]
+        else:
+            if isinstance(param_info.grad, core.GradientSlice):
+                grad = param_info.grad
+                if str(grad.values) in param_to_device:
+                    device = param_to_device[str(grad.values)]
+                elif str(grad.indices) in param_to_device:
+                    device = param_to_device[str(grad.indices)]
+            else:
+                grad_name = str(param_info.grad)
+                if grad_name in param_to_device:
+                    device = param_to_device[grad_name]
+
+        assert device is not None,\
+            "Cannot infer device for {}: no op creates it".format(param_name)
+
+        with core.DeviceScope(device):
+            optimizer(model.net, model.param_init_net, param_info)
+    return optimizer
+
+
+def add_weight_decay(model, weight_decay):
+    """Adds a decay to weights in the model.
+
+    This is a form of L2 regularization.
+
+    Args:
+        weight_decay: strength of the regularization
+    """
+    _build(
+        model,
+        WeightDecayBuilder(weight_decay=weight_decay),
+        weights_only=True,
+    )
+
+
 def build_sgd(model, base_learning_rate, **kwargs):
     sgd_optimizer = SgdOptimizer(base_learning_rate, **kwargs)
-    for param_info in model.GetOptimizationParamInfo():
-        sgd_optimizer(model.net, model.param_init_net, param_info)
-    return sgd_optimizer
+    return _build(model, sgd_optimizer)
+
+
+def build_multi_precision_sgd(model, base_learning_rate, **kwargs):
+    multi_prec_sgd_optimizer = MultiPrecisionSgdOptimizer(
+        base_learning_rate, **kwargs
+    )
+    return _build(model, multi_prec_sgd_optimizer)
 
 
 def build_ftrl(model, engine="SIMD", **kwargs):
@@ -351,20 +519,14 @@ def build_ftrl(model, engine="SIMD", **kwargs):
         assert core.IsOperator('Ftrl_ENGINE_SIMD')
         assert core.IsOperator('SparseFtrl_ENGINE_SIMD')
     ftrl_optimizer = FtrlOptimizer(engine=engine, **kwargs)
-    for param_info in model.GetOptimizationParamInfo():
-        ftrl_optimizer(model.net, model.param_init_net, param_info)
-    return ftrl_optimizer
+    return _build(model, ftrl_optimizer)
 
 
 def build_adagrad(model, base_learning_rate, parameters=None, **kwargs):
     adagrad_optimizer = AdagradOptimizer(alpha=base_learning_rate, **kwargs)
-    for param_info in model.GetOptimizationParamInfo(parameters):
-        adagrad_optimizer(model.net, model.param_init_net, param_info)
-    return adagrad_optimizer
+    return _build(model, adagrad_optimizer)
 
 
 def build_adam(model, base_learning_rate, **kwargs):
     adam_optimizer = AdamOptimizer(alpha=base_learning_rate, **kwargs)
-    for param_info in model.GetOptimizationParamInfo():
-        adam_optimizer(model.net, model.param_init_net, param_info)
-    return adam_optimizer
+    return _build(model, adam_optimizer)

@@ -69,7 +69,7 @@ def recurrent_net(
 
     # determine inputs that are considered to be references
     # it is those that are not referred to in inputs or initial_cell_inputs
-    known_inputs = map(str, input_blobs + initial_input_blobs)
+    known_inputs = [str(b) for b in input_blobs + initial_input_blobs]
     known_inputs += [str(x[0]) for x in initial_cell_inputs]
     if timestep is not None:
         known_inputs.append(str(timestep))
@@ -205,28 +205,6 @@ def recurrent_net(
 
     recurrent_inputs = [str(x[1]) for x in initial_cell_inputs]
 
-    backward_args = {}
-    if backward_cell_net is not None:
-        backward_link_internal, backward_link_external, backward_link_offset = \
-            unpack_triple(backward_links)
-        params = [x for x in references if x in backward_mapping.keys()]
-        param_grads = [str(backward_mapping[x])
-                       for x in references
-                       if x in backward_mapping.keys()]
-        if recompute_blobs_on_backward is None:
-            recompute_blobs_on_backward = set()
-        backward_args = {
-            'param': map(all_inputs.index, params),
-            'backward_link_internal': map(str, backward_link_internal),
-            'backward_link_external': map(str, backward_link_external),
-            'backward_link_offset': backward_link_offset,
-            'backward_step_net': str(backward_cell_net.Proto()),
-            'outputs_with_grads': outputs_with_grads,
-            'recompute_blobs_on_backward': map(
-                str, recompute_blobs_on_backward),
-            'param_grads': param_grads,
-        }
-
     # Make sure that recurrent gradients accumulate with internal gradients
     # (if a blob in the backward_cell_net receives gradient from both an
     # external connection as well as from within the backward_cell_net,
@@ -243,6 +221,9 @@ def recurrent_net(
             proto.op.extend([op])
             for j, output_blob in enumerate(op.output):
                 if output_blob in proto.external_input:
+                    # blob cannot be internal by virtue of in-place operation.
+                    if output_blob in op.input:
+                        continue
                     accum_blob = '{}_accum'.format(output_blob)
                     proto.op[-1].output[j] = accum_blob
                     backward_cell_net.Sum(
@@ -250,16 +231,43 @@ def recurrent_net(
                         [output_blob],
                     )
 
+    backward_args = {}
+    if backward_cell_net is not None:
+        backward_link_internal, backward_link_external, backward_link_offset = \
+            unpack_triple(backward_links)
+        params = [x for x in references if x in backward_mapping.keys()]
+        param_grads = [
+            str(backward_mapping[x])
+            for x in references
+            if x in backward_mapping.keys()
+        ]
+        if recompute_blobs_on_backward is None:
+            recompute_blobs_on_backward = set()
+        backward_args = {
+            'param': map(all_inputs.index, params),
+            'backward_link_internal': map(str, backward_link_internal),
+            'backward_link_external': map(str, backward_link_external),
+            'backward_link_offset': backward_link_offset,
+            'backward_step_net': str(backward_cell_net.Proto()),
+            'outputs_with_grads': outputs_with_grads,
+            'recompute_blobs_on_backward': [
+                str(b) for b in recompute_blobs_on_backward
+            ],
+            'param_grads': param_grads,
+        }
+
     results = net.RecurrentNetwork(
         all_inputs,
         all_outputs + [s("step_workspaces")],
         alias_src=alias_src,
-        alias_dst=map(str, alias_dst),
+        alias_dst=[str(a) for a in alias_dst],
         alias_offset=alias_offset,
         recurrent_states=recurrent_states,
-        initial_recurrent_state_ids=map(all_inputs.index, recurrent_inputs),
-        link_internal=map(str, link_internal),
-        link_external=map(str, link_external),
+        initial_recurrent_state_ids=[
+            all_inputs.index(i) for i in recurrent_inputs
+        ],
+        link_internal=[str(l) for l in link_internal],
+        link_external=[str(l) for l in link_external],
         link_offset=link_offset,
         step_net=str(cell_net.Proto()),
         timestep="timestep" if timestep is None else str(timestep),

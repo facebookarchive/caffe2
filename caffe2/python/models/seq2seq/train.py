@@ -14,8 +14,6 @@ import random
 import time
 import sys
 
-from itertools import izip
-
 import caffe2.proto.caffe2_pb2 as caffe2_pb2
 from caffe2.python import core, workspace, rnn_cell, data_parallel_model
 import caffe2.python.models.seq2seq.seq2seq_util as seq2seq_util
@@ -127,7 +125,7 @@ class Seq2SeqModelCaffe2:
                 input_builder_fun=lambda m: None,
                 forward_pass_builder_fun=self.forward_model_build_fun,
                 param_update_builder_fun=None,
-                devices=range(self.num_gpus),
+                devices=list(range(self.num_gpus)),
             )
 
             def clipped_grad_update_bound(model):
@@ -141,7 +139,7 @@ class Seq2SeqModelCaffe2:
                 input_builder_fun=lambda m: None,
                 forward_pass_builder_fun=self.model_build_fun,
                 param_update_builder_fun=clipped_grad_update_bound,
-                devices=range(self.num_gpus),
+                devices=list(range(self.num_gpus)),
             )
         self.norm_clipped_sparse_grad_update(
             model,
@@ -520,7 +518,7 @@ class Seq2SeqModelCaffe2:
         def create_net(net):
             workspace.CreateNet(
                 net,
-                input_blobs=map(str, net.external_inputs),
+                input_blobs=[str(i) for i in net.external_inputs],
             )
 
         create_net(self.model.net)
@@ -582,7 +580,7 @@ class Seq2SeqModelCaffe2:
     ):
         if self.num_gpus < 1:
             batch_obj = prepare_batch(batch)
-            for batch_obj_name, batch_obj_value in izip(
+            for batch_obj_name, batch_obj_value in zip(
                 Batch._fields,
                 batch_obj,
             ):
@@ -591,7 +589,7 @@ class Seq2SeqModelCaffe2:
             for i in range(self.num_gpus):
                 gpu_batch = batch[i::self.num_gpus]
                 batch_obj = prepare_batch(gpu_batch)
-                for batch_obj_name, batch_obj_value in izip(
+                for batch_obj_name, batch_obj_value in zip(
                     Batch._fields,
                     batch_obj,
                 ):

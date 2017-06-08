@@ -2,7 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from caffe2.python import workspace, brew
+
+from caffe2.python import brew, core, scope, workspace
+from caffe2.python.modeling.parameter_info import ParameterTags
 from caffe2.python.model_helper import ModelHelper
 from caffe2.python.cnn import CNNModelHelper
 
@@ -46,9 +48,19 @@ class BrewTest(unittest.TestCase):
         workspace.FeedBlob("x", X)
         model = ModelHelper(name="test_model")
         brew.fc(model, "x", "out_1", k, n)
-
+        model.Validate()
         workspace.RunNetOnce(model.param_init_net)
         workspace.RunNetOnce(model.net)
+
+    def test_validate(self):
+        model = ModelHelper(name="test_model")
+        model.params.append("aaa")
+        model.params.append("bbb")
+        self.assertEqual(model._Validate(), [])
+
+        model.params.append("xxx")
+        model.params.append("bbb")
+        self.assertEqual(model._Validate(), ["bbb"])
 
     def test_arg_scope(self):
         myhelper = self.myhelper
@@ -83,7 +95,7 @@ class BrewTest(unittest.TestCase):
                 dim_out=64,
                 kernel=3,
             )
-
+        model.Validate()
         workspace.RunNetOnce(model.param_init_net)
         workspace.RunNetOnce(model.net)
         out = workspace.FetchBlob("out")
@@ -93,7 +105,7 @@ class BrewTest(unittest.TestCase):
         myhelper = self.myhelper
         n = 16
         with brew.arg_scope([myhelper], val=-3), \
-             brew.arg_scope([myhelper], val=-2):
+                brew.arg_scope([myhelper], val=-2):
             with brew.arg_scope([myhelper], val=n):
                 res = brew.myhelper(self.model)
                 self.assertEqual(n, res)
@@ -101,6 +113,7 @@ class BrewTest(unittest.TestCase):
             self.assertEqual(res, -2)
 
         res = brew.myhelper(self.model, val=15)
+        self.model.Validate()
         self.assertEqual(res, 15)
 
     def test_double_register(self):
@@ -138,7 +151,7 @@ class BrewTest(unittest.TestCase):
                 dim_out=64,
                 kernel=3,
             )
-
+        model.Validate()
         workspace.RunNetOnce(model.param_init_net)
         workspace.RunNetOnce(model.net)
         out = workspace.FetchBlob("out")
@@ -152,3 +165,32 @@ class BrewTest(unittest.TestCase):
         # covering some CNNModelHelper logic
         model = CNNModelHelper(name="test_model", order='NHWC')
         self.assertEqual(model.arg_scope['order'], 'NHWC')
+
+    def test_get_params(self):
+        def param(x):
+            return core.ScopedBlobReference(x)
+
+        def to_str_list(x):
+            return [str(p) for p in sorted(x)]
+
+        model = ModelHelper(name="test_model")
+        model.AddParameter(param("a"))
+        model.AddParameter(param("b"), tags=ParameterTags.COMPUTED_PARAM)
+        with scope.NameScope("c"):
+            model.AddParameter(param("a"))
+            model.AddParameter(param("d"), tags=ParameterTags.COMPUTED_PARAM)
+            self.assertEqual(to_str_list(model.GetParams()), ['c/a'])
+            self.assertEqual(to_str_list(model.GetComputedParams()), ['c/d'])
+            self.assertEqual(to_str_list(model.GetAllParams()), ['c/a', 'c/d'])
+            # Get AllParams from the global Scope
+            self.assertEqual(to_str_list(model.GetAllParams('')), [
+                             'a', 'b', 'c/a', 'c/d'])
+        self.assertEqual(to_str_list(model.GetParams()), ['a', 'c/a'])
+        self.assertEqual(to_str_list(model.GetComputedParams()), ['b', 'c/d'])
+        self.assertEqual(to_str_list(model.GetAllParams()),
+                         ['a', 'b', 'c/a', 'c/d'])
+        self.assertEqual(to_str_list(model.GetAllParams('')),
+                         ['a', 'b', 'c/a', 'c/d'])
+        # Get AllParams from the scope 'c'
+        self.assertEqual(to_str_list(model.GetAllParams('c')), ['c/a', 'c/d'])
+        self.assertEqual(to_str_list(model.GetAllParams('c/')), ['c/a', 'c/d'])

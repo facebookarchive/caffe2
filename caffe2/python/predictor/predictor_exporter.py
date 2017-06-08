@@ -11,8 +11,25 @@ from caffe2.python import workspace, core
 from caffe2.python.predictor_constants import predictor_constants
 import caffe2.python.predictor.serde as serde
 import caffe2.python.predictor.predictor_py_utils as utils
-
 import collections
+
+
+def get_predictor_exporter_helper(submodelNetName):
+    """ constracting stub for the PredictorExportMeta
+        Only used to construct names to subfields,
+        such as calling to predict_net_name
+        Args:
+            submodelNetName - name of the model
+    """
+    stub_net = core.Net(submodelNetName)
+    pred_meta = PredictorExportMeta(predict_net=stub_net,
+                                    parameters=[],
+                                    inputs=[],
+                                    outputs=[],
+                                    shapes=None,
+                                    name=submodelNetName,
+                                    extra_init_net=None)
+    return pred_meta
 
 
 class PredictorExportMeta(collections.namedtuple(
@@ -42,13 +59,11 @@ class PredictorExportMeta(collections.namedtuple(
         extra_init_net=None,
         net_type=None,
     ):
-        inputs = map(str, inputs)
-        outputs = map(str, outputs)
+        inputs = [str(i) for i in inputs]
+        outputs = [str(o) for o in outputs]
         assert len(set(inputs)) == len(inputs), (
             "All inputs to the predictor should be unique")
-        assert len(set(outputs)) == len(outputs), (
-            "All outputs of the predictor should be unique")
-        parameters = map(str, parameters)
+        parameters = [str(p) for p in parameters]
         shapes = shapes or {}
 
         if isinstance(predict_net, (core.Net, core.Plan)):

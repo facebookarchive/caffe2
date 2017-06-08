@@ -69,7 +69,7 @@ class RNNCell(object):
             net=model.net,
             cell_net=step_model.net,
             inputs=[(input_t, preprocessed_inputs)],
-            initial_cell_inputs=zip(states_prev, initial_states),
+            initial_cell_inputs=list(zip(states_prev, initial_states)),
             links=dict(zip(states_prev, states)),
             timestep=timestep,
             scope=self.name,
@@ -536,7 +536,7 @@ class MultiRNNCell(RNNCell):
                 if i > 0 and i in self.residual_output_layers:
                     layer_input = model.net.Sum(
                         [layer_output, layer_input],
-                        [layer_output],
+                        self.scope('residual_output_{}'.format(i)),
                     )
                 else:
                     layer_input = layer_output
@@ -993,11 +993,17 @@ def InitFromLSTMParams(lstm_pblobs, param_values):
     weight_params = GetLSTMParamNames()['weights']
     bias_params = GetLSTMParamNames()['biases']
     for input_type in param_values.keys():
-        weight_values = [param_values[input_type][w].flatten() for w in weight_params]
+        weight_values = [
+            param_values[input_type][w].flatten()
+            for w in weight_params
+        ]
         wmat = np.array([])
         for w in weight_values:
             wmat = np.append(wmat, w)
-        bias_values = [param_values[input_type][b].flatten() for b in bias_params]
+        bias_values = [
+            param_values[input_type][b].flatten()
+            for b in bias_params
+        ]
         bm = np.array([])
         for b in bias_values:
             bm = np.append(bm, b)

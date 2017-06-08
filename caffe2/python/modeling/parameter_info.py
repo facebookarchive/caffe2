@@ -2,9 +2,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
 from caffe2.python import core
 
 import numpy as np
+
+
+class ParameterTags(object):
+    BIAS = 'BIAS'
+    WEIGHT = 'WEIGHT'
+    COMPUTED_PARAM = 'COMPUTED_PARAM'
 
 
 class ParameterType(object):
@@ -13,9 +20,10 @@ class ParameterType(object):
 
 
 class ParameterInfo(object):
+
     def __init__(
             self, param_id, param, key=None, shape=None, length=None,
-            grad=None):
+            grad=None, blob_copy=None):
         assert isinstance(param, core.BlobReference)
         self.param_id = param_id
         self.name = str(param)
@@ -26,6 +34,10 @@ class ParameterInfo(object):
         self.length = max(1, length if length is not None else 1)
         self.grad = grad
         self._cloned_init_net = None
+        # Optionally store equivalent copies of the blob
+        # in different precisions (i.e. half and float copies)
+        # stored as a dict of TensorProto.DataType -> BlobReference
+        self.blob_copy = blob_copy
 
     def grad_type(self):
         # self.grad could be None for model parallelism with parameter server

@@ -23,10 +23,14 @@ class TestTextFileReader(TestCase):
             ['l1f2', 'l2f2', 'l3f2', 'l4f2'],
             [0.456, 0.789, 0.10101, -24342.64],
         ]
-        row_data = zip(*col_data)
+        row_data = list(zip(*col_data))
         txt_file = tempfile.NamedTemporaryFile(delete=False)
         txt_file.write(
-            '\n'.join(['\t'.join(map(str, f)) for f in row_data]) + '\n')
+            '\n'.join(
+                '\t'.join(str(x) for x in f)
+                for f in row_data
+            ) + '\n'
+        )
         txt_file.close()
 
         for num_passes in range(1, 3):

@@ -7,45 +7,42 @@ from __future__ import unicode_literals
 
 from caffe2.python import core
 from caffe2.python.modeling import initializers
+from caffe2.python.modeling.parameter_info import ParameterTags
 
 
 def _FC_or_packed_FC(
     model, op_call, blob_in, blob_out, dim_in, dim_out, weight_init=None,
-        bias_init=None, weight_initializer=None, bias_initializer=None,
+        bias_init=None, WeightInitializer=None, BiasInitializer=None,
         **kwargs
 ):
-    weight_initializer = initializers.update_initializer(
-        weight_initializer, weight_init, ("XavierFill", {})
+    WeightInitializer = initializers.update_initializer(
+        WeightInitializer, weight_init, ("XavierFill", {})
     )
-    bias_initializer = initializers.update_initializer(
-        bias_initializer, bias_init, ("ConstantFill", {})
+    BiasInitializer = initializers.update_initializer(
+        BiasInitializer, bias_init, ("ConstantFill", {})
     )
+    if not model.init_params:
+        WeightInitializer = initializers.ExternalInitializer()
+        BiasInitializer = initializers.ExternalInitializer()
 
     blob_out = blob_out or model.net.NextName()
-    if model.init_params:
-        weight = model.create_param(
-            param_name=blob_out + '_w',
-            shape=[dim_out, dim_in],
-            initializer=weight_initializer,
-        )
-        bias = model.create_param(
-            param_name=blob_out + '_b',
-            shape=[dim_out, ],
-            initializer=bias_initializer,
-        )
-    else:
-        weight = core.ScopedBlobReference(
-            blob_out + '_w', model.param_init_net)
-        bias = core.ScopedBlobReference(
-            blob_out + '_b', model.param_init_net)
-
+    bias_tags = [ParameterTags.BIAS]
     if 'freeze_bias' in kwargs:
-        model.params.extend([weight])
-    else:
-        model.params.extend([weight, bias])
+        bias_tags.append(ParameterTags.COMPUTED_PARAM)
 
-    model.weights.append(weight)
-    model.biases.append(bias)
+    weight = model.create_param(
+        param_name=blob_out + '_w',
+        shape=[dim_out, dim_in],
+        initializer=WeightInitializer,
+        tags=ParameterTags.WEIGHT
+    )
+    bias = model.create_param(
+        param_name=blob_out + '_b',
+        shape=[dim_out, ],
+        initializer=BiasInitializer,
+        tags=bias_tags
+    )
+
     return op_call([blob_in, weight, bias], blob_out, **kwargs)
 
 
@@ -59,34 +56,34 @@ def packed_fc(model, *args, **kwargs):
 
 def fc_decomp(
     model, blob_in, blob_out, dim_in, dim_out,
-    rank_approx=5, weight_init=None,
-    bias_init=None, **kwargs
+    rank_approx=5, weight_init=None, bias_init=None,
+    WeightInitializer=None, BiasInitializer=None, **kwargs
 ):
     """FC_Decomp version
     Here we assume that the rank of original input is bigger than 5.
     """
-    weight_init = weight_init if weight_init else ('XavierFill', {})
-    bias_init = bias_init if bias_init else ('ConstantFill', {})
+    WeightInitializer = initializers.update_initializer(
+        WeightInitializer, weight_init, ("XavierFill", {})
+    )
+    BiasInitializer = initializers.update_initializer(
+        BiasInitializer, bias_init, ("ConstantFill", {})
+    )
     blob_out = blob_out or model.net.NextName()
-    u = model.param_init_net.__getattr__(weight_init[0])(
-        [],
-        blob_out + '_u',
+    u = model.create_param(
+        param_name=blob_out + '_u',
         shape=[dim_out, rank_approx],
-        **weight_init[1]
+        initializer=WeightInitializer,
     )
-    v = model.param_init_net.__getattr__(weight_init[0])(
-        [],
-        blob_out + '_v',
+    v = model.create_param(
+        param_name=blob_out + '_v',
         shape=[dim_in, rank_approx],
-        **weight_init[1]
+        initializer=WeightInitializer,
     )
-    bias = model.param_init_net.__getattr__(bias_init[0])(
-        [],
-        blob_out + '_b',
+    bias = model.create_param(
+        param_name=blob_out + '_b',
         shape=[dim_out, ],
-        **bias_init[1]
+        initializer=BiasInitializer,
     )
-    model.params.extend([u, v, bias])
     return model.net.FC_Decomp([blob_in, u, v, bias], blob_out, **kwargs)
 
 
@@ -164,7 +161,8 @@ def fc_prune(
         thres = core.ScopedBlobReference(
             blob_out + '_thres', model.param_init_net)
 
-    model.params.extend([weight, bias])
+    model.AddParameter(weight)
+    model.AddParameter(bias)
     if need_compress_rate:
         return model.net.FC_Prune([blob_in, weight, mask, bias, ag_dw, mask_seq,
                                    thres, compress_lb],
@@ -183,6 +181,9 @@ def fc_sparse(
     """FC_Sparse: Only takes in alocated weights"""
     if not (w_csr and iw and jw and bias):
         print("Warning...")
-    model.params.extend([w_csr, iw, jw, bias])
+    model.AddParameter(w_csr)
+    model.AddParameter(iw)
+    model.AddParameter(jw)
+    model.AddParameter(bias)
     return model.net.FC_Sparse([blob_in, w_csr, iw, jw, bias],
                                blob_out, **kwargs)
