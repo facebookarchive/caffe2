@@ -7,6 +7,7 @@ from __future__ import print_function
 from collections import OrderedDict
 import logging
 import copy
+import re
 
 from caffe2.python import model_helper, dyndep, scope, workspace, core, memonger
 from caffe2.proto import caffe2_pb2
@@ -1039,7 +1040,7 @@ def _GroupByDevice(devices, params, non_data_params):
                 "Values {} expected to have namescope 'gpu_{}'".format(str(p), gpuid)
 
         if name not in grouped:
-            grouped[name] = {}
+            grouped[name] = OrderedDict()
         grouped[name][gpuid] = p
 
     # Confirm consistency
@@ -1090,7 +1091,17 @@ def _ComputeBlobsToSync(model):
        "Some params not instantiated in param init net: {}".format(diff)
 
     # Remove duplicates and sort
-    blobs_to_sync = sorted(list(set(blobs_to_sync)))
+    # Sorting must be done carefully because _GroupByDevice makes some strong
+    #   assumptions about ordering.
+    cuda_to_idx = dict((cuda_id, i) for i, cuda_id in enumerate(model._devices))
+    def blob_sorter(blob):
+        match = re.match('gpu_(\d+)\/', blob)
+        assert match is not None, \
+            'Expected blob "%s" to start with "gpu_\d+/"' % blob
+        cuda_id = int(match.group(1))
+        idx = cuda_to_idx[cuda_id]
+        return (idx, blob)
+    blobs_to_sync = sorted(set(blobs_to_sync), key=blob_sorter)
 
     blobs_to_sync = [core.BlobReference(b) for b in blobs_to_sync]
     return (blobs_to_sync, sync_names)

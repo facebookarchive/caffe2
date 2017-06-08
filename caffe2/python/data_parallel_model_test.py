@@ -79,9 +79,13 @@ class GPUDataParallelModelTest(TestCase):
         Test that the model produces exactly same results given
         total batchsize, independent of number of GPUs.
         '''
-        result_2gpus = self.run_model([0, 1])
         result_1gpus = self.run_model([0])
 
+        result_2gpus = self.run_model([0, 1])
+        self.assertTrue(np.allclose(result_1gpus, result_2gpus))
+
+        # Run with two GPUs again, but switch the order
+        result_2gpus = self.run_model([1, 0])
         self.assertTrue(np.allclose(result_1gpus, result_2gpus))
 
         if workspace.NumCudaDevices() >= 4:
