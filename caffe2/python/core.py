@@ -30,6 +30,14 @@ if (sys.platform == 'darwin' and 'leveldb' in C.registered_dbs()):
           'not a caffe2 issue but is due to the homebrew leveldb having an '
           'incompatible memory allocator. It does not affect usage.')
 
+
+# Mac os specific message
+if (sys.platform == 'darwin' and 'leveldb' in C.registered_dbs()):
+    print('If you are using homebrew leveldb on a Mac OS, you might see an '
+          'error warning you that malloc_zone_unregister() failed. This is '
+          'not a caffe2 issue but is due to the homebrew leveldb having an '
+          'incompatible memory allocator. It does not affect usage.')
+
 # Convenience redirections to functions inside scope.
 DeviceScope = scope.DeviceScope
 NameScope = scope.NameScope
