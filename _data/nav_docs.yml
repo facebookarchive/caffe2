@@ -3,6 +3,7 @@
   - id: getting-started
   - id: learn-more
   - id: caffe-migration
+  - id: cplusplus_tutorial
 - title: Learn
   items:
   - id: applications-of-deep-learning
