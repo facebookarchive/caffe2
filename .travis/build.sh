@@ -37,6 +37,9 @@ fi
 if [ "$BUILD_MKL" = 'true' ]; then
     CMAKE_ARGS+=('-DBLAS=MKL')
 fi
+if [ "$BUILD_TESTS" = 'false' ]; then
+    CMAKE_ARGS+=('-DBUILD_TEST=OFF')
+fi
 cmake .. ${CMAKE_ARGS[*]}
 
 # Build

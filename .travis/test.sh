@@ -6,16 +6,8 @@ LOCAL_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 ROOT_DIR=$(dirname "$LOCAL_DIR")
 cd "$ROOT_DIR"
 
-if [ "$BUILD_CUDA" = 'true' ]; then
-    echo "Skipping tests for CUDA build."
-    exit 0
-fi
-if [ "$BUILD_ANDROID" = 'true' ]; then
-    echo "Skipping tests for Android build."
-    exit 0
-fi
-if [ "$TRAVIS_OS_NAME" = 'osx' ]; then
-    echo "Skipping tests for OSX build."
+if [ "$BUILD_TESTS" = 'false' ]; then
+    echo 'Skipping tests'
     exit 0
 fi
 

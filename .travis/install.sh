@@ -130,20 +130,6 @@ if [ "$TRAVIS_OS_NAME" = 'linux' ]; then
         sudo apt-get update
         $APT_INSTALL_CMD intel-mkl-64bit-2017.3-056
     fi
-
-    #################
-    # Install ninja #
-    #################
-    # NNPACK needs a recent version
-    if [ -e "${BUILD_NINJA_DIR}/ninja" ]; then
-        echo "Using cached ninja build at \"$BUILD_NINJA_DIR\" ..."
-    else
-        git clone https://github.com/ninja-build/ninja.git -b release "$BUILD_NINJA_DIR"
-        pushd "$BUILD_NINJA_DIR"
-        python configure.py --bootstrap
-        popd
-    fi
-    sudo install -m 755 "${BUILD_NINJA_DIR}/ninja" /usr/local/bin/ninja
 elif [ "$TRAVIS_OS_NAME" = 'osx' ]; then
     #####################
     # brew dependencies #
@@ -154,7 +140,6 @@ elif [ "$TRAVIS_OS_NAME" = 'osx' ]; then
         glog \
         leveldb \
         lmdb \
-        ninja \
         protobuf
 
     # Install ccache symlink wrappers
@@ -171,8 +156,6 @@ fi
 # pip dependencies #
 ####################
 pip install numpy
-pip install git+https://github.com/Maratyszcza/PeachPy
-pip install git+https://github.com/Maratyszcza/confu
 
 if [ "$BUILD_ANDROID" = 'true' ]; then
     #######################
@@ -197,4 +180,29 @@ if [ "$BUILD_ANDROID" = 'true' ]; then
     _versioned_dir=$(find $_ndk_dir/ -mindepth 1 -maxdepth 1 -type d)
     mv "$_versioned_dir"/* "$_ndk_dir"/
     rmdir "$_versioned_dir"
+fi
+
+if [ "$BUILD_NNPACK" = 'true' ]; then
+    #################
+    # Install ninja #
+    #################
+    if [ "$TRAVIS_OS_NAME" = 'linux' ]; then
+        # NNPACK needs a recent version
+        if [ -e "${BUILD_NINJA_DIR}/ninja" ]; then
+            echo "Using cached ninja build at \"$BUILD_NINJA_DIR\" ..."
+        else
+            git clone https://github.com/ninja-build/ninja.git -b release "$BUILD_NINJA_DIR"
+            pushd "$BUILD_NINJA_DIR"
+            python configure.py --bootstrap
+            popd
+        fi
+        sudo install -m 755 "${BUILD_NINJA_DIR}/ninja" /usr/local/bin/ninja
+    elif [ "$TRAVIS_OS_NAME" = 'osx' ]; then
+        brew install ninja
+    else
+        echo "OS \"$TRAVIS_OS_NAME\" is unknown"
+        exit 1
+    fi
+    pip install git+https://github.com/Maratyszcza/PeachPy
+    pip install git+https://github.com/Maratyszcza/confu
 fi
