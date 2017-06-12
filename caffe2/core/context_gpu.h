@@ -163,6 +163,10 @@ class CUDAContext final {
   // deadlocks
   static std::mutex& mutex();
 
+  // Determine whether the device using this context can use
+  // tensor cores
+  static bool TensorCoreAvailable();
+
   // Functions to query memory stats. Only available if flag
   // --caffe2_gpu_memory_tracking is enabled.
   static std::vector<long> TotalMemoryByGpu();
