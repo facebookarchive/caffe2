@@ -134,12 +134,15 @@ elif [ "$TRAVIS_OS_NAME" = 'osx' ]; then
     #####################
     # brew dependencies #
     #####################
+    pip uninstall -y numpy  # use brew version (opencv dependency)
+    brew tap homebrew/science  # for OpenCV
     brew install \
         automake \
         ccache \
         glog \
         leveldb \
         lmdb \
+        opencv \
         protobuf
 
     # Install ccache symlink wrappers

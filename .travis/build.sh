@@ -22,9 +22,6 @@ fi
 
 # Configure
 CMAKE_ARGS=('-DCMAKE_VERBOSE_MAKEFILE=ON')
-if [ "$TRAVIS_OS_NAME" = 'osx' ]; then
-    CMAKE_ARGS+=('-DUSE_OPENCV=OFF')
-fi
 if [ "$BUILD_CUDA" = 'true' ]; then
     CMAKE_ARGS+=('-DUSE_CUDA=ON')
     CMAKE_ARGS+=('-DCUDA_ARCH_NAME=Pascal')
