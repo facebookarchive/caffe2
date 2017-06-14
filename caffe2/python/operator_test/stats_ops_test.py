@@ -18,7 +18,8 @@ class TestCounterOps(TestCase):
         previous_keys = workspace.FetchBlob('prev_k')
         existing = len(previous_keys)
 
-        keys = [__name__ + '/key1', __name__ + '/key2']
+        prefix = '/'.join([__name__, 'TestCounterOps', 'test_stats_ops'])
+        keys = [prefix + '/key1', prefix + '/key2']
         values = [34, 45]
         workspace.FeedBlob('k', np.array(keys, dtype=str))
         workspace.FeedBlob('v', np.array(values, dtype=np.int64))
