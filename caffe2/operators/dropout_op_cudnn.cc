@@ -24,7 +24,7 @@ class CuDNNDropoutOp final : public Operator<CUDAContext> {
         reinterpret_cast<size_t*>(&states_size_in_bytes_)));
   }
 
-  ~CuDNNDropoutOp() {
+  ~CuDNNDropoutOp() noexcept {
     CUDNN_ENFORCE(cudnnDestroyTensorDescriptor(data_desc_));
     CUDNN_ENFORCE(cudnnDestroyDropoutDescriptor(dropout_desc_));
   }
@@ -44,7 +44,7 @@ class CuDNNDropoutOp final : public Operator<CUDAContext> {
   float ratio_;
   bool is_test_;
 
-  int states_size_in_bytes_, reserve_space_size_in_bytes_;
+  size_t states_size_in_bytes_, reserve_space_size_in_bytes_;
   // Input: X, Output: Y, mask, states
 };
 
@@ -66,8 +66,9 @@ class CuDNNDropoutGradientOp final : public Operator<CUDAContext> {
         reinterpret_cast<size_t*>(&states_size_in_bytes_)));
   }
 
-  ~CuDNNDropoutGradientOp() {
+  ~CuDNNDropoutGradientOp() noexcept {
     CUDNN_ENFORCE(cudnnDestroyTensorDescriptor(data_desc_));
+    CUDNN_ENFORCE(cudnnDestroyDropoutDescriptor(dropout_desc_));
   }
 
   template <typename T, typename M>
@@ -85,7 +86,7 @@ class CuDNNDropoutGradientOp final : public Operator<CUDAContext> {
   float ratio_;
   bool is_test_;
 
-  int states_size_in_bytes_, reserve_space_size_in_bytes_;
+  size_t states_size_in_bytes_, reserve_space_size_in_bytes_;
   // Input: dY, states, Output: dX
 };
 
@@ -114,10 +115,10 @@ bool CuDNNDropoutOp::DoRunWithType() {
         1));
     // get the reserve space we need
     CUDNN_ENFORCE(cudnnDropoutGetReserveSpaceSize(
-        data_desc_, reinterpret_cast<size_t*>(&reserve_space_size_in_bytes_)));
+        data_desc_, &reserve_space_size_in_bytes_));
     // store both reserve and states in the same tensor
-    int elem_size = static_cast<int>(sizeof(T));
-    vector<int> state_size{
+    size_t elem_size = sizeof(T);
+    vector<size_t> state_size{
         (reserve_space_size_in_bytes_ + states_size_in_bytes_ + elem_size) /
         elem_size};
     // resize the output
@@ -195,9 +196,9 @@ bool CuDNNDropoutGradientOp::DoRunWithType() {
         1));
     // get the reserve space we need
     CUDNN_ENFORCE(cudnnDropoutGetReserveSpaceSize(
-        data_desc_, reinterpret_cast<size_t*>(&reserve_space_size_in_bytes_)));
+        data_desc_, &reserve_space_size_in_bytes_));
 
-    const int elem_size = static_cast<int>(sizeof(T));
+    const size_t elem_size = sizeof(T);
     // set the dropout descriptor
     CUDNN_ENFORCE(cudnnSetDropoutDescriptor(
         dropout_desc_,
