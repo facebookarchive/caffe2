@@ -279,7 +279,8 @@ OPERATOR_SCHEMA(SquaredL2Distance)
   of the L2 difference between X and Y that is computed as ||(X - Y)^2 / 2||.
   )DOC")
     .Input(0, "X", "1D input tensor")
-    .Output(0, "Y", "1D input tensor");
+    .Input(1, "Y", "1D input tensor")
+    .Output(0, "Y", "1D output tensor of the L2 difference between X and Y");
 
 OPERATOR_SCHEMA(SquaredL2DistanceGradient).NumInputs(3).NumOutputs(2);
 
