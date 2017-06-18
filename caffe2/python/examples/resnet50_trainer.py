@@ -45,7 +45,7 @@ dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:file_store_handler_ops')
 dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:redis_store_handler_ops')
 
 
-def AddImageInput(model, reader, batch_size, img_size):
+def AddImageInput(model, reader, batch_size, img_size, args):
     '''
     Image input operator that loads data from reader and
     applies certain transformations to the images.
@@ -54,7 +54,7 @@ def AddImageInput(model, reader, batch_size, img_size):
         model,
         reader, ["data", "label"],
         batch_size=batch_size,
-        use_caffe_datum=True,
+        use_caffe_datum=args.use_caffe_datum,
         mean=128.,
         std=128.,
         scale=256,
@@ -293,6 +293,7 @@ def Train(args):
             reader,
             batch_size=batch_per_device,
             img_size=args.image_size,
+            args=args
         )
 
     # Create parallelized model
@@ -331,6 +332,7 @@ def Train(args):
                 test_reader,
                 batch_size=batch_per_device,
                 img_size=args.image_size,
+                args=args
             )
 
         data_parallel_model.Parallelize_GPU(
@@ -446,6 +448,8 @@ def main():
                         help="Save the trained model to a given name")
     parser.add_argument("--load_model_path", type=str, default=None,
                         help="Load previously saved model to continue training")
+    parser.add_argument("--use_caffe_datum", type=bool, default=False,
+                        help="Use caffe input format, instead of caffe2 input format (default)")
     args = parser.parse_args()
 
     Train(args)
