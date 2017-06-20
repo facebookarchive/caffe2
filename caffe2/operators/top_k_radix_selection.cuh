@@ -6,6 +6,10 @@
 #include "caffe2/utils/math.h"
 #include <cuda_runtime.h>
 
+#if CUDA_VERSION >= 9000
+#define FULLMASK 0xFFFFFFF
+#endif
+
 namespace caffe2 {
 
 // From the cutorch library
@@ -167,7 +171,11 @@ __device__ void countRadixUsingMask(CountType counts[RadixSize],
 #pragma unroll
     for (unsigned int j = 0; j < RadixSize; ++j) {
       bool vote = hasVal && (digitInRadix == j);
+#if CUDA_VERSION >= 9000
+      counts[j] += __popc(__ballot_sync(FULLMASK, vote));
+#else
       counts[j] += __popc(__ballot(vote));
+#endif
     }
   }
 
