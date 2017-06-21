@@ -182,6 +182,9 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
         param.H = dims.at(2);
         param.W = ndim > 3 ? dims.at(3) : 1;
         param.D = ndim > 4 ? dims.at(4) : 1;
+        break;
+      default:
+        LOG(FATAL) << "Unknown storage order: " << order;
     }
 
     return param;
