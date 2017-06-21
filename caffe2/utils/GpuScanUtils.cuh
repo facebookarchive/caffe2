@@ -3,10 +3,6 @@
 
 #include "caffe2/utils/GpuDefs.cuh"
 
-#if CUDA_VERSION >= 9000
-#define FULLMASK 0xFFFFFFF
-#endif
-
 namespace caffe2 {
 
 // from the cutorch library; can probably be replaced with their CUB
@@ -67,7 +63,7 @@ template <typename T, bool KillWARDependency, class BinaryFunction>
 __device__ void inclusiveBinaryPrefixScan(T* smem, bool in, T* out, BinaryFunction binop) {
   // Within-warp, we use warp voting.
 #if CUDA_VERSION >= 9000
-  T vote = __ballot_sync(FULLMASK, in);
+  T vote = __ballot_sync(__activemask(), in);
 #else
   T vote = __ballot(in);
 #endif
