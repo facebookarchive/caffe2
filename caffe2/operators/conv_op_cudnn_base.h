@@ -168,7 +168,7 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
 
     DimensionParam param;
 
-    switch (order_) {
+    switch (order) {
       case StorageOrder::NHWC:
         param.N = dims.at(0);
         param.H = dims.at(1);
