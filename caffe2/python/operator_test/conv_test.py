@@ -155,6 +155,7 @@ class TestConvolution(hu.HypothesisTestCase):
             atol=1e-4,
             rtol=1e-4)
 
+    # Check Forward pass only
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
            kernel=st.integers(1, 5),
@@ -167,7 +168,7 @@ class TestConvolution(hu.HypothesisTestCase):
            engine=st.sampled_from(["", "CUDNN", "MKLDNN"]),
            use_bias=st.booleans(),
            **hu.gcs)
-    def test_convolution_gradients(self, stride, pad, kernel, dilation, size,
+    def test_convolution_forward(self, stride, pad, kernel, dilation, size,
                                    input_channels, output_channels, batch_size,
                                    order, engine, use_bias, gc, dc):
         dkernel = dilation * (kernel - 1) + 1
@@ -207,6 +208,56 @@ class TestConvolution(hu.HypothesisTestCase):
             return
 
         self.assertDeviceChecks(dc, op, inputs, [0])
+
+    # Run gradient checks only
+    @given(stride=st.integers(1, 3),
+           pad=st.integers(0, 3),
+           kernel=st.integers(1, 5),
+           dilation=st.integers(1, 3),
+           size=st.integers(7, 10),
+           input_channels=st.integers(1, 8),
+           output_channels=st.integers(1, 8),
+           batch_size=st.integers(1, 3),
+           order=st.sampled_from(["NCHW", "NHWC"]),
+           engine=st.sampled_from(["", "CUDNN", "MKLDNN"]),
+           use_bias=st.booleans(),
+           **hu.gcs)
+    def test_convolution_gradients(self, stride, pad, kernel, dilation, size,
+                                   input_channels, output_channels, batch_size,
+                                   order, engine, use_bias, gc, dc):
+        dkernel = dilation * (kernel - 1) + 1
+
+        # cuDNN v6+ supports dilated convolutions
+        if (workspace.GetCuDNNVersion() < 6000):
+            assume("" == engine or 1 == dilation)
+        assume(engine != "MKLDNN" or use_bias is True)
+
+        op = core.CreateOperator(
+            "Conv",
+            ["X", "w", "b"] if use_bias else ["X", "w"],
+            ["Y"],
+            stride=stride,
+            kernel=kernel,
+            dilation=dilation,
+            pad=pad,
+            order=order,
+            engine=engine,
+        )
+        X = np.random.rand(
+            batch_size, size, size, input_channels).astype(np.float32) - 0.5
+        w = np.random.rand(
+            output_channels, kernel, kernel, input_channels).astype(np.float32)\
+            - 0.5
+        b = np.random.rand(output_channels).astype(np.float32) - 0.5
+        if order == "NCHW":
+            X = X.transpose((0, 3, 1, 2))
+            w = w.transpose((0, 3, 1, 2))
+
+        inputs = [X, w, b] if use_bias else [X, w]
+
+        # Error handling path.
+        if size + pad + pad < dkernel or size + pad + pad < dkernel:
+            return
         for i in range(len(inputs)):
             self.assertGradientChecks(gc, op, inputs, i, [0])
 
@@ -290,44 +341,87 @@ class TestConvolution(hu.HypothesisTestCase):
            pad=st.integers(0, 2),
            use_bias=st.booleans(),
            **hu.gcs)
-    def test_3d_convolution_cudnn_nchw(self, batch_size, stride, size, kernel,
-                                       dilation, pad, use_bias, gc, dc):
+    def test_3d_convolution_cudnn_nchw_forward(self, batch_size, stride, size,
+                                               kernel, dilation, pad, use_bias,
+                                               gc, dc):
         input_channels = 1
         output_channels = 1
         n = 3
         dkernel = dilation * (kernel - 1) + 1
-        order = "NCHW"
+        order = "nchw"
 
         op = core.CreateOperator(
-            "Conv",
-            ["X", "w", "b"] if use_bias else ["X", "w"],
-            ["Y"],
+            "conv",
+            ["x", "w", "b"] if use_bias else ["x", "w"],
+            ["y"],
             strides=[stride] * n,
             kernels=[kernel] * n,
             dilations=[dilation] * n,
             pads=[pad] * n * 2,
             order=order,
-            engine="CUDNN",
+            engine="cudnn",
         )
 
         input_dims = [batch_size, input_channels]
         input_dims.extend([size] * n)
         filter_dims = [output_channels, input_channels]
         filter_dims.extend([kernel] * n)
-        X = np.random.rand(*input_dims).astype(np.float32) - 0.5
+        x = np.random.rand(*input_dims).astype(np.float32) - 0.5
         w = np.random.rand(*filter_dims).astype(np.float32) - 0.5
         b = np.random.rand(output_channels).astype(np.float32) - 0.5
 
-        inputs = [X, w, b] if use_bias else [X, w]
+        inputs = [x, w, b] if use_bias else [x, w]
 
         if size + pad + pad < dkernel or size + pad + pad < dkernel:
-            with self.assertRaises(RuntimeError):
-                self.assertDeviceChecks(dc, op, inputs, [0])
+            with self.assertraises(runtimeerror):
+                self.assertdevicechecks(dc, op, inputs, [0])
             return
 
-        self.assertDeviceChecks(dc, op, inputs, [0])
+        self.assertdevicechecks(dc, op, inputs, [0])
+
+    @given(batch_size=st.integers(1, 2),
+           stride=st.integers(1, 2),
+           size=st.integers(3, 5),
+           kernel=st.integers(1, 2),
+           dilation=st.integers(1, 2),
+           pad=st.integers(0, 2),
+           use_bias=st.booleans(),
+           **hu.gcs)
+    def test_3d_convolution_cudnn_nchw_gradient(self, batch_size, stride, size,
+                                                kernel, dilation, pad, use_bias,
+                                                gc, dc):
+        input_channels = 1
+        output_channels = 1
+        n = 3
+        dkernel = dilation * (kernel - 1) + 1
+        order = "nchw"
+
+        op = core.CreateOperator(
+            "conv",
+            ["x", "w", "b"] if use_bias else ["x", "w"],
+            ["y"],
+            strides=[stride] * n,
+            kernels=[kernel] * n,
+            dilations=[dilation] * n,
+            pads=[pad] * n * 2,
+            order=order,
+            engine="cudnn",
+        )
+
+        input_dims = [batch_size, input_channels]
+        input_dims.extend([size] * n)
+        filter_dims = [output_channels, input_channels]
+        filter_dims.extend([kernel] * n)
+        x = np.random.rand(*input_dims).astype(np.float32) - 0.5
+        w = np.random.rand(*filter_dims).astype(np.float32) - 0.5
+        b = np.random.rand(output_channels).astype(np.float32) - 0.5
+
+        inputs = [x, w, b] if use_bias else [x, w]
+
+        if size + pad + pad < dkernel or size + pad + pad < dkernel:
+            return
         for i in range(len(inputs)):
-            self.assertGradientChecks(gc, op, inputs, i, [0])
+            self.assertgradientchecks(gc, op, inputs, i, [0])
 
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
