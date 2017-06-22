@@ -37,6 +37,14 @@ bool CudnnConvDataGradientOp::DoRunWithType() {
   CAFFE_ENFORCE(X.ndim() >= 3 && X.ndim() <= 5);
   CAFFE_ENFORCE(filter.ndim() >= 3 && filter.ndim() <= 5);
 
+  dX->ResizeLike(X);
+
+  // get data pointers for every tensor
+  const T_X* X_data = X.template data<T_X>();
+  const T_W* filter_data = filter.template data<T_X>();
+  const T_DY* dY_data = dY.template data<T_DY>();
+  T_DX* dX_data = dX->template mutable_data<T_DX>();
+
   const int M = filter.dim32(0);
   int N = 0, C = 0;
   int group_offset_X = 0, group_offset_Y = 0;
@@ -157,21 +165,15 @@ bool CudnnConvDataGradientOp::DoRunWithType() {
                 data_perf_stat;
             cudnn_wrapper_.with_cudnn_state(
                 cudnn_state_, [&](CuDNNState* state) {
-                  auto* dX =
-                      Output(INPUT_GRAD);
-                  dX->ResizeLike(X);
-                  const T_W* filter_data = filter.template data<T_W>();
-                  const T_DY* dYdata = dY.template data<T_DY>();
-                  T_DX* dXdata = dX->template mutable_data<T_DX>();
                   CUDNN_ENFORCE(cudnnFindConvolutionBackwardDataAlgorithmEx(
                       state->cudnn_handle(),
                       filter_desc_,
                       filter_data,
                       top_desc_,
-                      dYdata,
+                      dY_data,
                       conv_desc_,
                       bottom_desc_,
-                      dXdata,
+                      dX_data,
                       kNUM_CUDNN_BWD_DATA_ALGS,
                       &returned_algo_count,
                       data_perf_stat.data(),
@@ -218,16 +220,16 @@ bool CudnnConvDataGradientOp::DoRunWithType() {
           state->cudnn_handle(),
           cudnnTypeWrapper<T_W>::kOne(),
           filter_desc_,
-          filter.template data<T_W>() + i * group_offset_filter,
+          filter_data + i * group_offset_filter,
           top_desc_,
-          dY.template data<T_DY>() + i * group_offset_Y,
+          dY_data + i * group_offset_Y,
           conv_desc_,
           algo_,
           state->workspace().get(cudnn_ws_nbytes_),
           cudnn_ws_nbytes_,
           cudnnTypeWrapper<T_DX>::kZero(),
           bottom_desc_,
-          dX->template mutable_data<T_DX>() + i * group_offset_X));
+          dX_data + i * group_offset_X));
     });
   }
   return true;
