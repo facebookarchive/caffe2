@@ -1,6 +1,6 @@
 # Known NVIDIA GPU achitectures Caffe2 can be compiled for.
 # This list will be used for CUDA_ARCH_NAME = All option
-set(Caffe2_known_gpu_archs "20 21(20) 30 35 50 52 60 61")
+set(Caffe2_known_gpu_archs "20 21(20) 30 35 50 52 60 61 70")
 set(Caffe2_known_gpu_archs7 "20 21(20) 30 35 50 52")
 
 ################################################################################################
@@ -86,6 +86,8 @@ function(caffe2_select_nvcc_arch_flags out_variable)
     set(__cuda_arch_bin "50")
   elseif(${CUDA_ARCH_NAME} STREQUAL "Pascal")
     set(__cuda_arch_bin "60 61")
+  elseif(${CUDA_ARCH_NAME} STREQUAL "Volta")
+    set(__cuda_arch_bin "70")
   elseif(${CUDA_ARCH_NAME} STREQUAL "All")
     set(__cuda_arch_bin ${Caffe2_known_gpu_archs})
   elseif(${CUDA_ARCH_NAME} STREQUAL "Auto")
