@@ -161,14 +161,14 @@ template <>
 CONVERSIONS_DECL float16 To(const float in) {
 #if __CUDA_ARCH__
   // hacky interface between C2 fp16 and CUDA
-  float16 ret;
 #if CUDA_VERSION >= 9000
   half rh = static_cast<half>(in);
   return halfToFloat16(rh);
 #else
+  float16 ret;
   ret.x = __float2half(in).x;
-#endif
   return ret;
+#endif  // CUDA_VERSION >= 9000
 #else
   return cpu_float2half_rn(in);
 #endif
