@@ -2,6 +2,7 @@
 # This list will be used for CUDA_ARCH_NAME = All option
 set(Caffe2_known_gpu_archs "20 21(20) 30 35 50 52 60 61 70")
 set(Caffe2_known_gpu_archs7 "20 21(20) 30 35 50 52")
+set(Caffe2_known_gpu_archs8 "20 21(20) 30 35 50 52 60 61")
 
 ################################################################################################
 # A function for automatic detection of GPUs installed  (if autodetection is enabled)
@@ -180,7 +181,11 @@ endif()
 
 set(HAVE_CUDA TRUE)
 message(STATUS "CUDA detected: " ${CUDA_VERSION})
-if (${CUDA_VERSION} LESS 8.0)
+if (${CUDA_VERSION} LESS 9.0)
+  set(Caffe2_known_gpu_archs ${Caffe2_known_gpu_archs8})
+  list(APPEND CUDA_NVCC_FLAGS "-D_MWAITXINTRIN_H_INCLUDED")
+  list(APPEND CUDA_NVCC_FLAGS "-D__STRICT_ANSI__")
+elseif (${CUDA_VERSION} LESS 8.0)
   set(Caffe2_known_gpu_archs ${Caffe2_known_gpu_archs7})
   list(APPEND CUDA_NVCC_FLAGS "-D_MWAITXINTRIN_H_INCLUDED")
   list(APPEND CUDA_NVCC_FLAGS "-D__STRICT_ANSI__")
