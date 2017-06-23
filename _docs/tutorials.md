@@ -10,7 +10,7 @@ permalink: /docs/tutorials.html
 ## Pick Your Path
 
 1. [Use a pre-trained neural network off the shelf!](tutorials.html#null__new-to-deep-learning) (Easy)
-2. [Make my own neural network!](tutorials.html#null__creating-a-convolutional-neural-network-from-scratch) (Intermediate)
+2. [Make my own neural network!](tutorials.html#null__intermediate-tutorials) (Intermediate)
 3. [Mobile First! I want to make an app that uses deep learning!](AI-Camera-demo-android) (Advanced)
 
 If you chose 1, click the link to where several examples are using pre-trained models and we will show you how to get a demo project up and running in minutes.
@@ -18,6 +18,13 @@ If you chose 1, click the link to where several examples are using pre-trained m
 If you chose 2 then you'll need some background in neural networking first. Have that dialed in already? Skip ahead to the link. Need a primer or a refresher? Some resources are listed below.
 
 If you chose 3, click the link to discover how to have image classification in your Android or iOS app. It's pretty much plug-n-play with Android Studio or Xcode, but you'll need to integrate directly with Caffe2's C++ hooks.
+
+With any choice, don't forget to come back and check out the tutorials in each section. You never know what you might learn!
+
+* [Beginner Tutorials](tutorials.html#null__beginner-tutorials)
+* [New to Caffe2](tutorials.html#null__new-to-caffe2)
+* [Intermediate Tutorials](tutorials.html#null__intermediate-tutorials)
+* [Advanced Tutorials](tutorials.html#null__advanced-tutorials)
 
 ### New to deep learning
 
@@ -34,57 +41,27 @@ These recent academic tutorials cover deep learning for researchers in machine l
 * [Deep Learning Tutorial](http://www.cs.nyu.edu/~yann/talks/lecun-ranzato-icml2013.pdf) by Yann LeCun (NYU, Facebook) and Marc’Aurelio Ranzato (Facebook). ICML 2013 tutorial.
 * [LISA Deep Learning Tutorial](http://deeplearning.net/tutorial/deeplearning.pdf) by the LISA Lab directed by Yoshua Bengio (U. Montréal).
 
-## IPython Notebook Tutorials and Example Scripts
+## Tutorials and Example Scripts
 
 The IPython notebook tutorials and example scripts we have provided below will guide you through the Caffe2 Python interface. Some tutorials have been generously provided by the Caffe community and we welcome more contributions of this kind to help others get ramped up more quickly and to try out the many different uses of Caffe2. The iPython notebook tutorials can be browsed or downloaded using the links below each tutorial's title. You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself. However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. [Installation instructions below](http://caffe2.ai/docs/tutorials.html#null__tutorials-installation) will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
 
+### Example Scripts
+
 There are example scripts that can be found in [/caffe2/python/examples](https://github.com/caffe2/caffe2/tree/master/caffe2/python/examples) that are also great resources for starting off on a project using Caffe2.
 
-* [char_rnn.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/char_rnn.py): generate a recurrent convolution neural network that will sample text that you input and randomly generate text of a similar style
+* [char_rnn.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/char_rnn.py): generate a recurrent convolution neural network that will sample text that you input and randomly generate text of a similar style. The [RNN and LSTM page](RNNs-and-LSTM-networks.html) has further info on this script's usage.
 * [lmdb_create_example.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/lmdb_create_example.py): create an lmdb database of random image data and labels that can be used a skeleton to write your own data import
-* [resnet50_trainer.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py): parallelized multi-GPU distributed trainer for Resnet 50. Can be used to train on imagenet data, for example
-* [seq2seq.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/seq2seq.py): create a specialized RNN that handles lines of text for projects such as language translation
-* [seq2seq_util.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/seq2seq_util.py): utility functions for the sequence to sequence example script
+* [resnet50_trainer.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py): parallelized multi-GPU distributed trainer for Resnet 50. Can be used to train on imagenet data, for example. The [Synchronous SGD page](SynchronousSGD.html) has further info on this script's usage.
 
-
-### Beginners
+### Beginner Tutorials
 
 #### [Models and Datasets - a Primer](https://caffe2.ai/docs/tutorial-models-and-datasets.html)
 
 New to Caffe and Deep Learning? Start here and find out more about the different models and datasets available to you.
 
-
-
 #### [Loading Pre-trained Models](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Loading_Pretrained_Models.ipynb)
 
 Take advantage of the Model Zoo and grab some pre-trained models and take them for a test drive. This tutorial has a set of different models that are ready to go and will show you the basic steps for prepping them and firing up your neural net. Then you can throw some images or other tests at them and see how they perform.
-
-
-
-### New to Caffe2
-
-You also may want to review the [Intro Tutorial](intro-tutorial) before starting this notebook.
-
-#### [Basics of Caffe2 - Workspaces, Operators, and Nets](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Basics.ipynb)
-
-This tutorial introduces a few basic Caffe2 components:
-
-* Workspaces
-* Operators
-* Nets
-
-
-
-#### [Toy Regression - Plotting Lines & Random Data](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Toy_Regression.ipynb)
-
-This tutorial shows how to use more Caffe2 features with simple linear regression as the theme.
-
-* generate some sample random data as the input for the model
-* create a network with this data
-* automatically train the model
-* review stochastic gradient descent results and changes to your ground truth parameters as the network learned
-
-
 
 #### [Image Pre-Processing Pipeline](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Image_Pre-Processing_Pipeline.ipynb)
 
@@ -96,10 +73,42 @@ Learn how to get your images ready for ingestion into pre-trained models or as t
 * RGB to BRG
 * image prep for Caffe2 ingestion
 
+### New to Caffe2
 
+#### [Caffe to Caffe2 Translation](caffe-migration.html)
 
+Get introduced to Caffe2 and how you can translate your old Caffe models to Caffe2.
 
-### Creating a Convolutional Neural Network from Scratch
+#### [Intro Tutorial](intro-tutorial)
+
+This follow-along tutorial starts you off with blobs, the Caffe2 workspace, and tensors. It covers nets and operators and how to build a simple model and execute it.
+
+#### [Basics of Caffe2 - Workspaces, Operators, and Nets](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Basics.ipynb)
+
+This IPython tutorial introduces a few basic Caffe2 components:
+
+* Workspaces
+* Operators
+* Nets
+
+#### [Brewing Models](brew)
+
+Another follow-along tutorial that introduces `brew`, an easy to use API for creating models. You'll learn about:
+
+* Operators vs. helper functions
+* brew and arg_scope
+* Making custom helper functions
+
+#### [Toy Regression - Plotting Lines & Random Data](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Toy_Regression.ipynb)
+
+This tutorial shows how to use more Caffe2 features with simple linear regression as the theme.
+
+* generate some sample random data as the input for the model
+* create a network with this data
+* automatically train the model
+* review stochastic gradient descent results and changes to your ground truth parameters as the network learned
+
+### Intermediate Tutorials
 
 #### [MNIST - Handwriting Recognition](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/MNIST.ipynb)
 
@@ -109,24 +118,15 @@ This tutorial creates a small convolutional neural network (CNN) that can identi
 
 Try your hand at importing and massaging data so it can be used in Caffe2. This tutorial uses the Iris dataset.
 
+### Advanced Tutorials
+
+#### [Multi-GPU Training with Caffe2](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Multi-GPU_Training.ipynb)
+
+For this tutorial we will explore multi-GPU training. We will show you a basic structure for using the `data_parallel_model` to quickly process a subset of the ImageNet database along the same design as the [ResNet-50 model](https://arxiv.org/abs/1512.03385). We will also get a chance to look under the hood at a few of Caffe2's C++ operators that efficiently handle your image pipeline, build a ResNet model, train on a single GPU and show some optimizations that are included with `data_parallel_model`, and finally we'll scale it up and show you how to parallelize your model so you can run it on multiple GPUs.
 
 ### Write Your Own Tutorial!
 
 Have a great tutorial that you've created or have some ideas? Let's chat about it. Create an [Issue](https://github.com/caffe2/caffe2/issues) and post a link to your tutorial or post your idea.
-
-
-## Tour of Caffe Components  
-
-### C++ implementation
-
-* gpu.h: needs documentation
-* db.h: needs documentation
-
-
-### Python implementation
-
-* TensorProtosDBInput: needs documentation
-
 
 ### Operators
 
@@ -138,8 +138,7 @@ Fantastic idea! Write custom operators and share them with the community! Refer 
 
 * [Guide for creating your own operators](/docs/custom-operators)
 
-
-### Tutorials Installation
+## Tutorials Installation
 
 To run the tutorials you'll need Python 2.7, [ipython-notebooks](http://jupyter.org/install.html) and [matplotlib](http://matplotlib.org/users/installing.html), which can be installed on with:
 

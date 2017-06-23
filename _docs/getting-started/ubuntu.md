@@ -101,6 +101,7 @@ sudo apt-get install -y --no-install-recommends \
       python-pydot
 sudo pip install \
       flask \
+      future \
       graphviz \
       hypothesis \
       jupyter \
@@ -111,6 +112,7 @@ sudo pip install \
       scikit-image \
       scipy \
       setuptools \
+      six \
       tornado
 ```
 

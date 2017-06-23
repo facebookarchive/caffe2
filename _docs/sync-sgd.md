@@ -14,16 +14,15 @@ There are multiple ways to utilize multiple GPUs or machines to train models. Sy
 * [data_parallel_model_test.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/data_parallel_model_test.py) has a simple 2-GPU model.
 * For a more complex model, see the example [Resnet-50 trainer for ImageNet](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py).
 
-Parallelizing a model is done by module [caffe2.python.data_parallel_model](/doxygen-python/html/namespacedata__parallel__model.html). The model must be created using a ModelHelper, such as [cnn.CNNModelHelper](/doxygen-python/html/classcnn_1_1CNNModelHelper.html).
+Parallelizing a model is done by module [caffe2.python.data_parallel_model](/doxygen-python/html/namespacedata__parallel__model.html). The model must be created using a ModelHelper, such as [model_helper.ModelHelper](https://github.com/caffe2/caffe2/blob/master/caffe2/python/model_helper.py).
+
+For a full-length tutorial building ResNet-50 for a single GPU, then using `Parallelize_GPU` for multiple GPU check out this [tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Multi-GPU_Training.ipynb)
 Here is example from the [Resnet-50 example code](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py):
 
 ```python
-from caffe2.python import cnn, data_parallel_model
+from caffe2.python import data_parallel_model, model_helper
 
-train_model = cnn.CNNModelHelper(
-    order="NCHW",
-    name="resnet50",
-)
+train_model = model_helper.ModelHelper(name="resnet50")
 
 data_parallel_model.Parallelize_GPU(
       train_model,

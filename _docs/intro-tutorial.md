@@ -13,7 +13,9 @@ Data in Caffe2 is organized as blobs. Blob is just a named chunk of data in memo
 
 [Workspace](workspace.html) stores all the blobs. Following example shows how to feed blobs into `workspace` and fetch them. Workspaces initialize themselves the moment you start using them.
 
-```python
+```py
+from caffe2.python import workspace, model_helper
+import numpy as np
 # Create random tensor of three dimensions
 x = np.random.rand(4, 3, 2)
 print(x)
@@ -34,12 +36,12 @@ In the code block below we will create a super simple model. It will have these 
   * a Sigmoid activation with a Softmax
   * a CrossEntropy loss
 
-Composing nets directly is quite tedious, so it is better to use *model helpers* that are python classes that aid in creating the nets. Even though we call it and pass in a single name "my first net", `CNNModelHelper` will create two interrelated nets:
+Composing nets directly is quite tedious, so it is better to use *model helpers* that are python classes that aid in creating the nets. Even though we call it and pass in a single name "my first net", `ModelHelper` will create two interrelated nets:
 
 1. one that initializes the parameters (ref. init_net)
 2. one that runs the actual training (ref. exec_net)
 
-```python
+```py
 # Create the input data
 data = np.random.rand(16, 100).astype(np.float32)
 
@@ -49,16 +51,33 @@ label = (np.random.rand(16) * 10).astype(np.int32)
 workspace.FeedBlob("data", data)
 workspace.FeedBlob("label", label)
 
-# Create model using a model helper
-m = cnn.CNNModelHelper(name="my first net")
-fc_1 = m.FC("data", "fc1", dim_in=100, dim_out=10)
-pred = m.Sigmoid(fc_1, "pred")
-[softmax, loss] = m.SoftmaxWithLoss([pred, "label"], ["softmax", "loss"])
 ```
 
-Reviewing the code block above:
+We created some random data and random labels and then fed those as blobs into the workspace.
 
-First, we created the input data and label blobs in memory (in practice, you would be loading data from a input data source such as database -- more about that later). Note that the data and label blobs have first dimension '16'; this is because the input to the model is a mini-batch of 16 samples at a time. Many Caffe2 operators can be accessed directly through `CNNModelHelper` and can handle a mini-batch of input a time. Check [CNNModelHelper's Operator List](workspace.html#cnnmodelhelper) for more details.
+```py
+# Create model using a model helper
+m = model_helper.ModelHelper(name="my first net")
+```
+
+You've now used the `model_helper` to created the two nets we mentioned earlier (init_net, exec_net). We plan to add a fully-connected layer using the FC operator in this model next, but first we need to do some prep work by creating some random fills that the FC Op expects. Next we can add the Ops and use the weights and bias blobs we created, calling them by name when we invoke the FC Op.
+
+```py
+weight = m.param_init_net.XavierFill([], 'fc_w', shape=[10, 100])
+bias = m.param_init_net.ConstantFill([], 'fc_b', shape=[10, ])
+```
+
+In Caffe2 the FC Op takes in an input blob (our data), weights, and bias. Weights and bias using either `XavierFill` or `ConstantFill` will both take an empty array, name, and shape (as `shape=[output, input]`).
+
+```py
+fc_1 = m.net.FC(["data", "fc_w", "fc_b"], "fc1")
+pred = m.net.Sigmoid(fc_1, "pred")
+[softmax, loss] = m.net.SoftmaxWithLoss([pred, "label"], ["softmax", "loss"])
+```
+
+Reviewing the code blocks above:
+
+First, we created the input data and label blobs in memory (in practice, you would be loading data from a input data source such as database -- more about that later). Note that the data and label blobs have first dimension '16'; this is because the input to the model is a mini-batch of 16 samples at a time. Many Caffe2 operators can be accessed directly through `ModelHelper` and can handle a mini-batch of input a time. Check [ModelHelper's Operator List](workspace.html#cnnmodelhelper) for more details.
 
 Second, we create a model by defining a bunch of operators: [FC](operators-catalogue.html#fc), [Sigmoid](operators-catalogue.html#sigmoidgradient) and [SoftmaxWithLoss](operators-catalogue.html#softmaxwithloss). *Note:* at this point, the operators are not executed, you are just creating the definition of the model.
 
@@ -76,8 +95,8 @@ The output should look like:
 name: "my first net"
 op {
   input: "data"
-  input: "fc1_w"
-  input: "fc1_b"
+  input: "fc_w"
+  input: "fc_b"
   output: "fc1"
   name: ""
   type: "FC"
@@ -97,8 +116,8 @@ op {
   type: "SoftmaxWithLoss"
 }
 external_input: "data"
-external_input: "fc1_w"
-external_input: "fc1_b"
+external_input: "fc_w"
+external_input: "fc_b"
 external_input: "label"
 ```
 
@@ -117,7 +136,7 @@ Now when we have the model training operators defined, we can start to run it to
 
 First, we run only once the param initialization:
 
-```python
+```py
 workspace.RunNetOnce(m.param_init_net)
 ```
 
@@ -125,7 +144,7 @@ Note, as usual, this will actually pass the protobuffer of the `param_init_net` 
 
 Then we create the actual training Net:
 
-```python
+```py
 workspace.CreateNet(m.net)
 ```
 
