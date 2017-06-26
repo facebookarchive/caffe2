@@ -23,24 +23,22 @@ import os
 import shutil
 
 
-from caffe2.python import core, cnn, net_drawer, workspace, visualize, brew
+from caffe2.python import core, model_helper, net_drawer, workspace, visualize, brew
 
 # If you would like to see some really detailed initializations,
 # you can change --caffe2_log_level=0 to --caffe2_log_level=-1
 core.GlobalInit(['caffe2', '--caffe2_log_level=0'])
-# set this where the root of caffe2 is installed
-caffe2_root = "~/caffe2"
 print("Necessities imported!")
 ```
 
 We will track statistics during the training time and store these on disk in a local folder. We need to set up a data folder for the data and a root folder for the stats. You should already have these folders, and in the data folder the MNIST dataset should be setup as a leveldb database for both the training set and the test set for this tutorial.
 
-If these folders are missing then you will need to [download the MNIST dataset](Models_and_Datasets.ipynb), g/unzip the dataset and labels, then find the binaries in `/caffe2/build/caffe2/binaries/` or in `/usr/local/binaries/` and run the following, however the code block below will attempt to do this for you, so try that first.
+If these folders are missing then you will need to [download the MNIST dataset](Models_and_Datasets.ipynb), g/unzip the dataset and labels, then find the binaries in `/caffe2/build/caffe2/binaries/` or in `/usr/local/bin/` and run the following, however the code block below will attempt to do this for you, so try that first.
 
 ```
-./make_mnist_db --channel_first --db leveldb --image_file ~/Downloads/train-images-idx3-ubyte --label_file ~/Downloads/train-labels-idx1-ubyte --output_file ~/caffe2/caffe2/python/tutorials/tutorial_data/mnist/mnist-train-nchw-leveldb
+./make_mnist_db --channel_first --db leveldb --image_file ~/Downloads/train-images-idx3-ubyte --label_file ~/Downloads/train-labels-idx1-ubyte --output_file ~/caffe2_notebooks/tutorial_data/mnist/mnist-train-nchw-leveldb
 
-./make_mnist_db --channel_first --db leveldb --image_file ~/Downloads/t10k-images-idx3-ubyte --label_file ~/Downloads/t10k-labels-idx1-ubyte --output_file ~/caffe2/caffe2/python/tutorials/tutorial_data/mnist/mnist-test-nchw-leveldb
+./make_mnist_db --channel_first --db leveldb --image_file ~/Downloads/t10k-images-idx3-ubyte --label_file ~/Downloads/t10k-labels-idx1-ubyte --output_file ~/caffe2_notebooks/tutorial_data/mnist/mnist-test-nchw-leveldb
 ```
 
 
@@ -67,7 +65,7 @@ def GenerateDB(image, label, name):
     name = os.path.join(data_folder, name)
     print 'DB: ', name
     if not os.path.exists(name):
-        syscall = "/usr/local/binaries/make_mnist_db --channel_first --db leveldb --image_file " + image + " --label_file " + label + " --output_file " + name
+        syscall = "/usr/local/bin/make_mnist_db --channel_first --db leveldb --image_file " + image + " --label_file " + label + " --output_file " + name
         # print "Creating database with: ", syscall
         os.system(syscall)
     else:
@@ -76,25 +74,25 @@ def GenerateDB(image, label, name):
             # print "Deleting the pre-existing lock file"
             os.remove(os.path.join(name, "LOCK"))
 
-if not os.path.exists(data_folder):
-    os.makedirs(data_folder)
-if not os.path.exists(label_file_train):
-    DownloadDataset("https://s3.amazonaws.com/caffe2/datasets/mnist/mnist.zip", data_folder)
+            if not os.path.exists(data_folder):
+                os.makedirs(data_folder)
+            if not os.path.exists(label_file_train):
+                DownloadDataset("https://download.caffe2.ai/datasets/mnist/mnist.zip", data_folder)
 
-if os.path.exists(root_folder):
-    print("Looks like you ran this before, so we need to cleanup those old files...")
-    shutil.rmtree(root_folder)
+            if os.path.exists(root_folder):
+                print("Looks like you ran this before, so we need to cleanup those old files...")
+                shutil.rmtree(root_folder)
 
-os.makedirs(root_folder)
-workspace.ResetWorkspace(root_folder)
+            os.makedirs(root_folder)
+            workspace.ResetWorkspace(root_folder)
 
-# (Re)generate the leveldb database (known to get corrupted...)
-GenerateDB(image_file_train, label_file_train, "mnist-train-nchw-leveldb")
-GenerateDB(image_file_test, label_file_test, "mnist-test-nchw-leveldb")
+            # (Re)generate the leveldb database (known to get corrupted...)
+            GenerateDB(image_file_train, label_file_train, "mnist-train-nchw-leveldb")
+            GenerateDB(image_file_test, label_file_test, "mnist-test-nchw-leveldb")
 
 
-print("training data folder:" + data_folder)
-print("workspace root folder:" + root_folder)
+            print("training data folder:" + data_folder)
+            print("workspace root folder:" + root_folder)
 ```
 
 We will be using the `ModelHelper` class to represent our main model and using `brew` module and `Operators` to build our model. `brew` module has a set of wrapper functions that automatically separates the parameter intialization and the actual computation into two networks. Under the hood, a `ModelHelper` object has two underlying nets, `param_init_net` and `net`, that keeps record of the initialization network and the main network respectively.

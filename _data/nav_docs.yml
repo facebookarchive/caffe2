@@ -25,6 +25,7 @@
   - id: AI-Camera-demo-android
   - id: char-rnn
   - id: sync-sgd
+  - id: cplusplus_tutorial
 - title: Reference
   items:
   - id: operators-catalogue
