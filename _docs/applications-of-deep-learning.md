@@ -7,29 +7,29 @@ permalink: /docs/applications-of-deep-learning.html
 
 To better understand what Caffe2 is and how you can use it, we have provided a few examples of machine learning and deep learning in practice today.
 
-## Computer Vision
+## ![computer vision shades icon](../static/images/landing-shades.png) Computer Vision
 
 Computer vision has been around for many years and has enabled advanced robotics, streamlined manufacturing, better medical devices, etc. There is even license plate recognition to automate giving people tickets for a number of moving violations like speeding and running red lights. Neural networks have significantly improved computer vision applications. Photo processing is being used for object recognition, answering questions such as "Is that a cat or a dog?".  Video processing is being used to automate scene classification or people recognition, answering questions such as "Is that a helicopter? Is there a person in the helicopter? Who is that person?".
 
-## Speech Recognition
+## ![speech recognition waveform icon](../static/images/landing-audio.png) Speech Recognition
 
 Many readers may have been exposed to Apple's Siri. This digital assistant's core interaction with users is through voice recognition. You ask Siri for directions, to make appointments on your calendar, and to look up information. Its ability to understand a variety of accents in English, let alone its multilingual settings and capabilities, is based on many of the enhancements made in Siri since 2014. These enhancements were [accomplished](https://backchannel.com/an-exclusive-look-at-how-ai-and-machine-learning-work-at-apple-8dbfb131932b#.eiae77d82) through the utilization of Deep Neural Networks (DNN), Convolutional Neural Networks, and other advances in machine learning.
 
-## Translation
+## ![translation icon](../static/images/landing-trans.png) Translation
 
 Another useful application of neural networks is with translation between languages. Translations can occur via voice, text, or even handwriting. One of the Caffe2 [tutorials](tutorials) shows how you can create a basic neural network that can identify handwriting of English text with over 95% accuracy. It is not only highly accurate, it is extremely fast.
 
-## Chat Bots
+## ![chat bubbles icon](../static/images/landing-chat.png) Chat Bots
 
 There are currently useful interaction with simple AI's. A common simple AI is a chat bot.
 
 A chat bot could be in action when you click on the support link on your bank's website or favorite shopping website. The "how may I help you?" response can be a fully automated program that reads your text and looks for related responses, or, in the most simplest form, can redirect you to an appropriate live agent. As more complex bots are written using DNN, their ability to understand your statements, and more importantly, the context, the bots will be able to hold longer, more meaningful conversations without you even realizing you are not chatting with a real person.
 
-## IoT
+## ![iot network icon](../static/images/landing-iot.png) IoT
 
 As we explore the full impact and capabilities of the Internet of Things (IoT), where common technology communicates with you - from your fridge, to your security system, to individual lights - a fairly simple AI can automatically (and in real-time) review security camera footage, faceprint visitors to distinguish between homeowner, guest, and trespasser, and adjust lighting, music, and alarm sounds accordingly. How the system distinguishes between parties can be accomplished by training a DNN and then a variety of systems such as [AWS's IoT platform](https://aws.amazon.com/iot/) can wrap this core detector to provide responses and actions.
 
-## Medical
+## ![medical icon](../static/images/landing-med.png) Medical
 
 Customs agencies have used [thermal image processing](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3016318/) to identify people who may be suffering from a fever in order to enforce quarantines and limit the spread of infection disease. Image segmentation is a common task for in medical imaging to help identify different types of tissue, scan for anomalies, and provide assistance to physicians analyzing imagery in a variety of disciplines such as radiology and oncology. Medical records can be processed with ML and DNN to find insights and correlations in these massive data sets.    
 

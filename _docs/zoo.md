@@ -4,10 +4,10 @@ title: Caffe2 Model Zoo
 layout: docs
 permalink: /docs/zoo.html
 ---
-![model zoo](../static/images/landing-puzzle.png)
-[Caffe2's Model Zoo](https://github.com/caffe2/caffe2/wiki/Model-Zoo) is maintained by project contributors on the [Github wiki](https://github.com/caffe2/caffe2/wiki/Model-Zoo). Head over there for the full list.
 
-## Model Zoo Overview
+> [Caffe2's Model Zoo](https://github.com/caffe2/caffe2/wiki/Model-Zoo) is maintained by project contributors on the [Github wiki](https://github.com/caffe2/caffe2/wiki/Model-Zoo). Head over there for the full list.
+
+## ![model zoo icon ](../static/images/landing-puzzle.png) Model Zoo Overview
 
 If you want to get your hands on pre-trained models, you are in the right place! One of the greatest things about Caffe was the vibrant community of developers and researchers that shared their work in the [original Caffe model zoo](https://github.com/BVLC/caffe/wiki/Model-Zoo). In [Caffe2's Model Zoo](https://github.com/caffe2/caffe2/wiki/Model-Zoo) you will not only find a selection of original Caffe models, but we also provide a set of models here that are ready for use with Caffe2.
 
