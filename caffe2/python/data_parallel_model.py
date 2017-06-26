@@ -298,6 +298,7 @@ def Parallelize_GPU_BMUF(
     use_nccl=False,
     optimize_gradient_memory=False,
     reset_momentum_sgd=False,
+    warmup_iterations=None,
     max_concurrent_distributed_ops=4,
 ):
     '''
@@ -317,6 +318,7 @@ def Parallelize_GPU_BMUF(
         master_gpu = devices[0]
 
     model_helper_obj._devices = devices
+    model_helper_obj._rendezvous = rendezvous
     model_helper_obj._device_type = caffe2_pb2.CUDA
     model_helper_obj._device_prefix = 'gpu'
     master_gpu_opt = core.DeviceOption(caffe2_pb2.CUDA, master_gpu)
@@ -386,6 +388,32 @@ def Parallelize_GPU_BMUF(
         param_update_builder_fun(model_helper_obj)
     _ForEachGPU(devices, _InitializeParamUpdate, scoped=True)
 
+    model_parameter_names = model_helper_obj._device_grouped_blobs.keys()
+    if warmup_iterations is not None:
+        model_helper_obj._warmup_iterations = warmup_iterations
+        # A net for broadcasting gpu-0 (master shard) parameters after
+        # running net for `warmup_iterartions`.
+        model_helper_obj._warmup_broadcast = core.Net('warmup-broadcast')
+        model_helper_obj._warmup_broadcast.Proto().type = net_type
+        model_helper_obj._warmup_broadcast.Proto().num_workers = \
+            num_worker_threads
+        if rendezvous is not None and rendezvous['num_shards'] > 1:
+            _AddDistributedParameterSync(
+                devices,
+                model_helper_obj,
+                model_helper_obj.param_init_net,
+                model_helper_obj._warmup_broadcast,
+                rendezvous,
+                model_parameter_names
+            )
+
+        _SyncParams(
+            devices,
+            model_helper_obj,
+            model_helper_obj._warmup_broadcast,
+            model_parameter_names
+        )
+
     # (Step-0) Initialize momentum parameters on master GPU.
     for param_name in model_helper_obj._device_grouped_blobs.keys():
         param = model_helper_obj._device_grouped_blobs[param_name][master_gpu]
@@ -399,7 +427,6 @@ def Parallelize_GPU_BMUF(
 
     # (Step-2) Comute post-local-updates average of the params.
     # Sum model params across GPUs and store resutls in param_avg blob.
-    model_parameter_names = model_helper_obj._device_grouped_blobs.keys()
     _AllReduceBlobs(
         model_parameter_names,
         devices,
@@ -478,6 +505,7 @@ def Parallelize_GPU_BMUF(
         model_helper_obj.param_init_net,
         model_helper_obj._global_model_init_net
     ]
+
     model_helper_obj._data_parallel_model_nets = [
         model_helper_obj.net,
         (model_helper_obj._global_model_param_updates_net, 1)
@@ -492,6 +520,11 @@ def RunInitNet(model):
             workspace.CreateNet(net_iters[0])
         else:
             workspace.CreateNet(net_iters)
+
+
+def RunWarmup(model):
+    workspace.RunNet(model.net, model._warmup_iterations)
+    workspace.RunNetOnce(model._warmup_broadcast)
 
 
 def RunNet(model, num_iterations):
@@ -1082,7 +1115,7 @@ def _InferBlobDevice(model):
                 step_args = [a for a in op.arg if a.name.endswith("step_net")]
                 for step_arg in step_args:
                     step_proto = caffe2_pb2.NetDef()
-                    protobuftx.Merge(step_arg.s, step_proto)
+                    protobuftx.Merge(step_arg.s.decode("ascii"), step_proto)
                     map_ops(step_proto)
     map_ops(model.net.Proto())
     model._blob_to_device = mapping
