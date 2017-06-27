@@ -173,6 +173,8 @@ class TestConvolution(hu.HypothesisTestCase):
                                    order, engine, use_bias, gc, dc):
         dkernel = dilation * (kernel - 1) + 1
 
+        if gc.device_type == caffe2_pb2.CPU:
+            assume(engine != 'CUDNN')
         if gc.device_type == caffe2_pb2.CUDA and engine == 'CUDNN':
             assume(_cudnn_supports(dilation=(dilation > 1),
                                    nhwc=(order == 'NHWC')))
@@ -227,9 +229,13 @@ class TestConvolution(hu.HypothesisTestCase):
                                    order, engine, use_bias, gc, dc):
         dkernel = dilation * (kernel - 1) + 1
 
+        if gc.device_type == caffe2_pb2.CPU:
+            assume(engine != 'CUDNN')
         # cuDNN v6+ supports dilated convolutions
-        if (workspace.GetCuDNNVersion() < 6000):
-            assume("" == engine or 1 == dilation)
+        if gc.device_type == caffe2_pb2.CUDA and engine == 'CUDNN':
+            assume(_cudnn_supports(dilation=(dilation > 1),
+                                   nhwc=(order == 'NHWC')))
+
         assume(engine != "MKLDNN" or use_bias is True)
 
         op = core.CreateOperator(
@@ -340,7 +346,7 @@ class TestConvolution(hu.HypothesisTestCase):
            dilation=st.integers(1, 2),
            pad=st.integers(0, 2),
            use_bias=st.booleans(),
-           **hu.gcs)
+           **hu.gcs_gpu_only)
     def test_3d_convolution_cudnn_nchw_forward(self, batch_size, stride, size,
                                                kernel, dilation, pad, use_bias,
                                                gc, dc):
@@ -348,36 +354,36 @@ class TestConvolution(hu.HypothesisTestCase):
         output_channels = 1
         n = 3
         dkernel = dilation * (kernel - 1) + 1
-        order = "nchw"
+        order = "NCHW"
 
         op = core.CreateOperator(
-            "conv",
-            ["x", "w", "b"] if use_bias else ["x", "w"],
+            "Conv",
+            ["X", "W", "b"] if use_bias else ["X", "W"],
             ["y"],
             strides=[stride] * n,
             kernels=[kernel] * n,
             dilations=[dilation] * n,
             pads=[pad] * n * 2,
             order=order,
-            engine="cudnn",
+            engine="CUDNN",
         )
 
         input_dims = [batch_size, input_channels]
         input_dims.extend([size] * n)
         filter_dims = [output_channels, input_channels]
         filter_dims.extend([kernel] * n)
-        x = np.random.rand(*input_dims).astype(np.float32) - 0.5
-        w = np.random.rand(*filter_dims).astype(np.float32) - 0.5
+        X = np.random.rand(*input_dims).astype(np.float32) - 0.5
+        W = np.random.rand(*filter_dims).astype(np.float32) - 0.5
         b = np.random.rand(output_channels).astype(np.float32) - 0.5
 
-        inputs = [x, w, b] if use_bias else [x, w]
+        inputs = [X, W, b] if use_bias else [X, W]
 
         if size + pad + pad < dkernel or size + pad + pad < dkernel:
             with self.assertraises(runtimeerror):
-                self.assertdevicechecks(dc, op, inputs, [0])
+                self.assertDeviceChecks(dc, op, inputs, [0])
             return
 
-        self.assertdevicechecks(dc, op, inputs, [0])
+        self.assertDeviceChecks(dc, op, inputs, [0])
 
     @given(batch_size=st.integers(1, 2),
            stride=st.integers(1, 2),
@@ -386,7 +392,7 @@ class TestConvolution(hu.HypothesisTestCase):
            dilation=st.integers(1, 2),
            pad=st.integers(0, 2),
            use_bias=st.booleans(),
-           **hu.gcs)
+           **hu.gcs_gpu_only)
     def test_3d_convolution_cudnn_nchw_gradient(self, batch_size, stride, size,
                                                 kernel, dilation, pad, use_bias,
                                                 gc, dc):
@@ -394,34 +400,34 @@ class TestConvolution(hu.HypothesisTestCase):
         output_channels = 1
         n = 3
         dkernel = dilation * (kernel - 1) + 1
-        order = "nchw"
+        order = "NCHW"
 
         op = core.CreateOperator(
-            "conv",
-            ["x", "w", "b"] if use_bias else ["x", "w"],
-            ["y"],
+            "Conv",
+            ["X", "W", "b"] if use_bias else ["X", "W"],
+            ["Y"],
             strides=[stride] * n,
             kernels=[kernel] * n,
             dilations=[dilation] * n,
             pads=[pad] * n * 2,
             order=order,
-            engine="cudnn",
+            engine="CUDNN",
         )
 
         input_dims = [batch_size, input_channels]
         input_dims.extend([size] * n)
         filter_dims = [output_channels, input_channels]
         filter_dims.extend([kernel] * n)
-        x = np.random.rand(*input_dims).astype(np.float32) - 0.5
-        w = np.random.rand(*filter_dims).astype(np.float32) - 0.5
+        X = np.random.rand(*input_dims).astype(np.float32) - 0.5
+        W = np.random.rand(*filter_dims).astype(np.float32) - 0.5
         b = np.random.rand(output_channels).astype(np.float32) - 0.5
 
-        inputs = [x, w, b] if use_bias else [x, w]
+        inputs = [X, W, b] if use_bias else [X, W]
 
         if size + pad + pad < dkernel or size + pad + pad < dkernel:
             return
         for i in range(len(inputs)):
-            self.assertgradientchecks(gc, op, inputs, i, [0])
+            self.assertGradientChecks(gc, op, inputs, i, [0])
 
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),
@@ -503,7 +509,7 @@ class TestConvolution(hu.HypothesisTestCase):
            do=st.sampled_from(hu.device_options),
            engine=st.sampled_from(["CUDNN", ""]))
     def test_convolution_sync(self, net_type, num_workers, do, engine):
-        m = ModelHelper(name="test_model")
+        m = ModelHelper(name="test_model", arg_scope={'use_cudnn' : False})
         n = 1
         d = 2
         depth = 3
@@ -514,6 +520,8 @@ class TestConvolution(hu.HypothesisTestCase):
 
         use_cudnn = (engine == 'CUDNN')
 
+        if do.device_type == caffe2_pb2.CPU:
+            assume(engine != 'CUDNN')
         np.random.seed(1701)
         # Build a binary tree of conv layers, summing at each node.
         for i in reversed(range(depth)):
