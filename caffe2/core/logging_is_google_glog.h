@@ -8,7 +8,7 @@
 // it. Some mobile platforms do not like stl_logging, so we add an
 // overload in that case as well.
 
-#if !defined(__CUDACC__) && !defined(CAFFE2_USE_MINIMAL_GOOGLE_GLOG)
+#if !defined(__CUDARCH__) && !defined(CAFFE2_USE_MINIMAL_GOOGLE_GLOG)
 #include <glog/stl_logging.h>
 #else // !defined(__CUDACC__) && !!defined(CAFFE2_USE_MINIMAL_GOOGLE_GLOG)
 

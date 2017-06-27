@@ -117,7 +117,7 @@ using fLB::FLAGS_logtostderr;
 
 #endif // CAFFE2_USE_GFLAGS
 
-CAFFE2_DEFINE_int(caffe2_log_level, google::ERROR,
+CAFFE2_DEFINE_int(caffe2_log_level, google::GLOG_ERROR,
                   "The minimum log level that caffe2 will output.");
 
 // Google glog's api does not have an external function that allows one to check
@@ -136,13 +136,15 @@ bool InitCaffeLogging(int* argc, char** argv) {
   if (*argc == 0) return true;
   if (!::google::glog_internal_namespace_::IsGoogleLoggingInitialized()) {
     ::google::InitGoogleLogging(argv[0]);
+#if !defined(_MSC_VER)
     ::google::InstallFailureSignalHandler();
+#endif
   }
   // If caffe2_log_level is set and is lower than the min log level by glog,
   // we will transfer the caffe2_log_level setting to glog to override that.
   FLAGS_minloglevel = std::min(FLAGS_caffe2_log_level, FLAGS_minloglevel);
   // If caffe2_log_level is explicitly set, let's also turn on logtostderr.
-  if (FLAGS_caffe2_log_level < google::ERROR) {
+  if (FLAGS_caffe2_log_level < google::GLOG_ERROR) {
     FLAGS_logtostderr = 1;
   }
   // Also, transfer the caffe2_log_level verbose setting to glog.
@@ -154,7 +156,7 @@ bool InitCaffeLogging(int* argc, char** argv) {
 
 void ShowLogInfoToStderr() {
   FLAGS_logtostderr = 1;
-  FLAGS_minloglevel = std::min(FLAGS_minloglevel, google::INFO);
+  FLAGS_minloglevel = std::min(FLAGS_minloglevel, google::GLOG_INFO);
 }
 }  // namespace caffe2
 
