@@ -589,6 +589,12 @@ def TranslateBatchNorm(layer, pretrained_blobs, is_test):
     if not is_test:
         caffe_op.output.extend([output + "_mean", output + "_var", output + "_saved_mean", output + "_saved_var"])
 
+    # Divide the mean and variance by the scale to make the SpatialBN computation match the
+    # BatchNorm computation from Caffe
+    pretrained_blobs[0] = pretrained_blobs[0] / pretrained_blobs[2]
+    pretrained_blobs[1] = pretrained_blobs[1] / pretrained_blobs[2]
+    pretrained_blobs[2] = pretrained_blobs[2] / pretrained_blobs[2]
+
     n_channels = pretrained_blobs[0].shape[0] # get C
     mean = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_mean')
     var = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[1], output + '_var')
