@@ -214,8 +214,6 @@ bool CudnnConvDataGradientOp::DoRunWithType() {
   for (int i = 0; i < group_; ++i) {
     cudnn_wrapper_.with_cudnn_state(cudnn_state_, [&](CuDNNState* state) {
       // Compute the gradient w.r.t. the input.
-      auto* dX = Output(INPUT_GRAD);
-      dX->ResizeLike(X);
       CUDNN_ENFORCE(cudnnConvolutionBackwardData(
           state->cudnn_handle(),
           cudnnTypeWrapper<T_W>::kOne(),
