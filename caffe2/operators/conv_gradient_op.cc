@@ -19,7 +19,7 @@ class GetConvGradient : public GradientMakerBase {
     auto engine = def_.engine();
 
     // Use seperate gradient ops
-    if (engine == "CUDNN") {
+    if (engine == "CUDNN" && def_.device_option().device_type() == CUDA) {
       vector<OperatorDef> grad_defs{};
 
       // dW
