@@ -2,6 +2,7 @@
 #define CAFFE2_CORE_WORKSPACE_H_
 
 #include "caffe2/core/common.h"
+#include "caffe2/core/observer.h"
 
 #ifndef CAFFE2_MOBILE
 #error "mobile build state not defined"
@@ -209,7 +210,7 @@ class Workspace {
   bool RunNetOnce(const NetDef& net_def);
 
  public:
-  std::atomic<uint64_t> last_failed_op_uuid;
+  std::atomic<int> last_failed_op_net_position;
 
  private:
   BlobMap blob_map_;

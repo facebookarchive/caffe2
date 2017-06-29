@@ -5,14 +5,9 @@
 
 Caffe2 is a lightweight, modular, and scalable deep learning framework. Building on the original [Caffe](http://caffe.berkeleyvision.org), Caffe2 is designed with expression, speed, and modularity in mind.
 
-## Events
+## News and Events
 
-Caffe2 Bay Area Meetup at NVIDIA, May 31 6-8:30, Santa Clara, CA:
-[https://www.meetup.com/Caffe2-Bay-Area/events/239836290/](https://www.meetup.com/Caffe2-Bay-Area/events/239836290/)
-
-## User Groups
-
-[Caffe2 Community Facebook Group](https://www.facebook.com/groups/caffe2ai/): join to ask questions, talk to other users, and keep informed of important Caffe2 updates.
+[Caffe2 research award competition request for proposals](https://research.fb.com/programs/research-awards/proposals/caffe2-request-for-proposals/)
 
 ## Questions and Feedback
 

@@ -7,7 +7,7 @@ import numpy as np
 import unittest
 import time
 
-from caffe2.python import workspace, cnn
+from caffe2.python import workspace, model_helper
 from caffe2.python import timeout_guard
 import caffe2.python.data_workers as data_workers
 
@@ -40,7 +40,7 @@ class DataWorkersTest(unittest.TestCase):
     def testNonParallelModel(self):
         workspace.ResetWorkspace()
 
-        model = cnn.CNNModelHelper(name="test")
+        model = model_helper.ModelHelper(name="test")
         old_seq_id = data_workers.global_coordinator._fetcher_id_seq
         coordinator = data_workers.init_data_input_workers(
             model,
@@ -78,7 +78,7 @@ class DataWorkersTest(unittest.TestCase):
 
     def testRNNInput(self):
         workspace.ResetWorkspace()
-        model = cnn.CNNModelHelper(name="rnn_test")
+        model = model_helper.ModelHelper(name="rnn_test")
         old_seq_id = data_workers.global_coordinator._fetcher_id_seq
         coordinator = data_workers.init_data_input_workers(
             model,
@@ -135,7 +135,8 @@ class DataWorkersTest(unittest.TestCase):
             return [data, label, seq_lengths]
 
         workspace.ResetWorkspace()
-        model = cnn.CNNModelHelper(name="rnn_test_order")
+        model = model_helper.ModelHelper(name="rnn_test_order")
+
         coordinator = data_workers.init_data_input_workers(
             model,
             input_blob_names=["data2", "label2", "seq_lengths2"],
@@ -148,7 +149,7 @@ class DataWorkersTest(unittest.TestCase):
         )
         coordinator.start()
 
-        val_model = cnn.CNNModelHelper(name="rnn_test_order_val")
+        val_model = model_helper.ModelHelper(name="rnn_test_order_val")
         coordinator1 = data_workers.init_data_input_workers(
             val_model,
             input_blob_names=["data2", "label2", "seq_lengths2"],
@@ -168,26 +169,27 @@ class DataWorkersTest(unittest.TestCase):
         while coordinator._coordinators[0]._inputs < 900:
             time.sleep(0.01)
 
-        for m in (model, val_model):
-            print(m.net.Proto().name)
-            workspace.RunNet(m.net.Proto().name)
-            last_data = workspace.FetchBlob('data2')[0][0][0]
-            last_lab = workspace.FetchBlob('label2')[0][0]
-            last_seq = workspace.FetchBlob('seq_lengths2')[0]
-
-            # Run few rounds
-            for _i in range(10):
+        with timeout_guard.CompleteInTimeOrDie(5):
+            for m in (model, val_model):
+                print(m.net.Proto().name)
                 workspace.RunNet(m.net.Proto().name)
-                data = workspace.FetchBlob('data2')[0][0][0]
-                lab = workspace.FetchBlob('label2')[0][0]
-                seq = workspace.FetchBlob('seq_lengths2')[0]
-                self.assertEqual(data, last_data + 1)
-                self.assertEqual(lab, last_lab + 1)
-                self.assertEqual(seq, last_seq + 1)
-                last_data = data
-                last_lab = lab
-                last_seq = seq
+                last_data = workspace.FetchBlob('data2')[0][0][0]
+                last_lab = workspace.FetchBlob('label2')[0][0]
+                last_seq = workspace.FetchBlob('seq_lengths2')[0]
 
-        time.sleep(0.2)
+                # Run few rounds
+                for _i in range(10):
+                    workspace.RunNet(m.net.Proto().name)
+                    data = workspace.FetchBlob('data2')[0][0][0]
+                    lab = workspace.FetchBlob('label2')[0][0]
+                    seq = workspace.FetchBlob('seq_lengths2')[0]
+                    self.assertEqual(data, last_data + 1)
+                    self.assertEqual(lab, last_lab + 1)
+                    self.assertEqual(seq, last_seq + 1)
+                    last_data = data
+                    last_lab = lab
+                    last_seq = seq
 
-        self.assertTrue(coordinator.stop())
+            time.sleep(0.2)
+
+            self.assertTrue(coordinator.stop())

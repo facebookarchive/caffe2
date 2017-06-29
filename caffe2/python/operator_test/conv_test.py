@@ -2,13 +2,32 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import collections
+import functools
+
 import numpy as np
 from hypothesis import assume, given
 import hypothesis.strategies as st
-import collections
 
-from caffe2.python import core, workspace
+from caffe2.proto import caffe2_pb2
+from caffe2.python import brew, core, workspace
 import caffe2.python.hypothesis_test_util as hu
+from caffe2.python.model_helper import ModelHelper
+
+
+def _cudnn_supports(
+        dilation=False,
+        nhwc=False,
+):
+    """Return True if cuDNN supports this configuration."""
+    v = workspace.GetCuDNNVersion()
+    if dilation and v < 6000:
+        # Dilation not supported until v6
+        return False
+    if dilation and nhwc:
+        # Dilation and NHWC not supported together
+        return False
+    return True
 
 
 class TestConvolution(hu.HypothesisTestCase):
@@ -153,9 +172,10 @@ class TestConvolution(hu.HypothesisTestCase):
                                    order, engine, use_bias, gc, dc):
         dkernel = dilation * (kernel - 1) + 1
 
-        # cuDNN v6+ supports dilated convolutions
-        if (workspace.GetCuDNNVersion() < 6000):
-            assume("" == engine or 1 == dilation)
+        if gc.device_type == caffe2_pb2.CUDA and engine == 'CUDNN':
+            assume(_cudnn_supports(dilation=(dilation > 1),
+                                   nhwc=(order == 'NHWC')))
+
         assume(engine != "MKLDNN" or use_bias is True)
 
         op = core.CreateOperator(
@@ -334,13 +354,10 @@ class TestConvolution(hu.HypothesisTestCase):
         outputs = []
 
         for order in ["NCHW", "NHWC"]:
-            cudnn_v6p = workspace.GetCuDNNVersion() >= 6000
-            dilated_conv = dilation > 1
-            dilated_conv_nchw = (dilated_conv and order == "NCHW")
-            # cuDNN v6+ supports dilated convolutions only for NCHW
-            engine_list = ["", "CUDNN"] \
-                if (not dilated_conv) or (cudnn_v6p and dilated_conv_nchw) \
-                else [""]
+            engine_list = ['']
+            if _cudnn_supports(dilation=(dilation > 1), nhwc=(order == 'NHWC')):
+                engine_list.append('CUDNN')
+
             for engine in engine_list:
                 op = core.CreateOperator(
                     "Conv",
@@ -392,8 +409,6 @@ class TestConvolution(hu.HypothesisTestCase):
            do=st.sampled_from(hu.device_options),
            engine=st.sampled_from(["CUDNN", ""]))
     def test_convolution_sync(self, net_type, num_workers, do, engine):
-        from caffe2.python.model_helper import ModelHelper
-        from caffe2.python import brew
         m = ModelHelper(name="test_model")
         n = 1
         d = 2
@@ -402,6 +417,8 @@ class TestConvolution(hu.HypothesisTestCase):
         h = 5
         w = 5
         workspace.ResetWorkspace()
+
+        use_cudnn = (engine == 'CUDNN')
 
         np.random.seed(1701)
         # Build a binary tree of conv layers, summing at each node.
@@ -423,6 +440,7 @@ class TestConvolution(hu.HypothesisTestCase):
                     stride=1,
                     pad=1,
                     deterministic=1,
+                    use_cudnn=use_cudnn,
                     engine=engine)
                 brew.conv(
                     m, bottom_2, mid_2,
@@ -434,6 +452,7 @@ class TestConvolution(hu.HypothesisTestCase):
                     bias_init=('ConstantFill', dict(value=b2)),
                     deterministic=1,
                     cudnn_state=np.random.randint(0, 3),
+                    use_cudnn=use_cudnn,
                     engine=engine)
                 m.net.Sum([mid_1, mid_2], top)
 
@@ -471,6 +490,44 @@ class TestConvolution(hu.HypothesisTestCase):
                 np.sum(np.square(output)),
                 1763719461732352.0,
                 rtol=1e-5)
+
+    def test_use_cudnn_engine_interactions(self):
+        """Make sure the use_cudnn and engine kwargs work as expected."""
+        for model_default in [None, True, False]:
+            arg_scope = {}
+            if model_default is not None:
+                arg_scope['use_cudnn'] = model_default
+            else:
+                model_default = True  # the default
+
+            model = ModelHelper(arg_scope=arg_scope)
+            self.assertEqual(model.arg_scope['use_cudnn'], model_default)
+            f = functools.partial(brew.conv, model,
+                                  'conv_in', 'conv_out', 10, 10, 5)
+
+            for op_cudnn in [None, True, False]:
+                for op_engine in [None, '', 'CUDNN']:
+                    kwargs = {}
+                    if op_cudnn is not None:
+                        kwargs['use_cudnn'] = op_cudnn
+                    else:
+                        op_cudnn = False  # the default
+                    if op_engine is not None:
+                        kwargs['engine'] = op_engine
+
+                    calculated_cudnn = kwargs.get('use_cudnn', model_default)
+                    expected_engine = kwargs.get(
+                        'engine',
+                        'CUDNN' if calculated_cudnn else '')
+
+                    if ((calculated_cudnn is True and op_engine == '') or
+                            (calculated_cudnn is False and op_engine == 'CUDNN')):
+                        with self.assertRaises(ValueError):
+                            f(**kwargs)
+                    else:
+                        f(**kwargs)
+                        self.assertEqual(model.Proto().op[-1].engine,
+                                         expected_engine)
 
 
 if __name__ == "__main__":

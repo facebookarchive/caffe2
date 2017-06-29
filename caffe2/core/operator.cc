@@ -50,9 +50,10 @@ unique_ptr<OperatorBase> TryCreateOperator(
   try {
     return registry->Create(key, operator_def, ws);
   } catch (const UnsupportedOperatorFeature& err) {
-    VLOG(1) << "Operator " << operator_def.type()
-            << " does not support the requested feature. Msg: " << err.what()
-            << ". Proto is: " << ProtoDebugString(operator_def);
+    LOG(WARNING) << "Operator " << operator_def.type()
+                 << " does not support the requested feature. Msg: "
+                 << err.what()
+                 << ". Proto is: " << ProtoDebugString(operator_def);
     return nullptr;
   }
 }
@@ -116,17 +117,19 @@ unique_ptr<OperatorBase> _CreateOperator(
 
 unique_ptr<OperatorBase> CreateOperator(
     const OperatorDef& operator_def,
-    Workspace* ws) {
+    Workspace* ws,
+    int net_position) {
   try {
     auto op = _CreateOperator(operator_def, ws);
+    op->set_net_position(net_position);
     return op;
   } catch (...) {
-    if (operator_def.has_uuid()) {
-      auto uuid = operator_def.uuid();
-      VLOG(1) << "Operator constructor with uuid " << uuid << " failed";
-      ws->last_failed_op_uuid = uuid;
+    if (net_position != 0) {
+      VLOG(1) << "Operator constructor with net position " << net_position
+              << " failed";
+      ws->last_failed_op_net_position = net_position;
     } else {
-      VLOG(1) << "Failed operator constructor doesn't have uuid set";
+      VLOG(1) << "Failed operator constructor doesn't have an id set";
     }
     throw;
   }

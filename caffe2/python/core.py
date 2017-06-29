@@ -6,14 +6,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from collections import namedtuple, OrderedDict
-try:
-    from past.builtins import basestring
-except ImportError:
-    print("You don't have the past package installed. ",
-          "This is necessary for python 2/3 compatibility. ",
-          "To do this, do 'pip install future'.")
-    import sys
-    sys.exit(1)
+from past.builtins import basestring
+from six import binary_type, string_types, text_type
 
 from caffe2.proto import caffe2_pb2
 from collections import defaultdict
@@ -21,8 +15,6 @@ from caffe2.python import scope, utils, workspace
 import caffe2.python._import_c_extension as C
 import pickle
 import numpy as np
-import uuid
-import traceback
 import sys
 
 # Mac os specific message
@@ -139,7 +131,12 @@ class BlobReference(object):
         Note that this does not prepends the namescope. If needed, use
         ScopedBlobReference() to prepend the existing namespace.
         """
-        self._name = name
+        if isinstance(name, string_types):
+            self._name = name
+        elif isinstance(name, binary_type):
+            self._name = name.decode('utf-8')
+        else:
+            self._name = str(name)
         self._from_net = net
         # meta allows helper functions to put whatever metainformation needed
         # there.
@@ -149,8 +146,10 @@ class BlobReference(object):
         return hash(self._name)
 
     def __eq__(self, other):
-        if isinstance(other, basestring):
+        if isinstance(other, string_types):
             return self._name == other
+        elif isinstance(other, binary_type):
+            return self._name == other.decode('utf-8')
         elif isinstance(other, BlobReference):
             return self._name == other._name
         else:
@@ -166,12 +165,12 @@ class BlobReference(object):
         return 'BlobReference("{}")'.format(self._name)
 
     def __add__(self, other):
-        if not isinstance(other, basestring):
+        if not isinstance(other, string_types):
             raise RuntimeError('Cannot add BlobReference to a non-string.')
         return BlobReference(self._name + other, self._from_net)
 
     def __radd__(self, other):
-        if not isinstance(other, basestring):
+        if not isinstance(other, string_types):
             raise RuntimeError('Cannot add a non-string to BlobReference.')
         return BlobReference(other + self._name, self._from_net)
 
@@ -186,7 +185,7 @@ class BlobReference(object):
         network's __getattr__ function.
         """
         inputs = [] if inputs is None else inputs
-        if isinstance(inputs, BlobReference) or isinstance(inputs, str):
+        if isinstance(inputs, BlobReference) or isinstance(inputs, string_types):
             inputs = [inputs]
         # add self to the input list.
         inputs.insert(0, self)
@@ -229,7 +228,7 @@ class BlobReference(object):
 
 def ScopedName(name):
     """prefix the name with the current scope."""
-    if isinstance(name, bytes):
+    if isinstance(name, binary_type):
         name = name.decode('ascii')
     return scope.CurrentNameScope() + name
 
@@ -243,7 +242,7 @@ def _RectifyInputOutput(blobs, net=None):
     """A helper function to rectify the input or output of the CreateOperator
     interface.
     """
-    if isinstance(blobs, basestring):
+    if isinstance(blobs, string_types):
         # If blobs is a single string, prepend scope.CurrentNameScope()
         # and put it as a list.
         # TODO(jiayq): enforce using BlobReference instead of raw strings.
@@ -255,7 +254,7 @@ def _RectifyInputOutput(blobs, net=None):
         # If blob is a list, we go through it and type check.
         rectified = []
         for blob in blobs:
-            if isinstance(blob, basestring):
+            if isinstance(blob, string_types) or isinstance(blob, binary_type):
                 rectified.append(ScopedBlobReference(blob, net=net))
             elif type(blob) is BlobReference:
                 rectified.append(blob)
@@ -292,11 +291,11 @@ def CreateOperator(
     # Add rectified inputs and outputs
     inputs = _RectifyInputOutput(inputs)
     outputs = _RectifyInputOutput(outputs)
-    operator.input.extend([str(i) for i in inputs])
-    operator.output.extend([str(o) for o in outputs])
+    operator.input.extend([text_type(i) for i in inputs])
+    operator.output.extend([text_type(o) for o in outputs])
     if control_input:
         control_input = _RectifyInputOutput(control_input)
-        operator.control_input.extend([str(i) for i in control_input])
+        operator.control_input.extend([text_type(i) for i in control_input])
     # Set device option:
     # (1) If device_option is explicitly set, use device_option.
     # (2) If not, but scope.CurrentDeviceScope() is set,
@@ -319,18 +318,7 @@ def CreateOperator(
     # Add all other arguments
     for key, value in kwargs.items():
         operator.arg.add().CopyFrom(utils.MakeArgument(key, value))
-    operator.uuid = uuid.uuid4().int >> 64
-    stack = traceback.extract_stack()
 
-    # string part of the stack that belongs to this file
-
-    for i, line in reversed(list(enumerate(stack))):
-        # get path of the core.py file
-        name = __name__.replace('.', '/') + ".py"
-        if name not in ' '.join(map(str, line)):
-            break
-
-    workspace.operator_tracebacks[operator.uuid] = stack[:i + 1]
     if workspace.IsImmediate():
         workspace.RunOperatorImmediate(operator)
     return operator
@@ -938,9 +926,13 @@ class IR(object):
         all_input_to_grad_out = {}
         for key, val in all_input_to_grad.items():
             if val is not None:
-                all_input_to_grad_out[BlobReference(key)] = (
-                    BlobReference(val) if isinstance(val, basestring) else
-                    GradientSlice(BlobReference(val[0]), BlobReference(val[1])))
+                if (isinstance(val, string_types) or
+                        isinstance(val, binary_type)):
+                    grad_out = BlobReference(val)
+                else:
+                    grad_out = GradientSlice(BlobReference(val[0]),
+                                             BlobReference(val[1]))
+                all_input_to_grad_out[BlobReference(key)] = grad_out
         return all_gradient_ops, all_input_to_grad_out
 
 
@@ -1565,10 +1557,11 @@ class Net(object):
         return self._net
 
     def PopulateProtoWithFileName(self):
-        for op in self.Proto().op:
-            if op.uuid in workspace.operator_tracebacks:
-                tb = workspace.operator_tracebacks[op.uuid]
-                op.name = ':'.join(map(str, tb[-1][:2]))
+        net_tb = workspace.operator_tracebacks.get(self.Name(), None)
+        if net_tb is not None:
+            for idx, op in enumerate(self.Proto().op):
+                if idx in net_tb:
+                    op.name = ':'.join(map(str, net_tb[idx][0]))
 
     def NextScopedBlob(self, prefix='unnamed'):
         """Return the blob that has not been defined or registered in the
@@ -1617,7 +1610,7 @@ class Net(object):
     def _ExtendOps(self, new_ops):
         self._net.op.extend(new_ops)
         for op in new_ops:
-            self._op_outputs.update([str(o) for o in op.output])
+            self._op_outputs.update([text_type(o) for o in op.output])
 
     def _CheckLookupTables(self):
         '''
@@ -1709,7 +1702,7 @@ class Net(object):
 
     def AddScopedExternalInputs(self, *inputs):
         res = self.AddExternalInput(
-            * [ScopedBlobReference(str(b)) for b in inputs]
+            * [ScopedBlobReference(b) for b in inputs]
         )
         if not isinstance(res, list):
             res = [res]
@@ -1717,7 +1710,7 @@ class Net(object):
 
     def AddScopedExternalOutputs(self, *outputs):
         return self.AddExternalOutput(
-            * [ScopedBlobReference(str(b)) for b in outputs]
+            * [ScopedBlobReference(b) for b in outputs]
         )
 
     @property
@@ -1841,12 +1834,16 @@ class Net(object):
         outputs = _RectifyInputOutput(outputs, net=self)
         op = CreateOperator(op_type, inputs, outputs, **kwargs)
         self._ExtendOps([op])
+
+        workspace.operator_tracebacks[self.Name()][
+            len(self._net.op) - 1] = _extract_stacktrace()
+
         if len(op.output) == 0:
             return
         elif len(op.output) == 1:
-            return BlobReference(str(op.output[0]), self)
+            return BlobReference(op.output[0], self)
         else:
-            return tuple(BlobReference(str(o), self) for o in op.output)
+            return tuple(BlobReference(o, self) for o in op.output)
 
     def __getattr__(self, op_type):
         if op_type.startswith('__'):
@@ -2074,13 +2071,15 @@ def InjectCrossDeviceCopies(net, blob_to_device=None):
                     temp_remap[input] = new_name
                     blob_to_device[new_name] = dev
 
-        # Enforcing no in-place blob usage
+        # Enforcing no reuse blob between operators. In-place blob usage in an
+        # op is allowed. This is based on the assumption that in-place op has
+        # same device info
         for out_blob in op.output:
-            if out_blob in blob_to_device:
+            if out_blob in blob_to_device and out_blob not in op.input:
                 raise RuntimeError(
-                    "In-place blob: {} is not supported for inject device copy "
-                    "yet. Consider implementing it.".
-                    format(out_blob)
+                    "In-place blob: {} is not supported between operators. "
+                    "Failed op:\n {}".
+                    format(out_blob, op)
                 )
         blob_to_device.update({o: d for d, o in zip(output_dev, op.output)})
         new_op = caffe2_pb2.OperatorDef()
@@ -2232,6 +2231,14 @@ class ExecutionStep(object):
     def SetIter(self, num_iter):
         self._assert_can_mutate()
         self._step.num_iter = num_iter
+
+    def SetCreateWorkspace(self, create_workspace):
+        self._assert_can_mutate()
+        self._step.create_workspace = create_workspace
+
+    def SetNumConcurrentInstances(self, num_concurrent_instances):
+        self._assert_can_mutate()
+        self._step.num_concurrent_instances = num_concurrent_instances
 
     def SetOnlyOnce(self, only_once):
         self._assert_can_mutate()
@@ -2386,7 +2393,9 @@ def execution_step(default_name,
                    report_interval=None,
                    concurrent_substeps=None,
                    should_stop_blob=None,
-                   only_once=None):
+                   only_once=None,
+                   num_concurrent_instances=None,
+                   create_workspace=False):
     """
     Helper for creating an ExecutionStep.
     - steps_or_nets can be:
@@ -2418,6 +2427,10 @@ def execution_step(default_name,
     if report_net is not None:
         assert report_interval is not None
         step.SetReportNet(report_net, report_interval)
+    if num_concurrent_instances is not None:
+        step.SetNumConcurrentInstances(num_concurrent_instances)
+    if create_workspace:
+        step.SetCreateWorkspace(True)
 
     if isinstance(steps_or_nets, ExecutionStep):
         step.AddSubstep(steps_or_nets)
@@ -2440,3 +2453,31 @@ def scoped_execution_step(name, *args, **kwargs):
     """Same as execution_step() except that the step name is scoped."""
     default_name = ScopedName(name) if name else name
     return execution_step(default_name, *args, **kwargs)
+
+
+def _extract_stacktrace():
+    '''
+    This function extracts stacktrace without file system access
+    by purely using sys._getframe() and removes part that belongs to
+    this file (core.py). We are not using inspect module because
+    its just a wrapper on top of sys._getframe() whos
+    logis is based on accessing source files on disk - exactly what
+    we are trying to avoid here. Same stands for traceback module
+
+    The reason for file system access avoidance is that
+    if code is located on an NFS, file access might be slow
+
+    Function returns a list of tuples (file_name, line_number)
+    '''
+
+    current_file_name = __name__.replace('.', '/') + ".py"
+    result = []
+    frame = sys._getframe(1)
+    # We just go down the frame stack in a loop
+    while frame:
+        if current_file_name not in frame.f_code.co_filename:
+            # Its important to extract information from the frame here
+            # as frame's current line most probably will change later.
+            result.append((frame.f_code.co_filename, frame.f_lineno))
+        frame = frame.f_back
+    return result

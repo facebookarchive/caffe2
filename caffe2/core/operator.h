@@ -129,33 +129,45 @@ class OperatorBase {
     return arg_helper_;
   }
 
-  void SetObserver(ObserverBase<OperatorBase>* observer) {
-    observer_ = observer;
+  void SetObserver(std::unique_ptr<ObserverBase<OperatorBase>> observer) {
+    observer_ = std::move(observer);
   }
 
   void RemoveObserver() {
     observer_ = nullptr;
   }
 
-  void RecordLastFailedUuid() {
-    if (this->def().has_uuid()) {
-      auto uuid = this->def().uuid();
-      VLOG(1) << "Operator with uuid " << uuid << " failed";
-      operator_ws_->last_failed_op_uuid = uuid;
+  void RecordLastFailedOpNetPosition() {
+    if (net_position_ != kNoNetPositionSet) {
+      VLOG(1) << "Operator with id " << net_position_ << " failed";
+      operator_ws_->last_failed_op_net_position = net_position_;
     } else {
-      VLOG(1) << "Failed operator doesn't have uuid set";
+      VLOG(1) << "Failed operator doesn't have id set";
     }
   }
 
+  void set_net_position(int idx) {
+    net_position_ = idx;
+  }
+
+ public:
+  static constexpr int kNoNetPositionSet = -1;
+
+  ObserverBase<OperatorBase>* GetObserver() {
+    return observer_.get();
+  }
+
  protected:
-  ObserverBase<OperatorBase>* observer_ = nullptr;
   Workspace* operator_ws_;
+  std::unique_ptr<ObserverBase<OperatorBase>> observer_;
 
  private:
   OperatorDef operator_def_;
   ArgumentHelper arg_helper_;
   vector<const Blob*> inputs_;
   vector<Blob*> outputs_;
+
+  int net_position_{kNoNetPositionSet};
 
   DISABLE_COPY_AND_ASSIGN(OperatorBase);
 };
@@ -222,7 +234,7 @@ class Operator : public OperatorBase {
       bool finished = context_.FinishDeviceComputation();
       auto result = started && finished;
       if (!result) {
-        this->RecordLastFailedUuid();
+        this->RecordLastFailedOpNetPosition();
       }
       if (!finished) {
         // FinishDeviceComputation() returning error basically means that there
@@ -238,10 +250,10 @@ class Operator : public OperatorBase {
     } catch (EnforceNotMet& err) {
       err.AppendMessage("Error from operator: \n" + ProtoDebugString(def()));
       AddRelatedBlobInfo(&err);
-      this->RecordLastFailedUuid();
+      this->RecordLastFailedOpNetPosition();
       throw;
     } catch (...) {
-      this->RecordLastFailedUuid();
+      this->RecordLastFailedOpNetPosition();
       throw;
     }
   }
@@ -251,16 +263,16 @@ class Operator : public OperatorBase {
       context_.SwitchToDevice(stream_id);
       auto result = RunOnDevice();
       if (!result) {
-        this->RecordLastFailedUuid();
+        this->RecordLastFailedOpNetPosition();
       }
       return result;
     } catch (EnforceNotMet& err) {
       err.AppendMessage("Error from operator: \n" + ProtoDebugString(def()));
       AddRelatedBlobInfo(&err);
-      this->RecordLastFailedUuid();
+      this->RecordLastFailedOpNetPosition();
       throw;
     } catch (...) {
-      this->RecordLastFailedUuid();
+      this->RecordLastFailedOpNetPosition();
       throw;
     }
   }
@@ -560,7 +572,9 @@ class UnsupportedOperatorFeature : public std::exception {
 // Creates an operator with the given operator definition.
 // Throws on error and never returns nullptr
 unique_ptr<OperatorBase> CreateOperator(
-    const OperatorDef& operator_def, Workspace* ws);
+    const OperatorDef& operator_def,
+    Workspace* ws,
+    int net_position = OperatorBase::kNoNetPositionSet);
 
 TensorShapes InferBlobShapesAndTypesFromWorkspace(
     Workspace* ws,

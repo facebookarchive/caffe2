@@ -285,9 +285,9 @@ DAGNetBase::DAGNetBase(const NetDef& net_def, Workspace* ws)
     if (!op_def.has_device_option() && net_def_has_device_option) {
       OperatorDef temp_def(op_def);
       temp_def.mutable_device_option()->CopyFrom(net_def.device_option());
-      operator_nodes_[idx].operator_ = CreateOperator(temp_def, ws);
+      operator_nodes_[idx].operator_ = CreateOperator(temp_def, ws, idx);
     } else {
-      operator_nodes_[idx].operator_ = CreateOperator(op_def, ws);
+      operator_nodes_[idx].operator_ = CreateOperator(op_def, ws, idx);
     }
     // Check the inputs, and set up parents if necessary. This addressese the
     // read after write case.
@@ -418,6 +418,9 @@ DAGNetBase::~DAGNetBase() {
 }
 
 bool DAGNetBase::Run() {
+  if (observer_) {
+    observer_->Start();
+  }
   // Lock run_in_progress_ to prevent concurrent Run()s.
   std::unique_lock<std::mutex> run_lock(run_in_progress_);
   VLOG(1) << "Running parallel net.";
@@ -479,6 +482,9 @@ bool DAGNetBase::Run() {
         "(",
         op.operator_->def().type(),
         ") has some runtime parents left.");
+  }
+  if (observer_) {
+    observer_->Stop();
   }
   // If the above while loop finished, we know that the current run finished.
   return success_;
@@ -542,7 +548,9 @@ void DAGNetBase::WorkerFunction() {
       remaining_ops_ -= chain.size();
       CAFFE_ENFORCE(remaining_ops_ >= 0);
       success_ &= this_success;
-      cv_.notify_one();
+      if (remaining_ops_ == 0 || !success_) {
+        cv_.notify_one();
+      }
 
       // Terminate thread if this or any other operator chain failed.
       if (!success_) {

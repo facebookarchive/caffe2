@@ -91,7 +91,7 @@ class TestDB(unittest.TestCase):
             ('field2', a)
         )
         self.assertEquals(s['field2:lengths'], a.lengths)
-        self.assertEquals(s['field2:items'], a.items)
+        self.assertEquals(s['field2:values'], a.items)
         with self.assertRaises(KeyError):
             s['fields2:items:non_existent']
         with self.assertRaises(KeyError):
@@ -106,8 +106,8 @@ class TestDB(unittest.TestCase):
             ('field1', schema.Scalar(dtype=np.int32)),
             ('field2', a)
         )
-        self.assertEquals(s['field2:keys'], a.keys)
-        self.assertEquals(s['field2:values'], a.values)
+        self.assertEquals(s['field2:values:keys'], a.keys)
+        self.assertEquals(s['field2:values:values'], a.values)
         with self.assertRaises(KeyError):
             s['fields2:keys:non_existent']
 
@@ -173,6 +173,46 @@ class TestDB(unittest.TestCase):
         self.assertIn("a", sv.fields)
         self.assertIn("b", sv.fields)
         self.assertEqual(0, len(sv.b.fields))
+
+    def testStructSubstraction(self):
+        s1 = schema.Struct(
+            ('a', schema.Scalar()),
+            ('b', schema.Scalar()),
+            ('c', schema.Scalar()),
+        )
+        s2 = schema.Struct(
+            ('b', schema.Scalar())
+        )
+        s = s1 - s2
+        self.assertEqual(['a', 'c'], s.field_names())
+
+        s3 = schema.Struct(
+            ('a', schema.Scalar())
+        )
+        s = s1 - s3
+        self.assertEqual(['b', 'c'], s.field_names())
+
+        with self.assertRaises(TypeError):
+            s1 - schema.Scalar()
+
+    def testStructNestedSubstraction(self):
+        s1 = schema.Struct(
+            ('a', schema.Scalar()),
+            ('b', schema.Struct(
+                ('c', schema.Scalar()),
+                ('d', schema.Scalar()),
+                ('e', schema.Scalar()),
+                ('f', schema.Scalar()),
+            )),
+        )
+        s2 = schema.Struct(
+            ('b', schema.Struct(
+                ('d', schema.Scalar()),
+                ('e', schema.Scalar()),
+            )),
+        )
+        s = s1 - s2
+        self.assertEqual(['a', 'b:c', 'b:f'], s.field_names())
 
     def testStructAddition(self):
         s1 = schema.Struct(

@@ -141,11 +141,8 @@ class ResnetMemongerTest(hu.HypothesisTestCase):
 
         workspace.RunNetOnce(optim_proto)
         optimized_loss1 = workspace.FetchBlob("gpu_0/last_out_L1000")
-        print("num shared: {}".format(num_shared_blobs))
-        print("before: {} after: {}".format(count_before, count_after))
         self.assertTrue(count_after < count_before)
-        self.assertTrue(num_shared_blobs < 25)
-
+        self.assertTrue(num_shared_blobs < 7)
         np.testing.assert_almost_equal(loss1, optimized_loss1)
 
 

@@ -20,7 +20,7 @@ import hypothesis.strategies as st
 
 
 def _assert_arrays_equal(actual, ref, err_msg):
-    if ref.dtype.kind in ('S', 'O'):
+    if ref.dtype.kind in ('S', 'O', 'U'):
         np.testing.assert_array_equal(actual, ref, err_msg=err_msg)
     else:
         np.testing.assert_allclose(
@@ -638,7 +638,7 @@ class TestDatasetOps(TestCase):
         )
         print('Sample histogram: {}'.format(hist))
 
-        self.assertTrue(all(hist > 0.7 * (num_to_collect / 10)))
+        self.assertTrue(all(hist > 0.6 * (num_to_collect / 10)))
         for i in range(1, len(blobs)):
             result = workspace.FetchBlob(bconcated_map[blobs[i]])
             self.assertEqual(reference_result.tolist(), result.tolist())

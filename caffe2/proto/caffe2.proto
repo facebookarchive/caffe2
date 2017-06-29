@@ -160,8 +160,6 @@ message OperatorDef {
   // is_gradient_op argument is only used as a hint in shape inference
   // and has no runtime significance
   optional bool is_gradient_op = 9 [default = false];
-  // a random uuid used for joining with extra meta info
-  optional uint64 uuid = 10 [default = 0];
 }
 
 // Network definition.
@@ -265,6 +263,13 @@ message ExecutionStep {
   // if only_once is true, this step will only be executed once. this ONLY takes
   // effect when using should_stop_blob
   optional bool only_once = 10;
+
+  // Whether to create a child workspace for this step.
+  // If yes, the workflow and nets are re-created every time this step is run.
+  optional bool create_workspace = 12;
+
+  // How many copies of the children exeuction steps to run concurrently.
+  optional int32 num_concurrent_instances = 13;
 }
 
 message PlanDef {

@@ -36,32 +36,23 @@ OPERATOR_SCHEMA(SleepOp)
     .NumOutputs(0, INT_MAX)
     .AllowInplace({{0, 0}, {1, 1}});
 
-const std::basic_string<char> kExampleNetDefString = {
-    "  name: \"example\""
-    "  op {"
-    "    input: \"in\""
-    "    output: \"hidden\""
-    "    type: \"SleepOp\""
-    "  }"
-    "  op {"
-    "    input: \"hidden\""
-    "    output: \"out\""
-    "    type: \"SleepOp\""
-    "  }"};
-
-unique_ptr<NetBase> CreateNetTestHelper(
-    Workspace* ws,
-    const vector<string>& input,
-    const vector<string>& output) {
+unique_ptr<NetBase> CreateNetTestHelper(Workspace* ws) {
   NetDef net_def;
-  CAFFE_ENFORCE(google::protobuf::TextFormat::ParseFromString(
-      kExampleNetDefString, &net_def));
-  for (const auto& name : input) {
-    net_def.add_external_input(name);
+  {
+    auto& op = *(net_def.add_op());
+    op.set_type("SleepOp");
+    op.add_input("in");
+    op.add_output("hidden");
   }
-  for (const auto& name : output) {
-    net_def.add_external_output(name);
+  {
+    auto& op = *(net_def.add_op());
+    op.set_type("SleepOp");
+    op.add_input("hidden");
+    op.add_output("out");
   }
+  net_def.add_external_input("in");
+  net_def.add_external_output("out");
+
   return CreateNet(net_def, ws);
 }
 }
@@ -70,14 +61,18 @@ TEST(TimeObserverTest, Test3Seconds) {
   Workspace ws;
   ws.CreateBlob("in");
   NetDef net_def;
-  unique_ptr<NetBase> net(CreateNetTestHelper(&ws, {"in"}, {"out"}));
-  unique_ptr<TimeObserver<SimpleNet>> net_ob =
-      make_unique<TimeObserver<SimpleNet>>(
-          *(caffe2::dynamic_cast_if_rtti<SimpleNet*>(net.get())));
-  net.get()->Run();
-  CAFFE_ENFORCE(net_ob.get()->average_time_children() > 3000);
-  CAFFE_ENFORCE(net_ob.get()->average_time_children() < 3500);
-  CAFFE_ENFORCE(net_ob.get()->average_time() > 6000);
-  CAFFE_ENFORCE(net_ob.get()->average_time() < 6500);
+  unique_ptr<NetBase> net(CreateNetTestHelper(&ws));
+  unique_ptr<TimeObserver<NetBase>> net_ob =
+      make_unique<TimeObserver<NetBase>>(net.get());
+  net->SetObserver(std::move(net_ob));
+  net->Run();
+  auto* ob = dynamic_cast_if_rtti<TimeObserver<NetBase>*>(net->GetObserver());
+  CAFFE_ENFORCE(ob);
+  LOG(INFO) << "av time children: " << ob->average_time_children();
+  LOG(INFO) << "av time: " << ob->average_time();
+  CAFFE_ENFORCE(ob->average_time_children() > 3000);
+  CAFFE_ENFORCE(ob->average_time_children() < 3500);
+  CAFFE_ENFORCE(ob->average_time() > 6000);
+  CAFFE_ENFORCE(ob->average_time() < 6500);
 }
 }
