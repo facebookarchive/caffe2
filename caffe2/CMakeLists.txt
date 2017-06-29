@@ -54,6 +54,11 @@ if (FALSE)
     message(STATUS "  " ${tmp})
   endforeach()
 
+  message(STATUS "ROCm sources: ")
+  foreach(tmp ${Caffe2_ROCM_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
+
   message(STATUS "CPU test sources: ")
   foreach(tmp ${Caffe2_CPU_TEST_SRCS})
     message(STATUS "  " ${tmp})
@@ -63,6 +68,12 @@ if (FALSE)
   foreach(tmp ${Caffe2_GPU_TEST_SRCS})
     message(STATUS "  " ${tmp})
   endforeach()
+
+  message(STATUS "ROCm test sources: ")
+  foreach(tmp ${Caffe2_ROCM_TEST_SRCS})
+    message(STATUS "  " ${tmp})
+  endforeach()
+
 endif()
 
 # ---[ List of libraries to link with
@@ -130,11 +141,44 @@ if(USE_CUDA)
   link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 endif()
 
+if( USE_ROCM )
+  # Find HIP dependencies, use find_package where available
+  find_package( hip REQUIRED PATHS /opt/rocm/hip )
+  find_package( rocblas REQUIRED CONFIG PATHS /opt/rocm/rocblas )
+  find_package( miopen REQUIRED CONFIG PATHS /opt/rocm/miopen )
+
+  # RNG package does export CONFIG mode
+  set(Caffe2_HCRNG_DIR "/opt/rocm/hcrng")
+
+  add_library(Caffe2_ROCM SHARED ${Caffe2_ROCM_SRCS})
+  target_link_libraries( Caffe2_ROCM
+    PUBLIC rocblas MIOpen ${Caffe2_HCRNG_DIR}/lib/libhiprng_hcc.so
+    PUBLIC hip::hip_hcc hip::hip_device -Wl,-Bsymbolic )
+  target_include_directories( Caffe2_ROCM PUBLIC $<BUILD_INTERFACE:${Caffe2_HCRNG_DIR}/include> )
+  target_compile_definitions( Caffe2_ROCM PRIVATE USE_ROCM=1 )
+
+  list(APPEND Caffe2_MAIN_LIBS_ORDER Caffe2_ROCM)
+
+  if (BUILD_SHARED_LIBS)
+    target_link_libraries(Caffe2_ROCM PUBLIC Caffe2_CPU ${Caffe2_DEPENDENCY_LIBS} ${Caffe2_ROCM_DEPENDENCY_LIBS})
+    list(APPEND Caffe2_MAIN_LIBS Caffe2_ROCM)
+  else()
+    target_link_libraries(Caffe2_ROCM ${Caffe2_DEPENDENCY_LIBS})
+    caffe_add_whole_archive_flag(Caffe2_ROCM tmp)
+    list(APPEND Caffe2_MAIN_LIBS ${tmp})
+  endif()
+  install(TARGETS Caffe2_ROCM DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+endif()
+
+
 # ---[ Test binaries.
 if (BUILD_TEST)
   set(Caffe2_ALL_TEST_SRCS ${Caffe2_CPU_TEST_SRCS})
   if (USE_CUDA)
     list(APPEND Caffe2_ALL_TEST_SRCS ${Caffe2_GPU_TEST_SRCS})
+  endif()
+  if (USE_ROCM)
+    list(APPEND Caffe2_ALL_TEST_SRCS ${Caffe2_ROCM_TEST_SRCS})
   endif()
 
   foreach(test_src ${Caffe2_ALL_TEST_SRCS})
