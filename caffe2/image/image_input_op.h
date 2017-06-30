@@ -53,12 +53,10 @@ class ImageInputOp final
       const string& value, cv::Mat* img, PerImageArg& info, int item_id);
   void DecodeAndTransform(
       const std::string& value, float *image_data, int item_id,
-      const int channels, std::mt19937 *randgen,
-      std::bernoulli_distribution *mirror_this_image);
+      const int channels, std::size_t thread_index);
   void DecodeAndTransposeOnly(
       const std::string& value, uint8_t *image_data, int item_id,
-      const int channels, std::mt19937 *randgen,
-      std::bernoulli_distribution *mirror_this_image);
+      const int channels, std::size_t thread_index);
 
   unique_ptr<db::DBReader> owned_reader_;
   const db::DBReader* reader_;
@@ -70,6 +68,8 @@ class ImageInputOp final
   // Default parameters for images
   PerImageArg default_arg_;
   int batch_size_;
+  bool multiple_label_;
+  int num_labels_;
   bool color_;
   int scale_;
   // Minsize is similar to scale except that it will only
@@ -86,6 +86,7 @@ class ImageInputOp final
   bool is_test_;
   bool use_caffe_datum_;
   bool gpu_transform_;
+  bool mean_std_copied_ = false;
 
   // thread pool for parse + decode
   int num_decode_threads_;
@@ -93,6 +94,9 @@ class ImageInputOp final
 
   // Output type for GPU transform path
   TensorProto_DataType output_type_;
+
+  // Working variables
+  std::vector<std::mt19937> randgen_per_thread_;
 };
 
 template <class Context>
@@ -102,6 +106,10 @@ ImageInputOp<Context>::ImageInputOp(
         reader_(nullptr),
         batch_size_(
             OperatorBase::template GetSingleArgument<int>("batch_size", 0)),
+        multiple_label_(OperatorBase::template GetSingleArgument<int>(
+          "multiple_label", 0)),
+        num_labels_(OperatorBase::template GetSingleArgument<int>(
+          "num_labels", 0)),
         color_(OperatorBase::template GetSingleArgument<int>("color", 1)),
         scale_(OperatorBase::template GetSingleArgument<int>("scale", -1)),
         minsize_(OperatorBase::template GetSingleArgument<int>("minsize", -1)),
@@ -149,6 +157,14 @@ ImageInputOp<Context>::ImageInputOp(
     reader_ = owned_reader_.get();
   }
   CAFFE_ENFORCE_GT(batch_size_, 0, "Batch size should be nonnegative.");
+  if (use_caffe_datum_) {
+    CAFFE_ENFORCE_EQ(multiple_label_, 0,
+      "Caffe datum does not support multiple labels");
+  }
+  if (multiple_label_) {
+    CAFFE_ENFORCE_GT(num_labels_, 0,
+      "Number of labels must be set for using multiple label output.");
+  }
   CAFFE_ENFORCE((scale_ > 0) != (minsize_ > 0),
                 "Must provide one and only one of scaling or minsize");
   CAFFE_ENFORCE_GT(crop_, 0, "Must provide the cropping value.");
@@ -223,26 +239,20 @@ ImageInputOp<Context>::ImageInputOp(
   LOG(INFO) << "    Outputting images as "
             << OperatorBase::template GetSingleArgument<string>("output_type", "unknown") << ".";
 
-  if (gpu_transform_) {
-    if (!std::is_same<Context, CUDAContext>::value) {
-      throw std::runtime_error("use_gpu_transform only for GPUs");
-    } else {
-      mean_gpu_.Resize(mean_.size());
-      std_gpu_.Resize(std_.size());
-
-      context_.template Copy<float, CPUContext, Context>(
-        mean_.size(), mean_.data(), mean_gpu_.template mutable_data<float>());
-      context_.template Copy<float, CPUContext, Context>(
-        std_.size(), std_.data(), std_gpu_.template mutable_data<float>());
-    }
+  std::mt19937 meta_randgen(time(nullptr));
+  for (int i = 0; i < num_decode_threads_; ++i) {
+    randgen_per_thread_.emplace_back(meta_randgen());
   }
-
   prefetched_image_.Resize(
       TIndex(batch_size_),
       TIndex(crop_),
       TIndex(crop_),
       TIndex(color_ ? 3 : 1));
-  prefetched_label_.Resize(vector<TIndex>(1, batch_size_));
+  if (multiple_label_) {
+    prefetched_label_.Resize(TIndex(batch_size_), TIndex(num_labels_));
+  } else {
+    prefetched_label_.Resize(vector<TIndex>(1, batch_size_));
+  }
 }
 
 template <class Context>
@@ -350,15 +360,33 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
     }
 
     if (label_proto.data_type() == TensorProto::FLOAT) {
-      DCHECK_EQ(label_proto.float_data_size(), 1);
+      if (!multiple_label_) {
+        DCHECK_EQ(label_proto.float_data_size(), 1);
+        prefetched_label_.mutable_data<float>()[item_id] =
+            label_proto.float_data(0);
+      } else {
+        float* label_data = prefetched_label_.mutable_data<float>() +
+          item_id * num_labels_;
+        memset(label_data, 0, sizeof(float) * num_labels_);
+        for (int i = 0; i < label_proto.float_data_size(); ++i) {
+          label_data[(int)label_proto.float_data(i)] = 1.0;
+        }
+      }
 
-      prefetched_label_.mutable_data<float>()[item_id] =
-          label_proto.float_data(0);
     } else if (label_proto.data_type() == TensorProto::INT32) {
-      DCHECK_EQ(label_proto.int32_data_size(), 1);
+      if (!multiple_label_) {
+        DCHECK_EQ(label_proto.int32_data_size(), 1);
+        prefetched_label_.mutable_data<int>()[item_id] =
+            label_proto.int32_data(0);
+      } else {
+        int* label_data = prefetched_label_.mutable_data<int>() +
+          item_id * num_labels_;
+        memset(label_data, 0, sizeof(int) * num_labels_);
+        for (int i = 0; i < label_proto.int32_data_size(); ++i) {
+          label_data[label_proto.int32_data(i)] = 1;
+        }
+      }
 
-      prefetched_label_.mutable_data<int>()[item_id] =
-          label_proto.int32_data(0);
     } else {
       LOG(FATAL) << "Unsupported label type.";
     }
@@ -554,8 +582,13 @@ void CropTransposeImage(const cv::Mat& scaled_img, const int channels,
 template <class Context>
 void ImageInputOp<Context>::DecodeAndTransform(
       const std::string& value, float *image_data, int item_id,
-      const int channels, std::mt19937 *randgen,
-      std::bernoulli_distribution *mirror_this_image) {
+      const int channels, std::size_t thread_index) {
+
+  CAFFE_ENFORCE((int)thread_index < num_decode_threads_);
+
+  std::bernoulli_distribution mirror_this_image(0.5f);
+  std::mt19937* randgen = &(randgen_per_thread_[thread_index]);
+
   cv::Mat img;
   // Decode the image
   PerImageArg info;
@@ -563,14 +596,18 @@ void ImageInputOp<Context>::DecodeAndTransform(
 
   // Factor out the image transformation
   TransformImage<Context>(img, channels, image_data, crop_, mirror_,
-                          mean_, std_, randgen, mirror_this_image, is_test_);
+                          mean_, std_, randgen, &mirror_this_image, is_test_);
 }
 
 template <class Context>
 void ImageInputOp<Context>::DecodeAndTransposeOnly(
     const std::string& value, uint8_t *image_data, int item_id,
-    const int channels, std::mt19937 *randgen,
-      std::bernoulli_distribution *mirror_this_image) {
+    const int channels, std::size_t thread_index) {
+
+  CAFFE_ENFORCE((int)thread_index < num_decode_threads_);
+
+  std::bernoulli_distribution mirror_this_image(0.5f);
+  std::mt19937* randgen = &(randgen_per_thread_[thread_index]);
 
   cv::Mat img;
   // Decode the image
@@ -579,7 +616,7 @@ void ImageInputOp<Context>::DecodeAndTransposeOnly(
 
   // Factor out the image transformation
   CropTransposeImage<Context>(img, channels, image_data, crop_, mirror_,
-                              randgen, mirror_this_image, is_test_);
+                              randgen, &mirror_this_image, is_test_);
 }
 
 
@@ -602,15 +639,8 @@ bool ImageInputOp<Context>::Prefetch() {
 
   prefetched_label_.mutable_data<int>();
   // Prefetching handled with a thread pool of "decode_threads" threads.
-  std::mt19937 meta_randgen(time(nullptr));
-  std::vector<std::mt19937> randgen_per_thread;
-  for (int i = 0; i < num_decode_threads_; ++i) {
-    randgen_per_thread.emplace_back(meta_randgen());
-  }
 
-  std::bernoulli_distribution mirror_this_image(0.5);
   for (int item_id = 0; item_id < batch_size_; ++item_id) {
-    std::mt19937* randgen = &randgen_per_thread[item_id % num_decode_threads_];
     std::string key, value;
     cv::Mat img;
 
@@ -640,27 +670,25 @@ bool ImageInputOp<Context>::Prefetch() {
       // output of decode will still be int8
       uint8_t* image_data = prefetched_image_.mutable_data<uint8_t>() +
           crop_ * crop_ * channels * item_id;
-      thread_pool_->runTask(std::bind(
+      thread_pool_->runTaskWithID(std::bind(
           &ImageInputOp<Context>::DecodeAndTransposeOnly,
           this,
           std::string(value),
           image_data,
           item_id,
           channels,
-          randgen,
-          &mirror_this_image));
+          std::placeholders::_1));
     } else {
       float* image_data = prefetched_image_.mutable_data<float>() +
           crop_ * crop_ * channels * item_id;
-      thread_pool_->runTask(std::bind(
+      thread_pool_->runTaskWithID(std::bind(
           &ImageInputOp<Context>::DecodeAndTransform,
           this,
           std::string(value),
           image_data,
           item_id,
           channels,
-          randgen,
-          &mirror_this_image));
+          std::placeholders::_1));
     }
   }
   thread_pool_->waitWorkComplete();
@@ -685,6 +713,16 @@ bool ImageInputOp<Context>::CopyPrefetched() {
     label_output->CopyFrom(prefetched_label_, &context_);
   } else {
     if (gpu_transform_) {
+      if (!mean_std_copied_) {
+        mean_gpu_.Resize(mean_.size());
+        std_gpu_.Resize(std_.size());
+
+        context_.template Copy<float, CPUContext, Context>(
+          mean_.size(), mean_.data(), mean_gpu_.template mutable_data<float>());
+        context_.template Copy<float, CPUContext, Context>(
+          std_.size(), std_.data(), std_gpu_.template mutable_data<float>());
+        mean_std_copied_ = true;
+      }
       // GPU transform kernel allows explicitly setting output type
       if (output_type_ == TensorProto_DataType_FLOAT) {
         TransformOnGPU<uint8_t,float,Context>(prefetched_image_on_device_,

@@ -22,6 +22,11 @@
 
 namespace caffe2 {
 
+class NetBase;
+typedef ObserverBase<NetBase> NetObserver;
+typedef std::function<std::unique_ptr<NetObserver>(NetBase*)>
+    NetObserverCreator;
+
 class OperatorBase;
 class Workspace;
 // Net is a thin struct that owns all the operators together with the operator
@@ -62,10 +67,34 @@ class NetBase {
     return external_input_;
   }
 
+  /* Used to attach Observers to operators of a Net
+   *
+   * Returns pointers to objects owned with unique_ptrs.
+   * Use with caution.
+   */
+  virtual vector<OperatorBase*> GetOperators() const = 0;
+
+  void SetObserver(std::unique_ptr<NetObserver> observer) {
+    observer_ = std::move(observer);
+  }
+
+  void RemoveObserver() {
+    observer_ = nullptr;
+  }
+
+  NetObserver* GetObserver() {
+    return observer_.get();
+  }
+
+  const string& Name() {
+    return name_;
+  }
+
  protected:
   vector<string> external_input_;
   vector<string> external_output_;
   string name_;
+  std::unique_ptr<NetObserver> observer_;
   DISABLE_COPY_AND_ASSIGN(NetBase);
 };
 
@@ -98,12 +127,12 @@ class SimpleNet : public NetBase {
       const bool run_individual) override;
 
   /*
-   * This returns a list of pointers to objects stored in unique_ptrs. Used to
-   * init Observers.
+   * This returns a list of pointers to objects stored in unique_ptrs.
+   * Used by Observers.
    *
    * Think carefully before using.
    */
-  vector<OperatorBase*> getOperators() const {
+  vector<OperatorBase*> GetOperators() const override {
     vector<OperatorBase*> op_list;
     for (auto& op : operators_) {
       op_list.push_back(op.get());
@@ -111,17 +140,8 @@ class SimpleNet : public NetBase {
     return op_list;
   }
 
-  void SetObserver(ObserverBase<SimpleNet>* observer) {
-    observer_ = observer;
-  }
-
-  void RemoveObserver() {
-    observer_ = nullptr;
-  }
-
  protected:
   vector<unique_ptr<OperatorBase> > operators_;
-  ObserverBase<SimpleNet>* observer_ = nullptr;
 
   DISABLE_COPY_AND_ASSIGN(SimpleNet);
 };
@@ -147,7 +167,7 @@ class DAGNetBase : public NetBase {
  public:
   using ExecutionChains = std::unordered_map<int, std::vector<int>>;
   DAGNetBase(const NetDef& net_def, Workspace* ws);
-  ~DAGNetBase();
+  ~DAGNetBase() override;
   bool Run() override;
   // WorkerFunction() is a function wrapper to allow us to run worker threads.
   // It checks out one ready-to-run operator from the job queue, runs it,
@@ -163,24 +183,36 @@ class DAGNetBase : public NetBase {
     return execution_chains_;
   }
 
+  vector<OperatorBase*> GetOperators() const override {
+    vector<OperatorBase*> op_list;
+    for (auto& op_node : operator_nodes_) {
+      op_list.push_back(op_node.operator_.get());
+    }
+    return op_list;
+  }
+
  protected:
   virtual bool RunAt(const std::vector<int>& chain) = 0;
 
   vector<internal::OperatorNode> operator_nodes_;
   ExecutionChains execution_chains_;
   vector<int> initial_frontier_;
-  SimpleQueue<int> job_queue_;
+  std::unique_ptr<SimpleQueue<int>> job_queue_;
   std::vector<std::thread> workers_;
   int num_workers_;
+  int num_workers_first_iteration_;
   int remaining_ops_;
 
   bool success_;
+  int iter_;
   std::mutex remaining_ops_mutex_;
   std::condition_variable cv_;
   std::mutex run_in_progress_;
 
   DISABLE_COPY_AND_ASSIGN(DAGNetBase);
 };
+
+void SetGlobalNetObserverCreator(NetObserverCreator creator);
 
 }  // namespace caffe2
 

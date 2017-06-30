@@ -20,7 +20,7 @@ import hypothesis.strategies as st
 
 
 def _assert_arrays_equal(actual, ref, err_msg):
-    if ref.dtype.kind in ('S', 'O'):
+    if ref.dtype.kind in ('S', 'O', 'U'):
         np.testing.assert_array_equal(actual, ref, err_msg=err_msg)
     else:
         np.testing.assert_allclose(
@@ -459,7 +459,7 @@ class TestDatasetOps(TestCase):
         reader = ds.random_reader(read_init_net, indices_blob)
         reader.computeoffset(read_init_net)
 
-        should_continue, batch = reader.read_record(read_next_net)
+        should_stop, batch = reader.read_record(read_next_net)
 
         workspace.CreateNet(read_init_net, True)
         workspace.RunNetOnce(read_init_net)
@@ -472,8 +472,32 @@ class TestDatasetOps(TestCase):
             workspace.RunNet(str(read_next_net))
             actual = FetchRecord(batch)
             _assert_records_equal(actual, entry)
+        workspace.RunNet(str(read_next_net))
+        self.assertEquals(True, workspace.FetchBlob(should_stop))
         """
-        8. Sort and shuffle a dataset
+        8. Random Access a dataset with loop_over = true
+
+        """
+        read_init_net = core.Net('read_init')
+        read_next_net = core.Net('read_next')
+
+        idx = np.array([2, 1, 0])
+        indices_blob = Const(read_init_net, idx, name='indices')
+        reader = ds.random_reader(read_init_net, indices_blob, loop_over=True)
+        reader.computeoffset(read_init_net)
+
+        should_stop, batch = reader.read_record(read_next_net)
+
+        workspace.CreateNet(read_init_net, True)
+        workspace.RunNetOnce(read_init_net)
+
+        workspace.CreateNet(read_next_net, True)
+
+        for _ in range(len(entries) * 3):
+            workspace.RunNet(str(read_next_net))
+            self.assertEquals(False, workspace.FetchBlob(should_stop))
+        """
+        9. Sort and shuffle a dataset
 
         This sort the dataset using the score of a certain column,
         and then shuffle within each chunk of size batch_size * shuffle_size
@@ -614,7 +638,7 @@ class TestDatasetOps(TestCase):
         )
         print('Sample histogram: {}'.format(hist))
 
-        self.assertTrue(all(hist > 0.7 * (num_to_collect / 10)))
+        self.assertTrue(all(hist > 0.6 * (num_to_collect / 10)))
         for i in range(1, len(blobs)):
             result = workspace.FetchBlob(bconcated_map[blobs[i]])
             self.assertEqual(reference_result.tolist(), result.tolist())

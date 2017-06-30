@@ -129,22 +129,45 @@ class OperatorBase {
     return arg_helper_;
   }
 
-  void SetObserver(ObserverBase<OperatorBase>* observer) {
-    observer_ = observer;
+  void SetObserver(std::unique_ptr<ObserverBase<OperatorBase>> observer) {
+    observer_ = std::move(observer);
   }
 
   void RemoveObserver() {
     observer_ = nullptr;
   }
 
+  void RecordLastFailedOpNetPosition() {
+    if (net_position_ != kNoNetPositionSet) {
+      VLOG(1) << "Operator with id " << net_position_ << " failed";
+      operator_ws_->last_failed_op_net_position = net_position_;
+    } else {
+      VLOG(1) << "Failed operator doesn't have id set";
+    }
+  }
+
+  void set_net_position(int idx) {
+    net_position_ = idx;
+  }
+
+ public:
+  static constexpr int kNoNetPositionSet = -1;
+
+  ObserverBase<OperatorBase>* GetObserver() {
+    return observer_.get();
+  }
+
  protected:
-  ObserverBase<OperatorBase>* observer_ = nullptr;
+  Workspace* operator_ws_;
+  std::unique_ptr<ObserverBase<OperatorBase>> observer_;
 
  private:
   OperatorDef operator_def_;
   ArgumentHelper arg_helper_;
   vector<const Blob*> inputs_;
   vector<Blob*> outputs_;
+
+  int net_position_{kNoNetPositionSet};
 
   DISABLE_COPY_AND_ASSIGN(OperatorBase);
 };
@@ -190,12 +213,12 @@ class Operator : public OperatorBase {
     // constructors will run on that device.
     context_.SwitchToDevice(0);
   }
-  virtual ~Operator() noexcept {}
+  ~Operator() noexcept override {}
 
   inline const Tensor<Context>& Input(int idx) {
     return OperatorBase::template Input<Tensor<Context> >(idx); }
   inline Tensor<Context>* Output(int idx) {
-    return OperatorBase::template Output<Tensor<Context> >(idx);
+    return OperatorBase::template Output<Tensor<Context>>(idx);
   }
 
   // The run function of Operator switches to the device, and then carries out
@@ -209,6 +232,10 @@ class Operator : public OperatorBase {
       context_.SwitchToDevice(stream_id);
       bool started = RunOnDevice();
       bool finished = context_.FinishDeviceComputation();
+      auto result = started && finished;
+      if (!result) {
+        this->RecordLastFailedOpNetPosition();
+      }
       if (!finished) {
         // FinishDeviceComputation() returning error basically means that there
         // is something wrong with the device (like CUDA) that usually cannot be
@@ -219,10 +246,14 @@ class Operator : public OperatorBase {
       if (observer_) {
         observer_->Stop();
       }
-      return (started && finished);
+      return result;
     } catch (EnforceNotMet& err) {
       err.AppendMessage("Error from operator: \n" + ProtoDebugString(def()));
       AddRelatedBlobInfo(&err);
+      this->RecordLastFailedOpNetPosition();
+      throw;
+    } catch (...) {
+      this->RecordLastFailedOpNetPosition();
       throw;
     }
   }
@@ -230,10 +261,18 @@ class Operator : public OperatorBase {
   bool RunAsync(int stream_id = 0) final {
     try {
       context_.SwitchToDevice(stream_id);
-      return RunOnDevice();
+      auto result = RunOnDevice();
+      if (!result) {
+        this->RecordLastFailedOpNetPosition();
+      }
+      return result;
     } catch (EnforceNotMet& err) {
       err.AppendMessage("Error from operator: \n" + ProtoDebugString(def()));
       AddRelatedBlobInfo(&err);
+      this->RecordLastFailedOpNetPosition();
+      throw;
+    } catch (...) {
+      this->RecordLastFailedOpNetPosition();
       throw;
     }
   }
@@ -359,6 +398,10 @@ struct DispatchHelper<FixedValues<>, ExtraArgs...> {
     static bool call(Op* op, const Tensor<Context>& tensor) {                  \
       return call<Op>(op, tensor.meta());                                      \
     }                                                                          \
+    template <typename Op>                                                     \
+    static bool call(Op* op, const Blob& blob) {                               \
+      return call<Op>(op, blob.meta());                                        \
+    }                                                                          \
   };                                                                           \
                                                                                \
   template <typename... ExtraArgs>                                             \
@@ -370,6 +413,10 @@ struct DispatchHelper<FixedValues<>, ExtraArgs...> {
     template <typename Op, typename Context>                                   \
     static bool call(Op* op, const Tensor<Context>& tensor) {                  \
       return call<Op>(op, tensor.meta());                                      \
+    }                                                                          \
+    template <typename Op>                                                     \
+    static bool call(Op* op, const Blob& blob) {                               \
+      return call<Op>(op, blob.meta());                                        \
     }                                                                          \
   };                                                                           \
                                                                                \
@@ -384,6 +431,10 @@ struct DispatchHelper<FixedValues<>, ExtraArgs...> {
     template <typename Op, typename Context>                                   \
     static bool call(Op* op, const Tensor<Context>& tensor) {                  \
       return call<Op>(op, tensor.meta());                                      \
+    }                                                                          \
+    template <typename Op>                                                     \
+    static bool call(Op* op, const Blob& blob) {                               \
+      return call<Op>(op, blob.meta());                                        \
     }                                                                          \
   };
 CAFFE2_DEFINE_TENSOR_TYPES_DISPATCHER(
@@ -521,7 +572,9 @@ class UnsupportedOperatorFeature : public std::exception {
 // Creates an operator with the given operator definition.
 // Throws on error and never returns nullptr
 unique_ptr<OperatorBase> CreateOperator(
-    const OperatorDef& operator_def, Workspace* ws);
+    const OperatorDef& operator_def,
+    Workspace* ws,
+    int net_position = OperatorBase::kNoNetPositionSet);
 
 TensorShapes InferBlobShapesAndTypesFromWorkspace(
     Workspace* ws,

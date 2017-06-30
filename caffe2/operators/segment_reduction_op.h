@@ -618,7 +618,7 @@ class AbstractSortedSegmentOp : public Operator<Context> {
           aux_in.dim(0),
           "Input ",
           i,
-          " must have have the same first dim as SEGMENT_IDS");
+          " must have the same first dim as SEGMENT_IDS");
       ctx.observeInput(i, aux_in, 1);
     }
 
@@ -721,7 +721,7 @@ class AbstractSortedSegmentGradientOp : public Operator<Context> {
           aux_in.dim(0),
           "Input ",
           i,
-          " must have have the same first dim as SEGMENT_IDS");
+          " must have the same first dim as SEGMENT_IDS");
       ctx.observeOriginalInput(
           ReducerGradient::originalInputs()[i], aux_in, nullptr /*no grad*/, 1);
     }
@@ -1011,7 +1011,7 @@ class AbstractUnsortedSegmentOp : public Operator<Context> {
           aux_in.dim(0),
           "Input ",
           i,
-          " must have have the same first dim as SEGMENT_IDS");
+          " must have the same first dim as SEGMENT_IDS");
       ctx.observeInput(i, aux_in, 1);
     }
 
@@ -1126,7 +1126,7 @@ class AbstractUnsortedSegmentGradientOp : public Operator<Context> {
           aux_in.dim(0),
           "Input ",
           i,
-          " must have have the same first dim as SEGMENT_IDS");
+          " must have the same first dim as SEGMENT_IDS");
       ctx.observeOriginalInput(
           ReducerGradient::originalInputs()[i], aux_in, nullptr /*no grad*/, 1);
     }
@@ -1370,11 +1370,11 @@ class AbstractLengthsOp : public Operator<Context> {
     TIndex dataToReduceSize;
     const TIndex outputSize = lengthsInput.dim(0);
 
-    const TIndex* indicies;
+    const TIndex* indices;
     if (SparseFused) { // static if
       auto& indicesInput = Input(INDICES);
       CAFFE_ENFORCE_EQ(1, indicesInput.ndim(), "INDICES must be a vector");
-      indicies = indicesInput.template data<TIndex>();
+      indices = indicesInput.template data<TIndex>();
       dataToReduceSize = indicesInput.dim(0);
     } else {
       dataToReduceSize = dataSize;
@@ -1388,7 +1388,7 @@ class AbstractLengthsOp : public Operator<Context> {
           dataToReduceSize == aux_in.dim(0),
           "Input ",
           i,
-          " must have have the same first dim as SEGMENT_IDS");
+          " must have the same first dim as SEGMENT_IDS");
       ctx.observeInput(i, aux_in, 1);
     }
 
@@ -1415,7 +1415,7 @@ class AbstractLengthsOp : public Operator<Context> {
            ++dataIndex) {
         TIndex idx;
         if (SparseFused) { // static if
-          idx = indicies[dataIndex];
+          idx = indices[dataIndex];
           CAFFE_ENFORCE(
               0 <= idx && idx < dataSize,
               "Index ",
@@ -1496,7 +1496,7 @@ class AbstractLengthsGradientOp : public Operator<Context> {
           aux_in.dim(0),
           "Input ",
           i,
-          " must have have the same first dim as SEGMENT_IDS");
+          " must have the same first dim as SEGMENT_IDS");
       ctx.observeOriginalInput(
           ReducerGradient::originalInputs()[i], aux_in, nullptr /*no grad*/, 1);
     }
@@ -1587,10 +1587,10 @@ class AbstractLengthsWithMainInputGradientOp : public Operator<Context> {
 
     // Either first dim the data or how much we pull in indexies from it
     TIndex dataToReduceSize;
-    const TIndex* indicies = nullptr;
+    const TIndex* indices = nullptr;
     if (SparseFused) { // static if
       auto& indicesInput = Input(INDICES);
-      indicies = indicesInput.template data<TIndex>();
+      indices = indicesInput.template data<TIndex>();
       dataToReduceSize = indicesInput.dim(0);
     } else {
       dataToReduceSize = dataInput.dim(0);
@@ -1618,7 +1618,7 @@ class AbstractLengthsWithMainInputGradientOp : public Operator<Context> {
         TIndex data_pos;
         // No range checking, should've been verified in forward pass
         if (SparseFused) { // static if
-          data_pos = indicies[dataIndex];
+          data_pos = indices[dataIndex];
         } else {
           data_pos = dataIndex;
         }

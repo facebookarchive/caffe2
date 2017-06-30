@@ -10,10 +10,14 @@ from caffe2.python.modeling import parameter_info
 from caffe2.python.modeling.parameter_sharing import (
     parameter_sharing_context,
 )
+from caffe2.proto import caffe2_pb2
 
+from future.utils import viewitems, viewkeys
+from itertools import chain
 
 import logging
 import six
+
 
 # _known_working_ops are operators that do not need special care.
 _known_working_ops = [
@@ -55,6 +59,7 @@ _known_working_ops = [
     "StopGradient",
     "Summarize",
     "Tanh",
+    "Transpose",
     "UnpackSegments",
     "WeightedSum",
     "ReduceFrontSum",
@@ -90,7 +95,7 @@ class ModelHelper(object):
             self.params = param_model.params
             self._computed_params = param_model._computed_params
         else:
-            self.param_init_net = core.Net(name + '_init')
+            self.param_init_net = core.Net(self.name + '_init')
             self.param_to_grad = {}
             self.params = []
             self._computed_params = []
@@ -357,7 +362,7 @@ class ModelHelper(object):
             param_to_grad = self.get_param_to_grad(params)
 
         return [
-            self.get_param_info(param) for param, grad in param_to_grad.items()
+            self.get_param_info(param) for param, grad in viewitems(param_to_grad)
             if (
                 not self.skip_sparse_optim or
                 not isinstance(grad, core.GradientSlice)
@@ -440,10 +445,11 @@ class ModelHelper(object):
         return self.net.__getattr__(op_type)
 
     def __dir__(self):
-        return sorted(set(
-            dir(type(self)) +
-            self.__dict__.keys() +
-            _known_working_ops))
+        return sorted(set(chain(
+            dir(type(self)),
+            viewkeys(self.__dict__),
+            _known_working_ops
+        )))
 
 
 def ExtractPredictorNet(
@@ -512,7 +518,7 @@ def ExtractPredictorNet(
         for arg in op.arg:
             if arg.name == "is_test" and arg.i == 0:
                 raise Exception(
-                    "A operator had is_test=0, did you try to extract a " +
+                    "An operator had is_test=0, did you try to extract a " +
                     "predictor from a train model (instead of test model)?" +
                     " Op was: {}".format(str(op))
                 )
@@ -521,6 +527,31 @@ def ExtractPredictorNet(
     # we can satisfy.
     for op in ops[first_op_with_input:(last_op_with_output + 1)]:
         if known_blobs.issuperset(op.input):
+
+            # Special handling for recurrent nets
+            # TODO: when standard argument type for "nets" is introduced,
+            # this can be more general
+            if op.type == 'RecurrentNetwork':
+                import google.protobuf.text_format as protobuftx
+                for arg in op.arg:
+                    if arg.name == 'backward_step_net':
+                        arg.s = b""
+                    elif arg.name == 'step_net':
+                        step_proto = caffe2_pb2.NetDef()
+                        protobuftx.Merge(arg.s.decode("ascii"), step_proto)
+                        for step_op in step_proto.op:
+                            if device is not None:
+                                step_op.device_option.device_type = device.device_type
+                                step_op.device_option.cuda_gpu_id = device.cuda_gpu_id
+
+                        # Add additional external inputs
+                        external_inputs.update(
+                            set(step_proto.external_input).intersection(
+                                orig_external_inputs
+                            )
+                        )
+                        arg.s = str(step_proto).encode("ascii")
+
             if device is not None:
                 op.device_option.device_type = device.device_type
                 op.device_option.cuda_gpu_id = device.cuda_gpu_id
@@ -533,6 +564,8 @@ def ExtractPredictorNet(
             external_outputs.update(
                 set(op.output).intersection(orig_external_outputs)
             )
+
+
         else:
             logging.debug(
                 "Op {} had unknown inputs: {}".format(

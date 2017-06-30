@@ -9,6 +9,7 @@ from caffe2.python import core, context
 from caffe2.python.schema import Field, from_blob_list
 from collections import defaultdict
 from copy import copy
+from future.utils import viewitems
 
 
 def _merge_node_kwargs(a, b):
@@ -142,6 +143,18 @@ def get_setup_nets(key, steps_or_nets, target):
     return init_nets, exit_nets
 
 
+def add_setup_steps(step, init_nets, exit_nets, name):
+    if not init_nets and not exit_nets:
+        return step
+    steps = []
+    if init_nets:
+        steps.append(core.execution_step('%s:init' % name, init_nets))
+    steps.append(step)
+    if len(exit_nets) > 0:
+        steps.append(core.execution_step('%s:exit' % name, exit_nets))
+    return core.execution_step(name, steps)
+
+
 @context.define_context(allow_default=False)
 class TaskGroup(object):
     """
@@ -256,7 +269,7 @@ class TaskGroup(object):
             return tasks_by_node
 
         # now we have report_steps. report_net is deprecated
-        for node, (net, interval) in self._report_nets.items():
+        for node, (net, interval) in viewitems(self._report_nets):
             self.report_step(net, node=node, interval_ms=interval * 1000)
         self._report_nets = {}
 
@@ -270,7 +283,7 @@ class TaskGroup(object):
             report_steps_by_node[node_map[original_node]].append(step)
 
         grouped_by_node = TaskGroup()
-        for node, tasks in tasks_by_node.items():
+        for node, tasks in viewitems(tasks_by_node):
             report_steps = report_steps_by_node[node]
             node_inits, node_exits = get_setup_nets(
                 TaskGroup.LOCAL_SETUP,
@@ -279,14 +292,18 @@ class TaskGroup(object):
             # shortcut for single task with no queue
             steps = report_steps
             outputs = []
-            workspace_type = tasks[0].workspace_type()
+            grouped_workspace_type = WorkspaceType.PRIVATE
             for task in tasks:
                 step = task.get_step()
+                step.SetCreateWorkspace(
+                    task.workspace_type() == WorkspaceType.PRIVATE)
                 if step is not None:
                     steps.append(step)
                 outputs += task.outputs()
-                assert workspace_type == task.workspace_type(), (
-                    'All tasks for a given node need same workspace type.')
+                # If any of the tasks in the node uses the global workspace,
+                # then set the grouped task to use the global workspace as well
+                if task.workspace_type() == WorkspaceType.GLOBAL:
+                    grouped_workspace_type = WorkspaceType.GLOBAL
             if len(steps) == 0:
                 steps.append(core.execution_step('empty', []))
             if len(steps) == 1:
@@ -307,7 +324,7 @@ class TaskGroup(object):
             Task(
                 node=node, step=step, outputs=outputs,
                 name='grouped_by_node',
-                group=grouped_by_node, workspace_type=workspace_type)
+                group=grouped_by_node, workspace_type=grouped_workspace_type)
         self._tasks_by_node = (grouped_by_node, node_map)
         return grouped_by_node
 
@@ -406,9 +423,34 @@ class Task(object):
     be run by a Session.
 
     Task outputs are fetched by the session at the end of the run.
+
+    The recommended way of creating a task is by using `net_builder.ops`.
+    Example:
+
+        from net_builder import ops
+        with Node('trainer'), Task(name='my_task', num_instances=2):
+            with ops.task_init():
+                globl = ops.Const(0)
+            with ops.task_instance_init():
+                local = ops.Const(0)
+            with ops.loop(100):
+                ops.Copy(globl, local)
+            with ops.task_instance_exit():
+                ops.Add([globl, local], [globl])
+            with ops.task_exit():
+                ops.Mul([globl, globl], [blobl])
+
+    The task above will create 2 instances that will run in parallel.
+    Each instance will copy `local` to `globl` 100 times, Then Add `local`
+    to `globl` once. The `Mul` will only execute once, after all the instances
+    of the task have finished.
     """
 
+    # TASK_SETUP runs once per task, before/after all
+    # concurrent task instances start/finish.
     TASK_SETUP = 'task_setup'
+    # Setup will run once for each instance of the task.
+    TASK_INSTANCE_SETUP = 'task_instance_setup'
     REPORT_STEP = 'report_step'
     _global_names_used = set()
 
@@ -428,9 +470,20 @@ class Task(object):
 
     def __init__(
             self, step=None, outputs=None,
-            workspace_type=None, group=None, node=None, name=None):
+            workspace_type=None, group=None, node=None, name=None,
+            num_instances=None):
         """
         Instantiate a Task and add it to the current TaskGroup and Node.
+
+        Args:
+           step:    If provided, this task will run this ExecutionStep.
+           outputs: If provided, the task will return the provided outputs
+                    to the client at completion time.
+           node:    If provided, force task execution on the given node.
+           name:    Name of the Task.
+           num_instances: If provided, this task will be cloned num_instances
+                          times at runtime, and all instances will run
+                          concurrently.
         """
         if not name and isinstance(step, core.ExecutionStep):
             name = step.Proto().name
@@ -459,6 +512,7 @@ class Task(object):
         self._is_pipeline_context = False
         self._workspace_type = workspace_type
         self._report_net = None
+        self._num_instances = num_instances
 
     def __enter__(self):
         # temporarily remove from _tasks_to_add to ensure correct order
@@ -505,36 +559,50 @@ class Task(object):
         self._step = core.to_execution_step(step)
 
     def get_step(self):
-        if self._step is not None and self._step_with_setup is None:
-            report_steps = [
-                s
-                for s in self._step.get_all_attributes(Task.REPORT_STEP)
-                if not hasattr(s, '_report_step_used')
-            ]
-            for step in report_steps:
-                step._report_step_used = True
-                if not step.Proto().run_every_ms:
-                    step.RunEveryMillis(1000)
-            init_nets, exit_nets = get_setup_nets(
-                Task.TASK_SETUP, [self._step] + report_steps, self)
-            if len(self._outputs) == 0:
-                output_net = core.Net('%s:output' % self.name)
-                self.add_output(output_net.ConstantFill(
-                    [], 1, dtype=core.DataType.INT32, value=0))
-                exit_nets.append(output_net)
+        if self._step_with_setup is not None:
+            return self._step_with_setup
 
-            body = self._step if not report_steps else core.execution_step(
-                '%s:body', report_steps + [self._step])
-            self._step_with_setup = core.execution_step(
-                self.name,
-                [
-                    core.execution_step('%s:init' % self.name, init_nets),
-                    body,
-                    core.execution_step('%s:exit' % self.name, exit_nets),
-                ]
-            )
-        elif self._step_with_setup is None:
+        if self._step is None:
             self._step_with_setup = core.execution_step(self.name, [])
+            return self._step_with_setup
+
+        report_steps = [
+            s
+            for s in self._step.get_all_attributes(Task.REPORT_STEP)
+            if not hasattr(s, '_report_step_used')
+        ]
+        for step in report_steps:
+            step._report_step_used = True
+            if not step.Proto().run_every_ms:
+                step.RunEveryMillis(1000)
+        task_init_nets, task_exit_nets = get_setup_nets(
+            Task.TASK_SETUP, [self._step] + report_steps, self)
+        instance_init_nets, instance_exit_nets = get_setup_nets(
+            Task.TASK_INSTANCE_SETUP, [self._step] + report_steps, self)
+        if len(self._outputs) == 0:
+            output_net = core.Net('%s:output' % self.name)
+            self.add_output(output_net.ConstantFill(
+                [], 1, dtype=core.DataType.INT32, value=0))
+            task_exit_nets.append(output_net)
+
+        # Add instance-level report steps
+        body = self._step if not report_steps else core.execution_step(
+            '%s:body' % self.name, report_steps + [self._step])
+        # Enclose with instance-level (thread-local) setup nets
+        step_with_instance_setup = add_setup_steps(
+            body, instance_init_nets, instance_exit_nets,
+            self.name + ':instance')
+        # Set up runtime concurrent instances
+        if self._num_instances and self._num_instances > 1:
+            step_with_instance_setup.SetCreateWorkspace(True)
+            step_with_instance_setup = core.execution_step(
+                '%s:parallel',
+                [step_with_instance_setup],
+                num_concurrent_instances=self._num_instances)
+        # Enclose with task-level setup nets
+        self._step_with_setup = add_setup_steps(
+            step_with_instance_setup, task_init_nets, task_exit_nets, self.name)
+
         return self._step_with_setup
 
     def output_list(self):
@@ -567,11 +635,11 @@ class SetupNets(object):
     In order to have `init_net` run once before `net` runs for the
     first time, you can do one of the following:
 
-        net.add_object(Task.TASK_SETUP, SetupNets([init_net]))
+        net.add_attribute(Task.TASK_SETUP, SetupNets([init_net]))
 
     or
 
-        net.add_object(TaskGroup.LOCAL_SETUP, SetupNets([init_net]))
+        net.add_attribute(TaskGroup.LOCAL_SETUP, SetupNets([init_net]))
 
     - With Task.TASK_SETUP, init_net will run once at my_task startup.
     - With TaskGroup.LOCAL_SETUP, init_net will run once on node 'trainer',

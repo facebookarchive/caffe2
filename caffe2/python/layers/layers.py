@@ -18,9 +18,9 @@ IdScoreList = schema.Map(np.int64, np.float32)
 
 def get_categorical_limit(record):
     if schema.equal_schemas(record, IdList):
-        key = 'items'
+        key = 'values'
     elif schema.equal_schemas(record, IdScoreList, check_field_types=False):
-        key = 'keys'
+        key = 'values:keys'
     else:
         raise NotImplementedError()
     assert record[key].metadata is not None, (
@@ -69,7 +69,7 @@ class InstantiationContext(object):
     """
     List of contexts where layer could be instantitated
     """
-    # The layers support this context will accumulates predictions, labels,
+    # The layers support this context will accumulate predictions, labels,
     # weights. The accumulated data can later be used to compute
     # calibration or for other
     # purpose.
@@ -113,6 +113,7 @@ class LayerParameter(object):
         self.initializer = initializer
         self.ps_param = ps_param
 
+
 def is_request_only_scalar(scalar):
     if len(scalar.field_metadata()) == 0:
         return False
@@ -143,7 +144,7 @@ class ModelLayer(object):
         predict_input_record and predict_output_schema correspondingly (those
         records are expected to be a subset of input_record/output_schema).
 
-        Each layer is also have list of Tags associated with it, that depends on
+        Each layer has a list of Tags associated with it, that depends on
         current context and arguments. It's possible to use those tags during
         the instantiation time.
 
@@ -238,7 +239,8 @@ class ModelLayer(object):
             # internal.containers.RepeatedCompositeFieldContainer, but
             # the version of protobuf in fbcode does not support append
             # so extend is used
-            init_net._net.op.extend([param.initializer])
+            if param.initializer:
+                init_net._net.op.extend([param.initializer])
 
     def add_operators(self, net, init_net=None,
                       context=InstantiationContext.TRAINING):

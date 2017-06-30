@@ -13,13 +13,14 @@ import abc
 import six
 
 from collections import OrderedDict
+from future.utils import viewkeys, viewvalues
 
 '''
 Utilities for logging experiment run stats, such as accuracy
 and loss over time for different runs. Runtime arguments are stored
 in the log.
 
-Optionally, ModelTrainerLog calls out to an logger to log to
+Optionally, ModelTrainerLog calls out to a logger to log to
 an external log destination.
 '''
 
@@ -96,15 +97,15 @@ class ModelTrainerLog():
         else:
             logdict['inputs_per_sec'] = 0.0
 
-        for k in sorted(additional_values.keys()):
+        for k in sorted(viewkeys(additional_values)):
             logdict[k] = additional_values[k]
 
         # Write the headers if they are not written yet
         if self.headers is None:
-            self.headers = logdict.keys()[:]
+            self.headers = list(viewkeys(logdict))
             self.logstr(",".join(self.headers))
 
-        self.logstr(",".join([str(v) for v in logdict.values()]))
+        self.logstr(",".join(str(v) for v in viewvalues(logdict)))
 
         for logger in self.external_loggers:
             try:

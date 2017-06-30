@@ -15,7 +15,9 @@
 namespace caffe2 {
 
 OperatorBase::OperatorBase(const OperatorDef& operator_def, Workspace* ws)
-    : operator_def_(operator_def), arg_helper_(operator_def_) {
+    : operator_ws_(ws),
+      operator_def_(operator_def),
+      arg_helper_(operator_def_) {
   for (const string& input_str : operator_def_.input()) {
     auto* blob = ws->GetBlob(input_str);
     CAFFE_ENFORCE(
@@ -48,17 +50,17 @@ unique_ptr<OperatorBase> TryCreateOperator(
   try {
     return registry->Create(key, operator_def, ws);
   } catch (const UnsupportedOperatorFeature& err) {
-    VLOG(1) << "Operator " << operator_def.type()
-            << " does not support the requested feature. Msg: " << err.what()
-            << ". Proto is: " << ProtoDebugString(operator_def);
+    LOG(WARNING) << "Operator " << operator_def.type()
+                 << " does not support the requested feature. Msg: "
+                 << err.what()
+                 << ". Proto is: " << ProtoDebugString(operator_def);
     return nullptr;
   }
 }
 
-}  // namespace
-
-unique_ptr<OperatorBase> CreateOperator(
-    const OperatorDef& operator_def, Workspace* ws) {
+unique_ptr<OperatorBase> _CreateOperator(
+    const OperatorDef& operator_def,
+    Workspace* ws) {
   static StaticLinkingProtector g_protector;
   // first, check with OpSchema if the operator is legal.
   auto* schema = OpSchemaRegistry::Schema(operator_def.type());
@@ -109,6 +111,28 @@ unique_ptr<OperatorBase> CreateOperator(
       "dyndep.InitOpsLibrary call is missing. Operator def: ",
       ProtoDebugString(operator_def));
   return op;
+}
+
+} // namespace
+
+unique_ptr<OperatorBase> CreateOperator(
+    const OperatorDef& operator_def,
+    Workspace* ws,
+    int net_position) {
+  try {
+    auto op = _CreateOperator(operator_def, ws);
+    op->set_net_position(net_position);
+    return op;
+  } catch (...) {
+    if (net_position != 0) {
+      VLOG(1) << "Operator constructor with net position " << net_position
+              << " failed";
+      ws->last_failed_op_net_position = net_position;
+    } else {
+      VLOG(1) << "Failed operator constructor doesn't have an id set";
+    }
+    throw;
+  }
 }
 
 std::map<int32_t, OperatorRegistry*>* gDeviceTypeRegistry() {

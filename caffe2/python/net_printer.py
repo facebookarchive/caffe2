@@ -12,7 +12,9 @@ from caffe2.python.task import Task, TaskGroup, WorkspaceType, TaskOutput
 from collections import defaultdict
 from contextlib import contextmanager
 from copy import copy
+from future.utils import viewkeys
 from itertools import chain
+from six import binary_type, text_type
 
 
 class Visitor(object):
@@ -88,22 +90,24 @@ def analyze_net(analyzer, net):
 @Analyzer.register(ExecutionStep)
 def analyze_step(analyzer, step):
     proto = step.Proto()
-    if proto.report_net:
-        with analyzer.set_workspace(do_copy=True):
-            analyzer(step.get_net(proto.report_net))
-    all_new_blobs = set()
-    substeps = step.Substeps() + [step.get_net(n) for n in proto.network]
-    for substep in substeps:
-        with analyzer.set_workspace(do_copy=proto.concurrent_substeps) as ws_in:
-            analyzer(substep)
-            if proto.should_stop_blob:
-                analyzer.need_blob(proto.should_stop_blob)
-        if proto.concurrent_substeps:
-            new_blobs = set(ws_in.keys()) - set(analyzer.workspace.keys())
-            assert len(all_new_blobs & new_blobs) == 0, (
-                'Error: Blobs created by multiple parallel steps: %s' % (
-                    ', '.join(all_new_blobs & new_blobs)))
-            all_new_blobs |= new_blobs
+    with analyzer.set_workspace(do_copy=proto.create_workspace):
+        if proto.report_net:
+            with analyzer.set_workspace(do_copy=True):
+                analyzer(step.get_net(proto.report_net))
+        all_new_blobs = set()
+        substeps = step.Substeps() + [step.get_net(n) for n in proto.network]
+        for substep in substeps:
+            with analyzer.set_workspace(
+                    do_copy=proto.concurrent_substeps) as ws_in:
+                analyzer(substep)
+                if proto.should_stop_blob:
+                    analyzer.need_blob(proto.should_stop_blob)
+            if proto.concurrent_substeps:
+                new_blobs = set(viewkeys(ws_in)) - set(viewkeys(analyzer.workspace))
+                assert len(all_new_blobs & new_blobs) == 0, (
+                    'Error: Blobs created by multiple parallel steps: %s' % (
+                        ', '.join(all_new_blobs & new_blobs)))
+                all_new_blobs |= new_blobs
     for x in all_new_blobs:
         analyzer.define_blob(x)
 
@@ -181,8 +185,16 @@ class Printer(Visitor, Text):
 
 
 def _sanitize_str(s):
-    s = str(s)
-    return s if len(s) < 64 else (s[:64] + '...<+len=%d>' % (len(s) - 64))
+    if isinstance(s, text_type):
+        sanitized = s
+    elif isinstance(s, binary_type):
+        sanitized = s.decode('ascii', errors='ignore')
+    else:
+        sanitized = str(s)
+    if len(sanitized) < 64:
+        return sanitized
+    else:
+        return s[:64] + '...<+len=%d>' % (len(s) - 64)
 
 
 def _arg_val(arg):
@@ -261,6 +273,11 @@ def _get_step_context(step):
         return call('loop'), False
     if proto.num_iter and proto.num_iter != 1:
         return call('loop', [proto.num_iter]), False
+    if proto.num_concurrent_instances > 1:
+        return (
+            call('parallel',
+                 [('num_instances', proto.num_concurrent_instances)]),
+            len(step.Substeps()) > 1)
     concurrent = proto.concurrent_substeps and len(step.Substeps()) > 1
     if concurrent:
         return call('parallel'), True
@@ -279,13 +296,18 @@ def print_step(text, step):
                 text(step.get_net(proto.report_net))
         substeps = step.Substeps() + [step.get_net(n) for n in proto.network]
         for substep in substeps:
-            if (isinstance(substep, ExecutionStep) and
-                    substep.Proto().run_every_ms):
+            sub_proto = (
+                substep.Proto() if isinstance(substep, ExecutionStep) else None)
+            if sub_proto is not None and sub_proto.run_every_ms:
                 substep_ctx = call(
                     'reporter',
-                    [str(substep), ('interval_ms', substep.Proto().run_every_ms)])
+                    [str(substep), ('interval_ms', sub_proto.run_every_ms)])
             elif do_substep:
-                substep_ctx = call('step', [str(substep)])
+                title = (
+                    'workspace'
+                    if sub_proto is not None and sub_proto.create_workspace else
+                    'step')
+                substep_ctx = call(title, [str(substep)])
             else:
                 substep_ctx = None
             with text.context(substep_ctx):

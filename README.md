@@ -1,15 +1,13 @@
 # Caffe2
 
+[![TravisCI Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
+[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/caffe2/caffe2?svg=true)](https://ci.appveyor.com/project/Yangqing/caffe2)
+
 Caffe2 is a lightweight, modular, and scalable deep learning framework. Building on the original [Caffe](http://caffe.berkeleyvision.org), Caffe2 is designed with expression, speed, and modularity in mind.
 
-## Events
+## News and Events
 
-Caffe2 Bay Area Meetup at NVIDIA, May 31 6-8:30, Santa Clara, CA:
-[https://www.meetup.com/Caffe2-Bay-Area/events/239836290/](https://www.meetup.com/Caffe2-Bay-Area/events/239836290/)
-
-## User Groups
-
-[Caffe2 Community Facebook Group](https://www.facebook.com/groups/caffe2ai/): join to ask questions, talk to other users, and keep informed of important Caffe2 updates.
+[Caffe2 research award competition request for proposals](https://research.fb.com/programs/research-awards/proposals/caffe2-request-for-proposals/)
 
 ## Questions and Feedback
 
@@ -21,17 +19,6 @@ Please participate in our survey (https://www.surveymonkey.com/r/caffe2). We wil
 ## License and Citation
 
 Caffe2 is released under the [BSD 2-Clause license](https://github.com/Yangqing/caffe2/blob/master/LICENSE).
-
-### Build Status
-
-[![Travis Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
-
-| Target      | Status |
-|-------------|----|
-| Linux       | [![Build Linux](https://travis-matrix-badges.herokuapp.com/repos/caffe2/caffe2/branches/master/1)](https://travis-ci.org/caffe2/caffe2) |
-| Android     | [![Build Android](https://travis-matrix-badges.herokuapp.com/repos/caffe2/caffe2/branches/master/3)](https://travis-ci.org/caffe2/caffe2) |
-| iOS         | [![Build iOS](https://travis-matrix-badges.herokuapp.com/repos/caffe2/caffe2/branches/master/5)](https://travis-ci.org/caffe2/caffe2) |
-| Linux + MKL | [![Build LinuxMKL](https://travis-matrix-badges.herokuapp.com/repos/caffe2/caffe2/branches/master/6)](https://travis-ci.org/caffe2/caffe2) |
 
 ### Further Resources on [Caffe2.ai](http://caffe2.ai)
 

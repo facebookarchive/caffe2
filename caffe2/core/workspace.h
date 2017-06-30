@@ -2,6 +2,7 @@
 #define CAFFE2_CORE_WORKSPACE_H_
 
 #include "caffe2/core/common.h"
+#include "caffe2/core/observer.h"
 
 #ifndef CAFFE2_MOBILE
 #error "mobile build state not defined"
@@ -207,6 +208,9 @@ class Workspace {
   // generators repeat the same thing over multiple calls.
   bool RunOperatorOnce(const OperatorDef& op_def);
   bool RunNetOnce(const NetDef& net_def);
+
+ public:
+  std::atomic<int> last_failed_op_net_position;
 
  private:
   BlobMap blob_map_;

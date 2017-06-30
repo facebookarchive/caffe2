@@ -3,14 +3,57 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from caffe2.python import core
+from caffe2.python import core, workspace
 from hypothesis import given
 import caffe2.python.hypothesis_test_util as hu
 import hypothesis.strategies as st
 import numpy as np
+import random
 
 
 class TestUtilityOps(hu.HypothesisTestCase):
+
+    @given(X=hu.tensor(), args=st.booleans(), **hu.gcs)
+    def test_slice(self, X, args, gc, dc):
+        X = X.astype(dtype=np.float32)
+        dim = random.randint(0, X.ndim - 1)
+        slice_start = random.randint(0, X.shape[dim] - 1)
+        slice_end = random.randint(slice_start, X.shape[dim] - 1)
+        starts = np.array([0] * X.ndim).astype(np.int32)
+        ends = np.array([-1] * X.ndim).astype(np.int32)
+        starts[dim] = slice_start
+        ends[dim] = slice_end
+
+        if args:
+            op = core.CreateOperator(
+                "Slice", ["X"], ["Y"], starts=starts, ends=ends, device_option=gc
+            )
+
+            def slice_ref(X):
+                slc = [slice(None)] * X.ndim
+                slc[dim] = slice(slice_start, slice_end)
+                return [X[slc]]
+            inputs = [X]
+        else:
+            op = core.CreateOperator(
+                "Slice", ["X", "starts", "ends"], ["Y"], device_option=gc
+            )
+
+            def slice_ref(x, starts, ends):
+                slc = [slice(None)] * x.ndim
+                slc[dim] = slice(slice_start, slice_end)
+                return [x[slc]]
+            inputs = [X, starts, ends]
+
+        self.assertReferenceChecks(gc, op, inputs, slice_ref)
+        self.assertDeviceChecks(dc, op, inputs, [0])
+        self.assertGradientChecks(
+            device_option=gc,
+            op=op,
+            inputs=inputs,
+            outputs_to_check=0,
+            outputs_with_grads=[0],
+        )
 
     @given(dtype=st.sampled_from([np.float32, np.int32, np.int64]),
            ndims=st.integers(min_value=1, max_value=5),
@@ -117,8 +160,36 @@ class TestUtilityOps(hu.HypothesisTestCase):
             reference=max_op,
         )
 
+    @given(n=st.integers(4, 5), m=st.integers(6, 7),
+           d=st.integers(2, 3), **hu.gcs)
+    def test_elementwise_max_grad(self, n, m, d, gc, dc):
+        go = np.random.rand(n, m, d).astype(np.float32)
+        X = np.random.rand(n, m, d).astype(np.float32)
+        Y = np.random.rand(n, m, d).astype(np.float32)
+        Z = np.random.rand(n, m, d).astype(np.float32)
+        mx = np.maximum(np.maximum(X, Y), Z)
+
+        def max_grad_op(mx, go, X, Y, Z):
+            def mx_grad(a):
+                return go * (mx == a)
+
+            return [mx_grad(a) for a in [X, Y, Z]]
+
+        op = core.CreateOperator(
+            "MaxGradient",
+            ["mx", "go", "X", "Y", "Z"],
+            ["gX", "gY", "gZ"]
+        )
+
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=[mx, go, X, Y, Z],
+            reference=max_grad_op,
+        )
+
     @given(
-        inputs=hu.lengths_tensor(max_value=30).flatmap(
+        inputs=hu.lengths_tensor().flatmap(
             lambda pair: st.tuples(
                 st.just(pair[0]),
                 st.just(pair[1]),
@@ -177,3 +248,18 @@ class TestUtilityOps(hu.HypothesisTestCase):
             inputs=[X],
             reference=size_op,
         )
+
+    def test_alias_op(self):
+        """ Don't use hypothesis because there are only 2 cases to check"""
+        for size in [0, 5]:
+            X = np.arange(size).astype(np.float32)
+            workspace.FeedBlob('X', X)
+
+            op = core.CreateOperator(
+                "Alias",
+                ["X"],
+                ["Y"]
+            )
+            workspace.RunOperatorOnce(op)
+            Y = workspace.FetchBlob('Y')
+            np.testing.assert_array_equal(X, Y)
