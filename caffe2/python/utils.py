@@ -36,6 +36,9 @@ def Caffe2TensorToNumpyArray(tensor):
     elif tensor.data_type == caffe2_pb2.TensorProto.INT32:
         return np.asarray(
             tensor.double_data, dtype=np.int).reshape(tensor.dims)
+    elif tensor.data_type == caffe2_pb2.TensorProto.INT8:
+        return np.asarray(
+            tensor.double_data, dtype=np.int8).reshape(tensor.dims)
     else:
         # TODO: complete the data type.
         raise RuntimeError(
@@ -56,6 +59,9 @@ def NumpyArrayToCaffe2Tensor(arr, name=None):
     elif arr.dtype == np.int:
         tensor.data_type = caffe2_pb2.TensorProto.INT32
         tensor.int32_data.extend(list(arr.flatten().astype(np.int)))
+    elif arr.dtype == np.int8:
+        tensor.data_type = caffe2_pb2.TensorProto.INT8
+        tensor.int8_data.extend(list(arr.flatten().astype(np.int8)))
     else:
         # TODO: complete the data type.
         raise RuntimeError(
