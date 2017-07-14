@@ -1341,6 +1341,46 @@ class Net(object):
             else:
                 blob = msg_or_blob
             self.Print(blob, [])
+            
+    def InternalInputBlobs(self):
+        
+        blobs = []
+        
+        for op in self._net.op:
+            for in_name in op.input:
+                blobs += [BlobReference(in_name)]
+                
+        return set(blobs)
+                
+    def ExternalInputBlobs(self):
+        
+        blobs = []
+        
+        for in_name in self._external_input_map:
+            blobs += [BlobReference(in_name)]
+            
+        return set(blobs)
+
+    def AddGradientUpdate(self, learning_rate, ignore=[]):
+        
+        """
+        Adds operators to update the weights based on gradient descent.
+        
+        Args:
+            learning_rate:  either BlobReference or str
+            ignore:         list of blobs to ignore, ie input blobs like 'data' or 'label'
+        """
+        
+        for blob in self.ExternalInputBlobs():
+            
+            name = str(blob)
+            
+            if blob not in ignore and name not in ignore:
+        
+                if self.BlobIsDefined(name+'_grad'):
+                
+                    self.Mul([name+'_grad', learning_rate], name+'_grad_delta', broadcast=1)
+                    self.Add([name, name+'_grad_delta'], name)
 
     def add_attribute(self, name, obj):
         """
