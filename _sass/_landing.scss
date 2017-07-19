@@ -37,6 +37,12 @@
 
 $landing-page-font-family: 'Montserrat', 'Lato', Calibri, Arial, sans-serif;
 
+$news-background: #FFFFFF;
+$news-h2-color: #0080B8;
+$news-h3-color: #0080B8;
+$news-h4-color: #0080B8;
+$news-p-color: #0080B8;
+
 $describe-background: #25376B;
 $describe-h2-color: #33ECC3;
 $describe-h3-color: #fff;
@@ -104,6 +110,54 @@ $applications-button-text-color: #25376B;
   position: relative;
   min-height: 1px;
   box-sizing: border-box;
+}
+
+.landing-news {
+  background-color: $news-background;
+  padding: 0px 0 20px;
+  box-sizing: border-box;
+  display: block;
+
+  h2 {
+    font-size: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: $news-h2-color;
+    font-family: $landing-page-font-family;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+    color: $news-h3-color;
+    font-family: $landing-page-font-family;
+  }
+
+  h4 {
+    font-size: 20px;
+    margin-bottom: 45px;
+    color: $news-h4-color;
+    font-family: $landing-page-font-family;
+  }
+
+  p {
+    font-size: 16px;
+    text-align: center;
+    color: $news-p-color;
+    font-family: $landing-page-font-family;
+  }
+
+  .box {
+    text-align: center;
+    padding: 10px 0;
+    margin-bottom: 70px;
+
+    img {
+      margin-bottom: 35px;
+      @include opacity(0.5);
+    }
+  }
 }
 
 .landing-describe {
