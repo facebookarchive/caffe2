@@ -4,6 +4,29 @@ title: Caffe 2
 id: home
 ---
 
+<section class="landing-news landing-wrap">
+    <div class="landing-container">
+        <div class="landing-row">
+            <div class="landing-col-md-3 box">
+                <a class="iconImages" href="https://research.fb.com/programs/research-awards/proposals/caffe2-rfp/"><img height="100" src="./static/images/landing-rfp.svg"></a>
+                <h4>Request for Proposals</h4>
+                <p>Want to win funding for AI research using Caffe2? <a href="https://research.fb.com/programs/research-awards/proposals/caffe2-rfp/">Submit your proposals</a>.</p>
+            </div>
+            <div class="landing-col-md-3 box">
+                <a class="iconImages" href="https://www.meetup.com/Caffe2-Bay-Area/events/241702584/"><img height="100" src="./static/images/landing-meetup.svg"></a>
+                <h4>Hawaii Meetup - 24 July 2017</h4>
+                <p><a href="https://www.meetup.com/Caffe2-Bay-Area/events/241702584/">Sign up</a> for our 24 July 2017 Caffe2 Meetup at the Hilton Hawaiian Village, co-hosted with NVIDIA. Proceedings begin at 5 PM.</p>
+            </div>
+            <div class="landing-col-md-3 box">
+                <a class="iconImages" href="https://twitter.com/caffe2ai"><img height="100" src="./static/images/landing-twitter.svg"></a>
+                <h4>Follow us on Twitter</h4>
+                <p>Keep up with everything Caffe2 through our <a href=
+                "https://twitter.com/caffe2ai">@caffe2ai Twitter account</a>. Annoucements, meetups, releases will all be posted here.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="landing-describe landing-wrap">
     <div class="landing-container">
         <h2>CODE ONCE, RUN ANYWHERE</h2>
