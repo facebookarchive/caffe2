@@ -165,6 +165,15 @@ if(USE_REDIS)
   endif()
 endif()
 
+# --- [ OpenCL
+if(USE_OPENCL)
+  find_package(OpenCL)
+  include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/caffe2/contrib/opencl)
+  include_directories(SYSTEM ${OpenCL_INCLUDE_DIRS})
+  include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/third_party/libopencl-stub/include)
+  list(APPEND Caffe2_DEPENDENCY_LIBS ${OPENCL_LIBRARIES})
+  set(Caffe2_DEPENDENCY_LIBS ${Caffe2_DEPENDENCY_LIBS} PARENT_SCOPE)
+endif()
 
 # ---[ OpenCV
 if(USE_OPENCV)

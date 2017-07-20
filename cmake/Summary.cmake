@@ -42,6 +42,7 @@ function (Caffe2_print_configuration_summary)
   message(STATUS "    NERVANA_GPU version : ${NERVANA_GPU_VERSION}")
   endif()
 
+  message(STATUS "  USE_OPENCL            : ${USE_OPENCL}")
   message(STATUS "  USE_GLOG              : ${USE_GLOG}")
 
   message(STATUS "  USE_GFLAGS            : ${USE_GFLAGS}")

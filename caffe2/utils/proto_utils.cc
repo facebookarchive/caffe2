@@ -26,6 +26,8 @@ std::string DeviceTypeName(const int32_t& d) {
       return "CUDA";
     case MKLDNN:
       return "MKLDNN";
+    case OPENCL:
+      return "OPENCL";
     default:
       CAFFE_THROW(
           "Unknown device: ",
