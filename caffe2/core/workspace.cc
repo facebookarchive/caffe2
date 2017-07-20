@@ -16,17 +16,6 @@ CAFFE2_DEFINE_bool(
     false,
     "If true, workspace destructor will print all blob shapes");
 
-#if CAFFE2_MOBILE
-// Threadpool restrictions
-
-// Whether or not threadpool caps apply to Android
-CAFFE2_DEFINE_int(caffe2_threadpool_android_cap, true, "");
-
-// Whether or not threadpool caps apply to iOS
-CAFFE2_DEFINE_int(caffe2_threadpool_ios_cap, false, "");
-
-#endif // CAFFE2_MOBILE
-
 namespace caffe2 {
 
 void Workspace::PrintBlobSizes() {
@@ -143,18 +132,24 @@ const Blob* Workspace::GetBlob(const string& name) const {
 }
 
 Blob* Workspace::GetBlob(const string& name) {
-  return const_cast<Blob*>(
-      static_cast<const Workspace*>(this)->GetBlob(name));
+  return const_cast<Blob*>(static_cast<const Workspace*>(this)->GetBlob(name));
 }
 
 NetBase* Workspace::CreateNet(const NetDef& net_def, bool overwrite) {
-  CAFFE_ENFORCE(net_def.has_name(), "Net definition should have a name.");
-  if (net_map_.count(net_def.name()) > 0) {
+  const auto tmp_net_def = std::make_shared<const NetDef>(net_def);
+  return CreateNet(tmp_net_def, overwrite);
+}
+
+NetBase* Workspace::CreateNet(
+    const std::shared_ptr<const NetDef>& net_def,
+    bool overwrite) {
+  CAFFE_ENFORCE(net_def->has_name(), "Net definition should have a name.");
+  if (net_map_.count(net_def->name()) > 0) {
     if (!overwrite) {
       CAFFE_THROW(
           "I respectfully refuse to overwrite an existing net of the same "
           "name \"",
-          net_def.name(),
+          net_def->name(),
           "\", unless you explicitly specify overwrite=true.");
     }
     VLOG(1) << "Deleting existing network of the same name.";
@@ -162,19 +157,19 @@ NetBase* Workspace::CreateNet(const NetDef& net_def, bool overwrite) {
     // the old network, such as an opened LevelDB, may prevent us from creating
     // a new network before the old one is deleted. Thus we will need to first
     // erase the old one before the new one can be constructed.
-    net_map_.erase(net_def.name());
+    net_map_.erase(net_def->name());
   }
   // Create a new net with its name.
-  VLOG(1) << "Initializing network " << net_def.name();
-  net_map_[net_def.name()] =
+  VLOG(1) << "Initializing network " << net_def->name();
+  net_map_[net_def->name()] =
       unique_ptr<NetBase>(caffe2::CreateNet(net_def, this));
-  if (net_map_[net_def.name()].get() == nullptr) {
+  if (net_map_[net_def->name()].get() == nullptr) {
     LOG(ERROR) << "Error when creating the network."
-               << "Maybe net type: [" << net_def.type() << "] does not exist";
-    net_map_.erase(net_def.name());
+               << "Maybe net type: [" << net_def->type() << "] does not exist";
+    net_map_.erase(net_def->name());
     return nullptr;
   }
-  return net_map_[net_def.name()].get();
+  return net_map_[net_def->name()].get();
 }
 
 NetBase* Workspace::GetNet(const string& name) {
@@ -225,51 +220,18 @@ bool Workspace::RunNetOnce(const NetDef& net_def) {
   return true;
 }
 
-bool Workspace::RunPlan(const PlanDef& plan,
-                        ShouldContinue shouldContinue) {
+bool Workspace::RunPlan(const PlanDef& plan, ShouldContinue shouldContinue) {
   return RunPlanOnWorkspace(this, plan, shouldContinue);
 }
 
 #if CAFFE2_MOBILE
 ThreadPool* Workspace::GetThreadPool() {
   std::lock_guard<std::mutex> guard(thread_pool_creation_mutex_);
-
   if (!thread_pool_) {
-    int numThreads = std::thread::hardware_concurrency();
-
-    bool applyCap = false;
-#if CAFFE2_ANDROID
-    applyCap = caffe2::FLAGS_caffe2_threadpool_android_cap;
-#elif CAFFE2_IOS
-    applyCap = caffe2::FLAGS_caffe2_threadpool_ios_cap;
-#else
-#error Undefined architecture
-#endif
-
-    if (applyCap) {
-      // 1 core  -> 1 thread
-      // 2 cores -> 2 threads
-      // 4 cores -> 3 threads
-      // 8 cores -> 4 threads
-      // more, continue limiting to half of available cores
-
-      if (numThreads <= 3) {
-        // no change
-      } else if (numThreads <= 5) {
-        // limit to 3
-        numThreads = 3;
-      } else {
-        // Use half the cores
-        numThreads = numThreads / 2;
-      }
-    }
-
-    LOG(INFO) << "Constructing thread pool with " << numThreads << " threads";
-    thread_pool_.reset(new ThreadPool(numThreads));
+    thread_pool_ = ThreadPool::defaultThreadPool();
   }
-
   return thread_pool_.get();
 }
 #endif // CAFFE2_MOBILE
 
-}  // namespace caffe2
+} // namespace caffe2
