@@ -1,10 +1,11 @@
-FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04
+FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
 MAINTAINER Aaron Markham <aaronmarkham@fb.com>
 
 # caffe2 install with gpu support
 
 ########## REQUIRED DEPENDENCIES ################
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
     python-dev \
     python-pip \
     git \
@@ -21,6 +22,8 @@ RUN git clone --recursive https://github.com/caffe2/caffe2.git && \
 ########## OPTIONAL DEPENDENCIES ################
 
 RUN apt-get install -y --no-install-recommends \
+    libatlas-base-dev  \
+    libeigen3-dev \
     libgflags-dev \
     libgoogle-glog-dev \
     libgflags-dev \
@@ -33,11 +36,18 @@ RUN apt-get install -y --no-install-recommends \
     libsnappy-dev \
     openmpi-bin \
     openmpi-doc \
+    python-dev \
+    python-lmdb \
+    python-matplotlib \
+    python-networkx \
     python-numpy \
     python-pydot \
     python-setuptools \
     python-scipy \
+    python-skimage \
     wget
+
+RUN rm -rf /var/lib/apt/lists/*
 
 RUN pip install \
     flask \
@@ -55,7 +65,15 @@ RUN pip install \
     tornado
 
 ########## INSTALLATION STEPS ###################
-RUN cd caffe2 && make && cd build && make install
+RUN cd caffe2 && mkdir build && cd build
+WORKDIR /caffe2/build/
+RUN cmake .. \
+    -DCUDA_ARCH_NAME=Manual \
+    -DCUDA_ARCH_BIN="35 52 60 61" \
+    -DCUDA_ARCH_PTX="61" \
+    -DUSE_NNPACK=OFF \
+    -DUSE_ROCKSDB=OFF
+RUN make install
 
 ENV PYTHONPATH /usr/local
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH

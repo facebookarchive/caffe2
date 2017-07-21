@@ -1,11 +1,11 @@
-FROM caffe2ai/caffe2:gpu-fulloptions-ubuntu16.04
+FROM caffe2ai/caffe2:latest
 MAINTAINER Aaron Markham <aaronmarkham@fb.com>
 
-# caffe2 install with cpu support
+# Caffe2 source refresh and tutorial files overlay
+# Change to a CPU-only docker base if needed (latest is GPU)
 
 ########## INSTALLATION STEPS ###################
 RUN apt-get install unzip vim -y --no-install-recommends
-RUN pip install requests
 WORKDIR "/"
 RUN rm -rf caffe2
 RUN git clone --recursive https://github.com/caffe2/caffe2.git
@@ -17,9 +17,7 @@ WORKDIR "/caffe2/build"
 RUN make install
 ENV PYTHONPATH /usr/local
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
-# must force workdir for python modules to run and install models in desired location; ENV has no effect
 WORKDIR "/usr/local"
-RUN python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 
 ########## SETUP TUTORIAL FILES #################
 # get model files for Loading Pre-Trained Models
@@ -38,5 +36,3 @@ WORKDIR "/caffe2/caffe2/python/tutorials/tutorial_data"
 RUN wget "https://download.caffe2.ai/datasets/mnist/mnist.zip"
 RUN unzip -d mnist mnist.zip
 WORKDIR "/caffe2/caffe2/python/tutorials"
-
-########## TROUBLESHOOTING ######################
