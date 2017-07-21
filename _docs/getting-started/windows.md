@@ -22,7 +22,7 @@ The first thing you want to do is to assess whether or not you're going to use G
 2. [NVIDIA CUDA/cuDNN](https://developer.nvidia.com/cuda-downloads): if you have GPU(s) then go ahead and install
     * [CUDA](https://developer.nvidia.com/cuda-downloads)
     * [cuDNN](https://developer.nvidia.com/cudnn) (registration required; it is a zip file, not installer, so you need to copy the contents of the zip file to the cuda folder which is `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0` by default)
-3. Python 2.7.6 to [Python 2.7.13](https://www.python.org/download/releases/python-2713/). Python version 3+ is not yet supported. You can use regular Python or Anaconda Python. Just note that you many have issues with package location and versioning with Anaconda. Some Anaconda notes are provided below the Regular Python notes.
+3. Python 2.7.6 to [Python 2.7.13](https://www.python.org/download/releases/python-2713/). Python version 3+ is not yet supported. You can use regular Python or Anaconda Python. Just note that you may have issues with package location and versioning with Anaconda. Some Anaconda notes are provided below the Regular Python notes.
 4. Install a C++ compiler such as [Visual Studio Community Edition 2017](https://www.visualstudio.com/vs/community/)
     * When installing VS 2017, install Desktop Development with C++ (on the right check: C++/CLI support)
 5. Install [Cmake](http://cmake.org)
@@ -88,7 +88,7 @@ Using the Developer Command Prompt, browse to the repo's folders to `\caffe2\scr
 For VS15 and VS17 users:
 
 1. Install the [Github Extension for Visual Studio](https://visualstudio.github.com).
-2. From within Visual Studio you can open/clone the Github repository. From the Getting Started page under Open, you should have GitHub as an option. Login, and then either choose Caffe2 from the list (if you've forked it) or browse to where you cloned it. Default location is hereinafter is referencing `C:\Users\username\Source\Repos\caffe2`.
+2. From within Visual Studio you can open/clone the Github repository. From the Getting Started page under Open, you should have GitHub as an option. Login, and then either choose Caffe2 from the list (if you've forked it) or browse to where you cloned it. Default location hereinafter is referencing `C:\Users\username\Source\Repos\caffe2`.
 
 ### Python Configuration
 
