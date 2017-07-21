@@ -88,7 +88,7 @@ Using the Developer Command Prompt, browse to the repo's folders to `\caffe2\scr
 For VS15 and VS17 users:
 
 1. Install the [Github Extension for Visual Studio](https://visualstudio.github.com).
-2. From within Visual Studio you can open/clone the Github repository. From the Getting Started page under Open, you should have GitHub as an option. Login, and then either choose Caffe2 from the list (if you've forked it) or browse to where you cloned it. Default location is hereinafter is referencing `C:\Users\username\Source\Repos\caffe2`.
+2. From within Visual Studio you can open/clone the Github repository. From the Getting Started page under Open, you should have GitHub as an option. Login, and then either choose Caffe2 from the list (if you've forked it) or browse to where you cloned it. Default location hereinafter is referencing `C:\Users\username\Source\Repos\caffe2`.
 
 ### Python Configuration
 
