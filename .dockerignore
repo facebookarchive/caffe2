@@ -1,0 +1,5 @@
+.git
+docker
+.dockerignore
+build
+install

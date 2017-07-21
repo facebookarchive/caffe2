@@ -1,0 +1,49 @@
+FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        git \
+        graphviz \
+        libatlas-base-dev  \
+        libeigen3-dev \
+        libgoogle-glog-dev \
+        libleveldb-dev \
+        liblmdb-dev \
+        libopencv-dev \
+        libprotobuf-dev \
+        libsnappy-dev \
+        protobuf-compiler \
+        python-dev \
+        python-lmdb \
+        python-matplotlib \
+        python-networkx \
+        python-numpy \
+        python-pil \
+        python-pip \
+        python-protobuf \
+        python-pydot \
+        python-scipy \
+        python-skimage \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir future hypothesis
+
+COPY . /opt/caffe2
+
+RUN mkdir /opt/caffe2/build \
+    && cd /opt/caffe2/build \
+    && cmake .. \
+        -DCMAKE_INSTALL_PREFIX=../install \
+        -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="35 52 60 61" -DCUDA_ARCH_PTX="61" \
+        -DUSE_NNPACK=OFF \
+    && make "-j$(nproc)" install \
+    && make clean \
+    && cd .. \
+    && rm -rf build
+
+ENV PATH $PATH:/opt/caffe2/install/bin
+ENV PYTHONPATH $PYTHONPATH:/opt/caffe2/install
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/caffe2/install/lib
