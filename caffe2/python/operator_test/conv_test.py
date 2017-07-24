@@ -339,6 +339,7 @@ class TestConvolution(hu.HypothesisTestCase):
             kernel, dilation, pad, use_bias, gc, dc
         )
 
+    @unittest.skipIf(not workspace.has_gpu_support, "No GPU support")
     @given(batch_size=st.integers(1, 2),
            stride=st.integers(1, 2),
            size=st.integers(3, 5),
@@ -385,6 +386,7 @@ class TestConvolution(hu.HypothesisTestCase):
 
         self.assertDeviceChecks(dc, op, inputs, [0])
 
+    @unittest.skipIf(not workspace.has_gpu_support, "No GPU support")
     @given(batch_size=st.integers(1, 2),
            stride=st.integers(1, 2),
            size=st.integers(3, 5),
