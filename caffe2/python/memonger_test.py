@@ -85,6 +85,71 @@ class MemongerTest(hu.HypothesisTestCase):
         stats = memonger.compute_statistics(optimization1.assignments)
         self.assertLessEqual(stats.optimized_nbytes, stats.baseline_nbytes)
 
+    @given(input_dim=st.integers(min_value=1, max_value=10),
+           output_dim=st.integers(min_value=1, max_value=10),
+           batch_size=st.integers(min_value=1, max_value=10),
+           do=st.sampled_from(hu.device_options))
+    @settings(max_examples=5, timeout=120)
+    def test_fast_memonger(self, input_dim, output_dim, batch_size, do):
+        m = model_helper.ModelHelper()
+        fc1 = brew.fc(m, "data", "fc1", dim_in=input_dim, dim_out=output_dim)
+        fc2 = brew.fc(m, fc1, "fc2", dim_in=output_dim, dim_out=output_dim)
+        fc3 = brew.fc(m, fc2, "fc3", dim_in=output_dim, dim_out=output_dim)
+
+        fc3.Relu([], fc3)\
+           .Softmax([], "pred") \
+           .LabelCrossEntropy(["label"], ["xent"]) \
+           .AveragedLoss([], "loss")
+        input_to_grad = m.AddGradientOperators(["loss"])
+        m.net.Proto().device_option.CopyFrom(do)
+        m.param_init_net.Proto().device_option.CopyFrom(do)
+        static_blobs = \
+            [o for op in m.param_init_net.Proto().op for o in op.output] + \
+            ["data", "label", "loss", input_to_grad["fc1_w"]]
+
+        optimized_net = memonger.optimize_inference_fast(
+            m.Proto(), static_blobs)
+        data = np.random.randn(batch_size, input_dim).astype(np.float32)
+        label = np.random.randint(
+            low=0, high=output_dim, size=(batch_size,)).astype(np.int32)
+        workspace.RunNetOnce(m.param_init_net)
+        workspace.FeedBlob("data", data, device_option=do)
+        workspace.FeedBlob("label", label, device_option=do)
+        workspace.RunNetOnce(m.net)
+        loss = workspace.FetchBlob("loss")
+        grad = workspace.FetchBlob(str(input_to_grad["fc1_w"]))
+        workspace.RunNetOnce(optimized_net)
+        optimized_loss = workspace.FetchBlob("loss")
+        optimized_grad = workspace.FetchBlob(str(input_to_grad["fc1_w"]))
+        np.testing.assert_almost_equal(loss, optimized_loss)
+        np.testing.assert_almost_equal(grad, optimized_grad)
+
+        self.assertLess(count_blobs(optimized_net), count_blobs(m.Proto()))
+
+    def test_fast_memonger_unique_outputs(self):
+        m = model_helper.ModelHelper()
+        fc = []
+        for i in range(2):
+            z = brew.fc(
+                m, "data{}".format(i), "fc".format(i), dim_in=2, dim_out=2)
+            fc.append(z)
+        r = []
+        # Trick is here to have same input appear twice in a same Sum
+        for x in fc:
+            for y in fc:
+                r.append(brew.sum(m, [x, y], 1))
+        concated = brew.concat(m, r, "concated")
+        brew.relu(m, concated, "merged")
+
+        static_blobs = \
+            [o for op in m.param_init_net.Proto().op for o in op.output] + \
+            ["merged"] + ["data{}".format(i) for i in range(len(fc))]
+
+        optimized_net = memonger.optimize_inference_fast(
+            m.Proto(), static_blobs)
+        for op in optimized_net.op:
+            self.assertEqual(len(op.output), len(set(op.output)), str(op))
+
     @given(input_dim=st.integers(min_value=1, max_value=4),
            output_dim=st.integers(min_value=1, max_value=4),
            batch_size=st.integers(min_value=1, max_value=4))
@@ -307,7 +372,18 @@ class MemongerTest(hu.HypothesisTestCase):
         optim_proto = memonger.optimize_inference_for_dag(
             m.net, ["name_x/data"], "name_x/"
         )
+
         blobs_after = count_blobs(optim_proto)
+
+        # Extra test with when one of the parameters is also an input.
+        # This caused a bug before.
+        optim_proto_extra_input = memonger.optimize_inference_for_dag(
+            m.net, ["name_x/data", "name_x/fc1_w"], "name_x/"
+        )
+        blobs_after_extra_input = count_blobs(optim_proto_extra_input)
+        self.assertEqual(blobs_after, blobs_after_extra_input)
+        ###
+
         print(str(optim_proto))
         self.assertLess(blobs_after, blobs_before)
 

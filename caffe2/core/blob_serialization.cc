@@ -16,6 +16,11 @@ CAFFE2_DEFINE_int(
     16,
     "Maximal number of threads that can be used for tensor serialization");
 
+CAFFE2_DEFINE_bool(
+    caffe2_serialize_fp16_as_bytes,
+    false,
+    "Serialize FLOAT16 tensors using byte_data field");
+
 namespace caffe2 {
 /**
  * @brief StringSerializer is the serializer for String.
@@ -81,7 +86,8 @@ std::string Blob::Serialize(const string& name) const {
 // Specialization for StoreDeviceDetail for CPU - nothing needs to be done.
 template <>
 void TensorSerializer<CPUContext>::StoreDeviceDetail(
-    const Tensor<CPUContext>& input, TensorProto* proto) {}
+    const Tensor<CPUContext>& /*input*/,
+    TensorProto* /*proto*/) {}
 
 // The actual serialization registry objects.
 CAFFE_DEFINE_TYPED_REGISTRY(

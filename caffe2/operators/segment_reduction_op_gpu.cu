@@ -7,6 +7,51 @@
 
 namespace caffe2 {
 
+namespace {
+__global__ void rowwise_sum_kernel(
+    const int rows,
+    const int cols,
+    const float alpha,
+    const float* data,
+    float* out) {
+  typedef cub::BlockReduce<float, CAFFE_CUDA_NUM_THREADS> BlockReduce;
+  __shared__ typename BlockReduce::TempStorage temp_storage;
+  for (int rowIndex = blockIdx.x; rowIndex < rows; rowIndex += gridDim.x) {
+    float sum = 0;
+    const int rowOffset = rowIndex * cols;
+    for (int colIndex = threadIdx.x; colIndex < cols; colIndex += blockDim.x) {
+      sum += data[rowOffset + colIndex];
+    }
+    sum = BlockReduce(temp_storage).Reduce(sum, cub::Sum());
+    if (threadIdx.x == 0) {
+      out[rowIndex] = alpha * sum;
+    }
+    __syncthreads();
+  }
+}
+
+__global__ void columnwise_sum_kernel(
+    const int rows,
+    const int cols,
+    const float alpha,
+    const float* data,
+    float* out) {
+  typedef cub::BlockReduce<float, CAFFE_CUDA_NUM_THREADS> BlockReduce;
+  __shared__ typename BlockReduce::TempStorage temp_storage;
+  for (int colIndex = blockIdx.x; colIndex < cols; colIndex += gridDim.x) {
+    float sum = 0;
+    for (int rowIndex = threadIdx.x; rowIndex < rows; rowIndex += blockDim.x) {
+      sum += data[rowIndex * cols + colIndex];
+    }
+    sum = BlockReduce(temp_storage).Reduce(sum, cub::Sum());
+    if (threadIdx.x == 0) {
+      out[colIndex] = alpha * sum;
+    }
+    __syncthreads();
+  }
+}
+}
+
 template <
     typename T,
     class Context = CUDAContext,
@@ -47,36 +92,30 @@ class ReduceDimsOp : public Operator<CUDAContext> {
 
     int in_dim = FIRSTDIMS ? M : N;
 
-    if (ones_.size() != in_dim) {
-      ones_.Resize(in_dim);
-      math::Set<T, Context>(
-          in_dim,
-          static_cast<T>(1),
-          ones_.template mutable_data<T>(),
-          &context_);
-    }
-
     T alpha = 1.0;
     if (NORMALIZE) { // Static if
       alpha = 1.0 / in_dim;
     }
 
-    math::Gemv<T, Context>(
-        FIRSTDIMS ? CblasTrans : CblasNoTrans,
-        M,
-        N,
-        alpha,
-        input_data,
-        ones_.template data<T>(),
-        0.0,
-        Y->template mutable_data<T>(),
-        &context_);
-
+    if (FIRSTDIMS) {
+      columnwise_sum_kernel<<<
+          std::min(N, CAFFE_MAXIMUM_NUM_BLOCKS),
+          CAFFE_CUDA_NUM_THREADS,
+          0,
+          context_.cuda_stream()>>>(
+          M, N, alpha, input_data, Y->template mutable_data<T>());
+    } else {
+      rowwise_sum_kernel<<<
+          std::min(M, CAFFE_MAXIMUM_NUM_BLOCKS),
+          CAFFE_CUDA_NUM_THREADS,
+          0,
+          context_.cuda_stream()>>>(
+          M, N, alpha, input_data, Y->template mutable_data<T>());
+    }
     return true;
   }
 
  private:
-  Tensor<Context> ones_;
   int num_reduce_dims_;
 };
 
@@ -223,7 +262,7 @@ void inclusive_scan_wrapper(
       NULL,
       temp_storage_bytes,
       length_data,
-      prefix_sum_length_buffer->template mutable_data<int>(),
+      prefix_sum_length_buffer->mutable_data<int>(),
       len_length,
       context_->cuda_stream());
   // Allocate temporary storage
@@ -231,13 +270,13 @@ void inclusive_scan_wrapper(
   buffer_size += temp_storage_bytes % sizeof(int) != 0 ? 1 : 0;
   prefix_sum_buffer->Resize(buffer_size);
   void* d_temp_storage =
-      static_cast<void*>(prefix_sum_buffer->template mutable_data<int>());
+      static_cast<void*>(prefix_sum_buffer->mutable_data<int>());
   // Run inclusive prefix sum
   cub::DeviceScan::InclusiveSum(
       d_temp_storage,
       temp_storage_bytes,
       length_data,
-      prefix_sum_length_buffer->template mutable_data<int>(),
+      prefix_sum_length_buffer->mutable_data<int>(),
       len_length,
       context_->cuda_stream());
 }

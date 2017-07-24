@@ -7,7 +7,9 @@
 
 namespace caffe2 {
 
-ProfDAGNet::ProfDAGNet(const NetDef& net_def, Workspace* ws)
+ProfDAGNet::ProfDAGNet(
+    const std::shared_ptr<const NetDef>& net_def,
+    Workspace* ws)
     : DAGNetBase(net_def, ws), time_per_op_(operator_nodes_.size()) {
   VLOG(1) << "Constructing ProfDAGNet " << name_;
 }
@@ -21,12 +23,34 @@ ProfDAGNet::~ProfDAGNet() {
   PrintStats();
 }
 
+void ProfDAGNet::ValidateOpTensorDevices() {
+  bool had_mismatches = false;
+  for (int idx = 0; idx < operator_nodes_.size(); idx++) {
+    const auto& node = operator_nodes_[idx];
+    auto mismatches =
+        ValidateTensorDevices(*node.operator_, node.operator_->debug_def());
+    for (auto& mismatch : mismatches) {
+      had_mismatches = true;
+      LOG(INFO) << "== PERFORMANCE WARNING == \n"
+                << " Operator " << node.operator_->debug_def().type()
+                << " expects GPU " << mismatch.second.first.cuda_gpu_id()
+                << " but tensor [" << mismatch.first << "] is on GPU "
+                << mismatch.second.second.cuda_gpu_id();
+    }
+  }
+  if (!had_mismatches) {
+    LOG(INFO) << "Analyzed operator & blob GPU assignments -- no mismatches";
+  }
+}
+
 bool ProfDAGNet::Run() {
   runs_++;
 
   // don't collect statistics from first run
   if (runs_ <= 1) {
-    return DAGNetBase::Run();
+    bool success = DAGNetBase::Run();
+    ValidateOpTensorDevices();
+    return success;
   }
 
   CAFFE_ENFORCE(
@@ -45,7 +69,7 @@ bool ProfDAGNet::Run() {
   CaffeMap<string, float> time_per_op_type_run;
   for (int idx = 0; idx < operator_nodes_.size(); idx++) {
     const auto& node = operator_nodes_[idx];
-    const string& op_type = node.operator_->def().type();
+    const string& op_type = node.operator_->debug_def().type();
     time_per_op_type_run[op_type] +=
         time_per_op_[idx].sum - time_per_op_run[idx].sum;
   }
@@ -117,12 +141,12 @@ void ProfDAGNet::PrintStats() {
   int measured_runs = runs_ - 1;
 
   for (int idx = 0; idx < operator_nodes_.size(); idx++) {
-    auto& node = operator_nodes_[idx];
-    const string& op_type = node.operator_->def().type();
-    const string& print_name = node.operator_->def().name().size()
-        ? node.operator_->def().name()
-        : (node.operator_->def().output_size() ? node.operator_->def().output(0)
-                                               : "NO_OUTPUT");
+    const auto& op = operator_nodes_[idx].operator_;
+    const auto& def = op->debug_def();
+    const string& op_type = def.type();
+    const string& print_name = def.name().size()
+        ? def.name()
+        : (op->OutputSize() ? def.output(0) : "NO_OUTPUT");
 
     float mean = time_per_op_[idx].sum / measured_runs;
     float stddev =

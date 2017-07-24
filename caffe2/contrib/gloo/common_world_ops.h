@@ -23,18 +23,19 @@ class CreateCommonWorld final : public Operator<Context> {
         size_(OperatorBase::template GetSingleArgument<int>("size", 0)),
         rank_(OperatorBase::template GetSingleArgument<int>("rank", 0)),
         sync_(OperatorBase::template GetSingleArgument<bool>("sync", false)),
-        ws_(ws) {
-    CAFFE_ENFORCE(def().has_name(), "CreateCommonWorld operator requires name");
+        ws_(ws),
+        status_blob_(
+            OperatorBase::GetSingleArgument<std::string>("status_blob", "")) {
+    CAFFE_ENFORCE(
+        operator_def.has_name(), "CreateCommonWorld operator requires name");
     CAFFE_ENFORCE(rank_ >= 0 && rank_ < size_);
-    name_ = def().name();
+    name_ = operator_def.name();
     device_ = createDevice();
     auto timeout =
         OperatorBase::template GetSingleArgument<int>("timeout_ms", -1);
     if (timeout != -1) {
       device_->setTimeout(std::chrono::milliseconds(timeout));
     }
-    status_blob_ =
-        OperatorBase::GetSingleArgument<std::string>("status_blob", "");
     if (status_blob_ != "") {
       ws_->CreateBlob(status_blob_);
     }

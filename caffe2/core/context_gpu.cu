@@ -100,6 +100,19 @@ CudaMemoryPoolType GetCudaMemoryPoolType() {
   return g_cuda_memory_pool_type;
 }
 
+vector<TIndex> GetCUDATensorInfo(
+    const void* c,
+    bool* shares_data,
+    size_t* capacity,
+    DeviceOption* device) {
+  vector<TIndex> dims =
+      GetTensorInfo<CUDAContext>(c, shares_data, capacity, device);
+  const Tensor<CUDAContext>* tc = static_cast<const Tensor<CUDAContext>*>(c);
+  device->set_device_type(CUDA);
+  device->set_cuda_gpu_id(GetGPUIDForPointer(tc->raw_data()));
+  return dims;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // A wrapper to allow us to lazily initialize all cuda environments that Caffe
 // uses. This gets done the first time a caffe2::CUDAContext::New() gets called
@@ -167,10 +180,8 @@ static void Caffe2InitializeCuda() {
     GetTensorType<CUDAContext>
   );
 
-  RegisterShapeCallFunction(
-    TypeMeta::Id<Tensor<CUDAContext>>(),
-    GetTensorShape<CUDAContext>
-  );
+  RegisterTensorInfoFunction(
+      TypeMeta::Id<Tensor<CUDAContext>>(), GetCUDATensorInfo);
 
   // Check the versions of cuDNN that were compiled and linked with are compatible
   CheckCuDNNVersions();
@@ -383,7 +394,7 @@ void TrackMemoryAlloc(size_t nbytes) {
 }
 }
 
-void* CUDAContext::New(size_t nbytes) {
+std::pair<void*, MemoryDeleter> CUDAContext::New(size_t nbytes) {
   // Lock the mutex
   std::lock_guard<std::mutex> lock(CUDAContext::mutex());
   // A one-time caffe2 cuda initializer.
@@ -400,7 +411,7 @@ void* CUDAContext::New(size_t nbytes) {
       g_size_map[ptr] = nbytes;
       g_cuda_device_affiliation[ptr] = GetCurrentGPUID();
     }
-    return ptr;
+    return {ptr, Delete};
   case CudaMemoryPoolType::CNMEM: {
 #ifdef CAFFE2_USE_CNMEM
     auto gpuId = GetCurrentGPUID();
@@ -417,7 +428,7 @@ void* CUDAContext::New(size_t nbytes) {
     if (FLAGS_caffe2_gpu_memory_tracking) {
       g_size_map[ptr] = nbytes;
     }
-    return ptr;
+    return {ptr, Delete};
 #else
     CAFFE_THROW("This caffe2 is not built with cnmem support, so you should "
                 "not use the cnmem memory pool type.");
@@ -431,9 +442,9 @@ void* CUDAContext::New(size_t nbytes) {
     if (FLAGS_caffe2_gpu_memory_tracking) {
       g_size_map[ptr] = nbytes;
     }
-    return ptr;
+    return {ptr, Delete};
   }
-  return nullptr;
+  return {nullptr, Delete};
 }
 
 void CUDAContext::Delete(void* ptr) {

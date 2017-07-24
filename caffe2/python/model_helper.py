@@ -10,6 +10,10 @@ from caffe2.python.modeling import parameter_info
 from caffe2.python.modeling.parameter_sharing import (
     parameter_sharing_context,
 )
+from caffe2.python.optimizer_context import (
+    OptimizerContext,
+    DEFAULT_OPTIM,
+)
 from caffe2.proto import caffe2_pb2
 
 from future.utils import viewitems, viewkeys
@@ -93,15 +97,16 @@ class ModelHelper(object):
             self.param_init_net = param_model.param_init_net
             self.param_to_grad = param_model.param_to_grad
             self.params = param_model.params
+            self._parameters_info = param_model._parameters_info
             self._computed_params = param_model._computed_params
         else:
             self.param_init_net = core.Net(self.name + '_init')
             self.param_to_grad = {}
             self.params = []
+            self._parameters_info = {}
             self._computed_params = []
 
         self._param_info_deprecated = []
-        self._parameters_info = {}
         self._devices = []
         self.gradient_ops_added = False
         self.init_params = init_params
@@ -146,6 +151,10 @@ class ModelHelper(object):
                 shape=self._infer_param_shape(param)))
         for info in self._param_info_deprecated:
             info.grad = self.param_to_grad.get(info.name)
+
+    def _normalize_tags(self, tags):
+        tags = tags or []
+        return set(tags) if isinstance(tags, list) else set([tags])
 
     def create_param(self, param_name, shape, initializer, tags=None):
         """
@@ -203,6 +212,14 @@ class ModelHelper(object):
             init_net=self.param_init_net,
             shape=shape,
         )
+        optim_context = OptimizerContext.current()
+        for tag in self._normalize_tags(tags):
+            if optim_context.has_optimizer(tag):
+                # param_info will check optimizer has not been set
+                param_info.optimizer = optim_context.get_optimizer(tag)
+        if not param_info.optimizer and optim_context.has_optimizer(DEFAULT_OPTIM):
+            param_info.optimizer = optim_context.get_optimizer(DEFAULT_OPTIM)
+
         self._parameters_info[param_name] = param_info
         # Add param to legacy structs as well, so all other functions for
         # parameters are still working.
@@ -253,11 +270,7 @@ class ModelHelper(object):
 
     def AddParameter(self, param, tags=None):
         assert isinstance(param, core.BlobReference)
-        tags = tags or []
-        if isinstance(tags, list):
-            tags = set(tags)
-        else:
-            tags = set([tags])
+        tags = self._normalize_tags(tags)
         if parameter_info.ParameterTags.COMPUTED_PARAM in tags:
             self._computed_params.append(param)
         else:
@@ -403,7 +416,7 @@ class ModelHelper(object):
             return self._computed_params[:]
         else:
             return [p for p in self._computed_params
-                    if p.GetNameScope() == namescope]
+                    if p.GetNameScope().startswith(namescope)]
 
     def GetAllParams(self, namescope=None):
         return self.GetParams(namescope) + self.GetComputedParams(namescope)
@@ -564,7 +577,6 @@ def ExtractPredictorNet(
             external_outputs.update(
                 set(op.output).intersection(orig_external_outputs)
             )
-
 
         else:
             logging.debug(

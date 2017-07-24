@@ -37,7 +37,7 @@ struct StopOnSignal {
 
   StopOnSignal(const StopOnSignal& other) : handler_(other.handler_) {}
 
-  bool operator()(int iter) {
+  bool operator()(int /*iter*/) {
     return handler_->CheckForSignals() != SignalHandler::Action::STOP;
   }
 
@@ -158,7 +158,9 @@ class Workspace {
    * exception is thrown.
    */
   NetBase* CreateNet(const NetDef& net_def, bool overwrite = false);
-
+  NetBase* CreateNet(
+      const std::shared_ptr<const NetDef>& net_def,
+      bool overwrite = false);
   /**
    * Gets the pointer to a created net. The workspace keeps ownership of the
    * network.

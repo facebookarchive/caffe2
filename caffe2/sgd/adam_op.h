@@ -18,7 +18,7 @@ void adam_update(
     float eps_hat,
     float correction,
     const float* lr,
-    Context* context) {
+    Context* /*context*/) {
   for (auto i = 0; i < N; ++i) {
     float gi = g[i];
     float mi = nm[i] = m[i] * beta1 + gi * (1 - beta1);
@@ -42,7 +42,7 @@ void adam_compute(
     float eps_hat,
     float correction,
     const float* lr,
-    Context* context) {
+    Context* /*context*/) {
   for (auto i = 0; i < N; ++i) {
     float gi = g[i];
     float mi = nm[i] = m[i] * beta1 + gi * (1 - beta1);
@@ -168,7 +168,7 @@ class SparseAdamOp final : public Operator<Context> {
         CAFFE_ENFORCE_GE(
             Input(PARAM).size(),
             block_size + offsetIdx,
-            def().input(PARAM),
+            this->debug_def().input(PARAM),
             ", out of bound,  idx:",
             idx,
             " for input i:",
@@ -178,7 +178,7 @@ class SparseAdamOp final : public Operator<Context> {
         CAFFE_ENFORCE_GE(
             Input(GRAD).size(),
             block_size + offsetI,
-            def().input(GRAD),
+            this->debug_def().input(GRAD),
             ", out of bound idx, idx:",
             idx,
             " for input i:",

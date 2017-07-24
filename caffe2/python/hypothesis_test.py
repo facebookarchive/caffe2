@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import numpy as np
 import copy
+import time
 from functools import partial, reduce
 from future.utils import viewitems, viewkeys
 from hypothesis import assume, given, settings
@@ -377,22 +378,35 @@ class TestOperators(hu.HypothesisTestCase):
 
     @given(ndim=st.integers(1, 4),
            axis=st.integers(0, 3),
+           add_axis=st.integers(0, 1),
            num_inputs=st.integers(2, 4), **hu.gcs)
-    def test_depth_concat(self, ndim, axis, num_inputs, gc, dc):
+    def test_depth_concat(self, ndim, axis, add_axis, num_inputs, gc, dc):
         assume(axis < ndim)
         input_names = ['X0', 'X1', 'X2', 'X3'][:num_inputs]
         shape = [2, 3, 5, 7][:ndim]
         individual_dims = [1, 2, 3, 4, 5][:num_inputs]
         inputs = []
         for i in range(num_inputs):
-            # Sets a unique dim and create the input.
-            shape[axis] = individual_dims[i]
+            if add_axis == 0:
+                # Sets a unique dim and create the input.
+                shape[axis] = individual_dims[i]
             inputs.append(np.random.randn(*shape).astype(np.float32))
         op = core.CreateOperator("Concat", input_names, ["Y", "Y_dims"],
-                                 axis=axis)
+                                 axis=axis, add_axis=add_axis)
         self.assertDeviceChecks(dc, op, inputs, [0])
         for i in range(num_inputs):
             self.assertGradientChecks(gc, op, inputs, i, [0])
+
+        # Reference
+        def depth_concat(*inputs):
+            inputs = list(inputs)
+            if add_axis:
+                for i in range(len(inputs)):
+                    inputs[i] = np.expand_dims(inputs[i], axis)
+            input_dims = np.array([np.shape(x)[axis] for x in inputs])
+            return [np.concatenate(inputs, axis=axis), input_dims]
+
+        self.assertReferenceChecks(gc, op, inputs, depth_concat)
 
     @given(num_inputs=st.integers(2, 4),
            order=st.sampled_from([("NCHW", 1), ("NHWC", 3)]),
@@ -411,6 +425,15 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertDeviceChecks(dc, op, inputs, [0])
         for i in range(num_inputs):
             self.assertGradientChecks(gc, op, inputs, i, [0])
+
+        # Reference
+        def depth_concat_with_order(*inputs):
+            inputs = list(inputs)
+            axis = order[1]
+            input_dims = np.array([np.shape(x)[axis] for x in inputs])
+            return [np.concatenate(inputs, axis=axis), input_dims]
+
+        self.assertReferenceChecks(gc, op, inputs, depth_concat_with_order)
 
     @given(X=hu.arrays(dims=[5, 2],
                        elements=st.floats(min_value=0.0, max_value=10.0)),
@@ -1071,6 +1094,66 @@ class TestOperators(hu.HypothesisTestCase):
         dims=[10], elements=st.floats(allow_nan=False,
                                       allow_infinity=False)),
            **hu.gcs)
+    def test_abs(self, input_tensor, gc, dc):
+        op = core.CreateOperator(
+            "Abs",
+            ["input"],
+            ["output"]
+        )
+
+        def abs_ref(input_tensor):
+            return (np.abs(input_tensor),)
+
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=[input_tensor],
+            reference=abs_ref)
+
+    @given(input_tensor=hu.arrays(
+        dims=[10], elements=st.floats(min_value=-10,
+                                      max_value=10)),
+           **hu.gcs)
+    def test_cos(self, input_tensor, gc, dc):
+        op = core.CreateOperator(
+            "Cos",
+            ["input"],
+            ["output"]
+        )
+
+        def cos_ref(input_tensor):
+            return (np.cos(input_tensor),)
+
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=[input_tensor],
+            reference=cos_ref)
+
+    @given(input_tensor=hu.arrays(
+        dims=[10], elements=st.floats(min_value=-10,
+                                      max_value=10)),
+           **hu.gcs)
+    def test_sin(self, input_tensor, gc, dc):
+        op = core.CreateOperator(
+            "Sin",
+            ["input"],
+            ["output"]
+        )
+
+        def sin_ref(input_tensor):
+            return (np.sin(input_tensor),)
+
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=[input_tensor],
+            reference=sin_ref)
+
+    @given(input_tensor=hu.arrays(
+        dims=[10], elements=st.floats(allow_nan=False,
+                                      allow_infinity=False)),
+           **hu.gcs)
     def test_exp(self, input_tensor, gc, dc):
         op = core.CreateOperator(
             "Exp",
@@ -1107,6 +1190,24 @@ class TestOperators(hu.HypothesisTestCase):
             inputs=[input_tensor],
             reference=log_ref)
         self.assertGradientChecks(gc, op, [input_tensor], 0, [0])
+
+    def test_blobs_dequeue_timeout(self):
+        op = core.CreateOperator(
+            "CreateBlobsQueue",
+            [],
+            ["queue"],
+            capacity=5,
+            num_blobs=1)
+        self.ws.run(op)
+        t = time.time()
+        op = core.CreateOperator(
+            "DequeueBlobs",
+            ["queue"],
+            ["out"],
+            timeout_secs=0.2)
+        self.assertRaises(RuntimeError, lambda: self.ws.run(op))
+        t = time.time() - t
+        self.assertGreater(t, 0.19)
 
     @given(num_threads=st.integers(1, 10),  # noqa
            num_elements=st.integers(1, 100),

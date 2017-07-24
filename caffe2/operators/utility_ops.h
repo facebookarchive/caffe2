@@ -66,9 +66,10 @@ class PrintOp final : public Operator<Context> {
   PrintOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws),
         tensor_printer_(
-            def().input(0),
+            operator_def.input(0),
             OperatorBase::GetSingleArgument<int>("to_file", 0)
-                ? ws->RootFolder() + "/" + def().input(0) + kPrintFileExtension
+                ? ws->RootFolder() + "/" + operator_def.input(0) +
+                    kPrintFileExtension
                 : "",
             OperatorBase::GetSingleArgument<int>("limit", 0)) {}
 
@@ -305,7 +306,10 @@ class SumOp : public Operator<Context> {
     } else if (Input(0).template IsType<int>()) {
       return DoRunWithType<int, int>();
     } else {
-      return false;
+      CAFFE_THROW(
+          "Sum operator only supports 32-bit float and ints, but",
+          " input was of type ",
+          Input(0).meta().name());
     }
   }
 };
@@ -821,11 +825,11 @@ class LengthsToWeightsOp : public Operator<Context> {
 
     std::function<float(const int64_t& length, const float& power)> getWeight;
     if (power_ == 0.5) {
-      getWeight = [](const int64_t& length, const float& power) {
+      getWeight = [](const int64_t& length, const float& /*power*/) {
         return 1.0 / std::sqrt(length);
       };
     } else if (power_ == 1) {
-      getWeight = [](const int64_t& length, const float& power) {
+      getWeight = [](const int64_t& length, const float& /*power*/) {
         return 1.0 / length;
       };
     } else {

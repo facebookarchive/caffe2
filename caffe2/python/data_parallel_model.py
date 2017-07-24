@@ -12,6 +12,8 @@ import copy
 from caffe2.python import model_helper, dyndep, scope, workspace, core, memonger
 from caffe2.proto import caffe2_pb2
 
+import numpy as np
+
 dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/nccl:nccl_ops")
 dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/gloo:gloo_ops")
 dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/gloo:gloo_ops_gpu")
@@ -29,7 +31,6 @@ def Parallelize_CPU(*args, **kwargs):
     kwargs['cpu_device'] = True
     Parallelize(*args, **kwargs)
 
-
 def Parallelize(
     model_helper_obj,
     input_builder_fun,
@@ -43,7 +44,7 @@ def Parallelize(
     broadcast_computed_params=True,
     optimize_gradient_memory=False,
     use_nccl=False,
-    max_concurrent_distributed_ops=4,
+    max_concurrent_distributed_ops=16,
     cpu_device=False,
 ):
     '''
@@ -84,6 +85,11 @@ def Parallelize(
                         in gradient computation to reduce memory footprint
       cpu_device        Use CPU instead of GPU
     '''
+    assert scope.CurrentDeviceScope() is None \
+        or scope.CurrentDeviceScope().device_type == caffe2_pb2.CPU, \
+        "Parallelize must be called without device-scope, \
+        device scope was: {}".format(scope.CurrentDeviceScope())
+
     if devices is None:
         devices = list(range(0, workspace.NumCudaDevices())),
 
@@ -230,7 +236,8 @@ def Parallelize(
                     param_update_builder_fun(model_helper_obj)
     else:
         log.info("Calling optimizer builder function")
-        optimizer_builder_fun(model_helper_obj)
+        optimizer = optimizer_builder_fun(model_helper_obj)
+        model_helper_obj._optimizer = optimizer
 
     (sync_blobs, sync_names) = _ComputeBlobsToSync(model_helper_obj)
     sync_blobs_grouped = _GroupByDevice(
@@ -526,6 +533,35 @@ def RunNet(model, num_iterations):
             workspace.RunNet(net_iter, num_iterations)
 
 
+def Synchronize(model, timeout_sec=30):
+    log.info("Creating synchronization barrier net")
+    assert model._rendezvous is not None, "Missing rendezvous"
+    assert model._rendezvous['engine'] == 'GLOO', "Engine does not support barrier"
+    assert model._rendezvous['num_shards'] > 1, \
+        "synchronization barrier requires multiple shards"
+    global barrier_instance
+    instance = barrier_instance
+    barrier_instance += 1
+    barrier_net = core.Net("sync_barrier_net_" + str(instance))
+    comm_world = barrier_net.CreateCommonWorld(
+        model._rendezvous['kv_handler'],
+        "sync_barrier_cw_" + str(instance),
+        name="sync_barrier_cw_op_" + str(instance),
+        size=model._rendezvous['num_shards'],
+        rank=model._rendezvous['shard_id'],
+        engine=model._rendezvous['engine'],
+        status_blob="sync_barrier_cw_status_" + str(instance),
+        timeout_ms=timeout_sec * 1000
+    )
+    barrier_net.Barrier(
+        inputs=[comm_world],
+        outputs=[],
+        engine=model._rendezvous['engine'],
+        status_blob="sync_barrier_status_" + str(instance),
+    )
+    workspace.RunNetOnce(barrier_net)
+
+
 def _ForEachGPU(gpu_ids, f, scoped=False, *args, **kwargs):
     for gpu_id in gpu_ids:
         device_opt = core.DeviceOption(caffe2_pb2.CUDA, gpu_id)
@@ -655,6 +691,28 @@ def FinalizeAfterCheckpoint(model, blobs=None):
     workspace.RunNet(model._checkpoint_net.Proto().name)
 
 
+def GetLearningRateBlobNames(model):
+    '''
+    Returns a list of learning rates blob names used in the optimizer.
+    '''
+    if model._optimizer is not None:
+        if model._device_type == caffe2_pb2.CPU:
+            return [model._optimizer.get_cpu_lr_blob_name()]
+        elif model._device_type == caffe2_pb2.CUDA:
+            return [model._optimizer.get_gpu_lr_blob_name(gpu)
+                    for gpu in model._devices]
+        else:
+            raise Exception(
+                "Unsupported device type : {}".format(model._device_type)
+            )
+    else:
+        lr_blob_names = []
+        for op in model.net.Proto().op:
+            if op.type == "LearningRate":
+                lr_blob_names.append(op.output(0))
+        return lr_blob_names
+
+
 def _Broadcast(devices, model, net, param, use_nccl=False):
     # Copy params from gpu_0 to other
     master_dev = devices[0]
@@ -666,7 +724,7 @@ def _Broadcast(devices, model, net, param, use_nccl=False):
                 # Note that the root is the root _rank_ and not the root
                 # _device_. Thus we always use root=0, regardless of the
                 # devices used.
-                model.NCCLBroadcast(
+                net.NCCLBroadcast(
                     model._device_grouped_blobs[param].values(),
                     model._device_grouped_blobs[param].values(),
                     root=0,
@@ -906,7 +964,7 @@ def _AllReduceBlobsDistributed(
     assert num_workers > 1, "Please specify more than 1 worker"
     all_reduce_engine = rendezvous['engine']
 
-    master_device_opt = core.DeviceOption(caffe2_pb2.CUDA, devices[0])
+    master_device_opt = core.DeviceOption(model._device_type, devices[0])
 
     reducing_device_opt = master_device_opt
 
@@ -1153,7 +1211,6 @@ def _InferBlobDevice(model):
     map_ops(model.net.Proto())
     model._blob_to_device = mapping
 
-
 def _IsGPUBlob(model, blob_name):
     if blob_name in model._blob_to_device:
         return model._blob_to_device[blob_name].device_type == caffe2_pb2.CUDA
@@ -1223,7 +1280,7 @@ def _ValidateParams(params):
         dupes = []
         sp = sorted(params)
         for j, p in enumerate(sp):
-            if j > 0 and params[j - 1] == p:
+            if j > 0 and sp[j - 1] == p:
                 dupes.append(p)
 
         assert len(params) == len(set_params), \
@@ -1307,3 +1364,60 @@ def OptimizeGradientMemory(model,
             share_activations=recycle_activations,
             blob_shapes=shapes,
         )
+
+
+barrier_instance = 0
+
+
+def _RunComparison(model, blob_name, device=None):
+    if device is None:
+        device = model._blob_to_device[blob_name]
+    with core.DeviceScope(device):
+        rendezvous = model._rendezvous
+        if rendezvous is None or rendezvous['num_shards'] == 1:
+            return True
+
+        test_data_arr = np.zeros(rendezvous['num_shards']).astype(np.float32)
+        test_data_arr[rendezvous['shard_id']] = 1
+        workspace.FeedBlob("compare_arr", test_data_arr)
+
+        comparison_net = core.Net("allcompare_net")
+
+        comm_world = comparison_net.CreateCommonWorld(
+            rendezvous['kv_handler'],
+            "initial_sync",
+            name=model.net.Proto().name + ".cw_master_select",
+            size=rendezvous['num_shards'],
+            rank=rendezvous['shard_id'],
+            engine=rendezvous['engine'],
+            status_blob="cw_master_select",
+        )
+
+        blob_name_checksum = blob_name + "_checksum"
+        comparison_net.SumSqrElements(
+            [blob_name], [blob_name_checksum], average=False
+        )
+
+        blob_name_gather = blob_name + "_gather"
+        comparison_net.Mul(
+            inputs=["compare_arr", blob_name_checksum],
+            outputs=blob_name_gather,
+            broadcast=1
+        )
+
+        comparison_net.Allreduce(
+            inputs=[comm_world, blob_name_gather],
+            outputs=[blob_name_gather],
+            engine=rendezvous['engine'],
+            status_blob="all_reduce_master_select_status",
+        )
+
+        workspace.RunNetOnce(comparison_net)
+        gather_arr = workspace.FetchBlob(blob_name_gather)
+
+        baseline = gather_arr[0]
+        for i in range(rendezvous['num_shards']):
+            assert gather_arr[i] == baseline, \
+                "allcompare failed on shard {}.".format(rendezvous['shard_id'])
+
+        return True

@@ -16,22 +16,24 @@ namespace caffe2 {
 
 OperatorBase::OperatorBase(const OperatorDef& operator_def, Workspace* ws)
     : operator_ws_(ws),
-      operator_def_(operator_def),
-      arg_helper_(operator_def_) {
-  for (const string& input_str : operator_def_.input()) {
+      operator_def_(std::make_shared<OperatorDef>(operator_def)),
+      device_option_(
+          operator_def.has_device_option() ? operator_def.device_option()
+                                           : DeviceOption()) {
+  for (const string& input_str : operator_def.input()) {
     auto* blob = ws->GetBlob(input_str);
     CAFFE_ENFORCE(
         blob != nullptr,
         "op ",
-        operator_def_.type(),
+        operator_def.type(),
         ": Encountered a non-existing input blob: ",
         input_str);
     inputs_.push_back(blob);
   }
 
-  GetOperatorLogger()(operator_def_);
+  GetOperatorLogger()(operator_def);
 
-  for (const string& output_str : operator_def_.output()) {
+  for (const string& output_str : operator_def.output()) {
     outputs_.push_back(CHECK_NOTNULL(ws->CreateBlob(output_str)));
   }
 }
@@ -348,16 +350,18 @@ TensorShapes InferBlobShapesAndTypesFromWorkspace(
   for (const auto& s : ws_blobs) {
     Blob* b = ws->GetBlob(s);
     TypeCall type_fun = GetTypeCallFunction(b->meta().id());
-    ShapeCall shape_fun = GetShapeCallFunction(b->meta().id());
+    TensorInfoCall tensor_info_fun = GetTensorInfoFunction(b->meta().id());
     TensorShape tp;
 
     if (type_fun) {
         tp.set_data_type(TypeMetaToDataType(type_fun(b->GetRaw())));
     }
-    if (shape_fun) {
+    if (tensor_info_fun) {
       bool _shares_data;
       size_t _capacity;
-      auto shape = shape_fun(b->GetRaw(), _shares_data, _capacity);
+      DeviceOption _device;
+      auto shape =
+          tensor_info_fun(b->GetRaw(), &_shares_data, &_capacity, &_device);
       for (auto d : shape) {
         tp.add_dims(d);
       }
@@ -383,6 +387,49 @@ TensorShapes InferBlobShapesAndTypesFromMap(
     blob_desc[blob.first] = tp;
   }
   return InferBlobShapesAndTypes(blob_desc, nets);
+}
+
+std::map<string, std::pair<DeviceOption, DeviceOption>> ValidateTensorDevices(
+    OperatorBase& op,
+    const OperatorDef& op_def) {
+  std::map<string, std::pair<DeviceOption, DeviceOption>> mismatches;
+  DeviceOption op_device = op_def.device_option();
+
+  // Check from op schema if this op is used for crossing devices
+  auto op_schema = OpSchemaRegistry::Schema(op_def.type());
+  if (op_schema != nullptr) {
+    if (op_schema->inputs_can_cross_devices()) {
+      return mismatches;
+    }
+  }
+
+  auto Check = [&](const Blob& blob, std::string blob_name) {
+    TensorInfoCall tensor_info_fun = GetTensorInfoFunction(blob.meta().id());
+    if (tensor_info_fun) {
+      bool _shares_data;
+      size_t _capacity;
+      DeviceOption blob_device;
+      tensor_info_fun(
+          const_cast<Blob&>(blob).GetRaw(),
+          &_shares_data,
+          &_capacity,
+          &blob_device);
+
+      if (blob_device.device_type() == CUDA &&
+          blob_device.cuda_gpu_id() != op_device.cuda_gpu_id()) {
+        mismatches[blob_name] = std::make_pair(op_device, blob_device);
+      }
+    }
+  };
+
+  // Check that inputs have same device type as the op
+  for (int i = 0; i < op.InputSize(); i++) {
+    Check(op.InputBlob(i), op_def.input(i));
+  }
+  for (int i = 0; i < op.OutputSize(); i++) {
+    Check(*op.OutputBlob(i), op_def.output(i));
+  }
+  return mismatches;
 }
 
 }  // namespace caffe2

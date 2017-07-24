@@ -30,24 +30,31 @@ class OperatorBase {
   /** @brief Checks if the operator has an argument of the given name.
    */
   inline bool HasArgument(const string& name) const {
-    return arg_helper_.HasArgument(name);
+    CAFFE_ENFORCE(operator_def_, "operator_def was null!");
+    return ArgumentHelper::HasArgument(*operator_def_, name);
   }
 
   // Functions that deal with arguments. Basically, this allows us to map an
   // argument name to a specific type of argument that we are trying to access.
   template <typename T>
   inline T GetSingleArgument(const string& name, const T& default_value) const {
-    return arg_helper_.template GetSingleArgument<T>(name, default_value);
+    CAFFE_ENFORCE(operator_def_, "operator_def was null!");
+    return ArgumentHelper::GetSingleArgument<OperatorDef, T>(
+        *operator_def_, name, default_value);
   }
   template <typename T>
   inline bool HasSingleArgumentOfType(const string& name) const {
-    return arg_helper_.template HasSingleArgumentOfType<T>(name);
+    CAFFE_ENFORCE(operator_def_, "operator_def was null!");
+    return ArgumentHelper::HasSingleArgumentOfType<OperatorDef, T>(
+        *operator_def_, name);
   }
   template <typename T>
   inline vector<T> GetRepeatedArgument(
       const string& name,
       const vector<T>& default_value = {}) const {
-    return arg_helper_.template GetRepeatedArgument<T>(name, default_value);
+    CAFFE_ENFORCE(operator_def_, "operator_def was null!");
+    return ArgumentHelper::GetRepeatedArgument<OperatorDef, T>(
+        *operator_def_, name, default_value);
   }
 
   // Get the inputs and outputs as specific types.
@@ -57,9 +64,11 @@ class OperatorBase {
     try {
       return inputs_.at(idx)->template Get<T>();
     } catch (::caffe2::EnforceNotMet& enf) {
-      enf.AppendMessage(".\nOffending Blob name: ");
-      enf.AppendMessage(operator_def_.input(idx));
-      enf.AppendMessage(".\n");
+      if (has_debug_def()) {
+        enf.AppendMessage(".\nOffending Blob name: ");
+        enf.AppendMessage(debug_def().input(idx));
+        enf.AppendMessage(".\n");
+      }
       throw enf;
     }
   }
@@ -92,7 +101,7 @@ class OperatorBase {
   inline const vector<const Blob*>& Inputs() const { return inputs_; }
   inline const vector<Blob*>& Outputs() { return outputs_; }
 
-  virtual bool Run(int /* unused */ stream_id = 0) {
+  virtual bool Run(int /* unused */ /*stream_id*/ = 0) {
     CAFFE_NOT_IMPLEMENTED;
   }
 
@@ -101,12 +110,17 @@ class OperatorBase {
   }
 
   virtual void AddRelatedBlobInfo(EnforceNotMet* err) {
+    if (!has_debug_def()) {
+      return;
+    }
+
     bool found_input;
     if (err->caller() != nullptr) {
       for (int i = 0; i < inputs_.size(); i++) {
         if (inputs_[i]->GetRaw() == err->caller()) {
           found_input = true;
-          err->AppendMessage("\n** while accessing input: " + def().input(i));
+          err->AppendMessage(
+              "\n** while accessing input: " + debug_def().input(i));
           break;
         }
       }
@@ -115,20 +129,29 @@ class OperatorBase {
           if (found_input) {
             err->AppendMessage("\n OR ");
           }
-          err->AppendMessage("\n** while accessing output: " + def().output(i));
+          err->AppendMessage(
+              "\n** while accessing output: " + debug_def().output(i));
           break;
         }
       }
     }
   }
 
-  inline const OperatorDef& def() const {
-    return operator_def_;
-  }
-  inline const ArgumentHelper& arg_helper() const {
-    return arg_helper_;
+  inline const OperatorDef& debug_def() const {
+    CAFFE_ENFORCE(has_debug_def(), "operator_def was null!");
+    return *operator_def_;
   }
 
+  inline void set_debug_def(
+      const std::shared_ptr<const OperatorDef>& operator_def) {
+    operator_def_ = operator_def;
+  }
+
+  inline bool has_debug_def() const {
+    return operator_def_ != nullptr;
+  }
+
+ public:
   void SetObserver(std::unique_ptr<ObserverBase<OperatorBase>> observer) {
     observer_ = std::move(observer);
   }
@@ -146,8 +169,16 @@ class OperatorBase {
     }
   }
 
+  int net_position() const {
+    return net_position_;
+  }
+
   void set_net_position(int idx) {
     net_position_ = idx;
+  }
+
+  const DeviceOption& device_option() {
+    return device_option_;
   }
 
  public:
@@ -162,8 +193,8 @@ class OperatorBase {
   std::unique_ptr<ObserverBase<OperatorBase>> observer_;
 
  private:
-  OperatorDef operator_def_;
-  ArgumentHelper arg_helper_;
+  std::shared_ptr<const OperatorDef> operator_def_;
+  DeviceOption device_option_;
   vector<const Blob*> inputs_;
   vector<Blob*> outputs_;
 
@@ -240,16 +271,23 @@ class Operator : public OperatorBase {
         // FinishDeviceComputation() returning error basically means that there
         // is something wrong with the device (like CUDA) that usually cannot be
         // recovered, so we should log FATAL.
-        LOG(FATAL) << "Computation on device returned error in operator\n"
-                   << ProtoDebugString(this->def());
+        if (has_debug_def()) {
+          LOG(FATAL) << "Computation on device returned error in operator\n"
+                     << ProtoDebugString(this->debug_def());
+        } else {
+          LOG(FATAL) << "Computation on device returned error in operator";
+        }
       }
       if (observer_) {
         observer_->Stop();
       }
       return result;
     } catch (EnforceNotMet& err) {
-      err.AppendMessage("Error from operator: \n" + ProtoDebugString(def()));
-      AddRelatedBlobInfo(&err);
+      if (has_debug_def()) {
+        err.AppendMessage(
+            "Error from operator: \n" + ProtoDebugString(debug_def()));
+        AddRelatedBlobInfo(&err);
+      }
       this->RecordLastFailedOpNetPosition();
       throw;
     } catch (...) {
@@ -267,8 +305,11 @@ class Operator : public OperatorBase {
       }
       return result;
     } catch (EnforceNotMet& err) {
-      err.AppendMessage("Error from operator: \n" + ProtoDebugString(def()));
-      AddRelatedBlobInfo(&err);
+      if (has_debug_def()) {
+        err.AppendMessage(
+            "Error from operator: \n" + ProtoDebugString(debug_def()));
+        AddRelatedBlobInfo(&err);
+      }
       this->RecordLastFailedOpNetPosition();
       throw;
     } catch (...) {
@@ -288,7 +329,6 @@ class Operator : public OperatorBase {
   /* using override */ using OperatorBase::GetSingleArgument;       \
   /* using override */ using OperatorBase::HasSingleArgumentOfType; \
   /* using override */ using OperatorBase::GetRepeatedArgument;     \
-  /* using override */ using OperatorBase::def;                     \
   /* using override */ using OperatorBase::InputIsType;             \
   /* using override */ using OperatorBase::InputSize;               \
   /* using override */ using OperatorBase::OutputSize
@@ -374,7 +414,7 @@ struct DispatchHelper<FixedValues<FirstVal, Values...>, ExtraArgs...> {
 template <typename... ExtraArgs>
 struct DispatchHelper<FixedValues<>, ExtraArgs...> {
   template <typename Op>
-  static bool call(Op* op, TIndex size) {
+  static bool call(Op* op, TIndex /*size*/) {
     return op->template DoRunWithValue<ExtraArgs..., -1>();
   }
 };
@@ -425,7 +465,7 @@ struct DispatchHelper<FixedValues<>, ExtraArgs...> {
       TensorTypes<GenericTensorImplementation>,                                \
       ExtraArgs...> {                                                          \
     template <typename Op>                                                     \
-    static bool call(Op* op, const TypeMeta& meta) {                           \
+    static bool call(Op* op, const TypeMeta&) {                                \
       return op->template DoRunWithOtherType<ExtraArgs...>();                  \
     }                                                                          \
     template <typename Op, typename Context>                                   \
@@ -583,6 +623,10 @@ TensorShapes InferBlobShapesAndTypesFromWorkspace(
 TensorShapes InferBlobShapesAndTypesFromMap(
     const CaffeMap<std::string, std::vector<TIndex>>& blob_dimensions,
     const vector<std::unique_ptr<NetDef>>& nets);
+
+std::map<string, std::pair<DeviceOption, DeviceOption>> ValidateTensorDevices(
+    OperatorBase& op,
+    const OperatorDef& op_def);
 
 }  // namespace caffe2
 

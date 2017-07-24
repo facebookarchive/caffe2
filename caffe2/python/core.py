@@ -15,6 +15,7 @@ from caffe2.proto import caffe2_pb2
 from collections import defaultdict
 from caffe2.python import scope, utils, workspace
 import caffe2.python._import_c_extension as C
+import google.protobuf.text_format as protobuftx
 import pickle
 import numpy as np
 import sys
@@ -418,9 +419,23 @@ class IR(object):
         self.frontier = defaultdict(int)
         self.gradient_frontier = {}
         self.gradient_generators = defaultdict(lambda: defaultdict(list))
+        self.out_version_history = defaultdict(list)
+        self.in_version_history = defaultdict(list)
 
         for op in operators:
             self.Play(op)
+
+        self.SanityCheck(operators)
+
+    def SanityCheck(self, operators):
+        # Validate StopGradient usage by checking that StopGradient's output
+        # is actually passed forward
+        for op in operators:
+            if op.type == 'StopGradient':
+                if op.output[0] not in self.input_usages:
+                    raise Exception("""StopGradient's output '{}' is orphan.
+You typically want to specify same input and output for
+StopGradient. Op:\n\n{}""".format(op.output[0], str(op)))
 
     def Play(self, op):
         """"Adds an op to the current IR, and update the internal states to
@@ -431,6 +446,7 @@ class IR(object):
         for s in op.input:
             in_versions[s] = self.frontier[s]
             self.input_usages[s][self.frontier[s]].append(len(self.ssa))
+            self.in_version_history[s].append((op, self.frontier[s]))
         # For output, they are the current version plus one. If this is a
         # newly created blob, its version starts with zero.
         out_versions = {}
@@ -438,6 +454,7 @@ class IR(object):
             if s in self.frontier:
                 self.frontier[s] += 1
             out_versions[s] = self.frontier[s]
+            self.out_version_history[s].append((op, self.frontier[s]))
         # Add to SSA for bookkeeping.
         self.ssa.append(OpSSA(op, in_versions, out_versions))
 
@@ -446,6 +463,26 @@ class IR(object):
         """Checks if the gradient operators can be correctly carried out."""
         forward_op, in_versions, out_versions = self.ssa[fwd_op_idx]
         original_index = GetIndexFromGradientList(g_output, grad_op_input)
+
+        # Functions to generate debug help for version-mismatches
+        def versionMismatchInfoOut(name):
+            s = "DEBUG HELP:\n"
+            s += "Maybe you use same output blob twice for different ops?\n"
+            s += "== Version history of blob [{}]\n".format(name)
+            for (op, vers) in self.out_version_history[name]:
+                s += "Version (out) {} <-- {}".format(vers, op)
+                s += "\n"
+            return s
+
+        def versionMismatchInfoIn(name):
+            s = "DEBUG HELP:\n"
+            s += "Maybe the blob was overwritten by another op?\n"
+            s += "== Version history of blob [{}]\n".format(name)
+            for (op, vers) in self.in_version_history[name]:
+                s += "version (in) {} <-- {}".format(vers, op)
+                s += "\n"
+            return s
+
         # If it is a dense or sparse gradient name, it should match the
         # version of the corresponding output.
         if original_index is not None:
@@ -455,20 +492,21 @@ class IR(object):
                 raise RuntimeError(
                     'Gradient name "%s" is expected to correspond '
                     'to version %d of "%s", but currently we have '
-                    'version %d.' % (
+                    'version %d.\n\n' % (
                         grad_op_input, out_versions[original_name],
                         original_name,
-                        self.gradient_frontier[original_name]))
+                        self.gradient_frontier[original_name]) +
+                    versionMismatchInfoOut(original_name))
         # If it is an output name, the current version should match the
         # version when the operator was run.
         elif grad_op_input in out_versions:
             if self.frontier[grad_op_input] != out_versions[grad_op_input]:
                 raise RuntimeError(
                     'Gradient operator needs output "%s" at version'
-                    ' %d, but currently we have version %d.' % (
+                    ' %d, but currently we have version %d.\n\n' % (
                         grad_op_input, out_versions[grad_op_input],
                         self.frontier[grad_op_input]
-                    )
+                    ) + versionMismatchInfoOut(grad_op_input)
                 )
         # If it is an input name, the current version should match the
         # version when the operator was run.
@@ -476,10 +514,10 @@ class IR(object):
             if (self.frontier[grad_op_input] != in_versions[grad_op_input]):
                 raise RuntimeError(
                     'Gradient operator needs input "%s" at version '
-                    '%d, but currently we have version %d.' % (
+                    '%d, but currently we have version %d.\n\n' % (
                         grad_op_input, in_versions[grad_op_input],
                         self.frontier[grad_op_input]
-                    )
+                    ) + versionMismatchInfoIn(grad_op_input)
                 )
         # If it is none of the above, it should be a blob that is
         # generated locally by one of the previous gradient operators.
@@ -1124,6 +1162,55 @@ def get_op_ids_in_path(ssa, blob_versions, inputs, outputs):
     return sorted(used_op_ids)
 
 
+def recurrent_network_op_remap(op, prefix, blob_remap):
+    """
+    Parameters
+    ----------
+    op : Caffe2 operator (RecurrentNetworkOp or RecurrentNetworkGradientOp).
+    prefix: this argument is not used in this function, just for legacy support.
+    blob_remap : Dictionary that represents the map from old blob name to new.
+
+    Updates blob names in arguments of RecurrentNetworkOp and
+    RecurrentNetworkGradientOp to conform to cloned input and output of both
+    operators and also makes sure names of locally generated blobs in arguments
+    have the same prefix as the input and output of the operators.
+    """
+
+    def get_remapped_str(blob_str):
+        if isinstance(blob_str, binary_type):
+            blob_str = blob_str.decode('utf-8')
+        return blob_remap.get(blob_str, blob_str).encode('utf-8')
+
+    for argument in op.arg:
+        if len(argument.strings) > 0:
+            for i in range(len(argument.strings)):
+                argument.strings[i] = get_remapped_str(argument.strings[i])
+        elif argument.name == 'timestep':
+            argument.s = get_remapped_str(argument.s)
+        elif argument.name.endswith('step_net'):
+            # argument is a proto
+            remap_proto(argument, blob_remap)
+
+
+DEFAULT_REMAP_FUNCS = {
+    'RecurrentNetwork': recurrent_network_op_remap,
+    'RecurrentNetworkGradient': recurrent_network_op_remap,
+}
+
+
+def remap_proto(argument, blob_remap):
+    proto = caffe2_pb2.NetDef()
+    protobuftx.Merge(argument.s.decode('utf-8'), proto)
+    subnet = Net(proto)
+
+    cloned_sub_net = subnet.Clone(
+        'cloned_sub_net',
+        blob_remap,
+    )
+
+    argument.s = str(cloned_sub_net.Proto()).encode('utf-8')
+
+
 def clone_and_bind_net(net, name, prefix, blob_remap=None, inputs=None,
                        keep_schema=True):
     """
@@ -1433,8 +1520,12 @@ class Net(object):
             op_id_mask:  optional list of operator indices to include in
                          the cloned net. If not provided, all ops are included.
         """
-        if remap_funcs is None:
-            remap_funcs = {}
+        orig_remap_funcs = {} if remap_funcs is None else remap_funcs
+        # by default we want to put RecurrentNetworkOp and
+        # RecurrentNetworkGradientOp into remap_funcs, as these two operators
+        # also take blobs and proto into the arguments.
+        remap_funcs = DEFAULT_REMAP_FUNCS.copy()
+        remap_funcs.update(orig_remap_funcs)
         proto = self._net
         new_proto = caffe2_pb2.NetDef()
         new_proto.CopyFrom(proto)
@@ -1460,7 +1551,11 @@ class Net(object):
             remap_list(new_op.input)
             remap_list(new_op.output)
             if new_op.type in remap_funcs:
-                remap_funcs[new_op.type](new_op, (name + '/') if name else '')
+                remap_funcs[new_op.type](
+                    new_op,
+                    (name + '/') if name else '',
+                    blob_remap,
+                )
             return new_op
 
         del new_proto.op[:]
@@ -1726,7 +1821,9 @@ class Net(object):
 
     def set_input_record(self, input_record):
         from caffe2.python import schema
-        assert self._input_record is None, (
+        assert self._input_record is None or (input_record.has_blobs() and
+            set(input_record.field_blobs()) ==
+            set(self._input_record.field_blobs())), (
             'Input schema cannot be reset')
         if not input_record.has_blobs():
             with NameScope(self.Name()):
@@ -1748,8 +1845,10 @@ class Net(object):
             self.set_input_record(record)
 
     def set_output_record(self, record):
-        assert self._output_record is None, (
-            'Output record cannot be reset')
+        assert self._output_record is None or (record.has_blobs() and
+            set(record.field_blobs()) ==
+            set(self._output_record.field_blobs())), (
+            'Output schema cannot be reset')
         for blob in record.field_blobs():
             assert self.BlobIsDefined(blob), "{} is not defined".format(blob)
         for blob in record.field_blobs():
@@ -1972,7 +2071,7 @@ def copy_func_between_devices(src, dst):
         else:
             def fun(net, *args, **kw):
                 with DeviceScope(dst):
-                    return net.CopyGPUToGPU(*args, **kw)
+                    return net.Copy(*args, **kw)
             return fun
 
     if src.device_type == CUDA and dst.device_type == CPU:
@@ -1988,6 +2087,15 @@ def copy_func_between_devices(src, dst):
         return fun
 
     raise ValueError('Non-supported devices: %s and %s' % (src, dst))
+
+
+def device_equal(src, dst):
+    '''
+    We are using this fucntion instead of == operator because optional-value
+    comparison between empty device_options and {device_type:0, cuda_gpu_id:0}
+    returns not equal in some cases.
+    '''
+    return src.device_type == dst.device_type and src.cuda_gpu_id == dst.cuda_gpu_id
 
 
 class RemapEntry:
@@ -2045,7 +2153,7 @@ def InjectCrossDeviceCopies(net, blob_to_device=None):
                         format(input)
                     )
 
-            if not blob_to_device[input] == dev:
+            if not device_equal(blob_to_device[input], dev):
                 # reuse already moved input
                 if (RemapEntry(input, dev) in blob_remap and
                         blob_to_device[blob_remap[RemapEntry(input, dev)]] == dev):
@@ -2079,12 +2187,17 @@ def InjectCrossDeviceCopies(net, blob_to_device=None):
         # Enforcing no reuse blob between operators. In-place blob usage in an
         # op is allowed. This is based on the assumption that in-place op has
         # same device info
-        for out_blob in op.output:
-            if out_blob in blob_to_device and out_blob not in op.input:
+        for out_blob, device in zip(op.output, output_dev):
+            if out_blob in blob_to_device and (
+                out_blob not in op.input and
+                not device_equal(blob_to_device[out_blob], device)
+            ):
                 raise RuntimeError(
-                    "In-place blob: {} is not supported between operators. "
-                    "Failed op:\n {}".
-                    format(out_blob, op)
+                    "In-place blob: {} is not supported between operators "
+                    "with different device option previous:{} now: {}. "
+                    "Failed op:\n {}".format(
+                        out_blob, blob_to_device[out_blob], device, op
+                    )
                 )
         blob_to_device.update({o: d for d, o in zip(output_dev, op.output)})
         new_op = caffe2_pb2.OperatorDef()

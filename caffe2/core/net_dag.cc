@@ -20,10 +20,9 @@ namespace caffe2 {
 
 namespace {
 
-bool sameDevice(const OperatorDef& lhs, const OperatorDef& rhs) {
-  return lhs.device_option().device_type() ==
-      rhs.device_option().device_type() &&
-      lhs.device_option().cuda_gpu_id() == rhs.device_option().cuda_gpu_id();
+bool sameDevice(const DeviceOption& lhs, const DeviceOption& rhs) {
+  return lhs.device_type() == rhs.device_type() &&
+      lhs.cuda_gpu_id() == rhs.cuda_gpu_id();
 }
 
 using OpIndex = int;
@@ -178,9 +177,10 @@ DAGNetBase::ExecutionChains computeChains(
   auto check_current_for_chaining = [&]() -> bool {
     return (
         node_seen_count[cur.first] == 1 &&
-        (chain.size() == 0 || sameDevice(
-                                  orig_nodes[cur.first].operator_->def(),
-                                  orig_nodes[chain.back()].operator_->def())));
+        (chain.size() == 0 ||
+         sameDevice(
+             orig_nodes[cur.first].operator_->device_option(),
+             orig_nodes[chain.back()].operator_->device_option())));
   };
   auto commit_chain = [&]() {
     if (chain.size() > 0) {
@@ -270,24 +270,29 @@ DAGNetBase::ExecutionChains computeChains(
 }
 }
 
-DAGNetBase::DAGNetBase(const NetDef& net_def, Workspace* ws)
-    : NetBase(net_def, ws), operator_nodes_(net_def.op_size()), iter_(0) {
+DAGNetBase::DAGNetBase(
+    const std::shared_ptr<const NetDef>& net_def,
+    Workspace* ws)
+    : NetBase(net_def, ws), operator_nodes_(net_def->op_size()), iter_(0) {
   // Blob creator allows us to track which operator created which blob.
-  VLOG(1) << "Constructing DAGNet " << net_def.name();
+  VLOG(1) << "Constructing DAGNet " << net_def->name();
   std::map<string, int> blob_creator;
   std::map<string, std::set<int>> blob_readers;
-  bool net_def_has_device_option = net_def.has_device_option();
+  bool net_def_has_device_option = net_def->has_device_option();
   // Initialize the operators
-  for (int idx = 0; idx < net_def.op_size(); ++idx) {
-    const OperatorDef& op_def = net_def.op(idx);
+  for (int idx = 0; idx < net_def->op_size(); ++idx) {
+    const OperatorDef& op_def = net_def->op(idx);
     VLOG(1) << "Creating operator #" << idx << ": " << op_def.name() << ":"
             << op_def.type();
     if (!op_def.has_device_option() && net_def_has_device_option) {
       OperatorDef temp_def(op_def);
-      temp_def.mutable_device_option()->CopyFrom(net_def.device_option());
+      temp_def.mutable_device_option()->CopyFrom(net_def->device_option());
       operator_nodes_[idx].operator_ = CreateOperator(temp_def, ws, idx);
     } else {
-      operator_nodes_[idx].operator_ = CreateOperator(op_def, ws, idx);
+      auto op = CreateOperator(op_def, ws, idx);
+      op->set_debug_def(
+          std::shared_ptr<const OperatorDef>{net_def, &(net_def->op(idx))});
+      operator_nodes_[idx].operator_ = std::move(op);
     }
     // Check the inputs, and set up parents if necessary. This addressese the
     // read after write case.
@@ -373,7 +378,7 @@ DAGNetBase::DAGNetBase(const NetDef& net_def, Workspace* ws)
 
   LOG(INFO) << "Number of parallel execution chains "
             << execution_chains_.size()
-            << " Number of operators = " << net_def.op_size();
+            << " Number of operators = " << net_def->op_size();
   // TODO: do we want to make sure that there are no loops in the
   // dependency graph?
 
@@ -385,7 +390,7 @@ DAGNetBase::DAGNetBase(const NetDef& net_def, Workspace* ws)
     }
   }
   // Finally, start the workers.
-  int num_workers = net_def.has_num_workers() ? net_def.num_workers() : 1;
+  int num_workers = net_def->has_num_workers() ? net_def->num_workers() : 1;
   CAFFE_ENFORCE(num_workers > 0, "Must have a positive number of workers.");
   if (num_workers == 1) {
     LOG(WARNING) << "Number of workers is 1: this means that all operators "
@@ -398,7 +403,7 @@ DAGNetBase::DAGNetBase(const NetDef& net_def, Workspace* ws)
   // Option to start only one thread for first iteration.
   // This hack is needed to prevent deadlocks happening with CUDA and
   // concurrent allocations that operators do when run the first time.
-  ArgumentHelper arg_helper(net_def);
+  ArgumentHelper arg_helper(*net_def);
   if (arg_helper.HasArgument("first_iter_only_one_worker")) {
     if (arg_helper.GetSingleArgument<int64_t>(
             "first_iter_only_one_worker", 0)) {
@@ -478,9 +483,9 @@ bool DAGNetBase::Run() {
     CAFFE_ENFORCE(
         op.runtime_parent_count_ == 0,
         "Operator ",
-        op.operator_->def().name(),
+        op.operator_->debug_def().name(),
         "(",
-        op.operator_->def().type(),
+        op.operator_->debug_def().type(),
         ") has some runtime parents left.");
   }
   if (observer_) {
@@ -503,8 +508,8 @@ void DAGNetBase::WorkerFunction() {
     }
 
     VLOG(1) << "Running operator #" << idx << " "
-            << operator_nodes_[idx].operator_->def().name() << "("
-            << operator_nodes_[idx].operator_->def().type() << ").";
+            << operator_nodes_[idx].operator_->debug_def().name() << "("
+            << operator_nodes_[idx].operator_->debug_def().type() << ").";
     CAFFE_ENFORCE(
         execution_chains_.find(idx) != execution_chains_.end(),
         "Can't find chain ",
@@ -514,7 +519,8 @@ void DAGNetBase::WorkerFunction() {
     bool this_success = RunAt(execution_chains_[idx]);
     if (!this_success) {
       LOG(ERROR) << "Operator chain failed: "
-                 << ProtoDebugString(operator_nodes_[idx].operator_->def());
+                 << ProtoDebugString(
+                        operator_nodes_[idx].operator_->debug_def());
     }
 
     // Do book-keeping
@@ -526,9 +532,9 @@ void DAGNetBase::WorkerFunction() {
             count >= 0,
             "Found runtime parent count smaller than zero for ",
             "operator node ",
-            operator_nodes_[child].operator_->def().name(),
+            operator_nodes_[child].operator_->debug_def().name(),
             "(",
-            operator_nodes_[child].operator_->def().type(),
+            operator_nodes_[child].operator_->debug_def().type(),
             ").");
 
         if (count != 0) {
@@ -615,9 +621,11 @@ class DAGNet : public DAGNetBase {
   bool RunAt(const std::vector<int>& chain) override {
     const auto& net_name = name_.c_str();
     for (const auto i : chain) {
+      const auto& opdef = operator_nodes_[i].operator_->debug_def();
       const auto& op = operator_nodes_[i].operator_.get();
-      const auto& op_name = op->def().name().c_str();
-      const auto& op_type = op->def().type().c_str();
+
+      const auto& op_name = opdef.name().c_str();
+      const auto& op_type = opdef.type().c_str();
       CAFFE_SDT(operator_start, net_name, op_name, op_type, op);
       const auto success = operator_nodes_[i].operator_->Run();
       CAFFE_SDT(operator_done, net_name, op_name, op_type, op);

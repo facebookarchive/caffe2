@@ -19,6 +19,7 @@ OPERATOR_SCHEMA(Broadcast)
       return in >= 2 && out == (in - 1);
     })
     .EnforceInplace([](int in, int out) { return (in - 1) == out; })
+    .InputsCanCrossDevices()
     .IdenticalTypeAndShapeOfInput(0)
     .SetDoc(R"DOC(
 Does a broadcast operation from the root node to every other node. The tensor
@@ -32,6 +33,7 @@ on each node should have been pre-created with the same shape and data type.
 OPERATOR_SCHEMA(Reduce)
     .NumInputs(2)
     .NumOutputs(1)
+    .InputsCanCrossDevices()
     .IdenticalTypeAndShapeOfInput(0)
     .SetDoc(R"DOC(
 Does a reduce operation from every node to the root node. Currently only
@@ -48,6 +50,7 @@ OPERATOR_SCHEMA(Allreduce)
     })
     .EnforceInplace([](int in, int out) { return (in - 1) == out; })
     .IdenticalTypeAndShapeOfInput(0)
+    .InputsCanCrossDevices()
     .SetDoc(R"DOC(
 Does an allreduce operation among the nodes. Currently only Sum is supported.
 )DOC")
@@ -58,12 +61,20 @@ Does an allreduce operation among the nodes. Currently only Sum is supported.
 OPERATOR_SCHEMA(Allgather)
     .NumInputs(2)
     .NumOutputs(1)
+    .InputsCanCrossDevices()
     .SetDoc(R"DOC(
 Does an allgather operation among the nodes.
 )DOC")
     .Input(0, "comm_world", "The common world.")
     .Input(1, "X", "A tensor to be allgathered.")
     .Output(0, "Y", "The allgathered tensor, same on all nodes.");
+
+OPERATOR_SCHEMA(Barrier)
+    .NumInputs(1)
+    .SetDoc(R"DOC(
+Does a barrier operation among the nodes.
+)DOC")
+    .Input(0, "comm_world", "The common world.");
 
 OPERATOR_SCHEMA(SendTensor)
     .NumInputs({2, 4})
@@ -139,6 +150,7 @@ SHOULD_NOT_DO_GRADIENT(Broadcast);
 SHOULD_NOT_DO_GRADIENT(Reduce);
 SHOULD_NOT_DO_GRADIENT(Allgather);
 SHOULD_NOT_DO_GRADIENT(Allreduce);
+SHOULD_NOT_DO_GRADIENT(Barrier);
 SHOULD_NOT_DO_GRADIENT(SendTensor);
 SHOULD_NOT_DO_GRADIENT(ReceiveTensor);
 
@@ -148,6 +160,7 @@ REGISTER_CPU_OPERATOR(Broadcast, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Reduce, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Allgather, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Allreduce, NoDefaultEngineOp<CPUContext>);
+REGISTER_CPU_OPERATOR(Barrier, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(SendTensor, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(ReceiveTensor, NoDefaultEngineOp<CPUContext>);
 

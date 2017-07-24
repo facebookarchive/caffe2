@@ -5,6 +5,8 @@
 #include "caffe2/utils/conversions.h"
 #include "caffe2/utils/math.h"
 
+#include <cub/cub.cuh>
+
 #if THRUST_VERSION >= 100800
 #define THRUST_SUPPORTS_PER_THREAD
 #endif  // THRUST_VERSION >= 100800
@@ -30,12 +32,37 @@ void Funcname<T, CUDAContext>(                                                 \
 
 DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Exp, expf);
 DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Log, logf);
+DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Cos, cosf);
+DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Sin, sinf);
+DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Abs, fabsf);
 
 __device__ float cuda_sqrf(const float x) { return x * x; }
 
 DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Sqr, cuda_sqrf);
 
 #undef DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION
+
+#define DELEGATE_SINCOS_CUDA_FUNCTION(T)                             \
+  __global__ void _Kernel_##T##_##SinCos(                            \
+      const int N, const T* x, T* ys, T* yc) {                       \
+    CUDA_1D_KERNEL_LOOP(i, N) {                                      \
+      sincos(x[i], ys + i, yc + i);                                  \
+    }                                                                \
+  }                                                                  \
+  template <>                                                        \
+  void SinCos<T, CUDAContext>(                                       \
+      const int N, const T* x, T* ys, T* yc, CUDAContext* context) { \
+    _Kernel_##T##_##SinCos<<<                                        \
+        CAFFE_GET_BLOCKS(N),                                         \
+        CAFFE_CUDA_NUM_THREADS,                                      \
+        0,                                                           \
+        context->cuda_stream()>>>(N, x, ys, yc);                     \
+  }
+
+DELEGATE_SINCOS_CUDA_FUNCTION(float)
+DELEGATE_SINCOS_CUDA_FUNCTION(double)
+
+#undef DELEGATE_SINCOS_CUDA_FUNCTION
 
 #define DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(T, Funcname, expr)               \
   __global__ void _Kernel_##T##_##Funcname(                                   \
@@ -546,28 +573,152 @@ __global__ void SumKernel(const int N, const T* X, T* Y, bool square) {
   }
 }
 
-#define CAFFE2_MATH_SUM_FUNC(T)                                       \
-  template <>                                                         \
-  void Sum<T, CUDAContext>(                                           \
-      const int N, const T* x, T* y, CUDAContext* context) {          \
-    SumKernel<<<1, SUM_KERNEL_NTHREADS, 0, context->cuda_stream()>>>( \
-        N, x, y, false);                                              \
+// According to the benchmarks script
+// caffe2/caffe2/experiments/python/device_reduce_sum_bench.py,
+// device reduce is slower for N <= 10000.
+#define DEVICE_REDUCE_SIZE_THRESHOLD 10000
+
+namespace {
+
+template <typename T>
+__global__ void SumConvertKernel(float* sum, T* dest) {
+  *dest = convert::To<float, T>(*sum);
+}
+
+template <typename FloatIterT>
+void SumFloatIter(
+    const int N,
+    FloatIterT it,
+    float*& dest,
+    CUDAContext* context,
+    Tensor<CUDAContext>* scratch_ptr) {
+  size_t memRequired = 0;
+  cub::DeviceReduce::Sum(
+      nullptr, memRequired, it, dest, N, context->cuda_stream());
+  auto buffer_size =
+      static_cast<TIndex>((memRequired + sizeof(float) - 1) / sizeof(float));
+  if (!dest) {
+    // allocate one more float at the end of scratch for dest
+    scratch_ptr->Resize(std::vector<TIndex>{buffer_size + 1});
+    dest = scratch_ptr->template mutable_data<float>() + buffer_size;
+  } else {
+    scratch_ptr->Resize(std::vector<TIndex>{buffer_size});
+  }
+  cub::DeviceReduce::Sum(
+      static_cast<void*>(scratch_ptr->template mutable_data<float>()),
+      memRequired,
+      it,
+      dest,
+      N,
+      context->cuda_stream());
+}
+} // namespace
+
+template <>
+void Sum<float, CUDAContext>(
+    const int N,
+    const float* x,
+    float* y,
+    CUDAContext* context,
+    Tensor<CUDAContext>* scratch_ptr) {
+  if (scratch_ptr && N > DEVICE_REDUCE_SIZE_THRESHOLD) {
+    SumFloatIter(N, x, y, context, scratch_ptr);
+  } else {
+    SumKernel<<<1, SUM_KERNEL_NTHREADS, 0, context->cuda_stream()>>>(
+      N, x, y, false);
+  }
+}
+
+namespace {
+template <typename T>
+struct FloatTransform {
+  inline __host__ __device__ float operator()(const T v) const {
+    return convert::To<T, float>(v);
+  }
+};
+} // namespace
+
+#define CAFFE2_MATH_SUM_FUNC(T)                                           \
+  template <>                                                             \
+  void Sum<T, CUDAContext>(                                               \
+      const int N,                                                        \
+      const T* x,                                                         \
+      T* y,                                                               \
+      CUDAContext* context,                                               \
+      Tensor<CUDAContext>* scratch_ptr) {                                 \
+    if (scratch_ptr && N > DEVICE_REDUCE_SIZE_THRESHOLD) {                \
+      FloatTransform<T> transform;                                        \
+      cub::TransformInputIterator<float, FloatTransform<T>, const T*> it( \
+          x, transform);                                                  \
+      float* sum = nullptr;                                               \
+      SumFloatIter(N, it, sum, context, scratch_ptr);                     \
+      SumConvertKernel<<<1, 1, 0, context->cuda_stream()>>>(sum, y);      \
+    } else {                                                              \
+      SumKernel<<<1, SUM_KERNEL_NTHREADS, 0, context->cuda_stream()>>>(   \
+          N, x, y, false);                                                \
+    }                                                                     \
   }
 
-CAFFE2_MATH_SUM_FUNC(float)
 CAFFE2_MATH_SUM_FUNC(float16)
 #undef CAFFE2_MATH_SUM_FUNC
 
-#define CAFFE2_MATH_SUMSQR_FUNC(T)                                    \
-  template <>                                                         \
-  void SumSqr<T, CUDAContext>(                                        \
-      const int N, const T* x, T* y, CUDAContext* context) {          \
-    SumKernel<<<1, SUM_KERNEL_NTHREADS, 0, context->cuda_stream()>>>( \
-        N, x, y, true);                                               \
+namespace {
+template <typename T>
+struct SqrTransform {
+  inline __host__ __device__ T operator()(const T v) const {
+    return v * v;
+  }
+};
+} //  namespace
+
+template <>
+void SumSqr<float, CUDAContext>(
+    const int N,
+    const float* x,
+    float* y,
+    CUDAContext* context,
+    Tensor<CUDAContext>* scratch_ptr) {
+  if (scratch_ptr && N > DEVICE_REDUCE_SIZE_THRESHOLD) {
+    SqrTransform<float> transform;
+    cub::TransformInputIterator<float, SqrTransform<float>, const float*> it(
+        x, transform);
+    SumFloatIter(N, it, y, context, scratch_ptr);
+  } else {
+    SumKernel<<<1, SUM_KERNEL_NTHREADS, 0, context->cuda_stream()>>>(
+        N, x, y, true);
+  }
+}
+
+#define CAFFE2_MATH_SUMSQR_FUNC(T)                                      \
+  template <>                                                           \
+  void SumSqr<T, CUDAContext>(                                          \
+      const int N,                                                      \
+      const T* x,                                                       \
+      T* y,                                                             \
+      CUDAContext* context,                                             \
+      Tensor<CUDAContext>* scratch_ptr) {                               \
+    if (scratch_ptr && N > DEVICE_REDUCE_SIZE_THRESHOLD) {              \
+      FloatTransform<T> float_transform;                                \
+      cub::TransformInputIterator<float, FloatTransform<T>, const T*>   \
+          float_it(x, float_transform);                                 \
+      SqrTransform<float> sqr_transform;                                \
+      cub::TransformInputIterator<                                      \
+          float,                                                        \
+          SqrTransform<float>,                                          \
+          decltype(float_it)>                                           \
+          it(float_it, sqr_transform);                                  \
+      float* sum = nullptr;                                             \
+      SumFloatIter(N, it, sum, context, scratch_ptr);                   \
+      SumConvertKernel<<<1, 1, 0, context->cuda_stream()>>>(sum, y);    \
+    } else {                                                            \
+      SumKernel<<<1, SUM_KERNEL_NTHREADS, 0, context->cuda_stream()>>>( \
+          N, x, y, true);                                               \
+    }                                                                   \
   }
 
-CAFFE2_MATH_SUMSQR_FUNC(float)
+CAFFE2_MATH_SUMSQR_FUNC(float16)
 #undef CAFFE2_MATH_SUMSQR_FUNC
+#undef DEVICE_REDUCE_SIZE_THRESHOLD
 
 namespace {
 template <typename T>

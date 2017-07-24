@@ -49,7 +49,9 @@ inline string ProtoDebugString(const MessageLite& proto) {
 // Text format MessageLite wrappers: these functions do nothing but just
 // allowing things to compile. It will produce a runtime error if you are using
 // MessageLite but still want text support.
-inline bool ReadProtoFromTextFile(const char* filename, MessageLite* proto) {
+inline bool ReadProtoFromTextFile(
+    const char* /*filename*/,
+    MessageLite* /*proto*/) {
   LOG(FATAL) << "If you are running lite version, you should not be "
                   << "calling any text-format protobuffers.";
   return false;  // Just to suppress compiler warning.
@@ -58,8 +60,9 @@ inline bool ReadProtoFromTextFile(const string filename, MessageLite* proto) {
   return ReadProtoFromTextFile(filename.c_str(), proto);
 }
 
-inline void WriteProtoToTextFile(const MessageLite& proto,
-                                 const char* filename) {
+inline void WriteProtoToTextFile(
+    const MessageLite& /*proto*/,
+    const char* /*filename*/) {
   LOG(FATAL) << "If you are running lite version, you should not be "
                   << "calling any text-format protobuffers.";
 }
@@ -107,12 +110,18 @@ inline bool ReadProtoFromFile(const string& filename, Message* proto) {
 
 #endif  // CAFFE2_USE_LITE_PROTO
 
-
-template <class IterableInputs, class IterableOutputs, class IterableArgs>
+template <
+    class IterableInputs = std::initializer_list<string>,
+    class IterableOutputs = std::initializer_list<string>,
+    class IterableArgs = std::initializer_list<Argument>>
 OperatorDef CreateOperatorDef(
-    const string& type, const string& name, const IterableInputs& inputs,
-    const IterableOutputs& outputs, const IterableArgs& args,
-    const DeviceOption& device_option, const string& engine) {
+    const string& type,
+    const string& name,
+    const IterableInputs& inputs,
+    const IterableOutputs& outputs,
+    const IterableArgs& args,
+    const DeviceOption& device_option = DeviceOption(),
+    const string& engine = "") {
   OperatorDef def;
   def.set_type(type);
   def.set_name(name);
@@ -135,32 +144,25 @@ OperatorDef CreateOperatorDef(
 }
 
 // A simplified version compared to the full CreateOperator, if you do not need
-// to specify device option or engine.
-template <class IterableInputs, class IterableOutputs, class IterableArgs>
+// to specify args.
+template <
+    class IterableInputs = std::initializer_list<string>,
+    class IterableOutputs = std::initializer_list<string>>
 inline OperatorDef CreateOperatorDef(
-    const string& type, const string& name, const IterableInputs& inputs,
-    const IterableOutputs& outputs, const IterableArgs& args) {
+    const string& type,
+    const string& name,
+    const IterableInputs& inputs,
+    const IterableOutputs& outputs,
+    const DeviceOption& device_option = DeviceOption(),
+    const string& engine = "") {
   return CreateOperatorDef(
-      type, name, inputs, outputs, args, DeviceOption(), "");
-}
-
-// A simplified version compared to the full CreateOperator, if you do not need
-// to specify device option or engine or args.
-template <class IterableInputs, class IterableOutputs>
-inline OperatorDef CreateOperatorDef(
-    const string& type, const string& name, const IterableInputs& inputs,
-    const IterableOutputs& outputs) {
-  return CreateOperatorDef(type, name, inputs, outputs,
-                           std::vector<Argument>(), DeviceOption(), "");
-}
-
-inline bool HasArgument(const OperatorDef& def, const string& name) {
-  for (const Argument& arg : def.arg()) {
-    if (arg.name() == name) {
-      return true;
-    }
-  }
-  return false;
+      type,
+      name,
+      inputs,
+      outputs,
+      std::vector<Argument>(),
+      device_option,
+      engine);
 }
 
 /**
@@ -173,6 +175,44 @@ inline bool HasArgument(const OperatorDef& def, const string& name) {
  */
 class ArgumentHelper {
  public:
+  template <typename Def>
+  static bool HasArgument(const Def& def, const string& name) {
+    return ArgumentHelper(def).HasArgument(name);
+  }
+
+  template <typename Def, typename T>
+  static T GetSingleArgument(
+      const Def& def,
+      const string& name,
+      const T& default_value) {
+    return ArgumentHelper(def).GetSingleArgument<T>(name, default_value);
+  }
+
+  template <typename Def, typename T>
+  static bool HasSingleArgumentOfType(const Def& def, const string& name) {
+    return ArgumentHelper(def).HasSingleArgumentOfType<T>(name);
+  }
+
+  template <typename Def, typename T>
+  static vector<T> GetRepeatedArgument(
+      const Def& def,
+      const string& name,
+      const std::vector<T>& default_value = std::vector<T>()) {
+    return ArgumentHelper(def).GetRepeatedArgument<T>(name, default_value);
+  }
+
+  template <typename Def, typename MessageType>
+  static MessageType GetMessageArgument(const Def& def, const string& name) {
+    return ArgumentHelper(def).GetMessageArgument<MessageType>(name);
+  }
+
+  template <typename Def, typename MessageType>
+  static vector<MessageType> GetRepeatedMessageArgument(
+      const Def& def,
+      const string& name) {
+    return ArgumentHelper(def).GetRepeatedMessageArgument<MessageType>(name);
+  }
+
   explicit ArgumentHelper(const OperatorDef& def);
   explicit ArgumentHelper(const NetDef& netdef);
   bool HasArgument(const string& name) const;
@@ -190,9 +230,9 @@ class ArgumentHelper {
   MessageType GetMessageArgument(const string& name) const {
     CAFFE_ENFORCE(arg_map_.count(name), "Cannot find parameter named ", name);
     MessageType message;
-    if (arg_map_.at(name)->has_s()) {
+    if (arg_map_.at(name).has_s()) {
       CAFFE_ENFORCE(
-          message.ParseFromString(arg_map_.at(name)->s()),
+          message.ParseFromString(arg_map_.at(name).s()),
           "Faild to parse content from the string");
     } else {
       VLOG(1) << "Return empty message for parameter " << name;
@@ -203,17 +243,17 @@ class ArgumentHelper {
   template <typename MessageType>
   vector<MessageType> GetRepeatedMessageArgument(const string& name) const {
     CAFFE_ENFORCE(arg_map_.count(name), "Cannot find parameter named ", name);
-    vector<MessageType> messages(arg_map_.at(name)->strings_size());
+    vector<MessageType> messages(arg_map_.at(name).strings_size());
     for (int i = 0; i < messages.size(); ++i) {
       CAFFE_ENFORCE(
-          messages[i].ParseFromString(arg_map_.at(name)->strings(i)),
+          messages[i].ParseFromString(arg_map_.at(name).strings(i)),
           "Faild to parse content from the string");
     }
     return messages;
   }
 
  private:
-  CaffeMap<string, const Argument*> arg_map_;
+  CaffeMap<string, Argument> arg_map_;
 };
 
 const Argument& GetArgument(const OperatorDef& def, const string& name);

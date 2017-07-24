@@ -26,7 +26,8 @@ class SumElementsOp : public Operator<Context> {
     auto* sum = Output(0);
     sum->Resize(vector<TIndex>());
     T* data = sum->template mutable_data<T>();
-    math::Sum<T, Context>(X.size(), X.template data<T>(), data, &context_);
+    math::Sum<T, Context>(
+      X.size(), X.template data<T>(), data, &context_, &scratch_);
     if (average_) {
       math::Scale<T, Context>(
           1,
@@ -40,6 +41,7 @@ class SumElementsOp : public Operator<Context> {
 
  private:
   bool average_;
+  Tensor<Context> scratch_;
 };
 
 template <typename T, class Context>
@@ -78,7 +80,8 @@ class SumSqrElementsOp : public Operator<Context> {
         X.size(),
         X.template data<T>(),
         sum->template mutable_data<T>(),
-        &context_);
+        &context_,
+        &scratch_);
     if (average) {
       math::Scale<T, Context>(
           1,
@@ -89,6 +92,9 @@ class SumSqrElementsOp : public Operator<Context> {
     }
     return true;
   }
+
+ private:
+  Tensor<Context> scratch_;
 };
 
 template <typename T, class Context, bool ROWWISE>

@@ -52,6 +52,37 @@ class BrewTest(unittest.TestCase):
         workspace.RunNetOnce(model.param_init_net)
         workspace.RunNetOnce(model.net)
 
+    def test_relu(self):
+        Xpos = np.ones((5, 5)).astype(np.float32) - 0.5
+        Xneg = np.ones((5, 5)).astype(np.float32) - 1.5
+
+        workspace.FeedBlob("xpos", Xpos)
+        workspace.FeedBlob("xneg", Xneg)
+        model = ModelHelper(name="test_model")
+        brew.relu(model, "xpos", "out_xpos")
+        brew.relu(model, "xneg", "out_xneg")
+        model.Validate()
+        workspace.RunNetOnce(model.param_init_net)
+        workspace.RunNetOnce(model.net)
+
+        pos = workspace.FetchBlob("out_xpos")
+        self.assertAlmostEqual(pos.mean(), 0.5)
+        neg = workspace.FetchBlob("out_xneg")
+        self.assertAlmostEqual(neg.mean(), 0)
+
+    def test_tanh(self):
+        X = np.ones((5, 5)).astype(np.float32) - 0.5
+
+        workspace.FeedBlob("x", X)
+        model = ModelHelper(name="test_model")
+        brew.tanh(model, "x", "out_tanh")
+        model.Validate()
+        workspace.RunNetOnce(model.param_init_net)
+        workspace.RunNetOnce(model.net)
+
+        out = workspace.FetchBlob("out_tanh")
+        self.assertAlmostEqual(out.mean(), 0.46211711)
+
     def test_validate(self):
         model = ModelHelper(name="test_model")
         model.params.append("aaa")
@@ -194,3 +225,46 @@ class BrewTest(unittest.TestCase):
         # Get AllParams from the scope 'c'
         self.assertEqual(to_str_list(model.GetAllParams('c')), ['c/a', 'c/d'])
         self.assertEqual(to_str_list(model.GetAllParams('c/')), ['c/a', 'c/d'])
+
+    def test_param_consistence(self):
+        model = ModelHelper(name='test_mode')
+        cnv = brew.conv(model, 'data', 'cnv', 32, 32, 4)
+        step_model = ModelHelper(name='step_model', param_model=model)
+        a = brew.fc(step_model, cnv, 'a', 100, 200)
+        brew.fc(model, a, 'b', 200, 5)
+        # test the _parameters_info is shared between model and step_model
+        self.assertEqual(model._parameters_info, step_model._parameters_info)
+
+
+@unittest.skipIf(not workspace.has_gpu_support, "No gpu support.")
+class BrewGPUTest(unittest.TestCase):
+    def test_relu(self):
+        Xpos = np.ones((5, 5)).astype(np.float32) - 0.5
+        Xneg = np.ones((5, 5)).astype(np.float32) - 1.5
+
+        workspace.FeedBlob("xpos", Xpos)
+        workspace.FeedBlob("xneg", Xneg)
+        model = ModelHelper(name="test_model")
+        brew.relu(model, "xpos", "out_xpos", use_cudnn=True)
+        brew.relu(model, "xneg", "out_xneg", use_cudnn=True)
+        model.Validate()
+        workspace.RunNetOnce(model.param_init_net)
+        workspace.RunNetOnce(model.net)
+
+        pos = workspace.FetchBlob("out_xpos")
+        self.assertAlmostEqual(pos.mean(), 0.5)
+        neg = workspace.FetchBlob("out_xneg")
+        self.assertAlmostEqual(neg.mean(), 0)
+
+    def test_tanh(self):
+        X = np.ones((5, 5)).astype(np.float32) - 0.5
+
+        workspace.FeedBlob("x", X)
+        model = ModelHelper(name="test_model")
+        brew.tanh(model, "x", "out_tanh", use_cudnn=True)
+        model.Validate()
+        workspace.RunNetOnce(model.param_init_net)
+        workspace.RunNetOnce(model.net)
+
+        out = workspace.FetchBlob("out_tanh")
+        self.assertAlmostEqual(out.mean(), 0.46211711)

@@ -33,7 +33,7 @@ class Workspace;
 // contexts.
 class NetBase {
  public:
-  NetBase(const NetDef& net_def, Workspace* ws);
+  NetBase(const std::shared_ptr<const NetDef>& net_def, Workspace* ws);
   virtual ~NetBase() noexcept {}
   virtual bool Run() = 0;
 
@@ -52,9 +52,9 @@ class NetBase {
    * opeartor.
    */
   virtual vector<float> TEST_Benchmark(
-      const int warmup_runs,
-      const int main_runs,
-      const bool run_individual) {
+      const int /*warmup_runs*/,
+      const int /*main_runs*/,
+      const bool /*run_individual*/) {
     LOG(ERROR) << "Benchmark not implemented for this net type.";
     return vector<float>();
   }
@@ -86,7 +86,7 @@ class NetBase {
     return observer_.get();
   }
 
-  const string& Name() {
+  const string& Name() const {
     return name_;
   }
 
@@ -95,10 +95,15 @@ class NetBase {
   vector<string> external_output_;
   string name_;
   std::unique_ptr<NetObserver> observer_;
+
   DISABLE_COPY_AND_ASSIGN(NetBase);
 };
 
-CAFFE_DECLARE_REGISTRY(NetRegistry, NetBase, const NetDef&, Workspace*);
+CAFFE_DECLARE_REGISTRY(
+    NetRegistry,
+    NetBase,
+    const std::shared_ptr<const NetDef>&,
+    Workspace*);
 #define REGISTER_NET_CREATOR(key, ...) \
   CAFFE_REGISTER_CREATOR(NetRegistry, key, __VA_ARGS__)
 #define REGISTER_NET(name, ...) \
@@ -112,13 +117,16 @@ CAFFE_DECLARE_REGISTRY(NetRegistry, NetBase, const NetDef&, Workspace*);
  * a standalone net object.
  */
 unique_ptr<NetBase> CreateNet(const NetDef& net_def, Workspace* ws);
+unique_ptr<NetBase> CreateNet(
+    const std::shared_ptr<const NetDef>& net_def,
+    Workspace* ws);
 
 // This is the very basic structure you need to run a network - all it
 // does is simply to run everything in sequence. If you want more fancy control
 // such as a DAG-like execution, check out other better net implementations.
 class SimpleNet : public NetBase {
  public:
-  SimpleNet(const NetDef& net_def, Workspace* ws);
+  SimpleNet(const std::shared_ptr<const NetDef>& net_def, Workspace* ws);
   bool Run() override;
   bool RunAsync() override;
   vector<float> TEST_Benchmark(
@@ -166,7 +174,7 @@ struct OpGraphNode {
 class DAGNetBase : public NetBase {
  public:
   using ExecutionChains = std::unordered_map<int, std::vector<int>>;
-  DAGNetBase(const NetDef& net_def, Workspace* ws);
+  DAGNetBase(const std::shared_ptr<const NetDef>& net_def, Workspace* ws);
   ~DAGNetBase() override;
   bool Run() override;
   // WorkerFunction() is a function wrapper to allow us to run worker threads.

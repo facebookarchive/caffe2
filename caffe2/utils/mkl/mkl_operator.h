@@ -43,14 +43,15 @@ class MKLOperator : public OperatorBase {
   // The run function of Operator switches to the device, and then carries out
   // the actual computation with RunOnDevice(). You should implement RunOnDevice
   // instead of Run().
-  bool Run(int /* unused */ stream_id) final {
+  bool Run(int /* unused */ /*stream_id*/) final {
     // Since MKLDNN does not need to do SwithToDevice and
     // FinishDeviceComputation,
     // it is always just a re-route to RunOnDevice().
     try {
       return RunOnDevice();
     } catch (EnforceNotMet& err) {
-      err.AppendMessage("Error from operator: \n" + ProtoDebugString(def()));
+      err.AppendMessage(
+          "Error from operator: \n" + ProtoDebugString(debug_def()));
       throw;
     }
   }
