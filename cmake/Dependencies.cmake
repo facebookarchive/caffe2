@@ -167,7 +167,6 @@ endif()
 
 # --- [ OpenCL
 if(USE_OPENCL)
-  find_package(OpenCL)
   include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/caffe2/contrib/opencl)
   include_directories(SYSTEM ${OpenCL_INCLUDE_DIRS})
   include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/third_party/libopencl-stub/include)
