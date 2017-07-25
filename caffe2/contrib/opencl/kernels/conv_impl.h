@@ -1,6 +1,40 @@
 #ifndef CAFFE2_CONTRIB_OPENCL_KERNELS_CONV_IMPL_H_
 #define CAFFE2_CONTRIB_OPENCL_KERNELS_CONV_IMPL_H_
 
+static constexpr const char* k3x3DW = R"CLC(
+__kernel void K(
+  global REAL* filter,
+  global REAL* input,
+  const int H_in,
+  const int H_out,
+  const int W_in,
+  const int W_out,
+  global REAL* output) {
+#define Y_TILE 4
+#define X_TILE 4
+#define KERNEL 3
+  const int x_base = get_global_id(0) << 2;
+  const int y_base = get_global_id(1) << 2;
+  const int c = get_global_id(2);
+  for (int _y = 0; _y < Y_TILE; ++_y) {
+    const int y = _y + y_base;
+    if (y >= H_out) return;
+    for (int _x = 0; _x < X_TILE; ++_x) {
+      const int x = _x + x_base;
+      if (x >= W_out) continue;
+      float accum = 0;
+      for (int i = 0; i < KERNEL; ++i) {
+        for (int j = 0; j < KERNEL; ++j) {
+          accum += input[(c * H_in + (y * STRIDE + i)) * W_in + (x * STRIDE + j)] *
+                   filter[(c * KERNEL + i) * KERNEL + j];
+        }
+      }
+      output[(c * H_out + y) * W_out + x] = accum;
+    }
+  }
+}
+)CLC";
+
 static constexpr const char* k1x1Gemm = R"CLC(
 #pragma OPENCL EXTENSION cl_khr_fp16 : enable
 // This is taken directly from here:

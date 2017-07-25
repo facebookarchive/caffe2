@@ -50,9 +50,17 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
     ConvPoolOpBase<OpenCLContext>::SetOutputSize(X, Y, filter.dim32(0));
     const int H_out = Y->dim(2);
     const int W_out = Y->dim(3);
-    if (kernel_[0] == kernel_[1]) {
+    if (kernel_[0] == kernel_[1] && kernel_[0] == 1) {
+      CAFFE_ENFORCE(!(C_out % 8));
+      CAFFE_ENFORCE(!(C_in % 8));
       return Run1x1GConv(N, C_out, C_in, H_out, H_in, W_out, W_in, group_);
+    } else if (kernel_[0] == kernel_[1] &&
+            stride_[0] == stride_[1] &&
+            kernel_[0] == 3 &&
+            group_ == C_in) {
+      return Run3x3DWConv(N, C_out, C_in, H_out, H_in, W_out, W_in, group_, stride_[0]);
     }
+    CAFFE_THROW("No known implementation of this Conv in NCHW");
     return false;
   }
   bool RunOnDeviceWithOrderNHWC() override {
@@ -88,6 +96,8 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
   std::unique_ptr<cl::Kernel> gemmKernel_;
   // 1x1 Grouped conv
   std::unique_ptr<cl::Kernel> gemm1x1Kernel_;
+  // 3x3 DW Conv
+  std::unique_ptr<cl::Kernel> dw3x3Kernel_;
   // Direct convolution.
   std::unique_ptr<cl::Kernel> directKernel_;
 
@@ -99,6 +109,51 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
 
   void TypedCopy(const Tensor<CPUContext>& src, Tensor<OpenCLContext>& dst);
 
+  bool Run3x3DWConv(const int N,
+      const int C_out, const int C_in,
+      const int H_out, const int H_in,
+      const int W_out, const int W_in,
+      const int G, const int s) {
+    CAFFE_ENFORCE_EQ(kernel_[0], 3);
+    //CAFFE_ENFORCE_EQ(G, C_in);
+    const auto& X = Input(0);
+    auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
+    auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+    auto* Y = Output(0);
+    CAFFE_ENFORCE_EQ(X.dim32(1), C_out);
+    CAFFE_ENFORCE_EQ(X.dim32(1), group_);
+
+    if (!dw3x3Kernel_) {
+      kernel_args_.emplace_back(("STRIDE"),  to_string(s));
+      std::string arg_list = BuildArgumentList(kernel_args_);
+      dw3x3Kernel_ = make_unique<cl::Kernel>(context_.BuildKernel(k3x3DW, arg_list));
+    }
+
+    auto& ctx = context_.GetSingleton();
+    cl::Event event;
+    if (!filterBuffer_ || filterBuffer_->size() != filter.size()) {
+      filterBuffer_ = caffe2::make_unique<TensorCL>(filter.dims());
+      TypedCopy(filter, *filterBuffer_);
+    }
+
+    OPENCL_CHECK(dw3x3Kernel_->setArg(0, *(cl::Buffer*)filterBuffer_->template data<T>()));
+    OPENCL_CHECK(dw3x3Kernel_->setArg(1, *(cl::Buffer*)X.template data<T>()));
+    OPENCL_CHECK(dw3x3Kernel_->setArg(2, H_in));
+    OPENCL_CHECK(dw3x3Kernel_->setArg(3, H_out));
+    OPENCL_CHECK(dw3x3Kernel_->setArg(4, W_in));
+    OPENCL_CHECK(dw3x3Kernel_->setArg(5, W_out));
+    OPENCL_CHECK(dw3x3Kernel_->setArg(6, *(cl::Buffer*)Y->template mutable_data<T>()));
+    OPENCL_CHECK(ctx.queue.enqueueNDRangeKernel(
+          *dw3x3Kernel_,
+          cl::NullRange,
+          cl::NDRange((W_out + 3) >> 2, (H_out + 3) >> 2, C_out), // This order should be tuned
+          cl::NullRange,
+          NULL,
+          &event));
+    return true;
+
+  }
+  
   bool Run1x1GConv(const int N,
       const int C_out, const int C_in,
       const int H_out, const int H_in,
@@ -117,12 +172,14 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
       std::string arg_list = BuildArgumentList(kernel_args_);
       gemm1x1Kernel_ = make_unique<cl::Kernel>(context_.BuildKernel(k1x1Gemm, arg_list));
     }
+
     auto& ctx = context_.GetSingleton();
     cl::Event event;
     if (!filterBuffer_ || filterBuffer_->size() != filter.size()) {
       filterBuffer_ = caffe2::make_unique<TensorCL>(filter.dims());
       TypedCopy(filter, *filterBuffer_);
     }
+
     OPENCL_CHECK(gemm1x1Kernel_->setArg(0, *(cl::Buffer*)filterBuffer_->template data<T>()));
     OPENCL_CHECK(gemm1x1Kernel_->setArg(1, C_in / G));
     OPENCL_CHECK(gemm1x1Kernel_->setArg(2, *(cl::Buffer*)X.template data<T>()));
