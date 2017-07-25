@@ -35,6 +35,26 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
     kernel_args_.emplace_back(("KERNEL"), to_string(kernel_[0]));
   }
 
+  bool RunOnDeviceWithOrderNCHW() override {
+    const auto& X = Input(0);
+    auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
+    auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+    auto* Y = Output(0);
+    CAFFE_ENFORCE_EQ(X.dims().size(), 4);
+    const int N = X.dim(0), H_in = X.dim(2), W_in = X.dim(3), C_in = X.dim(1);
+    CAFFE_ENFORCE_EQ(filter.ndim(), 4);
+    CAFFE_ENFORCE_EQ(filter.dim(1) * group_, C_in);
+    CAFFE_ENFORCE_EQ(filter.dim(2), kernel_[0]);
+    CAFFE_ENFORCE_EQ(filter.dim(3), kernel_[1]);
+    const int C_out = filter.dim(0);
+    ConvPoolOpBase<OpenCLContext>::SetOutputSize(X, Y, filter.dim32(0));
+    const int H_out = Y->dim(2);
+    const int W_out = Y->dim(3);
+    if (kernel_[0] == kernel_[1]) {
+      return Run1x1GConv(N, C_out, C_in, H_out, H_in, W_out, W_in, group_);
+    }
+    return false;
+  }
   bool RunOnDeviceWithOrderNHWC() override {
     const auto& X = Input(0);
     auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
@@ -66,6 +86,8 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
   // Lowered convolution.
   std::unique_ptr<cl::Kernel> loweringKernel_;
   std::unique_ptr<cl::Kernel> gemmKernel_;
+  // 1x1 Grouped conv
+  std::unique_ptr<cl::Kernel> gemm1x1Kernel_;
   // Direct convolution.
   std::unique_ptr<cl::Kernel> directKernel_;
 
@@ -76,6 +98,48 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
   INPUT_TAGS(INPUT, FILTER, BIAS);
 
   void TypedCopy(const Tensor<CPUContext>& src, Tensor<OpenCLContext>& dst);
+
+  bool Run1x1GConv(const int N,
+      const int C_out, const int C_in,
+      const int H_out, const int H_in,
+      const int W_out, const int W_in,
+      const int G) {
+    const auto& X = Input(0);
+    auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
+    auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+    auto* Y = Output(0);
+
+    // We compile the kernels on the first run to get channel info embedded
+    if (!gemm1x1Kernel_) {
+      kernel_args_.emplace_back(("IN_CHANNEL_DIV_G"),  to_string(C_in / G));
+      kernel_args_.emplace_back(("OUT_CHANNEL_DIV_G"), to_string(C_out / G));
+      kernel_args_.emplace_back(("FILTER_DIV_G"), to_string(filter.size() / G));
+      std::string arg_list = BuildArgumentList(kernel_args_);
+      gemm1x1Kernel_ = make_unique<cl::Kernel>(context_.BuildKernel(k1x1Gemm, arg_list));
+    }
+    auto& ctx = context_.GetSingleton();
+    cl::Event event;
+    if (!filterBuffer_ || filterBuffer_->size() != filter.size()) {
+      filterBuffer_ = caffe2::make_unique<TensorCL>(filter.dims());
+      TypedCopy(filter, *filterBuffer_);
+    }
+    OPENCL_CHECK(gemm1x1Kernel_->setArg(0, *(cl::Buffer*)filterBuffer_->template data<T>()));
+    OPENCL_CHECK(gemm1x1Kernel_->setArg(1, C_in / G));
+    OPENCL_CHECK(gemm1x1Kernel_->setArg(2, *(cl::Buffer*)X.template data<T>()));
+    OPENCL_CHECK(gemm1x1Kernel_->setArg(3, *(cl::Buffer*)Y->template mutable_data<T>()));
+    OPENCL_CHECK(gemm1x1Kernel_->setArg(4, H_out * W_out)); // LDC
+    OPENCL_CHECK(gemm1x1Kernel_->setArg(5, C_out / G)); // M
+    OPENCL_CHECK(gemm1x1Kernel_->setArg(6, H_out * W_out)); // N
+    OPENCL_CHECK(gemm1x1Kernel_->setArg(7, C_in / G)); // K
+    OPENCL_CHECK(ctx.queue.enqueueNDRangeKernel(
+          *gemm1x1Kernel_,
+          cl::NullRange,
+          cl::NDRange((H_out * W_out) >> 2, (C_out / G) >> 3, G),
+          cl::NullRange,
+          NULL,
+          &event));
+    return true;
+  }
 
   bool RunWithMECConv(const int N,
       const int C_out, const int C_in,

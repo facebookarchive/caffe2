@@ -1,6 +1,82 @@
 #ifndef CAFFE2_CONTRIB_OPENCL_KERNELS_CONV_IMPL_H_
 #define CAFFE2_CONTRIB_OPENCL_KERNELS_CONV_IMPL_H_
 
+static constexpr const char* k1x1Gemm = R"CLC(
+#pragma OPENCL EXTENSION cl_khr_fp16 : enable
+// This is taken directly from here:
+// https://www.qualcomm.com/news/onq/2016/10/17/matrix-multiply-adreno-gpus-part-2-host-code-and-kernel
+__kernel void gemm(
+  __global const REAL *A,
+  const int lda,
+  __global const REAL *B,
+  const int B_offset,
+  __global REAL *C,
+  const int ldc,
+  const int m,
+  const int n,
+  const int k
+) {
+  int gx = get_global_id(0);
+  int gy = get_global_id(1);
+  const sampler_t sampler = CLK_ADDRESS_NONE;
+
+  if (((gx << 2) < n) && ((gy << 3) < m)) {
+    REAL4 a[8];
+    REAL4 b[4];
+    REAL4 c[8];
+
+    for (int i = 0; i < 8; i++){
+        c[i] = 0.0f;
+    }
+
+    int A_y_off = (gy << 3) * lda;
+
+    for (int pos = 0; pos < k; pos += 4) {
+      #pragma unroll
+      for (int i = 0; i < 4; i++) {
+        const int B_off = B_offset + (pos + i) * n + (gx << 2);
+        b[i] = vload4(0, B + B_off);
+      }
+
+      int A_off = A_y_off + pos;
+
+      #pragma unroll
+      for (int i = 0; i < 8; i++) {
+        a[i] = vload4(0, A + A_off);
+        A_off += lda;
+      }
+
+      #pragma unroll
+      for (int i = 0; i < 8; i++) {
+        c[i] += a[i].x * b[0] + a[i].y * b[1] + a[i].z * b[2] + a[i].w * b[3];
+      }
+    }
+
+    #pragma unroll
+    for (int i = 0; i < 8; i++) {
+      int C_offs = ((gy << 3) + i) * ldc + (gx << 2);
+      vstore4(c[i], 0, C + C_offs);
+    }
+  }
+}
+
+// https://arxiv.org/pdf/1706.06873.pdf
+__kernel void K(
+  __global const REAL *A,
+  const int lda,
+  __global const REAL *B,
+  __global REAL *C,
+  const int ldc,
+  const int m,
+  const int n,
+  const int k
+) {
+  const int g = get_global_id(2);
+  const int B_offset = g * n * IN_CHANNEL_DIV_G;
+  gemm(&A[g * FILTER_DIV_G], lda, B, B_offset, &C[g * ldc * OUT_CHANNEL_DIV_G], ldc, m, n, k);
+}
+)CLC";
+
 static constexpr const char* kMECGemm = R"CLC(
 #pragma OPENCL EXTENSION cl_khr_fp16 : enable
 // This is taken directly from here:
