@@ -64,3 +64,7 @@ class DistanceTest(hu.HypothesisTestCase):
         self.assertGradientChecks(gc, op, [X, Y], 0, [0])
         # Gradient check wrt Y
         self.assertGradientChecks(gc, op, [X, Y], 1, [0])
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main()
