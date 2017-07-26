@@ -15,7 +15,7 @@ __kernel void K(
   const int c = get_global_id(1);
   const float new_scale = rsqrt(var[c]) * scale[c];
   const float new_bias = bias[c] - (mean[c] * new_scale);
-  output[c * spatial_size + i] = input[c * spatial_size + i];
+  output[c * spatial_size + i] = new_scale * input[c * spatial_size + i] + new_bias;
 }
 )CLC";
 

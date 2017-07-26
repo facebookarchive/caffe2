@@ -61,7 +61,7 @@ class CopyFromOpenCLHalfOp final : public Operator<OpenCLContext> {
     }
     tmpX_->Resize(X.dims());
 
-    auto* Y = Outputs()[0]->GetMutable<Tensor<CPUContext>>();
+    auto* Y = OutputBlob(0)->GetMutable<Tensor<CPUContext>>();
     Y->Resize(X.dims());
 
     OPENCL_CHECK(kernel_.setArg(0, *(cl::Buffer*)X.data<cl_half>()));
@@ -105,7 +105,7 @@ class CopyToOpenCLOp final : public Operator<OpenCLContext> {
   }
 };
 
-REGISTER_CPU_OPERATOR(CopyToOpenCL, CopyToOpenCLOp);
+REGISTER_OPENCL_OPERATOR(CopyToOpenCL, CopyToOpenCLOp);
 OPERATOR_SCHEMA(CopyToOpenCL).NumInputs(1, 2).NumOutputs(1);
 
 class CopyFromOpenCLOp final : public Operator<OpenCLContext> {
@@ -124,7 +124,7 @@ class CopyFromOpenCLOp final : public Operator<OpenCLContext> {
   }
 };
 
-REGISTER_CPU_OPERATOR(CopyFromOpenCL, CopyFromOpenCLOp);
+REGISTER_OPENCL_OPERATOR(CopyFromOpenCL, CopyFromOpenCLOp);
 OPERATOR_SCHEMA(CopyFromOpenCL).NumInputs(1).NumOutputs(1);
 
 } // namespace

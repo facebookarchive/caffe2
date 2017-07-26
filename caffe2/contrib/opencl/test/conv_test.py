@@ -30,6 +30,7 @@ device_option.device_type = caffe2_pb2.OPENCL
 op_copy1 = core.CreateOperator("CopyToOpenCL",
  ['input'],
  ['cl_input'],
+ device_option=device_option,
 )
 op = core.CreateOperator("Conv",
  ['cl_input', 'kernel', 'bias'],
@@ -43,6 +44,7 @@ op = core.CreateOperator("Conv",
 op_copy2 = core.CreateOperator("CopyFromOpenCL",
  ['cl_output'],
  ['output'],
+ device_option=device_option,
 )
 workspace.RunOperatorOnce(op_copy1)
 workspace.RunOperatorOnce(op)
@@ -76,6 +78,7 @@ device_option.device_type = caffe2_pb2.OPENCL
 op_copy1 = core.CreateOperator("CopyToOpenCL",
  ['input'],
  ['cl_input'],
+ device_option=device_option,
 )
 op = core.CreateOperator("Relu",
  ['cl_input'],
@@ -89,6 +92,7 @@ op = core.CreateOperator("Relu",
 op_copy2 = core.CreateOperator("CopyFromOpenCL",
  ['cl_output'],
  ['output'],
+ device_option=device_option,
 )
 workspace.RunOperatorOnce(op_copy1)
 workspace.RunOperatorOnce(op)
@@ -118,6 +122,11 @@ if error:
 print("relu success!")
 
 c = out_c
+workspace.ResetWorkspace()
+inp = np.random.rand(1, in_c, spatial, spatial).astype(np.float32)
+#inp = np.array([_ for _ in range(in_c * spatial * spatial)]).astype(np.float32)
+#inp = inp.reshape(1, in_c, spatial, spatial)
+workspace.FeedBlob('input', inp)
 workspace.FeedBlob('scale', np.random.rand(c).astype(np.float32))
 workspace.FeedBlob('bias',  np.random.rand(c).astype(np.float32))
 workspace.FeedBlob('mean',  np.random.rand(c).astype(np.float32))
@@ -128,6 +137,7 @@ device_option.device_type = caffe2_pb2.OPENCL
 op_copy1 = core.CreateOperator("CopyToOpenCL",
   ['input'],
   ['cl_input'],
+ device_option=device_option,
 )
 op = core.CreateOperator("SpatialBN",
   ['cl_input','scale','bias','mean','var'],
@@ -142,7 +152,9 @@ op = core.CreateOperator("SpatialBN",
 op_copy2 = core.CreateOperator("CopyFromOpenCL",
   ['cl_output'],
   ['output'],
+ device_option=device_option,
 )
+
 workspace.RunOperatorOnce(op_copy1)
 workspace.RunOperatorOnce(op)
 workspace.RunOperatorOnce(op_copy2)
@@ -162,9 +174,13 @@ test_out = workspace.FetchBlob('output').flatten()
 ref_out = workspace.FetchBlob('ref_output').flatten()
 error = False
 for i in range(len(test_out)):# - 1, 0, -1):
-  if abs(test_out[i] - ref_out[i]) > 1 or math.isnan(test_out[i]):
-    #print(test_out[i], ref_out[i], i, "ERROR")
+  if abs(test_out[i] - ref_out[i]) > max(0.1 * ref_out[i], 0.1) or math.isnan(test_out[i]):
+    print(test_out[i], ref_out[i], i, "ERROR")
     error = True
+  #else:
+  #  print(test_out[i], ref_out[i], i)
+  if i > 20 and error:
+    break
 
 if error:
   print "ERRORS"

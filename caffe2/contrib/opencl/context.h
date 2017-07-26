@@ -70,11 +70,11 @@ class OpenCLContext final {
   static cl::Kernel BuildKernel(const char* src, std::string additional_options = "", const char* fn_name = "K");
 
   template <class SrcContext, class DstContext>
-  static void CopyBytes(size_t nbytes, const void *src, void *dst);
+  void CopyBytes(size_t nbytes, const void *src, void *dst);
 
   // For compatibility with old style copy
   template <typename T, class SrcContext, class DstContext>
-  static inline void Copy(size_t n, const T* src, T* dst) {
+  inline void Copy(size_t n, const T* src, T* dst) {
     if (std::is_fundamental<T>::value) {
       CopyBytes<SrcContext, DstContext>(n * sizeof(T),
                                      static_cast<const void*>(src),
@@ -87,11 +87,13 @@ class OpenCLContext final {
   }
 
   template <typename T_in, typename T_out, class SrcContext, class DstContext>
-  static inline void Copy(const Tensor<SrcContext>& src, Tensor<DstContext>& dst) {
+  inline void Copy(const Tensor<SrcContext>& src, Tensor<DstContext>& dst) {
     dst.Resize(src.dims());
     size_t n = src.size();
     if (std::is_same<T_in, T_out>::value) {
       if (std::is_fundamental<T_in>::value) {
+        dst.template mutable_data<T_out>();
+        src.template data<T_in>();
         CopyBytes<SrcContext, DstContext>(n * sizeof(T_in),
                                        static_cast<const void*>(src.template data<T_in>()),
                                        static_cast<void*>(dst.template mutable_data<T_out>()));
@@ -106,13 +108,13 @@ class OpenCLContext final {
   }
 
   template <typename T, class SrcContext, class DstContext>
-  static inline void Copy(const Tensor<SrcContext>& src, Tensor<DstContext>& dst) {
+  inline void Copy(const Tensor<SrcContext>& src, Tensor<DstContext>& dst) {
     Copy<T, T>(src, dst);
   }
 
   // Will convert floats to cl_halfs if necessary
   template <typename T>
-  static void CoercedCopy(const Tensor<CPUContext>& src, Tensor<OpenCLContext>& dst) {
+  void CoercedCopy(const Tensor<CPUContext>& src, Tensor<OpenCLContext>& dst) {
     CAFFE_NOT_IMPLEMENTED;
   }
 

@@ -24,10 +24,10 @@ class SpatialBNOp final : public Operator<Context> {
 
   bool RunOnDevice() override {
     const auto& X = Input(INPUT);
-    const auto& scale = OperatorBase::Inputs()[SCALE]->template Get<Tensor<CPUContext>>();
-    const auto& bias =  OperatorBase::Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
-    const auto& mean =  OperatorBase::Inputs()[EST_MEAN]->template Get<Tensor<CPUContext>>();
-    const auto& var =   OperatorBase::Inputs()[EST_VAR]->template Get<Tensor<CPUContext>>();
+    auto& scale = OperatorBase::InputBlob(SCALE   ).template Get<Tensor<CPUContext>>();
+    auto& bias =  OperatorBase::InputBlob(BIAS    ).template Get<Tensor<CPUContext>>();
+    auto& mean =  OperatorBase::InputBlob(EST_MEAN).template Get<Tensor<CPUContext>>();
+    auto& var =   OperatorBase::InputBlob(EST_VAR ).template Get<Tensor<CPUContext>>();
     if (!scaleBuffer_) { // Assume none have been copied over.
       scaleBuffer_ = caffe2::make_unique<TensorCL>(scale.dims());
       context_.template CoercedCopy<T>(scale, *scaleBuffer_);
@@ -59,7 +59,7 @@ class SpatialBNOp final : public Operator<Context> {
     auto& ctx = context_.GetSingleton();
     cl::Event event;
     OPENCL_CHECK(spatialBNKernel_->setArg(0, *(cl::Buffer*)X.template data<T>()));
-    OPENCL_CHECK(spatialBNKernel_->setArg(1, X.size()));
+    OPENCL_CHECK(spatialBNKernel_->setArg(1, X.dim32(2) * X.dim32(3)));
     OPENCL_CHECK(spatialBNKernel_->setArg(2,
       *(cl::Buffer*)scaleBuffer_->template mutable_data<T>()));
     OPENCL_CHECK(spatialBNKernel_->setArg(3,
