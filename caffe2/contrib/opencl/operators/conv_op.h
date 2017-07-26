@@ -38,7 +38,9 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
   bool RunOnDeviceWithOrderNCHW() override {
     const auto& X = Input(0);
     auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
-    auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+    if (InputSize() > 2) {
+      auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+    }
     auto* Y = Output(0);
     CAFFE_ENFORCE_EQ(X.dims().size(), 4);
     const int N = X.dim(0), H_in = X.dim(2), W_in = X.dim(3), C_in = X.dim(1);
@@ -66,7 +68,9 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
   bool RunOnDeviceWithOrderNHWC() override {
     const auto& X = Input(0);
     auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
-    auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		if (InputSize() > 2) {
+			auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		}
     auto* Y = Output(0);
 
     // Dimensionality setup
@@ -115,7 +119,9 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
     CAFFE_ENFORCE_EQ(kernel_[0], 3);
     const auto& X = Input(0);
     auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
-    auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		if (InputSize() > 2) {
+			auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		}
     auto* Y = Output(0);
     CAFFE_ENFORCE_EQ(X.dim32(1), C_out);
     CAFFE_ENFORCE_EQ(X.dim32(1), group_);
@@ -157,8 +163,10 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
       const int W_out, const int W_in,
       const int G) {
     const auto& X = Input(0);
-    auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
-    auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
+		if (InputSize() > 2) {
+			auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		}
     auto* Y = Output(0);
 
     // We compile the kernels on the first run to get channel info embedded
@@ -201,7 +209,9 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
       const int W_out, const int W_in) {
     const auto& X = Input(0);
     auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
-    auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		if (InputSize() > 2) {
+			auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		}
     auto* Y = Output(0);
 
     // We compile the kernels on the first run to get channel info embedded
@@ -303,7 +313,9 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
       const int W_out, const int W_in) {
     const auto& X = Input(0);
     auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
-    auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		if (InputSize() > 2) {
+			auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+		}
     auto* Y = Output(0);
 
     if (!directKernel_) {
