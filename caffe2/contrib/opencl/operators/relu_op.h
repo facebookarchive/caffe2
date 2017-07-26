@@ -17,6 +17,7 @@ class ReluOp final : public Operator<Context> {
   bool RunOnDevice() override {
     const auto& X = Input(0);
     auto* Y = Output(0);
+		Y->ResizeLike(X);
     if (!reluKernel_) {
       if (std::is_same<T, float>::value) {
         kernel_args_.emplace_back(("REAL4"), "float4");
