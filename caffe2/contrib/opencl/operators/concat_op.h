@@ -22,8 +22,8 @@ class ConcatOp final : public Operator<Context> {
   bool RunOnDevice() override {
     const auto& X = Input(0);
     const auto& Y = Input(1);
-    CAFFE_ENFORE(!(X.size() % 4));
-    CAFFE_ENFORE(!(Y.size() % 4));
+    CAFFE_ENFORCE(!(X.size() % 4));
+    CAFFE_ENFORCE(!(Y.size() % 4));
     auto* Z = Output(0);
     CAFFE_ENFORCE(X.dim32(0) == 1);
     CAFFE_ENFORCE(Y.dim32(0) == 1);

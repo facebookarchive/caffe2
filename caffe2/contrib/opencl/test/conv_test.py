@@ -355,3 +355,60 @@ if error:
   print "ERRORS"
   exit(1)
 print("concat success!")
+
+workspace.ResetWorkspace()
+inp = np.random.rand(1, in_c, spatial, spatial).astype(np.float32)
+
+inp = inp.reshape(1,in_c,spatial,spatial)
+workspace.FeedBlob('input', inp)
+
+device_option = caffe2_pb2.DeviceOption()
+device_option.device_type = caffe2_pb2.OPENCL
+op_copy1 = core.CreateOperator("CopyToOpenCL",
+  ['input'],
+  ['cl_input'],
+ device_option=device_option,
+)
+op = core.CreateOperator("AveragePool",
+  ['cl_input'],
+  ['cl_output'],
+  order="NCHW",
+  kernel=3,
+  stride=2,
+  device_option=device_option,
+)
+op_copy2 = core.CreateOperator("CopyFromOpenCL",
+  ['cl_output'],
+  ['output'],
+ device_option=device_option,
+)
+
+workspace.RunOperatorOnce(op_copy1)
+workspace.RunOperatorOnce(op)
+workspace.RunOperatorOnce(op_copy2)
+
+ref_op = core.CreateOperator("AveragePool",
+  ['input'],
+  ['ref_output'],
+  order='NCHW',
+  kernel=3,
+  stride=2,
+)
+workspace.RunOperatorOnce(ref_op)
+
+test_out = workspace.FetchBlob('output').flatten()
+ref_out_ = workspace.FetchBlob('ref_output')
+ref_out = ref_out_.flatten()
+error = False
+
+for i in range(len(test_out)):# - 1, 0, -1):
+  if abs(test_out[i] - ref_out[i]) > max(0.1 * ref_out[i], 0.1) or math.isnan(test_out[i]):
+    print(test_out[i], ref_out[i], i, "ERROR")
+    error = True
+  if i > 20 and error:
+    break
+
+if error:
+  print "ERRORS"
+  exit(1)
+print("average pool success!")
