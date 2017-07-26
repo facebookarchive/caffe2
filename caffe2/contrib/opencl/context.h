@@ -1,6 +1,8 @@
 #include "caffe2/core/logging.h"
 #include "caffe2/core/tensor.h"
 
+#include "kernels/utils.h"
+
 #define CL_HPP_ENABLE_EXCEPTIONS 1
 #define CL_HPP_CL_1_2_DEFAULT_BUILD 1
 #define CL_HPP_TARGET_OPENCL_VERSION 120
@@ -24,6 +26,10 @@ struct OpenCLContextSingleton {
   OpenCLContextSingleton();
   OpenCLContextSingleton(const OpenCLContextSingleton &) = delete;
   OpenCLContextSingleton(OpenCLContextSingleton&&) = delete;
+
+  // Utility kernels
+  friend class OpenCLContext;
+  std::unique_ptr<cl::Kernel> toHalfKernel_;
  public:
   static OpenCLContextSingleton& getInstance();
   cl::Platform platform;
@@ -60,14 +66,15 @@ class OpenCLContext final {
     ctx.queue.finish();
     return true;
   }
-  cl::Kernel BuildKernel(const char* src, std::string additional_options = "", const char* fn_name = "K");
+
+  static cl::Kernel BuildKernel(const char* src, std::string additional_options = "", const char* fn_name = "K");
 
   template <class SrcContext, class DstContext>
-  void CopyBytes(size_t nbytes, const void *src, void *dst);
+  static void CopyBytes(size_t nbytes, const void *src, void *dst);
 
   // For compatibility with old style copy
   template <typename T, class SrcContext, class DstContext>
-  inline void Copy(size_t n, const T* src, T* dst) {
+  static inline void Copy(size_t n, const T* src, T* dst) {
     if (std::is_fundamental<T>::value) {
       CopyBytes<SrcContext, DstContext>(n * sizeof(T),
                                      static_cast<const void*>(src),
@@ -80,7 +87,7 @@ class OpenCLContext final {
   }
 
   template <typename T_in, typename T_out, class SrcContext, class DstContext>
-  inline void Copy(const Tensor<SrcContext>& src, Tensor<DstContext>& dst) {
+  static inline void Copy(const Tensor<SrcContext>& src, Tensor<DstContext>& dst) {
     dst.Resize(src.dims());
     size_t n = src.size();
     if (std::is_same<T_in, T_out>::value) {
@@ -99,8 +106,14 @@ class OpenCLContext final {
   }
 
   template <typename T, class SrcContext, class DstContext>
-  inline void Copy(const Tensor<SrcContext>& src, Tensor<DstContext>& dst) {
+  static inline void Copy(const Tensor<SrcContext>& src, Tensor<DstContext>& dst) {
     Copy<T, T>(src, dst);
+  }
+
+  // Will convert floats to cl_halfs if necessary
+  template <typename T>
+  static void CoercedCopy(const Tensor<CPUContext>& src, Tensor<OpenCLContext>& dst) {
+    CAFFE_NOT_IMPLEMENTED;
   }
 
   static struct OpenCLContextSingleton& GetSingleton();

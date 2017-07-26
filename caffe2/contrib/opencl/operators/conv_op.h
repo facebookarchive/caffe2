@@ -107,15 +107,12 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
   bool use_MEC = false;
   INPUT_TAGS(INPUT, FILTER, BIAS);
 
-  void TypedCopy(const Tensor<CPUContext>& src, Tensor<OpenCLContext>& dst);
-
   bool Run3x3DWConv(const int N,
       const int C_out, const int C_in,
       const int H_out, const int H_in,
       const int W_out, const int W_in,
       const int G, const int s) {
     CAFFE_ENFORCE_EQ(kernel_[0], 3);
-    //CAFFE_ENFORCE_EQ(G, C_in);
     const auto& X = Input(0);
     auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
     auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
@@ -133,7 +130,7 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
     cl::Event event;
     if (!filterBuffer_ || filterBuffer_->size() != filter.size()) {
       filterBuffer_ = caffe2::make_unique<TensorCL>(filter.dims());
-      TypedCopy(filter, *filterBuffer_);
+      context_.CoercedCopy<T>(filter, *filterBuffer_);
     }
 
     OPENCL_CHECK(dw3x3Kernel_->setArg(0, *(cl::Buffer*)filterBuffer_->template data<T>()));
@@ -177,7 +174,7 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
     cl::Event event;
     if (!filterBuffer_ || filterBuffer_->size() != filter.size()) {
       filterBuffer_ = caffe2::make_unique<TensorCL>(filter.dims());
-      TypedCopy(filter, *filterBuffer_);
+      context_.CoercedCopy<T>(filter, *filterBuffer_);
     }
 
     OPENCL_CHECK(gemm1x1Kernel_->setArg(0, *(cl::Buffer*)filterBuffer_->template data<T>()));
@@ -234,7 +231,7 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
             filter.template data<float>()[j * filterH_ + i];
         }
       }
-      TypedCopy(transposedFilter, *filterBuffer_);
+      context_.CoercedCopy<T>(transposedFilter, *filterBuffer_);
       // Boilerplate code for copying things to image2d
       cl_int error;
       filterBufferImage_ = new cl::Image2D(ctx.context, CL_MEM_READ_WRITE,
@@ -321,9 +318,7 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
 
     if (!filterBuffer_ || filterBuffer_->size() != filter.size()) {
       filterBuffer_ = caffe2::make_unique<TensorCL>(filter.dims());
-      TypedCopy(filter, *filterBuffer_);
-      //context_.Copy<float, T>(filter, *filterBuffer_);
-      // Boilerplate code for copying things to image2d
+      context_.CoercedCopy<T>(filter, *filterBuffer_);
       const int filterW_ = kernel_[0] * kernel_[1] * C_in;
       const int filterH_ = C_out;
       cl_int error;

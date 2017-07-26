@@ -49,14 +49,15 @@ std::pair<void*, MemoryDeleter> OpenCLContext::New(size_t nbytes) {
 template <>
 void OpenCLContext::CopyBytes<OpenCLContext, CPUContext>(size_t nbytes, const void *src, void *dst) {
   auto& ctx = GetSingleton();
-  cl::copy(ctx.queue, *((cl::Buffer*)src), static_cast<char*>(dst), static_cast<char*>(dst) + nbytes);
-  cl::finish();
+  OPENCL_CHECK(cl::copy(ctx.queue, *((cl::Buffer*)src), static_cast<char*>(dst), static_cast<char*>(dst) + nbytes));
+  OPENCL_CHECK(cl::finish());
 }
 
 template <>
 void OpenCLContext::CopyBytes<CPUContext, OpenCLContext>(size_t nbytes, const void *src, void *dst) {
+  LOG(ERROR) << "Running this guy";
   auto& ctx = GetSingleton();
-  cl::copy(ctx.queue, static_cast<const char*>(src), static_cast<const char*>(src) + nbytes, *((cl::Buffer*)(dst)));
+  OPENCL_CHECK(cl::copy(ctx.queue, static_cast<const char*>(src), static_cast<const char*>(src) + nbytes, *((cl::Buffer*)(dst))));
 }
 
 void OpenCLContext::Delete(void *ptr) {
@@ -102,6 +103,35 @@ std::string BuildArgumentList(std::vector<std::pair<std::string, std::string>> a
     out += "-D " + arg.first + "=" + arg.second + " ";
   }
   return out;
+}
+
+template<>
+void OpenCLContext::CoercedCopy<cl_half>(const Tensor<CPUContext>& src, Tensor<OpenCLContext>& dst) {
+  auto tmpBuffer = caffe2::make_unique<TensorCL>(src.dims());
+  OpenCLContext::Copy<float>(src, *tmpBuffer);
+
+  auto& ctx = OpenCLContext::GetSingleton();
+  if (!ctx.toHalfKernel_) {
+    ctx.toHalfKernel_ = make_unique<cl::Kernel>(OpenCLContext::BuildKernel(kFloatToHalf));
+  }
+  OPENCL_CHECK(ctx.toHalfKernel_->setArg(0, *(cl::Buffer*)tmpBuffer->data<float>()));
+  OPENCL_CHECK(ctx.toHalfKernel_->setArg(1, *(cl::Buffer*)dst.mutable_data<cl_half>()));
+
+  cl::Event event;
+  OPENCL_CHECK(ctx.queue.enqueueNDRangeKernel(
+        *ctx.toHalfKernel_,
+        cl::NullRange,
+        cl::NDRange(src.size()),
+        cl::NullRange,
+        NULL,
+        &event));
+  event.wait();
+}
+
+template<>
+void OpenCLContext::CoercedCopy<float>(const Tensor<CPUContext>& src, Tensor<OpenCLContext>& dst) {
+  dst.mutable_data<float>();
+  OpenCLContext::Copy<float>(src, dst);
 }
 
 }
