@@ -53,7 +53,6 @@ class AveragePoolOp final : public ConvPoolOpBase<Context> {
  private:
   std::unique_ptr<cl::Kernel> averagePoolKernel_;
   std::vector<std::pair<std::string, std::string>> kernel_args_;
-  StorageOrder order_;
 };
 
 } // namespace

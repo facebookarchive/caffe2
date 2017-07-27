@@ -40,9 +40,9 @@ static constexpr const char* k1x1Gemm = R"CLC(
 // This is taken directly from here:
 // https://www.qualcomm.com/news/onq/2016/10/17/matrix-multiply-adreno-gpus-part-2-host-code-and-kernel
 __kernel void gemm(
-  __global const REAL *A,
+  __global REAL *A,
   const int lda,
-  __global const REAL *B,
+  __global REAL *B,
   const int B_offset,
   __global REAL *C,
   const int ldc,
@@ -94,11 +94,10 @@ __kernel void gemm(
   }
 }
 
-// https://arxiv.org/pdf/1706.06873.pdf
 __kernel void K(
-  __global const REAL *A,
+  __global REAL *A,
   const int lda,
-  __global const REAL *B,
+  __global REAL *B,
   __global REAL *C,
   const int ldc,
   const int m,

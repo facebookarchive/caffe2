@@ -28,21 +28,25 @@ class SpatialBNOp final : public Operator<Context> {
     auto& bias =  OperatorBase::InputBlob(BIAS    ).template Get<Tensor<CPUContext>>();
     auto& mean =  OperatorBase::InputBlob(EST_MEAN).template Get<Tensor<CPUContext>>();
     auto& var =   OperatorBase::InputBlob(EST_VAR ).template Get<Tensor<CPUContext>>();
+#define COPY(x_) \
+      x_ ## Buffer_->ResizeLike(x_);\
+      context_.template Copy<T, CPUContext, OpenCLContext>((x_).size(), (x_).template data<T>(), x_ ## Buffer_->template mutable_data<T>())
+
     if (!scaleBuffer_) { // Assume none have been copied over.
       scaleBuffer_ = caffe2::make_unique<TensorCL>(scale.dims());
-      context_.template CoercedCopy<T>(scale, *scaleBuffer_);
+			COPY(scale);
     }
     if (!biasBuffer_) {
       biasBuffer_ = caffe2::make_unique<TensorCL>(bias.dims());
-      context_.template CoercedCopy<T>(bias, *biasBuffer_);
+			COPY(bias);
     }
     if (!meanBuffer_) {
       meanBuffer_ = caffe2::make_unique<TensorCL>(mean.dims());
-      context_.template CoercedCopy<T>(mean, *meanBuffer_);
+			COPY(mean);
     }
     if (!varBuffer_) {
       varBuffer_ = caffe2::make_unique<TensorCL>(var.dims());
-      context_.template CoercedCopy<T>(var, *varBuffer_);
+			COPY(var);
     }
     auto* Y = Output(0);
     Y->ResizeLike(X);

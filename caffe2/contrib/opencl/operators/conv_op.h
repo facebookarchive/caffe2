@@ -7,6 +7,10 @@
 #include "kernels/conv_impl.h"
 #include "kernels/utils.h"
 
+#define COPY(x_) \
+      x_ ## Buffer_->ResizeLike(x_);\
+      context_.template Copy<T, CPUContext, OpenCLContext>((x_).size(), (x_).template data<T>(), x_ ## Buffer_->template mutable_data<T>())
+
 namespace caffe2 {
 namespace {
 
@@ -118,11 +122,12 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
       const int G, const int s) {
     CAFFE_ENFORCE_EQ(kernel_[0], 3);
     const auto& X = Input(0);
-    auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
+    auto& filter = InputBlob(FILTER).template Get<Tensor<CPUContext>>();
 		if (InputSize() > 2) {
-			auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+			auto& bias = InputBlob(BIAS).template Get<Tensor<CPUContext>>();
 		}
     auto* Y = Output(0);
+    ConvPoolOpBase<OpenCLContext>::SetOutputSize(X, Y, filter.dim32(0));
     CAFFE_ENFORCE_EQ(X.dim32(1), C_out);
     CAFFE_ENFORCE_EQ(X.dim32(1), group_);
 
@@ -136,7 +141,8 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
     cl::Event event;
     if (!filterBuffer_ || filterBuffer_->size() != filter.size()) {
       filterBuffer_ = caffe2::make_unique<TensorCL>(filter.dims());
-      context_.CoercedCopy<T>(filter, *filterBuffer_);
+			COPY(filter);
+      //context_.CoercedCopy<T>(filter, *filterBuffer_);
     }
 
     OPENCL_CHECK(dw3x3Kernel_->setArg(0, *(cl::Buffer*)filterBuffer_->template data<T>()));
@@ -163,11 +169,12 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
       const int W_out, const int W_in,
       const int G) {
     const auto& X = Input(0);
-		auto& filter = Inputs()[FILTER]->template Get<Tensor<CPUContext>>();
+		auto& filter = InputBlob(FILTER).template Get<Tensor<CPUContext>>();
 		if (InputSize() > 2) {
-			auto& bias = Inputs()[BIAS]->template Get<Tensor<CPUContext>>();
+			auto& bias = InputBlob(BIAS).template Get<Tensor<CPUContext>>();
 		}
     auto* Y = Output(0);
+    ConvPoolOpBase<OpenCLContext>::SetOutputSize(X, Y, filter.dim32(0));
 
     // We compile the kernels on the first run to get channel info embedded
     if (!gemm1x1Kernel_) {
@@ -182,7 +189,8 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
     cl::Event event;
     if (!filterBuffer_ || filterBuffer_->size() != filter.size()) {
       filterBuffer_ = caffe2::make_unique<TensorCL>(filter.dims());
-      context_.CoercedCopy<T>(filter, *filterBuffer_);
+			COPY(filter);
+      //context_.CoercedCopy<T>(filter, *filterBuffer_);
     }
 
     OPENCL_CHECK(gemm1x1Kernel_->setArg(0, *(cl::Buffer*)filterBuffer_->template data<T>()));
@@ -200,6 +208,7 @@ class ConvOp final : public ConvPoolOpBase<OpenCLContext> {
           cl::NullRange,
           NULL,
           &event));
+    OPENCL_CHECK(event.wait());
     return true;
   }
 

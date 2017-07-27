@@ -56,11 +56,23 @@ void OpenCLContext::CopyBytes<OpenCLContext, CPUContext>(size_t nbytes, const vo
 template <>
 void OpenCLContext::CopyBytes<CPUContext, OpenCLContext>(size_t nbytes, const void *src, void *dst) {
   auto& ctx = GetSingleton();
-  OPENCL_CHECK(cl::copy(ctx.queue,
-    static_cast<const char*>(src),
-    static_cast<const char*>(src) + nbytes,
-    *((cl::Buffer*)(dst))
-  ));
+  //OPENCL_CHECK(cl::copy(ctx.queue,
+  //  static_cast<const char*>(src),
+  //  static_cast<const char*>(src) + nbytes,
+  //  *((cl::Buffer*)(dst))
+  //));
+	cl::Event event;
+  OPENCL_CHECK(cl::flush());
+	OPENCL_CHECK(
+			ctx.queue.enqueueWriteBuffer(
+				*((cl::Buffer*)(dst)),
+				CL_TRUE,
+				0,
+				nbytes,
+				src,
+				nullptr,
+				&event));
+	OPENCL_CHECK(event.wait());
 }
 
 void OpenCLContext::Delete(void *ptr) {
@@ -133,8 +145,8 @@ void OpenCLContext::CoercedCopy<cl_half>(const Tensor<CPUContext>& src, Tensor<O
 
 template<>
 void OpenCLContext::CoercedCopy<float>(const Tensor<CPUContext>& src, Tensor<OpenCLContext>& dst) {
-  dst.mutable_data<float>();
-  this->Copy<float>(src, dst);
+  //dst.mutable_data<float>();
+  Copy<float>(src, dst);
   OPENCL_CHECK(cl::flush());
 }
 

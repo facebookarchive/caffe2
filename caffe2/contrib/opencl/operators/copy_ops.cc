@@ -15,7 +15,7 @@ class CopyToOpenCLHalfOp final : public Operator<OpenCLContext> {
   }
 
   bool RunOnDevice() override {
-    const auto& X = Inputs()[0]->Get<Tensor<CPUContext>>();
+    const auto& X = InputBlob(0).Get<Tensor<CPUContext>>();
     auto* Y = Output(0);
     if (!tmpY_) {
       tmpY_ = caffe2::make_unique<Tensor<OpenCLContext>>(X.dims());
@@ -97,7 +97,7 @@ class CopyToOpenCLOp final : public Operator<OpenCLContext> {
       : Operator<OpenCLContext>(operator_def, ws) {}
 
   bool RunOnDevice() override {
-    const auto& X = Inputs()[0]->Get<Tensor<CPUContext>>();
+    const auto& X = InputBlob(0).Get<Tensor<CPUContext>>();
     auto* Y = Output(0);
     Y->Resize(X.dims());
     context_.Copy<float>(X, *Y);
