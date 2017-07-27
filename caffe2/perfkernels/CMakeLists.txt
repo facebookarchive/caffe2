@@ -18,7 +18,10 @@ if (CAFFE2_COMPILER_SUPPORTS_AVX2_EXTENSIONS)
   add_dependencies(Caffe2_perfkernels_avx2 Caffe_PROTO Caffe2_PROTO)
 
   if (MSVC)
-    message(STATUS "Still yet to figure out perfkernels compilation for msvc.")
+    set_target_properties(
+        Caffe2_perfkernels_avx PROPERTIES COMPILE_FLAGS "/arch:AVX")
+    set_target_properties(
+        Caffe2_perfkernels_avx2 PROPERTIES COMPILE_FLAGS "/arch:AVX2")
   else()
     set_target_properties(
         Caffe2_perfkernels_avx PROPERTIES COMPILE_FLAGS "-mavx -mf16c")
