@@ -207,18 +207,52 @@ else()
 endif()
 
 # ---[ Python + Numpy
+
 if(BUILD_PYTHON)
-  set(Python_ADDITIONAL_VERSIONS 2.8 2.7 2.6)
-  find_package(PythonInterp 2.7)
-  find_package(PythonLibs 2.7)
-  find_package(NumPy REQUIRED)
-  if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND NUMPY_FOUND)
-    include_directories(SYSTEM ${PYTHON_INCLUDE_DIRS} ${NUMPY_INCLUDE_DIR})
-    list(APPEND Caffe2_PYTHON_DEPENDENCY_LIBS ${PYTHON_LIBRARIES})
+  if (NOT DEFINED PYTHON)
+    set(PYTHON "python")
+  endif()
+  # Get the full path to executable
+  execute_process(
+    COMMAND  
+    ${PYTHON} -c "import sys; print(sys.executable)"
+    OUTPUT_VARIABLE PYTHON_EXECUTABLE
+    RESULT_VARIABLE result
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  if(${result} MATCHES "0")
+    # Get version major
+    execute_process(
+    COMMAND  
+      ${PYTHON_EXECUTABLE} -c "import sys; print(sys.version_info.major)"
+      OUTPUT_VARIABLE PYTHON_VERSION_MAJOR
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    # Get version minor
+    execute_process(
+      COMMAND  
+      ${PYTHON_EXECUTABLE} -c "import sys; print(sys.version_info.minor)"
+      OUTPUT_VARIABLE PYTHON_VERSION_MINOR
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    # handle any incompatible versions
+    # ...
+    set(PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+    find_package(PythonInterp ${PYTHON_VERSION} EXACT)
+    find_package(PythonLibs ${PYTHON_VERSION} EXACT)
+    find_package(NumPy REQUIRED)
+    if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND NUMPY_FOUND)
+      include_directories(SYSTEM ${PYTHON_INCLUDE_DIRS} ${NUMPY_INCLUDE_DIR})
+      list(APPEND Caffe2_PYTHON_DEPENDENCY_LIBS ${PYTHON_LIBRARIES})
+    else()
+      message(WARNING "Python dependencies not met. Not compiling with python. Suppress this warning with -DBUILD_PYTHON=OFF")
+      set(BUILD_PYTHON OFF)
+    endif()
   else()
-    message(WARNING "Python dependencies not met. Not compiling with python. Suppress this warning with -DBUILD_PYTHON=OFF")
+    message(FATAL_ERROR "Specified PYTHON not found: ${PYTHON}")
     set(BUILD_PYTHON OFF)
   endif()
+  
 endif()
 
 # ---[ pybind11
