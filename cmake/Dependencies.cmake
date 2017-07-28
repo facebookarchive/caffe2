@@ -209,18 +209,29 @@ endif()
 # ---[ Python + Numpy
 
 if(BUILD_PYTHON)
-  if (NOT DEFINED PYTHON)
-    set(PYTHON "python")
-  endif()
-  # Get the full path to executable
-  execute_process(
+  set(found OFF)
+  if (DEFINED PYTHON)
+    # Get the full path to executable
+    execute_process(
     COMMAND  
-    ${PYTHON} -c "import sys; print(sys.executable)"
-    OUTPUT_VARIABLE PYTHON_EXECUTABLE
-    RESULT_VARIABLE result
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
+      ${PYTHON} -c "import sys; print(sys.executable)"
+      OUTPUT_VARIABLE PYTHON_EXECUTABLE
+      RESULT_VARIABLE result
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+  else()
+    execute_process(
+    COMMAND  
+      ${PYTHON_EXECUTABLE} --version
+      RESULT_VARIABLE result
+    )
+  endif()
   if(${result} MATCHES "0")
+    set(found ON)
+  else()
+    set(found OFF)
+  endif()
+  if(found)
     # Get version major
     execute_process(
     COMMAND  
