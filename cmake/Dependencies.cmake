@@ -207,10 +207,9 @@ else()
 endif()
 
 # ---[ Python + Numpy
-
 if(BUILD_PYTHON)
   set(found OFF)
-  if (DEFINED PYTHON)
+  if (DEFINED PYTHON AND NOT "${PYTHON}" STREQUAL "")
     # Get the full path to executable
     execute_process(
     COMMAND  
@@ -260,7 +259,7 @@ if(BUILD_PYTHON)
       set(BUILD_PYTHON OFF)
     endif()
   else()
-    message(FATAL_ERROR "Specified PYTHON not found: ${PYTHON}")
+    message(FATAL_ERROR "Specified PYTHON not found: [${PYTHON}]")
     set(BUILD_PYTHON OFF)
   endif()
   
