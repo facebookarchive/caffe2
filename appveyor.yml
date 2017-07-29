@@ -5,6 +5,12 @@ environment:
     - USE_CUDA: OFF
       CMAKE_BUILD_TYPE: Release
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      
+    # python3
+    - USE_CUDA: OFF
+      PYTHON: python3
+      CMAKE_BUILD_TYPE: Release
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     # Building CUDA with Visual Studio 2017 is yet to be supported by
     # NVidia, so we canot enable it right now.
