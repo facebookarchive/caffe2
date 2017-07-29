@@ -1,15 +1,13 @@
 version: '{build}'
 clone_folder: c:\projects\caffe2
 environment:
-  PYTHON: python3
   matrix:
   
     - USE_CUDA: OFF
+      PYTHON: python3
       CMAKE_BUILD_TYPE: Release
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       
-    
-
     # Building CUDA with Visual Studio 2017 is yet to be supported by
     # NVidia, so we canot enable it right now.
     #- USE_CUDA: ON
