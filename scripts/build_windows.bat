@@ -47,6 +47,7 @@ cmake .. ^
   -DBUILD_SHARED_LIBS=OFF ^
   -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% ^
   -DUSE_CUDA=%USE_CUDA% ^
+  -DPYTHON=%PYTHON% ^
   -DPROTOBUF_PROTOC_EXECUTABLE=%CAFFE2_ROOT%\build_host_protoc\bin\protoc.exe ^
   || exit /b
 
