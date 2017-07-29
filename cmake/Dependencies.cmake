@@ -218,12 +218,14 @@ if(BUILD_PYTHON)
       RESULT_VARIABLE result
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-  else()
+  elseif(DEFINED PYTHON_EXECUTABLE)
     execute_process(
     COMMAND  
       ${PYTHON_EXECUTABLE} --version
       RESULT_VARIABLE result
     )
+  else()
+    message(FATAL_ERROR "PYTHON_EXECUTABLE not set!")
   endif()
   if(${result} MATCHES "0")
     set(found ON)

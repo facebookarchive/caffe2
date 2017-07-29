@@ -50,6 +50,7 @@ option(USE_TRANSFORMS "Use Graph Transforms" OFF)
 option(BUILD_SHARED_LIBS "Build libcaffe2.so" ON)
 option(USE_OPENMP "Use OpenMP for parallel code" ON)
 option(BUILD_PYTHON "Build Python binaries" ON)
+option(PYTHON "Python to use" "")
 option(BUILD_BINARY "Build C++ binaries" ON)
 
 # External projects
