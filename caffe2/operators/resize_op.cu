@@ -63,7 +63,7 @@ __global__ void NearestNeighborGradientKernel(
 #if __CUDA_ARCH__ >= 350
     atomicAdd(dX + out_index, __ldg(dY + index));
 #else
-	atomicAdd(dX + out_index, *(dY + index));
+    atomicAdd(dX + out_index, *(dY + index));
 #endif
   }
 }
