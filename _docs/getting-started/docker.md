@@ -12,26 +12,29 @@ Docker images are currently in testing. If you would like to build an image your
 
 ### Get caffe2ai/caffe2
 
-Visit our [Docker repo](https://hub.docker.com/r/caffe2ai/caffe2) for a full list of different Docker options. Currently we have CPU and GPU support for both 14.04 and 16.04 Ubuntu.
+Visit our [Docker repo](https://hub.docker.com/r/caffe2ai/caffe2) for a full list of different Docker options. Currently we have CPU and GPU support for both 14.04 and 16.04 Ubuntu. 
 
-| Known Working Docker Images | Dockerfile | Image
-----|----|----
-Caffe2 v0.7.0 built for GPU/CPU, Ubuntu 16.04, with Tutorials, MNIST dataset, and Squeezenet pre-trained model **recommended** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-16.04-gpu-tutorial/Dockerfile) | docker pull caffe2ai/caffe2:c2.tutorial.0.7.1
-Caffe2 v0.6.0 built for GPU/CPU, Ubuntu 16.04 CPU-only **full options** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-16.04-cpu-all-options/Dockerfile) | docker pull caffe2ai/caffe2:cpu-fulloptions-ubuntu16.04
-Caffe2 v0.6.0 built for GPU/CPU, Ubuntu 14.04 GPU **full options** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-14.04-gpu-all-options/Dockerfile) | docker pull caffe2ai/caffe2
-Caffe2 v0.6.0 built for GPU/CPU, Ubuntu 14.04 CPU-only **full options** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-14.04-cpu-all-options/Dockerfile) | docker pull caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04
-Caffe2 v0.6.0 built for GPU/CPU, Ubuntu 14.04 CPU-only **minimal** | [Dockerfile](https://github.com/caffe2/caffe2/blob/gh-pages/docker/ubuntu-14.04-cpu-minimal/Dockerfile) | docker pull caffe2ai/caffe2:cpu-minimal-ubuntu14.04
+**If you wish to use GPU with Docker use `nvidia-docker` to run your image instead of regular `docker`.**
+You can [get nvidia-docker here](https://github.com/NVIDIA/nvidia-docker).
 
 For the latest Docker image using GPU support and optional dependencies like IPython & OpenCV:
 
 ```
-docker pull caffe2ai/caffe2 && docker run -it caffe2ai/caffe2:latest python -m caffe2.python.operator_test.relu_op_test
+docker pull caffe2ai/caffe2
+# to test
+nvidia-docker run -it caffe2ai/caffe2:latest python -m caffe2.python.operator_test.relu_op_test
+# to interact
+nvidia-docker run -it caffe2ai/caffe2:latest /bin/bash
 ```
 
 For a minimal image:
 
 ```
-docker pull caffe2ai/caffe2:cpu-minimal-ubuntu14.04 && docker run -it caffe2ai/caffe2:cpu-minimal-ubuntu14.04 python -m caffe2.python.operator_test.relu_op_test
+docker pull caffe2ai/caffe2:cpu-minimal-ubuntu14.04 
+# to test
+docker run -it caffe2ai/caffe2:cpu-minimal-ubuntu14.04 python -m caffe2.python.operator_test.relu_op_test
+# to interact
+docker run -it caffe2ai/caffe2:cpu-minimal-ubuntu14.04 /bin/bash
 ```
 
 [Caffe2 Docker Images](https://hub.docker.com/r/caffe2ai/caffe2/tags/)
@@ -40,7 +43,7 @@ See below for instructions on usage.
 
 ### Build From Dockerfile
 
-Inside the [docker](../docker) folder are subfolders with a `Dockerfile` that contain the minimal dependencies and optional ones. You may remove specific optional dependencies if you wish. The folder's name describes the defaults that will be installed by that dockerfile. For example, if you run the command below from the `ubuntu-14.04-cpu-all-options` folder you will get a docker image around 1.5GB that has many optional libraries like OpenCV, for the minimal install, `ubuntu-14.04-cpu-minimal`, it is about 1GB and is just enough to run Caffe2, and finally for the gpu dockerfile, `ubuntu-14.04-gpu-all-options`, it is based on the NVIDIA CUDA docker image about 3.2GB and contains all of the optional dependencies.
+Inside repo's `/docker` folder are subfolders with a `Dockerfile` that contain the minimal dependencies and optional ones. You may remove specific optional dependencies if you wish. The folder's name describes the defaults that will be installed by that dockerfile. For example, if you run the command below from the `ubuntu-14.04-cpu-all-options` folder you will get a docker image around 1.5GB that has many optional libraries like OpenCV, for the minimal install, `ubuntu-14.04-cpu-minimal`, it is about 1GB and is just enough to run Caffe2, and finally for the gpu dockerfile, `ubuntu-14.04-gpu-all-options`, it is based on the NVIDIA CUDA docker image about 3.2GB and contains all of the optional dependencies.
 
 In a terminal window in one of those folders, simply run the following:
 
@@ -49,24 +52,8 @@ cd ~/caffe2/docker/ubuntu-14.04-cpu-all-options
 docker build -t caffe2:cpu-optionals .
 ```
 
-Don't miss the `.` as it is pointing to the `Dockerfile` in your current directory. Also, you can name docker image whatever you want. The `-t` denotes tag followed by the repository name you want it called, in this case `cpu-optionals`. If the build completed you should see this output:
+Don't miss the `.` as it is pointing to the `Dockerfile` in your current directory. Also, you can name docker image whatever you want. The `-t` denotes tag followed by the repository name you want it called, in this case `cpu-optionals`.
 
-```
-Step 8/8 : RUN python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
- ---> Running in 0ca0a35635b8
-Success
- ---> 5ee1fb669aef
-Removing intermediate container 0ca0a35635b8
-Successfully built 5ee1fb669aef
-```
-
-If you see "Success" just after the following test, then Caffe2 is working correctly.
-
-```bash
-python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
-```
-
-Don't worry about the `Running in 0ca0a35635b8` as that is a temporary container specific to your build process. Also, the step numbers will vary depending on the kind of build you chose.
 Once the build process is complete you can run it by its name or by the last unique ID that was provided upon completion. In this example case, this ID is `5ee1fb669aef`. To run the image in a container and get to bash you can launch it interactively using the following where you call it by its repository name:
 
 ```
@@ -100,7 +87,7 @@ The simplest test was already run during the build, but you can run it again.
 docker run -it mydocker-repo/mytag ipython
 ```
 
-For GPU support you will need to pass in several device parameters. Be warned that [Windows support for this is limited](https://github.com/NVIDIA/nvidia-docker/issues/197).
+For GPU support, use `nvidia-docker`. There's also this alternative, manual approach were you will need to pass in several device parameters. Be warned that [Windows support for this is limited](https://github.com/NVIDIA/nvidia-docker/issues/197).
 
 ```
 sudo docker run -ti --device /dev/nvidia0:/dev/nvidia0 --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm mydocker-repo/mytag ipython
@@ -121,7 +108,7 @@ docker run -it mydocker-repo/mytag /bin/bash
 Another test that you can use to put Caffe2 through its paces, including GPU support, is by calling one of the [operator tests](https://github.com/caffe2/caffe2/blob/master/caffe2/python/operator_test/relu_op_test.py). Here's a [sample output](https://gist.github.com/aaronmarkham/dcdb284065c9ea4569214bcb0ca3a858).
 
 ```
-docker run -it caffe2 python -m caffe2.python.operator_test.relu_op_test
+nvidia-docker run -it caffe2 python -m caffe2.python.operator_test.relu_op_test
 ```
 
 You may also try fetching some models directly and running them as described in this [Tutorial](../tutorials/Loading_Pretrained_Models.ipynb).
