@@ -1,6 +1,7 @@
 INCLUDE(CheckCXXSourceCompiles)
 
-set(CMAKE_REQUIRED_FLAGS "-std=c++11")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
 
 # ---[ Check if the data type long and int32_t/int64_t overlap. 
 CHECK_CXX_SOURCE_COMPILES(
