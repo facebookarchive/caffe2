@@ -11,12 +11,14 @@ set(Caffe2_CPU_SRCS ${Caffe2_CPU_SRCS} ${common_srcs})
 
 # We will only build the perf kernel files if the compiler supports avx2
 # extensions.
-if (CAFFE2_COMPILER_SUPPORTS_AVX2_EXTENSIONS)
+# Currently MSVC seems to have a symbol not found error while linking (related
+# to source file order?). As a result we will currently disable the perfkernel
+# in msvc.
+if (NOT MSVC AND CAFFE2_COMPILER_SUPPORTS_AVX2_EXTENSIONS)
   add_library(Caffe2_perfkernels_avx OBJECT ${avx_srcs})
   add_library(Caffe2_perfkernels_avx2 OBJECT ${avx2_srcs})
   add_dependencies(Caffe2_perfkernels_avx Caffe_PROTO Caffe2_PROTO)
   add_dependencies(Caffe2_perfkernels_avx2 Caffe_PROTO Caffe2_PROTO)
-
   if (MSVC)
     set_target_properties(
         Caffe2_perfkernels_avx PROPERTIES COMPILE_FLAGS "/arch:AVX")
