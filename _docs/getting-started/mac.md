@@ -137,9 +137,8 @@ protobuf | You may experience an error related to protobuf during the make step.
 Solution | Make sure you've installed protobuf in **both** of these two ways: `brew install protobuf && sudo pip install protobuf` OR `brew install protobuf && conda install -y --channel https://conda.anaconda.org/conda-forge protobuf=3.2.0`
 xcode | You may need to install [Xcode](https://developer.apple.com/xcode/) or at a minimum xcode command line tools.
 Solution | You can install it via terminal using `xcode-select --install`
-NNPACK | You may experience errors related to confu and PeachPy when running `make install`
-Solution | Install dependencies of NNPACK: `[sudo] pip install --upgrade git+https://github.com/Maratyszcza/PeachPy`
-and `[sudo] pip install --upgrade git+https://github.com/Maratyszcza/confu`
+NNPACK | You may experience errors related to confu or PeachPy when running `make install`.
+Solution | Install dependencies of NNPACK: `[sudo] pip install --upgrade git+https://github.com/Maratyszcza/PeachPy` and `[sudo] pip install --upgrade git+https://github.com/Maratyszcza/confu`
 
 |GPU Support
 ----|-----
