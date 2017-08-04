@@ -5,22 +5,30 @@ MAINTAINER Aaron Markham <aaronmarkham@fb.com>
 
 ########## REQUIRED DEPENDENCIES ################
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python-dev \
-    python-pip \
-    git \
     build-essential \
     cmake \
+    git \
+    libgoogle-glog-dev \
     libprotobuf-dev \
+    python-pip \
     protobuf-compiler \
-    libgoogle-glog-dev
+    python-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --recursive https://github.com/caffe2/caffe2.git && \
-    pip install --upgrade pip setuptools wheel && \
-    pip install future hypothesis numpy protobuf six
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir future hypothesis numpy protobuf six
 
 ########## INSTALLATION STEPS ###################
-RUN cd caffe2 && make && cd build && make install
+RUN git clone --branch v0.8.0 --recursive https://github.com/caffe2/caffe2.git
+RUN cd caffe2 && mkdir build && cd build \
+    && cmake .. \
+    -DUSE_CUDA=OFF \
+    -DUSE_NNPACK=OFF \
+    -DUSE_ROCKSDB=OFF \
+    && make install \
+    && make clean \
+    && cd .. \
+    && rm -rf build
 
 ENV PYTHONPATH /usr/local
-ENV LD_LIBRARY_PATH /usr/local/lib
-RUN python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
+ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
