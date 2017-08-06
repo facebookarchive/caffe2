@@ -8,6 +8,7 @@ caffe2_binary_target("print_registered_core_operators.cc")
 caffe2_binary_target("run_plan.cc")
 caffe2_binary_target("speed_benchmark.cc")
 caffe2_binary_target("split_db.cc")
+caffe2_binary_target("intro.cpp")
 
 if (USE_CUDA)
   caffe2_binary_target("inspect_gpus.cc")
