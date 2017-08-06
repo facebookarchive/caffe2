@@ -2,24 +2,33 @@
 
 #include <algorithm>
 
+#include "caffe2/contrib/gloo/common.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/utils/math.h"
 
-#include "gloo/algorithm.h"
-#include "gloo/context.h"
+#include <gloo/algorithm.h>
+#include <gloo/common/error.h>
+#include <gloo/context.h>
 
 namespace caffe2 {
 namespace gloo {
 
-template <typename T, class Context>
+template <class Context>
 class AllreduceOp final : public Operator<Context> {
-  enum Mode { RING_FULL, RING_CHUNKED };
+  enum Mode { RING_FULL, RING_CHUNKED, HALVING_DOUBLING };
 
  public:
   USE_OPERATOR_CONTEXT_FUNCTIONS;
 
   AllreduceOp(const OperatorDef& operator_def, Workspace* ws)
-      : Operator<Context>(operator_def, ws) {}
+      : Operator<Context>(operator_def, ws),
+        ws_(ws),
+        status_blob_(
+            OperatorBase::GetSingleArgument<std::string>("status_blob", "")) {
+    if (status_blob_ != "") {
+      ws_->CreateBlob(status_blob_);
+    }
+  }
 
   virtual ~AllreduceOp() {}
 
@@ -31,23 +40,24 @@ class AllreduceOp final : public Operator<Context> {
     update(current_);
     CAFFE_ENFORCE(current_ == init_, "Inputs/outputs have changed");
 
-    algorithm_->run();
+    try {
+      algorithm_->run();
+    } catch (::gloo::IoException& ioe) {
+      LOG(ERROR) << "Caught gloo IO exception: " << ioe.what();
+      if (status_blob_ != "") {
+        signalFailure(ws_->GetBlob(status_blob_), ioe);
+        return false;
+      } else {
+        throw ioe;
+      }
+    }
     return true;
   }
 
  protected:
   void initialize() {
-    Mode mode = RING_FULL;
+    Mode mode = HALVING_DOUBLING;
     auto bytes = Input(1).nbytes();
-
-    // Pretty arbitrary threshold but seems to work well.
-    // Logic for switching between algorithms in a topology
-    // dependent manner will eventually move to Gloo itself.
-    if (bytes < (256 * 1024)) {
-      mode = RING_FULL;
-    } else {
-      mode = RING_CHUNKED;
-    }
 
     // Store which inputs/outputs this instance initialized with
     update(init_);
@@ -64,6 +74,12 @@ class AllreduceOp final : public Operator<Context> {
       CAFFE_ENFORCE_EQ(Input(i).size(), size);
     }
 
+    // Verify tensors all have same type
+    TypeMeta meta = Input(1).meta();
+    for (auto i = 2; i < InputSize(); i++) {
+      CAFFE_ENFORCE(Input(i).meta() == meta);
+    }
+
     switch (mode) {
       case RING_FULL:
         initializeRingFull();
@@ -71,11 +87,15 @@ class AllreduceOp final : public Operator<Context> {
       case RING_CHUNKED:
         initializeRingChunked();
         return;
+      case HALVING_DOUBLING:
+        initializeHalvingDoubling();
+        return;
     }
 
     CAFFE_ENFORCE(false, "Unreachable code");
   }
 
+  void initializeHalvingDoubling();
   void initializeRingFull();
   void initializeRingChunked();
 
@@ -88,9 +108,35 @@ class AllreduceOp final : public Operator<Context> {
   // changed from run to run, the initialized algorithm is invalid.
   struct GlooParameters {
     std::shared_ptr<::gloo::Context> context;
-    std::vector<const T*> inputs;
-    std::vector<T*> outputs;
+    std::vector<const void*> inputs;
+    std::vector<void*> outputs;
     size_t size;
+    TypeMeta meta;
+
+    template <typename T>
+    std::vector<const T*> getInputs() {
+      std::vector<const T*> result;
+      result.reserve(inputs.size());
+      for (auto& input : inputs) {
+        result.push_back(reinterpret_cast<T*>(input));
+      }
+      return result;
+    }
+
+    template <typename T>
+    std::vector<T*> getOutputs() {
+      std::vector<T*> result;
+      result.reserve(outputs.size());
+      for (auto& output : outputs) {
+        result.push_back(reinterpret_cast<T*>(output));
+      }
+      return result;
+    }
+
+    template <typename T>
+    bool IsType() const {
+      return meta.Match<T>();
+    }
 
     bool operator==(GlooParameters const& other) const {
       return context == other.context && inputs == other.inputs &&
@@ -103,14 +149,17 @@ class AllreduceOp final : public Operator<Context> {
     params.inputs.resize(InputSize() - 1);
     params.outputs.resize(OutputSize());
     for (auto i = 0; i < params.inputs.size(); i++) {
-      params.inputs[i] = Input(i + 1).template data<T>();
-      params.outputs[i] = Output(i)->template mutable_data<T>();
+      params.inputs[i] = Input(i + 1).template raw_data();
+      params.outputs[i] = Output(i)->template raw_mutable_data();
     }
     params.size = Output(0)->size();
+    params.meta = Output(0)->meta();
   }
 
   GlooParameters init_;
   GlooParameters current_;
+  Workspace* ws_;
+  std::string status_blob_;
 };
 
 } // namespace gloo

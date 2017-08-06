@@ -1,7 +1,6 @@
 #include "caffe2/operators/concat_split_op.h"
 
 namespace caffe2 {
-namespace {
 REGISTER_CPU_OPERATOR(Split, SplitOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Concat, ConcatOp<CPUContext>);
 OPERATOR_SCHEMA(Split)
@@ -22,6 +21,10 @@ OPERATOR_SCHEMA(Concat)
     .NumOutputs(2)
     .Arg("axis", "Which axis to concat on")
     .Arg("order", "Either NHWC or HCWH, will concat on C axis")
+    .Arg(
+        "add_axis",
+        "Pass 1 to add the axis specified in arg 'axis' to all "
+        "input tensors")
     .SetDoc("Concatenate a list of tensors into a single tensor")
     .Output(0, "concat_result", "Concatenated tensor")
     .Output(1, "split_info", "The dimensions of the inputs.");
@@ -74,5 +77,4 @@ class GetConcatGradient : public GradientMakerBase {
 };
 REGISTER_GRADIENT(Concat, GetConcatGradient);
 REGISTER_GRADIENT(DepthConcat, GetConcatGradient);
-}  // namespace
 }  // namespace caffe2

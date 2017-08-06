@@ -1,17 +1,21 @@
 ## @package workspace
 # Module caffe2.python.workspace
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 import contextlib
 from google.protobuf.message import Message
 from multiprocessing import Process
 import os
+from collections import defaultdict
+import logging
+import numpy as np
+from past.builtins import basestring
 import shutil
 import socket
 import tempfile
-import logging
 
-from six import string_types
-
-import numpy as np
 from caffe2.proto import caffe2_pb2
 from caffe2.python import scope, utils
 
@@ -33,6 +37,8 @@ Workspaces = C.workspaces
 BenchmarkNet = C.benchmark_net
 Predictor = C.Predictor
 
+operator_tracebacks = defaultdict(dict)
+
 is_asan = C.is_asan
 has_gpu_support = C.has_gpu_support
 if has_gpu_support:
@@ -49,14 +55,6 @@ else:
     GetDefaultGPUID = lambda: 0 # noqa
     GetCuDNNVersion = lambda: 0 # noqa
     GetCudaPeerAccessPattern = lambda: np.array([]) # noqa
-
-
-# Python 2 and 3 compatibility: test if basestring exists
-try:
-    basestring  # NOQA
-except NameError:
-    # This is python3 so we define basestring.
-    basestring = str
 
 
 def _GetFreeFlaskPort():
@@ -113,7 +111,7 @@ def StringifyProto(obj):
   Raises:
     AttributeError: if the passed in object does not have the right attribute.
   """
-    if isinstance(obj, string_types):
+    if isinstance(obj, basestring):
         return obj
     else:
         if isinstance(obj, Message):
@@ -142,7 +140,13 @@ def CreateNet(net, overwrite=False, input_blobs=None):
         input_blobs = []
     for input_blob in input_blobs:
         C.create_blob(input_blob)
-    return C.create_net(StringifyProto(net), overwrite)
+    return CallWithExceptionIntercept(
+        C.create_net,
+        C.Workspace.current._last_failed_op_net_position,
+        GetNetName(net),
+        StringifyProto(net), overwrite,
+    )
+
 
 
 def RunOperatorOnce(operator):
@@ -157,20 +161,45 @@ def RunOperatorsOnce(operators):
     return True
 
 
+def CallWithExceptionIntercept(func, op_id_fetcher, net_name, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except Exception:
+        op_id = op_id_fetcher()
+        net_tracebacks = operator_tracebacks.get(net_name, None)
+        print("Traceback for operator {} in network {}".format(op_id, net_name))
+        if net_tracebacks and op_id in net_tracebacks:
+            tb = net_tracebacks[op_id]
+            for line in tb:
+                print(':'.join(map(str, line)))
+        raise
+
+
 def RunNetOnce(net):
-    return C.run_net_once(StringifyProto(net))
+    return CallWithExceptionIntercept(
+        C.run_net_once,
+        C.Workspace.current._last_failed_op_net_position,
+        GetNetName(net),
+        StringifyProto(net),
+    )
 
 
-def RunNet(name, num_iter=1):
+def RunNet(name, num_iter=1, allow_fail=False):
     """Runs a given net.
 
     Inputs:
       name: the name of the net, or a reference to the net.
       num_iter: number of iterations to run
+      allow_fail: if True, does not assert on net exec failure but returns False
     Returns:
       True or an exception.
     """
-    return C.run_net(StringifyNetName(name), num_iter)
+    return CallWithExceptionIntercept(
+        C.run_net,
+        C.Workspace.current._last_failed_op_net_position,
+        GetNetName(name),
+        StringifyNetName(name), num_iter, allow_fail,
+    )
 
 
 def RunPlan(plan_or_step):
@@ -226,6 +255,16 @@ def StringifyNetName(name):
     return _StringifyName(name, "Net")
 
 
+def GetNetName(net):
+    if isinstance(net, basestring):
+        return net
+    if type(net).__name__ == "Net":
+        return net.Name()
+    if isinstance(net, caffe2_pb2.NetDef):
+        return net.name
+    raise Exception("Not a Net object: {}".format(str(net)))
+
+
 def FeedBlob(name, arr, device_option=None):
     """Feeds a blob into the workspace.
 
@@ -239,7 +278,7 @@ def FeedBlob(name, arr, device_option=None):
     """
     if type(arr) is caffe2_pb2.TensorProto:
         arr = utils.Caffe2TensorToNumpyArray(arr)
-    if type(arr) is np.ndarray and arr.dtype.kind == 'S':
+    if type(arr) is np.ndarray and arr.dtype.kind in 'SU':
         # Plain NumPy strings are weird, let's use objects instead
         arr = arr.astype(np.object)
 
@@ -282,6 +321,25 @@ def FetchBlob(name):
       Fetched blob (numpy array or string) if successful
     """
     return C.fetch_blob(StringifyBlobName(name))
+
+
+def ApplyTransform(transform_key, net):
+    """Apply a Transform to a NetDef protobuf object, and returns the new
+    transformed NetDef.
+
+    Inputs:
+      transform_key: the name of the transform, as it is stored in the registry
+      net: a NetDef protobuf object
+    Returns:
+      Transformed NetDef protobuf object.
+    """
+    transformed_net = caffe2_pb2.NetDef()
+    transformed_str = C.apply_transform(
+        str(transform_key).encode('utf-8'),
+        net.SerializeToString(),
+    )
+    transformed_net.ParseFromString(transformed_str)
+    return transformed_net
 
 
 def GetNameScope():
@@ -434,11 +492,16 @@ def FeedImmediate(*args, **kwargs):
 
 # CWorkspace utilities
 
-def _Workspace_create_net(ws, net, overwrite=False):
-    return ws._create_net(StringifyProto(net), overwrite)
+def _Workspace_create_net_with_exception_intercept(ws, net, overwrite=False):
+    return CallWithExceptionIntercept(
+        ws._create_net,
+        ws._last_failed_op_net_position,
+        GetNetName(net),
+        StringifyProto(net), overwrite,
+    )
 
 
-C.Workspace.create_net = _Workspace_create_net
+C.Workspace.create_net = _Workspace_create_net_with_exception_intercept
 
 
 def _Workspace_run(ws, obj):
@@ -447,7 +510,13 @@ def _Workspace_run(ws, obj):
     if isinstance(obj, caffe2_pb2.PlanDef):
         return ws._run_plan(obj.SerializeToString())
     if isinstance(obj, caffe2_pb2.NetDef):
-        return ws._run_net(obj.SerializeToString())
+        return CallWithExceptionIntercept(
+            ws._run_net,
+            ws._last_failed_op_net_position,
+            GetNetName(obj),
+            obj.SerializeToString(),
+        )
+        # return ws._run_net(obj.SerializeToString())
     if isinstance(obj, caffe2_pb2.OperatorDef):
         return ws._run_operator(obj.SerializeToString())
     raise ValueError(

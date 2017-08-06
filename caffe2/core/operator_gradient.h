@@ -1,6 +1,7 @@
 #ifndef CAFFE2_CORE_OPERATOR_GRADIENT_H_
 #define CAFFE2_CORE_OPERATOR_GRADIENT_H_
 
+#include "caffe2/core/operator_schema.h"
 #include "caffe2/core/registry.h"
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/utils/proto_utils.h"
@@ -60,6 +61,16 @@ class GradientMakerBase {
     return true;
   }
 
+  virtual void VerifyOp() const {
+    auto* schema = OpSchemaRegistry::Schema(def_.type());
+    if (schema) {
+      CAFFE_ENFORCE(
+          schema->Verify(def_),
+          "(GradientMaker) Operator def did not pass schema checking: ",
+          ProtoDebugString(def_));
+    }
+  }
+
   /**
    * @brief Returns the gradient ops meta.
    *
@@ -72,6 +83,7 @@ class GradientMakerBase {
    * function directly.
    */
   virtual GradientOpsMeta Get() {
+    VerifyOp();
     vector<OperatorDef> new_defs = GetGradientDefs();
     for (auto& opdef : new_defs) {
       opdef.set_is_gradient_op(true);
@@ -134,7 +146,8 @@ class GradientMakerBase {
         g_output_.at(i).IsDense(),
         "Gradient of output ",
         def_.output(i),
-        " is either sparse or not provided.");
+        (g_output_.at(i).IsSparse() ? " is sparse (expected dense)."
+                                    : " is not provided!"));
     return g_output_.at(i).dense_;
   }
   string GO_I(const int i) {
@@ -142,7 +155,8 @@ class GradientMakerBase {
         g_output_.at(i).IsSparse(),
         "Gradient of output ",
         def_.output(i),
-        " is either dense or not provided.");
+        (g_output_.at(i).IsDense() ? " is dense (expected sparse)."
+                                   : " is not provided!"));
     return g_output_.at(i).indices_;
   }
   string GO_V(const int i) {
@@ -150,7 +164,8 @@ class GradientMakerBase {
         g_output_.at(i).IsSparse(),
         "Gradient of output ",
         def_.output(i),
-        "is either dense or not provided.");
+        (g_output_.at(i).IsDense() ? " is dense (expected sparse)."
+                                   : " is not provided!"));
     return g_output_.at(i).values_;
   }
   const GradientWrapper& GradOut(int i) {

@@ -3,12 +3,12 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from hypothesis import assume, given
+from hypothesis import assume, given, settings
 import hypothesis.strategies as st
 import os
 import unittest
 
-from caffe2.python import core
+from caffe2.python import core, workspace
 import caffe2.python.hypothesis_test_util as hu
 
 
@@ -35,6 +35,7 @@ class TestPooling(hu.HypothesisTestCase):
                                          method,
                                          gc, dc):
         assume(np.max([pad_t, pad_l, pad_b, pad_r]) < kernel)
+
         op = core.CreateOperator(
             method,
             ["X"],
@@ -116,9 +117,10 @@ class TestPooling(hu.HypothesisTestCase):
            batch_size=st.integers(1, 3),
            order=st.sampled_from(["NCHW", "NHWC"]),
            method=st.sampled_from(["MaxPool", "AveragePool"]),
+           engine=st.sampled_from(["", "CUDNN"]),
            **hu.gcs)
     def test_pooling_3d(self, stride, pad, kernel, size, input_channels,
-                        batch_size, order, method, gc, dc):
+                        batch_size, order, method, engine, gc, dc):
         assume(pad < kernel)
         op = core.CreateOperator(
             method,
@@ -128,7 +130,7 @@ class TestPooling(hu.HypothesisTestCase):
             kernels=[kernel] * 3,
             pads=[pad] * 6,
             order=order,
-            engine="",
+            engine=engine,
         )
         X = np.random.rand(
             batch_size, size, size, size, input_channels).astype(np.float32)
@@ -138,6 +140,57 @@ class TestPooling(hu.HypothesisTestCase):
         self.assertDeviceChecks(dc, op, [X], [0])
         if method not in ('MaxPool'):
             self.assertGradientChecks(gc, op, [X], 0, [0])
+
+    @unittest.skipIf(not workspace.has_gpu_support, "No GPU support")
+    @given(stride=st.integers(1, 3),
+           pad=st.integers(0, 3),
+           kernel=st.integers(1, 5),
+           size=st.integers(7, 9),
+           input_channels=st.integers(1, 3),
+           batch_size=st.integers(1, 3),
+           **hu.gcs_gpu_only)
+    def test_pooling_with_index(self, stride, pad, kernel, size,
+                                input_channels, batch_size, gc, dc):
+        assume(pad < kernel)
+        op = core.CreateOperator(
+            "MaxPoolWithIndex",
+            ["X"],
+            ["Y", "Y_index"],
+            stride=stride,
+            kernel=kernel,
+            pad=pad,
+            order="NCHW",
+        )
+        X = np.random.rand(
+            batch_size, size, size, input_channels).astype(np.float32)
+
+        # transpose due to order = NCHW
+        X = X.transpose((0, 3, 1, 2))
+
+        self.assertDeviceChecks(dc, op, [X], [0])
+
+    @given(sz=st.integers(1, 20),
+           batch_size=st.integers(1, 4),
+           engine=st.sampled_from(["", "CUDNN"]),
+           **hu.gcs)
+    @settings(max_examples=3, timeout=10)
+    def test_global_avg_pool_nchw(self, sz, batch_size, engine, gc, dc):
+        ''' Special test to stress the fast path of NCHW average pool '''
+        op = core.CreateOperator(
+            "AveragePool",
+            ["X"],
+            ["Y"],
+            stride=1,
+            kernel=sz,
+            pad=0,
+            order="NCHW",
+            engine=engine,
+        )
+        X = np.random.rand(
+            batch_size, 3, sz, sz).astype(np.float32)
+
+        self.assertDeviceChecks(dc, op, [X], [0])
+        self.assertGradientChecks(gc, op, [X], 0, [0])
 
     @given(stride=st.integers(1, 3),
            pad=st.integers(0, 3),

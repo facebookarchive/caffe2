@@ -119,7 +119,8 @@ class TestHsm(hu.HypothesisTestCase):
         for i in range(names.shape[0]):
             for j in range(names.shape[1]):
                 if names[i][j]:
-                    assert(names[i][j] == p_names[i][j])
+                    self.assertEquals(
+                        names[i][j], p_names[i][j].item().encode('utf-8'))
                     self.assertAlmostEqual(
                         scores[i][j], p_scores[i][j], delta=0.001)
 
@@ -207,7 +208,7 @@ class TestHsm(hu.HypothesisTestCase):
 
     def test_huffman_tree_hierarchy(self):
         workspace.GlobalInit(['caffe2'])
-        labelSet = range(0, 6)
+        labelSet = list(range(0, 6))
         counts = [1, 2, 3, 4, 5, 6]
         labels = sum([[l] * c for (l, c) in zip(labelSet, counts)], [])
         Y = np.array(labels).astype(np.int64)

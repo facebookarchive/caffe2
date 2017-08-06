@@ -64,8 +64,14 @@ class TestIndexOps(TestCase):
             ['stored_entries']))
         stored_actual = workspace.FetchBlob('stored_entries')
         new_entries = np.array([entries[3], entries[4]], dtype=dtype)
-        np.testing.assert_array_equal(
-            np.concatenate((my_entries, new_entries)), stored_actual)
+        expected = np.concatenate((my_entries, new_entries))
+        if dtype is str:
+            # we'll always get bytes back from Caffe2
+            expected = np.array([
+                x.item().encode('utf-8') if isinstance(x, np.str_) else x
+                for x in expected
+            ], dtype=object)
+        np.testing.assert_array_equal(expected, stored_actual)
 
         workspace.RunOperatorOnce(core.CreateOperator(
             index_create_op,
@@ -121,10 +127,10 @@ class TestIndexOps(TestCase):
         ], str, 'StringIndexCreate')
 
     def test_int_index_ops(self):
-        self._test_index_ops(range(8), np.int32, 'IntIndexCreate')
+        self._test_index_ops(list(range(8)), np.int32, 'IntIndexCreate')
 
     def test_long_index_ops(self):
-        self._test_index_ops(range(8), np.int64, 'LongIndexCreate')
+        self._test_index_ops(list(range(8)), np.int64, 'LongIndexCreate')
 
 if __name__ == "__main__":
     import unittest

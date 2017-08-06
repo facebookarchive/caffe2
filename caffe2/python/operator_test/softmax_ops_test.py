@@ -121,7 +121,7 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
             ["X"],
             ["probs"],
             axis=axis,
-            engine=engine
+            engine=engine,
         )
 
         self.assertReferenceChecks(
@@ -139,6 +139,7 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
     def test_softmax_with_loss(self, n, D, gc, only_loss, dc):
         # n = number of examples, D = |labels|
         # Initialize X and add 1e-2 for numerical stability
+        np.random.seed(2603)
         X = np.random.rand(n, D).astype(np.float32)
         X = X + 1e-2
 
@@ -179,11 +180,79 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
         self.assertGradientChecks(
             gc, op, [X, label], 0, [1], stepsize=1e-4, threshold=1e-2)
 
+    @given(
+        n=st.integers(2, 5),
+        D=st.integers(4, 16),
+        only_loss=st.booleans(),
+        label_prob=st.booleans(),
+        **hu.gcs
+    )
+    def test_softmax_with_loss_axis_2(
+        self, n, D, only_loss, label_prob,
+        gc, dc
+    ):
+        np.random.seed(2603)
+        X = np.random.rand(n, n, D).astype(np.float32)
+        X = X + 1e-2
+
+        if label_prob:
+            label = np.random.rand(n, n, D).astype(np.float32)
+            label /= label.sum(axis=2, keepdims=True)
+        else:
+            label = (np.random.rand(n, n) * D).astype(np.int32)
+
+        # Reference implementation of cross entropy with soft labels
+        def label_softmax_crossent(X, label):
+            probs = np.zeros((n, n, D))
+            rowmax = np.zeros((n, n))
+            for i in range(n):
+                for j in range(n):
+                    rowmax[i, j] = max(X[i, j, ])
+                    # We need to subtract the max to avoid numerical issues
+                    probs[i, j] = X[i, j] - rowmax[i, j]
+                    exps = np.exp(probs[i, j, ])
+                    norm = sum(exps)
+                    probs[i, j, ] = exps / norm
+            label_xent = 0
+            for i in range(n):
+                for j in range(n):
+                    if label_prob:
+                        for k in range(D):
+                            label_xent += (
+                                -np.log(max(probs[i, j, k], 1e-20)) *
+                                label[i, j, k]
+                            )
+                    else:
+                        label_xent += -np.log(max(probs[i, j, label[i, j]], 1e-20))
+
+            avgloss = label_xent / float(n * n)
+            return (probs, avgloss)
+
+        op = core.CreateOperator(
+            "SoftmaxWithLoss",
+            ["X", "label"],
+            ["probs", "avgloss"],
+            only_loss=only_loss,
+            label_prob=label_prob,
+            axis=2,
+        )
+
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=[X, label],
+            reference=label_softmax_crossent,
+        )
+
+        self.assertGradientChecks(
+            gc, op, [X, label], 0, [1], stepsize=1e-4, threshold=1e-2)
+
     @unittest.skipIf(not workspace.has_gpu_support, "No gpu support")
     @given(**hu.gcs_gpu_only)
     def test_softmax_with_loss_large(self, gc, dc):
-        for n in [64, 512]:
-            for D in [1000, 5000, 50000]:
+        np.random.seed(2603)
+        for n in [32]:
+            for D in [1000, 2000, 20000]:
                 # n = number of examples, D = |labels|
                 # Initialize X and add 1e-2 for numerical stability
                 X = np.random.rand(n, D).astype(np.float32)
@@ -226,6 +295,7 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
     def test_softmax_with_loss_label_prob(self, n, D, gc, dc):
         # n = number of examples, D = |labels|
         # Initialize X and add 1e-2 for numerical stability
+        np.random.seed(2603)
         X = np.random.rand(n, D).astype(np.float32)
         X = X + 1e-2
 
@@ -273,11 +343,15 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
         self.assertGradientChecks(
             gc, op, [X, label], 0, [1], stepsize=1e-4, threshold=1e-2)
 
-    @given(n=st.integers(2, 10), D=st.integers(4, 16),
-          only_loss=st.booleans(), **hu.gcs)
+    @given(
+        n=st.integers(2, 10),
+        D=st.integers(4, 16),
+        only_loss=st.booleans(),
+        **hu.gcs)
     def test_softmax_with_loss_weighted(self, n, D, only_loss, gc, dc):
         # n = number of examples, D = |labels|
         # Initialize X and add 1e-2 for numerical stability
+        np.random.seed(2603)
         X = np.random.rand(n, D).astype(np.float32)
         X = X + 1e-2
 
@@ -362,7 +436,7 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
             "SoftmaxWithLoss",
             ["X", "label", "weights"],
             ["probs", "avgloss"],
-            label_prob=1
+            label_prob=1,
         )
 
         self.assertReferenceChecks(
@@ -382,6 +456,7 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
         # Initialize X and add 1e-2 for numerical stability
         W = 18
         H = 12
+        np.random.seed(2603)
         X = np.random.rand(n, D, H, W).astype(np.float32)
         X = X + 1e-2
 
@@ -426,10 +501,9 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
             return (probs, total_xent / total_weight)
 
         op = core.CreateOperator(
-            "SoftmaxWithLoss",
+            "SpatialSoftmaxWithLoss",
             ["X", "label"] + ([] if weights is None else ["weights"]),
             ["probs", "avgloss"],
-            spatial=1
         )
 
         inputs = [X, label] + ([] if weights is None else [weights])
@@ -450,6 +524,7 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
         # Initialize X and add 1e-2 for numerical stability
         W = 18
         H = 12
+        np.random.seed(2603)
         X = np.random.rand(n, D, H, W).astype(np.float32)
         X = X + 1e-2
 
@@ -482,10 +557,9 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
             return (probs, 0.0)
 
         op = core.CreateOperator(
-            "SoftmaxWithLoss",
+            "SpatialSoftmaxWithLoss",
             ["X", "label"] + ([] if weights is None else ["weights"]),
             ["probs", "avgloss"],
-            spatial=1
         )
 
         inputs = [X, label] + ([] if weights is None else [weights])
@@ -501,6 +575,7 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
     def test_softmax_with_loss_zero_weight(self, n, D, weighted, gc, dc):
         # n = number of examples, D = |labels|
         # Initialize X and add 1e-2 for numerical stability
+        np.random.seed(2603)
         X = np.random.rand(n, D).astype(np.float32)
         X = X + 1e-2
 
@@ -546,18 +621,16 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
 
         for _j in range(3):
             gpuop = core.CreateOperator(
-                "SoftmaxWithLoss",
+                "SpatialSoftmaxWithLoss",
                 ["X_gpu", "label_gpu"],
                 ["probs_gpu", "avgloss_gpu"],
-                spatial=1,
                 device_option=core.DeviceOption(caffe2_pb2.CUDA, 0)
             )
 
             cpuop = core.CreateOperator(
-                "SoftmaxWithLoss",
+                "SpatialSoftmaxWithLoss",
                 ["X_cpu", "label_cpu"],
                 ["probs_cpu", "avgloss_cpu"],
-                spatial=1,
                 device_option=core.DeviceOption(caffe2_pb2.CPU)
             )
 

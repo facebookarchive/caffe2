@@ -7,9 +7,9 @@ REGISTER_CPU_OPERATOR(VideoInput, VideoInputOp<CPUContext>);
 OPERATOR_SCHEMA(VideoInput)
     .NumInputs(0, 1)
     .NumOutputs(2)
-    .TensorInferenceFunction([](
-        const OperatorDef& def,
-        const vector<TensorShape>& /* unused */ in) {
+    .TensorInferenceFunction([](const OperatorDef& def,
+                                const vector<
+                                    TensorShape>& /* unused */ /*in*/) {
       vector<TensorShape> out(2);
       ArgumentHelper helper(def);
       int batch_size = helper.GetSingleArgument<int>("batch_size", 0);
@@ -21,11 +21,11 @@ OPERATOR_SCHEMA(VideoInput)
           vector<int>{batch_size, 3, length, crop, crop}, TensorProto::FLOAT);
       if (!multiple_label) {
         out[1] =
-            CreateTensorShape(vector<int>{1, batch_size}, TensorProto::FLOAT);
+            CreateTensorShape(vector<int>{1, batch_size}, TensorProto::INT32);
       } else {
         int num_of_labels = helper.GetSingleArgument<int>("num_of_labels", 0);
         out[1] = CreateTensorShape(
-            vector<int>{batch_size, num_of_labels}, TensorProto::FLOAT);
+            vector<int>{batch_size, num_of_labels}, TensorProto::INT32);
       }
       return out;
     });

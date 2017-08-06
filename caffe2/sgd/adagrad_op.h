@@ -13,8 +13,8 @@ void adagrad_update(
     float* nw,
     float* nh,
     float epsilon,
-    const float *lr,
-    Context* context) {
+    const float* lr,
+    Context* /*context*/) {
   for (auto i = 0; i < N; ++i) {
     float gi = g[i];
     float hi = nh[i] = h[i] + gi * gi;
@@ -75,8 +75,6 @@ class SparseAdagradOp final : public Operator<Context> {
   template <typename SIndex>
   bool DoRunWithType() {
     const auto* lr = Input(LR).template data<T>();
-    auto n = Input(GRAD).dim(0);
-
     const auto* indices = Input(INDICES).template data<SIndex>();
     const auto* gradIn = Input(GRAD).template data<T>();
     const auto* paramIn = Input(PARAM).template data<T>();
@@ -84,11 +82,12 @@ class SparseAdagradOp final : public Operator<Context> {
     auto* paramOut = Output(OUTPUT_PARAM)->template mutable_data<T>();
     auto* momentOut = Output(OUTPUT_MOMENT_1)->template mutable_data<T>();
 
+    auto n = Input(INDICES).size();
     if (n == 0) {
       return true;
     }
 
-    auto block_size = Input(GRAD).size_from_dim(1);
+    auto block_size = Input(GRAD).size() / n;
     for (auto i = 0; i < n; ++i) {
       auto idx = indices[i];
       if (block_size == 1) {
@@ -98,6 +97,27 @@ class SparseAdagradOp final : public Operator<Context> {
       } else {
         auto offsetI = i * block_size;
         auto offsetIdx = idx * block_size;
+
+#ifndef NDEBUG
+        CAFFE_ENFORCE_GE(
+            Input(PARAM).size(),
+            block_size + offsetIdx,
+            this->debug_def().input(PARAM),
+            ", out of bound,  idx:",
+            idx,
+            " for input i:",
+            i,
+            " and block size:",
+            block_size);
+        CAFFE_ENFORCE_GE(
+            Input(GRAD).size(),
+            block_size + offsetI,
+            this->debug_def().input(GRAD),
+            ", out of bound idx, idx:",
+            idx,
+            " for input i:",
+            i);
+#endif
         adagrad_update(
             block_size,
             paramIn + offsetIdx,

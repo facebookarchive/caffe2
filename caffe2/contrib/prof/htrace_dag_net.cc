@@ -9,8 +9,9 @@ namespace {
 
 class HTraceDAGNet : public DAGNetBase {
  public:
-  HTraceDAGNet(const NetDef& net_def, Workspace* ws) : DAGNetBase(net_def, ws) {
-    VLOG(1) << "Constructing HTrace DAG Net " << net_def.name();
+  HTraceDAGNet(const std::shared_ptr<const NetDef>& net_def, Workspace* ws)
+      : DAGNetBase(net_def, ws) {
+    VLOG(1) << "Constructing HTrace DAG Net " << net_def->name();
 
     for (auto& worker : workers_) {
       std::thread::id worker_id = worker.get_id();
@@ -48,10 +49,12 @@ class HTraceDAGNet : public DAGNetBase {
 
     bool success = true;
     for (const auto idx : chain) {
-      auto def = operator_nodes_[idx].operator_->def();
+      const auto& op = operator_nodes_[idx].operator_;
+      const auto& def = op->debug_def();
       const string& print_name =
-          (def.name().size() ? def.name() : (def.output_size() ? def.output(0)
-                                                               : "NO_OUTPUT"));
+          (def.name().size()
+               ? def.name()
+               : (op->OutputSize() ? def.output(0) : "NO_OUTPUT"));
       const string& op_type = def.type();
 
       htrace::Scope operator_scope(

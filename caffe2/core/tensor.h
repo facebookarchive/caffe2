@@ -283,13 +283,7 @@ class Tensor {
       }
 
       if (reset_tensor) {
-        data_.reset();
-        capacity_ = 0;
-        // If reserved is true and we changed tensor memory then it is fine
-        // to switch it to false, if Resize is called from Reserve then
-        // reserved_
-        // will be set to true at end of Reserve()
-        reserved_ = false;
+        FreeMemory();
       }
     }
   }
@@ -330,6 +324,20 @@ class Tensor {
 
   inline void Reshape(const vector<int>& dims) {
     Reshape(ToVectorTIndex(dims));
+  }
+
+  /**
+   * Release whatever memory the tensor was holding but keep size and type
+   * information. Subsequent call to mutable_data will trigger new memory
+   * allocation.
+   */
+  inline void FreeMemory() {
+    data_.reset();
+    capacity_ = 0;
+    // If reserved is true and we changed tensor memory then it is fine
+    // to switch it to false, if Resize is called from Reserve and it triggers
+    // FreeMemory() then reserved_ will be set to true at end of Reserve()
+    reserved_ = false;
   }
 
   /**
@@ -433,7 +441,7 @@ class Tensor {
     shares_data_ = true;
   }
 
-  bool shares_data() {
+  bool shares_data() const {
     return shares_data_;
   }
 
@@ -498,17 +506,18 @@ class Tensor {
         // destruction procedure.
         auto size = size_;
         auto dtor = meta_.dtor();
+        auto ptr_and_deleter = Context::New(size_ * meta_.itemsize());
+        auto deleter = std::move(ptr_and_deleter.second);
         data_.reset(
-            static_cast<void*>(Context::New(size_ * meta_.itemsize())),
-            [size, dtor](void* ptr) -> void {
-                dtor(ptr, size);
-                Context::Delete(ptr);
+            ptr_and_deleter.first, [size, dtor, deleter](void* ptr) -> void {
+              dtor(ptr, size);
+              deleter(ptr);
             });
         meta_.ctor()(data_.get(), size_);
       } else {
         // For fundamental type, new and delete is easier.
-        data_.reset(static_cast<void*>(Context::New(size_ * meta_.itemsize())),
-                    Context::Delete);
+        auto ptr_and_deleter = Context::New(size_ * meta_.itemsize());
+        data_.reset(ptr_and_deleter.first, std::move(ptr_and_deleter.second));
       }
       capacity_ = size_ * meta_.itemsize();
       return data_.get();
@@ -733,15 +742,25 @@ TypeMeta GetTensorType(void* c) {
 }
 
 // Shape call registry
-typedef vector<TIndex> (*ShapeCall)(void*, bool& shares_data, size_t& capacity);
-ShapeCall GetShapeCallFunction(CaffeTypeId id);
-void RegisterShapeCallFunction(CaffeTypeId id, ShapeCall c);
+typedef vector<TIndex> (*TensorInfoCall)(
+    const void*,
+    bool* shares_data,
+    size_t* capacity,
+    DeviceOption* device);
+TensorInfoCall GetTensorInfoFunction(CaffeTypeId id);
+void RegisterTensorInfoFunction(CaffeTypeId id, TensorInfoCall c);
 
 template <class Context>
-vector<TIndex> GetTensorShape(void* c, bool& shares_data, size_t& capacity) {
-  Tensor<Context>* tc = static_cast<Tensor<Context>*>(c);
-  shares_data = tc->shares_data();
-  capacity = tc->capacity_nbytes();
+vector<TIndex> GetTensorInfo(
+    const void* c,
+    bool* shares_data,
+    size_t* capacity,
+    DeviceOption* device) {
+  const Tensor<Context>* tc = static_cast<const Tensor<Context>*>(c);
+  *shares_data = tc->shares_data();
+  *capacity = tc->capacity_nbytes();
+  device->set_device_type(CPU);
+  device->set_cuda_gpu_id(0);
   return tc->dims();
 }
 
@@ -759,7 +778,6 @@ class TensorPrinter {
   template <class Context>
   void PrintMeta(const Tensor<Context>& tensor);
 
- private:
   string MetaStr(const Tensor<CPUContext>& tensor);
 
  private:

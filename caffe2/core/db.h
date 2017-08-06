@@ -79,7 +79,7 @@ class Transaction {
  */
 class DB {
  public:
-  DB(const string& source, Mode mode) : mode_(mode) {}
+  DB(const string& /*source*/, Mode mode) : mode_(mode) {}
   virtual ~DB() { }
   /**
    * Closes the database.
@@ -119,6 +119,23 @@ inline unique_ptr<DB> CreateDB(
   auto result = Caffe2DBRegistry()->Create(db_type, source, mode);
   VLOG(1) << ((!result) ? "not found db " : "found db ") << db_type;
   return result;
+}
+
+/**
+ * Returns whether or not a database exists given the database type and path.
+ */
+inline bool DBExists(const string& db_type, const string& full_db_name) {
+  // Warning! We assume that creating a DB throws an exception if the DB
+  // does not exist. If the DB constructor does not follow this design
+  // pattern,
+  // the returned output (the existence tensor) can be wrong.
+  try {
+    std::unique_ptr<DB> db(
+        caffe2::db::CreateDB(db_type, full_db_name, caffe2::db::READ));
+    return true;
+  } catch (...) {
+    return false;
+  }
 }
 
 /**
@@ -170,15 +187,19 @@ class DBReader {
     db_type_ = db_type;
     source_ = source;
     db_ = CreateDB(db_type_, source_, READ);
-    CAFFE_ENFORCE(db_,
-        "Cannot open db: ", source_, " of type ", db_type_);
-    CAFFE_ENFORCE(num_shards >= 1);
-    CAFFE_ENFORCE(shard_id >= 0);
-    CAFFE_ENFORCE(shard_id < num_shards);
-    num_shards_ = num_shards;
-    shard_id_ = shard_id;
-    cursor_ = db_->NewCursor();
-    SeekToFirst();
+    CAFFE_ENFORCE(db_, "Cannot open db: ", source_, " of type ", db_type_);
+    InitializeCursor(num_shards, shard_id);
+  }
+
+  void Open(
+      unique_ptr<DB>&& db,
+      const int32_t num_shards = 1,
+      const int32_t shard_id = 0) {
+    cursor_.reset();
+    db_.reset();
+    db_ = std::move(db);
+    CAFFE_ENFORCE(db_.get(), "Passed null db");
+    InitializeCursor(num_shards, shard_id);
   }
 
  public:
@@ -237,6 +258,16 @@ class DBReader {
   }
 
  private:
+  void InitializeCursor(const int32_t num_shards, const int32_t shard_id) {
+    CAFFE_ENFORCE(num_shards >= 1);
+    CAFFE_ENFORCE(shard_id >= 0);
+    CAFFE_ENFORCE(shard_id < num_shards);
+    num_shards_ = num_shards;
+    shard_id_ = shard_id;
+    cursor_ = db_->NewCursor();
+    SeekToFirst();
+  }
+
   void MoveToBeginning() const {
     cursor_->SeekToFirst();
     for (auto s = 0; s < shard_id_; s++) {

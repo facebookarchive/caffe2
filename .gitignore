@@ -5,15 +5,18 @@
 *.lo
 *.o
 *.cuo
+*.obj
 
 # Compiled Dynamic libraries
 *.so
 *.dylib
+*.dll
 
 # Compiled Static libraries
 *.lai
 *.la
 *.a
+*.lib
 
 # Compiled protocol buffers
 *.pb.h
@@ -22,6 +25,7 @@
 
 # Compiled python
 *.pyc
+*.pyd
 
 # Compiled MATLAB
 *.mex*
@@ -62,6 +66,7 @@ build
 build_host_protoc
 build_android
 build_ios
+build_*
 .build_debug/*
 .build_release/*
 distribute/*

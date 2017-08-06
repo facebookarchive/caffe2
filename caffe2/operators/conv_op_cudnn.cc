@@ -9,7 +9,7 @@ namespace caffe2 {
 // Earlier in the days Caffe sets the default cudnn workspace to 8MB. We bump
 // it up to 64MB in Caffe2, as this enables the use of Winograd in many cases,
 // something very beneficial to more recent CNN models.
-static constexpr size_t kCONV_CUDNN_WORKSPACE_LIMIT_BYTES = 64*1024*1024;
+static constexpr size_t kCONV_CUDNN_WORKSPACE_LIMIT_BYTES = 64 * 1024 * 1024;
 
 // Manually specified number of algorithms implemented in CuDNN.
 // This does not have any performance implications, as we will always find the
@@ -31,6 +31,14 @@ inline void LogCuDNNPerfStats(
             << stat.memory;
   }
 }
+
+// Easier indexing into force_algo_ vector
+enum {
+  ALGO_FWD = 0,
+  ALGO_WGRAD = 1,
+  ALGO_DGRAD = 2
+} algoIndex_t;
+
 }  // namespace
 
 class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
@@ -45,23 +53,40 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
             OperatorBase::GetSingleArgument<int>("exhaustive_search", 0)),
         deterministic_(
             OperatorBase::GetSingleArgument<int>("deterministic", 0)),
-        cudnn_state_(OperatorBase::GetSingleArgument<int>("cudnn_state", 0)) {
+        cudnn_state_(OperatorBase::GetSingleArgument<int>("cudnn_state", 0)),
+        force_algo_(OperatorBase::GetRepeatedArgument<int>("force_algo", vector<int>{-1,-1,-1})) {
+    CHECK(!deterministic_ || !exhaustive_search_);
     CAFFE_ENFORCE(group_ > 0);
     CAFFE_ENFORCE(!deterministic_ || !exhaustive_search_);
-    OPERATOR_NEEDS_FEATURE(
-        pad_t() == pad_b(),
-        "The current padding scheme leads to unequal padding on the top and "
-        "bottom, which is not supported by cudnn.");
-    OPERATOR_NEEDS_FEATURE(
-        pad_l() == pad_r(),
-        "The current padding scheme leads to unequal padding on the left "
-        "and right, which is not supported by cudnn.");
+    for (int i = 0; i < kernel_.size(); ++i) {
+      OPERATOR_NEEDS_FEATURE(
+          pads_[i] == pads_[kernel_.size() + i],
+          "The current padding scheme leads to unequal padding on the left "
+          "and right, which is not supported by cudnn.");
+    }
     // dilated convolution supported by some algorithms in cuDNN v6
 #if !(CUDNN_VERSION_MIN(6,0,0))
     OPERATOR_NEEDS_FEATURE(
         dilation_h() == 1 && dilation_w() == 1,
         "The cudnn convolution does not support dilation yet.");
 #endif
+
+    bool individual_force_algo = OperatorBase::HasArgument("force_algo_fwd") ||
+                                 OperatorBase::HasArgument("force_algo_dgrad") ||
+                                 OperatorBase::HasArgument("force_algo_wgrad");
+    if (OperatorBase::HasArgument("force_algo")) {
+      CAFFE_ENFORCE(!individual_force_algo,
+                   "Cannot specify both force_algo and any of",
+                   "force_algo_fwd, force_algo_dgrad, force_algo_wgrad");
+    } else {
+      force_algo_ = std::vector<int>{-1,-1,-1};
+      force_algo_[ALGO_FWD] =
+          OperatorBase::GetSingleArgument<int>("force_algo_fwd", -1);
+      force_algo_[ALGO_DGRAD] =
+          OperatorBase::GetSingleArgument<int>("force_algo_dgrad", -1);
+      force_algo_[ALGO_WGRAD] =
+          OperatorBase::GetSingleArgument<int>("force_algo_wgrad", -1);
+    }
 
     CUDNN_ENFORCE(cudnnCreateTensorDescriptor(&bottom_desc_));
     CUDNN_ENFORCE(cudnnCreateFilterDescriptor(&filter_desc_));
@@ -81,41 +106,67 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
   }
 
  protected:
-  // A helper function to set up the tensor 4d desriptor, depending on the order
+  // A helper function to set up the tensor Nd desriptor, depending on the order
   // the group and the type given.
   template <typename T>
-  void SetTensor4dDescriptorWithGroup(
+  void SetTensorNdDescriptorWithGroup(
+      int size,
       cudnnTensorDescriptor_t desc_,
       int N,
       int C,
       int H,
-      int W) {
+      int W,
+      int D) {
     switch (order_) {
       case StorageOrder::NHWC:
-        CUDNN_ENFORCE(cudnnSetTensor4dDescriptorEx(
-            desc_,
-            cudnnTypeWrapper<T>::type,
-            N,
-            C / group_,
-            H,
-            W,
-            H * W * C,
-            1,
-            W * C,
-            C));
+        if (size == 4) {
+          CUDNN_ENFORCE(cudnnSetTensor4dDescriptorEx(
+              desc_,
+              cudnnTypeWrapper<T>::type,
+              N,
+              C / group_,
+              H,
+              W,
+              H * W * C,
+              1,
+              W * C,
+              C));
+        } else {
+          C = C / group_;
+          vector<int> dims = {N, H, W, D, C};
+          vector<int> strides = {H * W * D * C, W * D * C, D * C, C, 1};
+          CUDNN_ENFORCE(cudnnSetTensorNdDescriptor(
+              desc_,
+              cudnnTypeWrapper<T>::type,
+              size > 3 ? size : 4,
+              dims.data(),
+              strides.data()));
+        }
         break;
       case StorageOrder::NCHW:
-        CUDNN_ENFORCE(cudnnSetTensor4dDescriptorEx(
-            desc_,
-            cudnnTypeWrapper<T>::type,
-            N,
-            C / group_,
-            H,
-            W,
-            C * H * W,
-            H * W,
-            W,
-            1));
+        if (size == 4) {
+          CUDNN_ENFORCE(cudnnSetTensor4dDescriptorEx(
+              desc_,
+              cudnnTypeWrapper<T>::type,
+              N,
+              C / group_,
+              H,
+              W,
+              C * H * W,
+              H * W,
+              W,
+              1));
+        } else {
+          C = C / group_;
+          vector<int> dims = {N, C, H, W, D};
+          vector<int> strides = {C * H * W * D, H * W * D, W * D, D, 1};
+          CUDNN_ENFORCE(cudnnSetTensorNdDescriptor(
+              desc_,
+              cudnnTypeWrapper<T>::type,
+              size > 3 ? size : 4,
+              dims.data(),
+              strides.data()));
+        }
         break;
       default:
         LOG(FATAL) << "Unknown storage order: " << order_;
@@ -138,6 +189,7 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
   bool exhaustive_search_;
   bool deterministic_;
   size_t cudnn_state_;
+  vector<int> force_algo_; // stored as FWD, dFILTER, dDATA
 };
 
 
@@ -203,12 +255,49 @@ bool CudnnConvOp::DoRunWithType() {
   auto* Y = Output(0);
 
   // Figure out the output shape
-  DCHECK_EQ(X.ndim(), 4);
-  DCHECK_EQ(filter.ndim(), 4);
+  CAFFE_ENFORCE(X.ndim() >= 3 && X.ndim() <= 5);
+  CAFFE_ENFORCE(filter.ndim() >= 3 && filter.ndim() <= 5);
   const int M = filter.dim32(0);
   ConvPoolOpBase<CUDAContext>::SetOutputSize(X, Y, M);
-  int N = 0, C = 0, H = 0, W = 0, H_out = 0, W_out = 0;
+  int N = 0, C = 0, H = 0, W = 0, D = 0, H_out = 0, W_out = 0, D_out = 0;
   int group_offset_X = 0, group_offset_Y = 0;
+
+  switch (order_) {
+    case StorageOrder::NHWC:
+      N = X.dim32(0);
+      H = X.dim32(1);
+      W = X.ndim() > 3 ? X.dim32(2) : 1;
+      D = X.ndim() > 4 ? X.dim32(3) : 1;
+      C = X.dim32(X.ndim() - 1);
+      H_out = Y->dim32(1);
+      W_out = Y->ndim() > 3 ? Y->dim32(2) : 1;
+      D_out = Y->ndim() > 4 ? Y->dim32(3) : 1;
+      for (int i = 0; i < kernel_.size(); ++i) {
+        CAFFE_ENFORCE_EQ(filter.dim32(i + 1), kernel_[i]);
+      }
+      CAFFE_ENFORCE_EQ(filter.dim32(filter.ndim() - 1), C / group_);
+      group_offset_X = C / group_;
+      group_offset_Y = M / group_;
+      break;
+    case StorageOrder::NCHW:
+      N = X.dim32(0);
+      C = X.dim32(1);
+      H = X.dim32(2);
+      W = X.ndim() > 3 ? X.dim32(3) : 1;
+      D = X.ndim() > 4 ? X.dim32(4) : 1;
+      H_out = Y->dim32(2);
+      W_out = Y->ndim() > 3 ? Y->dim32(3) : 1;
+      D_out = Y->ndim() > 4 ? Y->dim32(4) : 1;
+      CAFFE_ENFORCE_EQ(filter.dim32(1), C / group_);
+      for (int i = 0; i < kernel_.size(); ++i) {
+        CAFFE_ENFORCE_EQ(filter.dim32(i + 2), kernel_[i]);
+      }
+      group_offset_X = C / group_ * H * W * D;
+      group_offset_Y = M / group_ * H_out * W_out * D_out;
+      break;
+    default:
+      LOG(FATAL) << "Unknown storage order: " << order_;
+  }
 
   CAFFE_ENFORCE(
       C % group_ == 0,
@@ -219,28 +308,6 @@ bool CudnnConvOp::DoRunWithType() {
       "If you set group, the number of output channels should be divisible "
       "by group.");
 
-  switch (order_) {
-  case StorageOrder::NHWC:
-    N = X.dim32(0); H = X.dim32(1); W = X.dim32(2); C = X.dim32(3);
-    H_out = Y->dim32(1); W_out = Y->dim32(2);
-    CAFFE_ENFORCE_EQ(filter.dim32(1), kernel_h());
-    CAFFE_ENFORCE_EQ(filter.dim32(2), kernel_w());
-    CAFFE_ENFORCE_EQ(filter.dim32(3), C / group_);
-    group_offset_X = C / group_;
-    group_offset_Y = M / group_;
-    break;
-  case StorageOrder::NCHW:
-    N = X.dim32(0); C = X.dim32(1); H = X.dim32(2); W = X.dim32(3);
-    H_out = Y->dim32(2); W_out = Y->dim32(3);
-    CAFFE_ENFORCE_EQ(filter.dim32(1), C / group_);
-    CAFFE_ENFORCE_EQ(filter.dim32(2), kernel_h());
-    CAFFE_ENFORCE_EQ(filter.dim32(3), kernel_w());
-    group_offset_X = C / group_ * H * W;
-    group_offset_Y = M / group_ * H_out * W_out;
-    break;
-  default:
-    LOG(FATAL) << "Unknown storage order: " << order_;
-  }
   int group_offset_filter = filter.size() / group_;
 
   // Set up the cudnn algorithms & workspace if necessary
@@ -250,64 +317,132 @@ bool CudnnConvOp::DoRunWithType() {
     VLOG(1) << "Changing the cudnn descriptor configurations.";
     if (input_changed) {
       cudnn_input_dims_ = X.dims();
-      SetTensor4dDescriptorWithGroup<T_X>(bottom_desc_, N, C, H, W);
+      SetTensorNdDescriptorWithGroup<T_X>(
+          X.ndim(), bottom_desc_, N, C, H, W, D);
     }
     if (filter_changed) {
       cudnn_filter_dims_ = filter.dims();
-      CUDNN_ENFORCE(cudnnSetFilter4dDescriptor(
-          filter_desc_,
-          cudnnTypeWrapper<T_W>::type,
-          GetCudnnTensorFormat(order_),
-          M / group_,
-          C / group_,
-          kernel_h(),
-          kernel_w()));
-      if (InputSize() == 3) {
-        CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
-            bias_desc_,
+      if (kernel_.size() == 2) {
+        CUDNN_ENFORCE(cudnnSetFilter4dDescriptor(
+            filter_desc_,
+            cudnnTypeWrapper<T_W>::type,
             GetCudnnTensorFormat(order_),
-            cudnnTypeWrapper<T_B>::type,
-            1,
-            M,
-            1,
-            1));
+            M / group_,
+            C / group_,
+            kernel_h(),
+            kernel_w()));
+      } else {
+        vector<int> dims(filter.dims().begin(), filter.dims().end());
+        dims[0] /= group_;
+        order_ == StorageOrder::NCHW ? dims[1] /= group_
+                                     : dims[filter.ndim() - 1] /= group_;
+        dims[filter.ndim() - 1] /= group_;
+        CUDNN_ENFORCE(cudnnSetFilterNdDescriptor(
+            filter_desc_,
+            cudnnTypeWrapper<T_W>::type,
+            GetCudnnTensorFormat(order_),
+            dims.size(),
+            dims.data()));
+      }
+      if (InputSize() == 3) {
+        if (kernel_.size() == 2) {
+          CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
+              bias_desc_,
+              GetCudnnTensorFormat(order_),
+              cudnnTypeWrapper<T_B>::type,
+              1,
+              M,
+              1,
+              1));
+        } else {
+          std::vector<int> bias_dims(X.ndim(), 1);
+          bias_dims[1] = M;
+          std::vector<int> strides = {M, 1, 1, 1, 1, 1};
+          CUDNN_ENFORCE(cudnnSetTensorNdDescriptor(
+              bias_desc_,
+              cudnnTypeWrapper<T_B>::type,
+              X.ndim() > 3 ? X.ndim() : 4,
+              bias_dims.data(),
+              strides.data()));
+        }
       }
     }
     // Set the output
-    SetTensor4dDescriptorWithGroup<T_Y>(top_desc_, N, M, H_out, W_out);
-    // Set the output with descriptor useful for bias addition in one run
-    CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
-        top_desc_for_bias_,
-        GetCudnnTensorFormat(order_),
-        cudnnTypeWrapper<T_B>::type,
-        N,
-        M,
-        H_out,
-        W_out));
+    SetTensorNdDescriptorWithGroup<T_Y>(
+        X.ndim(), top_desc_, N, M, H_out, W_out, D_out);
+    // Set the output with descriptor useful for bias addition in one run.
+    if (kernel_.size() == 2) {
+      CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
+          top_desc_for_bias_,
+          GetCudnnTensorFormat(order_),
+          cudnnTypeWrapper<T_B>::type,
+          N,
+          M,
+          H_out,
+          W_out));
+    } else {
+      vector<int> dims = {N, M, H_out, W_out, D_out};
+      vector<int> strides = {M * H_out * W_out * D_out,
+                             H_out * W_out * D_out,
+                             H_out * D_out,
+                             D_out,
+                             1};
+      CUDNN_ENFORCE(cudnnSetTensorNdDescriptor(
+          top_desc_for_bias_,
+          cudnnTypeWrapper<T_B>::type,
+          X.ndim() > 3 ? X.ndim() : 4,
+          dims.data(),
+          strides.data()));
+    }
     // Set the convolution descriptor
 #if CUDNN_VERSION_MIN(6,0,0)
-    CUDNN_ENFORCE(cudnnSetConvolution2dDescriptor(
-        conv_desc_,
-        pad_t(),
-        pad_l(),
-        stride_h(),
-        stride_w(),
-        dilation_h(),
-        dilation_w(),
-        CUDNN_CROSS_CORRELATION,
-        cudnnTypeWrapper<MATH>::type));
+    if (kernel_.size() == 2) {
+      CUDNN_ENFORCE(cudnnSetConvolution2dDescriptor(
+          conv_desc_,
+          pad_t(),
+          pad_l(),
+          stride_h(),
+          stride_w(),
+          dilation_h(),
+          dilation_w(),
+          CUDNN_CROSS_CORRELATION,
+          cudnnTypeWrapper<MATH>::type));
+    } else {
+      CUDNN_ENFORCE(cudnnSetConvolutionNdDescriptor(
+          conv_desc_,
+          kernel_.size(),
+          pads_.data(),
+          stride_.data(),
+          dilation_.data(),
+          CUDNN_CROSS_CORRELATION,
+          cudnnTypeWrapper<MATH>::type));
+    }
 #else
-    CUDNN_ENFORCE(cudnnSetConvolution2dDescriptor(
-        conv_desc_,
-        pad_t(),
-        pad_l(),
-        stride_h(),
-        stride_w(),
-        1,
-        1,
-        CUDNN_CROSS_CORRELATION));
+    if (kernel_.size() == 2) {
+      CUDNN_ENFORCE(cudnnSetConvolution2dDescriptor(
+          conv_desc_,
+          pad_t(),
+          pad_l(),
+          stride_h(),
+          stride_w(),
+          1,
+          1,
+          CUDNN_CROSS_CORRELATION));
+    } else {
+      vector<int> ones(dilation_.size(), 1);
+      CUDNN_ENFORCE(cudnnSetConvolutionNdDescriptor(
+          conv_desc_,
+          kernel_.size(),
+          pads_.data(),
+          stride_.data(),
+          ones.data(),
+          CUDNN_CROSS_CORRELATION,
+          cudnnTypeWrapper<MATH>::type));
+    }
 #endif
-    if (deterministic_) {
+    if (force_algo_[ALGO_FWD] >= 0) {
+      algo_ = (cudnnConvolutionFwdAlgo_t)force_algo_[ALGO_FWD];
+    } else if (deterministic_) {
       algo_ = CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM;
     } else if (exhaustive_search_) {
       algo_ = algo_cache_.getAlgorithm(X.dims(), filter.dims(), [&]() {
@@ -388,8 +523,8 @@ bool CudnnConvOp::DoRunWithType() {
   if (InputSize() == 3) {
     auto& bias = Input(BIAS);
 
-    DCHECK_EQ(bias.ndim(), 1);
-    DCHECK_EQ(bias.dim32(0), M);
+    CAFFE_ENFORCE_EQ(bias.ndim(), 1);
+    CAFFE_ENFORCE_EQ(bias.dim32(0), M);
 
     CUDNN_ENFORCE(cudnnAddTensor(
         cudnn_wrapper_.inline_cudnn_handle(),
@@ -419,7 +554,9 @@ bool CudnnConvOp::RunOnDevice() {
                          float,      // Math
                          float16>();   // Y
   } else {
-    LOG(FATAL) << "Unsupported type inputs";
+    LOG(FATAL) << "Only float (32bit) and float16 are supported by "
+               << "cudnn convolution, but input " << debug_def().input(0)
+               << " has [" << Input(0).meta().name() << "]";
   }
   return true;
 }
@@ -433,11 +570,49 @@ bool CudnnConvGradientOp::DoRunWithType() {
   auto& dY = Input(OUTPUT_GRAD);
   auto* dfilter = Output(FILTER_GRAD);
 
-  DCHECK_EQ(X.ndim(), 4);
-  DCHECK_EQ(filter.ndim(), 4);
+  CAFFE_ENFORCE(X.ndim() >= 3 && X.ndim() <= 5);
+  CAFFE_ENFORCE(filter.ndim() >= 3 && filter.ndim() <= 5);
+
   const int M = filter.dim32(0);
-  int N = 0, C = 0, H = 0, W = 0, H_out = 0, W_out = 0;
+  int N = 0, C = 0, H = 0, W = 0, D = 0, H_out = 0, W_out = 0, D_out = 0;
   int group_offset_X = 0, group_offset_Y = 0;
+
+  switch (order_) {
+    case StorageOrder::NHWC:
+      N = X.dim32(0);
+      H = X.dim32(1);
+      W = X.ndim() > 3 ? X.dim32(2) : 1;
+      D = X.ndim() > 4 ? X.dim32(3) : 1;
+      C = X.dim32(X.ndim() - 1);
+      H_out = dY.dim32(1);
+      W_out = dY.ndim() > 3 ? dY.dim32(2) : 1;
+      D_out = dY.ndim() > 4 ? dY.dim32(3) : 1;
+      for (int i = 0; i < kernel_.size(); ++i) {
+        CAFFE_ENFORCE_EQ(filter.dim32(i + 1), kernel_[i]);
+      }
+      CAFFE_ENFORCE_EQ(filter.dim32(filter.ndim() - 1), C / group_);
+      group_offset_X = C / group_;
+      group_offset_Y = M / group_;
+      break;
+    case StorageOrder::NCHW:
+      N = X.dim32(0);
+      C = X.dim32(1);
+      H = X.dim32(2);
+      W = X.ndim() > 3 ? X.dim32(3) : 1;
+      D = X.ndim() > 4 ? X.dim32(4) : 1;
+      H_out = dY.dim32(2);
+      W_out = dY.ndim() > 3 ? dY.dim32(3) : 1;
+      D_out = dY.ndim() > 4 ? dY.dim32(4) : 1;
+      CAFFE_ENFORCE_EQ(filter.dim32(1), C / group_);
+      for (int i = 0; i < kernel_.size(); ++i) {
+        CAFFE_ENFORCE_EQ(filter.dim32(i + 2), kernel_[i]);
+      }
+      group_offset_X = C / group_ * H * W * D;
+      group_offset_Y = M / group_ * H_out * W_out * D_out;
+      break;
+    default:
+      LOG(FATAL) << "Unknown storage order: " << order_;
+  }
 
   CAFFE_ENFORCE(
       C % group_ == 0,
@@ -448,30 +623,16 @@ bool CudnnConvGradientOp::DoRunWithType() {
       "If you set group, the number of output channels should be divisible "
       "by group.");
 
-  switch (order_) {
-  case StorageOrder::NHWC:
-    N = X.dim32(0); H = X.dim32(1); W = X.dim32(2); C = X.dim32(3);
-    H_out = dY.dim32(1); W_out = dY.dim32(2);
-    CAFFE_ENFORCE_EQ(filter.dim32(1), kernel_h());
-    CAFFE_ENFORCE_EQ(filter.dim32(2), kernel_w());
-    CAFFE_ENFORCE_EQ(filter.dim32(3), C / group_);
-    group_offset_X = C / group_;
-    group_offset_Y = M / group_;
-    break;
-  case StorageOrder::NCHW:
-    N = X.dim32(0); C = X.dim32(1); H = X.dim32(2); W = X.dim32(3);
-    H_out = dY.dim32(2); W_out = dY.dim32(3);
-    CAFFE_ENFORCE_EQ(filter.dim32(1), C / group_);
-    CAFFE_ENFORCE_EQ(filter.dim32(2), kernel_h());
-    CAFFE_ENFORCE_EQ(filter.dim32(3), kernel_w());
-    group_offset_X = C / group_ * H * W;
-    group_offset_Y = M / group_ * H_out * W_out;
-    break;
-  default:
-    LOG(FATAL) << "Unknown storage order: " << order_;
-  }
   int group_offset_filter = filter.size() / group_;
-  ConvPoolOpBase<CUDAContext>::ComputePads({H, W});
+  if (kernel_.size() == 1) {
+    ConvPoolOpBase<CUDAContext>::ComputePads({H});
+  } else if (kernel_.size() == 2) {
+    ConvPoolOpBase<CUDAContext>::ComputePads({H, W});
+  } else if (kernel_.size() == 3) {
+    ConvPoolOpBase<CUDAContext>::ComputePads({H, W, D});
+  } else {
+    CAFFE_THROW("Unsupported kernel size:", kernel_.size());
+  }
   dfilter->ResizeLike(filter);
 
   // Set up the cudnn algorithms & workspace if necessary
@@ -481,69 +642,136 @@ bool CudnnConvGradientOp::DoRunWithType() {
     VLOG(1) << "Changing the cudnn descriptor configurations.";
     if (input_changed) {
       cudnn_input_dims_ = X.dims();
-      SetTensor4dDescriptorWithGroup<T_X>(bottom_desc_, N, C, H, W);
+      SetTensorNdDescriptorWithGroup<T_X>(
+          X.ndim(), bottom_desc_, N, C, H, W, D);
     }
     if (filter_changed) {
       cudnn_filter_dims_ = filter.dims();
-      CUDNN_ENFORCE(cudnnSetFilter4dDescriptor(
-          filter_desc_,
-          cudnnTypeWrapper<T_W>::type,
-          GetCudnnTensorFormat(order_),
-          M / group_,
-          C / group_,
-          kernel_h(),
-          kernel_w()));
-      if (!no_bias_) {
-        CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
-            bias_desc_,
+      if (kernel_.size() == 2) {
+        CUDNN_ENFORCE(cudnnSetFilter4dDescriptor(
+            filter_desc_,
+            cudnnTypeWrapper<T_W>::type,
             GetCudnnTensorFormat(order_),
-            cudnnTypeWrapper<T_B>::type,
-            1,
-            M,
-            1,
-            1));
+            M / group_,
+            C / group_,
+            kernel_h(),
+            kernel_w()));
+      } else {
+        vector<int> dims(filter.dims().begin(), filter.dims().end());
+        dims[0] /= group_;
+        order_ == StorageOrder::NCHW ? dims[1] /= group_
+                                     : dims[filter.ndim() - 1] /= group_;
+        CUDNN_ENFORCE(cudnnSetFilterNdDescriptor(
+            filter_desc_,
+            cudnnTypeWrapper<T_W>::type,
+            GetCudnnTensorFormat(order_),
+            dims.size(),
+            dims.data()));
+      }
+      if (!no_bias_) {
+        if (kernel_.size() == 2) {
+          CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
+              bias_desc_,
+              GetCudnnTensorFormat(order_),
+              cudnnTypeWrapper<T_B>::type,
+              1,
+              M,
+              1,
+              1));
+        } else {
+          std::vector<int> bias_dims(X.ndim(), 1);
+          bias_dims[1] = M;
+          std::vector<int> strides = {M, 1, 1, 1, 1, 1};
+          CUDNN_ENFORCE(cudnnSetTensorNdDescriptor(
+              bias_desc_,
+              cudnnTypeWrapper<T_B>::type,
+              X.ndim() > 3 ? X.ndim() : 4,
+              bias_dims.data(),
+              strides.data()));
+        }
       }
     }
     // Set the output
-    SetTensor4dDescriptorWithGroup<T_DX>(top_desc_, N, M, H_out, W_out);
-    // Set the output with descriptor useful for bias addition in one run
-    CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
-        top_desc_for_bias_,
-        GetCudnnTensorFormat(order_),
-        cudnnTypeWrapper<T_DB>::type,
-        N,
-        M,
-        H_out,
-        W_out));
+    SetTensorNdDescriptorWithGroup<T_DX>(
+        X.ndim(), top_desc_, N, M, H_out, W_out, D_out);
+    // Set the output with descriptor useful for bias addition in one run.
+    if (kernel_.size() == 2) {
+      CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
+          top_desc_for_bias_,
+          GetCudnnTensorFormat(order_),
+          cudnnTypeWrapper<T_B>::type,
+          N,
+          M,
+          H_out,
+          W_out));
+    } else {
+      vector<int> dims = {N, M, H_out, W_out, D_out};
+      vector<int> strides = {M * H_out * W_out * D_out,
+                             H_out * W_out * D_out,
+                             H_out * D_out,
+                             D_out,
+                             1};
+      CUDNN_ENFORCE(cudnnSetTensorNdDescriptor(
+          top_desc_for_bias_,
+          cudnnTypeWrapper<T_B>::type,
+          X.ndim() > 3 ? X.ndim() : 4,
+          dims.data(),
+          strides.data()));
+    }
     // Set the convolution descriptor
 #if CUDNN_VERSION_MIN(6,0,0)
-    CUDNN_ENFORCE(cudnnSetConvolution2dDescriptor(
-        conv_desc_,
-        pad_t(),
-        pad_l(),
-        stride_h(),
-        stride_w(),
-        dilation_h(),
-        dilation_w(),
-        CUDNN_CROSS_CORRELATION,
-        cudnnTypeWrapper<MATH>::type));
+    if (kernel_.size() == 2) {
+      CUDNN_ENFORCE(cudnnSetConvolution2dDescriptor(
+          conv_desc_,
+          pad_t(),
+          pad_l(),
+          stride_h(),
+          stride_w(),
+          dilation_h(),
+          dilation_w(),
+          CUDNN_CROSS_CORRELATION,
+          cudnnTypeWrapper<MATH>::type));
+    } else {
+      CUDNN_ENFORCE(cudnnSetConvolutionNdDescriptor(
+          conv_desc_,
+          kernel_.size(),
+          pads_.data(),
+          stride_.data(),
+          dilation_.data(),
+          CUDNN_CROSS_CORRELATION,
+          cudnnTypeWrapper<MATH>::type));
+    }
 #else
-    CUDNN_ENFORCE(cudnnSetConvolution2dDescriptor(
-        conv_desc_,
-        pad_t(),
-        pad_l(),
-        stride_h(),
-        stride_w(),
-        1,
-        1,
-        CUDNN_CROSS_CORRELATION));
+    if (kernel_.size() == 2) {
+      CUDNN_ENFORCE(cudnnSetConvolution2dDescriptor(
+          conv_desc_,
+          pad_t(),
+          pad_l(),
+          stride_h(),
+          stride_w(),
+          1,
+          1,
+          CUDNN_CROSS_CORRELATION));
+    } else {
+      vector<int> ones(dilation_.size(), 1);
+      CUDNN_ENFORCE(cudnnSetConvolutionNdDescriptor(
+          conv_desc_,
+          kernel_.size(),
+          pads_.data(),
+          stride_.data(),
+          ones.data(),
+          CUDNN_CROSS_CORRELATION,
+          cudnnTypeWrapper<MATH>::type));
+    }
 #endif
     // Set the workspace
 
     size_t bwd_filter_ws_size, bwd_data_ws_size;
 
-    if (deterministic_) {
-      bwd_data_algo_ = CUDNN_CONVOLUTION_BWD_DATA_ALGO_1;
+    // Choose dW algorithm
+    if (force_algo_[ALGO_WGRAD] >= 0) {
+      bwd_filter_algo_ = (cudnnConvolutionBwdFilterAlgo_t)force_algo_[ALGO_WGRAD];
+    } else if (deterministic_) {
       bwd_filter_algo_ = CUDNN_CONVOLUTION_BWD_FILTER_ALGO_1;
     } else if (exhaustive_search_) {
       bwd_filter_algo_ =
@@ -583,8 +811,25 @@ bool CudnnConvGradientOp::DoRunWithType() {
             LogCuDNNPerfStats(filter_perf_stat, returned_algo_count);
             return filter_perf_stat[0].algo;
           });
-
-      if (OutputSize() == 3 || (no_bias_ && (OutputSize() == 2))) {
+    } else {
+      // choose backward algorithm for filter
+      CUDNN_ENFORCE(cudnnGetConvolutionBackwardFilterAlgorithm(
+          cudnn_wrapper_.inline_cudnn_handle(),
+          bottom_desc_,
+          top_desc_,
+          conv_desc_,
+          filter_desc_,
+          CUDNN_CONVOLUTION_BWD_FILTER_SPECIFY_WORKSPACE_LIMIT,
+          cudnn_ws_nbytes_limit_,
+          &bwd_filter_algo_));
+    }
+    // Pick dX algo if needed
+    if (OutputSize() == 3 || (no_bias_ && (OutputSize() == 2))) {
+      if (force_algo_[ALGO_DGRAD] >= 0) {
+        bwd_data_algo_ = (cudnnConvolutionBwdDataAlgo_t)force_algo_[ALGO_DGRAD];
+      } else if (deterministic_) {
+        bwd_data_algo_ = CUDNN_CONVOLUTION_BWD_DATA_ALGO_1;
+      } else if (exhaustive_search_) {
         bwd_data_algo_ =
             data_algo_cache_.getAlgorithm(X.dims(), filter.dims(), [&]() {
               VLOG(1) << "CUDNN Convolution bwd: doing data exhaustive search.";
@@ -621,20 +866,7 @@ bool CudnnConvGradientOp::DoRunWithType() {
               LogCuDNNPerfStats(data_perf_stat, returned_algo_count);
               return data_perf_stat[0].algo;
             });
-      }
-    } else {
-      // choose backward algorithm for filter
-      CUDNN_ENFORCE(cudnnGetConvolutionBackwardFilterAlgorithm(
-          cudnn_wrapper_.inline_cudnn_handle(),
-          bottom_desc_,
-          top_desc_,
-          conv_desc_,
-          filter_desc_,
-          CUDNN_CONVOLUTION_BWD_FILTER_SPECIFY_WORKSPACE_LIMIT,
-          cudnn_ws_nbytes_limit_,
-          &bwd_filter_algo_));
-      // choose backward algo for data
-      if (OutputSize() == 3 || (no_bias_ && (OutputSize() == 2))) {
+      } else {
         CUDNN_ENFORCE(cudnnGetConvolutionBackwardDataAlgorithm(
             cudnn_wrapper_.inline_cudnn_handle(),
             filter_desc_,
@@ -646,6 +878,7 @@ bool CudnnConvGradientOp::DoRunWithType() {
             &bwd_data_algo_));
       }
     }
+
     // get workspace for backwards filter algorithm
     CUDNN_ENFORCE(cudnnGetConvolutionBackwardFilterWorkspaceSize(
         cudnn_wrapper_.inline_cudnn_handle(),

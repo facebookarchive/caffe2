@@ -59,7 +59,7 @@ class Reader(object):
         return nets, should_stop, fields
 
     """
-    Reader is a abstract class to be implemented in order to provide
+    Reader is an abstract class to be implemented in order to provide
     operations capable of iterating through a dataset or stream of data.
 
     A Reader must implement at least one operation, `read`, which
@@ -149,7 +149,7 @@ class Reader(object):
 
 class Writer(object):
     """
-    Writer is a abstract class to be implemented in order to provide
+    Writer is an abstract class to be implemented in order to provide
     operations capable of feeding a data stream or a dataset.
 
     A Writer must implement 2 operations:
@@ -223,7 +223,7 @@ class ReaderBuilder(object):
     def splits(self, net):
         raise NotImplementedError()
 
-    def new_reader(self, split_queue):
+    def new_reader(self, split_reader=None):
         raise NotImplementedError()
 
 
@@ -254,8 +254,8 @@ class PipedReaderBuilder(ReaderBuilder):
     def splits(self, net):
         return self._builder.splits(net)
 
-    def new_reader(self, split_queue):
-        output = self._piper(self._builder.new_reader(split_queue))
+    def new_reader(self, split_reader=None):
+        output = self._piper(self._builder.new_reader(split_reader))
         return output if isinstance(output, Reader) else output.reader()
 
 

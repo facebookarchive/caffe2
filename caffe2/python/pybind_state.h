@@ -5,6 +5,7 @@
 #include "caffe2/core/context.h"
 #include "caffe2/core/init.h"
 #include "caffe2/core/logging.h"
+#include "caffe2/core/memonger.h"
 #include "caffe2/core/net.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/core/scope_guard.h"
@@ -181,12 +182,34 @@ class TensorFeeder : public BlobFeederBase {
         for (int i = 0; i < tensor->size(); ++i) {
           char* str;
           Py_ssize_t strSize;
+#if PY_MAJOR_VERSION > 2
+          if (PyBytes_Check(input[i])) {
+            CAFFE_ENFORCE(
+                PyBytes_AsStringAndSize(input[i], &str, &strSize) != -1,
+                "Had a PyBytes object but cannot convert it to a string.");
+          } else if (PyUnicode_Check(input[i])) { // string
+            str = PyUnicode_AsUTF8AndSize(input[i], &strSize);
+            CAFFE_ENFORCE(
+                str,
+                "Had a PyUnicode object but cannot convert it to a string.");
+          } else {
+            CAFFE_THROW("Unsupported python object type passed into ndarray.");
+          }
+#else
           CAFFE_ENFORCE(
               PyBytes_AsStringAndSize(input[i], &str, &strSize) != -1,
               "Unsupported python object type passed into ndarray.");
+#endif // PY_MAJOR_VERSION > 2
           outPtr[i] = std::string(str, strSize);
         }
-      } break;
+        break;
+      }
+      case NPY_UNICODE:
+        CAFFE_THROW(
+            "You are feeding in a numpy array of unicode. Caffe2 C++ does not "
+            "support unicode yet. Please ensure that you are passing in bytes "
+            "instead of unicode strings.");
+        break;
       default:
         context.template CopyBytes<CPUContext, Context>(
             tensor->size() * meta.itemsize(),
@@ -208,30 +231,39 @@ struct Func;
 
 class PythonOpBase : public Operator<CPUContext> {
  public:
-  PythonOpBase(const OperatorDef& operator_def, Workspace* ws)
-      : Operator(operator_def, ws), ws_(ws) {}
+  PythonOpBase(
+      const OperatorDef& operator_def,
+      Workspace* ws,
+      const std::string& pickled_builder_arg_name);
 
   bool RunOnDevice() override final;
+  virtual ~PythonOpBase();
 
  protected:
-  virtual const python_detail::Func& getFunc() = 0;
+  virtual const python_detail::Func& getFunc(const std::string& token) = 0;
   Workspace* ws_;
+
+ private:
+  const std::string token_;
+  std::unique_ptr<python_detail::Func> built_func_;
 };
 
 class PythonOp final : public PythonOpBase {
  public:
-  using PythonOpBase::PythonOpBase;
+  PythonOp(const OperatorDef& operator_def, Workspace* ws)
+      : PythonOpBase(operator_def, ws, "pickled_builder") {}
 
  protected:
-  const python_detail::Func& getFunc() override;
+  const python_detail::Func& getFunc(const std::string& token) override;
 };
 
 class PythonGradientOp final : public PythonOpBase {
  public:
-  using PythonOpBase::PythonOpBase;
+  PythonGradientOp(const OperatorDef& operator_def, Workspace* ws)
+      : PythonOpBase(operator_def, ws, "pickled_grad_builder") {}
 
  protected:
-  const python_detail::Func& getFunc() override;
+  const python_detail::Func& getFunc(const std::string& token) override;
 };
 
 } // namespace python

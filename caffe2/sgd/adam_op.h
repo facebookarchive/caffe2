@@ -18,7 +18,7 @@ void adam_update(
     float eps_hat,
     float correction,
     const float* lr,
-    Context* context) {
+    Context* /*context*/) {
   for (auto i = 0; i < N; ++i) {
     float gi = g[i];
     float mi = nm[i] = m[i] * beta1 + gi * (1 - beta1);
@@ -42,7 +42,7 @@ void adam_compute(
     float eps_hat,
     float correction,
     const float* lr,
-    Context* context) {
+    Context* /*context*/) {
   for (auto i = 0; i < N; ++i) {
     float gi = g[i];
     float mi = nm[i] = m[i] * beta1 + gi * (1 - beta1);
@@ -136,8 +136,8 @@ class SparseAdamOp final : public Operator<Context> {
     const auto correction =
         std::sqrt(T(1.) - std::pow(beta2_, t)) / (T(1.) - std::pow(beta1_, t));
 
-    auto n = Input(GRAD).dim(0);
-    auto block_size = Input(GRAD).size() / n;
+    auto block_size = Input(PARAM).size() / Input(PARAM).dim(0);
+    auto n = Input(GRAD).size() / block_size;
 
     const auto* paramIn = Input(PARAM).template data<T>();
     const auto* indices = Input(INDICES).template data<SIndex>();
@@ -150,6 +150,7 @@ class SparseAdamOp final : public Operator<Context> {
 
     for (auto i = 0; i < n; ++i) {
       auto idx = indices[i];
+
       if (block_size == 1) {
         float gi = gradIn[i];
         float mi = moment1Out[idx] =
@@ -162,6 +163,28 @@ class SparseAdamOp final : public Operator<Context> {
       } else {
         auto offsetI = i * block_size;
         auto offsetIdx = idx * block_size;
+
+#ifndef NDEBUG
+        CAFFE_ENFORCE_GE(
+            Input(PARAM).size(),
+            block_size + offsetIdx,
+            this->debug_def().input(PARAM),
+            ", out of bound,  idx:",
+            idx,
+            " for input i:",
+            i,
+            " and block size:",
+            block_size);
+        CAFFE_ENFORCE_GE(
+            Input(GRAD).size(),
+            block_size + offsetI,
+            this->debug_def().input(GRAD),
+            ", out of bound idx, idx:",
+            idx,
+            " for input i:",
+            i);
+#endif
+
         adam_compute(
             block_size,
             paramIn + offsetIdx,

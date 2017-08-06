@@ -1,6 +1,7 @@
 #ifndef CAFFE2_CORE_OPERATOR_H_
 #define CAFFE2_CORE_OPERATOR_H_
 
+#include <array>
 #include <climits>
 #include <cstddef>
 #include <exception>
@@ -10,13 +11,14 @@
 #include "caffe2/core/blob.h"
 #include "caffe2/core/common.h"
 #include "caffe2/core/net.h"
+#include "caffe2/core/observer.h"
 #include "caffe2/core/operator_gradient.h"
 #include "caffe2/core/operator_schema.h"
 #include "caffe2/core/registry.h"
 #include "caffe2/core/tensor.h"
 #include "caffe2/core/workspace.h"
-#include "caffe2/utils/proto_utils.h"
 #include "caffe2/proto/caffe2.pb.h"
+#include "caffe2/utils/proto_utils.h"
 
 namespace caffe2 {
 
@@ -28,24 +30,31 @@ class OperatorBase {
   /** @brief Checks if the operator has an argument of the given name.
    */
   inline bool HasArgument(const string& name) const {
-    return arg_helper_.HasArgument(name);
+    CAFFE_ENFORCE(operator_def_, "operator_def was null!");
+    return ArgumentHelper::HasArgument(*operator_def_, name);
   }
 
   // Functions that deal with arguments. Basically, this allows us to map an
   // argument name to a specific type of argument that we are trying to access.
   template <typename T>
   inline T GetSingleArgument(const string& name, const T& default_value) const {
-    return arg_helper_.template GetSingleArgument<T>(name, default_value);
+    CAFFE_ENFORCE(operator_def_, "operator_def was null!");
+    return ArgumentHelper::GetSingleArgument<OperatorDef, T>(
+        *operator_def_, name, default_value);
   }
   template <typename T>
   inline bool HasSingleArgumentOfType(const string& name) const {
-    return arg_helper_.template HasSingleArgumentOfType<T>(name);
+    CAFFE_ENFORCE(operator_def_, "operator_def was null!");
+    return ArgumentHelper::HasSingleArgumentOfType<OperatorDef, T>(
+        *operator_def_, name);
   }
   template <typename T>
   inline vector<T> GetRepeatedArgument(
       const string& name,
       const vector<T>& default_value = {}) const {
-    return arg_helper_.template GetRepeatedArgument<T>(name, default_value);
+    CAFFE_ENFORCE(operator_def_, "operator_def was null!");
+    return ArgumentHelper::GetRepeatedArgument<OperatorDef, T>(
+        *operator_def_, name, default_value);
   }
 
   // Get the inputs and outputs as specific types.
@@ -55,9 +64,11 @@ class OperatorBase {
     try {
       return inputs_.at(idx)->template Get<T>();
     } catch (::caffe2::EnforceNotMet& enf) {
-      enf.AppendMessage(".\nOffending Blob name: ");
-      enf.AppendMessage(operator_def_.input(idx));
-      enf.AppendMessage(".\n");
+      if (has_debug_def()) {
+        enf.AppendMessage(".\nOffending Blob name: ");
+        enf.AppendMessage(debug_def().input(idx));
+        enf.AppendMessage(".\n");
+      }
       throw enf;
     }
   }
@@ -90,7 +101,7 @@ class OperatorBase {
   inline const vector<const Blob*>& Inputs() const { return inputs_; }
   inline const vector<Blob*>& Outputs() { return outputs_; }
 
-  virtual bool Run(int /* unused */ stream_id = 0) {
+  virtual bool Run(int /* unused */ /*stream_id*/ = 0) {
     CAFFE_NOT_IMPLEMENTED;
   }
 
@@ -99,12 +110,17 @@ class OperatorBase {
   }
 
   virtual void AddRelatedBlobInfo(EnforceNotMet* err) {
+    if (!has_debug_def()) {
+      return;
+    }
+
     bool found_input;
     if (err->caller() != nullptr) {
       for (int i = 0; i < inputs_.size(); i++) {
         if (inputs_[i]->GetRaw() == err->caller()) {
           found_input = true;
-          err->AppendMessage("\n** while accessing input: " + def().input(i));
+          err->AppendMessage(
+              "\n** while accessing input: " + debug_def().input(i));
           break;
         }
       }
@@ -113,25 +129,76 @@ class OperatorBase {
           if (found_input) {
             err->AppendMessage("\n OR ");
           }
-          err->AppendMessage("\n** while accessing output: " + def().output(i));
+          err->AppendMessage(
+              "\n** while accessing output: " + debug_def().output(i));
           break;
         }
       }
     }
   }
 
-  inline const OperatorDef& def() const {
-    return operator_def_;
-  }
-  inline const ArgumentHelper& arg_helper() const {
-    return arg_helper_;
+  inline const OperatorDef& debug_def() const {
+    CAFFE_ENFORCE(has_debug_def(), "operator_def was null!");
+    return *operator_def_;
   }
 
+  inline void set_debug_def(
+      const std::shared_ptr<const OperatorDef>& operator_def) {
+    operator_def_ = operator_def;
+  }
+
+  inline bool has_debug_def() const {
+    return operator_def_ != nullptr;
+  }
+
+ public:
+  void SetObserver(std::unique_ptr<ObserverBase<OperatorBase>> observer) {
+    observer_ = std::move(observer);
+  }
+
+  void RemoveObserver() {
+    observer_ = nullptr;
+  }
+
+  void RecordLastFailedOpNetPosition() {
+    if (net_position_ != kNoNetPositionSet) {
+      VLOG(1) << "Operator with id " << net_position_ << " failed";
+      operator_ws_->last_failed_op_net_position = net_position_;
+    } else {
+      VLOG(1) << "Failed operator doesn't have id set";
+    }
+  }
+
+  int net_position() const {
+    return net_position_;
+  }
+
+  void set_net_position(int idx) {
+    net_position_ = idx;
+  }
+
+  const DeviceOption& device_option() {
+    return device_option_;
+  }
+
+ public:
+  static constexpr int kNoNetPositionSet = -1;
+
+  ObserverBase<OperatorBase>* GetObserver() {
+    return observer_.get();
+  }
+
+ protected:
+  Workspace* operator_ws_;
+  std::unique_ptr<ObserverBase<OperatorBase>> observer_;
+
  private:
-  OperatorDef operator_def_;
-  ArgumentHelper arg_helper_;
+  std::shared_ptr<const OperatorDef> operator_def_;
+  DeviceOption device_option_;
   vector<const Blob*> inputs_;
   vector<Blob*> outputs_;
+
+  int net_position_{kNoNetPositionSet};
 
   DISABLE_COPY_AND_ASSIGN(OperatorBase);
 };
@@ -177,12 +244,12 @@ class Operator : public OperatorBase {
     // constructors will run on that device.
     context_.SwitchToDevice(0);
   }
-  virtual ~Operator() noexcept {}
+  ~Operator() noexcept override {}
 
   inline const Tensor<Context>& Input(int idx) {
     return OperatorBase::template Input<Tensor<Context> >(idx); }
   inline Tensor<Context>* Output(int idx) {
-    return OperatorBase::template Output<Tensor<Context> >(idx);
+    return OperatorBase::template Output<Tensor<Context>>(idx);
   }
 
   // The run function of Operator switches to the device, and then carries out
@@ -190,20 +257,29 @@ class Operator : public OperatorBase {
   // instead of Run().
   bool Run(int stream_id = 0) final {
     try {
-      context_.SwitchToDevice(stream_id);
-      bool started = RunOnDevice();
-      bool finished = context_.FinishDeviceComputation();
-      if (!finished) {
-        // FinishDeviceComputation() returning error basically means that there
-        // is something wrong with the device (like CUDA) that usually cannot be
-        // recovered, so we should log FATAL.
-        LOG(FATAL) << "Computation on device returned error in operator\n"
-                   << ProtoDebugString(this->def());
+      if (observer_) {
+        observer_->Start();
       }
-      return (started && finished);
+      context_.SwitchToDevice(stream_id);
+      bool result = RunOnDevice();
+      if (!result) {
+        this->RecordLastFailedOpNetPosition();
+      }
+      context_.FinishDeviceComputation(); // throws on error
+      if (observer_) {
+        observer_->Stop();
+      }
+      return result;
     } catch (EnforceNotMet& err) {
-      err.AppendMessage("Error from operator: \n" + ProtoDebugString(def()));
-      AddRelatedBlobInfo(&err);
+      if (has_debug_def()) {
+        err.AppendMessage(
+            "Error from operator: \n" + ProtoDebugString(debug_def()));
+        AddRelatedBlobInfo(&err);
+      }
+      this->RecordLastFailedOpNetPosition();
+      throw;
+    } catch (...) {
+      this->RecordLastFailedOpNetPosition();
       throw;
     }
   }
@@ -211,10 +287,21 @@ class Operator : public OperatorBase {
   bool RunAsync(int stream_id = 0) final {
     try {
       context_.SwitchToDevice(stream_id);
-      return RunOnDevice();
+      auto result = RunOnDevice();
+      if (!result) {
+        this->RecordLastFailedOpNetPosition();
+      }
+      return result;
     } catch (EnforceNotMet& err) {
-      err.AppendMessage("Error from operator: \n" + ProtoDebugString(def()));
-      AddRelatedBlobInfo(&err);
+      if (has_debug_def()) {
+        err.AppendMessage(
+            "Error from operator: \n" + ProtoDebugString(debug_def()));
+        AddRelatedBlobInfo(&err);
+      }
+      this->RecordLastFailedOpNetPosition();
+      throw;
+    } catch (...) {
+      this->RecordLastFailedOpNetPosition();
       throw;
     }
   }
@@ -230,7 +317,6 @@ class Operator : public OperatorBase {
   /* using override */ using OperatorBase::GetSingleArgument;       \
   /* using override */ using OperatorBase::HasSingleArgumentOfType; \
   /* using override */ using OperatorBase::GetRepeatedArgument;     \
-  /* using override */ using OperatorBase::def;                     \
   /* using override */ using OperatorBase::InputIsType;             \
   /* using override */ using OperatorBase::InputSize;               \
   /* using override */ using OperatorBase::OutputSize
@@ -316,7 +402,7 @@ struct DispatchHelper<FixedValues<FirstVal, Values...>, ExtraArgs...> {
 template <typename... ExtraArgs>
 struct DispatchHelper<FixedValues<>, ExtraArgs...> {
   template <typename Op>
-  static bool call(Op* op, TIndex size) {
+  static bool call(Op* op, TIndex /*size*/) {
     return op->template DoRunWithValue<ExtraArgs..., -1>();
   }
 };
@@ -340,6 +426,10 @@ struct DispatchHelper<FixedValues<>, ExtraArgs...> {
     static bool call(Op* op, const Tensor<Context>& tensor) {                  \
       return call<Op>(op, tensor.meta());                                      \
     }                                                                          \
+    template <typename Op>                                                     \
+    static bool call(Op* op, const Blob& blob) {                               \
+      return call<Op>(op, blob.meta());                                        \
+    }                                                                          \
   };                                                                           \
                                                                                \
   template <typename... ExtraArgs>                                             \
@@ -352,6 +442,10 @@ struct DispatchHelper<FixedValues<>, ExtraArgs...> {
     static bool call(Op* op, const Tensor<Context>& tensor) {                  \
       return call<Op>(op, tensor.meta());                                      \
     }                                                                          \
+    template <typename Op>                                                     \
+    static bool call(Op* op, const Blob& blob) {                               \
+      return call<Op>(op, blob.meta());                                        \
+    }                                                                          \
   };                                                                           \
                                                                                \
   template <typename... ExtraArgs>                                             \
@@ -359,12 +453,16 @@ struct DispatchHelper<FixedValues<>, ExtraArgs...> {
       TensorTypes<GenericTensorImplementation>,                                \
       ExtraArgs...> {                                                          \
     template <typename Op>                                                     \
-    static bool call(Op* op, const TypeMeta& meta) {                           \
+    static bool call(Op* op, const TypeMeta&) {                                \
       return op->template DoRunWithOtherType<ExtraArgs...>();                  \
     }                                                                          \
     template <typename Op, typename Context>                                   \
     static bool call(Op* op, const Tensor<Context>& tensor) {                  \
       return call<Op>(op, tensor.meta());                                      \
+    }                                                                          \
+    template <typename Op>                                                     \
+    static bool call(Op* op, const Blob& blob) {                               \
+      return call<Op>(op, blob.meta());                                        \
     }                                                                          \
   };
 CAFFE2_DEFINE_TENSOR_TYPES_DISPATCHER(
@@ -421,7 +519,11 @@ CAFFE_DECLARE_REGISTRY(
     Workspace*);
 #define REGISTER_CPU_OPERATOR_CREATOR(key, ...) \
   CAFFE_REGISTER_CREATOR(CPUOperatorRegistry, key, __VA_ARGS__)
-#define REGISTER_CPU_OPERATOR(name, ...) \
+#define REGISTER_CPU_OPERATOR(name, ...)                           \
+  extern void CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name();      \
+  static void CAFFE2_UNUSED CAFFE_ANONYMOUS_VARIABLE_CPU##name() { \
+    CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name();                \
+  }                                                                \
   CAFFE_REGISTER_CLASS(CPUOperatorRegistry, name, __VA_ARGS__)
 #define REGISTER_CPU_OPERATOR_STR(str_name, ...) \
   CAFFE_REGISTER_TYPED_CLASS(CPUOperatorRegistry, str_name, __VA_ARGS__)
@@ -436,7 +538,11 @@ CAFFE_DECLARE_REGISTRY(
     Workspace*);
 #define REGISTER_CUDA_OPERATOR_CREATOR(key, ...) \
   CAFFE_REGISTER_CREATOR(CUDAOperatorRegistry, key, __VA_ARGS__)
-#define REGISTER_CUDA_OPERATOR(name, ...) \
+#define REGISTER_CUDA_OPERATOR(name, ...)                           \
+  extern void CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name();       \
+  static void CAFFE2_UNUSED CAFFE_ANONYMOUS_VARIABLE_CUDA##name() { \
+    CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name();                 \
+  }                                                                 \
   CAFFE_REGISTER_CLASS(CUDAOperatorRegistry, name, __VA_ARGS__)
 #define REGISTER_CUDA_OPERATOR_STR(str_name, ...) \
   CAFFE_REGISTER_TYPED_CLASS(CUDAOperatorRegistry, str_name, __VA_ARGS__)
@@ -502,7 +608,9 @@ class UnsupportedOperatorFeature : public std::exception {
 // Creates an operator with the given operator definition.
 // Throws on error and never returns nullptr
 unique_ptr<OperatorBase> CreateOperator(
-    const OperatorDef& operator_def, Workspace* ws);
+    const OperatorDef& operator_def,
+    Workspace* ws,
+    int net_position = OperatorBase::kNoNetPositionSet);
 
 TensorShapes InferBlobShapesAndTypesFromWorkspace(
     Workspace* ws,
@@ -511,6 +619,10 @@ TensorShapes InferBlobShapesAndTypesFromWorkspace(
 TensorShapes InferBlobShapesAndTypesFromMap(
     const CaffeMap<std::string, std::vector<TIndex>>& blob_dimensions,
     const vector<std::unique_ptr<NetDef>>& nets);
+
+std::map<string, std::pair<DeviceOption, DeviceOption>> ValidateTensorDevices(
+    OperatorBase& op,
+    const OperatorDef& op_def);
 
 }  // namespace caffe2
 

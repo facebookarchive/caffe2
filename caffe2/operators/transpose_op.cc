@@ -93,7 +93,6 @@ bool TransposeOp<CPUContext>::DoRunWithType() {
   return true;
 }
 
-namespace {
 REGISTER_CPU_OPERATOR(Transpose, TransposeOp<CPUContext>);
 
 OPERATOR_SCHEMA(Transpose)
@@ -153,7 +152,7 @@ class GetTransposeGradient : public GradientMakerBase {
     auto ops = SingleGradientDef(
         "Transpose", "", vector<string>{GO(0)}, vector<string>{GI(0)});
     ops[0].mutable_arg()->CopyFrom(Def().arg());
-    if (HasArgument(Def(), "axes")) {
+    if (ArgumentHelper::HasArgument(Def(), "axes")) {
       // If axes is specified, we will need to figure out the inverse index.
       const Argument& old_axes = GetArgument(Def(), "axes");
       const int axes_size = old_axes.ints_size();
@@ -166,5 +165,4 @@ class GetTransposeGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(Transpose, GetTransposeGradient);
-} // namespace
 } // namespace caffe2

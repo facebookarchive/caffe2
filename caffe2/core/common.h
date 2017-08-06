@@ -63,7 +63,11 @@ using std::vector;
 #define CAFFE_NOT_IMPLEMENTED CAFFE_THROW("Not Implemented.")
 
 // suppress an unused variable.
-#define UNUSED_VARIABLE __attribute__((unused))
+#ifndef _MSC_VER
+#define CAFFE2_UNUSED __attribute__((__unused__))
+#else
+#define CAFFE2_UNUSED
+#endif //_MSC_VER
 
 // Disable the copy and assignment operator for a class. Note that this will
 // disable the usage of the class in std containers.
@@ -197,7 +201,7 @@ class SkipIndices {
 template <>
 class SkipIndices<> {
  public:
-  static inline bool Contains(const int i) {
+  static inline bool Contains(const int /*i*/) {
     return false;
   }
 };

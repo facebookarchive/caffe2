@@ -8,15 +8,23 @@ bool SpatialBNOp<CPUContext>::RunOnDevice() {
   const auto& scale = Input(SCALE);
   const auto& bias = Input(BIAS);
 
-  DCHECK_EQ(X.ndim(), 4);
+  CAFFE_ENFORCE(X.ndim() >= 3 && X.ndim() <= 5);
   const int N = X.dim32(0);
-  const int C = (order_ == StorageOrder::NCHW ? X.dim32(1) : X.dim32(3));
+  const int C =
+      (order_ == StorageOrder::NCHW ? X.dim32(1) : X.dim32(X.ndim() - 1));
   const int H = (order_ == StorageOrder::NCHW ? X.dim32(2) : X.dim32(1));
-  const int W = (order_ == StorageOrder::NCHW ? X.dim32(3) : X.dim32(2));
-  DCHECK_EQ(scale.ndim(), 1);
-  DCHECK_EQ(bias.ndim(), 1);
-  DCHECK_EQ(scale.dim32(0), C);
-  DCHECK_EQ(bias.dim32(0), C);
+  const int W = X.ndim() > 3
+      ? (order_ == StorageOrder::NCHW ? X.dim32(3) : X.dim32(2))
+      : 1;
+  const int D = X.ndim() > 4
+      ? (order_ == StorageOrder::NCHW ? X.dim32(4) : X.dim32(3))
+      : 1;
+
+  const int sample_size = H * W * D;
+  CAFFE_ENFORCE_EQ(scale.ndim(), 1);
+  CAFFE_ENFORCE_EQ(bias.ndim(), 1);
+  CAFFE_ENFORCE_EQ(scale.dim32(0), C);
+  CAFFE_ENFORCE_EQ(bias.dim32(0), C);
 
   ConstEigenVectorArrayMap<float> scale_arr(scale.data<float>(), C);
   ConstEigenVectorArrayMap<float> bias_arr(bias.data<float>(), C);
@@ -42,27 +50,27 @@ bool SpatialBNOp<CPUContext>::RunOnDevice() {
     var.setZero();
     switch (order_) {
       case StorageOrder::NCHW: {
-        ConstEigenArrayMap<float> X_arr(X.data<float>(), H * W, N * C);
+        ConstEigenArrayMap<float> X_arr(X.data<float>(), sample_size, N * C);
         for (int nc = 0; nc < N * C; ++nc) {
           mean(nc % C) += X_arr.col(nc).sum();
         }
-        mean /= N * H * W;
+        mean /= N * sample_size;
         for (int nc = 0; nc < N * C; ++nc) {
           var(nc % C) += (X_arr.col(nc) - mean(nc % C)).matrix().squaredNorm();
         }
-        var /= N * H * W;
+        var /= N * sample_size;
         break;
       }
       case StorageOrder::NHWC: {
-        ConstEigenArrayMap<float> X_arr(X.data<float>(), C, N * H * W);
-        for (int i = 0; i < N * H * W; ++i) {
+        ConstEigenArrayMap<float> X_arr(X.data<float>(), C, N * sample_size);
+        for (int i = 0; i < N * sample_size; ++i) {
           mean += X_arr.col(i);
         }
-        mean /= N * H * W;
-        for (int i = 0; i < N * H * W; ++i) {
+        mean /= N * sample_size;
+        for (int i = 0; i < N * sample_size; ++i) {
           var += (X_arr.col(i) - mean) * (X_arr.col(i) - mean);
         }
-        var /= N * H * W;
+        var /= N * sample_size;
         break;
       }
       default:
@@ -75,12 +83,14 @@ bool SpatialBNOp<CPUContext>::RunOnDevice() {
     // Check if they are initialized
     if (!running_mean->size()) {
       running_mean->Resize(C);
-      EigenVectorArrayMap<float> running_mean_map(running_mean->mutable_data<float>(), C);
+      EigenVectorArrayMap<float> running_mean_map(
+          running_mean->mutable_data<float>(), C);
       running_mean_map.setZero();
     }
     if (!running_var->size()) {
       running_var->Resize(C);
-      EigenVectorArrayMap<float> running_var_map(running_var->mutable_data<float>(), C);
+      EigenVectorArrayMap<float> running_var_map(
+          running_var->mutable_data<float>(), C);
       running_var_map.setZero();
     }
     EigenVectorArrayMap<float> running_mean_arr(
@@ -118,16 +128,17 @@ bool SpatialBNOp<CPUContext>::RunOnDevice() {
       bias_arr - mean_arr * inv_std * scale_arr;
   switch (order_) {
     case StorageOrder::NHWC: {
-      EigenArrayMap<float>(Y->mutable_data<float>(), C, N * H * W) =
-          (ConstEigenArrayMap<float>(X.data<float>(), C, N * H * W).colwise() *
+      EigenArrayMap<float>(Y->mutable_data<float>(), C, N * sample_size) =
+          (ConstEigenArrayMap<float>(X.data<float>(), C, N * sample_size)
+               .colwise() *
            new_scale)
               .colwise() +
           new_bias;
       break;
     }
     case StorageOrder::NCHW: {
-      EigenArrayMap<float> Y_arr(Y->mutable_data<float>(), H * W, N * C);
-      ConstEigenArrayMap<float> X_arr(X.data<float>(), H * W, N * C);
+      EigenArrayMap<float> Y_arr(Y->mutable_data<float>(), sample_size, N * C);
+      ConstEigenArrayMap<float> X_arr(X.data<float>(), sample_size, N * C);
       for (int nc = 0; nc < N * C; ++nc) {
         Y_arr.col(nc) = X_arr.col(nc) * new_scale(nc % C) + new_bias(nc % C);
       }
@@ -147,30 +158,31 @@ OPERATOR_SCHEMA(SpatialBN)
     .NumOutputs({1, 5})
     .EnforceInplace({{3, 1}, {4, 2}})
     .TensorInferenceFunction(
-          [](const OperatorDef& def, const vector<TensorShape>& in) {
-              ArgumentHelper helper(def);
-              bool is_test = helper.GetSingleArgument<int>("is_test", 0);
+        [](const OperatorDef& def, const vector<TensorShape>& in) {
+          ArgumentHelper helper(def);
+          bool is_test = helper.GetSingleArgument<int>("is_test", 0);
 
-              if (!is_test) {
-                vector<TensorShape> out;
-                StorageOrder order = StringToStorageOrder(
-                    helper.GetSingleArgument<string>("order", "NCHW"));
-                const TensorShape &X = in[0];
-                const int N =  X.dims(0);
-                const int C = (order == StorageOrder::NCHW ? X.dims(1) : X.dims(3));
+          if (!is_test) {
+            vector<TensorShape> out;
+            StorageOrder order = StringToStorageOrder(
+                helper.GetSingleArgument<string>("order", "NCHW"));
+            const TensorShape& X = in[0];
+            const int C =
+                (order == StorageOrder::NCHW ? X.dims(1)
+                                             : X.dims(X.dims_size() - 1));
 
-                out.push_back(in[0]);
-                TensorShape meanvar_tp =
-                  CreateTensorShape(vector<int> {C}, TensorProto::FLOAT);
-                out.push_back(meanvar_tp); // RUNNING_MEAN
-                out.push_back(meanvar_tp); // RUNNING_MEAN
-                out.push_back(meanvar_tp); // SAVED_MEAN
-                out.push_back(meanvar_tp); // SAVED_VAR
-                return out;
-              } else {
-                return vector<TensorShape> {in[0]};
-              }
-          })
+            out.push_back(in[0]);
+            TensorShape meanvar_tp =
+                CreateTensorShape(vector<int>{C}, TensorProto::FLOAT);
+            out.push_back(meanvar_tp); // RUNNING_MEAN
+            out.push_back(meanvar_tp); // RUNNING_MEAN
+            out.push_back(meanvar_tp); // SAVED_MEAN
+            out.push_back(meanvar_tp); // SAVED_VAR
+            return out;
+          } else {
+            return vector<TensorShape>{in[0]};
+          }
+        })
     .SetDoc(R"DOC(
 Carries out spatial batch normalization as described in the paper
 https://arxiv.org/abs/1502.03167. Depending on the mode it is being run,
@@ -185,6 +197,10 @@ Output case #2: Y (test mode)
         "If set to nonzero, run spatial batch normalization in test mode.")
     .Arg("epsilon", "The epsilon value to use to avoid division by zero.")
     .Arg("order", "A StorageOrder string.")
+    .Arg(
+        "momentum",
+        "Factor used in computing the running mean and variance."
+        "e.g., running_mean = running_mean * momentum + mean * (1 - momentum)")
     .Input(
         0,
         "X",

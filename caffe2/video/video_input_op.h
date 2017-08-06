@@ -35,13 +35,13 @@ class VideoInputOp final : public PrefetchOperator<Context> {
   bool GetClipAndLabelFromDBValue(
       const std::string& value,
       float*& buffer,
-      float* label_data,
+      int* label_data,
       std::mt19937* randgen);
 
   void DecodeAndTransform(
       const std::string value,
       float* clip_data,
-      float* label_data,
+      int* label_data,
       const int crop_size,
       const bool mirror,
       const float mean,
@@ -176,23 +176,28 @@ template <class Context>
 bool VideoInputOp<Context>::GetClipAndLabelFromDBValue(
     const string& value,
     float*& buffer,
-    float* label_data,
+    int* label_data,
     std::mt19937* randgen) {
   TensorProtos protos;
   CAFFE_ENFORCE(protos.ParseFromString(value));
   const TensorProto& video_proto = protos.protos(0);
   const TensorProto& label_proto = protos.protos(1);
-  const TensorProto& start_frm_proto = protos.protos(2);
+
+  int start_frm = -1;
+  if (!temporal_jitter_) {
+    const TensorProto& start_frm_proto = protos.protos(2);
+    start_frm = start_frm_proto.int32_data(0);
+  }
 
   // assign labels
   if (!multiple_label_) {
-    label_data[0] = static_cast<float>(label_proto.int32_data(0));
+    label_data[0] = label_proto.int32_data(0);
   } else {
     // For multiple label case, output label is a binary vector
     // where presented concepts are makred 1
-    memset(label_data, 0, sizeof(float) * num_of_labels_);
+    memset(label_data, 0, sizeof(int) * num_of_labels_);
     for (int i = 0; i < label_proto.int32_data_size(); i++) {
-      label_data[label_proto.int32_data(i)] = 1.f;
+      label_data[label_proto.int32_data(i)] = 1;
     }
   }
 
@@ -210,7 +215,7 @@ bool VideoInputOp<Context>::GetClipAndLabelFromDBValue(
       DecodeClipFromMemoryBuffer(
           const_cast<char*>(encoded_video_str.data()),
           encoded_size,
-          temporal_jitter_ ? -1 : protos.protos(2).int32_data(0),
+          start_frm,
           length_,
           scale_h_,
           scale_w_,
@@ -221,9 +226,13 @@ bool VideoInputOp<Context>::GetClipAndLabelFromDBValue(
       // encoded string contains an absolute path to a local file or folder
       std::string filename = encoded_video_str;
       if (use_image_) {
+        CAFFE_ENFORCE(
+          !temporal_jitter_,
+          "Temporal jittering is not suported for image sequence input"
+        );
         CHECK(ReadClipFromFrames(
             filename,
-            start_frm_proto.int32_data(0),
+            start_frm,
             im_extension_,
             length_,
             scale_h_,
@@ -233,7 +242,7 @@ bool VideoInputOp<Context>::GetClipAndLabelFromDBValue(
       } else {
         if (temporal_jitter_) {
           int num_of_frames = GetNumberOfFrames(filename);
-          int start_frm = std::uniform_int_distribution<>(
+          start_frm = std::uniform_int_distribution<>(
               0, num_of_frames - length_ * sampling_rate_ + 1)(*randgen);
           CHECK(DecodeClipFromVideoFile(
               filename,
@@ -246,7 +255,7 @@ bool VideoInputOp<Context>::GetClipAndLabelFromDBValue(
         } else {
           CHECK(DecodeClipFromVideoFile(
               filename,
-              start_frm_proto.int32_data(0),
+              start_frm,
               length_,
               scale_h_,
               scale_w_,
@@ -259,7 +268,7 @@ bool VideoInputOp<Context>::GetClipAndLabelFromDBValue(
     DecodeClipFromMemoryBuffer(
         video_proto.byte_data().data(),
         video_proto.byte_data().size(),
-        temporal_jitter_ ? -1 : protos.protos(2).int32_data(0),
+        start_frm,
         length_,
         scale_h_,
         scale_w_,
@@ -276,7 +285,7 @@ template <class Context>
 void VideoInputOp<Context>::DecodeAndTransform(
     const std::string value,
     float* clip_data,
-    float* label_data,
+    int* label_data,
     const int crop_size,
     const bool mirror,
     const float mean,
@@ -288,22 +297,24 @@ void VideoInputOp<Context>::DecodeAndTransform(
   // Decode the video from memory or read from a local file
   CHECK(GetClipAndLabelFromDBValue(value, buffer, label_data, randgen));
 
-  ClipTransform(
-      buffer,
-      3,
-      length_,
-      scale_h_,
-      scale_w_,
-      crop_size,
-      mirror,
-      mean,
-      std,
-      clip_data,
-      randgen,
-      mirror_this_clip,
-      is_test_);
+  if (buffer) {
+    ClipTransform(
+        buffer,
+        3,
+        length_,
+        scale_h_,
+        scale_w_,
+        crop_size,
+        mirror,
+        mean,
+        std,
+        clip_data,
+        randgen,
+        mirror_this_clip,
+        is_test_);
 
-  delete[] buffer;
+    delete[] buffer;
+  }
 }
 
 template <class Context>
@@ -316,7 +327,7 @@ bool VideoInputOp<Context>::Prefetch() {
 
   // Call mutable_data() once to allocate the underlying memory.
   prefetched_clip_.mutable_data<float>();
-  prefetched_label_.mutable_data<float>();
+  prefetched_label_.mutable_data<int>();
 
   // Prefetching handled with a thread pool of "decode_threads" threads.
   std::mt19937 meta_randgen(time(nullptr));
@@ -330,7 +341,7 @@ bool VideoInputOp<Context>::Prefetch() {
     std::mt19937* randgen = &randgen_per_thread[item_id % num_decode_threads_];
 
     // get the label data pointer for the item_id -th example
-    float* label_data = prefetched_label_.mutable_data<float>() +
+    int* label_data = prefetched_label_.mutable_data<int>() +
         (multiple_label_ ? num_of_labels_ : 1) * item_id;
 
     // get the clip data pointer for the item_id -th example

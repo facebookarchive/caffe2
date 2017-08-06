@@ -1,7 +1,7 @@
 #include "caffe2/operators/piecewise_linear_transform_op.h"
 
 namespace caffe2 {
-namespace {
+
 REGISTER_CPU_OPERATOR(
     PiecewiseLinearTransform,
     PiecewiseLinearTransformOp<float, CPUContext>);
@@ -38,7 +38,7 @@ bound.
         "upper bounds of each piece of linear function. One special case is "
         "the first bound is the lower bound of whole piecewise function and we "
         "treat it the same as the left most functions. (bounds, slopes, "
-        "intercepts) can passed through either arg or input blobs.")
+        "intercepts) can be passed through either arg or input blobs.")
     .Arg(
         "slopes",
         "1-D vector of size (prediction_dimensions x pieces) containing the "
@@ -62,17 +62,17 @@ bound.
     .Input(
         1,
         "bounds (optional)",
-        "See bounds in Arg. (bounds, slopes, intercepts) can passed through "
+        "See bounds in Arg. (bounds, slopes, intercepts) can be passed through "
         "either arg or input blobs.")
     .Input(
         2,
         "slopes (optional)",
-        "See slopes in Arg. (bounds, slopes, intercepts) can passed through "
+        "See slopes in Arg. (bounds, slopes, intercepts) can be passed through "
         "either arg or input blobs.")
     .Input(
         3,
         "intercepts (optional)",
-        "See intercepts in Arg. (bounds, slopes, intercepts) can passed "
+        "See intercepts in Arg. (bounds, slopes, intercepts) can be passed "
         "through either arg or input blobs.")
     .Output(
         0,
@@ -81,5 +81,4 @@ bound.
         "containing transformed predictions");
 
 SHOULD_NOT_DO_GRADIENT(PiecewiseLinearTransform);
-} // namespace
 } // namespace caffe2

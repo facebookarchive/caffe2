@@ -1,30 +1,30 @@
-#include <cmath>
-
 #include "caffe2/operators/elementwise_op.h"
+#include "caffe2/utils/math.h"
 
 namespace caffe2 {
 
 struct SigmoidCPUFunctor {
   template <typename T>
-  inline void operator()(const int n, const T* x,
-                         T* y, CPUContext* device_context) {
-    for (int i = 0; i < n; ++i) {
-      y[i] = 1. / (1. + exp(-x[i]));
-    }
+  inline void
+  operator()(const int n, const T* x, T* y, CPUContext* /*device_context*/) {
+    ConstEigenVectorArrayMap<T> xM(x, n);
+    EigenVectorArrayMap<T>(y, n) = 1. / (1. + (-xM).exp());
   }
 };
 
 struct SigmoidGradientCPUFunctor {
   template <typename T>
-  inline void
-  Run(const int n, const T* y, const T* dy, T* dx, CPUContext* device_context) {
-    for (int i = 0; i < n; ++i) {
-      dx[i] = dy[i] * y[i] * (1. - y[i]);
-    }
+  inline void Run(
+      const int n,
+      const T* y,
+      const T* dy,
+      T* dx,
+      CPUContext* /*device_context*/) {
+    ConstEigenVectorArrayMap<T> yM(y, n), dyM(dy, n);
+    EigenVectorArrayMap<T>(dx, n) = dyM * yM * (1. - yM);
   }
 };
 
-namespace {
 REGISTER_CPU_OPERATOR(
     Sigmoid, UnaryElementwiseOp<
         TensorTypes<float>, CPUContext, SigmoidCPUFunctor>);
@@ -68,5 +68,4 @@ class GetSigmoidGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(Sigmoid, GetSigmoidGradient);
-}  // namespace
 }  // namespace caffe2

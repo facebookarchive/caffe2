@@ -6,7 +6,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from caffe2.python import core
-
+from caffe2.python.modeling import initializers
+from caffe2.python.modeling.parameter_info import ParameterTags
 
 def _ConvBase(
     model,
@@ -18,6 +19,8 @@ def _ConvBase(
     kernel,
     weight_init=None,
     bias_init=None,
+    WeightInitializer=None,
+    BiasInitializer=None,
     group=1,
     transform_inputs=None,
     use_cudnn=False,
@@ -35,6 +38,17 @@ def _ConvBase(
     else:
         kernels = [kernel] * 2
 
+    requested_engine = kwargs.get('engine')
+    if requested_engine is not None:
+        if use_cudnn and requested_engine != 'CUDNN':
+            raise ValueError(
+                'When use_cudnn=True, the only engine you can specify is '
+                '"CUDNN"')
+        elif not use_cudnn and requested_engine == 'CUDNN':
+            raise ValueError(
+                'When use_cudnn=False, the only engine you can specify is '
+                '""')
+
     if use_cudnn:
         kwargs['engine'] = 'CUDNN'
         kwargs['exhaustive_search'] = cudnn_exhaustive_search
@@ -43,8 +57,6 @@ def _ConvBase(
 
     use_bias =\
             False if ("no_bias" in kwargs and kwargs["no_bias"]) else True
-    weight_init = weight_init if weight_init else ('XavierFill', {})
-    bias_init = bias_init if bias_init else ('ConstantFill', {})
     blob_out = blob_out or model.net.NextName()
     weight_shape = [dim_out]
     if order == "NCHW":
@@ -54,35 +66,29 @@ def _ConvBase(
         weight_shape.extend(kernels)
         weight_shape.append(int(dim_in / group))
 
-    if model.init_params:
-        weight = model.param_init_net.__getattr__(weight_init[0])(
-            [],
-            blob_out + '_w',
-            shape=weight_shape,
-            **weight_init[1]
+    WeightInitializer = initializers.update_initializer(
+        WeightInitializer, weight_init, ("XavierFill", {})
+    )
+    BiasInitializer = initializers.update_initializer(
+        BiasInitializer, bias_init, ("ConstantFill", {})
+    )
+    if not model.init_params:
+        WeightInitializer = initializers.ExternalInitializer()
+        BiasInitializer = initializers.ExternalInitializer()
+
+    weight = model.create_param(
+        param_name=blob_out + '_w',
+        shape=weight_shape,
+        initializer=WeightInitializer,
+        tags=ParameterTags.WEIGHT
+    )
+    if use_bias:
+        bias = model.create_param(
+            param_name=blob_out + '_b',
+            shape=[dim_out, ],
+            initializer=BiasInitializer,
+            tags=ParameterTags.BIAS
         )
-        if use_bias:
-            bias = model.param_init_net.__getattr__(bias_init[0])(
-                [],
-                blob_out + '_b',
-                shape=[dim_out, ],
-                **bias_init[1]
-            )
-    else:
-        weight = core.ScopedBlobReference(
-            blob_out + '_w', model.param_init_net)
-        if use_bias:
-            bias = core.ScopedBlobReference(
-                blob_out + '_b', model.param_init_net)
-    if use_bias:
-        model.params.extend([weight, bias])
-    else:
-        model.params.extend([weight])
-
-    model.weights.append(weight)
-
-    if use_bias:
-        model.biases.append(bias)
 
     if use_bias:
         inputs = [blob_in, weight, bias]
@@ -124,6 +130,8 @@ def conv_nd(
     kernel,
     weight_init=None,
     bias_init=None,
+    WeightInitializer=None,
+    BiasInitializer=None,
     group=1,
     transform_inputs=None,
     order="NCHW",
@@ -133,8 +141,8 @@ def conv_nd(
     """
     assert order == "NCHW", "ConvNd only supported for NCHW storage."
     return _ConvBase(model, True, blob_in, blob_out, dim_in, dim_out, kernel,
-                     weight_init, bias_init, group, transform_inputs,
-                     order=order, **kwargs)
+                     weight_init, bias_init, WeightInitializer, BiasInitializer,
+                     group, transform_inputs, order=order, **kwargs)
 
 
 def conv(
@@ -146,6 +154,8 @@ def conv(
     kernel,
     weight_init=None,
     bias_init=None,
+    WeightInitializer=None,
+    BiasInitializer=None,
     group=1,
     transform_inputs=None,
     **kwargs
@@ -153,7 +163,8 @@ def conv(
     """2-dimensional convolution.
     """
     return _ConvBase(model, False, blob_in, blob_out, dim_in, dim_out, kernel,
-                     weight_init, bias_init, group, transform_inputs, **kwargs)
+                     weight_init, bias_init, WeightInitializer, BiasInitializer,
+                     group, transform_inputs, **kwargs)
 
 
 def conv_transpose(
@@ -198,9 +209,8 @@ def conv_transpose(
             blob_out + '_w', model.param_init_net)
         bias = core.ScopedBlobReference(
             blob_out + '_b', model.param_init_net)
-    model.params.extend([weight, bias])
-    model.weights.append(weight)
-    model.biases.append(bias)
+    model.AddParameter(weight, ParameterTags.WEIGHT)
+    model.AddParameter(bias, ParameterTags.BIAS)
     if use_cudnn:
         kwargs['engine'] = 'CUDNN'
         kwargs['exhaustive_search'] = cudnn_exhaustive_search
@@ -306,13 +316,9 @@ def group_conv_deprecated(
             if use_bias:
                 bias = core.ScopedBlobReference(
                     blob_out + '_gconv_%d_b' % i, model.param_init_net)
+        model.AddParameter(weight, ParameterTags.WEIGHT)
         if use_bias:
-            model.params.extend([weight, bias])
-        else:
-            model.params.extend([weight])
-        model.weights.append(weight)
-        if use_bias:
-            model.biases.append(bias)
+            model.AddParameter(bias, ParameterTags.BIAS)
         if use_bias:
             inputs = [weight, bias]
         else:

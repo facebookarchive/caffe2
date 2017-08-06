@@ -43,6 +43,9 @@ chunks but data directly provided by fetchers is used.
 'batch_columns' can be used to specify which dimension is the batch dimension,
 for each of the inputs. Default is 0 for all iputs.
 
+'timeout' is the timeout in seconds after which if no data is available, the
+net will fail (default 600s = 10 mins).
+
 This function returns a list of numpy arrays corresponding to the different
 input blobs. In the example above, it would return two arrays, one for the
 data blob and another for the labels. These arrays can have arbitrary number
@@ -59,7 +62,12 @@ for each GPU. Note that the 'coordinator' returned by the function is same
 each time.
 '''
 
-import Queue
+try:
+    import Queue
+except ImportError:
+    # Py3
+    import queue as Queue
+from itertools import chain
 import logging
 import threading
 import atexit
@@ -76,7 +84,7 @@ LOG_INT_SECS = 60
 
 
 def get_worker_ids(num_workers):
-    return range(0, num_workers)
+    return list(range(0, num_workers))
 
 
 def init_data_input_workers(
@@ -91,6 +99,7 @@ def init_data_input_workers(
     external_loggers=None,
     dont_rebatch=False,
     batch_columns=None,
+    timeout=600
 ):
     global global_coordinator
     device_option = scope.CurrentDeviceScope()
@@ -139,22 +148,22 @@ class DataInputCoordinator(object):
     def __init__(self, net, input_blob_names, batch_size,
                  device_option, namescope, input_source_name, queue,
                  init_fun=None, external_loggers=None, dont_rebatch=False,
-                 batch_columns=None):
-        self._net = net
+                 batch_columns=None, timeout=600):
         self._counter = 0
         self._input_blob_names = input_blob_names
         self._batch_size = batch_size
         self._internal_queue = queue
-        self._scratch_blobs = set()
         self._queues = []
         self._device_option = device_option
         self._namescope = namescope
         self._active = True
         self._started = False
+        self._timeout = timeout
         self._workers = []
         self._input_source_name = input_source_name
         self._c2_queue_capacity = 4
-        self._create_caffe2_queues_and_ops()
+        self._create_caffe2_queues(net)
+        self._create_caffe2_ops(net)
         self._inputs = 0
         self._prev_seconds = 0
         self._last_warning = time.time()
@@ -162,6 +171,8 @@ class DataInputCoordinator(object):
         self._metrics = collections.defaultdict(lambda: 0)
         self._external_loggers = external_loggers
         self._dont_rebatch = dont_rebatch
+        self._init_scratch()
+
         if batch_columns is None:
             batch_columns = [0 for _ in input_blob_names]
         self._batch_columns = batch_columns
@@ -195,10 +206,6 @@ class DataInputCoordinator(object):
                 workspace.RunOperatorOnce(
                     core.CreateOperator("CloseBlobsQueue", [q], [])
                 )
-
-            # Release memory for the scratch blobs
-            if len(self._scratch_blobs) > 0:
-                utils.ResetBlobs(self._scratch_blobs)
             self._started = False
         finally:
             self._log_inputs_per_interval(0, force=True)
@@ -214,14 +221,25 @@ class DataInputCoordinator(object):
                 print("Worker {} failed to close while waiting".format(w))
                 success = False
 
+        # Release memory for the scratch blobs
+        if success:
+            utils.ResetBlobs(self._scratch_blob.values())
+            utils.ResetBlobs(self._scratch_status.values())
+
         print("All workers terminated: {}".format(success))
         return success
 
     def _get(self):
+        start_time = time.time()
+        last_warning = time.time()
         while self.is_active():
             try:
                 return self._internal_queue.get(block=True, timeout=0.5)
             except Queue.Empty:
+                if time.time() - last_warning > 10.0:
+                    log.warning("** Data input is slow: (still) no data in {} secs.".format(
+                        time.time() - start_time))
+                    last_warning = time.time()
                 continue
         return None
 
@@ -311,34 +329,50 @@ class DataInputCoordinator(object):
         finally:
             self.put_metric('enqueue_time', time.time() - start_time)
 
+    def _init_scratch(self):
+        self._scratch_blob = {}
+        self._scratch_status = {}
+        for blob_name in self._input_blob_names:
+            scratch_name = self._namescope + blob_name + \
+                "_scratch_" + self._input_source_name
+            self._scratch_blob[blob_name] = core.BlobReference(scratch_name)
+            self._scratch_status[blob_name] = core.BlobReference(
+                scratch_name + "_status"
+            )
+
+        # Feed empty arrays to the scratch blobs here, so that there won't be
+        # race conditions when calling FeedBlob (which calls wworkspace
+        # CreateBlob()) from enqueue threads
+        for b in chain(
+            self._scratch_blob.values(), self._scratch_status.values()
+        ):
+            workspace.FeedBlob(
+                b,
+                np.array([]).astype(np.float32),
+                device_option=self._device_option,
+            )
+
     def _enqueue(self, blob_name, queue, data_arr):
         '''
         Enqueue the correctly sized batch arrays to Caffe2's queue.
         '''
-        scratch_name = self._namescope + blob_name + \
-            "_scratch_" + self._input_source_name
-        blob = core.BlobReference(scratch_name)
-        status = core.BlobReference(scratch_name + "_status")
         workspace.FeedBlob(
-            blob,
+            self._scratch_blob[blob_name],
             data_arr,
             device_option=self._device_option
         )
-        self._scratch_blobs.add(blob)
-        self._scratch_blobs.add(status)
 
         op = core.CreateOperator(
             "SafeEnqueueBlobs",
-            [queue, blob],
-            [blob, status],
+            [queue, self._scratch_blob[blob_name]],
+            [self._scratch_blob[blob_name], self._scratch_status[blob_name]],
             device_option=self._device_option
         )
         workspace.RunOperatorOnce(op)
 
-    def _create_caffe2_queues_and_ops(self):
+    def _create_caffe2_queues(self, net):
         '''
-        Creates queues on caffe2 side, and respective operators
-        to pull (dequeue) blobs from the queues.
+        Creates queues on caffe2 side
         '''
         def create_queue(queue_name, num_blobs, capacity):
             workspace.RunOperatorOnce(
@@ -355,10 +389,14 @@ class DataInputCoordinator(object):
                 qname, num_blobs=1, capacity=self._c2_queue_capacity
             )
             self._queues.append(q)
-            print("Created queue: {}".format(q))
 
+    def _create_caffe2_ops(self, net):
+        '''
+        Creates dequeue-ops on caffe2 side
+        '''
+        for q, blob_name in zip(self._queues, self._input_blob_names):
             # Add operator to the Caffe2 network to dequeue
-            self._net.DequeueBlobs(q, blob_name)
+            net.DequeueBlobs(q, blob_name, timeout_secs=float(self._timeout))
 
     def _log_inputs_per_interval(self, inputs, force=False):
         self._inputs += inputs
@@ -432,11 +470,12 @@ class GlobalCoordinator(object):
             c.init(self)
             c._start()
 
-    def set_batch_size(self, name, batch_size):
-        log.info("Set batch size {}: {}".format(name, batch_size))
+    def reset_data_input(self, namescope, name, net, batch_size):
+        log.info("Reset data input {}, batch size {}: ".format(name, batch_size))
         for c in self._coordinators:
-            if c._input_source_name == name:
+            if c._input_source_name == name and c._namescope == namescope:
                 c._batch_size = batch_size
+                c._create_caffe2_ops(net)
 
     def stop(self):
         all_success = True

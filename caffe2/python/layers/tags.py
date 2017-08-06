@@ -34,6 +34,10 @@ class Tags(object):
     EXCLUDE_FROM_PREDICTION = 'exclude_from_prediction'
     EXCLUDE_FROM_ACCUMULATE_PRED = 'exclude_from_accumulate_pred'
     PREPROCESSING = 'preprocessing'
+    HANDLE_AS_SPARSE_LAYER = 'handle_as_sparse_layer'
+    GRADIENT_FROM_PS = 'gradient_from_ps'
+    PREFER_GPU = 'prefer_gpu'
+    CPU_ONLY = 'cpu_only'
 
     # In certain cases we want to have different schema for training and
     # prediction, as an example in prediction we might need to have only

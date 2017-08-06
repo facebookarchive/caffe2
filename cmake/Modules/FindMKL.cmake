@@ -19,7 +19,12 @@ caffe_option(MKL_USE_STATIC_LIBS "Use static libraries" OFF IF NOT MKL_USE_SINGL
 caffe_option(MKL_MULTI_THREADED  "Use multi-threading"   ON IF NOT MKL_USE_SINGLE_DYNAMIC_LIBRARY)
 
 # ---[ Root folders
-set(INTEL_ROOT "/opt/intel" CACHE PATH "Folder contains intel libs")
+if(MSVC)
+  set(INTEL_ROOT_DEFAULT "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows")
+else()
+  set(INTEL_ROOT_DEFAULT "/opt/intel")
+endif()
+set(INTEL_ROOT ${INTEL_ROOT_DEFAULT} CACHE PATH "Folder contains intel libs")
 find_path(MKL_ROOT include/mkl.h PATHS $ENV{MKLROOT} ${INTEL_ROOT}/mkl
                                    DOC "Folder contains MKL")
 
@@ -93,7 +98,7 @@ if(NOT MKL_USE_SINGLE_DYNAMIC_LIBRARY)
   find_library(MKL_RTL_LIBRARY ${__iomp5_libs}
      PATHS ${INTEL_RTL_ROOT} ${INTEL_ROOT}/compiler ${MKL_ROOT}/.. ${MKL_ROOT}/../compiler
      PATH_SUFFIXES ${__path_suffixes}
-     DOC "Path to Path to OpenMP runtime library")
+     DOC "Path to OpenMP runtime library")
 
   list(APPEND __looked_for MKL_RTL_LIBRARY)
   list(APPEND MKL_LIBRARIES ${MKL_RTL_LIBRARY})

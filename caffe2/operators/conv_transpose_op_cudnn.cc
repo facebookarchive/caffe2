@@ -149,10 +149,10 @@ bool CudnnConvTransposeOp<T>::RunOnDevice() {
       M = X.dim32(3);
       H_out = Y->dim32(1);
       W_out = Y->dim32(2);
-      DCHECK_EQ(filter.dim32(1), kernel_h_);
-      DCHECK_EQ(filter.dim32(1), kernel_h_);
-      DCHECK_EQ(filter.dim32(2), kernel_w_);
-      DCHECK_EQ(filter.dim32(3), C);
+      CAFFE_ENFORCE_EQ(filter.dim32(1), kernel_h_);
+      CAFFE_ENFORCE_EQ(filter.dim32(1), kernel_h_);
+      CAFFE_ENFORCE_EQ(filter.dim32(2), kernel_w_);
+      CAFFE_ENFORCE_EQ(filter.dim32(3), C);
       break;
     case StorageOrder::NCHW:
       N = X.dim32(0);
@@ -161,16 +161,16 @@ bool CudnnConvTransposeOp<T>::RunOnDevice() {
       W = X.dim32(3);
       H_out = Y->dim32(2);
       W_out = Y->dim32(3);
-      DCHECK_EQ(filter.dim32(1), C);
-      DCHECK_EQ(filter.dim32(2), kernel_h_);
-      DCHECK_EQ(filter.dim32(3), kernel_w_);
+      CAFFE_ENFORCE_EQ(filter.dim32(1), C);
+      CAFFE_ENFORCE_EQ(filter.dim32(2), kernel_h_);
+      CAFFE_ENFORCE_EQ(filter.dim32(3), kernel_w_);
       break;
     default:
       LOG(FATAL) << "Unknown storage order: " << order_;
   }
 
-  DCHECK_EQ(bias.ndim(), 1);
-  DCHECK_EQ(bias.dim32(0), C);
+  CAFFE_ENFORCE_EQ(bias.ndim(), 1);
+  CAFFE_ENFORCE_EQ(bias.dim32(0), C);
 
   // Set up the cudnn algorithms & workspace if necessary
   bool input_changed = (X.dims() != cudnn_input_dims_);
@@ -343,9 +343,8 @@ bool CudnnConvTransposeGradientOp<T>::RunOnDevice() {
   auto& dY = Input(OUTPUT_GRAD);
   auto* dfilter = Output(FILTER_GRAD);
   auto* dbias = Output(BIAS_GRAD);
-  DCHECK_EQ(X.ndim(), 4);
-  DCHECK_EQ(filter.ndim(), 4);
-  auto* Y = Output(0);
+  CAFFE_ENFORCE_EQ(X.ndim(), 4);
+  CAFFE_ENFORCE_EQ(filter.ndim(), 4);
   int C = 0;
   switch (order_) {
     case StorageOrder::NHWC:
@@ -357,7 +356,6 @@ bool CudnnConvTransposeGradientOp<T>::RunOnDevice() {
     default:
       LOG(FATAL) << "Unknown storage order: " << order_;
   }
-  ConvTransposeUnpoolBase<CUDAContext>::SetOutputSize(X, Y, C);
 
   int N = 0, M = 0, H = 0, W = 0, H_out = 0, W_out = 0;
   switch (order_) {
@@ -368,10 +366,10 @@ bool CudnnConvTransposeGradientOp<T>::RunOnDevice() {
       M = X.dim32(3);
       H_out = dY.dim32(1);
       W_out = dY.dim32(2);
-      DCHECK_EQ(filter.dim32(1), kernel_h_);
-      DCHECK_EQ(filter.dim32(1), kernel_h_);
-      DCHECK_EQ(filter.dim32(2), kernel_w_);
-      DCHECK_EQ(filter.dim32(3), C);
+      CAFFE_ENFORCE_EQ(filter.dim32(1), kernel_h_);
+      CAFFE_ENFORCE_EQ(filter.dim32(1), kernel_h_);
+      CAFFE_ENFORCE_EQ(filter.dim32(2), kernel_w_);
+      CAFFE_ENFORCE_EQ(filter.dim32(3), C);
       break;
     case StorageOrder::NCHW:
       N = X.dim32(0);
@@ -380,9 +378,9 @@ bool CudnnConvTransposeGradientOp<T>::RunOnDevice() {
       W = X.dim32(3);
       H_out = dY.dim32(2);
       W_out = dY.dim32(3);
-      DCHECK_EQ(filter.dim32(1), C);
-      DCHECK_EQ(filter.dim32(2), kernel_h_);
-      DCHECK_EQ(filter.dim32(3), kernel_w_);
+      CAFFE_ENFORCE_EQ(filter.dim32(1), C);
+      CAFFE_ENFORCE_EQ(filter.dim32(2), kernel_h_);
+      CAFFE_ENFORCE_EQ(filter.dim32(3), kernel_w_);
       break;
     default:
       LOG(FATAL) << "Unknown storage order: " << order_;

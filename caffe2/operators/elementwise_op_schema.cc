@@ -115,7 +115,7 @@ For example, the following tensor shapes are supported:
 class GetAddGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   vector<OperatorDef> GetGradientDefs() override {
-    if (!HasArgument(Def(), "broadcast")) {
+    if (!ArgumentHelper::HasArgument(Def(), "broadcast")) {
       SetDense(0, GO(0));
       SetDense(1, GO(0));
       return vector<OperatorDef>();
@@ -136,7 +136,7 @@ REGISTER_GRADIENT(Add, GetAddGradient);
 class GetSubGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   vector<OperatorDef> GetGradientDefs() override {
-    if (!HasArgument(Def(), "broadcast")) {
+    if (!ArgumentHelper::HasArgument(Def(), "broadcast")) {
       SetDense(0, GO(0));
       return SingleGradientDef(
           "Negative", "", vector<string>{GO(0)}, vector<string>{GI(1)});
@@ -150,17 +150,17 @@ class GetSubGradient : public GradientMakerBase {
           vector<string>{GI(1) + "_autogen_pre_red"}));
 
       Argument axis, axis_str, order;
-      if (HasArgument(Def(), "axis")) {
+      if (ArgumentHelper::HasArgument(Def(), "axis")) {
         axis = GetArgument(Def(), "axis");
       } else {
         axis = MakeArgument<int>("axis", -1);
       }
-      if (HasArgument(Def(), "axis_str")) {
+      if (ArgumentHelper::HasArgument(Def(), "axis_str")) {
         axis_str = GetArgument(Def(), "axis_str");
       } else {
         axis_str = MakeArgument<string>("axis_str", "");
       }
-      if (HasArgument(Def(), "order")) {
+      if (ArgumentHelper::HasArgument(Def(), "order")) {
         order = GetArgument(Def(), "order");
       } else {
         order = MakeArgument<string>("order", "NCHW");
@@ -190,7 +190,7 @@ class GetMulGradient : public GradientMakerBase {
         "Gradient computation cannot be carried out if Mul uses in-place "
         "computation: ",
         ProtoDebugString(Def()));
-    if (!HasArgument(Def(), "broadcast")) {
+    if (!ArgumentHelper::HasArgument(Def(), "broadcast")) {
       return vector<OperatorDef>{
           CreateOperatorDef(
               "Mul", "", vector<string>{GO(0), I(1)}, vector<string>{GI(0)}),
@@ -198,22 +198,22 @@ class GetMulGradient : public GradientMakerBase {
               "Mul", "", vector<string>{GO(0), I(0)}, vector<string>{GI(1)})};
     } else {
       Argument broadcast, axis, axis_str, order;
-      if (HasArgument(Def(), "broadcast")) {
+      if (ArgumentHelper::HasArgument(Def(), "broadcast")) {
         broadcast = GetArgument(Def(), "broadcast");
       } else {
         broadcast = MakeArgument<int>("broadcast", 0);
       }
-      if (HasArgument(Def(), "axis")) {
+      if (ArgumentHelper::HasArgument(Def(), "axis")) {
         axis = GetArgument(Def(), "axis");
       } else {
         axis = MakeArgument<int>("axis", -1);
       }
-      if (HasArgument(Def(), "axis_str")) {
+      if (ArgumentHelper::HasArgument(Def(), "axis_str")) {
         axis_str = GetArgument(Def(), "axis_str");
       } else {
         axis_str = MakeArgument<string>("axis_str", "");
       }
-      if (HasArgument(Def(), "order")) {
+      if (ArgumentHelper::HasArgument(Def(), "order")) {
         order = GetArgument(Def(), "order");
       } else {
         order = MakeArgument<string>("order", "NCHW");
@@ -254,7 +254,7 @@ class GetDivGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   vector<OperatorDef> GetGradientDefs() override {
     CAFFE_ENFORCE(
-        !HasArgument(Def(), "broadcast"),
+        !ArgumentHelper::HasArgument(Def(), "broadcast"),
         "Gradient not ready yet for Div with broadcasting.");
     return SingleGradientDef(
         "DivGradient",
@@ -265,12 +265,15 @@ class GetDivGradient : public GradientMakerBase {
 };
 REGISTER_GRADIENT(Div, GetDivGradient);
 
-std::function<void(OpSchema&)> ComparisonDocGenerator(const char* name) {
+std::function<void(OpSchema&)> ComparisonDocGenerator(
+    const char* name,
+    const char* desc) {
   return [=](OpSchema& schema) {
     string doc = R"DOC(
-Performs element-wise comparison `{name}` (with limited broadcast support).
+Performs element-wise {desc} comparison `{name}` (with limited broadcast support).
 {broadcast_doc})DOC";
     ReplaceAll(doc, "{name}", name);
+    ReplaceAll(doc, "{desc}", desc);
     ReplaceAll(doc, "{broadcast_doc}", kBroadcastDoc);
     schema.SetDoc(doc);
     schema.Arg("broadcast", "Pass 1 to enable broadcasting");
@@ -290,16 +293,16 @@ Performs element-wise comparison `{name}` (with limited broadcast support).
   };
 }
 
-#define CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(name, symbol)  \
-  OPERATOR_SCHEMA(name).NumInputs(2).NumOutputs(1).FillUsing( \
-      ComparisonDocGenerator(symbol));                        \
+#define CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(name, symbol, desc) \
+  OPERATOR_SCHEMA(name).NumInputs(2).NumOutputs(1).FillUsing(      \
+      ComparisonDocGenerator(symbol, desc));                       \
   SHOULD_NOT_DO_GRADIENT(name)
 
-CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(LT, "<");
-CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(LE, "<=");
-CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(GT, ">");
-CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(GE, ">=");
-CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(EQ, "==");
+CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(LT, "<", "less than");
+CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(LE, "<=", "less or equal than");
+CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(GT, ">", "greater than");
+CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(GE, ">=", "greater or equal than");
+CAFFE2_SCHEMA_FOR_BINARY_COMPARISON_OP(EQ, "==", "equality");
 
 std::function<void(OpSchema&)> LogicalDocGenerator(const char* name) {
   return [=](OpSchema& schema) {

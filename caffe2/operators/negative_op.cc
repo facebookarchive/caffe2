@@ -4,8 +4,8 @@ namespace caffe2 {
 
 struct NegativeCPUFunctor {
   template <typename T>
-  inline void operator()(const int n, const T* x,
-                         T* y, CPUContext* device_context) {
+  inline void
+  operator()(const int n, const T* x, T* y, CPUContext* /*device_context*/) {
     EigenVectorMap<T>(y, n) = -ConstEigenVectorMap<T>(x, n);
     // for (int i = 0; i < n; ++i) {
     //  y[i] = -x[i];
@@ -13,7 +13,6 @@ struct NegativeCPUFunctor {
   }
 };
 
-namespace {
 REGISTER_CPU_OPERATOR(
     Negative, UnaryElementwiseOp<
         TensorTypes<float, double, int, long>, CPUContext, NegativeCPUFunctor>);
@@ -40,5 +39,4 @@ class GetNegativeGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(Negative, GetNegativeGradient);
-}  // namespace
 }  // namespace caffe2

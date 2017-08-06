@@ -11,8 +11,11 @@
 #include "caffe2/core/tensor.h"
 #include "caffe2/core/typeid.h"
 #include "caffe2/core/types.h"
+#include "caffe2/utils/simple_queue.h"
 
 CAFFE2_DECLARE_int(caffe2_tensor_chunk_size);
+CAFFE2_DECLARE_int(caffe2_max_tensor_serializer_threads);
+CAFFE2_DECLARE_bool(caffe2_serialize_fp16_as_bytes);
 
 namespace caffe2 {
 
@@ -42,7 +45,7 @@ template <class Context>
 class TensorSerializer : public BlobSerializerBase {
  public:
   TensorSerializer() : context_() {}
-  ~TensorSerializer() {}
+  ~TensorSerializer() override {}
   /**
    * Serializes a Blob. Note that this blob has to contain Tensor<Context>,
    * otherwise this function produces a fatal error.
@@ -200,8 +203,34 @@ void TensorSerializer<Context>::SerializeWithChunkSize(
     chunk_size = FLAGS_caffe2_tensor_chunk_size;
   }
 
+  auto processChunk = [&](int64_t chunkStart) {
+    BlobProto blob_proto;
+    blob_proto.set_name(name);
+    blob_proto.set_type(kTensorBlobType);
+    TensorProto& proto = *blob_proto.mutable_tensor();
+    proto.set_name(name);
+    this->Serialize(
+        tensor, name, blob_proto.mutable_tensor(), chunkStart, chunk_size);
+    acceptor(
+        MakeString(name, kChunkIdSeparator, chunkStart / chunk_size),
+        blob_proto.SerializeAsString());
+  };
+
 #ifndef __ANDROID__
   std::vector<std::future<void>> futures;
+  // Poorman's IOBound ThreadPool
+  SimpleQueue<size_t> chunkQueue;
+  auto task = [&]() {
+    size_t chunkStart;
+    while (chunkQueue.Pop(&chunkStart)) {
+      processChunk(chunkStart);
+    }
+  };
+  if (tensor.size() > chunk_size) {
+    for (int i = 0; i < FLAGS_caffe2_max_tensor_serializer_threads; ++i) {
+      futures.emplace_back(std::async(std::launch::async, task));
+    }
+  }
 #endif
 
   VLOG(1) << "Serializing blob " << name;
@@ -211,33 +240,21 @@ void TensorSerializer<Context>::SerializeWithChunkSize(
        chunkBegin < std::max(tensor.size(), static_cast<TIndex>(1));
        chunkBegin += chunk_size) {
     VLOG(2) << "Starting a chunk at " << chunkBegin;
-    auto task = [&](size_t chunkStart) {
-      BlobProto blob_proto;
-      blob_proto.set_name(name);
-      blob_proto.set_type(kTensorBlobType);
-      TensorProto& proto = *blob_proto.mutable_tensor();
-      proto.set_name(name);
-      this->Serialize(
-          tensor, name, blob_proto.mutable_tensor(), chunkStart, chunk_size);
-      acceptor(
-          MakeString(
-              name, kChunkIdSeparator, chunkStart / chunk_size),
-          blob_proto.SerializeAsString());
-    };
 #ifndef __ANDROID__
     if (tensor.size() > chunk_size) {
-      futures.emplace_back(std::async(std::launch::async, task, chunkBegin));
+      chunkQueue.Push(chunkBegin);
     } else {
       // Sync mode for small tensors
-      task(chunkBegin);
+      processChunk(chunkBegin);
     }
 #else
     // Since Android does not have std::future, we will always do sync mode
-    task(chunkBegin);
+    processChunk(chunkBegin);
 #endif
   }
 
 #ifndef __ANDROID__
+  chunkQueue.NoMoreJobs();
   for (auto& fut : futures) {
     fut.get();
   }
@@ -246,8 +263,11 @@ void TensorSerializer<Context>::SerializeWithChunkSize(
 
 template <class Context>
 void TensorSerializer<Context>::Serialize(
-    const Tensor<Context>& input, const string& name,
-    TensorProto* proto_ptr, size_t chunkBegin, int32_t chunkSize) {
+    const Tensor<Context>& input,
+    const string& /*name*/,
+    TensorProto* proto_ptr,
+    size_t chunkBegin,
+    int32_t chunkSize) {
   CAFFE_ENFORCE(
       chunkBegin <= input.size(),
       "Chunk begin is out of tensor: ",
@@ -347,14 +367,31 @@ void TensorSerializer<Context>::Serialize(
         proto.mutable_int64_data(),
         &this->context_);
     break;
-  case TensorProto_DataType_FLOAT16:
-    detail::CopyToProtoWithCast(
-        chunkSize,
-        reinterpret_cast<const uint16_t*>(input.template data<float16>()) +
-            chunkBegin,
-        proto.mutable_int32_data(),
-        &this->context_);
-    break;
+  case TensorProto_DataType_FLOAT16: {
+    if (FLAGS_caffe2_serialize_fp16_as_bytes) {
+      const int kValue = 1;
+      CAFFE_ENFORCE_EQ(
+          reinterpret_cast<const char*>(&kValue)[0],
+          1,
+          "Serialization of FLOAT16 on big endian platform "
+          "is not written yet.");
+      unique_ptr<char[]> buffer(new char[2 * chunkSize]);
+      this->context_.template Copy<char, Context, CPUContext>(
+          2 * chunkSize,
+          reinterpret_cast<const char*>(
+              input.template data<float16>() + chunkBegin),
+          buffer.get());
+      this->context_.FinishDeviceComputation();
+      proto.set_byte_data(buffer.release(), 2 * chunkSize);
+    } else {
+      detail::CopyToProtoWithCast(
+          chunkSize,
+          reinterpret_cast<const uint16_t*>(input.template data<float16>()) +
+              chunkBegin,
+          proto.mutable_int32_data(),
+          &this->context_);
+    }
+  } break;
   case TensorProto_DataType_DOUBLE:
     detail::CopyToProtoAsIs(
         chunkSize,
@@ -485,13 +522,31 @@ void TensorDeserializer<Context>::Deserialize(
           &context);
       break;
     case TensorProto_DataType_FLOAT16:
-      detail::CopyFromProtoWithCast(
-          chunkSize,
-          proto.int32_data(),
-          reinterpret_cast<uint16_t*>(
-              tensor->template mutable_data<float16>()) +
-              chunkBegin,
-          &context);
+      if (proto.has_byte_data()) {
+        const int kValue = 1;
+        CAFFE_ENFORCE_EQ(
+            reinterpret_cast<const char*>(&kValue)[0],
+            1,
+            "Serialization of FLOAT16 on big endian platform "
+            "is not written yet.");
+        CAFFE_ENFORCE_EQ(
+            2 * chunkSize,
+            proto.byte_data().size(),
+            "Incorrect proto field size.");
+        context.template Copy<float16, Context, CPUContext>(
+            chunkSize,
+            reinterpret_cast<const float16*>(proto.byte_data().data()),
+            tensor->template mutable_data<float16>() + chunkBegin);
+      } else {
+        // Backward compatibility with models which used int32_data field
+        detail::CopyFromProtoWithCast(
+            chunkSize,
+            proto.int32_data(),
+            reinterpret_cast<uint16_t*>(
+                tensor->template mutable_data<float16>()) +
+                chunkBegin,
+            &context);
+      }
       break;
     case TensorProto_DataType_DOUBLE:
       detail::CopyFromProtoAsIs(

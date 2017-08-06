@@ -31,8 +31,9 @@ class NetBuilder(object):
                  _stop_blob=None, _fullname=None):
         nb = NetBuilder.current(required=False)
         assert not _fullname or not name, 'Cannot set both _fullname and name'
-        self.name = _fullname or '/'.join(filter(lambda x: x, (
-            nb.name if nb else None, name)))
+        self.name = _fullname or '/'.join(
+            n for n in (nb.name if nb else None, name) if n
+        )
         self._frozen = False
         self._current_net = None
         self._children = []
@@ -237,6 +238,11 @@ class Operations(object):
         Defines operations that will be executed once at task startup.
         Useful when implementing processors, that don't have access to the Task
         top-level structure.
+
+        This setup will be run only once, even if multiple instances of the task
+        will run in parallel. For instance-local initialization, use
+        `task_instance_init` instead.
+
             Example:
                 def my_processor(rec):
                     with ops.task_init():
@@ -251,9 +257,14 @@ class Operations(object):
 
     def task_exit(self):
         """
-        Define operations to be executed at task shutdown.
+        Define operations to be executed once at task shutdown.
         Useful when implementing processors, that don't have access to the Task
         top-level structure.
+
+        This shutdown will be run only once, after all concurrent instances of
+        the task have already finished. For instance-local shutdown,
+        use `task_instance_exit` instead.
+
             Example:
                 def read_queue(queue):
                     with ops.task_exit():
@@ -264,10 +275,37 @@ class Operations(object):
         self.net().add_attribute(Task.TASK_SETUP, setup)
         return setup
 
+    def task_instance_init(self):
+        """
+        Defines operations that will be executed once at startup of each
+        instance of a task. This can be seen as "thread_local" initialization.
+        It is guaranteed to run only after all `task_init` logic finishes.
+
+        This setup will be run concurrently for each instance of a task.
+        For global task initialization, use `task_init` instead.
+        """
+        setup = _SetupBuilder(_SetupBuilder.INIT)
+        self.net().add_attribute(Task.TASK_INSTANCE_SETUP, setup)
+        return setup
+
+    def task_instance_exit(self):
+        """
+        Defines operations that will be executed once at shutdown of each
+        instance of a task. This can be seen as "thread_local" finalization.
+
+        This shutdown will be run concurrently for each instance of a task.
+        For global task shutdown, use `task_exit` instead.
+        """
+        setup = _SetupBuilder(_SetupBuilder.EXIT)
+        self.net().add_attribute(Task.TASK_INSTANCE_SETUP, setup)
+        return setup
+
     def local_init(self):
         """
         Similar to `task_init`, but executes at TaskGroup's startup instead,
-        before any task of the group starts executing.
+        before any task of the group starts executing. This will run only
+        once on each node, before initialization of any task, so it can be
+        used e.g. to initialize blobs shared across tasks.
         """
         setup = _SetupBuilder(_SetupBuilder.INIT)
         self.net().add_attribute(TaskGroup.LOCAL_SETUP, setup)
@@ -275,8 +313,9 @@ class Operations(object):
 
     def local_exit(self):
         """
-        Similar to `task_init`, but executes at TaskGroup's exit instead,
+        Similar to `task_exit`, but executes at TaskGroup's exit instead,
         after all tasks of the group finished execution.
+        This will run only once on each node.
         """
         setup = _SetupBuilder(_SetupBuilder.EXIT)
         self.net().add_attribute(TaskGroup.LOCAL_SETUP, setup)

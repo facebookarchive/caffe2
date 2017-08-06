@@ -1,18 +1,18 @@
 ## @package utils
 # Module caffe2.python.utils
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 from caffe2.proto import caffe2_pb2
+from future.utils import viewitems
 from google.protobuf.message import DecodeError, Message
 from google.protobuf import text_format
+import sys
 import collections
 import functools
 import numpy as np
-import sys
-
-
-if sys.version_info > (3,):
-    # This is python 3. We will define a few stuff that we used.
-    basestring = str
-    long = int
+from six import integer_types, binary_type, text_type
 
 
 def CaffeBlobToNumpyArray(blob):
@@ -35,9 +35,21 @@ def Caffe2TensorToNumpyArray(tensor):
             tensor.double_data, dtype=np.float64).reshape(tensor.dims)
     elif tensor.data_type == caffe2_pb2.TensorProto.INT32:
         return np.asarray(
-            tensor.double_data, dtype=np.int).reshape(tensor.dims)
+            tensor.int32_data, dtype=np.int).reshape(tensor.dims)   # pb.INT32=>np.int use int32_data
+    elif tensor.data_type == caffe2_pb2.TensorProto.INT16:
+        return np.asarray(
+            tensor.int32_data, dtype=np.int16).reshape(tensor.dims)  # pb.INT16=>np.int16 use int32_data
+    elif tensor.data_type == caffe2_pb2.TensorProto.UINT16:
+        return np.asarray(
+            tensor.int32_data, dtype=np.uint16).reshape(tensor.dims)  # pb.UINT16=>np.uint16 use int32_data
+    elif tensor.data_type == caffe2_pb2.TensorProto.INT8:
+        return np.asarray(
+            tensor.int32_data, dtype=np.int8).reshape(tensor.dims)  # pb.INT8=>np.int8 use int32_data
+    elif tensor.data_type == caffe2_pb2.TensorProto.UINT8:
+        return np.asarray(
+            tensor.int32_data, dtype=np.uint8).reshape(tensor.dims)  # pb.UINT8=>np.uint8 use int32_data
     else:
-        # TODO: complete the data type.
+        # TODO: complete the data type: bool, float16, byte, int64, string
         raise RuntimeError(
             "Tensor data type not supported yet: " + str(tensor.data_type))
 
@@ -53,11 +65,23 @@ def NumpyArrayToCaffe2Tensor(arr, name=None):
     elif arr.dtype == np.float64:
         tensor.data_type = caffe2_pb2.TensorProto.DOUBLE
         tensor.double_data.extend(list(arr.flatten().astype(np.float64)))
-    elif arr.dtype == np.int:
+    elif arr.dtype == np.int or arr.dtype == np.int32:
         tensor.data_type = caffe2_pb2.TensorProto.INT32
         tensor.int32_data.extend(list(arr.flatten().astype(np.int)))
+    elif arr.dtype == np.int16:
+        tensor.data_type = caffe2_pb2.TensorProto.INT16
+        tensor.int32_data.extend(list(arr.flatten().astype(np.int16)))  # np.int16=>pb.INT16 use int32_data
+    elif arr.dtype == np.uint16:
+        tensor.data_type = caffe2_pb2.TensorProto.UINT16
+        tensor.int32_data.extend(list(arr.flatten().astype(np.uint16)))  # np.uint16=>pb.UNIT16 use int32_data
+    elif arr.dtype == np.int8:
+        tensor.data_type = caffe2_pb2.TensorProto.INT8
+        tensor.int32_data.extend(list(arr.flatten().astype(np.int8)))   # np.int8=>pb.INT8 use int32_data
+    elif arr.dtype == np.uint8:
+        tensor.data_type = caffe2_pb2.TensorProto.UINT8
+        tensor.int32_data.extend(list(arr.flatten().astype(np.uint8)))   # np.uint8=>pb.UNIT8 use int32_data
     else:
-        # TODO: complete the data type.
+        # TODO: complete the data type: bool, float16, byte, int64, string
         raise RuntimeError(
             "Numpy data type not supported yet: " + str(arr.dtype))
     return tensor
@@ -69,6 +93,14 @@ def MakeArgument(key, value):
     argument.name = key
     iterable = isinstance(value, collections.Iterable)
 
+    # Fast tracking common use case where a float32 array of tensor parameters
+    # needs to be serialized.  The entire array is guaranteed to have the same
+    # dtype, so no per-element checking necessary and no need to convert each
+    # element separately.
+    if isinstance(value, np.ndarray) and value.dtype.type is np.float32:
+        argument.floats.extend(value.flatten().tolist())
+        return argument
+
     if isinstance(value, np.ndarray):
         value = value.flatten().tolist()
     elif isinstance(value, np.generic):
@@ -77,29 +109,49 @@ def MakeArgument(key, value):
 
     if type(value) is float:
         argument.f = value
-    elif type(value) is int or type(value) is bool or type(value) is long:
+    elif type(value) in integer_types or type(value) is bool:
         # We make a relaxation that a boolean variable will also be stored as
         # int.
         argument.i = value
-    elif isinstance(value, basestring):
-        argument.s = (value if type(value) is bytes
-                      else value.encode('utf-8'))
+    elif isinstance(value, binary_type):
+        argument.s = value
+    elif isinstance(value, text_type):
+        argument.s = value.encode('utf-8')
     elif isinstance(value, Message):
         argument.s = value.SerializeToString()
     elif iterable and all(type(v) in [float, np.float_] for v in value):
-        argument.floats.extend(value)
-    elif iterable and all(type(v) in [int, bool, long, np.int_] for v in value):
-        argument.ints.extend(value)
-    elif iterable and all(isinstance(v, basestring) for v in value):
-        argument.strings.extend([
-            (v if type(v) is bytes else v.encode('utf-8')) for v in value])
-    elif iterable and all(isinstance(v, Message) for v in value):
-        argument.strings.extend([v.SerializeToString() for v in value])
-    else:
-        raise ValueError(
-            "Unknown argument type: key=%s value=%s, value type=%s" %
-            (key, str(value), str(type(value)))
+        argument.floats.extend(
+            v.item() if type(v) is np.float_ else v for v in value
         )
+    elif iterable and all(
+        type(v) in integer_types or type(v) in [bool, np.int_] for v in value
+    ):
+        argument.ints.extend(
+            v.item() if type(v) is np.int_ else v for v in value
+        )
+    elif iterable and all(
+        isinstance(v, binary_type) or isinstance(v, text_type) for v in value
+    ):
+        argument.strings.extend(
+            v.encode('utf-8') if isinstance(v, text_type) else v
+            for v in value
+        )
+    elif iterable and all(isinstance(v, Message) for v in value):
+        argument.strings.extend(v.SerializeToString() for v in value)
+    else:
+        if iterable:
+            raise ValueError(
+                "Unknown iterable argument type: key={} value={}, value "
+                "type={}[{}]".format(
+                    key, value, type(value), set(type(v) for v in value)
+                )
+            )
+        else:
+            raise ValueError(
+                "Unknown argument type: key={} value={}, value type={}".format(
+                    key, value, type(value)
+                )
+            )
     return argument
 
 
@@ -128,13 +180,13 @@ def TryReadProtoWithClass(cls, s):
 def GetContentFromProto(obj, function_map):
     """Gets a specific field from a protocol buffer that matches the given class
     """
-    for cls, func in function_map.items():
+    for cls, func in viewitems(function_map):
         if type(obj) is cls:
             return func(obj)
 
 
 def GetContentFromProtoString(s, function_map):
-    for cls, func in function_map.items():
+    for cls, func in viewitems(function_map):
         try:
             obj = TryReadProtoWithClass(cls, s)
             return func(obj)

@@ -3,15 +3,19 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import unittest
+try:
+    import lmdb
+except ImportError:
+    raise unittest.SkipTest('python-lmdb is not installed')
+
 import sys
 import os
 import shutil
-import lmdb
-import unittest
 import tempfile
 
 from caffe2.proto import caffe2_pb2
-from caffe2.python import workspace, cnn
+from caffe2.python import workspace, model_helper
 import numpy as np
 
 
@@ -74,6 +78,8 @@ class VideoInputOpTest(unittest.TestCase):
     def test_read_from_db(self):
         random_label = np.random.randint(0, 100)
         VIDEO = "/mnt/vol/gfsdataswarm-oregon/users/trandu/sample.avi"
+        if not os.path.exists(VIDEO):
+            raise unittest.SkipTest('Missing data')
         temp_list = tempfile.NamedTemporaryFile(delete=False).name
         line_str = '{} 0 {}\n'.format(VIDEO, random_label)
         self.create_a_list(
@@ -83,7 +89,7 @@ class VideoInputOpTest(unittest.TestCase):
         video_db_dir = tempfile.mkdtemp()
 
         self.create_video_db(temp_list, video_db_dir)
-        model = cnn.CNNModelHelper(name="Video Loader from LMDB")
+        model = model_helper.ModelHelper(name="Video Loader from LMDB")
         reader = model.CreateDB(
             "sample",
             db=video_db_dir,

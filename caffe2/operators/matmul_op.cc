@@ -1,26 +1,25 @@
 #include "caffe2/operators/matmul_op.h"
 
 namespace caffe2 {
-namespace {
 
 REGISTER_CPU_OPERATOR(MatMul, MatMulOp<float, CPUContext>);
 
 OPERATOR_SCHEMA(MatMul)
     .NumInputs(2)
     .NumOutputs(1)
-    .TensorInferenceFunction(
-        [](const OperatorDef& def, const vector<TensorShape>& in) {
-          vector<TensorShape> out(1);
-          out[0].set_data_type(in[0].data_type());
+    .TensorInferenceFunction([](const OperatorDef& /*def*/,
+                                const vector<TensorShape>& in) {
+      vector<TensorShape> out(1);
+      out[0].set_data_type(in[0].data_type());
 
-          int M = in[0].dims().Get(0);
-          int N = in[1].dims().Get(1);
+      int M = in[0].dims().Get(0);
+      int N = in[1].dims().Get(1);
 
-          out[0].add_dims(M);
-          out[0].add_dims(N);
+      out[0].add_dims(M);
+      out[0].add_dims(N);
 
-          return out;
-        })
+      return out;
+    })
     .SetDoc(R"DOC(
 Matrix multiplication Y = A * B, where A has size (M x K), B has size (K x N),
 and Y will have a size (M x N).
@@ -39,10 +38,10 @@ class GetMatMulGradient : public GradientMakerBase {
     bool trans_a = 0;
     bool trans_b = 0;
 
-    if (HasArgument(Def(), "trans_a")) {
+    if (ArgumentHelper::HasArgument(Def(), "trans_a")) {
       trans_a = GetArgument(Def(), "trans_a").i();
     }
-    if (HasArgument(Def(), "trans_b")) {
+    if (ArgumentHelper::HasArgument(Def(), "trans_b")) {
       trans_b = GetArgument(Def(), "trans_b").i();
     }
 
@@ -133,5 +132,4 @@ class GetMatMulGradient : public GradientMakerBase {
 
 REGISTER_GRADIENT(MatMul, GetMatMulGradient);
 
-} // namespace
 } // namespace caffe2

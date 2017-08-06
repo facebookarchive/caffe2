@@ -7,14 +7,18 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 import numpy as np
-from caffe2.python import \
-    core, device_checker, gradient_checker, test_util, workspace, cnn
-import caffe2.python.hypothesis_test_util as hu
-from hypothesis import assume, given, settings
-import hypothesis.strategies as st
+from caffe2.python import (
+    brew,
+    core,
+    device_checker,
+    gradient_checker,
+    model_helper,
+    test_util,
+    workspace,
+)
+from caffe2.python.gradient_checker import NetGradientChecker
 from caffe2.proto import caffe2_pb2
 
-import collections
 import unittest
 
 
@@ -201,6 +205,29 @@ class TestTanh(test_util.TestCase):
                 self.assertTrue(res)
 
 
+class TestAbs(test_util.TestCase):
+
+    def setUp(self):
+        self.test_configs = [
+            (1, 1),
+            (2, 3),
+            (2, 3, 4),
+            (2, 3, 4, 5),
+        ]
+
+    def testAbs(self):
+        for input_size in self.test_configs:
+            op = core.CreateOperator("Abs", ["X"], ["Y"])
+            X = np.random.rand(*input_size).astype(np.float32)
+            # go away from the origin point to avoid kink problems
+            X += 0.01 * np.sign(X)
+            X[X == 0] = 0.01
+            res = device_checker.CheckSimple(op, [X], [0])
+            self.assertTrue(res)
+            for checker in gradient_checkers:
+                res, grad, grad_estimated = checker.CheckSimple(op, [X], 0, [0])
+                self.assertTrue(res)
+
 class TestExp(test_util.TestCase):
 
     def setUp(self):
@@ -221,6 +248,45 @@ class TestExp(test_util.TestCase):
                 res, grad, grad_estimated = checker.CheckSimple(op, [X], 0, [0])
                 self.assertTrue(res)
 
+class TestCos(test_util.TestCase):
+
+    def setUp(self):
+        self.test_configs = [
+            (1, 1),
+            (2, 3),
+            (2, 3, 4),
+            (2, 3, 4, 5),
+        ]
+
+    def testCos(self):
+        for input_size in self.test_configs:
+            op = core.CreateOperator("Cos", ["X"], ["Y"])
+            X = np.random.rand(*input_size).astype(np.float32) - 0.5
+            res = device_checker.CheckSimple(op, [X], [0])
+            self.assertTrue(res)
+            for checker in gradient_checkers:
+                res, grad, grad_estimated = checker.CheckSimple(op, [X], 0, [0])
+                self.assertTrue(res)
+
+class TestSin(test_util.TestCase):
+
+    def setUp(self):
+        self.test_configs = [
+            (1, 1),
+            (2, 3),
+            (2, 3, 4),
+            (2, 3, 4, 5),
+        ]
+
+    def testSin(self):
+        for input_size in self.test_configs:
+            op = core.CreateOperator("Sin", ["X"], ["Y"])
+            X = np.random.rand(*input_size).astype(np.float32) - 0.5
+            res = device_checker.CheckSimple(op, [X], [0])
+            self.assertTrue(res)
+            for checker in gradient_checkers:
+                res, grad, grad_estimated = checker.CheckSimple(op, [X], 0, [0])
+                self.assertTrue(res)
 
 class TestSigmoid(test_util.TestCase):
 
@@ -293,20 +359,44 @@ class TestMakeTwoClass(test_util.TestCase):
 
 class TestNetGradientChecker(test_util.TestCase):
     def test_net_gradient_checker(self):
-        model = cnn.CNNModelHelper(name="test")
+        model = model_helper.ModelHelper(name="test")
         const = model.net.AddExternalInputs("const1", "const2")
-        fc = model.FC(dim_in=3, dim_out=4, blob_in="X", blob_out="Y", axis=0)
+        fc = brew.fc(model, dim_in=3, dim_out=4, blob_in="X", blob_out="Y", axis=0)
         dist = [model.net.SquaredL2Distance([fc, c]) for c in const]
         losses = [model.net.AveragedLoss(d) for d in dist]  # using two losses here
 
         workspace.RunNetOnce(model.param_init_net)
-        gradient_checker.NetGradientChecker.Check(
+        NetGradientChecker.Check(
             model.net,
             outputs_with_grad=losses,
             input_values={"X": np.array([1, 2, 3], dtype="float32"),
                           const[0]: np.array([1, 1, 1, 1], dtype="float32"),
                           const[1]: np.array([2, 2, 2, 2], dtype="float32")},
             input_to_check="X",
+        )
+
+    def test_net_comparison(self):
+        # (a + b) * (c + d) == a * c + a * d + b * c + b * d
+        net1 = core.Net("net1")
+        a, b, c, d = net1.AddExternalInputs("a", "b", "c", "d")
+        a_b = net1.Sum([a, b], "a+b")
+        c_d = net1.Sum([c, d], "c+d")
+        x = net1.Mul([a_b, c_d], "x")
+
+        net2 = core.Net("net2")
+        ac = net2.Mul([a, c], "ac")
+        ad = net2.Mul([a, d], "ad")
+        bc = net2.Mul([b, c], "bc")
+        bd = net2.Mul([b, d], "bd")
+        y = net2.Sum([ac, ad, bc, bd], "y")
+
+        input_values = {blob: np.array([i], dtype=np.float32)
+                        for i, blob in enumerate([a, b, c, d])}
+
+        NetGradientChecker.CompareNets(
+            [net1, net2], [[x], [y]], [0],
+            inputs_with_grads=[a, b, c, d],
+            input_values=input_values,
         )
 
 if __name__ == '__main__':

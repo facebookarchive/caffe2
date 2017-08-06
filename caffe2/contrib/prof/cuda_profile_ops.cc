@@ -7,7 +7,6 @@
 #include <cuda_profiler_api.h>
 
 namespace caffe2 {
-namespace {
 
 static std::vector<std::string> kCudaProfileConfiguration = {
     "gpustarttimestamp",
@@ -56,7 +55,7 @@ class CudaProfileInitializeOp : public OperatorBase {
     unlink(config_.c_str());
   }
 
-  virtual bool Run(int /* unused */ stream_id = 0) {
+  virtual bool Run(int /* unused */ /*stream_id*/ = 0) {
     // If this fails, check the contents of "output" for hints.
     CUDA_CHECK(
         cudaProfilerInitialize(config_.c_str(), output_.c_str(), cudaCSV));
@@ -73,7 +72,7 @@ class CudaProfileStartOp : public OperatorBase {
   CudaProfileStartOp(const OperatorDef& operator_def, Workspace* ws)
       : OperatorBase(operator_def, ws) {}
 
-  virtual bool Run(int /* unused */ stream_id = 0) {
+  virtual bool Run(int /* unused */ /*stream_id*/ = 0) {
     CUDA_ENFORCE(cudaProfilerStart());
     return true;
   }
@@ -84,11 +83,15 @@ class CudaProfileStopOp : public OperatorBase {
   CudaProfileStopOp(const OperatorDef& operator_def, Workspace* ws)
       : OperatorBase(operator_def, ws) {}
 
-  virtual bool Run(int /* unused */ stream_id = 0) {
+  virtual bool Run(int /* unused */ /*stream_id*/ = 0) {
     CUDA_ENFORCE(cudaProfilerStop());
     return true;
   }
 };
+
+OPERATOR_SCHEMA(CudaProfileInitialize);
+OPERATOR_SCHEMA(CudaProfileStart);
+OPERATOR_SCHEMA(CudaProfileStop);
 
 REGISTER_CPU_OPERATOR(CudaProfileInitialize, CudaProfileInitializeOp);
 REGISTER_CPU_OPERATOR(CudaProfileStart, CudaProfileStartOp);
@@ -98,5 +101,4 @@ REGISTER_CUDA_OPERATOR(CudaProfileInitialize, CudaProfileInitializeOp);
 REGISTER_CUDA_OPERATOR(CudaProfileStart, CudaProfileStartOp);
 REGISTER_CUDA_OPERATOR(CudaProfileStop, CudaProfileStopOp);
 
-} // namespace
 } // namespace caffe2

@@ -15,7 +15,7 @@ void rmsprop_update<CPUContext>(
     float momentum,
     float epsilon,
     const float* lr,
-    CPUContext* context) {
+    CPUContext* /*context*/) {
   ConstEigenVectorArrayMap<float> gVec(g, N);
   ConstEigenVectorArrayMap<float> msVec(ms, N);
   ConstEigenVectorArrayMap<float> momVec(mom, N);
@@ -29,7 +29,6 @@ void rmsprop_update<CPUContext>(
   EigenVectorArrayMap<float>(ng, N) = nmomVec;
 }
 
-namespace {
 REGISTER_CPU_OPERATOR(RmsProp, RmsPropOp<float, CPUContext>);
 OPERATOR_SCHEMA(RmsProp)
     .NumInputs(4)
@@ -49,6 +48,5 @@ returns (grad_o, mean_squares_o, mom_o).
 
 )DOC");
 SHOULD_NOT_DO_GRADIENT(RmsProp);
-}
 
 }

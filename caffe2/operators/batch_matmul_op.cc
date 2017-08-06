@@ -1,7 +1,6 @@
 #include "caffe2/operators/batch_matmul_op.h"
 
 namespace caffe2 {
-namespace {
 
 REGISTER_CPU_OPERATOR(BatchMatMul, BatchMatMulOp<float, CPUContext>);
 
@@ -26,10 +25,10 @@ class GetBatchMatMulGradient : public GradientMakerBase {
     bool trans_a = 0;
     bool trans_b = 0;
 
-    if (HasArgument(Def(), "trans_a")) {
+    if (ArgumentHelper::HasArgument(Def(), "trans_a")) {
       trans_a = GetArgument(Def(), "trans_a").i();
     }
-    if (HasArgument(Def(), "trans_b")) {
+    if (ArgumentHelper::HasArgument(Def(), "trans_b")) {
       trans_b = GetArgument(Def(), "trans_b").i();
     }
 
@@ -120,5 +119,4 @@ class GetBatchMatMulGradient : public GradientMakerBase {
 
 REGISTER_GRADIENT(BatchMatMul, GetBatchMatMulGradient);
 
-} // namespace
 } // namespace caffe2

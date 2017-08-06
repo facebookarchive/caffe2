@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 from caffe2.python import brew
 from caffe2.python.model_helper import ModelHelper
 from caffe2.proto import caffe2_pb2
+import logging
 
 
 class CNNModelHelper(ModelHelper):
@@ -20,12 +21,27 @@ class CNNModelHelper(ModelHelper):
                  ws_nbytes_limit=None, init_params=True,
                  skip_sparse_optim=False,
                  param_model=None):
+        logging.warning(
+            "[====DEPRECATE WARNING====]: you are creating an "
+            "object from CNNModelHelper class which will be deprecated soon. "
+            "Please use ModelHelper object with brew module. For more "
+            "information, please refer to caffe2.ai and python/brew.py, "
+            "python/brew_test.py for more information."
+        )
 
+        cnn_arg_scope = {
+            'order': order,
+            'use_cudnn': use_cudnn,
+            'cudnn_exhaustive_search': cudnn_exhaustive_search,
+        }
+        if ws_nbytes_limit:
+            cnn_arg_scope['ws_nbytes_limit'] = ws_nbytes_limit
         super(CNNModelHelper, self).__init__(
             skip_sparse_optim=skip_sparse_optim,
             name="CNN" if name is None else name,
             init_params=init_params,
             param_model=param_model,
+            arg_scope=cnn_arg_scope,
         )
 
         self.order = order
@@ -130,10 +146,14 @@ class CNNModelHelper(ModelHelper):
         return brew.fc_sparse(self, *args, **kwargs)
 
     def Dropout(self, *args, **kwargs):
-        return brew.dropout(self, *args, **kwargs)
+        return brew.dropout(
+            self, *args, order=self.order, use_cudnn=self.use_cudnn, **kwargs
+        )
 
     def LRN(self, *args, **kwargs):
-        return brew.lrn(self, order=self.order, *args, **kwargs)
+        return brew.lrn(
+            self, *args, order=self.order, use_cudnn=self.use_cudnn, **kwargs
+        )
 
     def Softmax(self, *args, **kwargs):
         return brew.softmax(self, *args, use_cudnn=self.use_cudnn, **kwargs)
@@ -176,6 +196,9 @@ class CNNModelHelper(ModelHelper):
         return brew.max_pool(
             self, *args, use_cudnn=self.use_cudnn, order=self.order, **kwargs
         )
+
+    def MaxPoolWithIndex(self, *args, **kwargs):
+        return brew.max_pool_with_index(self, *args, order=self.order, **kwargs)
 
     def AveragePool(self, *args, **kwargs):
         return brew.average_pool(

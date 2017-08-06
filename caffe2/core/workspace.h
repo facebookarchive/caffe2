@@ -2,6 +2,7 @@
 #define CAFFE2_CORE_WORKSPACE_H_
 
 #include "caffe2/core/common.h"
+#include "caffe2/core/observer.h"
 
 #ifndef CAFFE2_MOBILE
 #error "mobile build state not defined"
@@ -27,7 +28,6 @@ CAFFE2_DECLARE_bool(caffe2_print_blob_sizes_at_exit);
 namespace caffe2 {
 
 class NetBase;
-struct CompiledExecutionStep;
 
 struct StopOnSignal {
   StopOnSignal()
@@ -37,7 +37,7 @@ struct StopOnSignal {
 
   StopOnSignal(const StopOnSignal& other) : handler_(other.handler_) {}
 
-  bool operator()(int iter) {
+  bool operator()(int /*iter*/) {
     return handler_->CheckForSignals() != SignalHandler::Action::STOP;
   }
 
@@ -158,7 +158,9 @@ class Workspace {
    * exception is thrown.
    */
   NetBase* CreateNet(const NetDef& net_def, bool overwrite = false);
-
+  NetBase* CreateNet(
+      const std::shared_ptr<const NetDef>& net_def,
+      bool overwrite = false);
   /**
    * Gets the pointer to a created net. The workspace keeps ownership of the
    * network.
@@ -209,8 +211,8 @@ class Workspace {
   bool RunOperatorOnce(const OperatorDef& op_def);
   bool RunNetOnce(const NetDef& net_def);
 
- protected:
-  bool ExecuteStepRecursive(CompiledExecutionStep& execution);
+ public:
+  std::atomic<int> last_failed_op_net_position;
 
  private:
   BlobMap blob_map_;

@@ -66,13 +66,24 @@ class PrintOp final : public Operator<Context> {
   PrintOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws),
         tensor_printer_(
-            def().input(0),
+            operator_def.input(0),
             OperatorBase::GetSingleArgument<int>("to_file", 0)
-                ? ws->RootFolder() + "/" + def().input(0) + kPrintFileExtension
+                ? ws->RootFolder() + "/" + operator_def.input(0) +
+                    kPrintFileExtension
                 : "",
-            OperatorBase::GetSingleArgument<int>("limit", 0)) {}
+            OperatorBase::GetSingleArgument<int>("limit", 0)),
+        every_n_(OperatorBase::GetSingleArgument<int>("every_n", 1)) {
+    CAFFE_ENFORCE_GE(every_n_, 1);
+  }
 
   bool RunOnDevice() override {
+    if (++occurrences_mod_n_ > every_n_) {
+      occurrences_mod_n_ -= every_n_;
+    }
+    if (occurrences_mod_n_ != 1) {
+      return true;
+    }
+
     if (!OperatorBase::InputIsType<Tensor<Context>>(0) &&
         !OperatorBase::InputIsType<TensorCPU>(0)) {
       LOG(INFO) << "Blob of type: "
@@ -125,6 +136,8 @@ class PrintOp final : public Operator<Context> {
 
  private:
   TensorPrinter tensor_printer_;
+  int every_n_;
+  int occurrences_mod_n_{0};
 };
 
 /**
@@ -149,7 +162,7 @@ class AliasOp final : public Operator<Context> {
 
   bool RunOnDevice() override {
     auto& input = Input(0);
-    DCHECK_GT(input.size(), 0);
+    CAFFE_ENFORCE_GE(input.size(), 0, "Tensor is not initialized");
     Output(0)->ResizeLike(input);
     Output(0)->ShareData(input);
     return true;
@@ -192,10 +205,9 @@ class FlattenOp : public Operator<Context> {
   bool RunOnDevice() override {
     auto& input = Input(0);
     auto* output = Output(0);
-    DCHECK_GT(input.size(), 0);
     CAFFE_ENFORCE_GE(
         input.dims().size(), 2, "The rank of the tensor must be >= 2.");
-    output->Resize(input.dim(0), input.size() / input.dim(0));
+    output->Resize(input.dim(0), input.size_from_dim(1));
     context_.template CopyItems<Context, Context>(
         input.meta(),
         input.size(),
@@ -214,7 +226,6 @@ class FlattenToVecOp : public Operator<Context> {
   bool RunOnDevice() override {
     auto& input = Input(0);
     auto* output = Output(0);
-    DCHECK_GT(input.size(), 0);
     CAFFE_ENFORCE_GE(
         input.dims().size(), 1, "The rank of the tensor must be >= 1.");
     output->Resize(input.size());
@@ -239,7 +250,7 @@ class ResizeLikeOp : public Operator<Context> {
     auto& input0 = Input(0);
     auto& input1 = Input(1);
     auto* output = Output(0);
-    DCHECK_EQ(input0.size(), input1.size());
+    CAFFE_ENFORCE_EQ(input0.size(), input1.size());
     output->ResizeLike(Input(1));
     context_.template CopyItems<Context, Context>(
         input0.meta(),
@@ -305,7 +316,10 @@ class SumOp : public Operator<Context> {
     } else if (Input(0).template IsType<int>()) {
       return DoRunWithType<int, int>();
     } else {
-      return false;
+      CAFFE_THROW(
+          "Sum operator only supports 32-bit float and ints, but",
+          " input was of type ",
+          Input(0).meta().name());
     }
   }
 };
@@ -323,11 +337,11 @@ class WeightedSumOp : public Operator<Context> {
 
   template <typename DstType>
   bool DoRunWithType() {
-    DCHECK_EQ(InputSize() % 2, 0);
+    CAFFE_ENFORCE_EQ(InputSize() % 2, 0);
     auto& X0 = Input(0);
     auto& weight0 = Input(1);
-    DCHECK_GT(X0.size(), 0);
-    DCHECK_EQ(weight0.size(), 1);
+    CAFFE_ENFORCE_GT(X0.size(), 0);
+    CAFFE_ENFORCE_EQ(weight0.size(), 1);
     int size = X0.size();
     auto* output = Output(0);
     output->ResizeLike(X0);
@@ -348,8 +362,8 @@ class WeightedSumOp : public Operator<Context> {
         return false;
       }
       auto& weight = Input(i + 1);
-      DCHECK_EQ(X.size(), size);
-      DCHECK_EQ(weight.size(), 1);
+      CAFFE_ENFORCE_EQ(X.size(), size);
+      CAFFE_ENFORCE_EQ(weight.size(), 1);
       math::Axpy<DstType, Context>(
           size,
           weight.template data<float>(),
@@ -420,16 +434,16 @@ class ScatterWeightedSumOp : public Operator<Context> {
 
   template <typename Index, int FixedSize>
   bool DoRunWithValue() {
-    DCHECK_EQ(InputSize() % 2, 1);
+    CAFFE_ENFORCE_EQ(InputSize() % 2, 1);
     auto& X0 = Input(0);
     auto& weight0 = Input(1);
     auto& indices = Input(2);
     auto* output = Output(0);
     CAFFE_ENFORCE_EQ(&X0, output, "In place operation is required");
 
-    DCHECK_GT(X0.size(), 0);
-    DCHECK_GT(X0.ndim(), 0) << "X0 has to be at least the vector";
-    DCHECK_EQ(weight0.size(), 1);
+    CAFFE_ENFORCE_GT(X0.size(), 0);
+    CAFFE_ENFORCE_GT(X0.ndim(), 0, "X0 has to be at least the vector");
+    CAFFE_ENFORCE_EQ(weight0.size(), 1);
     TIndex M = X0.size();
     TIndex N = X0.dim(0);
     TIndex K = indices.size();
@@ -441,8 +455,12 @@ class ScatterWeightedSumOp : public Operator<Context> {
     if (w0 != 1.0) {
       for (int i = 0; i < K; ++i) {
         Index idx = idxs[i];
-        DCHECK(0 <= idx && idx < N) << "Index out of bounds: " << idx
-                                    << ", range 0 to " << N;
+        CAFFE_ENFORCE(
+            0 <= idx && idx < N,
+            "Index out of bounds: ",
+            idx,
+            ", range 0 to ",
+            N);
         math::ScaleFixedSize<T, Context, FixedSize>(
             block_size,
             w0,
@@ -454,8 +472,8 @@ class ScatterWeightedSumOp : public Operator<Context> {
     for (int inp = 3; inp < InputSize(); inp += 2) {
       auto& X = Input(inp);
       auto& weight = Input(inp + 1);
-      DCHECK_EQ(X.size(), block_size * K);
-      DCHECK_EQ(weight.size(), 1);
+      CAFFE_ENFORCE_EQ(X.size(), block_size * K);
+      CAFFE_ENFORCE_EQ(weight.size(), 1);
       const T* x_data = X.template data<T>();
       T w = *weight.template data<T>();
       for (int i = 0; i < K; ++i) {
@@ -577,12 +595,12 @@ class ScatterAssignOp : public Operator<Context> {
     auto* output = Output(0);
     CAFFE_ENFORCE_EQ(&input, output, "In place operation is required");
 
-    DCHECK_GT(input.ndim(), 0) << "X0 has to be at least the vector";
+    CAFFE_ENFORCE_GT(input.ndim(), 0, "X0 has to be at least the vector");
     TIndex M = input.size();
     TIndex N = input.dim(0);
     TIndex K = indices.size();
     TIndex block_size = M / N;
-    DCHECK_EQ(slices.size(), block_size * K);
+    CAFFE_ENFORCE_EQ(slices.size(), block_size * K);
     // TODO(dzhulgakov): it can be made to work with arbitrary data type by
     // using raw_mutable_data
     T* data = output->template mutable_data<T>();
@@ -821,11 +839,11 @@ class LengthsToWeightsOp : public Operator<Context> {
 
     std::function<float(const int64_t& length, const float& power)> getWeight;
     if (power_ == 0.5) {
-      getWeight = [](const int64_t& length, const float& power) {
+      getWeight = [](const int64_t& length, const float& /*power*/) {
         return 1.0 / std::sqrt(length);
       };
     } else if (power_ == 1) {
-      getWeight = [](const int64_t& length, const float& power) {
+      getWeight = [](const int64_t& length, const float& /*power*/) {
         return 1.0 / length;
       };
     } else {
@@ -856,126 +874,302 @@ class LengthsToWeightsOp : public Operator<Context> {
   float power_;
 };
 
+namespace {
+
 template <class SIndex, class Context>
-class SliceOp : public Operator<Context> {
- public:
-  USE_OPERATOR_CONTEXT_FUNCTIONS;
-  USE_SIMPLE_CTOR_DTOR(SliceOp);
+bool SliceImpl(
+    Tensor<Context>* output,
+    const Tensor<Context>& data,
+    const Tensor<Context>& starts,
+    const Tensor<Context>& ends,
+    Context* context,
+    Tensor<Context>* gdata = nullptr,
+    const Tensor<Context>* go = nullptr) {
+  bool backward = output == nullptr;
 
-  bool RunOnDevice() override {
-    auto* output = Output(0);
-    auto& data = Input(0);
+  auto* starts_data = starts.template data<SIndex>();
+  auto* ends_data = ends.template data<SIndex>();
 
-    auto& starts = Input(1);
-    auto& ends = Input(2);
-    auto* starts_data = starts.template data<SIndex>();
-    auto* ends_data = ends.template data<SIndex>();
+  CAFFE_ENFORCE_EQ(starts.ndim(), 1);
+  CAFFE_ENFORCE_EQ(ends.ndim(), 1);
+  CAFFE_ENFORCE_GE(data.ndim(), starts.size());
+  CAFFE_ENFORCE_EQ(starts.size(), ends.size());
 
-    CAFFE_ENFORCE_EQ(starts.ndim(), 1);
-    CAFFE_ENFORCE_EQ(ends.ndim(), 1);
-    CAFFE_ENFORCE_GE(data.ndim(), starts.size());
-    CAFFE_ENFORCE_EQ(starts.size(), ends.size());
+  std::vector<SIndex> starts_idx(data.ndim());
+  std::vector<SIndex> ends_idx(data.ndim());
+  std::vector<SIndex> dst_sizes(data.ndim());
 
-    std::vector<SIndex> starts_idx(data.ndim());
-    std::vector<SIndex> ends_idx(data.ndim());
-    std::vector<SIndex> dst_sizes(data.ndim());
-
-    for (int i = 0; i < data.ndim(); ++i) {
-      if (i >= starts.size()) {
-        starts_idx[i] = 0;
-        ends_idx[i] = data.dims()[i];
-        continue;
-      }
-      if (data.dims()[i] > 0) {
-        auto start = starts_data[i];
-        auto end = ends_data[i];
-        if (start < 0) {
-          start = data.dims()[i] + 1 + start;
-        }
-        if (end < 0) {
-          end = data.dims()[i] + 1 + end;
-        }
-        CAFFE_ENFORCE_GE(start, 0);
-        CAFFE_ENFORCE_GE(end, 0);
-        CAFFE_ENFORCE_LT(start, data.dims()[i]);
-        CAFFE_ENFORCE_LE(end, data.dims()[i]);
-        CAFFE_ENFORCE_GE(end, start);
-        starts_idx[i] = start;
-        ends_idx[i] = end;
-        dst_sizes[i] = end - start;
-      } else {
-        starts_idx[i] = 0;
-        ends_idx[i] = 0;
-        dst_sizes[i] = 0;
-      }
+  for (int i = 0; i < data.ndim(); ++i) {
+    if (i >= starts.size()) {
+      starts_idx[i] = 0;
+      ends_idx[i] = data.dims()[i];
+      continue;
     }
+    if (data.dims()[i] > 0) {
+      auto start = starts_data[i];
+      auto end = ends_data[i];
+      if (start < 0) {
+        start = data.dims()[i] + 1 + start;
+      }
+      if (end < 0) {
+        end = data.dims()[i] + 1 + end;
+      }
+      CAFFE_ENFORCE_GE(start, 0);
+      CAFFE_ENFORCE_GE(end, 0);
+      CAFFE_ENFORCE_LT(start, data.dims()[i]);
+      CAFFE_ENFORCE_LE(end, data.dims()[i]);
+      CAFFE_ENFORCE_GE(end, start);
+      starts_idx[i] = start;
+      ends_idx[i] = end;
+      dst_sizes[i] = end - start;
+    } else {
+      starts_idx[i] = 0;
+      ends_idx[i] = 0;
+      dst_sizes[i] = 0;
+    }
+  }
 
-    if (data.size() <= 0) {
-      // When the input is empty, we do not need to do copy.
+  if (data.size() <= 0) {
+    // When the input is empty, we do not need to do copy.
+    if (!backward) {
       output->Resize(dst_sizes);
       output->raw_mutable_data(data.meta());
-      return true;
     }
-    // for now only supports slicing in 1 dimension
-    int dim = -1;
-    for (int i = 0; i < data.ndim(); ++i) {
-      if (starts_idx[i] > 0 || ends_idx[i] < data.dims()[i]) {
-        CAFFE_ENFORCE_EQ(
-            dim, -1, "Currently only possible to slice in 1 dimension.");
-        dim = i;
-      }
+    return true;
+  }
+  // for now only supports slicing in 1 dimension
+  int dim = -1;
+  for (int i = 0; i < data.ndim(); ++i) {
+    if (starts_idx[i] > 0 || ends_idx[i] < data.dims()[i]) {
+      CAFFE_ENFORCE_EQ(
+          dim, -1, "Currently only possible to slice in 1 dimension.");
+      dim = i;
     }
-    if (dim == -1) {
-      output->CopyFrom(data, &context_);
-      return true;
+  }
+  if (dim == -1) {
+    if (!backward) {
+      output->CopyFrom(data, context);
+    } else {
+      gdata->CopyFrom(*go, context);
     }
-    auto unit = std::accumulate(
-        data.dims().begin() + dim + 1,
-        data.dims().end(),
-        1,
-        std::multiplies<SIndex>());
-    auto num_blocks = std::accumulate(
-        data.dims().begin(),
-        data.dims().begin() + dim,
-        1,
-        std::multiplies<SIndex>());
+    return true;
+  }
+  size_t unit = std::accumulate(
+      data.dims().begin() + dim + 1,
+      data.dims().end(),
+      1,
+      std::multiplies<SIndex>());
+  size_t num_blocks = std::accumulate(
+      data.dims().begin(),
+      data.dims().begin() + dim,
+      1,
+      std::multiplies<SIndex>());
+  if (!backward) {
     output->Resize(dst_sizes);
-    auto* src_bytes = (char*)data.raw_data();
-    auto* dst_bytes = (char*)output->raw_mutable_data(data.meta());
+  } else {
+    gdata->ResizeLike(data);
+  }
 
-    auto src_nbytes = data.nbytes();
-    auto dst_nbytes = output->nbytes();
+  size_t itemsize = data.meta().itemsize();
 
-    auto src_block_size = unit * data.dims()[dim];
-    auto dst_block_size = unit * (ends_idx[dim] - starts_idx[dim]);
-    auto src_offset = unit * starts_idx[dim];
+  if (!backward) {
+    char* src_bytes = (char*)data.raw_data();
+    char* dst_bytes = (char*)output->raw_mutable_data(data.meta());
+
+    size_t src_nbytes = data.nbytes();
+    size_t dst_nbytes = output->nbytes();
+
+    size_t src_block_size = unit * data.dims()[dim];
+    size_t dst_block_size = unit * (ends_idx[dim] - starts_idx[dim]);
+    size_t src_offset = unit * starts_idx[dim];
 
     if (num_blocks == 0 || dst_block_size == 0) {
       return true;
     }
 
-    auto itemsize = data.meta().itemsize();
-    auto src_block_size_bytes = itemsize * src_block_size;
-    auto dst_block_size_bytes = itemsize * dst_block_size;
-    auto src_offset_bytes = src_bytes + itemsize * src_offset;
-    auto dst_offset_bytes = dst_bytes;
+    size_t src_block_size_bytes = itemsize * src_block_size;
+    size_t dst_block_size_bytes = itemsize * dst_block_size;
+
+    char* src_offset_bytes = src_bytes + itemsize * src_offset;
+    char* dst_offset_bytes = dst_bytes;
     for (int i = 0; i < num_blocks; ++i) {
+      char* local_src_offset_bytes =
+          src_offset_bytes + i * src_block_size_bytes;
+      char* local_dst_offset_bytes =
+          dst_offset_bytes + i * dst_block_size_bytes;
       DCHECK_LE(
-          src_offset_bytes + dst_block_size_bytes, src_bytes + src_nbytes);
+          static_cast<void*>(local_src_offset_bytes + dst_block_size_bytes),
+          static_cast<void*>(src_bytes + src_nbytes));
       DCHECK_LE(
-          dst_offset_bytes + dst_block_size_bytes, dst_bytes + dst_nbytes);
-      this->context_.template CopyItems<Context, Context>(
+          static_cast<void*>(local_dst_offset_bytes + dst_block_size_bytes),
+          static_cast<void*>(dst_bytes + dst_nbytes));
+      context->template CopyItems<Context, Context>(
           data.meta(),
           dst_block_size,
-          (void*)src_offset_bytes,
-          (void*)dst_offset_bytes);
-      src_offset_bytes += src_block_size_bytes;
-      dst_offset_bytes += dst_block_size_bytes;
+          (void*)local_src_offset_bytes,
+          (void*)local_dst_offset_bytes);
     }
-    return true;
+  } else {
+    char* src_bytes = (char*)go->raw_data();
+    char* dst_bytes = (char*)gdata->raw_mutable_data(go->meta());
+
+    size_t src_nbytes = go->nbytes();
+    size_t dst_nbytes = gdata->nbytes();
+
+    size_t src_block_size = unit * (ends_idx[dim] - starts_idx[dim]);
+    size_t dst_block_size = unit * data.dims()[dim];
+    size_t dst_offset = unit * starts_idx[dim];
+
+    if (num_blocks == 0 || dst_block_size == 0) {
+      return true;
+    }
+
+    size_t src_block_size_bytes = itemsize * src_block_size;
+    size_t dst_block_size_bytes = itemsize * dst_block_size;
+
+    char* src_offset_bytes = src_bytes;
+    char* dst_offset_bytes = dst_bytes + itemsize * dst_offset;
+    // Zero out gradient blob before copy since we copy in fewer items than
+    // there is space for
+    math::Set<char, Context>(dst_nbytes, 0, dst_bytes, context);
+
+    // If output tensor is empty, just return zeroed gradient tensor
+    if (!src_bytes) {
+      return true;
+    }
+
+    for (int i = 0; i < num_blocks; ++i) {
+      char* local_src_offset_bytes =
+          src_offset_bytes + i * src_block_size_bytes;
+      char* local_dst_offset_bytes =
+          dst_offset_bytes + i * dst_block_size_bytes;
+      DCHECK_LE(
+          local_src_offset_bytes + src_block_size_bytes,
+          src_bytes + src_nbytes);
+      DCHECK_LE(
+          local_dst_offset_bytes + src_block_size_bytes,
+          dst_bytes + dst_nbytes);
+      context->template CopyItems<Context, Context>(
+          go->meta(),
+          src_block_size,
+          (void*)local_src_offset_bytes,
+          (void*)local_dst_offset_bytes);
+    }
+  }
+  return true;
+}
+
+} // namespace
+
+template <class SIndex, class Context>
+class SliceOp : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  SliceOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<Context>(operator_def, ws),
+        starts_(OperatorBase::GetRepeatedArgument<SIndex>("starts")),
+        ends_(OperatorBase::GetRepeatedArgument<SIndex>("ends")),
+        statically_inited_(false) {}
+
+  bool RunOnDevice() override {
+    auto* output = Output(0);
+    auto& data = Input(0);
+
+    if (InputSize() > 1) {
+      starts_host_.template CopyFrom<Context>(Input(1));
+      ends_host_.template CopyFrom<Context>(Input(2));
+    } else {
+      if (!statically_inited_) {
+        CAFFE_ENFORCE(HasArgument("starts"));
+        CAFFE_ENFORCE(HasArgument("ends"));
+        CAFFE_ENFORCE_EQ(starts_.size(), ends_.size());
+
+        starts_host_.Resize(starts_.size());
+        ends_host_.Resize(ends_.size());
+
+        memcpy(
+            starts_host_.template mutable_data<SIndex>(),
+            starts_.data(),
+            sizeof(SIndex) * starts_.size());
+        memcpy(
+            ends_host_.template mutable_data<SIndex>(),
+            ends_.data(),
+            sizeof(SIndex) * ends_.size());
+        statically_inited_ = true;
+      }
+    }
+
+    return SliceImpl<SIndex, Context>(
+        output, data, starts_host_, ends_host_, &context_);
   }
 
   DISABLE_COPY_AND_ASSIGN(SliceOp);
+
+ private:
+  std::vector<SIndex> starts_;
+  std::vector<SIndex> ends_;
+  bool statically_inited_;
+  TensorCPU starts_host_;
+  TensorCPU ends_host_;
+};
+
+template <class SIndex, class Context>
+class SliceGradientOp : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  SliceGradientOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<Context>(operator_def, ws),
+        starts_(OperatorBase::GetRepeatedArgument<SIndex>("starts")),
+        ends_(OperatorBase::GetRepeatedArgument<SIndex>("ends")),
+        statically_inited_(false) {}
+
+  bool RunOnDevice() override {
+    auto* gdata = Output(0);
+    auto& data = Input(0);
+
+    if (InputSize() == 4) {
+      starts_host_.template CopyFrom<Context>(Input(1));
+      ends_host_.template CopyFrom<Context>(Input(2));
+
+      auto& go = Input(3);
+
+      return SliceImpl<SIndex, Context>(
+          nullptr, data, starts_host_, ends_host_, &context_, gdata, &go);
+    } else {
+      if (!statically_inited_) {
+        CAFFE_ENFORCE(HasArgument("starts"));
+        CAFFE_ENFORCE(HasArgument("ends"));
+        CAFFE_ENFORCE_EQ(starts_.size(), ends_.size());
+
+        starts_host_.Resize(starts_.size());
+        ends_host_.Resize(ends_.size());
+
+        memcpy(
+            starts_host_.template mutable_data<SIndex>(),
+            starts_.data(),
+            sizeof(SIndex) * starts_.size());
+        memcpy(
+            ends_host_.template mutable_data<SIndex>(),
+            ends_.data(),
+            sizeof(SIndex) * ends_.size());
+
+        statically_inited_ = true;
+      }
+      auto& go = Input(1);
+
+      return SliceImpl<SIndex, Context>(
+          nullptr, data, starts_host_, ends_host_, &context_, gdata, &go);
+    }
+  }
+
+  DISABLE_COPY_AND_ASSIGN(SliceGradientOp);
+
+ private:
+  std::vector<SIndex> starts_;
+  std::vector<SIndex> ends_;
+  bool statically_inited_;
+  TensorCPU starts_host_;
+  TensorCPU ends_host_;
 };
 
 template <class Context>
@@ -1024,6 +1218,28 @@ class ShapeOp : public Operator<Context> {
     TIndex* output_data = output->template mutable_data<TIndex>();
     context_.template CopyBytes<Context, Context>(
         input.ndim() * sizeof(TIndex), input.dims().data(), output_data);
+    return true;
+  }
+};
+
+// Return the size of a tensor
+template <class Context>
+class SizeOp : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  USE_SIMPLE_CTOR_DTOR(SizeOp);
+
+  bool RunOnDevice() override {
+    auto& input = Input(0);
+    auto* output = Output(0);
+
+    output->Resize(vector<TIndex>());
+    auto* output_data = output->template mutable_data<int64_t>();
+
+    auto size = input.size();
+    math::Set<int64_t, Context>(
+        1, static_cast<int64_t>(size), output_data, &context_);
+
     return true;
   }
 };
@@ -1087,25 +1303,34 @@ class SqueezeOp : public Operator<Context> {
         "Input needs at least ",
         (dims_.back() + 1),
         " dimensions.");
+
+    std::vector<int> newDims = ComputeDims(input.dims(), dims_);
+    output->Reshape(newDims);
+    return true;
+  }
+
+  static std::vector<int> ComputeDims(
+      std::vector<TIndex> inputDims,
+      std::vector<int> dims) {
     int j = 0;
     std::vector<int> newDims;
-    for (int i = 0; i < input.dims().size(); ++i) {
-      if (j < dims_.size() && dims_[j] == i) {
-        CAFFE_ENFORCE(
-            input.dims()[i] == 1,
+    for (int i = 0; i < inputDims.size(); ++i) {
+      if (j < dims.size() && dims[j] == i) {
+        CAFFE_ENFORCE_EQ(
+            inputDims[i],
+            1,
             "Dimension ",
             i,
             " of input must be 1",
             " instead of ",
-            input.dims()[i],
+            inputDims[i],
             ".");
         ++j;
         continue;
       }
-      newDims.push_back(input.dims().at(i));
+      newDims.push_back(inputDims.at(i));
     }
-    output->Reshape(newDims);
-    return true;
+    return newDims;
   }
 
  private:
@@ -1194,7 +1419,10 @@ class GatherOp : public Operator<Context> {
       auto idx = idxs[i];
       CAFFE_ENFORCE(
           0 <= idx && idx < data.dim(0),
-          "INDICES element is out of DATA bounds");
+          "INDICES element is out of DATA bounds, id=",
+          idx,
+          " data_dim=",
+          data.dim(0));
       auto src = src_base + idx * block_bytesize;
       context_.template CopyItems<Context, Context>(
           data.meta(), block_size, src, out + block_bytesize * i);
@@ -1382,47 +1610,12 @@ class UniqueOp : public Operator<Context> {
 
  private:
   vector<int> order_;
+  Tensor<Context> thrust_unique_buffer_;
+  Tensor<Context> cuda_order_buffer_;
+  Tensor<Context> second_order_buffer_;
 
   template <typename T>
-  void DoRun() {
-    auto& inputTensor = Input(0);
-    // use dim32 to enforce that it's fine to have remapping of type int
-    int N = inputTensor.dim32(0);
-    CAFFE_ENFORCE_EQ(inputTensor.ndim(), 1, "Input should be a vector");
-    auto* uniqueTensor = Output(UNIQUE);
-
-    int* remapping = nullptr;
-    if (REMAPPING < OutputSize()) {
-      auto* remappingTensor = Output(REMAPPING);
-      remappingTensor->ResizeLike(inputTensor);
-      remapping = remappingTensor->template mutable_data<int>();
-    }
-
-    const T* input = inputTensor.template data<T>();
-    // TODO(dzhulgakov): if perf becomes an issue consider doing hash table
-    // instead of sorting
-    order_.resize(N);
-    std::iota(order_.begin(), order_.end(), 0);
-    std::sort(order_.begin(), order_.end(), [input](const int x, const int y) {
-      return input[x] < input[y];
-    });
-    int K = N;
-    for (int i = 1; i < N; ++i) {
-      K -= input[order_[i]] == input[order_[i - 1]];
-    }
-    uniqueTensor->Resize(K);
-    T* unique = uniqueTensor->template mutable_data<T>();
-    K = 0;
-    T prev = -1;
-    for (int i = 0; i < N; ++i) {
-      if (i == 0 || prev != input[order_[i]]) {
-        prev = unique[K++] = input[order_[i]];
-      }
-      if (remapping) {
-        remapping[order_[i]] = K - 1;
-      }
-    }
-  }
+  void DoRun();
 
  public:
   OUTPUT_TAGS(UNIQUE, REMAPPING);

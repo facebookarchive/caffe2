@@ -5,17 +5,26 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import functools
+import itertools
+import logging
 import numpy as np
 import random
-import functools
+import six
+from future.utils import viewkeys
 
+from caffe2.proto import caffe2_pb2
 from caffe2.python.attention import (
     AttentionType,
     apply_regular_attention,
     apply_recurrent_attention,
+    apply_dot_attention,
 )
-from caffe2.python import core, recurrent, workspace
-from caffe2.python.cnn import CNNModelHelper
+from caffe2.python import core, recurrent, workspace, brew, scope
+from caffe2.python.modeling.parameter_sharing import ParameterSharing
+from caffe2.python.modeling.parameter_info import ParameterTags
+from caffe2.python.modeling.initializers import Initializer
+from caffe2.python.model_helper import ModelHelper
 
 
 class RNNCell(object):
@@ -43,7 +52,7 @@ class RNNCell(object):
         outputs_with_grads=None,
     ):
         preprocessed_inputs = self.prepare_input(model, inputs)
-        step_model = CNNModelHelper(name=self.name, param_model=model)
+        step_model = ModelHelper(name=self.name, param_model=model)
         input_t, timestep = step_model.net.AddScopedExternalInputs(
             'input_t',
             'timestep',
@@ -58,26 +67,37 @@ class RNNCell(object):
             states=states_prev,
             timestep=timestep,
         )
-        return recurrent.recurrent_net(
+
+        if outputs_with_grads is None:
+            outputs_with_grads = [self.get_output_state_index() * 2]
+
+        # states_for_all_steps consists of combination of
+        # states gather for all steps and final states. It looks like this:
+        # (state_1_all, state_1_final, state_2_all, state_2_final, ...)
+        states_for_all_steps = recurrent.recurrent_net(
             net=model.net,
             cell_net=step_model.net,
             inputs=[(input_t, preprocessed_inputs)],
-            initial_cell_inputs=zip(states_prev, initial_states),
+            initial_cell_inputs=list(zip(states_prev, initial_states)),
             links=dict(zip(states_prev, states)),
             timestep=timestep,
             scope=self.name,
-            outputs_with_grads=(
-                outputs_with_grads
-                if outputs_with_grads is not None
-                else self.get_outputs_with_grads()
-            ),
+            outputs_with_grads=outputs_with_grads,
             recompute_blobs_on_backward=self.recompute_blobs,
-            forward_only=self.forward_only,
         )
+
+        output = self._prepare_output_sequence(
+            model,
+            states_for_all_steps,
+        )
+        return output, states_for_all_steps
 
     def apply(self, model, input_t, seq_lengths, states, timestep):
         input_t = self.prepare_input(model, input_t)
-        return self._apply(model, input_t, seq_lengths, states, timestep)
+        states = self._apply(
+            model, input_t, seq_lengths, states, timestep)
+        output = self._prepare_output(model, states)
+        return output, states
 
     def _apply(
         self,
@@ -91,7 +111,7 @@ class RNNCell(object):
         '''
         A single step of a recurrent network.
 
-        model: CNNModelHelper object new operators would be added to
+        model: ModelHelper object new operators would be added to
 
         input_t: single input with shape (1, batch_size, input_dim)
 
@@ -115,13 +135,19 @@ class RNNCell(object):
         If some operations in _apply method depend only on the input,
         not on recurrent states, they could be computed in advance.
 
-        model: CNNModelHelper object new operators would be added to
+        model: ModelHelper object new operators would be added to
 
         input_blob: either the whole input sequence with shape
         (sequence_length, batch_size, input_dim) or a single input with shape
         (1, batch_size, input_dim).
         '''
-        raise NotImplementedError('Abstract method')
+        return input_blob
+
+    def get_output_state_index(self):
+        '''
+        Return index into state list of the "primary" step-wise output.
+        '''
+        return 0
 
     def get_state_names(self):
         '''
@@ -131,11 +157,27 @@ class RNNCell(object):
         '''
         raise NotImplementedError('Abstract method')
 
-    def output_state_index(self):
+    def get_output_dim(self):
         '''
-        Return index into state list of the "primary" step-wise output.
+        Specifies the dimension (number of units) of stepwise output.
         '''
-        return 0
+        raise NotImplementedError('Abstract method')
+
+    def _prepare_output(self, model, states):
+        '''
+        Allows arbitrary post-processing of primary output.
+        '''
+        return states[self.get_output_state_index()]
+
+    def _prepare_output_sequence(self, model, state_outputs):
+        '''
+        Allows arbitrary post-processing of primary sequence output.
+
+        (Note that state_outputs alternates between full-sequence and final
+        output for each state, thus the index multiplier 2.)
+        '''
+        output_sequence_index = 2 * self.get_output_state_index()
+        return state_outputs[output_sequence_index]
 
 
 class LSTMCell(RNNCell):
@@ -146,11 +188,10 @@ class LSTMCell(RNNCell):
         hidden_size,
         forget_bias,
         memory_optimization,
-        name,
-        forward_only=False,
         drop_states=False,
+        **kwargs
     ):
-        super(LSTMCell, self).__init__(name, forward_only)
+        super(LSTMCell, self).__init__(**kwargs)
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.forget_bias = float(forget_bias)
@@ -183,7 +224,8 @@ class LSTMCell(RNNCell):
             )
             fc_input_dim += sum(extra_input_sizes)
 
-        gates_t = model.FC(
+        gates_t = brew.fc(
+            model,
             fc_input,
             self.scope('gates_t'),
             dim_in=fc_input_dim,
@@ -222,7 +264,8 @@ class LSTMCell(RNNCell):
         }
 
     def prepare_input(self, model, input_blob):
-        return model.FC(
+        return brew.fc(
+            model,
             input_blob,
             self.scope('i2h'),
             dim_in=self.input_size,
@@ -233,10 +276,7 @@ class LSTMCell(RNNCell):
     def get_state_names(self):
         return (self.scope('hidden_t'), self.scope('cell_t'))
 
-    def get_outputs_with_grads(self):
-        return [0]
-
-    def get_output_size(self):
+    def get_output_dim(self):
         return self.hidden_size
 
 
@@ -268,7 +308,8 @@ class MILSTMCell(LSTMCell):
             )
             fc_input_dim += sum(extra_input_sizes)
 
-        prev_t = model.FC(
+        prev_t = brew.fc(
+            model,
             fc_input,
             self.scope('prev_t'),
             dim_in=fc_input_dim,
@@ -276,101 +317,61 @@ class MILSTMCell(LSTMCell):
             axis=2,
         )
 
-        # defining MI parameters
-        alpha = model.param_init_net.ConstantFill(
-            [],
-            [self.scope('alpha')],
+        # defining initializers for MI parameters
+        alpha = model.create_param(
+            self.scope('alpha'),
             shape=[4 * self.hidden_size],
-            value=1.0
+            initializer=Initializer('ConstantFill', value=1.0),
         )
-        beta1 = model.param_init_net.ConstantFill(
-            [],
-            [self.scope('beta1')],
+        beta_h = model.create_param(
+            self.scope('beta1'),
             shape=[4 * self.hidden_size],
-            value=1.0
+            initializer=Initializer('ConstantFill', value=1.0),
         )
-        beta2 = model.param_init_net.ConstantFill(
-            [],
-            [self.scope('beta2')],
+        beta_i = model.create_param(
+            self.scope('beta2'),
             shape=[4 * self.hidden_size],
-            value=1.0
+            initializer=Initializer('ConstantFill', value=1.0),
         )
-        b = model.param_init_net.ConstantFill(
-            [],
-            [self.scope('b')],
+        b = model.create_param(
+            self.scope('b'),
             shape=[4 * self.hidden_size],
-            value=0.0
-        )
-        model.params.extend([alpha, beta1, beta2, b])
-        # alpha * (xW^T * hU^T)
-        # Shape: [1, batch_size, 4 * hidden_size]
-        alpha_tdash = model.net.Mul(
-            [prev_t, input_t],
-            self.scope('alpha_tdash')
-        )
-        # Shape: [batch_size, 4 * hidden_size]
-        alpha_tdash_rs, _ = model.net.Reshape(
-            alpha_tdash,
-            [self.scope('alpha_tdash_rs'), self.scope('alpha_tdash_old_shape')],
-            shape=[-1, 4 * self.hidden_size],
-        )
-        alpha_t = model.net.Mul(
-            [alpha_tdash_rs, alpha],
-            self.scope('alpha_t'),
-            broadcast=1,
-            use_grad_hack=1
-        )
-        # beta1 * hU^T
-        # Shape: [batch_size, 4 * hidden_size]
-        prev_t_rs, _ = model.net.Reshape(
-            prev_t,
-            [self.scope('prev_t_rs'), self.scope('prev_t_old_shape')],
-            shape=[-1, 4 * self.hidden_size],
-        )
-        beta1_t = model.net.Mul(
-            [prev_t_rs, beta1],
-            self.scope('beta1_t'),
-            broadcast=1,
-            use_grad_hack=1
-        )
-        # beta2 * xW^T
-        # Shape: [batch_szie, 4 * hidden_size]
-        input_t_rs, _ = model.net.Reshape(
-            input_t,
-            [self.scope('input_t_rs'), self.scope('input_t_old_shape')],
-            shape=[-1, 4 * self.hidden_size],
-        )
-        beta2_t = model.net.Mul(
-            [input_t_rs, beta2],
-            self.scope('beta2_t'),
-            broadcast=1,
-            use_grad_hack=1
-        )
-        # Add 'em all up
-        gates_tdash = model.net.Sum(
-            [alpha_t, beta1_t, beta2_t],
-            self.scope('gates_tdash')
-        )
-        gates_t = model.net.Add(
-            [gates_tdash, b],
-            self.scope('gates_t'),
-            broadcast=1,
-            use_grad_hack=1
-        )
-        # # Shape: [1, batch_size, 4 * hidden_size]
-        gates_t_rs, _ = model.net.Reshape(
-            gates_t,
-            [self.scope('gates_t_rs'), self.scope('gates_t_old_shape')],
-            shape=[1, -1, 4 * self.hidden_size],
+            initializer=Initializer('ConstantFill', value=0.0),
         )
 
-        hidden_t_intermediate, cell_t = model.net.LSTMUnit(
-            [hidden_t_prev, cell_t_prev, gates_t_rs, seq_lengths, timestep],
+        # alpha * input_t + beta_h
+        # Shape: [1, batch_size, 4 * hidden_size]
+        alpha_by_input_t_plus_beta_h = model.net.ElementwiseLinear(
+            [input_t, alpha, beta_h],
+            self.scope('alpha_by_input_t_plus_beta_h'),
+            axis=2,
+        )
+        # (alpha * input_t + beta_h) * prev_t =
+        # alpha * input_t * prev_t + beta_h * prev_t
+        # Shape: [1, batch_size, 4 * hidden_size]
+        alpha_by_input_t_plus_beta_h_by_prev_t = model.net.Mul(
+            [alpha_by_input_t_plus_beta_h, prev_t],
+            self.scope('alpha_by_input_t_plus_beta_h_by_prev_t')
+        )
+        # beta_i * input_t + b
+        # Shape: [1, batch_size, 4 * hidden_size]
+        beta_i_by_input_t_plus_b = model.net.ElementwiseLinear(
+            [input_t, beta_i, b],
+            self.scope('beta_i_by_input_t_plus_b'),
+            axis=2,
+        )
+        # alpha * input_t * prev_t + beta_h * prev_t + beta_i * input_t + b
+        # Shape: [1, batch_size, 4 * hidden_size]
+        gates_t = model.net.Sum(
+            [alpha_by_input_t_plus_beta_h_by_prev_t, beta_i_by_input_t_plus_b],
+            self.scope('gates_t')
+        )
+        hidden_t, cell_t = model.net.LSTMUnit(
+            [hidden_t_prev, cell_t_prev, gates_t, seq_lengths, timestep],
             [self.scope('hidden_t_intermediate'), self.scope('cell_t')],
             forget_bias=self.forget_bias,
             drop_states=self.drop_states,
         )
-        hidden_t = model.Copy(hidden_t_intermediate, self.scope('hidden_t'))
         model.net.AddExternalOutputs(
             cell_t,
             hidden_t,
@@ -378,6 +379,75 @@ class MILSTMCell(LSTMCell):
         if self.memory_optimization:
             self.recompute_blobs = [gates_t]
         return hidden_t, cell_t
+
+
+class DropoutCell(RNNCell):
+    '''
+    Wraps arbitrary RNNCell, applying dropout to its output (but not to the
+    recurrent connection for the corresponding state).
+    '''
+
+    def __init__(self, internal_cell, dropout_ratio=None, **kwargs):
+        self.internal_cell = internal_cell
+        self.dropout_ratio = dropout_ratio
+        super(DropoutCell, self).__init__(**kwargs)
+
+        self.prepare_input = internal_cell.prepare_input
+        self.get_output_state_index = internal_cell.get_output_state_index
+        self.get_state_names = internal_cell.get_state_names
+        self.get_output_dim = internal_cell.get_output_dim
+
+        self.mask = 0
+
+    def _apply(
+        self,
+        model,
+        input_t,
+        seq_lengths,
+        states,
+        timestep,
+        extra_inputs=None,
+    ):
+        return self.internal_cell._apply(
+            model,
+            input_t,
+            seq_lengths,
+            states,
+            timestep,
+            extra_inputs,
+        )
+
+    def _prepare_output(self, model, states):
+        output = self.internal_cell._prepare_output(
+            model,
+            states,
+        )
+        if self.dropout_ratio is not None:
+            output = self._apply_dropout(model, output)
+        return output
+
+    def _prepare_output_sequence(self, model, state_outputs):
+        output = self.internal_cell._prepare_output_sequence(
+            model,
+            state_outputs,
+        )
+        if self.dropout_ratio is not None:
+            output = self._apply_dropout(model, output)
+        return output
+
+    def _apply_dropout(self, model, output):
+        if self.dropout_ratio and not self.forward_only:
+            with core.NameScope(self.name or ''):
+                output, _ = model.net.Dropout(
+                    output,
+                    [
+                        str(output) + '_with_dropout_mask{}'.format(self.mask),
+                        str(output) + '_dropout_mask{}'.format(self.mask),
+                    ],
+                    ratio=float(self.dropout_ratio),
+                )
+                self.mask += 1
+        return output
 
 
 class MultiRNNCell(RNNCell):
@@ -393,17 +463,47 @@ class MultiRNNCell(RNNCell):
     to the next layer.
     '''
 
-    def __init__(
-        self,
-        cells,
-        name,
-        forward_only=False,
-    ):
+    def __init__(self, cells, residual_output_layers=None, **kwargs):
         '''
         cells: list of RNNCell instances, from input to output side.
+
+        name: string designating network component (for scoping)
+
+        residual_output_layers: list of indices of layers whose input will
+        be added elementwise to their output elementwise. (It is the
+        responsibility of the client code to ensure shape compatibility.)
+        Note that layer 0 (zero) cannot have residual output because of the
+        timing of prepare_input().
+
+        forward_only: used to construct inference-only network.
         '''
-        super(MultiRNNCell, self).__init__(name, forward_only)
+        super(MultiRNNCell, self).__init__(**kwargs)
         self.cells = cells
+
+        if residual_output_layers is None:
+            self.residual_output_layers = []
+        else:
+            self.residual_output_layers = residual_output_layers
+
+        output_index_per_layer = []
+        base_index = 0
+        for cell in self.cells:
+            output_index_per_layer.append(
+                base_index + cell.get_output_state_index(),
+            )
+            base_index += len(cell.get_state_names())
+
+        self.output_connected_layers = []
+        self.output_indices = []
+        for i in range(len(self.cells) - 1):
+            if (i + 1) in self.residual_output_layers:
+                self.output_connected_layers.append(i)
+                self.output_indices.append(output_index_per_layer[i])
+            else:
+                self.output_connected_layers = []
+                self.output_indices = []
+        self.output_connected_layers.append(len(self.cells) - 1)
+        self.output_indices.append(output_index_per_layer[-1])
 
         self.state_names = []
         for cell in self.cells:
@@ -446,29 +546,85 @@ class MultiRNNCell(RNNCell):
             states_index += num_states
 
             if i > 0:
-                layer_input = layer_cell.prepare_input(model, layer_input)
+                prepared_input = layer_cell.prepare_input(model, layer_input)
+            else:
+                prepared_input = layer_input
 
             layer_next_states = layer_cell._apply(
                 model,
-                layer_input,
+                prepared_input,
                 seq_lengths,
                 layer_states,
                 timestep,
                 extra_inputs=(None if i > 0 else extra_inputs),
             )
+            # Since we're using here non-public method _apply, instead of apply,
+            # we have to manually extract output from states
+            if i != len(self.cells) - 1:
+                layer_output = layer_cell._prepare_output(
+                    model,
+                    layer_next_states,
+                )
+                if i > 0 and i in self.residual_output_layers:
+                    layer_input = model.net.Sum(
+                        [layer_output, layer_input],
+                        self.scope('residual_output_{}'.format(i)),
+                    )
+                else:
+                    layer_input = layer_output
+
             next_states.extend(layer_next_states)
-            layer_input = layer_next_states[0]
         return next_states
 
     def get_state_names(self):
         return self.state_names
 
-    def output_state_index(self):
+    def get_output_state_index(self):
         index = 0
         for cell in self.cells[:-1]:
             index += len(cell.get_state_names())
-        index += self.cells[-1].output_state_index()
+        index += self.cells[-1].get_output_state_index()
         return index
+
+    def _prepare_output(self, model, states):
+        connected_outputs = []
+        state_index = 0
+        for i, cell in enumerate(self.cells):
+            num_states = len(cell.get_state_names())
+            if i in self.output_connected_layers:
+                layer_states = states[state_index:state_index + num_states]
+                layer_output = cell._prepare_output(
+                    model,
+                    layer_states
+                )
+                connected_outputs.append(layer_output)
+            state_index += num_states
+
+        output = model.net.Sum(
+            connected_outputs,
+            self.scope('residual_output'),
+        )
+        return output
+
+    def _prepare_output_sequence(self, model, states):
+        connected_outputs = []
+        state_index = 0
+        for i, cell in enumerate(self.cells):
+            num_states = 2 * len(cell.get_state_names())
+            if i in self.output_connected_layers:
+                layer_states = states[state_index:state_index + num_states]
+                layer_output = cell._prepare_output_sequence(
+                    model,
+                    layer_states
+                )
+                connected_outputs.append(layer_output)
+            state_index += num_states
+
+        output = model.net.Sum(
+            connected_outputs,
+            self.scope('residual_output_sequence'),
+        )
+        return output
 
 
 class AttentionCell(RNNCell):
@@ -477,18 +633,18 @@ class AttentionCell(RNNCell):
         self,
         encoder_output_dim,
         encoder_outputs,
+        encoder_lengths,
         decoder_cell,
         decoder_state_dim,
-        name,
         attention_type,
         weighted_encoder_outputs,
-        forget_bias,
         attention_memory_optimization,
-        forward_only=False,
+        **kwargs
     ):
-        super(AttentionCell, self).__init__(name, forward_only)
+        super(AttentionCell, self).__init__(**kwargs)
         self.encoder_output_dim = encoder_output_dim
         self.encoder_outputs = encoder_outputs
+        self.encoder_lengths = encoder_lengths
         self.decoder_cell = decoder_cell
         self.decoder_state_dim = decoder_state_dim
         self.weighted_encoder_outputs = weighted_encoder_outputs
@@ -496,6 +652,7 @@ class AttentionCell(RNNCell):
         assert attention_type in [
             AttentionType.Regular,
             AttentionType.Recurrent,
+            AttentionType.Dot,
         ]
         self.attention_type = attention_type
         self.attention_memory_optimization = attention_memory_optimization
@@ -507,9 +664,12 @@ class AttentionCell(RNNCell):
         seq_lengths,
         states,
         timestep,
+        extra_inputs=None,
     ):
         decoder_prev_states = states[:-1]
         attention_weighted_encoder_context_t_prev = states[-1]
+
+        assert extra_inputs is None
 
         decoder_states = self.decoder_cell._apply(
             model,
@@ -523,8 +683,10 @@ class AttentionCell(RNNCell):
             )],
         )
 
-        hidden_t_intermediate = \
-            decoder_states[self.decoder_cell.output_state_index()]
+        self.hidden_t_intermediate = self.decoder_cell._prepare_output(
+            model,
+            decoder_states,
+        )
 
         if self.attention_type == AttentionType.Recurrent:
             (
@@ -536,14 +698,15 @@ class AttentionCell(RNNCell):
                 encoder_output_dim=self.encoder_output_dim,
                 encoder_outputs_transposed=self.encoder_outputs_transposed,
                 weighted_encoder_outputs=self.weighted_encoder_outputs,
-                decoder_hidden_state_t=hidden_t_intermediate,
+                decoder_hidden_state_t=self.hidden_t_intermediate,
                 decoder_hidden_state_dim=self.decoder_state_dim,
                 scope=self.name,
                 attention_weighted_encoder_context_t_prev=(
                     attention_weighted_encoder_context_t_prev
                 ),
+                encoder_lengths=self.encoder_lengths,
             )
-        else:
+        elif self.attention_type == AttentionType.Regular:
             (
                 attention_weighted_encoder_context_t,
                 self.attention_weights_3d,
@@ -553,20 +716,38 @@ class AttentionCell(RNNCell):
                 encoder_output_dim=self.encoder_output_dim,
                 encoder_outputs_transposed=self.encoder_outputs_transposed,
                 weighted_encoder_outputs=self.weighted_encoder_outputs,
-                decoder_hidden_state_t=hidden_t_intermediate,
+                decoder_hidden_state_t=self.hidden_t_intermediate,
                 decoder_hidden_state_dim=self.decoder_state_dim,
                 scope=self.name,
+                encoder_lengths=self.encoder_lengths,
             )
+        elif self.attention_type == AttentionType.Dot:
+            (
+                attention_weighted_encoder_context_t,
+                self.attention_weights_3d,
+                attention_blobs,
+            ) = apply_dot_attention(
+                model=model,
+                encoder_output_dim=self.encoder_output_dim,
+                encoder_outputs_transposed=self.encoder_outputs_transposed,
+                decoder_hidden_state_t=self.hidden_t_intermediate,
+                decoder_hidden_state_dim=self.decoder_state_dim,
+                scope=self.name,
+                encoder_lengths=self.encoder_lengths,
+            )
+        else:
+            raise Exception('Attention type {} not implemented'.format(
+                self.attention_type
+            ))
 
         if self.attention_memory_optimization:
             self.recompute_blobs.extend(attention_blobs)
 
-        hidden_t = model.Copy(
-            hidden_t_intermediate,
+        output = list(decoder_states) + [attention_weighted_encoder_context_t]
+        output[self.decoder_cell.get_output_state_index()] = model.Copy(
+            output[self.decoder_cell.get_output_state_index()],
             self.scope('hidden_t_external'),
         )
-        output = list(decoder_states) + [attention_weighted_encoder_context_t]
-        output[self.decoder_cell.output_state_index()] = hidden_t
         model.net.AddExternalOutputs(*output)
 
         return output
@@ -577,13 +758,18 @@ class AttentionCell(RNNCell):
 
     def prepare_input(self, model, input_blob):
         if self.encoder_outputs_transposed is None:
-            self.encoder_outputs_transposed = model.Transpose(
+            self.encoder_outputs_transposed = brew.transpose(
+                model,
                 self.encoder_outputs,
                 self.scope('encoder_outputs_transposed'),
                 axes=[1, 2, 0],
             )
-        if self.weighted_encoder_outputs is None:
-            self.weighted_encoder_outputs = model.FC(
+        if (
+            self.weighted_encoder_outputs is None and
+            self.attention_type != AttentionType.Dot
+        ):
+            self.weighted_encoder_outputs = brew.fc(
+                model,
                 self.encoder_outputs,
                 self.scope('weighted_encoder_outputs'),
                 dim_in=self.encoder_output_dim,
@@ -595,23 +781,51 @@ class AttentionCell(RNNCell):
 
     def get_state_names(self):
         state_names = list(self.decoder_cell.get_state_names())
-        state_names[self.output_state_index()] = self.scope(
+        state_names[self.get_output_state_index()] = self.scope(
             'hidden_t_external',
         )
         state_names.append(self.scope('attention_weighted_encoder_context_t'))
         return state_names
 
-    def get_outputs_with_grads(self):
-        return [
-            self.output_state_index(),
-            len(self.get_state_names()) - 1,
-        ]
-
-    def get_output_size(self):
+    def get_output_dim(self):
         return self.decoder_state_dim + self.encoder_output_dim
 
-    def output_state_index(self):
-        return self.decoder_cell.output_state_index()
+    def get_output_state_index(self):
+        return self.decoder_cell.get_output_state_index()
+
+    def _prepare_output(self, model, states):
+        attention_context = states[-1]
+        with core.NameScope(self.name or ''):
+            output, _ = model.net.Concat(
+                [self.hidden_t_intermediate, attention_context],
+                [
+                    'states_and_context_combination',
+                    '_states_and_context_combination_concat_dims',
+                ],
+                axis=2,
+            )
+
+        return output
+
+    def _prepare_output_sequence(self, model, state_outputs):
+        decoder_output = self.decoder_cell._prepare_output_sequence(
+            model,
+            state_outputs[:-2],
+        )
+        attention_context_index = 2 * (len(self.get_state_names()) - 1)
+        with core.NameScope(self.name or ''):
+            output, _ = model.net.Concat(
+                [
+                    decoder_output,
+                    state_outputs[attention_context_index],
+                ],
+                [
+                    'states_and_context_combination',
+                    '_states_and_context_combination_concat_dims',
+                ],
+                axis=2,
+            )
+        return output
 
 
 class LSTMWithAttentionCell(AttentionCell):
@@ -620,6 +834,7 @@ class LSTMWithAttentionCell(AttentionCell):
         self,
         encoder_output_dim,
         encoder_outputs,
+        encoder_lengths,
         decoder_input_dim,
         decoder_state_dim,
         name,
@@ -642,12 +857,12 @@ class LSTMWithAttentionCell(AttentionCell):
         super(LSTMWithAttentionCell, self).__init__(
             encoder_output_dim=encoder_output_dim,
             encoder_outputs=encoder_outputs,
+            encoder_lengths=encoder_lengths,
             decoder_cell=decoder_cell,
             decoder_state_dim=decoder_state_dim,
             name=name,
             attention_type=attention_type,
             weighted_encoder_outputs=weighted_encoder_outputs,
-            forget_bias=forget_bias,
             attention_memory_optimization=attention_memory_optimization,
             forward_only=forward_only,
         )
@@ -686,7 +901,6 @@ class MILSTMWithAttentionCell(AttentionCell):
             name=name,
             attention_type=attention_type,
             weighted_encoder_outputs=weighted_encoder_outputs,
-            forget_bias=forget_bias,
             attention_memory_optimization=attention_memory_optimization,
             forward_only=forward_only,
         )
@@ -708,13 +922,14 @@ def _LSTM(
     forward_only=False,
     drop_states=False,
     return_last_layer_only=True,
+    static_rnn_unroll_size=None,
 ):
     '''
     Adds a standard LSTM recurrent network operator to a model.
 
     cell_class: LSTMCell or compatible subclass
 
-    model: CNNModelHelper object new operators would be added to
+    model: ModelHelper object new operators would be added to
 
     input_blob: the input sequence in a format T x N x D
             where T is sequence size, N - batch size and D - input dimension
@@ -749,6 +964,10 @@ def _LSTM(
 
     return_last_layer_only: only return outputs from final layer
             (so that length of results does depend on number of layers)
+
+    static_rnn_unroll_size: if not None, we will use static RNN which is
+    unrolled into Caffe2 graph. The size of the unroll is the value of
+    this parameter.
     '''
     if type(dim_out) is not list and type(dim_out) is not tuple:
         dim_out = [dim_out]
@@ -768,34 +987,32 @@ def _LSTM(
         )
         cells.append(cell)
 
-    if num_layers > 1:
-        multicell = MultiRNNCell(
-            cells,
-            name=scope,
-            forward_only=forward_only,
-        )
-    else:
-        multicell = cells[0]
+    cell = MultiRNNCell(
+        cells,
+        name=scope,
+        forward_only=forward_only,
+    ) if num_layers > 1 else cells[0]
+
+    cell = (
+        cell if static_rnn_unroll_size is None
+        else UnrolledCell(cell, static_rnn_unroll_size))
 
     if initial_states is None:
         initial_states = []
         for i in range(num_layers):
             with core.NameScope(scope):
                 suffix = '_{}'.format(i) if num_layers > 1 else ''
-                initial_hidden = model.param_init_net.ConstantFill(
-                    [],
+                initial_hidden = model.create_param(
                     'initial_hidden_state' + suffix,
                     shape=[dim_out[i]],
-                    value=0.0,
+                    initializer=Initializer('ConstantFill', value=0.0),
                 )
-                initial_cell = model.param_init_net.ConstantFill(
-                    [],
+                initial_cell = model.create_param(
                     'initial_cell_state' + suffix,
                     shape=[dim_out[i]],
-                    value=0.0,
+                    initializer=Initializer('ConstantFill', value=0.0),
                 )
                 initial_states.extend([initial_hidden, initial_cell])
-                model.params.extend([initial_hidden, initial_cell])
 
     assert len(initial_states) == 2 * num_layers, \
             "Incorrect initial_states, was expecting 2 * num_layers elements" \
@@ -803,8 +1020,7 @@ def _LSTM(
 
     # outputs_with_grads argument indexes into final layer
     outputs_with_grads = [4 * (num_layers - 1) + i for i in outputs_with_grads]
-
-    result = multicell.apply_over_sequence(
+    _, result = cell.apply_over_sequence(
         model=model,
         inputs=input_blob,
         seq_lengths=seq_lengths,
@@ -823,8 +1039,79 @@ def _LSTM(
 
 
 LSTM = functools.partial(_LSTM, LSTMCell)
-
 MILSTM = functools.partial(_LSTM, MILSTMCell)
+
+
+class UnrolledCell(RNNCell):
+    def __init__(self, cell, T):
+        self.T = T
+        self.cell = cell
+
+    def apply_over_sequence(
+        self,
+        model,
+        inputs,
+        seq_lengths,
+        initial_states,
+        outputs_with_grads=None,
+    ):
+        inputs = self.cell.prepare_input(model, inputs)
+
+        # Now they are blob references - outputs of splitting the input sequence
+        split_inputs = model.net.Split(
+            inputs,
+            [str(inputs) + "_timestep_{}".format(i)
+             for i in range(self.T)],
+            axis=0)
+        if self.T == 1:
+            split_inputs = [split_inputs]
+
+        states = initial_states
+        all_states = []
+        for t in range(0, self.T):
+            scope_name = "timestep_{}".format(t)
+            # Parameters of all timesteps are shared
+            with ParameterSharing({scope_name: ''}),\
+                 scope.NameScope(scope_name):
+                timestep = model.param_init_net.ConstantFill(
+                    [], "timestep", value=t, shape=[1],
+                    dtype=core.DataType.INT32,
+                    device_option=core.DeviceOption(caffe2_pb2.CPU))
+                states = self.cell._apply(
+                    model=model,
+                    input_t=split_inputs[t],
+                    seq_lengths=seq_lengths,
+                    states=states,
+                    timestep=timestep,
+                )
+            all_states.append(states)
+
+        all_states = zip(*all_states)
+        all_states = [
+            model.net.Concat(
+                list(full_output),
+                [
+                    str(full_output[0])[len("timestep_0/"):] + "_concat",
+                    str(full_output[0])[len("timestep_0/"):] + "_concat_info"
+
+                ],
+                axis=0)[0]
+            for full_output in all_states
+        ]
+        outputs = tuple(
+            six.next(it) for it in
+            itertools.cycle([iter(all_states), iter(states)])
+        )
+        outputs_without_grad = set(range(len(outputs))) - set(
+            outputs_with_grads)
+        for i in outputs_without_grad:
+            model.net.ZeroGradient(outputs[i], [])
+        logging.debug("Added 0 gradients for blobs:",
+                      [outputs[i] for i in outputs_without_grad])
+
+        final_output = self.cell._prepare_output_sequence(model, outputs)
+
+        return final_output, outputs
 
 
 def GetLSTMParamNames():
@@ -839,12 +1126,18 @@ def InitFromLSTMParams(lstm_pblobs, param_values):
     '''
     weight_params = GetLSTMParamNames()['weights']
     bias_params = GetLSTMParamNames()['biases']
-    for input_type in param_values.keys():
-        weight_values = [param_values[input_type][w].flatten() for w in weight_params]
+    for input_type in viewkeys(param_values):
+        weight_values = [
+            param_values[input_type][w].flatten()
+            for w in weight_params
+        ]
         wmat = np.array([])
         for w in weight_values:
             wmat = np.append(wmat, w)
-        bias_values = [param_values[input_type][b].flatten() for b in bias_params]
+        bias_values = [
+            param_values[input_type][b].flatten()
+            for b in bias_params
+        ]
         bm = np.array([])
         for b in bias_values:
             bm = np.append(bm, b)
@@ -923,11 +1216,12 @@ def cudnn_LSTM(model, input_blob, initial_states, dim_in, dim_out,
                          recurrent_bias_size
         total_sz = 4 * (first_layer_sz + (num_layers - 1) * upper_layer_sz)
 
-        weights = model.param_init_net.UniformFill(
-            [], "lstm_weight", shape=[total_sz])
-
-        model.params.append(weights)
-        model.weights.append(weights)
+        weights = model.create_param(
+            'lstm_weight',
+            shape=[total_sz],
+            initializer=Initializer('UniformFill'),
+            tags=ParameterTags.WEIGHT,
+        )
 
         lstm_args = {
             'hidden_size': dim_out,
@@ -1004,6 +1298,7 @@ def LSTMWithAttention(
     initial_attention_weighted_encoder_context,
     encoder_output_dim,
     encoder_outputs,
+    encoder_lengths,
     decoder_input_dim,
     decoder_state_dim,
     scope,
@@ -1027,7 +1322,7 @@ def LSTMWithAttention(
     where the decoder is the sequence the op is iterating over,
     while computing the attention context over the encoder.
 
-    model: CNNModelHelper object new operators would be added to
+    model: ModelHelper object new operators would be added to
 
     decoder_inputs: the input sequence in a format T x N x D
     where T is sequence size, N - batch size and D - input dimension
@@ -1045,6 +1340,9 @@ def LSTMWithAttention(
 
     encoder_outputs: the sequence, on which we compute the attention context
     at every iteration
+
+    encoder_lengths: a tensor with lengths of each encoder sequence in batch
+    (may be None, meaning all encoder sequences are of same length)
 
     decoder_input_dim: input dimension (last dimension on decoder_inputs)
 
@@ -1072,6 +1370,7 @@ def LSTMWithAttention(
     cell = LSTMWithAttentionCell(
         encoder_output_dim=encoder_output_dim,
         encoder_outputs=encoder_outputs,
+        encoder_lengths=encoder_lengths,
         decoder_input_dim=decoder_input_dim,
         decoder_state_dim=decoder_state_dim,
         name=scope,
@@ -1082,7 +1381,7 @@ def LSTMWithAttention(
         attention_memory_optimization=attention_memory_optimization,
         forward_only=forward_only,
     )
-    return cell.apply_over_sequence(
+    _, result = cell.apply_over_sequence(
         model=model,
         inputs=decoder_inputs,
         seq_lengths=decoder_input_lengths,
@@ -1093,6 +1392,7 @@ def LSTMWithAttention(
         ),
         outputs_with_grads=outputs_with_grads,
     )
+    return result
 
 
 def _layered_LSTM(

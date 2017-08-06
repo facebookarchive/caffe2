@@ -30,7 +30,9 @@ class PrefetchOperator : public OperatorBase {
         context_(operator_def.device_option()),
         prefetched_(false),
         prefetch_success_(true),
-        finalize_(false) {}
+        finalize_(false) {
+    context_.SwitchToDevice(0);
+  }
 
   virtual ~PrefetchOperator() noexcept {
     CHECK(finalize_ || !prefetch_thread_.get()) <<
@@ -58,7 +60,7 @@ class PrefetchOperator : public OperatorBase {
     }
   }
 
-  bool Run(int /* unused */ stream_id) override {
+  bool Run(int /* unused */ /*stream_id*/) override {
     // Note(jiayq): We only start the prefetch_thread at the Run() function
     // instead of in the constructor, because the prefetch_thread needs to start
     // after all derived classes' constructors finish.
@@ -79,9 +81,9 @@ class PrefetchOperator : public OperatorBase {
       return false;
     }
     prefetched_ = false;
-    bool success = context_.FinishDeviceComputation();
+    context_.FinishDeviceComputation();
     producer_.notify_one();
-    return success;
+    return true;
   }
 
   void PrefetchWorker() {
@@ -93,7 +95,14 @@ class PrefetchOperator : public OperatorBase {
       // We will need to run a FinishDeviceComputation() call because the
       // prefetcher thread and the main thread are potentially using different
       // streams (like on GPU).
-      prefetch_success_ = Prefetch() && context_.FinishDeviceComputation();
+      try {
+        prefetch_success_ = Prefetch();
+        context_.FinishDeviceComputation();
+      } catch (const std::exception& e) {
+        // TODO: propagate exception_ptr to the caller side
+        LOG(ERROR) << "Prefetching error " << e.what();
+        prefetch_success_ = false;
+      }
       prefetched_ = true;
       consumer_.notify_one();
       while (prefetched_)

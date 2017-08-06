@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "caffe2/core/common.h"
+#include "caffe2/core/logging.h"
 #include "caffe2/core/registry.h"
 #include "caffe2/proto/caffe2.pb.h"
 
@@ -159,6 +160,33 @@ class OpSchema {
     return tensor_inference_function_(def, input_type_shape);
   }
 
+  /*
+   * @brief A struct to store various cost information about
+   * an operator such as FLOPs and total memory use.
+   */
+  struct Cost {
+    size_t flops; // Floating point operations.
+    size_t bytes_moved; // Total memory used.
+  };
+  /**
+   * @brief Registers a function that takes in an OperatorDef
+   * and a series of input shapes and returns the total "cost"
+   * required to run the operator via struct by value.
+   */
+  typedef std::function<
+      struct Cost(const OperatorDef&, const vector<TensorShape>&)>
+      CostInferenceFunctionType;
+
+  /**
+   * @brief Register the Cost inference function.
+   */
+  OpSchema& CostInferenceFunction(CostInferenceFunctionType function);
+  inline struct Cost InferCost(
+      const OperatorDef& def,
+      const vector<TensorShape>& input_tensor_shape) const {
+    return cost_inference_function_(def, input_tensor_shape);
+  }
+
   // Functions to do documentation for the operator schema.
   OpSchema& SetDoc(const string& doc);
   OpSchema& Arg(const char* name, const char* description);
@@ -170,6 +198,9 @@ class OpSchema {
 
   // Remove from documentation
   OpSchema& Private();
+
+  // This op can pass data across devices
+  OpSchema& InputsCanCrossDevices();
 
   /**
    * @brief A function to allow one to get the number of outputs based on the
@@ -191,6 +222,33 @@ class OpSchema {
   bool private_op() {
     return private_;
   }
+  bool inputs_can_cross_devices() const {
+    return inputs_can_cross_devices_;
+  }
+
+  /**
+   * @brief Returns the required device location of inputs and outputs.
+   */
+  using DeviceInferenceFunctionType = std::function<
+      std::pair<std::vector<DeviceOption>, std::vector<DeviceOption>>(
+          const OperatorDef& def)>;
+
+  OpSchema& DeviceInferenceFunction(DeviceInferenceFunctionType function);
+
+  /**
+   * @brief Infer required device location of an op's inputs and outputs
+   */
+  inline std::pair<std::vector<DeviceOption>, std::vector<DeviceOption>>
+  InferDevice(const OperatorDef& def) const {
+    return device_inference_function_(def);
+  }
+
+ private:
+  [[noreturn]] Cost DefaultConstInferenceFunction(
+      const OperatorDef&,
+      const vector<TensorShape>&) {
+    CAFFE_THROW("No cost inference function registered.");
+  }
 
  private:
   string file_;
@@ -204,6 +262,7 @@ class OpSchema {
   int min_output_ = 0;
   int max_output_ = std::numeric_limits<int>::max();
   bool private_ = false;
+  bool inputs_can_cross_devices_ = false;
   std::function<bool(int)> num_inputs_allowed_
       = [](int) { return true; };
   std::function<bool(int)> num_outputs_allowed_
@@ -219,12 +278,25 @@ class OpSchema {
   TensorInferenceFunctionType tensor_inference_function_ =
       [](const OperatorDef& def, const vector<TensorShape>&) {
         vector<TensorShape> out;
-        for(int i=0; i<def.output_size(); i++) {
+        for (int i = 0; i < def.output_size(); i++) {
           TensorShape ts;
           ts.set_unknown_shape(true);
           out.push_back(ts);
         }
         return out;
+      };
+  CostInferenceFunctionType cost_inference_function_ = std::bind(
+      &OpSchema::DefaultConstInferenceFunction,
+      this,
+      std::placeholders::_1,
+      std::placeholders::_2);
+  DeviceInferenceFunctionType device_inference_function_ =
+      [](const OperatorDef& def) {
+        auto op_device =
+            def.has_device_option() ? def.device_option() : DeviceOption();
+        vector<DeviceOption> in_dev(def.input_size(), op_device);
+        vector<DeviceOption> out_dev(def.output_size(), op_device);
+        return std::make_pair(in_dev, out_dev);
       };
 };
 
@@ -238,6 +310,7 @@ class OpSchemaRegistry {
     auto& m = map();
     if (m.count(key)) {
       const auto& schema = m[key];
+      std::ios_base::Init init;
       std::cerr << "Trying to register schema with name "
                 << key << " from file " << file << " line " << line
                 << ", but it is already registered from file "
@@ -295,11 +368,22 @@ inline vector<TIndex> GetDimsVector(const TensorShape& shape) {
   return dims;
 }
 
+// Helper function for infer op inputs and outputs device information.
+inline std::pair<std::vector<DeviceOption>, std::vector<DeviceOption>>
+InferOpInputOutputDevice(const OperatorDef& op) {
+  auto op_schema = OpSchemaRegistry::Schema(op.type());
+  CAFFE_ENFORCE(
+      op_schema, "Device inference failed. No schema for: ", op.type());
+  // TODO(wyiming) : add try catch here.
+  return op_schema->InferDevice(op);
+}
+
 }  // namespace caffe2
 
-#define OPERATOR_SCHEMA(name)                                                 \
-  static OpSchema& CAFFE_ANONYMOUS_VARIABLE(name) =                           \
-    OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
+#define OPERATOR_SCHEMA(name)                            \
+  void CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name(){}; \
+  static OpSchema& CAFFE_ANONYMOUS_VARIABLE(name) =      \
+      OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
 #define OPERATOR_SCHEMA_STR(name)                                  \
   static OpSchema& CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
       OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)

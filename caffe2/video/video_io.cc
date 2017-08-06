@@ -447,7 +447,19 @@ bool DecodeClipFromMemoryBuffer(
   params.outputWidth_ = width ? width : -1;
   params.maximumOutputFrames_ = MAX_DECODING_FRAMES;
 
-  decoder.decodeMemory(video_buffer, size, params, sampledFrames);
+  bool isTemporalJitter = (start_frm < 0);
+  decoder.decodeMemory(
+      video_buffer,
+      size,
+      params,
+      sampledFrames,
+      length * sampling_rate,
+      !isTemporalJitter);
+
+  if (sampledFrames.size() < length * sampling_rate) {
+    /* selective decoding failed. Decode all frames. */
+    decoder.decodeMemory(video_buffer, size, params, sampledFrames);
+  }
 
   buffer = nullptr;
   int offset = 0;
@@ -457,11 +469,33 @@ bool DecodeClipFromMemoryBuffer(
 
   int use_start_frm = start_frm;
   if (start_frm < 0) { // perform temporal jittering
-    use_start_frm = std::uniform_int_distribution<>(
-        0, sampledFrames.size() - length * sampling_rate)(*randgen);
+    if ((int)(sampledFrames.size() - length * sampling_rate) > 0) {
+      use_start_frm = std::uniform_int_distribution<>(
+          0, (int)(sampledFrames.size() - length * sampling_rate))(*randgen);
+    } else {
+      use_start_frm = 0;
+    }
   }
 
+  if (sampledFrames.size() < length * sampling_rate) {
+    LOG(ERROR)
+        << "The video seems faulty and we could not decode suffient samples";
+    buffer = nullptr;
+    return true;
+  }
+
+  CAFFE_ENFORCE_LT(
+    use_start_frm,
+    sampledFrames.size(),
+    "Starting frame must less than total number of video frames");
+
   int end_frm = use_start_frm + length * sampling_rate;
+
+  CAFFE_ENFORCE_LE(
+      end_frm,
+      sampledFrames.size(),
+      "Ending frame must less than or equal total number of video frames");
+
   for (int i = use_start_frm; i < end_frm; i += sampling_rate) {
     if (i == use_start_frm) {
       image_size = sampledFrames[i]->height_ * sampledFrames[i]->width_;

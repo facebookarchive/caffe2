@@ -2,100 +2,47 @@
 
 namespace caffe2 {
 
-struct PredictionCmp {
-  bool operator()(
-      const std::pair<float, int>& lhs,
-      const std::pair<float, int>& rhs) {
-    return (
-        lhs.first > rhs.first ||
-        (lhs.first == rhs.first && lhs.second < rhs.second));
-  }
-};
-
 template <>
 bool AccuracyOp<float, CPUContext>::RunOnDevice() {
   auto& X = Input(PREDICTION);
   auto& label = Input(LABEL);
   auto* Y = Output(0);
-  DCHECK_EQ(X.ndim(), 2);
+  CAFFE_ENFORCE_EQ(X.ndim(), 2);
   int N = X.dim32(0);
   int D = X.dim32(1);
-  DCHECK_EQ(label.ndim(), 1);
-  DCHECK_EQ(label.dim32(0), N);
+  CAFFE_ENFORCE_EQ(label.ndim(), 1);
+  CAFFE_ENFORCE_EQ(label.dim32(0), N);
   Y->Resize(vector<TIndex>());
   const auto* Xdata = X.data<float>();
   const auto* labelData = label.data<int>();
   const int top_k = top_k_;
   int correct = 0;
 
-  if (top_k == 1) {
-    // Specially handling the case when top_k equals to 1
-    // to achieve a better performance
-
-    for (int i = 0; i < N; ++i) {
-      // Find the corresponding index of the max prediction
-      float max_pred = Xdata[i * D];
-      int max_idx = 0;
-      for (int j = 1; j < D; j++) {
-        float pred = Xdata[i * D + j];
-        if (pred > max_pred) {
-          max_pred = pred;
-          max_idx = j;
-        }
-      }
-      // Increment accurary if the max predictions equal to the expected label
-      if (max_idx == labelData[i]) {
-        ++correct;
-      }
-    }
-  } else {
-    for (int i = 0; i < N; ++i) {
-      // Build a min-heap, the heap element is paire of (prediction, idx)
-      // the top of the heap is the smallest prediction
-      std::priority_queue<
-          std::pair<float, int>,
-          std::vector<std::pair<float, int>>,
-          PredictionCmp>
-          PQ;
-
-      // Maintain the size of heap to be less or equal to top_k, therefore the
-      // heap is holding the top k largest predictions. Increase correct by one
-      // when the index j equals to labelData.
-      // When poping predictions out of the heap, check if its index
-      // equals to labelData. if yes, decrease correct by one and break, because
-      // the next index are greater than labelData, so no need to check further
-      for (int j = 0; j < D; ++j) {
-        auto pred = Xdata[i * D + j];
-        const auto label_data = labelData[i];
-
-        if (PQ.size() < top_k || pred > PQ.top().first) {
-          if (j == label_data) {
-            ++correct;
-          }
-          PQ.push(std::make_pair(pred, j));
-          if (PQ.size() > top_k) {
-            if (PQ.top().second == label_data) {
-              --correct;
-              break;
-            }
-            PQ.pop();
-          }
-        } else if (label_data == j) {
-          // The correct answer did not make it into the top K heap,
-          // so we can short circuit
+  // it's equivalent to using a stable sorting algorithm to sort the
+  // classes (with their predictions as key) and then check whether
+  // the label is within the first top_k slots.
+  for (int i = 0; i < N; ++i) {
+    auto label_i = labelData[i];
+    auto label_pred = Xdata[i * D + label_i];
+    int ngt = 1;
+    for (int j = 0; j < D; ++j) {
+      auto pred = Xdata[i * D + j];
+      if ((pred > label_pred) || (pred == label_pred && j < label_i)) {
+        if (++ngt > top_k) {
           break;
         }
       }
     }
+    if (ngt <= top_k) {
+      ++correct;
+    }
   }
-
-  DCHECK_LE(correct, N);
+  CAFFE_ENFORCE_LE(correct, N);
   *(Y->mutable_data<float>()) = static_cast<float>(correct) / N;
 
   return true;
 }
 
-namespace {
 REGISTER_CPU_OPERATOR(Accuracy, AccuracyOp<float, CPUContext>);
 
 OPERATOR_SCHEMA(Accuracy)
@@ -118,5 +65,4 @@ classes, it is considered a correct prediction.
           "accuracy");
 
 SHOULD_NOT_DO_GRADIENT(Accuracy);
-}  // namespace
 }  // namespace caffe2

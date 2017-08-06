@@ -8,13 +8,22 @@ bool SpatialBNGradientOp<CPUContext>::RunOnDevice() {
   const auto& dY = Input(OUTPUT_GRAD);
   const auto& scale = Input(SCALE);
 
-  DCHECK_EQ(X.ndim(), 4);
+  CAFFE_ENFORCE(X.ndim() >= 3 && X.ndim() <= 5);
   const int N = X.dim32(0);
-  const int C = (order_ == StorageOrder::NCHW ? X.dim32(1) : X.dim32(3));
+  const int C =
+      (order_ == StorageOrder::NCHW ? X.dim32(1) : X.dim32(X.ndim() - 1));
   const int H = (order_ == StorageOrder::NCHW ? X.dim32(2) : X.dim32(1));
-  const int W = (order_ == StorageOrder::NCHW ? X.dim32(3) : X.dim32(2));
-  DCHECK_EQ(scale.ndim(), 1);
-  DCHECK_EQ(scale.dim32(0), C);
+  const int W = X.ndim() > 3
+      ? (order_ == StorageOrder::NCHW ? X.dim32(3) : X.dim32(2))
+      : 1;
+  const int D = X.ndim() > 4
+      ? (order_ == StorageOrder::NCHW ? X.dim32(4) : X.dim32(3))
+      : 1;
+
+  const int sample_size = H * W * D;
+
+  CAFFE_ENFORCE_EQ(scale.ndim(), 1);
+  CAFFE_ENFORCE_EQ(scale.dim32(0), C);
 
   ConstEigenVectorArrayMap<float> scale_arr(scale.data<float>(), C);
   ConstEigenVectorArrayMap<float> mean_arr(Input(SAVED_MEAN).data<float>(), C);
@@ -39,13 +48,14 @@ bool SpatialBNGradientOp<CPUContext>::RunOnDevice() {
   dBias_arr.setZero();
   dScale_arr.setZero();
 
-  const auto scaleInvVarNHW = scale_arr * inv_var_arr / (N * H * W);
+  const auto scaleInvVarNHW = scale_arr * inv_var_arr / (N * sample_size);
 
   switch (order_) {
     case StorageOrder::NCHW: {
-      ConstEigenArrayMap<float> X_arr(X.data<float>(), H * W, N * C);
-      ConstEigenArrayMap<float> dY_arr(dY.data<float>(), H * W, N * C);
-      EigenArrayMap<float> dX_arr(dX->mutable_data<float>(), H * W, N * C);
+      ConstEigenArrayMap<float> X_arr(X.data<float>(), sample_size, N * C);
+      ConstEigenArrayMap<float> dY_arr(dY.data<float>(), sample_size, N * C);
+      EigenArrayMap<float> dX_arr(
+          dX->mutable_data<float>(), sample_size, N * C);
       dX_arr.setZero();
 
       for (int nc = 0; nc < N * C; ++nc) {
@@ -58,27 +68,28 @@ bool SpatialBNGradientOp<CPUContext>::RunOnDevice() {
       for (int nc = 0; nc < N * C; ++nc) {
         int c = nc % C;
         dX_arr.col(nc) += scaleInvVarNHW(c) *
-            (dY_arr.col(nc) * N * H * W - dBias_arr(c) -
+            (dY_arr.col(nc) * N * sample_size - dBias_arr(c) -
              (X_arr.col(nc) - mean_arr[c]) * dScale_arr(c) * inv_var_arr(c));
       }
       break;
     }
     case StorageOrder::NHWC: {
-      ConstEigenArrayMap<float> X_arr(X.data<float>(), C, N * H * W);
-      ConstEigenArrayMap<float> dY_arr(dY.data<float>(), C, N * H * W);
-      EigenArrayMap<float> dX_arr(dX->mutable_data<float>(), C, N * H * W);
+      ConstEigenArrayMap<float> X_arr(X.data<float>(), C, N * sample_size);
+      ConstEigenArrayMap<float> dY_arr(dY.data<float>(), C, N * sample_size);
+      EigenArrayMap<float> dX_arr(
+          dX->mutable_data<float>(), C, N * sample_size);
       dX_arr.setZero();
 
       const auto dYRowSum = dY_arr.rowwise().sum();
       const auto XMinusMean = X_arr.colwise() - mean_arr;
       const auto dYMulXMinusMeanRowSum = (dY_arr * XMinusMean).rowwise().sum();
       const auto invVarSqr = inv_var_arr * inv_var_arr;
-      for (int nhw = 0; nhw < N * H * W; ++nhw) {
+      for (int nhw = 0; nhw < N * sample_size; ++nhw) {
         dBias_arr += dY_arr.col(nhw);
         dScale_arr +=
             (X_arr.col(nhw) - mean_arr) * inv_var_arr * dY_arr.col(nhw);
         dX_arr.col(nhw) += scaleInvVarNHW *
-            (dY_arr.col(nhw) * N * H * W - dYRowSum -
+            (dY_arr.col(nhw) * N * sample_size - dYRowSum -
              XMinusMean.col(nhw) * invVarSqr * dYMulXMinusMeanRowSum);
       }
       break;
@@ -102,7 +113,7 @@ class GetSpatialBNGradient : public GradientMakerBase {
   vector<OperatorDef> GetGradientDefs() override {
     // Check if we are in training or testing mode.
     bool is_test = false;
-    if (HasArgument(def_, "is_test")) {
+    if (ArgumentHelper::HasArgument(def_, "is_test")) {
       const auto& arg = GetArgument(def_, "is_test");
       CAFFE_ENFORCE(arg.has_i());
       is_test = arg.i();
@@ -110,7 +121,7 @@ class GetSpatialBNGradient : public GradientMakerBase {
     vector<string> grad_outputs{GI(0), GI(1), GI(2)};
     vector<string> grad_inputs;
     if (is_test) {
-      // This is in testing mode. The operator should have five input:
+      // This is in testing mode. The operator should have five inputs:
       //     X, scale, bias, estimated_mean, estimated_variance
       // The gradient inputs are:
       //     X, scale, dY, estimated_mean, estimated_variance
