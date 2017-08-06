@@ -1,7 +1,7 @@
 #include "caffe2/core/init.h"
 #include "caffe2/core/operator_gradient.h"
 
-#include "util/print.h"
+#include "caffe2/utils/print.h"
 
 namespace caffe2 {
 
