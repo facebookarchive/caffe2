@@ -13,8 +13,8 @@ id: home
                 <p>Want to win funding for AI research using Caffe2? <a href="https://research.fb.com/programs/research-awards/proposals/caffe2-rfp/">Submit your proposals</a>.</p>
             </div>
             <div class="landing-col-md-3 box">
-                <a class="iconImages" href="https://www.meetup.com/Caffe2-Bay-Area/events/241702584/"><img height="100" src="./static/images/landing-meetup.svg"></a>
-                <h4>Caffe2 Meetup Videos</h4>
+                <a class="iconImages" href="https://www.facebook.com/pg/Caffe2AI/videos/"><img height="100" src="./static/images/landing-meetup.svg"></a>
+                <h4>Caffe2 Meetup</h4>
                 <p><a href="https://www.facebook.com/pg/Caffe2AI/videos/">Recordings for Caffe2 meetups are available on the new Caffe2 Page.</a></p>
             </div>
             <div class="landing-col-md-3 box">
