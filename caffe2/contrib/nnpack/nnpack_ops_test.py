@@ -151,6 +151,29 @@ class NNPackOpsTest(hu.HypothesisTestCase):
 
     @given(size=st.sampled_from([6, 8]),
            input_channels=st.integers(1, 8),
+           batch_size=st.integers(1, 5))
+    def test_softmax_correctness(self, size, input_channels, batch_size):
+        X = np.random.rand(
+            batch_size, input_channels, size, size).astype(np.float32) - 0.5
+        outputs = {}
+        for engine in ["", "NNPACK"]:
+            op = core.CreateOperator(
+                "Softmax",
+                ["X"],
+                ["Y"],
+                engine=engine,
+            )
+            self.ws.create_blob("X").feed(X)
+            self.ws.run(op)
+            outputs[engine] = self.ws.blobs["Y"].fetch()
+        np.testing.assert_allclose(
+            outputs[""],
+            outputs["NNPACK"],
+            atol=1e-4,
+            rtol=1e-4)
+
+    @given(size=st.sampled_from([6, 8]),
+           input_channels=st.integers(1, 8),
            batch_size=st.integers(1, 5),
            alpha=st.floats(0, 1))
     def test_leaky_relu_correctness(self, size, input_channels, batch_size,
