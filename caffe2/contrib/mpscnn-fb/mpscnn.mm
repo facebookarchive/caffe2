@@ -527,13 +527,13 @@ class MPSCNNConvOp final : public ConvPoolOpBase<CPUContext> {
     const int M = filter.dim32(0);
 
     CAFFE_ENFORCE(X.featureChannels == C, "");
-    CAFFE_ENFORCE(filter.dim32(2) == this->kernel_h_, "");
-    CAFFE_ENFORCE(filter.dim32(3) == this->kernel_w_, "");
+    CAFFE_ENFORCE(filter.dim32(2) == this->kernel_[0], "");
+    CAFFE_ENFORCE(filter.dim32(3) == this->kernel_[1], "");
     CAFFE_ENFORCE(bias.ndim() == 1, "");
     CAFFE_ENFORCE(bias.dim32(0) == M, "");
 
-    const auto kH = this->kernel_h_;
-    const auto kW = this->kernel_w_;
+    const auto kH = this->kernel_[0];
+    const auto kW = this->kernel_[1];
 
     // ConvPoolOpBase<CPUContext>::SetOutputSize(X, Y, filter.dim32(0));
     // Reformat weights from [M][C][kH][kW] to [M][kH][kW][C].
@@ -560,8 +560,8 @@ class MPSCNNConvOp final : public ConvPoolOpBase<CPUContext> {
                                                           inputFeatureChannels:C
                                                          outputFeatureChannels:M
                                                                   neuronFilter:Neuron::t()];
-      desc.strideInPixelsX = this->stride_w_;
-      desc.strideInPixelsY = this->stride_h_;
+      desc.strideInPixelsX = this->stride_[1];
+      desc.strideInPixelsY = this->stride_[0];
 
       conv_ = [[MPSCNNConvolution alloc] initWithDevice:getMPSCNNContext().device
                                   convolutionDescriptor:desc
@@ -571,15 +571,15 @@ class MPSCNNConvOp final : public ConvPoolOpBase<CPUContext> {
       [conv_ setEdgeMode:MPSImageEdgeModeZero];
 
       MPSOffset offset;
-      offset.x = computeMPSAlignOffset(kW, pad_l_);
-      offset.y = computeMPSAlignOffset(kH, pad_t_);
+      offset.x = computeMPSAlignOffset(kW, pads_[1]);
+      offset.y = computeMPSAlignOffset(kH, pads_[0]);
       offset.z = 0;
       [conv_ setOffset:offset];
       VLOG(2) << "MPSCNNConv ConvDesc took: " << consT.MilliSeconds();
     }
 
-    CAFFE_ENFORCE_EQ(conv_.strideInPixelsY, this->stride_h_);
-    CAFFE_ENFORCE_EQ(conv_.strideInPixelsX, this->stride_w_);
+    CAFFE_ENFORCE_EQ(conv_.strideInPixelsY, this->stride_[0]);
+    CAFFE_ENFORCE_EQ(conv_.strideInPixelsX, this->stride_[1]);
     CAFFE_ENFORCE_EQ(conv_.groups, 1);
     CAFFE_ENFORCE_EQ(conv_.inputFeatureChannels, C);
     CAFFE_ENFORCE_EQ(conv_.outputFeatureChannels, M);
@@ -637,7 +637,7 @@ class MPSCNNPadImageOp final : public ConvPoolOpBase<CPUContext> {
 
     OPERATOR_NEEDS_FEATURE(OperatorBase::GetSingleArgument<string>("mode", "") == "reflect",
                            "Metal only supports reflection");
-    kernel_h_ = kernel_w_ = 1;
+    kernel_[0] = kernel_[1] = 1;
   }
 
   bool RunOnDeviceWithOrderNCHW() override {
@@ -649,8 +649,8 @@ class MPSCNNPadImageOp final : public ConvPoolOpBase<CPUContext> {
                                             ->template Get<MPSImageWrapper>()
                                             .commandBuffer_);
 
-    const auto pH = this->pad_t_;
-    const auto pW = this->pad_l_;
+    const auto pH = this->pads_[0];
+    const auto pW = this->pads_[1];
     const auto output_height = X.height + 2 * pH;
     const auto output_width = X.width + 2 * pW;
     VLOG(1) << "Output height: " << output_height;
@@ -756,24 +756,27 @@ class MPSCNNAveragePoolOp final : public ConvPoolOpBase<CPUContext> {
 
     if (!pool_ || this->global_pooling_) {
       caffe2::Timer consT;
-      this->ComputePads(X.height, X.width);
+      vector<int> Xdims(2);
+      Xdims[0] = (int)X.height;
+      Xdims[1] = (int)X.width;
+      this->ComputePads(Xdims);
       pool_ = [[MPSCNNPoolingAverage alloc] initWithDevice:getMPSCNNContext().device
-                                               kernelWidth:this->kernel_w_
-                                              kernelHeight:this->kernel_h_
-                                           strideInPixelsX:this->stride_w_
-                                           strideInPixelsY:this->stride_h_];
+                                               kernelWidth:this->kernel_[1]
+                                              kernelHeight:this->kernel_[0]
+                                           strideInPixelsX:this->stride_[1]
+                                           strideInPixelsY:this->stride_[0]];
 
       [pool_ setEdgeMode:MPSImageEdgeModeClamp];
       MPSOffset offset;
-      offset.x = computeMPSAlignOffset(this->kernel_w_, pad_l_);
-      offset.y = computeMPSAlignOffset(this->kernel_h_, pad_t_);
+      offset.x = computeMPSAlignOffset(this->kernel_[1], pads_[1]);
+      offset.y = computeMPSAlignOffset(this->kernel_[0], pads_[0]);
       offset.z = 0;
       [pool_ setOffset:offset];
       VLOG(2) << "MPSCNNAveragePool PoolDesc took: " << consT.MilliSeconds();
     }
 
-    CAFFE_ENFORCE_EQ(pool_.strideInPixelsY, this->stride_h_);
-    CAFFE_ENFORCE_EQ(pool_.strideInPixelsX, this->stride_w_);
+    CAFFE_ENFORCE_EQ(pool_.strideInPixelsY, this->stride_[0]);
+    CAFFE_ENFORCE_EQ(pool_.strideInPixelsX, this->stride_[1]);
     int output_height;
     int output_width;
     computeOutputHW(this, X.height, X.width, &output_height, &output_width);
@@ -818,24 +821,27 @@ class MPSCNNMaxPoolOp final : public ConvPoolOpBase<CPUContext> {
                                             .commandBuffer_);
     if (!pool_ || this->global_pooling_) {
       caffe2::Timer consT;
-      this->ComputePads(X.height, X.width);
+      vector<int> Xdims(2);
+      Xdims[0] = (int)X.height;
+      Xdims[1] = (int)X.width;
+      this->ComputePads(Xdims);
       pool_ = [[MPSCNNPoolingMax alloc] initWithDevice:getMPSCNNContext().device
-                                           kernelWidth:this->kernel_w_
-                                          kernelHeight:this->kernel_h_
-                                       strideInPixelsX:this->stride_w_
-                                       strideInPixelsY:this->stride_h_];
+                                           kernelWidth:this->kernel_[1]
+                                          kernelHeight:this->kernel_[0]
+                                       strideInPixelsX:this->stride_[1]
+                                       strideInPixelsY:this->stride_[0]];
 
       [pool_ setEdgeMode:MPSImageEdgeModeClamp];
       MPSOffset offset;
-      offset.x = computeMPSAlignOffset(this->kernel_w_, pad_l_);
-      offset.y = computeMPSAlignOffset(this->kernel_h_, pad_t_);
+      offset.x = computeMPSAlignOffset(this->kernel_[1], pads_[1]);
+      offset.y = computeMPSAlignOffset(this->kernel_[0], pads_[0]);
       offset.z = 0;
       [pool_ setOffset:offset];
       VLOG(2) << "MPSCNNMaxPool PoolDesc took: " << consT.MilliSeconds();
     }
 
-    CAFFE_ENFORCE_EQ(pool_.strideInPixelsY, this->stride_h_);
-    CAFFE_ENFORCE_EQ(pool_.strideInPixelsX, this->stride_w_);
+    CAFFE_ENFORCE_EQ(pool_.strideInPixelsY, this->stride_[0]);
+    CAFFE_ENFORCE_EQ(pool_.strideInPixelsX, this->stride_[1]);
 
     int output_height;
     int output_width;
