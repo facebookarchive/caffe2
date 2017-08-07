@@ -15,7 +15,7 @@ id: home
             <div class="landing-col-md-3 box">
                 <a class="iconImages" href="https://www.meetup.com/Caffe2-Bay-Area/events/241702584/"><img height="100" src="./static/images/landing-meetup.svg"></a>
                 <h4>Caffe2 Meetup Videos</h4>
-                <p><a href="https://www.facebook.com/pg/Caffe2AI/videos/">Recordings for Caffe2 meetups are available on the new Caffe2 Page.</p>
+                <p><a href="https://www.facebook.com/pg/Caffe2AI/videos/">Recordings for Caffe2 meetups are available on the new Caffe2 Page.</a></p>
             </div>
             <div class="landing-col-md-3 box">
                 <a class="iconImages" href="https://twitter.com/caffe2ai"><img height="100" src="./static/images/landing-twitter.svg"></a>
