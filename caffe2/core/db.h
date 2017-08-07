@@ -79,7 +79,7 @@ class Transaction {
  */
 class DB {
  public:
-  DB(const string& source, Mode mode) : mode_(mode) {}
+  DB(const string& /*source*/, Mode mode) : mode_(mode) {}
   virtual ~DB() { }
   /**
    * Closes the database.
@@ -119,6 +119,23 @@ inline unique_ptr<DB> CreateDB(
   auto result = Caffe2DBRegistry()->Create(db_type, source, mode);
   VLOG(1) << ((!result) ? "not found db " : "found db ") << db_type;
   return result;
+}
+
+/**
+ * Returns whether or not a database exists given the database type and path.
+ */
+inline bool DBExists(const string& db_type, const string& full_db_name) {
+  // Warning! We assume that creating a DB throws an exception if the DB
+  // does not exist. If the DB constructor does not follow this design
+  // pattern,
+  // the returned output (the existence tensor) can be wrong.
+  try {
+    std::unique_ptr<DB> db(
+        caffe2::db::CreateDB(db_type, full_db_name, caffe2::db::READ));
+    return true;
+  } catch (...) {
+    return false;
+  }
 }
 
 /**

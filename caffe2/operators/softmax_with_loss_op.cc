@@ -84,15 +84,15 @@ bool SoftmaxWithLossOp<float, CPUContext>::RunOnDevice() {
   const float* weights = (InputSize() > 2 ? Input(2).data<float>() : nullptr);
 
   if (label_prob_mode_) {
-    DCHECK_GE(T.ndim(), 2);
-    DCHECK_EQ(T.size_to_dim(canonical_axis), N);
-    DCHECK_EQ(T.size_from_dim(canonical_axis), D);
+    CAFFE_ENFORCE_GE(T.ndim(), 2);
+    CAFFE_ENFORCE_EQ(T.size_to_dim(canonical_axis), N);
+    CAFFE_ENFORCE_EQ(T.size_from_dim(canonical_axis), D);
   } else {
     if (T.ndim() == canonical_axis) {
-      DCHECK_EQ(T.size(), N);
+      CAFFE_ENFORCE_EQ(T.size(), N);
     } else {
-      DCHECK_EQ(T.size_to_dim(canonical_axis), N);
-      DCHECK_EQ(T.size_from_dim(canonical_axis), 1);
+      CAFFE_ENFORCE_EQ(T.size_to_dim(canonical_axis), N);
+      CAFFE_ENFORCE_EQ(T.size_from_dim(canonical_axis), 1);
     }
   }
 
@@ -140,20 +140,25 @@ bool SoftmaxWithLossOp<float, CPUContext>::RunOnDevice() {
     const float* label_data = T.data<float>();
 
     for (int i = 0; i < N; ++i) {
-      CAFFE_ENFORCE(
-          label_data[i] >= 0,
-          "Label prob seems incorrect: label prob value must be nonnegative: ",
-          label_data[i]);
       float l = 0.0;
       float total_prob = 0.0;
       float weight = weights ? weights[i] : 1.0;
       for (int j = 0; j < D; ++j) {
+        CAFFE_ENFORCE(
+            label_data[i * D + j] >= 0,
+            "Label prob seems incorrect: label prob value must be nonnegative:",
+            " ",
+            label_data[i * D + j]);
         l += -log(std::max(Pdata[i * D + j], 1e-20f)) * label_data[i * D + j] *
             weight;
         total_prob += label_data[i * D + j];
       }
       loss_sum += l;
-      DCHECK(std::abs(total_prob - 1.) < 1e-5f);
+      CAFFE_ENFORCE(
+          std::abs(total_prob - 1.) < 1e-5f,
+          "Label prob seems incorrect: label prob values do not sum to 1.0: ",
+          total_prob,
+          " vs 1.0 (+/- 1e-5)");
       weight_sum += weight;
     }
   }
@@ -185,15 +190,15 @@ bool SoftmaxWithLossGradientOp<float, CPUContext>::RunOnDevice() {
   dX->ResizeLike(X);
 
   if (label_prob_mode_) {
-    DCHECK_GE(T.ndim(), 2);
-    DCHECK_EQ(T.size_to_dim(canonical_axis), N);
-    DCHECK_EQ(T.size_from_dim(canonical_axis), D);
+    CAFFE_ENFORCE_GE(T.ndim(), 2);
+    CAFFE_ENFORCE_EQ(T.size_to_dim(canonical_axis), N);
+    CAFFE_ENFORCE_EQ(T.size_from_dim(canonical_axis), D);
   } else {
     if (T.ndim() == canonical_axis) {
-      DCHECK_EQ(T.size(), N);
+      CAFFE_ENFORCE_EQ(T.size(), N);
     } else {
-      DCHECK_EQ(T.size_to_dim(canonical_axis), N);
-      DCHECK_EQ(T.size_from_dim(canonical_axis), 1);
+      CAFFE_ENFORCE_EQ(T.size_to_dim(canonical_axis), N);
+      CAFFE_ENFORCE_EQ(T.size_from_dim(canonical_axis), 1);
     }
   }
 

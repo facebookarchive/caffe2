@@ -6,7 +6,7 @@ namespace caffe2 {
 
 namespace detail {
 template <>
-ctcComputeInfo workspaceInfo<CPUContext>(const CPUContext& context) {
+ctcComputeInfo workspaceInfo<CPUContext>(const CPUContext& /*context*/) {
   ctcComputeInfo result;
   result.loc = CTC_CPU;
   result.num_threads = 1;
@@ -14,13 +14,20 @@ ctcComputeInfo workspaceInfo<CPUContext>(const CPUContext& context) {
 }
 }
 
-namespace {
 REGISTER_CPU_OPERATOR(CTC, CTCOp<float, CPUContext>);
 OPERATOR_SCHEMA(CTC)
     .NumInputs(4)
     .NumOutputs(3);
 //    .EnforceInputOutputGradient({{0, 0}});
-NO_GRADIENT(CTC);
 
+namespace {
+class GetCTCGradient : public GradientMakerBase {
+  using GradientMakerBase::GradientMakerBase;
+  vector<OperatorDef> GetGradientDefs() override {
+    return SingleGradientDef(
+        "Copy", "", vector<string>{O(0)}, vector<string>{GI(0)});
+  }
+};
 }
+REGISTER_GRADIENT(CTC, GetCTCGradient);
 }

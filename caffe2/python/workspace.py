@@ -164,7 +164,7 @@ def RunOperatorsOnce(operators):
 def CallWithExceptionIntercept(func, op_id_fetcher, net_name, *args, **kwargs):
     try:
         return func(*args, **kwargs)
-    except Exception as ex:
+    except Exception:
         op_id = op_id_fetcher()
         net_tracebacks = operator_tracebacks.get(net_name, None)
         print("Traceback for operator {} in network {}".format(op_id, net_name))
@@ -172,7 +172,7 @@ def CallWithExceptionIntercept(func, op_id_fetcher, net_name, *args, **kwargs):
             tb = net_tracebacks[op_id]
             for line in tb:
                 print(':'.join(map(str, line)))
-        raise ex
+        raise
 
 
 def RunNetOnce(net):
@@ -321,6 +321,25 @@ def FetchBlob(name):
       Fetched blob (numpy array or string) if successful
     """
     return C.fetch_blob(StringifyBlobName(name))
+
+
+def ApplyTransform(transform_key, net):
+    """Apply a Transform to a NetDef protobuf object, and returns the new
+    transformed NetDef.
+
+    Inputs:
+      transform_key: the name of the transform, as it is stored in the registry
+      net: a NetDef protobuf object
+    Returns:
+      Transformed NetDef protobuf object.
+    """
+    transformed_net = caffe2_pb2.NetDef()
+    transformed_str = C.apply_transform(
+        str(transform_key).encode('utf-8'),
+        net.SerializeToString(),
+    )
+    transformed_net.ParseFromString(transformed_str)
+    return transformed_net
 
 
 def GetNameScope():

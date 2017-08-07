@@ -26,8 +26,7 @@ NetBase::NetBase(
       external_output_(
           def->external_output().begin(),
           def->external_output().end()),
-      name_(def->name()),
-      net_def_(def) {
+      name_(def->name()) {
   // Go through the operators and make sure that blobs are correctly made.
   std::set<string> known_blobs(
       external_input_.begin(), external_input_.end());
@@ -82,7 +81,7 @@ void SetGlobalNetObserverCreator(NetObserverCreator creator) {
 }
 
 unique_ptr<NetBase> CreateNet(const NetDef& net_def, Workspace* ws) {
-  const auto tmp_net_def = std::make_shared<const NetDef>(net_def);
+  std::shared_ptr<NetDef> tmp_net_def(new NetDef(net_def));
   return CreateNet(tmp_net_def, ws);
 }
 
@@ -125,9 +124,8 @@ SimpleNet::SimpleNet(
       op = CreateOperator(temp_def, ws, idx);
     } else {
       op = CreateOperator(operator_def, ws, idx);
-      std::shared_ptr<const OperatorDef> operator_def_ptr{net_def,
-                                                          &(net_def->op(idx))};
-      op->set_debug_def(operator_def_ptr);
+      op->set_debug_def(
+          std::shared_ptr<const OperatorDef>{net_def, &(net_def->op(idx))});
     }
     operators_.emplace_back(std::move(op));
   }

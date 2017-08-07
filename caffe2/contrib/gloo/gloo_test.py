@@ -50,6 +50,7 @@ class TestCase(hu.HypothesisTestCase):
                 with core.DeviceScope(device_option):
                     fn(*args, **kwargs)
                     workspace.ResetWorkspace()
+                    queue.put(True)
             except Exception as ex:
                 queue.put(ex)
 
@@ -67,14 +68,19 @@ class TestCase(hu.HypothesisTestCase):
         while len(procs) > 0:
             proc = procs.pop(0)
             while proc.is_alive():
-                proc.join(1)
+                proc.join(10)
 
-                # Raise exception if we find any.
+                # Raise exception if we find any. Otherwise each worker
+                # should put a True into the queue
                 # Note that the following is executed ALSO after
                 # the last process was joined, so if ANY exception
                 # was raised, it will be re-raised here.
-                if not queue.empty():
-                    raise queue.get()
+                self.assertFalse(queue.empty(), "Job failed without a result")
+                o = queue.get()
+                if isinstance(o, Exception):
+                    raise o
+                else:
+                    self.assertTrue(o)
 
     def run_test_distributed(self, fn, device_option=None, **kwargs):
         comm_rank = os.getenv('COMM_RANK')
@@ -87,34 +93,40 @@ class TestCase(hu.HypothesisTestCase):
             fn(**kwargs)
             workspace.ResetWorkspace()
 
-    def create_common_world(self, comm_rank, comm_size, tmpdir=None):
+    def create_common_world(self, comm_rank, comm_size, tmpdir=None, existing_cw=None):
         store_handler = "store_handler"
 
         # If REDIS_HOST is set, use RedisStoreHandler for rendezvous.
-        redis_host = os.getenv("REDIS_HOST")
-        redis_port = int(os.getenv("REDIS_PORT", 6379))
-        if redis_host is not None:
-            workspace.RunOperatorOnce(
-                core.CreateOperator(
-                    "RedisStoreHandlerCreate",
-                    [],
-                    [store_handler],
-                    prefix=str(TestCase.test_counter) + "/",
-                    host=redis_host,
-                    port=redis_port))
+        if existing_cw is None:
+            redis_host = os.getenv("REDIS_HOST")
+            redis_port = int(os.getenv("REDIS_PORT", 6379))
+            if redis_host is not None:
+                workspace.RunOperatorOnce(
+                    core.CreateOperator(
+                        "RedisStoreHandlerCreate",
+                        [],
+                        [store_handler],
+                        prefix=str(TestCase.test_counter) + "/",
+                        host=redis_host,
+                        port=redis_port))
+            else:
+                workspace.RunOperatorOnce(
+                    core.CreateOperator(
+                        "FileStoreHandlerCreate",
+                        [],
+                        [store_handler],
+                        path=tmpdir))
+            common_world = "common_world"
         else:
-            workspace.RunOperatorOnce(
-                core.CreateOperator(
-                    "FileStoreHandlerCreate",
-                    [],
-                    [store_handler],
-                    path=tmpdir))
+            common_world = str(existing_cw) + ".forked"
 
-        common_world = "common_world"
+        inputs = [store_handler]
+        if existing_cw is not None:
+            inputs.append(existing_cw)
         workspace.RunOperatorOnce(
             core.CreateOperator(
                 "CreateCommonWorld",
-                [store_handler],
+                inputs,
                 [common_world],
                 size=comm_size,
                 rank=comm_rank,
@@ -269,6 +281,45 @@ class TestCase(hu.HypothesisTestCase):
         for _tmp in range(4):
             workspace.RunNet(net.Name())
 
+    def _test_allreduce_multicw(self,
+                                comm_rank=None,
+                                comm_size=None,
+                                tmpdir=None
+                                ):
+        _store_handler, common_world = self.create_common_world(
+            comm_rank=comm_rank,
+            comm_size=comm_size,
+            tmpdir=tmpdir)
+
+        _, common_world2 = self.create_common_world(
+            comm_rank=comm_rank,
+            comm_size=comm_size,
+            tmpdir=tmpdir,
+            existing_cw=common_world)
+
+        blob_size = 1e4
+        num_blobs = 4
+
+        for cw in [common_world, common_world2]:
+            blobs = []
+            for i in range(num_blobs):
+                blob = "blob_{}".format(i)
+                value = np.full(blob_size, (comm_rank * num_blobs) + i, np.float32)
+                workspace.FeedBlob(blob, value)
+                blobs.append(blob)
+
+            net = core.Net("allreduce_multicw")
+            net.Allreduce(
+                [cw] + blobs,
+                blobs,
+                engine=op_engine)
+
+            workspace.RunNetOnce(net)
+            for i in range(num_blobs):
+                np.testing.assert_array_equal(
+                    workspace.FetchBlob(blobs[i]),
+                    (num_blobs * comm_size) * (num_blobs * comm_size - 1) / 2)
+
     @given(comm_size=st.integers(min_value=2, max_value=8),
            blob_size=st.integers(min_value=1e3, max_value=1e6),
            num_blobs=st.integers(min_value=1, max_value=4),
@@ -294,6 +345,21 @@ class TestCase(hu.HypothesisTestCase):
                     device_option=device_option,
                     tmpdir=tmpdir,
                     use_float16=use_float16)
+
+    @given(device_option=st.sampled_from([hu.cpu_do]))
+    def test_forked_cw(self, device_option):
+        TestCase.test_counter += 1
+        if os.getenv('COMM_RANK') is not None:
+            self.run_test_distributed(
+                self._test_allreduce_multicw,
+                device_option=device_option)
+        else:
+            with TemporaryDirectory() as tmpdir:
+                self.run_test_locally(
+                    self._test_allreduce_multicw,
+                    comm_size=8,
+                    device_option=device_option,
+                    tmpdir=tmpdir)
 
     def _test_barrier(
         self,

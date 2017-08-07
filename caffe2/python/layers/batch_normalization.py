@@ -3,11 +3,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from caffe2.python import core, schema
-from caffe2.python.layers.layers import (
-    ModelLayer,
-    LayerParameter
-)
+from caffe2.python import schema
+from caffe2.python.layers.layers import ModelLayer
 
 import numpy as np
 
@@ -45,66 +42,42 @@ class BatchNormalization(ModelLayer):
 
         self.output_schema = schema.Scalar(
             (np.float32, self.input_shape),
-            model.net.NextScopedBlob(name + '_output')
+            self.get_next_blob_reference('output')
         )
 
         self.momentum = momentum
         self.order = order
 
-        self.scale = model.net.NextScopedBlob(name + "_scale")
-        self.bias = model.net.NextScopedBlob(name + "_bias")
-        self.rm = model.net.NextScopedBlob(name + "_running_mean")
-        self.riv = model.net.NextScopedBlob(name + "_running_inv_var")
+        self.scale = self.create_param(param_name='scale',
+                                       shape=[input_dims],
+                                       initializer=('ConstantFill', {'value': 1.0}),
+                                       optimizer=scale_optim)
+        self.bias = self.create_param(param_name='bias',
+                                       shape=[input_dims],
+                                       initializer=('ConstantFill', {'value': 0.0}),
+                                       optimizer=bias_optim)
+        self.rm = self.create_param(param_name='running_mean',
+                                       shape=[input_dims],
+                                       initializer=('ConstantFill', {'value': 0.0}),
+                                       optimizer=model.NoOptim)
+        self.riv = self.create_param(param_name='running_inv_var',
+                                       shape=[input_dims],
+                                       initializer=('ConstantFill', {'value': 1.0}),
+                                       optimizer=model.NoOptim)
 
-        self.params.append(
-            LayerParameter(
-                parameter=self.scale,
-                initializer=core.CreateOperator('ConstantFill',
-                                                [],
-                                                self.scale,
-                                                shape=[input_dims],
-                                                value=1.0,
-                                                ),
-                optimizer=scale_optim))
-        self.params.append(
-            LayerParameter(
-                parameter=self.bias,
-                initializer=core.CreateOperator('ConstantFill',
-                                                [],
-                                                self.bias,
-                                                shape=[input_dims],
-                                                value=0.0,
-                                                ),
-                optimizer=bias_optim))
-        self.params.append(
-            LayerParameter(
-                parameter=self.rm,
-                initializer=core.CreateOperator('ConstantFill',
-                                                [],
-                                                self.rm,
-                                                shape=[input_dims],
-                                                value=0.0,
-                                                ),
-                optimizer=model.NoOptim))
-        self.params.append(
-            LayerParameter(
-                parameter=self.riv,
-                initializer=core.CreateOperator('ConstantFill',
-                                                [],
-                                                self.riv,
-                                                shape=[input_dims],
-                                                vlaue=1.0,
-                                                ),
-                optimizer=model.NoOptim))
-
-    def _add_ops(self, net, is_test):
-        input_blob = self.input_record.field_blobs()[0]
+    def _add_ops(self, net, is_test, out_blob=None):
+        original_input_blob = self.input_record.field_blobs()
+        input_blob = net.NextScopedBlob('expand_input')
         if len(self.input_shape) == 1:
-            input_blob = net.ExpandDims(input_blob,
-                                        input_blob,
+            input_blob = net.ExpandDims(original_input_blob,
                                         dims=[2, 3])
+        else:
+            input_blob = original_input_blob[0]
 
-        bn_output = self.output_schema.field_blobs()
+        if out_blob is None:
+            bn_output = self.output_schema.field_blobs()
+        else:
+            bn_output = out_blob
         if is_test:
             output_blobs = bn_output
         else:

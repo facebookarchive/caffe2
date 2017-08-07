@@ -11,6 +11,7 @@
 //     platforms, it allows one to quickly port Caffe2 to different platforms
 //     where BLAS may not be present.
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <random>
@@ -281,8 +282,8 @@ void Gemm<float, CPUContext>(
     const float* B,
     const float beta,
     float* C,
-    CPUContext* context,
-    TensorProto::DataType math_type) {
+    CPUContext* /*context*/,
+    TensorProto::DataType /*math_type*/) {
   int lda = (TransA == CblasNoTrans) ? K : M;
   int ldb = (TransB == CblasNoTrans) ? N : K;
   cblas_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb,
@@ -304,7 +305,7 @@ void GemmEx<float, CPUContext>(
     const float beta,
     float* C,
     const int ldc,
-    CPUContext* context) {
+    CPUContext* /*context*/) {
   cblas_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb,
               beta, C, ldc);
 }
@@ -319,8 +320,8 @@ void Gemv<float, CPUContext>(
     const float* x,
     const float beta,
     float* y,
-    CPUContext* context,
-    TensorProto::DataType math_type) {
+    CPUContext* /*context*/,
+    TensorProto::DataType /*math_type*/) {
   cblas_sgemv(CblasRowMajor, TransA, M, N, alpha, A, N, x, 1, beta, y, 1);
 }
 
@@ -432,9 +433,23 @@ DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sin, vsSin)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sin, vdSin)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Abs, vsAbs)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Abs, vdAbs)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqrt, vsSqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sqrt, vdSqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, InvSqrt, vsInvSqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, InvSqrt, vdInvSqrt)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqr, vsSqr)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sqr, vdSqr)
 #undef DELEGATE_SIMPLE_UNARY_FUNCTION
+
+#define DELEGATE_SINCOS_FUNCTION(T, OriginalFunc)           \
+  template <>                                               \
+  void SinCos<T, CPUContext>(                               \
+      const int N, const T* a, T* ys, T* yc, CPUContext*) { \
+    OriginalFunc(N, a, ys, yc);                             \
+  }
+DELEGATE_SINCOS_FUNCTION(float, vsSinCos)
+DELEGATE_SINCOS_FUNCTION(double, vdSinCos)
+#undef DELEGATE_SINCOS_FUNCTION
 
 #define DELEGATE_POWX_FUNCTION(T, OriginalFunc)                               \
   template <>                                                                 \
@@ -473,8 +488,21 @@ DELEGATE_SIMPLE_UNARY_FUNCTION(float, Log, log)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Cos, cos)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sin, sin)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Abs, abs)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqrt, sqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, InvSqrt, rsqrt)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqr, square)
 #undef DELEGATE_SIMPLE_UNARY_FUNCTION
+
+#define DELEGATE_SINCOS_FUNCTION(T)                                        \
+  template <>                                                              \
+  void SinCos<T, CPUContext>(                                              \
+      const int N, const T* x, T* ys, T* yc, CPUContext*) {                \
+    EigenVectorMap<T>(ys, N) = ConstEigenVectorMap<T>(x, N).array().sin(); \
+    EigenVectorMap<T>(yc, N) = ConstEigenVectorMap<T>(x, N).array().cos(); \
+  }
+DELEGATE_SINCOS_FUNCTION(float)
+DELEGATE_SINCOS_FUNCTION(double)
+#undef DELEGATE_SINCOS_FUNCTION
 
 #define DELEGATE_POWX_FUNCTION(T)                                             \
   template <>                                                                 \
@@ -535,6 +563,7 @@ DEFINE_SIMPLE_BINARY_FUNCTION(Div, /)
         ConstEigenMatrixMap<T>(x, D, N).colwise().maxCoeff();    \
   }
 CAFFE2_SPECIALIZED_ROWWISEMAX(float)
+#undef CAFFE2_SPECIALIZED_ROWWISEMAX
 
 #define CAFFE2_SPECIALIZED_COLWISEMAX(T)                         \
   template <>                                                    \
@@ -544,6 +573,17 @@ CAFFE2_SPECIALIZED_ROWWISEMAX(float)
         ConstEigenMatrixMap<T>(x, D, N).rowwise().maxCoeff();    \
   }
 CAFFE2_SPECIALIZED_COLWISEMAX(float)
+#undef CAFFE2_SPECIALIZED_COLWISEMAX
+
+#define CAFFE2_SPECIALIZED_MAXIMUM(T)                                          \
+  template <>                                                                  \
+  void Maximum<T, CPUContext>(                                                 \
+      const int N, const float alpha, const T* x, T* y, CPUContext* context) { \
+    std::transform(                                                            \
+        x, x + N, y, [&alpha](const T& x_i) { return std::max(x_i, alpha); }); \
+  }
+CAFFE2_SPECIALIZED_MAXIMUM(float)
+#undef CAFFE2_SPECIALIZED_MAXIMUM
 
 // AddToRow and AddToCol adds the corresponding row/col vector b to the matrix a
 // of shape M x N. The actual implementation uses eigen which is column major,
@@ -644,7 +684,7 @@ void Not<bool, CPUContext>(
     const int n,
     const bool* x,
     bool* y,
-    CPUContext* context) {
+    CPUContext* /*context*/) {
   for (int i = 0; i < n; ++i) {
     y[i] = !x[i];
   }
@@ -754,15 +794,19 @@ void SumSqr<float, CPUContext>(
     const int N,
     const float* x,
     float* y,
-    CPUContext* context /* unused */,
-    Tensor<CPUContext>* scratch_ptr /* unused */) {
+    CPUContext* /*context*/ /* unused */,
+    Tensor<CPUContext>* /*scratch_ptr*/ /* unused */) {
   *y = ConstEigenVectorMap<float>(x, N).squaredNorm();
 }
 
 template <>
 void Select<float, CPUContext>(
-      const int N, const int D, const float* x, const int* idx, float* y,
-      CPUContext* context) {
+    const int N,
+    const int D,
+    const float* x,
+    const int* idx,
+    float* y,
+    CPUContext* /*context*/) {
   for (int i = 0; i < N; ++i) {
     DCHECK_LT(idx[i], D);
     y[i] = x[i * D + idx[i]];
@@ -891,7 +935,7 @@ void Im2col<float, CPUContext, StorageOrder::NCHW>(
     const int stride_h,
     const int stride_w,
     float* data_col,
-    CPUContext* context) {
+    CPUContext* /*context*/) {
   const int output_h =
       (height + pad_b + pad_t - (dilation_h * (kernel_h - 1) + 1)) / stride_h +
       1;
@@ -1009,7 +1053,7 @@ void Im2col<float, CPUContext, StorageOrder::NHWC>(
     const int stride_h,
     const int stride_w,
     float* data_col,
-    CPUContext* context) {
+    CPUContext* /*context*/) {
   const int dkernel_h = dilation_h * (kernel_h - 1) + 1;
   const int dkernel_w = dilation_w * (kernel_w - 1) + 1;
 
@@ -1200,11 +1244,11 @@ void Col2im<float, CPUContext, StorageOrder::NHWC>(
 
 template <>
 void BiasCHW<float, CPUContext>(
-  const float* bias,
-  const int bias_channels,
-  const int image_size,
-  float* image,
-  CPUContext* context) {
+    const float* bias,
+    const int bias_channels,
+    const int image_size,
+    float* image,
+    CPUContext* /*context*/) {
   // Sum the per-channel bias into every image plane
   for (int c = 0; c < bias_channels; ++c) {
     float b = bias[c];
@@ -1284,8 +1328,14 @@ void BiasCHW<float, CPUContext>(
 
 template <>
 void CopyMatrix<CPUContext>(
-    const size_t itemsize, const int M, const int N, const void* A,
-    const int lda, void* B, const int ldb, CPUContext* context) {
+    const size_t itemsize,
+    const int M,
+    const int N,
+    const void* A,
+    const int lda,
+    void* B,
+    const int ldb,
+    CPUContext* /*context*/) {
   if (lda == N && ldb == N) {
     // can coalese to a single memcpy of size M * N
     memcpy(

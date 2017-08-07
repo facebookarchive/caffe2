@@ -37,24 +37,22 @@ class PairwiseDotProduct(ModelLayer):
         dtype = all_embeddings.field_types()[0].base
         self.output_schema = schema.Scalar(
             (dtype, (output_dim)),
-            model.net.NextScopedBlob(name + '_output')
+            self.get_next_blob_reference('output')
         )
 
     def add_ops(self, net):
         Y = net.BatchMatMul(
             [self.all_embeddings(), self.all_embeddings()],
+            [self.all_embeddings() + '_matmul'],
             trans_b=1,
         )
         if self.indices_to_gather:
-            flattened = net.Flatten(Y, 1)
-            transposed = net.Transpose(flattened)
-            gathered = net.Gather(
-                [
-                    transposed,
-                    self.indices_to_gather(),
-                ],
-                dense_gradient=True,
+            flattened = net.Flatten(
+                Y, Y + '_flatten',
             )
-            net.Transpose(gathered, self.output_schema())
+            net.BatchGather(
+                [flattened, self.indices_to_gather()],
+                self.output_schema(),
+            )
         else:
             net.Flatten(Y, self.output_schema())

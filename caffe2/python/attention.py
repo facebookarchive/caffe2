@@ -9,7 +9,7 @@ from caffe2.python import brew
 
 
 class AttentionType:
-    Regular, Recurrent = tuple(range(2))
+    Regular, Recurrent, Dot = tuple(range(3))
 
 
 def s(scope, name):
@@ -48,9 +48,29 @@ def _calc_attention_weights(
     model,
     attention_logits_transposed,
     scope,
+    encoder_lengths=None,
 ):
-    # TODO: we could try to force some attention weights to be zeros,
-    # based on encoder_lengths.
+    if encoder_lengths is not None:
+        attention_logits = model.net.Squeeze(
+            [attention_logits_transposed],
+            [attention_logits_transposed],
+            dims=[2],
+        )
+        flat_attention_logits = model.net.UnpackSegments(
+            [encoder_lengths, attention_logits],
+            'flat_attention_logits',
+        )
+        masked_attention_logits = model.net.PackSegments(
+            [encoder_lengths, flat_attention_logits],
+            'masked_attention_logits',
+            pad_minf=True,
+        )
+        attention_logits_transposed = model.net.ExpandDims(
+            [masked_attention_logits],
+            [masked_attention_logits],
+            dims=[2],
+        )
+
     # [batch_size, encoder_length, 1]
     attention_weights_3d = brew.softmax(
         model,
@@ -131,6 +151,7 @@ def apply_recurrent_attention(
     decoder_hidden_state_dim,
     attention_weighted_encoder_context_t_prev,
     scope,
+    encoder_lengths=None,
 ):
     weighted_prev_attention_context = _apply_fc_weight_for_sum_match(
         model=model,
@@ -178,6 +199,7 @@ def apply_recurrent_attention(
         model=model,
         attention_logits_transposed=attention_logits_transposed,
         scope=scope,
+        encoder_lengths=encoder_lengths,
     )
 
     # [batch_size, encoder_output_dim, 1]
@@ -201,6 +223,7 @@ def apply_regular_attention(
     decoder_hidden_state_t,
     decoder_hidden_state_dim,
     scope,
+    encoder_lengths=None,
 ):
     weighted_decoder_hidden_state = _apply_fc_weight_for_sum_match(
         model=model,
@@ -231,6 +254,7 @@ def apply_regular_attention(
         model=model,
         attention_logits_transposed=attention_logits_transposed,
         scope=scope,
+        encoder_lengths=encoder_lengths,
     )
 
     # [batch_size, encoder_output_dim, 1]
@@ -244,3 +268,75 @@ def apply_regular_attention(
     return attention_weighted_encoder_context, attention_weights_3d, [
         decoder_hidden_encoder_outputs_sum,
     ]
+
+
+def apply_dot_attention(
+    model,
+    encoder_output_dim,
+    # [batch_size, encoder_output_dim, encoder_length]
+    encoder_outputs_transposed,
+    # [1, batch_size, decoder_state_dim]
+    decoder_hidden_state_t,
+    decoder_hidden_state_dim,
+    scope,
+    encoder_lengths=None,
+):
+    if decoder_hidden_state_dim != encoder_output_dim:
+        weighted_decoder_hidden_state = brew.fc(
+            model,
+            decoder_hidden_state_t,
+            s(scope, 'weighted_decoder_hidden_state'),
+            dim_in=decoder_hidden_state_dim,
+            dim_out=encoder_output_dim,
+            axis=2,
+        )
+    else:
+        weighted_decoder_hidden_state = decoder_hidden_state_t
+
+    # [batch_size, decoder_state_dim]
+    squeezed_weighted_decoder_hidden_state = model.net.Squeeze(
+        weighted_decoder_hidden_state,
+        s(scope, 'squeezed_weighted_decoder_hidden_state'),
+        dims=[0],
+    )
+
+    # [batch_size, decoder_state_dim, 1]
+    expanddims_squeezed_weighted_decoder_hidden_state = model.net.ExpandDims(
+        squeezed_weighted_decoder_hidden_state,
+        s(scope, 'expanddims_squeezed_weighted_decoder_hidden_state'),
+        dims=[2],
+    )
+
+    # [batch_size, encoder_length, encoder_output_dim]
+    encoder_outputs_for_dot_product = model.net.Transpose(
+        encoder_outputs_transposed,
+        s(scope, 'encoder_outputs_for_dot_product'),
+        axes=[0, 2, 1],
+    )
+
+    # [batch_size, encoder_output_dim, 1]
+    attention_logits_transposed = model.net.BatchMatMul(
+        [
+            encoder_outputs_for_dot_product,
+            expanddims_squeezed_weighted_decoder_hidden_state,
+        ],
+        s(scope, 'attention_logits'),
+    )
+
+    # [batch_size, encoder_length, 1]
+    attention_weights_3d = _calc_attention_weights(
+        model=model,
+        attention_logits_transposed=attention_logits_transposed,
+        scope=scope,
+        encoder_lengths=encoder_lengths,
+    )
+
+    # [batch_size, encoder_output_dim, 1]
+    attention_weighted_encoder_context = _calc_weighted_context(
+        model=model,
+        encoder_outputs_transposed=encoder_outputs_transposed,
+        encoder_output_dim=encoder_output_dim,
+        attention_weights_3d=attention_weights_3d,
+        scope=scope,
+    )
+    return attention_weighted_encoder_context, attention_weights_3d, []

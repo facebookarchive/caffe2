@@ -39,16 +39,20 @@ bool L1DistanceOp<float, CPUContext>::RunOnDevice() {
   for (int i = 0; i < X.ndim(); ++i) {
     CAFFE_ENFORCE_EQ(X.dim32(i), Y.dim32(i));
   }
-  distance->Resize(1);
+  int N = X.ndim() > 0 ? X.dim32(0) : 1;
+  distance->Resize(N);
+  int D = N > 0 ? X.size() / N : 0;
+
   const float* X_data = X.data<float>();
   const float* Y_data = Y.data<float>();
 
-  *(distance->mutable_data<float>()) =
-      (ConstEigenVectorMap<float>(X_data, X.size()).array() -
-       ConstEigenVectorMap<float>(Y_data, Y.size()).array())
-          .abs()
-          .sum();
-  // L1(x, y) = sum(|x-y|)
+  for (int i = 0; i < N; ++i) {
+    (distance->mutable_data<float>())[i] =
+        (ConstEigenVectorMap<float>(X_data + i * D, D).array() -
+         ConstEigenVectorMap<float>(Y_data + i * D, D).array())
+            .abs()
+            .sum();
+  }
   return true;
 }
 
@@ -70,7 +74,7 @@ bool L1DistanceGradientOp<float, CPUContext>::RunOnDevice() {
     CAFFE_ENFORCE(X.dim32(i) == Y.dim32(i));
   }
   CAFFE_ENFORCE(dDistance.ndim() == 1);
-  CAFFE_ENFORCE(dDistance.dim32(0) == 1);
+  CAFFE_ENFORCE(dDistance.dim32(0) == N);
   dX->ResizeLike(X);
   dY->ResizeLike(Y);
 
@@ -81,11 +85,11 @@ bool L1DistanceGradientOp<float, CPUContext>::RunOnDevice() {
           (X.data<float>())[offset + j] - (Y.data<float>())[offset + j];
       const float kEps = 1e-12;
       if (temp < -kEps) {
-        dX->mutable_data<float>()[offset + j] = -(dDistance.data<float>())[0];
-        dY->mutable_data<float>()[offset + j] = (dDistance.data<float>())[0];
+        dX->mutable_data<float>()[offset + j] = -(dDistance.data<float>())[i];
+        dY->mutable_data<float>()[offset + j] = (dDistance.data<float>())[i];
       } else if (temp > kEps) {
-        dX->mutable_data<float>()[offset + j] = (dDistance.data<float>())[0];
-        dY->mutable_data<float>()[offset + j] = -(dDistance.data<float>())[0];
+        dX->mutable_data<float>()[offset + j] = (dDistance.data<float>())[i];
+        dY->mutable_data<float>()[offset + j] = -(dDistance.data<float>())[i];
       } else {
         dX->mutable_data<float>()[offset + j] = 0;
         dY->mutable_data<float>()[offset + j] = 0;
@@ -96,13 +100,108 @@ bool L1DistanceGradientOp<float, CPUContext>::RunOnDevice() {
 }
 
 template <>
+bool CosineSimilarityOp<float, CPUContext>::RunOnDevice() {
+  auto& X = Input(X_IN);
+  auto& Y = Input(Y_IN);
+  auto* result = Output(COS_OUT);
+  CAFFE_ENFORCE_EQ(X.ndim(), Y.ndim());
+  for (int i = 0; i < X.ndim(); ++i) {
+    CAFFE_ENFORCE_EQ(X.dim32(i), Y.dim32(i));
+  }
+  const int N = X.ndim() > 0 ? X.dim32(0) : 1;
+  const int D = X.size() / N;
+  result->Resize(N);
+  float* result_data = result->mutable_data<float>();
+  const float* X_data = X.data<float>();
+  const float* Y_data = Y.data<float>();
+  float X2, Y2;
+  const float kEps = 1e-12f;
+  for (int i = 0; i < N; ++i) { // TODO: multithreading
+    auto offset = i * D;
+    math::Dot<float, CPUContext>(
+        D, X_data + offset, X_data + offset, &X2, &context_);
+    math::Dot<float, CPUContext>(
+        D, Y_data + offset, Y_data + offset, &Y2, &context_);
+    math::Dot<float, CPUContext>(
+        D, X_data + offset, Y_data + offset, result_data + i, &context_);
+    result_data[i] /= std::sqrt(std::max(X2, kEps) * std::max(Y2, kEps));
+  }
+  return true;
+}
+
+template <>
+bool CosineSimilarityGradientOp<float, CPUContext>::RunOnDevice() {
+  auto& X = Input(X_IN);
+  auto& Y = Input(Y_IN);
+  auto& dCos = Input(DER_COS_IN);
+  auto* dX = Output(DER_X_OUT);
+  auto* dY = Output(DER_Y_OUT);
+  const int N = X.ndim() > 0 ? X.dim32(0) : 1;
+  const int D = X.size() / N;
+  CAFFE_ENFORCE(X.ndim() == Y.ndim());
+  for (int i = 0; i < X.ndim(); ++i) {
+    CAFFE_ENFORCE(X.dim32(i) == Y.dim32(i));
+  }
+  CAFFE_ENFORCE(dCos.ndim() == 1);
+  CAFFE_ENFORCE(dCos.dim32(0) == N);
+  dX->ResizeLike(X);
+  dY->ResizeLike(Y);
+
+  const auto* X_data = X.template data<float>();
+  const auto* Y_data = Y.template data<float>();
+  const auto* dCos_data = dCos.template data<float>();
+  auto* dX_data = dX->template mutable_data<float>();
+  auto* dY_data = dY->template mutable_data<float>();
+  float XN, YN, XY;
+  const float kEps = 1e-12f;
+  for (int i = 0; i < N; ++i) { // TODO: multithreading
+    auto offset = i * D;
+
+    // TODO: cache these result from the forward pass
+    // ||x||
+    math::Dot<float, CPUContext>(
+        D, X_data + offset, X_data + offset, &XN, &context_);
+    XN = std::sqrt(std::max(XN, kEps));
+    // ||y||
+    math::Dot<float, CPUContext>(
+        D, Y_data + offset, Y_data + offset, &YN, &context_);
+    YN = std::sqrt(std::max(YN, kEps));
+    // ||x|| * || y ||
+    float XYN = XN * YN;
+    // x^Ty
+    math::Dot<float, CPUContext>(
+        D, X_data + offset, Y_data + offset, &XY, &context_);
+
+    math::Scale<float, CPUContext>(
+        D, dCos_data[i] / XYN, Y_data + offset, dX_data + offset, &context_);
+    math::Axpy(
+        D,
+        -dCos_data[i] * XY / (XN * XN * XYN),
+        X_data + offset,
+        dX_data + offset,
+        &context_);
+
+    math::Scale<float, CPUContext>(
+        D, dCos_data[i] / XYN, X_data + offset, dY_data + offset, &context_);
+    math::Axpy(
+        D,
+        -dCos_data[i] * XY / (YN * YN * XYN),
+        Y_data + offset,
+        dY_data + offset,
+        &context_);
+  }
+
+  return true;
+}
+
+template <>
 bool DotProductOp<float, CPUContext>::RunOnDevice() {
   auto& X = Input(X_IN);
   auto& Y = Input(Y_IN);
   auto* result = Output(DOT_OUT);
   CAFFE_ENFORCE_EQ(X.ndim(), Y.ndim());
   for (int i = 0; i < X.ndim(); ++i) {
-    CAFFE_ENFORCE_EQ(X.dim32(i), Y.dim32(i));
+    CAFFE_ENFORCE_EQ(X.dim32(i), Y.dim32(i), "dimension at ", i);
   }
   int N, D;
   if (X.size() > 0) {
@@ -159,36 +258,6 @@ bool DotProductGradientOp<float, CPUContext>::RunOnDevice() {
         D, dDot_data[i], X_data + offset, dY_data + offset, &context_);
     math::Scale<float, CPUContext>(
         D, dDot_data[i], Y_data + offset, dX_data + offset, &context_);
-  }
-  return true;
-}
-
-template <>
-bool CosineSimilarityOp<float, CPUContext>::RunOnDevice() {
-  auto& X = Input(X_IN);
-  auto& Y = Input(Y_IN);
-  auto* result = Output(COS_OUT);
-  CAFFE_ENFORCE_EQ(X.ndim(), Y.ndim());
-  for (int i = 0; i < X.ndim(); ++i) {
-    CAFFE_ENFORCE_EQ(X.dim32(i), Y.dim32(i));
-  }
-  int N = X.ndim() > 0 ? X.dim32(0) : 1;
-  int D = X.size() / N;
-  result->Resize(N);
-  float* result_data = result->mutable_data<float>();
-  const float* X_data = X.data<float>();
-  const float* Y_data = Y.data<float>();
-  float X2, Y2;
-  const float kEps = 1e-12f;
-  for (int i = 0; i < N; ++i) { // TODO: multithreading
-    auto offset = i * D;
-    math::Dot<float, CPUContext>(
-        D, X_data + offset, X_data + offset, &X2, &context_);
-    math::Dot<float, CPUContext>(
-        D, Y_data + offset, Y_data + offset, &Y2, &context_);
-    math::Dot<float, CPUContext>(
-        D, X_data + offset, Y_data + offset, result_data + i, &context_);
-    result_data[i] /= std::sqrt(std::max(X2, kEps) * std::max(Y2, kEps));
   }
   return true;
 }
@@ -263,7 +332,6 @@ bool DotProductWithPaddingOp<float, CPUContext>::RunOnDevice() {
   return true;
 }
 
-namespace {
 // L2
 REGISTER_CPU_OPERATOR(SquaredL2Distance,
                       SquaredL2DistanceOp<float, CPUContext>);
@@ -443,5 +511,4 @@ class GetDotProductWithPaddingGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(DotProductWithPadding, GetDotProductWithPaddingGradient);
-}  // namespace
 }  // namespace caffe2

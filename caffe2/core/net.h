@@ -52,9 +52,9 @@ class NetBase {
    * opeartor.
    */
   virtual vector<float> TEST_Benchmark(
-      const int warmup_runs,
-      const int main_runs,
-      const bool run_individual) {
+      const int /*warmup_runs*/,
+      const int /*main_runs*/,
+      const bool /*run_individual*/) {
     LOG(ERROR) << "Benchmark not implemented for this net type.";
     return vector<float>();
   }
@@ -90,16 +90,11 @@ class NetBase {
     return name_;
   }
 
-  const NetDef& def() const {
-    return *net_def_;
-  }
-
  protected:
   vector<string> external_input_;
   vector<string> external_output_;
   string name_;
   std::unique_ptr<NetObserver> observer_;
-  const std::shared_ptr<const NetDef> net_def_;
 
   DISABLE_COPY_AND_ASSIGN(NetBase);
 };
@@ -162,7 +157,6 @@ class SimpleNet : public NetBase {
 namespace internal {
 struct OperatorNode {
   unique_ptr<OperatorBase> operator_;
-  OperatorDef operator_def_;
   vector<int> children_;
   vector<int> parents_;
   std::atomic<int> runtime_parent_count_;

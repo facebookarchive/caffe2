@@ -35,12 +35,36 @@ DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Log, logf);
 DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Cos, cosf);
 DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Sin, sinf);
 DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Abs, fabsf);
+DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Sqrt, sqrtf);
+DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, InvSqrt, rsqrtf);
 
 __device__ float cuda_sqrf(const float x) { return x * x; }
 
 DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION(float, Sqr, cuda_sqrf);
 
 #undef DELEGATE_SIMPLE_CUDA_UNARY_FUNCTION
+
+#define DELEGATE_SINCOS_CUDA_FUNCTION(T)                             \
+  __global__ void _Kernel_##T##_##SinCos(                            \
+      const int N, const T* x, T* ys, T* yc) {                       \
+    CUDA_1D_KERNEL_LOOP(i, N) {                                      \
+      sincos(x[i], ys + i, yc + i);                                  \
+    }                                                                \
+  }                                                                  \
+  template <>                                                        \
+  void SinCos<T, CUDAContext>(                                       \
+      const int N, const T* x, T* ys, T* yc, CUDAContext* context) { \
+    _Kernel_##T##_##SinCos<<<                                        \
+        CAFFE_GET_BLOCKS(N),                                         \
+        CAFFE_CUDA_NUM_THREADS,                                      \
+        0,                                                           \
+        context->cuda_stream()>>>(N, x, ys, yc);                     \
+  }
+
+DELEGATE_SINCOS_CUDA_FUNCTION(float)
+DELEGATE_SINCOS_CUDA_FUNCTION(double)
+
+#undef DELEGATE_SINCOS_CUDA_FUNCTION
 
 #define DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(T, Funcname, expr)               \
   __global__ void _Kernel_##T##_##Funcname(                                   \
@@ -154,11 +178,10 @@ void Gemm<float16, CUDAContext>(
         N));
 
   } else if (math_type == TensorProto_DataType_FLOAT16) {
-    // convert alpha, beta from caffe2::float16 -> __half
-    __half alpha_fp16;
-    alpha_fp16.x = convert::To<float, float16>(alpha).x;
-    __half beta_fp16;
-    beta_fp16.x = convert::To<float, float16>(beta).x;
+    // convert alpha, beta from float -> __half
+    auto alpha_fp16 = convert::floatToHalf(alpha);
+    auto beta_fp16 = convert::floatToHalf(beta);
+
     // call cublasHgemm
     CUBLAS_CHECK(cublasHgemm(
         context->cublas_handle(),
@@ -329,10 +352,8 @@ void Gemv<float16, CUDAContext>(
         CUDA_R_16F,
         LDC));
   } else if (math_type == TensorProto_DataType_FLOAT16) {
-    __half alpha_fp16;
-    alpha_fp16.x = convert::To<float, float16>(alpha).x;
-    __half beta_fp16;
-    beta_fp16.x = convert::To<float, float16>(beta).x;
+    auto alpha_fp16 = convert::floatToHalf(alpha);
+    auto beta_fp16 = convert::floatToHalf(beta);
 
     CUBLAS_CHECK(cublasHgemm(
         context->cublas_handle(),
@@ -1587,6 +1608,29 @@ void ColwiseMax(
       CAFFE_CUDA_NUM_THREADS,
       0,
       context->cuda_stream()>>>(N, D, x, y);
+}
+
+namespace {
+__global__ void
+maximum_kernel(const int N, const float alpha, const float* x, float* y) {
+  CUDA_1D_KERNEL_LOOP(i, N) {
+    y[i] = fmaxf(x[i], alpha);
+  }
+}
+} // namespace
+
+template <>
+void Maximum(
+    const int N,
+    const float alpha,
+    const float* x,
+    float* y,
+    CUDAContext* context) {
+  maximum_kernel<<<
+      std::min(N, CAFFE_MAXIMUM_NUM_BLOCKS),
+      CAFFE_CUDA_NUM_THREADS,
+      0,
+      context->cuda_stream()>>>(N, alpha, x, y);
 }
 
 }  // namespace math

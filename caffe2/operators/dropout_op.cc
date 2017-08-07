@@ -37,7 +37,7 @@ bool DropoutGradientOp<float, CPUContext>::RunOnDevice() {
   auto& dY = Input(0);
   auto& mask = Input(1);
   auto* dX = Output(0);
-  DCHECK_EQ(dY.size(), mask.size());
+  CAFFE_ENFORCE_EQ(dY.size(), mask.size());
   dX->Resize(dY.dims());
   if (is_test_) {
     if (dX != &dY) {
@@ -57,8 +57,6 @@ bool DropoutGradientOp<float, CPUContext>::RunOnDevice() {
   }
 }
 
-
-namespace {
 REGISTER_CPU_OPERATOR(Dropout, DropoutOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(DropoutGrad, DropoutGradientOp<float, CPUContext>);
 
@@ -94,5 +92,4 @@ class GetDropoutGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(Dropout, GetDropoutGradient);
-}  // namespace
 }  // namespace caffe2

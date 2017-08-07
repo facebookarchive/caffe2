@@ -246,7 +246,7 @@ def _RectifyInputOutput(blobs, net=None):
     """A helper function to rectify the input or output of the CreateOperator
     interface.
     """
-    if isinstance(blobs, string_types):
+    if isinstance(blobs, string_types) or isinstance(blobs, binary_type):
         # If blobs is a single string, prepend scope.CurrentNameScope()
         # and put it as a list.
         # TODO(jiayq): enforce using BlobReference instead of raw strings.
@@ -424,6 +424,18 @@ class IR(object):
 
         for op in operators:
             self.Play(op)
+
+        self.SanityCheck(operators)
+
+    def SanityCheck(self, operators):
+        # Validate StopGradient usage by checking that StopGradient's output
+        # is actually passed forward
+        for op in operators:
+            if op.type == 'StopGradient':
+                if op.output[0] not in self.input_usages:
+                    raise Exception("""StopGradient's output '{}' is orphan.
+You typically want to specify same input and output for
+StopGradient. Op:\n\n{}""".format(op.output[0], str(op)))
 
     def Play(self, op):
         """"Adds an op to the current IR, and update the internal states to
@@ -1607,7 +1619,8 @@ class Net(object):
         input_names = {str(k): str(v) for k, v in viewitems(inputs)}
         output_names = [str(o) for o in outputs]
         proto = self._net
-        ssa, blob_versions = get_ssa(proto)
+        blob_versions = {str(i): 0 for i in inputs}
+        ssa, blob_versions = get_ssa(proto, blob_versions)
         used_op_ids = get_op_ids_in_path(ssa, blob_versions, inputs, outputs)
         disallowed_op_ids = get_op_ids_in_path(ssa, blob_versions, [], inputs)
         assert len(set(used_op_ids) & set(disallowed_op_ids)) == 0, (
@@ -2059,7 +2072,7 @@ def copy_func_between_devices(src, dst):
         else:
             def fun(net, *args, **kw):
                 with DeviceScope(dst):
-                    return net.CopyGPUToGPU(*args, **kw)
+                    return net.Copy(*args, **kw)
             return fun
 
     if src.device_type == CUDA and dst.device_type == CPU:
@@ -2075,6 +2088,15 @@ def copy_func_between_devices(src, dst):
         return fun
 
     raise ValueError('Non-supported devices: %s and %s' % (src, dst))
+
+
+def device_equal(src, dst):
+    '''
+    We are using this fucntion instead of == operator because optional-value
+    comparison between empty device_options and {device_type:0, cuda_gpu_id:0}
+    returns not equal in some cases.
+    '''
+    return src.device_type == dst.device_type and src.cuda_gpu_id == dst.cuda_gpu_id
 
 
 class RemapEntry:
@@ -2132,7 +2154,7 @@ def InjectCrossDeviceCopies(net, blob_to_device=None):
                         format(input)
                     )
 
-            if not blob_to_device[input] == dev:
+            if not device_equal(blob_to_device[input], dev):
                 # reuse already moved input
                 if (RemapEntry(input, dev) in blob_remap and
                         blob_to_device[blob_remap[RemapEntry(input, dev)]] == dev):
@@ -2166,12 +2188,17 @@ def InjectCrossDeviceCopies(net, blob_to_device=None):
         # Enforcing no reuse blob between operators. In-place blob usage in an
         # op is allowed. This is based on the assumption that in-place op has
         # same device info
-        for out_blob in op.output:
-            if out_blob in blob_to_device and out_blob not in op.input:
+        for out_blob, device in zip(op.output, output_dev):
+            if out_blob in blob_to_device and (
+                out_blob not in op.input and
+                not device_equal(blob_to_device[out_blob], device)
+            ):
                 raise RuntimeError(
-                    "In-place blob: {} is not supported between operators. "
-                    "Failed op:\n {}".
-                    format(out_blob, op)
+                    "In-place blob: {} is not supported between operators "
+                    "with different device option previous:{} now: {}. "
+                    "Failed op:\n {}".format(
+                        out_blob, blob_to_device[out_blob], device, op
+                    )
                 )
         blob_to_device.update({o: d for d, o in zip(output_dev, op.output)})
         new_op = caffe2_pb2.OperatorDef()

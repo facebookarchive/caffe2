@@ -1,3 +1,5 @@
+// Copyright 2004-present Facebook. All Rights Reserved.
+
 #ifndef CAFFE2_IMAGE_IMAGE_INPUT_OP_H_
 #define CAFFE2_IMAGE_IMAGE_INPUT_OP_H_
 
@@ -20,6 +22,14 @@ class CUDAContext;
 template <class Context>
 class ImageInputOp final
     : public PrefetchOperator<Context> {
+  // SINGLE_LABEL: single integer label for multi-class classification
+  // MULTI_LABEL_SPARSE: sparse active label indices for multi-label classification
+  // MULTI_LABEL_DENSE: dense label embedding vector for label embedding regression
+  enum LABEL_TYPE {
+    SINGLE_LABEL = 0,
+    MULTI_LABEL_SPARSE = 1,
+    MULTI_LABEL_DENSE = 2
+  };
  public:
   using OperatorBase::OutputSize;
   using PrefetchOperator<Context>::context_;
@@ -63,12 +73,14 @@ class ImageInputOp final
   CPUContext cpu_context_;
   TensorCPU prefetched_image_;
   TensorCPU prefetched_label_;
+  vector<TensorCPU> prefetched_additional_outputs_;
   Tensor<Context> prefetched_image_on_device_;
   Tensor<Context> prefetched_label_on_device_;
+  vector<Tensor<Context>> prefetched_additional_outputs_on_device_;
   // Default parameters for images
   PerImageArg default_arg_;
   int batch_size_;
-  bool multiple_label_;
+  LABEL_TYPE label_type_;
   int num_labels_;
   bool color_;
   int scale_;
@@ -105,10 +117,12 @@ ImageInputOp<Context>::ImageInputOp(
     Workspace* ws)
     : PrefetchOperator<Context>(operator_def, ws),
       reader_(nullptr),
+      prefetched_additional_outputs_(OutputSize() - 2),
+      prefetched_additional_outputs_on_device_(OutputSize() - 2),
       batch_size_(
           OperatorBase::template GetSingleArgument<int>("batch_size", 0)),
-      multiple_label_(
-          OperatorBase::template GetSingleArgument<int>("multiple_label", 0)),
+      label_type_(static_cast<LABEL_TYPE>(
+        OperatorBase::template GetSingleArgument<int>("label_type", 0))),
       num_labels_(
           OperatorBase::template GetSingleArgument<int>("num_labels", 0)),
       color_(OperatorBase::template GetSingleArgument<int>("color", 1)),
@@ -137,6 +151,10 @@ ImageInputOp<Context>::ImageInputOp(
     "std_per_channel",
     {OperatorBase::template GetSingleArgument<float>("std", 1.)});
 
+  vector<int> additional_output_sizes =
+      OperatorBase::template GetRepeatedArgument<int>(
+          "output_sizes", vector<int>(OutputSize() - 2, 1));
+
   default_arg_.bounding_params = {
     false,
     OperatorBase::template GetSingleArgument<int>("bounding_ymin", -1),
@@ -160,12 +178,12 @@ ImageInputOp<Context>::ImageInputOp(
   }
   CAFFE_ENFORCE_GT(batch_size_, 0, "Batch size should be nonnegative.");
   if (use_caffe_datum_) {
-    CAFFE_ENFORCE_EQ(multiple_label_, 0,
-      "Caffe datum does not support multiple labels");
+    CAFFE_ENFORCE_EQ(label_type_, SINGLE_LABEL,
+      "Caffe datum only supports single integer label");
   }
-  if (multiple_label_) {
+  if (label_type_ !=  SINGLE_LABEL) {
     CAFFE_ENFORCE_GT(num_labels_, 0,
-      "Number of labels must be set for using multiple label output.");
+      "Number of labels must be set for using either sparse label indices or dense label embedding.");
   }
   CAFFE_ENFORCE((scale_ > 0) != (minsize_ > 0),
                 "Must provide one and only one of scaling or minsize");
@@ -180,6 +198,13 @@ ImageInputOp<Context>::ImageInputOp(
       "The mean and std. dev vectors must be of the same size.");
   CAFFE_ENFORCE(mean_.size() == 1 || mean_.size() == 3,
                 "The mean and std. dev vectors must be of size 1 or 3");
+  CAFFE_ENFORCE(
+      !use_caffe_datum_ || OutputSize() == 2,
+      "There can only be 2 outputs if the Caffe datum format is used");
+  CAFFE_ENFORCE(
+      additional_output_sizes.size() == OutputSize() - 2,
+      "If the output sizes are specified, they must be specified for all "
+      "additional outputs");
 
   if (default_arg_.bounding_params.ymin < 0
       || default_arg_.bounding_params.xmin < 0
@@ -250,10 +275,15 @@ ImageInputOp<Context>::ImageInputOp(
       TIndex(crop_),
       TIndex(crop_),
       TIndex(color_ ? 3 : 1));
-  if (multiple_label_) {
+  if (label_type_ != SINGLE_LABEL) {
     prefetched_label_.Resize(TIndex(batch_size_), TIndex(num_labels_));
   } else {
     prefetched_label_.Resize(vector<TIndex>(1, batch_size_));
+  }
+
+  for (int i = 0; i < additional_output_sizes.size(); ++i) {
+    prefetched_additional_outputs_[i].Resize(
+        TIndex(batch_size_), TIndex(additional_output_sizes[i]));
   }
 }
 
@@ -319,9 +349,15 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
     CAFFE_ENFORCE(protos.ParseFromString(value));
     const TensorProto& image_proto = protos.protos(0);
     const TensorProto& label_proto = protos.protos(1);
-    if (protos.protos_size() == 3) {
+    vector<TensorProto> additional_output_protos;
+
+    for (int i = 2; i < OutputSize(); ++i) {
+      additional_output_protos.push_back(protos.protos(i));
+    }
+
+    if (protos.protos_size() == OutputSize() + 1) {
       // We have bounding box information
-      const TensorProto& bounding_proto = protos.protos(2);
+      const TensorProto& bounding_proto = protos.protos(OutputSize());
       DCHECK_EQ(bounding_proto.data_type(), TensorProto::INT32);
       DCHECK_EQ(bounding_proto.int32_data_size(), 4);
       info.bounding_params.valid = true;
@@ -362,35 +398,75 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
     }
 
     if (label_proto.data_type() == TensorProto::FLOAT) {
-      if (!multiple_label_) {
+      if (label_type_ == SINGLE_LABEL) {
         DCHECK_EQ(label_proto.float_data_size(), 1);
         prefetched_label_.mutable_data<float>()[item_id] =
             label_proto.float_data(0);
-      } else {
+      } else if (label_type_ == MULTI_LABEL_SPARSE) {
         float* label_data = prefetched_label_.mutable_data<float>() +
           item_id * num_labels_;
         memset(label_data, 0, sizeof(float) * num_labels_);
         for (int i = 0; i < label_proto.float_data_size(); ++i) {
           label_data[(int)label_proto.float_data(i)] = 1.0;
         }
+      } else if (label_type_ == MULTI_LABEL_DENSE) {
+        CAFFE_ENFORCE(label_proto.float_data_size() == num_labels_);
+        float* label_data = prefetched_label_.mutable_data<float>() +
+          item_id * num_labels_;
+        for (int i = 0; i < label_proto.float_data_size(); ++i) {
+          label_data[i] = label_proto.float_data(i);
+        }
+      } else {
+        LOG(ERROR) << "Unknown label type:" << label_type_;
       }
-
     } else if (label_proto.data_type() == TensorProto::INT32) {
-      if (!multiple_label_) {
+      if (label_type_ == SINGLE_LABEL) {
         DCHECK_EQ(label_proto.int32_data_size(), 1);
         prefetched_label_.mutable_data<int>()[item_id] =
             label_proto.int32_data(0);
-      } else {
+      } else if (label_type_ == MULTI_LABEL_SPARSE) {
         int* label_data = prefetched_label_.mutable_data<int>() +
           item_id * num_labels_;
         memset(label_data, 0, sizeof(int) * num_labels_);
         for (int i = 0; i < label_proto.int32_data_size(); ++i) {
           label_data[label_proto.int32_data(i)] = 1;
         }
+      } else if (label_type_ == MULTI_LABEL_DENSE) {
+        CAFFE_ENFORCE(label_proto.int32_data_size() == num_labels_);
+        int* label_data = prefetched_label_.mutable_data<int>() +
+          item_id * num_labels_;
+        for (int i = 0; i < label_proto.int32_data_size(); ++i) {
+          label_data[i] = label_proto.int32_data(i);
+        }
+      } else {
+        LOG(ERROR) << "Unknown label type:" << label_type_;
       }
-
     } else {
-      LOG(FATAL) << "Unsupported label type.";
+      LOG(FATAL) << "Unsupported label data type.";
+    }
+
+    for (int i = 0; i < additional_output_protos.size(); ++i) {
+      auto additional_output_proto = additional_output_protos[i];
+
+      if (additional_output_proto.data_type() == TensorProto::FLOAT) {
+        float* additional_output =
+            prefetched_additional_outputs_[i].template mutable_data<float>() +
+            item_id * additional_output_proto.float_data_size();
+
+        for (int j = 0; j < additional_output_proto.float_data_size(); ++j) {
+          additional_output[j] = additional_output_proto.float_data(j);
+        }
+      } else if (additional_output_proto.data_type() == TensorProto::INT32) {
+        int* additional_output =
+            prefetched_additional_outputs_[i].template mutable_data<int>() +
+            item_id * additional_output_proto.int32_data_size();
+
+        for (int j = 0; j < additional_output_proto.int32_data_size(); ++j) {
+          additional_output[j] = additional_output_proto.int32_data(j);
+        }
+      } else {
+        LOG(FATAL) << "Unsupported output type.";
+      }
     }
   }
 
@@ -664,6 +740,20 @@ bool ImageInputOp<Context>::Prefetch() {
         } else {
           LOG(FATAL) << "Unsupported label type.";
         }
+
+        for (int i = 2; i < OutputSize(); ++i) {
+          TensorProto additional_output_proto = protos.protos(i);
+
+          if (additional_output_proto.data_type() == TensorProto::FLOAT) {
+            prefetched_additional_outputs_[i - 2]
+                .template mutable_data<float>();
+          } else if (
+              additional_output_proto.data_type() == TensorProto::INT32) {
+            prefetched_additional_outputs_[i - 2].template mutable_data<int>();
+          } else {
+            LOG(FATAL) << "Unsupported output type.";
+          }
+        }
       }
     }
 
@@ -700,6 +790,11 @@ bool ImageInputOp<Context>::Prefetch() {
   if (!std::is_same<Context, CPUContext>::value) {
     prefetched_image_on_device_.CopyFrom(prefetched_image_, &context_);
     prefetched_label_on_device_.CopyFrom(prefetched_label_, &context_);
+
+    for (int i = 0; i < prefetched_additional_outputs_on_device_.size(); ++i) {
+      prefetched_additional_outputs_on_device_[i].CopyFrom(
+          prefetched_additional_outputs_[i], &context_);
+    }
   }
   return true;
 }
@@ -708,11 +803,23 @@ template <class Context>
 bool ImageInputOp<Context>::CopyPrefetched() {
   auto* image_output = OperatorBase::Output<Tensor<Context> >(0);
   auto* label_output = OperatorBase::Output<Tensor<Context> >(1);
+  vector<Tensor<Context>*> additional_outputs_output;
+
+  for (int i = 2; i < OutputSize(); ++i) {
+    additional_outputs_output.push_back(
+        OperatorBase::Output<Tensor<Context>>(i));
+  }
+
   // Note(jiayq): The if statement below should be optimized away by the
   // compiler since std::is_same is a constexpr.
   if (std::is_same<Context, CPUContext>::value) {
     image_output->CopyFrom(prefetched_image_, &context_);
     label_output->CopyFrom(prefetched_label_, &context_);
+
+    for (int i = 0; i < additional_outputs_output.size(); ++i) {
+      additional_outputs_output[i]->CopyFrom(
+          prefetched_additional_outputs_[i], &context_);
+    }
   } else {
     if (gpu_transform_) {
       if (!mean_std_copied_) {
@@ -741,6 +848,11 @@ bool ImageInputOp<Context>::CopyPrefetched() {
       image_output->CopyFrom(prefetched_image_on_device_, &context_);
     }
     label_output->CopyFrom(prefetched_label_on_device_, &context_);
+
+    for (int i = 0; i < additional_outputs_output.size(); ++i) {
+      additional_outputs_output[i]->CopyFrom(
+          prefetched_additional_outputs_on_device_[i], &context_);
+    }
   }
   return true;
 }

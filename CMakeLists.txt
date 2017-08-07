@@ -33,7 +33,7 @@ option(USE_NERVANA_GPU "Use Nervana GPU backend" OFF)
 option(USE_GLOG "Use GLOG" ON)
 option(USE_GFLAGS "Use GFLAGS" ON)
 option(USE_LMDB "Use LMDB" ON)
-option(USE_LEVELDB "Use LMDB" ON)
+option(USE_LEVELDB "Use LEVELDB" ON)
 option(USE_LITE_PROTO "Use lite protobuf instead of full." OFF)
 option(USE_NCCL "Use NCCL" ON)
 option(USE_NNPACK "Use NNPACK" ON)
@@ -46,7 +46,6 @@ option(USE_REDIS "Use Redis" OFF)
 option(USE_MPI "Use MPI" ON)
 option(USE_GLOO "Use Gloo" ON)
 option(USE_OBSERVERS "Use Observer Library" OFF)
-option(USE_TRANSFORMS "Use Graph Transforms" OFF)
 option(BUILD_SHARED_LIBS "Build libcaffe2.so" ON)
 option(USE_OPENMP "Use OpenMP for parallel code" ON)
 option(BUILD_PYTHON "Build Python binaries" ON)
@@ -91,18 +90,19 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "binaries")
 # ---[ Build flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 if(NOT MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -fPIC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
 else()
-  if (NOT ${BUILD_SHARED_LIBS})
-    foreach(flag_var
-        CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+  foreach(flag_var
+      CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+      CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+    if (NOT ${BUILD_SHARED_LIBS})
       if(${flag_var} MATCHES "/MD")
         string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
       endif(${flag_var} MATCHES "/MD")
-    endforeach(flag_var)
-  endif()
+    endif()
+    set(${flag_var} "${${flag_var}} /MP /bigobj")
+  endforeach(flag_var)
 endif()
 
 if(NOT APPLE AND UNIX)
@@ -118,6 +118,7 @@ include_directories(BEFORE ${PROJECT_BINARY_DIR})
 
 # ---[ Third party builds.
 include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/build_host_protoc/include)
 
 # ---[ Old caffe protobuf.
 add_subdirectory(caffe/proto)
