@@ -1,5 +1,5 @@
 FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
-MAINTAINER Aaron Markham <aaronmarkham@fb.com>
+LABEL maintainer="aaronmarkham@fb.com"
 
 # caffe2 install with gpu support
 
@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     git \
     libgflags-dev \
-    libgflags2 \
     libgoogle-glog-dev \
     libgtest-dev \
     libiomp-dev \
@@ -60,9 +59,9 @@ RUN cd caffe2 && mkdir build && cd build \
     -DUSE_NNPACK=OFF \
     -DUSE_ROCKSDB=OFF \
     && make install \
+    && ldconfig \
     && make clean \
     && cd .. \
     && rm -rf build
 
 ENV PYTHONPATH /usr/local
-ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH

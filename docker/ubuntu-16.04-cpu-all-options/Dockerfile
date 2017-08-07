@@ -1,5 +1,5 @@
 FROM caffe2ai/caffe2:c2v0.8.0.cpu.min.ubuntu16.04
-MAINTAINER Aaron Markham <aaronmarkham@fb.com>
+LABEL maintainer="aaronmarkham@fb.com"
 
 # caffe2 install with cpu support
 
@@ -43,9 +43,9 @@ RUN cd caffe2 && mkdir build && cd build \
     -DUSE_NNPACK=OFF \
     -DUSE_ROCKSDB=OFF \
     && make install \
+    && ldconfig \
     && make clean \
     && cd .. \
     && rm -rf build
 
 ENV PYTHONPATH /usr/local
-ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
