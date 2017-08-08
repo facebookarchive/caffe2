@@ -348,10 +348,12 @@ class NNPACKSoftmaxOp final : public Operator<CPUContext> {
 
   bool RunOnDevice() override {
     auto& X = Input(0);
+    const auto N = X.dim32(0), C = X.dim32(1), H = X.dim32(2), W = X.dim32(3);
     auto* Y = Output(0);
+    auto channels = C * H * W;
     const auto status = nnp_softmax_output(
-        1,
-        X.size(),
+        N,
+        channels,
         X.template data<float>(),
         Y->template mutable_data<float>(),
         nnpack_threadpool());

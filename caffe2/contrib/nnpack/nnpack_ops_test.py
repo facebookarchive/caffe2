@@ -13,7 +13,7 @@ from caffe2.python import core, dyndep
 import caffe2.python.hypothesis_test_util as hu
 
 
-dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/nnpack:nnpack_ops")
+#dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/nnpack:nnpack_ops")
 
 np.random.seed(1)
 
@@ -154,7 +154,7 @@ class NNPackOpsTest(hu.HypothesisTestCase):
            batch_size=st.integers(1, 5))
     def test_softmax_correctness(self, size, input_channels, batch_size):
         X = np.random.rand(
-            batch_size, input_channels, size, size).astype(np.float32) - 0.5
+            batch_size, input_channels, size, size).astype(np.float32) 
         outputs = {}
         for engine in ["", "NNPACK"]:
             op = core.CreateOperator(
@@ -169,8 +169,8 @@ class NNPackOpsTest(hu.HypothesisTestCase):
         np.testing.assert_allclose(
             outputs[""],
             outputs["NNPACK"],
-            atol=1e-4,
-            rtol=1e-4)
+            atol=1e-5,
+            rtol=1e-5)
 
     @given(size=st.sampled_from([6, 8]),
            input_channels=st.integers(1, 8),
@@ -195,8 +195,8 @@ class NNPackOpsTest(hu.HypothesisTestCase):
         np.testing.assert_allclose(
             outputs[""],
             outputs["NNPACK"],
-            atol=1e-4,
-            rtol=1e-4)
+            atol=1e-9,
+            rtol=1e-9)
 
     @settings(timeout=3600)
     @unittest.skipIf(not os.environ.get("CAFFE2_BENCHMARK"), "Benchmark")
@@ -257,3 +257,5 @@ class NNPackOpsTest(hu.HypothesisTestCase):
             times[engine] = benchmark(self.ws, net)
         print("Speedup for NNPACK: {:.2f}".format(
             times[""] / times["NNPACK"]))
+if __name__ == "__main__":
+    unittest.main()
