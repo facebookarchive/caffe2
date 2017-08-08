@@ -10,21 +10,23 @@
 
 namespace caffe2 {
 
-struct MetalAllocator final : CPUAllocator {
-  id<MTLDevice> device;
-
-  MetalAllocator(id<MTLDevice> _device);
-
+class MetalAllocator {
+ public:
+  static MetalAllocator* Singleton();
   ~MetalAllocator();
-
-  void *New(size_t nbytes) override;
-
-  void Delete(void *data) override;
-
+  std::pair<void*, MemoryDeleter> New(size_t nbytes);
+  static void Delete(void *data);
   id<MTLBuffer> Buffer(void *data);
+
+ private:
+  MetalAllocator(id<MTLDevice> device);
+  id<MTLDevice> device_;
+  static MetalAllocator* singleton_;
+  NSMutableDictionary<NSNumber *, id<MTLBuffer>>* buffer_cache_;
 };
 
-MetalAllocator *GetMetalAllocator();
+// Convenience function for backward compatibility.
+inline MetalAllocator *GetMetalAllocator() { return MetalAllocator::Singleton(); }
 
 class MetalCaffeContext final {
  public:
@@ -50,9 +52,7 @@ class MetalCaffeContext final {
     return *random_generator_.get();
   }
 
-  static void *New(size_t nbytes);
-
-  static void Delete(void *data);
+  static std::pair<void*, MemoryDeleter> New(size_t nbytes);
 
   // Two copy functions that deals with cross-device copies.
   template <class SrcContext, class DstContext>
