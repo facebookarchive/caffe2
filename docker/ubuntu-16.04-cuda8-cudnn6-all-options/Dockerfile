@@ -50,7 +50,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     tornado
 
 ########## INSTALLATION STEPS ###################
-RUN git clone --branch v0.8.0 --recursive https://github.com/caffe2/caffe2.git
+RUN git clone --branch v0.8.1 --recursive https://github.com/caffe2/caffe2.git
 RUN cd caffe2 && mkdir build && cd build \
     && cmake .. \
     -DCUDA_ARCH_NAME=Manual \
@@ -58,7 +58,7 @@ RUN cd caffe2 && mkdir build && cd build \
     -DCUDA_ARCH_PTX="61" \
     -DUSE_NNPACK=OFF \
     -DUSE_ROCKSDB=OFF \
-    && make install \
+    && make -j"$(nproc)" install \
     && ldconfig \
     && make clean \
     && cd .. \

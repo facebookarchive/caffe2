@@ -1,8 +1,7 @@
-FROM caffe2ai/caffe2:c2v0.8.0.cpu.min.ubuntu14.04
+FROM caffe2ai/caffe2:c2v0.8.1.cpu.min.ubuntu14.04
 LABEL maintainer="aaronmarkham@fb.com"
 
 # caffe2 install with cpu support
-# 14.04 uses an older pip so using -U instead of --no-cache-dir
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgflags-dev \
@@ -23,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install -U \
+RUN pip install --no-cache-dir \
     flask \
     graphviz \
     jupyter \
@@ -43,7 +42,7 @@ RUN cd caffe2 && mkdir build && cd build \
     -DUSE_CUDA=OFF \
     -DUSE_NNPACK=OFF \
     -DUSE_ROCKSDB=OFF \
-    && make install \
+    && make -j"$(nproc)" install \
     && ldconfig \
     && make clean \
     && cd .. \

@@ -24,13 +24,13 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir future hypothesis numpy protobuf six
 
 ########## INSTALLATION STEPS ###################
-RUN git clone --branch v0.8.0 --recursive https://github.com/caffe2/caffe2.git
+RUN git clone --branch v0.8.1 --recursive https://github.com/caffe2/caffe2.git
 RUN cd caffe2 && mkdir build && cd build \
     && cmake .. \
     -DUSE_CUDA=OFF \
     -DUSE_NNPACK=OFF \
     -DUSE_ROCKSDB=OFF \
-    && make install \
+    && make -j"$(nproc)" install \
     && ldconfig \
     && make clean \
     && cd .. \
