@@ -67,7 +67,7 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
             OperatorBase::GetSingleArgument<int>("deterministic", 0)),
         cudnn_state_(OperatorBase::GetSingleArgument<int>("cudnn_state", 0)),
         force_algo_(OperatorBase::GetRepeatedArgument<int>("force_algo", vector<int>{-1,-1,-1})),
-        enable_tensor_core_(OperatorBase::GetSingleArgument<bool>("enable_tensor_core", 0)) {
+        enable_tensor_core_(OperatorBase::GetSingleArgument<bool>("enable_tensor_core", 1)) {
     CHECK(!deterministic_ || !exhaustive_search_);
     CAFFE_ENFORCE(group_ > 0);
     CAFFE_ENFORCE(!deterministic_ || !exhaustive_search_);
@@ -457,7 +457,8 @@ bool CudnnConvOp::DoRunWithType() {
 
 #if CUDNN_VERSION_MIN(7,0,0)
     // enable TensorCore math if desired
-    if (enable_tensor_core_ && CUDAContext::TensorCoreAvailable()) {
+    enable_tensor_core_ &= TensorCoreAvailable();
+    if (enable_tensor_core_) {
       CUDNN_ENFORCE(cudnnSetConvolutionMathType(
             conv_desc_, CUDNN_TENSOR_OP_MATH));
     }
@@ -790,7 +791,8 @@ bool CudnnConvGradientOp::DoRunWithType() {
 
 #if CUDNN_VERSION_MIN(7,0,0)
     // enable TensorCore math if desired
-    if (enable_tensor_core_ && CUDAContext::TensorCoreAvailable()) {
+    enable_tensor_core_ &= TensorCoreAvailable();
+    if (enable_tensor_core_) {
       CUDNN_ENFORCE(cudnnSetConvolutionMathType(
             conv_desc_, CUDNN_TENSOR_OP_MATH));
     }

@@ -259,7 +259,7 @@ void Gemm<float16, CUDAContext, TensorCoreEngine>(
       (TransB == CblasNoTrans) ? CUBLAS_OP_N : CUBLAS_OP_T;
 
   // enable TensorCore for this call on this handle
-  if (CUDAContext::TensorCoreAvailable()) {
+  if (TensorCoreAvailable()) {
     CUBLAS_ENFORCE(cublasSetMathMode(
         context->cublas_handle(),
         CUBLAS_TENSOR_OP_MATH));
@@ -287,7 +287,7 @@ void Gemm<float16, CUDAContext, TensorCoreEngine>(
       CUBLAS_GEMM_DFALT_TENSOR_OP));
 
   // Now disable TensorCore math for subsequent calls to this handle
-  if (CUDAContext::TensorCoreAvailable()) {
+  if (TensorCoreAvailable()) {
     CUBLAS_ENFORCE(cublasSetMathMode(
         context->cublas_handle(),
         CUBLAS_DEFAULT_MATH));

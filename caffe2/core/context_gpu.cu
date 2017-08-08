@@ -351,14 +351,6 @@ std::mutex& CUDAContext::mutex() {
   return m;
 }
 
-bool CUDAContext::TensorCoreAvailable() {
-  bool available = caffe2::TensorCoreAvailable();
-  if (!available) {
-    LOG(INFO) << "Requesting Tensor Cores when not available";
-  }
-  return available;
-}
-
 std::vector<long> CUDAContext::TotalMemoryByGpu() {
   std::lock_guard<std::mutex> lock(CUDAContext::mutex());
   CAFFE_ENFORCE(
