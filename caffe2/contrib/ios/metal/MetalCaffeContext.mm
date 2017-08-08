@@ -4,56 +4,54 @@
 #import "MetalContext.h"
 
 namespace caffe2 {
+
 CAFFE_KNOWN_TYPE(TensorMetal);
 
-static NSMutableDictionary<NSNumber *, id<MTLBuffer>> *buffer_cache = nil;
+MetalAllocator* MetalAllocator::singleton_ = NULL;
+
+// Get the Metal Allocator
+MetalAllocator* MetalAllocator::Singleton() {
+  if (singleton_ == NULL) {
+    singleton_ = new MetalAllocator([MetalContext getContext].device);
+    CAFFE_ENFORCE(singleton_ != NULL);
+  }
+  return singleton_;
+}
 
 // class MetalAllocator
-MetalAllocator::MetalAllocator(id<MTLDevice> _device) : device(_device) {
-  buffer_cache = [NSMutableDictionary<NSNumber *, id<MTLBuffer>> dictionary];
+MetalAllocator::MetalAllocator(id<MTLDevice> device) : device_(device) {
+  buffer_cache_ = [NSMutableDictionary<NSNumber *, id<MTLBuffer>> dictionary];
 }
 
 MetalAllocator::~MetalAllocator() {
-  for (id key in buffer_cache) {
-    id<MTLBuffer> buffer = buffer_cache[key];
-    [buffer_cache removeObjectForKey:key];
+  for (id key in buffer_cache_) {
+    id<MTLBuffer> buffer = buffer_cache_[key];
+    [buffer_cache_ removeObjectForKey:key];
   }
 }
 
-void *MetalAllocator::New(size_t nbytes) {
-  id<MTLBuffer> buffer = [device newBufferWithLength:nbytes options:MTLResourceCPUCacheModeDefaultCache];
+std::pair<void*, MemoryDeleter> MetalAllocator::New(size_t nbytes) {
+  id<MTLBuffer> buffer = [device_ newBufferWithLength:nbytes options:MTLResourceCPUCacheModeDefaultCache];
   void *data = [buffer contents];
   NSNumber *key = @((unsigned long long)data);
-  buffer_cache[key] = buffer;
-  return data;
+  buffer_cache_[key] = buffer;
+  return {data, Delete};
 }
 
 void MetalAllocator::Delete(void *data) {
   NSNumber *key = @((unsigned long long)data);
-  id<MTLBuffer> buffer = buffer_cache[key];
-  [buffer_cache removeObjectForKey:key];
+  id<MTLBuffer> buffer = Singleton()->buffer_cache_[key];
+  [Singleton()->buffer_cache_ removeObjectForKey:key];
   buffer = nil;
 }
 
 id<MTLBuffer> MetalAllocator::Buffer(void *data) {
   NSNumber *key = @((unsigned long long)data);
-  return buffer_cache[key];
-}
-
-// the Metal Allocator
-static MetalAllocator *MetalAllocatorInstance = NULL;
-
-// Get the Metal Allocator
-MetalAllocator *GetMetalAllocator() {
-  if (MetalAllocatorInstance == NULL) {
-    MetalAllocatorInstance = new MetalAllocator([MetalContext getContext].device);
-  }
-  CAFFE_ENFORCE(MetalAllocatorInstance != NULL);
-  return MetalAllocatorInstance;
+  return buffer_cache_[key];
 }
 
 // class MetalCaffeContext
-void *MetalCaffeContext::New(size_t nbytes) { return MetalAllocatorInstance->New(nbytes); }
-
-void MetalCaffeContext::Delete(void *data) { MetalAllocatorInstance->Delete(data); }
+std::pair<void*, MemoryDeleter> MetalCaffeContext::New(size_t nbytes) {
+  return GetMetalAllocator()->New(nbytes);
 }
+} // namespace caffe2

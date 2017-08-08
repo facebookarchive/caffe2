@@ -17,6 +17,7 @@ namespace caffe2 {
 
 class MetalConvMTLBufferOp final : public ConvPoolOpBase<MetalCaffeContext> {
  public:
+  USE_CONV_POOL_BASE_FUNCTIONS(MetalCaffeContext);
   MetalConvMTLBufferOp(const OperatorDef& operator_def, Workspace* ws)
       : ConvPoolOpBase<MetalCaffeContext>(operator_def, ws) {
     OPERATOR_NEEDS_FEATURE(this->order_ == StorageOrder::NCHW, "Metal only supports NCHW order.");
@@ -46,8 +47,8 @@ bool MetalConvMTLBufferOp::RunOnDeviceWithOrderNCHW() {
   const int M = filter.dim32(0);
 
   CAFFE_ENFORCE(filter.dim32(1) == C, "");
-  CAFFE_ENFORCE(filter.dim32(2) == this->kernel_h_, "");
-  CAFFE_ENFORCE(filter.dim32(3) == this->kernel_w_, "");
+  CAFFE_ENFORCE(filter.dim32(2) == kernel_h(), "");
+  CAFFE_ENFORCE(filter.dim32(3) == kernel_w(), "");
   CAFFE_ENFORCE(bias.ndim() == 1, "");
   CAFFE_ENFORCE(bias.dim32(0) == M, "");
 
@@ -63,12 +64,12 @@ bool MetalConvMTLBufferOp::RunOnDeviceWithOrderNCHW() {
       X.dim32(1),
       X.dim32(3),
       X.dim32(2),
-      stride_h_,
-      stride_w_,
-      pad_t_,
-      pad_l_,
-      pad_b_,
-      pad_r_,
+      stride_h(),
+      stride_w(),
+      pad_t(),
+      pad_l(),
+      pad_b(),
+      pad_r(),
       weightBuffer,
       filter.dim32(0),
       filter.dim32(1),
@@ -90,6 +91,7 @@ OPERATOR_SCHEMA(MetalConv).NumInputs(3).NumOutputs(1);
 
 class MetalConvTransposeMTLBufferOp final : public ConvTransposeUnpoolBase<MetalCaffeContext> {
  public:
+  USE_CONV_TRANSPOSE_UNPOOL_BASE_FUNCTIONS(MetalCaffeContext);
   MetalConvTransposeMTLBufferOp(const OperatorDef& operator_def, Workspace* ws)
       : ConvTransposeUnpoolBase<MetalCaffeContext>(operator_def, ws) {
     OPERATOR_NEEDS_FEATURE(this->order_ == StorageOrder::NCHW, "Metal only supports NCHW order.");
