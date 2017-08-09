@@ -338,7 +338,8 @@ class NNPACKLeakyReluOp final : public LeakyReluOp<float, CPUContext> {
 class NNPACKSoftmaxOp final : public Operator<CPUContext> {
  public:
   NNPACKSoftmaxOp(const OperatorDef& operator_def, Workspace* ws)
-      : Operator<CPUContext>(operator_def, ws) {
+      : Operator<CPUContext>(operator_def, ws),
+ 	axis_(OperatorBase::GetSingleArgument<int>("axis", 1)) {
 #ifdef CAFFE2_USE_FBCODE
     // Facebook's nnpack build assumes existence of avx2, so we explicitly
     // check if the machine has avx2 support.
@@ -348,12 +349,14 @@ class NNPACKSoftmaxOp final : public Operator<CPUContext> {
 
   bool RunOnDevice() override {
     auto& X = Input(0);
-    const auto N = X.dim32(0), C = X.dim32(1), H = X.dim32(2), W = X.dim32(3);
     auto* Y = Output(0);
-    auto channels = C * H * W;
+    const auto canonical_axis = X.canonical_axis_index(axis_);
+    const int N = X.size_to_dim(canonical_axis);
+    const int D = X.size_from_dim(canonical_axis);
+    Y->ResizeLike(X);
     const auto status = nnp_softmax_output(
         N,
-        channels,
+	D,
         X.template data<float>(),
         Y->template mutable_data<float>(),
         nnpack_threadpool());
@@ -362,6 +365,7 @@ class NNPACKSoftmaxOp final : public Operator<CPUContext> {
   }
 
  private:
+  int axis_;
 };
 REGISTER_CPU_OPERATOR_WITH_ENGINE(Conv, NNPACK, NNPACKConvOp);
 REGISTER_CPU_OPERATOR_WITH_ENGINE(MaxPool, NNPACK, NNPACKMaxPoolOp);

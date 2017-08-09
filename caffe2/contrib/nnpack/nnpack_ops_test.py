@@ -169,8 +169,8 @@ class NNPackOpsTest(hu.HypothesisTestCase):
         np.testing.assert_allclose(
             outputs[""],
             outputs["NNPACK"],
-            atol=1e-5,
-            rtol=1e-5)
+            atol=1e-4,
+            rtol=1e-4)
 
     @given(size=st.sampled_from([6, 8]),
            input_channels=st.integers(1, 8),
@@ -195,8 +195,8 @@ class NNPackOpsTest(hu.HypothesisTestCase):
         np.testing.assert_allclose(
             outputs[""],
             outputs["NNPACK"],
-            atol=1e-9,
-            rtol=1e-9)
+            atol=1e-4,
+            rtol=1e-4)
 
     @settings(timeout=3600)
     @unittest.skipIf(not os.environ.get("CAFFE2_BENCHMARK"), "Benchmark")
