@@ -22,9 +22,11 @@ matrix:
       compiler: clang
     - env: BUILD=osx-ios
       os: osx
+      osx_image: xcode8.1
       compiler: clang
     - env: BUILD=osx-android
       os: osx
+      osx_image: xcode8.1
       compiler: clang
 
 cache:
