@@ -14,7 +14,7 @@ bool LengthsTopKOp<T, Context>::RunOnDevice() {
 
   output_topk_values->Resize(N * k_);
   output_topk_indices->Resize(N * k_);
-  std::vector<int> output_dims = std::vector<int>({N, k_});
+  std::vector<TIndex> output_dims = std::vector<TIndex>({N, k_});
   output_topk_values->Reshape(output_dims);
   output_topk_indices->Reshape(output_dims);
   T* output_topk_values_data = output_topk_values->template mutable_data<T>();
