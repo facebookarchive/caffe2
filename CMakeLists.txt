@@ -70,6 +70,14 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build from: Debug Release RelWithDebInfo MinSizeRel Coverage." FORCE)
 endif()
 
+# First time cmake runs, pick a reasonable default for USE_ROCM (based on compiler id).  User can
+# change at a later time explicitely
+if( ( CMAKE_CXX_COMPILER MATCHES ".*hcc$" ) OR ( CMAKE_CXX_COMPILER MATCHES ".*hipcc$" ) )
+  option( USE_ROCM "Link with the ROCM runtime" ON )
+else( )
+  option( USE_ROCM "Link with the ROCM runtime" OFF )
+endif( )
+
 # ---[ Dependencies
 include(cmake/Dependencies.cmake)
 

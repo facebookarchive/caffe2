@@ -37,6 +37,8 @@ function (Caffe2_print_configuration_summary)
   message(STATUS "  USE_CNMEM             : ${USE_CNMEM}")
   endif()
 
+ message(STATUS "  USE_ROCM               : ${USE_ROCM}")
+
   message(STATUS "  USE_NERVANA_GPU       : ${USE_NERVANA_GPU}")
   if(${USE_NERVANA_GPU})
   message(STATUS "    NERVANA_GPU version : ${NERVANA_GPU_VERSION}")
