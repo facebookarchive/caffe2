@@ -285,14 +285,13 @@ if(USE_CUDA)
   include(cmake/Cuda.cmake)
   # CUDA 8.0 requires GCC 5
   if(HAVE_CUDA)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
-        NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
+    if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
+        NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.0 AND
+        CUDA_HOST_COMPILER STREQUAL CMAKE_C_COMPILER)
       message(FATAL_ERROR
         "CUDA 8.0 is not compatible with GCC version >= 6. "
-        "Use the following options to use another version (for example): \n"
-        "  -DCMAKE_CXX_COMPILER=/usr/bin/g++-5\n"
-        "  -DCMAKE_C_COMPILER=/usr/bin/gcc-5\n"
-        "  -DCUDA_HOST_COMPILER:FILEPATH=/usr/bin/gcc-5\n")
+        "Use the following option to use another version (for example): \n"
+        "  -DCUDA_HOST_COMPILER=/usr/bin/gcc-5\n")
     endif()
   endif()
   # ---[ CUDNN
@@ -380,5 +379,23 @@ if(USE_GLOO)
     else()
       list(APPEND Caffe2_DEPENDENCY_LIBS gloo_cuda)
     endif()
+  endif()
+endif()
+
+if (USE_MOBILE_OPENGL)
+  if (ANDROID)
+    list(APPEND Caffe2_DEPENDENCY_LIBS EGL GLESv2)
+  elseif (IOS)
+    message(STATUS "TODO item for adding ios opengl dependency")
+  else()
+    message(WARNING "mobile opengl is only used in android or ios builds.")
+    set(USE_MOBILE_OPENGL OFF)
+  endif()
+endif()
+
+if (USE_METAL)
+  if (NOT IOS)
+    message(WARNING "Metal is only used in ios builds.")
+    set(USE_METAL OFF)
   endif()
 endif()

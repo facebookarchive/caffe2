@@ -47,6 +47,7 @@ def Parallelize(
     use_nccl=False,
     max_concurrent_distributed_ops=16,
     cpu_device=False,
+    num_threads_per_device=4,
 ):
     '''
     Function to create a model that can run on many GPUs or CPUs.
@@ -110,7 +111,7 @@ def Parallelize(
 
     log.info("Parallelizing model for devices: {}".format(devices))
     extra_workers = 8 if rendezvous is not None else 0  # best-guess
-    num_workers = len(devices) * 4 + extra_workers
+    num_workers = len(devices) * num_threads_per_device + extra_workers
     max_concurrent_distributed_ops =\
         min(max_concurrent_distributed_ops, num_workers - 1)
     model_helper_obj.net.Proto().num_workers = num_workers
@@ -898,7 +899,7 @@ def _SyncAllParamsDistributed(
 
     for param_name in sorted(unique_param_names):
         master_param = model._device_grouped_blobs[param_name][devices[0]]
-        params_group = model._device_grouped_blobs[param_name].values()
+        params_group = list(viewvalues(model._device_grouped_blobs[param_name]))
 
         def broadcast(params):
             comm_world, control_input = context.get_control_and_context(params)
