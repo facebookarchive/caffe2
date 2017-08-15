@@ -16,6 +16,7 @@ from caffe2.python import dyndep, optimizer
 from caffe2.python import timeout_guard, model_helper, brew
 
 import caffe2.python.models.resnet as resnet
+from caffe2.python.modeling.initializers import Initializer, pFP16Initializer
 import caffe2.python.predictor.predictor_exporter as pred_exp
 import caffe2.python.predictor.predictor_py_utils as pred_utils
 from caffe2.python.predictor_constants import predictor_constants as predictor_constants
@@ -45,7 +46,7 @@ dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:file_store_handler_ops')
 dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:redis_store_handler_ops')
 
 
-def AddImageInput(model, reader, batch_size, img_size):
+def AddImageInput(model, reader, batch_size, img_size, fp16=False):
     '''
     Image input operator that loads data from reader and
     applies certain transformations to the images.
@@ -54,6 +55,8 @@ def AddImageInput(model, reader, batch_size, img_size):
         model,
         reader, ["data", "label"],
         batch_size=batch_size,
+        output_type=('float16' if fp16 else 'float'),
+        use_gpu_transform=True,
         use_caffe_datum=True,
         mean=128.,
         std=128.,
@@ -258,14 +261,32 @@ def Train(args):
 
     # Model building functions
     def create_resnet50_model_ops(model, loss_scale):
-        [softmax, loss] = resnet.create_resnet50(
-            model,
-            "data",
-            num_input_channels=args.num_channels,
-            num_labels=args.num_labels,
-            label="label",
-            no_bias=True,
-        )
+        initializer = (pFP16Initializer if args.fp16 else Initializer)
+        conv_tensor_core = (True if args.fp16 else False)
+        fc_engine = ('TENSORCORE' if args.fp16 else '')
+
+        with brew.arg_scope([brew.conv],
+                            WeightInitializer=initializer,
+                            BiasInitializer=initializer,
+                            enable_tensor_core=conv_tensor_core):
+            with brew.arg_scope([brew.fc],
+                                WeightInitializer=initializer,
+                                BiasInitializer=initializer,
+                                engine=fc_engine):
+                pred = resnet.create_resnet50(
+                    model,
+                    "data",
+                    num_input_channels=args.num_channels,
+                    num_labels=args.num_labels,
+                    no_bias=True,
+                    no_loss=True,
+                )
+
+        if args.fp16:
+            pred = model.net.HalfToFloat(pred, pred + '_fp32')
+
+        softmax, loss = model.SoftmaxWithLoss([pred, 'label'],
+                                              ['softmax', 'loss'])
         loss = model.Scale(loss, scale=loss_scale)
         brew.accuracy(model, [softmax, "label"], "accuracy")
         return [loss]
@@ -273,7 +294,7 @@ def Train(args):
     def add_optimizer(model):
         stepsz = int(30 * args.epoch_size / total_batch_size / num_shards)
         optimizer.add_weight_decay(model, args.weight_decay)
-        opt = optimizer.build_sgd(
+        opt = optimizer.build_multi_precision_sgd(
             model,
             args.base_learning_rate,
             momentum=0.9,
@@ -299,7 +320,17 @@ def Train(args):
             reader,
             batch_size=batch_per_device,
             img_size=args.image_size,
+            fp16=args.fp16,
         )
+
+    def add_post_sync_ops(model):
+        """Add ops applied after initial parameter sync."""
+        for param_info in model.GetOptimizationParamInfo(model.GetParams()):
+            if param_info.blob_copy is not None:
+                model.param_init_net.HalfToFloat(
+                    param_info.blob,
+                    param_info.blob_copy[core.DataType.FLOAT]
+                )
 
     # Create parallelized model
     data_parallel_model.Parallelize(
@@ -307,6 +338,7 @@ def Train(args):
         input_builder_fun=add_image_input,
         forward_pass_builder_fun=create_resnet50_model_ops,
         optimizer_builder_fun=add_optimizer,
+        post_sync_builder_fun=add_post_sync_ops,
         devices=gpus,
         rendezvous=rendezvous,
         optimize_gradient_memory=True,
@@ -338,12 +370,14 @@ def Train(args):
                 test_reader,
                 batch_size=batch_per_device,
                 img_size=args.image_size,
+                fp16=args.fp16,
             )
 
         data_parallel_model.Parallelize(
             test_model,
             input_builder_fun=test_input_fn,
             forward_pass_builder_fun=create_resnet50_model_ops,
+            post_sync_builder_fun=add_post_sync_ops,
             param_update_builder_fun=None,
             devices=gpus,
             cpu_device=args.use_cpu,
@@ -456,6 +490,8 @@ def main():
                         help="Load previously saved model to continue training")
     parser.add_argument("--use_cpu", type=bool, default=False,
                         help="Use CPU instead of GPU")
+    parser.add_argument('--fp16', action='store_true',
+                        help='Train with fp16 as the data type (instead of fp32)')
 
     args = parser.parse_args()
 
