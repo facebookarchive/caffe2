@@ -263,25 +263,19 @@ def Train(args):
     def create_resnet50_model_ops(model, loss_scale):
         initializer = (pFP16Initializer if args.dtype == 'float16'
                        else Initializer)
-        conv_tensor_core = (True if args.enable_tensor_core else False)
-        fc_engine = ('TENSORCORE' if args.enable_tensor_core else '')
 
-        with brew.arg_scope([brew.conv],
+        with brew.arg_scope([brew.conv, brew.fc],
                             WeightInitializer=initializer,
                             BiasInitializer=initializer,
-                            enable_tensor_core=conv_tensor_core):
-            with brew.arg_scope([brew.fc],
-                                WeightInitializer=initializer,
-                                BiasInitializer=initializer,
-                                engine=fc_engine):
-                pred = resnet.create_resnet50(
-                    model,
-                    "data",
-                    num_input_channels=args.num_channels,
-                    num_labels=args.num_labels,
-                    no_bias=True,
-                    no_loss=True,
-                )
+                            enable_tensor_core=args.enable_tensor_core):
+            pred = resnet.create_resnet50(
+                model,
+                "data",
+                num_input_channels=args.num_channels,
+                num_labels=args.num_labels,
+                no_bias=True,
+                no_loss=True,
+            )
 
         if args.dtype == 'float16':
             pred = model.net.HalfToFloat(pred, pred + '_fp32')
