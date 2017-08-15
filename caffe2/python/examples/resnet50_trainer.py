@@ -46,7 +46,7 @@ dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:file_store_handler_ops')
 dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:redis_store_handler_ops')
 
 
-def AddImageInput(model, reader, batch_size, img_size, fp16=False):
+def AddImageInput(model, reader, batch_size, img_size, dtype):
     '''
     Image input operator that loads data from reader and
     applies certain transformations to the images.
@@ -55,7 +55,7 @@ def AddImageInput(model, reader, batch_size, img_size, fp16=False):
         model,
         reader, ["data", "label"],
         batch_size=batch_size,
-        output_type=('float16' if fp16 else 'float'),
+        output_type=dtype,
         use_gpu_transform=True,
         use_caffe_datum=True,
         mean=128.,
@@ -261,9 +261,10 @@ def Train(args):
 
     # Model building functions
     def create_resnet50_model_ops(model, loss_scale):
-        initializer = (pFP16Initializer if args.fp16 else Initializer)
-        conv_tensor_core = (True if args.fp16 else False)
-        fc_engine = ('TENSORCORE' if args.fp16 else '')
+        initializer = (pFP16Initializer if args.dtype == 'float16'
+                       else Initializer)
+        conv_tensor_core = (True if args.enable_tensor_core else False)
+        fc_engine = ('TENSORCORE' if args.enable_tensor_core else '')
 
         with brew.arg_scope([brew.conv],
                             WeightInitializer=initializer,
@@ -282,7 +283,7 @@ def Train(args):
                     no_loss=True,
                 )
 
-        if args.fp16:
+        if args.dtype == 'float16':
             pred = model.net.HalfToFloat(pred, pred + '_fp32')
 
         softmax, loss = model.SoftmaxWithLoss([pred, 'label'],
@@ -320,7 +321,7 @@ def Train(args):
             reader,
             batch_size=batch_per_device,
             img_size=args.image_size,
-            fp16=args.fp16,
+            dtype=args.dtype,
         )
 
     def add_post_sync_ops(model):
@@ -370,7 +371,7 @@ def Train(args):
                 test_reader,
                 batch_size=batch_per_device,
                 img_size=args.image_size,
-                fp16=args.fp16,
+                dtype=args.dtype,
             )
 
         data_parallel_model.Parallelize(
@@ -490,8 +491,11 @@ def main():
                         help="Load previously saved model to continue training")
     parser.add_argument("--use_cpu", type=bool, default=False,
                         help="Use CPU instead of GPU")
-    parser.add_argument('--fp16', action='store_true',
-                        help='Train with fp16 as the data type (instead of fp32)')
+    parser.add_argument('--dtype', default='float',
+                        choices=['float', 'float16'],
+                        help='Data type used for training')
+    parser.add_argument('--enable-tensor-core', action='store_true',
+                        help='Enable Tensor Core math for Conv and FC ops')
 
     args = parser.parse_args()
 
