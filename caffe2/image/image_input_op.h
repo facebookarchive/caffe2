@@ -544,7 +544,8 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
 
   // set the random minsize
   if (random_scaling_) {
-    scale_to_use = std::uniform_int_distribution<>(256, 480)(*randgen);
+    scale_to_use = std::uniform_int_distribution<>(random_scale_[0],
+                                                   random_scale_[1])(*randgen);
   }
 
   if (warp_) {
