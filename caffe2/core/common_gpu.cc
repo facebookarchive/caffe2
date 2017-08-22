@@ -274,6 +274,7 @@ const char* curandGetErrorString(curandStatus_t error) {
 extern bool g_caffe2_has_cuda_linked;
 namespace {
 class CudaRuntimeFlagFlipper {
+ public:
   CudaRuntimeFlagFlipper() {
     g_caffe2_has_cuda_linked = true;
   }
