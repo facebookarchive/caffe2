@@ -635,48 +635,17 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
       // if a random crop is still not found, do simple random cropping later
     }
 
-  int scale_to_use = scale_ > 0 ? scale_ : minsize_;
-
-  // set the random minsize
-  if (random_scaling_) {
-    scale_to_use = std::uniform_int_distribution<>(random_scale_[0],
-                                                   random_scale_[1])(*randgen);
-  }
-
-  if (warp_) {
-    scaled_width = scale_to_use;
-    scaled_height = scale_to_use;
-  } else if (img->rows > img->cols) {
-    scaled_width = scale_to_use;
-    scaled_height =
-        static_cast<float>(img->rows) * scale_to_use / img->cols;
-  } else {
-    scaled_height = scale_to_use;
-    scaled_width =
-        static_cast<float>(img->cols) * scale_to_use / img->rows;
-  }
-  if ((scale_ > 0 ||
-       ((scaled_height != img->rows || scaled_width != img->cols))
-      || (scaled_height > img->rows || scaled_width > img->cols))) {
-    // We rescale in all cases if we are using scale_
-    // but only to make the image bigger if using minsize_
-    //
-    //LOG(INFO) << "Scaling to " << scaled_width << " x " << scaled_height
-    //          << " From " << img->cols << " x " << img->rows;
-    cv::resize(
-        *img,
-        scaled_img,
-        cv::Size(scaled_width, scaled_height),
-        0,
-        0,
-        cv::INTER_AREA);
-    *img = scaled_img;
-  }
-
   if ((scale_jitter_type_ == NO_SCALE_JITTER) ||
     (scale_jitter_type_ == INCEPTION_STYLE && !inception_scale_jitter)) {
       int scaled_width, scaled_height;
       int scale_to_use = scale_ > 0 ? scale_ : minsize_;
+
+      // set the random minsize
+      if (random_scaling_) {
+        scale_to_use = std::uniform_int_distribution<>(random_scale_[0],
+                                                       random_scale_[1])(*randgen);
+      }
+
       if (warp_) {
         scaled_width = scale_to_use;
         scaled_height = scale_to_use;
@@ -707,6 +676,7 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
             cv::INTER_AREA);
         *img = scaled_img;
       }
+    }
   }
   // TODO(Yangqing): return false if any error happens.
   return true;

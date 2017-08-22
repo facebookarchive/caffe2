@@ -100,7 +100,7 @@ The dimension of the output image will always be cropxcrop
          "(should have a number of elements equal to the number of additional "
          "outputs)")
     .Arg("random_scale", "[min, max] shortest-side desired for image resize. "
-         "Defaults to [-1, -1] or no random resize desired.");
+         "Defaults to [-1, -1] or no random resize desired.")
     .Input(0, "reader", "The input reader (a db::DBReader)")
     .Output(0, "data", "Tensor containing the images")
     .Output(1, "label", "Tensor containing the labels")
