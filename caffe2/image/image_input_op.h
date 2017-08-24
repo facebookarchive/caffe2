@@ -496,7 +496,7 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
           item_id * num_labels_;
         memset(label_data, 0, sizeof(float) * num_labels_);
         for (int i = 0; i < label_proto.float_data_size(); ++i) {
-          label_data[(int)label_proto.float_data(i)] = 1.0;
+          label_data[i] = label_proto.float_data(i);
         }
       } else if (label_type_ == MULTI_LABEL_DENSE) {
         CAFFE_ENFORCE(label_proto.float_data_size() == num_labels_);
@@ -518,7 +518,7 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
           item_id * num_labels_;
         memset(label_data, 0, sizeof(int) * num_labels_);
         for (int i = 0; i < label_proto.int32_data_size(); ++i) {
-          label_data[label_proto.int32_data(i)] = 1;
+          label_data[i] = label_proto.int32_data(i);
         }
       } else if (label_type_ == MULTI_LABEL_DENSE) {
         CAFFE_ENFORCE(label_proto.int32_data_size() == num_labels_);
