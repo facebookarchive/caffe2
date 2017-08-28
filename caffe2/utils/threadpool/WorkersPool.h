@@ -361,7 +361,7 @@ class WorkersPool {
     assert(workers_count <= workers_.size());
     counter_to_decrement_when_ready_.Reset(workers_count);
     int n = 0;
-    std::for_each(++tasks.begin(), tasks.end(), [this, &n](auto& task) {
+    std::for_each(++tasks.begin(), tasks.end(), [this, &n](const std::shared_ptr<Task>& task) {
       workers_[n++]->StartWork(task.get());
     });
     // Execute the remaining workload immediately on the current thread.
