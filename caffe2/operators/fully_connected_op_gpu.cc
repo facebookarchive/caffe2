@@ -20,7 +20,10 @@ bool FullyConnectedOp<CUDAContext>::RunOnDevice() {
         float16, // Y
         float>(); // Math
   } else {
-    CAFFE_THROW("Unsupported type");
+    LOG(FATAL) << "Only float (32bit) and float16 inputs "
+               << "are supported by FullyConnectedOp, "
+               << "but input " << debug_def().input(0) << " has ["
+               << Input(0).meta().name() << "] ";
   }
   return false;
 }
@@ -48,7 +51,10 @@ bool FullyConnectedGradientOp<CUDAContext>::RunOnDevice() {
         float16, // dB
         float>(); // Math
   } else {
-    CAFFE_THROW("Unsupported type");
+    LOG(FATAL) << "Only float (32bit) and float16 inputs "
+               << "are supported by FullyConnectedGradientOp, "
+               << "but input " << debug_def().input(0) << " has ["
+               << Input(0).meta().name() << "] ";
   }
   return false;
 }
@@ -75,7 +81,10 @@ bool FullyConnectedOp<CUDAContext, TensorCoreEngine>::RunOnDevice() {
         float16, // Y
         float>(); // Math
   } else {
-    CAFFE_THROW("Unsupported type");
+    LOG(FATAL) << "Only float (32bit) and float16 inputs "
+               << "are supported by FullyConnectedOp with TensorCoreEngine, "
+               << "but input " << debug_def().input(0) << " has ["
+               << Input(0).meta().name() << "] ";
   }
   return false;
 }
@@ -103,7 +112,10 @@ bool FullyConnectedGradientOp<CUDAContext, TensorCoreEngine>::RunOnDevice() {
         float16, // dB
         float>(); // Math
   } else {
-    CAFFE_THROW("Unsupported type");
+    LOG(FATAL) << "Only float (32bit) and float16 inputs "
+               << "are supported by FullyConnectedOp with TensorCoreEngine, "
+               << "but input " << debug_def().input(0) << " has ["
+               << Input(0).meta().name() << "] ";
   }
   return false;
 }

@@ -2,11 +2,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
 from caffe2.python import core, workspace
-from hypothesis import given
+from hypothesis import assume, given
 import caffe2.python.hypothesis_test_util as hu
 import hypothesis.strategies as st
 import numpy as np
+from caffe2.proto import caffe2_pb2
 
 import unittest
 
@@ -16,11 +18,18 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
     @given(n=st.sampled_from([2, 4, 71, 103]),
            D=st.sampled_from([4, 8, 64, 79, 256, 333]),
            engine=st.sampled_from([None, 'CUDNN']),
+           dtype=st.sampled_from([np.float32, np.float16]),
            **hu.gcs)
-    def test_softmax(self, n, D, engine, gc, dc):
+    def test_softmax(self, n, D, engine, dtype, gc, dc):
+        if dtype == np.float16:
+            # only supported by cudnn op
+            assume(gc.device_type == caffe2_pb2.CUDA)
+            assume(engine == 'CUDNN')
+            dc = [d for d in dc if d.device_type == caffe2_pb2.CUDA]
+
         # n = number of examples, D = |labels|
         # Initialize X and add 1e-2 for numerical stability
-        X = np.random.rand(n, D).astype(np.float32)
+        X = np.random.rand(n, D).astype(dtype)
         X = X + 1e-2
 
         # Reference implementation of cross entropy with soft labels
@@ -44,22 +53,34 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
             engine=engine
         )
 
+        kwargs = {}
+        if dtype == np.float16:
+            kwargs['threshold'] = 1e-2  # default is 1e-4
+
         self.assertReferenceChecks(
             device_option=gc,
             op=op,
             inputs=[X],
             reference=label_softmax,
+            **kwargs
         )
 
     @given(n=st.sampled_from([2, 4, 71, 103, 555, 751, 1201]),
            D=st.sampled_from([4, 8, 64, 79, 256, 333, 1000]),
            engine=st.sampled_from([None, 'CUDNN']),
+           dtype=st.sampled_from([np.float32, np.float16]),
            **hu.gcs)
-    def test_softmax_grad(self, n, D, engine, gc, dc):
+    def test_softmax_grad(self, n, D, engine, dtype, gc, dc):
+        if dtype == np.float16:
+            # only supported by cudnn op
+            assume(gc.device_type == caffe2_pb2.CUDA)
+            assume(engine == 'CUDNN')
+            dc = [d for d in dc if d.device_type == caffe2_pb2.CUDA]
+
         # n = number of examples, D = |labels|
         # Initialize X and add 1e-2 for numerical stability
-        Y = np.random.rand(n, D).astype(np.float32)
-        dY = np.random.rand(n, D).astype(np.float32)
+        Y = np.random.rand(n, D).astype(dtype)
+        dY = np.random.rand(n, D).astype(dtype)
         Y = Y + 1e-2
 
         # Reference implementation of cross entropy with soft labels
@@ -77,19 +98,31 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
             engine=engine
         )
 
+        kwargs = {}
+        if dtype == np.float16:
+            kwargs['threshold'] = 1e-2  # default is 1e-4
+
         self.assertReferenceChecks(
             device_option=gc,
             op=op,
             inputs=[Y, dY],
             reference=label_softmax_grad,
+            **kwargs
         )
 
     @given(axis=st.integers(min_value=1, max_value=4),
            engine=st.sampled_from([None, 'CUDNN']),
+           dtype=st.sampled_from([np.float32, np.float16]),
            **hu.gcs)
-    def test_softmax_axis(self, axis, engine, gc, dc):
+    def test_softmax_axis(self, axis, engine, dtype, gc, dc):
+        if dtype == np.float16:
+            # only supported by cudnn op
+            assume(gc.device_type == caffe2_pb2.CUDA)
+            assume(engine == 'CUDNN')
+            dc = [d for d in dc if d.device_type == caffe2_pb2.CUDA]
+
         np.random.seed(1)
-        X = np.random.randn(1, 2, 3, 2, 1).astype(np.float32)
+        X = np.random.randn(1, 2, 3, 2, 1).astype(dtype)
         X = X + 1e-2
 
         def prod(xs):
@@ -124,15 +157,23 @@ class TestSoftmaxOps(hu.HypothesisTestCase):
             engine=engine,
         )
 
+        kwargs = {}
+        if dtype == np.float16:
+            kwargs['threshold'] = 1e-2  # default is 1e-4
+
         self.assertReferenceChecks(
             device_option=gc,
             op=op,
             inputs=[X],
             reference=label_softmax,
+            **kwargs
         )
 
         self.assertGradientChecks(
-            gc, op, [X], 0, [0], stepsize=1e-4, threshold=1e-2)
+            gc, op, [X], 0, [0],
+            stepsize=1e-4,
+            threshold=1e-1 if dtype == np.float16 else 1e-2,
+        )
 
     @given(n=st.integers(2, 10), D=st.integers(4, 16),
            only_loss=st.booleans(), **hu.gcs)
