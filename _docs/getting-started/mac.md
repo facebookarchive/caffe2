@@ -155,13 +155,8 @@ malloc error | If you are using homebrew leveldb on a Mac OS, you might see an e
 
 ### Prebuilt Caffe2 Python Wheel
 
-This installer is in testing. It is expecting that you're running Python 2.7.13.
+No wheel is available at this time.
 
-[https://s3.amazonaws.com/caffe2/installers/Caffe2-0.7.0-cp27-cp27m-macosx_10_12_x86_64.whl](https://s3.amazonaws.com/caffe2/installers/Caffe2-0.7.0-cp27-cp27m-macosx_10_12_x86_64.whl)
-
-```bash
-pip install Caffe2-0.7.0-cp27-cp27m-macosx_10_12_x86_64.whl
-```
 
 <block class="mac docker" />
 
