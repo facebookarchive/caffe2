@@ -11,6 +11,9 @@ import numpy as np
 import unittest
 import random
 
+from hypothesis import assume
+from caffe2.proto import caffe2_pb2
+
 
 class TestSpecializedSegmentOps(hu.HypothesisTestCase):
     @given(nseg=st.integers(1, 20),
@@ -19,6 +22,8 @@ class TestSpecializedSegmentOps(hu.HypothesisTestCase):
            bs=st.sampled_from([8, 17, 32, 64, 85, 96, 128, 163]), **hu.gcs)
     def test_sparse_lengths_sum_cpu_fp32(
             self, nseg, fptype, fp16asint, bs, gc, dc):
+        # the CUDA op does not currently support fp16
+        assume(not gc.device_type == caffe2_pb2.CUDA and fptype == np.float16)
 
         tblsize = 300
         if fptype == np.float32:
