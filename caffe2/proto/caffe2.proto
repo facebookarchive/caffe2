@@ -99,9 +99,11 @@ message Argument {
   optional float f = 2;
   optional int64 i = 3;
   optional bytes s = 4;
+  optional NetDef n = 8;
   repeated float floats = 5;
   repeated int64 ints = 6;
   repeated bytes strings = 7;
+  repeated NetDef nets = 9;
 }
 
 // DeviceType that Caffe2 currently supports.
@@ -111,6 +113,8 @@ enum DeviceType {
   CPU = 0;                    // In default, we will use CPU.
   CUDA = 1;                   // CUDA.
   MKLDNN = 2;                 // Reserved for explicit MKLDNN
+  // Change the following number if you add more devices in the code.
+  COMPILE_TIME_MAX_DEVICE_TYPES = 3;
   ONLY_FOR_TEST = 20901701;   // This device type is only for test.
 }
 
@@ -118,6 +122,8 @@ enum DeviceType {
 // different DeviceTypes, so currently all devices share the same DeviceOption
 // proto. Fields that are specific to a device type is ignored if the type does
 // not match.
+// Note: if you add fields to the DeviceOption, make sure you add the
+// corresponding changes to IsSameDevice() function in utils/proto_utils.{h,cc}.
 message DeviceOption {
   // [general] Options that need to be carried out before running the execution.
   // optional DeviceType device_type = 1 [ default = CPU ];
@@ -268,7 +274,7 @@ message ExecutionStep {
   // If yes, the workflow and nets are re-created every time this step is run.
   optional bool create_workspace = 12;
 
-  // How many copies of the children exeuction steps to run concurrently.
+  // How many copies of the children execution steps to run concurrently.
   optional int32 num_concurrent_instances = 13;
 }
 

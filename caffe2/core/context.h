@@ -6,6 +6,8 @@
 #include <random>
 #include <unordered_map>
 
+#include "caffe2/core/allocator.h"
+#include "caffe2/core/event.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/core/typeid.h"
 #include "caffe2/proto/caffe2.pb.h"
@@ -14,67 +16,6 @@
 CAFFE2_DECLARE_bool(caffe2_report_cpu_memory_usage);
 
 namespace caffe2 {
-
-// Use 32-byte alignment should be enough for computation up to AVX512.
-constexpr size_t gCaffe2Alignment = 32;
-
-using MemoryDeleter = std::function<void(void* ptr)>;
-
-// A virtual allocator class to do memory allocation and deallocation.
-struct CPUAllocator {
-  CPUAllocator() {}
-  virtual ~CPUAllocator() noexcept {}
-  virtual std::pair<void*, MemoryDeleter> New(size_t nbytes) = 0;
-};
-
-// A virtual struct that is used to report Caffe2's memory allocation and
-// deallocation status
-class MemoryAllocationReporter {
- public:
-  MemoryAllocationReporter() : allocated_(0) {}
-  void New(void* ptr, size_t nbytes);
-  void Delete(void* ptr);
-
- private:
-  std::mutex mutex_;
-  std::unordered_map<void*, size_t> size_table_;
-  size_t allocated_;
-};
-
-struct DefaultCPUAllocator final : CPUAllocator {
-  DefaultCPUAllocator() {}
-  ~DefaultCPUAllocator() override {}
-  std::pair<void*, MemoryDeleter> New(size_t nbytes) override {
-    void* data = nullptr;
-#ifdef __ANDROID__
-    data = memalign(gCaffe2Alignment, nbytes);
-#elif defined(_MSC_VER)
-    data = _aligned_malloc(nbytes, gCaffe2Alignment);
-#else
-    CAFFE_ENFORCE_EQ(posix_memalign(&data, gCaffe2Alignment, nbytes), 0);
-#endif
-    CAFFE_ENFORCE(data);
-    memset(data, 0, nbytes);
-    return {data, Delete};
-  }
-#ifdef _MSC_VER
-  static void Delete(void* data) {
-    _aligned_free(data);
-  }
-#else
-  static void Delete(void* data) {
-    free(data);
-  }
-#endif
-};
-
-typedef std::mt19937 rand_gen_type;
-
-// Get the CPU Alloctor.
-CPUAllocator* GetCPUAllocator();
-// Sets the CPU allocator to the given allocator: the caller gives away the
-// ownership of the pointer.
-void SetCPUAllocator(CPUAllocator* alloc);
 
 /**
  * The CPU Context, representing the bare minimum of what a Context class in
@@ -92,6 +33,14 @@ void SetCPUAllocator(CPUAllocator* alloc);
  * implementing if you want to write your own context class:
  * - void SwitchToDevice(): any necessary code to switch to the device before
  *     running anything.
+ * - void WaitEvent(const Event& ev): make the current context to wait on
+ *     an event. For example, for cuda, this is the equivalent of
+ *     cudaStreamWaitEvent. For CPU context, it essentially synchronizes the
+ *     event.
+ * - void Record(Event* ev): record the async activities on the current context
+ *     to the event. For example, for cuda, this is the equivalent of
+ *     cudaEventRecord on the current stream. For CPU context, it is always
+ *     synchronous.
  * - void FinishDeviceComputation(): any wrapping-up work after all the
  *     computation of the operator is done. If there are errors during the
  *     execution, throw exception. For example, in a CUDAContext, this function
@@ -111,6 +60,7 @@ void SetCPUAllocator(CPUAllocator* alloc);
  */
 class CPUContext final {
  public:
+  typedef std::mt19937 rand_gen_type;
   CPUContext() : random_seed_(math::randomNumberSeed()) {}
   explicit CPUContext(const DeviceOption& option)
       : random_seed_(
@@ -124,6 +74,14 @@ class CPUContext final {
   inline void SwitchToDevice(int /*stream_id*/) {}
   inline void SwitchToDevice() {
     SwitchToDevice(0);
+  }
+
+  inline void WaitEvent(const Event& ev) {
+    ev.Wait(CPU, this);
+  }
+  inline void Record(Event* ev) const {
+    CAFFE_ENFORCE(ev, "Event must not be null.");
+    ev->Record(CPU, this);
   }
 
   inline void FinishDeviceComputation() {}

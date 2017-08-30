@@ -78,7 +78,7 @@ set(Caffe2_MAIN_LIBS_ORDER ${Caffe2_MAIN_LIBS})
 # Compile exposed libraries.
 add_library(Caffe2_CPU ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
 target_link_libraries(Caffe2_CPU ${Caffe2_DEPENDENCY_LIBS})
-install(TARGETS Caffe2_CPU DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+install(TARGETS Caffe2_CPU DESTINATION lib)
 list(APPEND Caffe2_MAIN_LIBS_ORDER Caffe2_CPU)
 if (BUILD_SHARED_LIBS)
   list(APPEND Caffe2_MAIN_LIBS Caffe2_CPU)
@@ -91,27 +91,16 @@ if (Caffe2_EXTERNAL_DEPENDENCIES)
 endif()
 
 # Write the macros file.
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/caffe2/core)
-file(WRITE ${PROJECT_BINARY_DIR}/caffe2/core/macros.h
-     "// Automatically generated header file for caffe2 macros. These \n"
-     "// macros are used to build the Caffe2 binary, and if you are \n"
-     "// building a dependent library, they will need to be set as well \n"
-     "// for your program to link correctly.\n\n"
-     "#pragma once\n\n")
-get_directory_property(tmp DIRECTORY ${PROJECT_SOURCE_DIR} COMPILE_DEFINITIONS)
-foreach(item ${tmp})
-  if (${item} MATCHES "CAFFE2.*")
-    file(APPEND ${PROJECT_BINARY_DIR}/caffe2/core/macros.h
-         "\n#ifndef ${item}\n#define ${item}\n#endif // ${item}\n")
-  endif()
-endforeach()
+configure_file(
+    ${PROJECT_SOURCE_DIR}/caffe2/core/macros.h.in
+    ${PROJECT_BINARY_DIR}/caffe2/core/macros.h)
 
 # Installing the header files
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
+        DESTINATION include
         FILES_MATCHING PATTERN "*.h")
 install(FILES ${PROJECT_BINARY_DIR}/caffe2/core/macros.h
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/caffe2/core/)
+        DESTINATION include/caffe2/core)
 
 # ---[ CUDA library.
 if(USE_CUDA)
@@ -128,7 +117,7 @@ if(USE_CUDA)
   if (Caffe2_EXTERNAL_DEPENDENCIES)
     add_dependencies(Caffe2_GPU ${Caffe2_EXTERNAL_DEPENDENCIES})
   endif()
-  install(TARGETS Caffe2_GPU DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+  install(TARGETS Caffe2_GPU DESTINATION lib)
   link_directories(${CMAKE_INSTALL_PREFIX}/lib)
   add_dependencies(Caffe2_GPU Caffe2_PROTO)
 endif()
@@ -149,7 +138,7 @@ if (BUILD_TEST)
       target_compile_features(${test_name} PRIVATE cxx_range_for)
     endif()
     add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}>)
-    install(TARGETS ${test_name} DESTINATION ${CMAKE_INSTALL_PREFIX}/test)
+    install(TARGETS ${test_name} DESTINATION test)
   endforeach()
 endif()
 
@@ -181,9 +170,7 @@ if (BUILD_PYTHON)
         COMMAND install_name_tool -add_rpath ${CMAKE_INSTALL_PREFIX}/lib
                 $<TARGET_FILE:caffe2_pybind11_state>)
   endif()
-  install(
-      TARGETS caffe2_pybind11_state DESTINATION
-      ${CMAKE_INSTALL_PREFIX}/caffe2/python)
+  install(TARGETS caffe2_pybind11_state DESTINATION caffe2/python)
 
   if(USE_CUDA)
     add_library(caffe2_pybind11_state_gpu MODULE ${Caffe2_GPU_PYTHON_SRCS})
@@ -206,9 +193,7 @@ if (BUILD_PYTHON)
           COMMAND install_name_tool -add_rpath ${CMAKE_INSTALL_PREFIX}/lib
                   $<TARGET_FILE:caffe2_pybind11_state_gpu>)
     endif()
-    install(
-        TARGETS caffe2_pybind11_state_gpu DESTINATION
-        ${CMAKE_INSTALL_PREFIX}/caffe2/python)
+    install(TARGETS caffe2_pybind11_state_gpu DESTINATION caffe2/python)
   endif()
 
   if (MSVC AND CMAKE_GENERATOR MATCHES "Visual Studio")
@@ -267,13 +252,13 @@ if (BUILD_PYTHON)
 
   # Install commands
   # Pick up static python files
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION ${CMAKE_INSTALL_PREFIX}
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION .
           FILES_MATCHING PATTERN "*.py")
   # Caffe proto files
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe DESTINATION ${CMAKE_INSTALL_PREFIX}
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe DESTINATION .
           FILES_MATCHING PATTERN "*.py")
   # Caffe2 proto files
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION ${CMAKE_INSTALL_PREFIX}
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION .
           FILES_MATCHING PATTERN "*.py")
 endif()
 

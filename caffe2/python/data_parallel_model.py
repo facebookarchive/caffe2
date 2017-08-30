@@ -318,6 +318,7 @@ def Parallelize_GPU_BMUF(
     net_type='dag',
     master_gpu=None,
     use_nccl=False,
+    nesterov=False,
     optimize_gradient_memory=False,
     reset_momentum_sgd=False,
     warmup_iterations=None,
@@ -382,6 +383,9 @@ def Parallelize_GPU_BMUF(
     def _g(param):
         return "{}_g".format(param)
 
+    def _v_prev(param):
+        return "{}_prev".format(param)
+
     # Keep track of params that were in the model before: they are not
     # data parallel, so we need to handle them separately
     non_datapar_params = copy.copy(model_helper_obj.params)
@@ -444,6 +448,10 @@ def Parallelize_GPU_BMUF(
                 param, _v(param), value=0.0
             )
             model_helper_obj._global_model_init_net.Copy(param, _g(param))
+            if nesterov:
+                model_helper_obj._global_model_init_net.ConstantFill(
+                    param, _v_prev(param), value=0.0
+                )
 
     # (Step-1) Update models for num_local_iterations.
 
@@ -462,6 +470,11 @@ def Parallelize_GPU_BMUF(
     # (Step-3) Update momentum params :
     # param_v = block_momentum * param_v
     # + block_learning_Rate * (param_avg - param)
+    # if nesterov momentum:
+    # param = param + param_v
+    # - block_momentum * (param_v - param_v_prev)
+    # param_v_prev = param_v
+    # else:
     # param = param + param_v
     for param_name in model_parameter_names:
         param = model_helper_obj._device_grouped_blobs[param_name][master_gpu]
@@ -485,6 +498,19 @@ def Parallelize_GPU_BMUF(
             model_helper_obj._global_model_param_updates_net.Add(
                 [_g(param), _v(param)], _g(param)
             )
+            if nesterov:
+                model_helper_obj._global_model_param_updates_net.Sub(
+                    [_v(param), _v_prev(param)], _v_prev(param)
+                )
+                model_helper_obj._global_model_param_updates_net.Scale(
+                    _v_prev(param), _v_prev(param), scale=block_momentum
+                )
+                model_helper_obj._global_model_param_updates_net.Sub(
+                    [_g(param), _v_prev(param)], _g(param)
+                )
+                model_helper_obj._global_model_param_updates_net.Copy(
+                    _v(param), _v_prev(param)
+                )
             model_helper_obj._global_model_param_updates_net.Copy(
                 _g(param), param
             )
@@ -753,9 +779,9 @@ def GetLearningRateBlobNames(model):
     '''
     if model._optimizer is not None:
         if model._device_type == caffe2_pb2.CPU:
-            return [model._optimizer.get_cpu_lr_blob_name()]
+            return [model._optimizer.get_cpu_blob_name('lr')]
         elif model._device_type == caffe2_pb2.CUDA:
-            return [model._optimizer.get_gpu_lr_blob_name(gpu)
+            return [model._optimizer.get_gpu_blob_name('lr', gpu)
                     for gpu in model._devices]
         else:
             raise Exception(
@@ -1265,6 +1291,7 @@ def _InferBlobDevice(model):
                     step_proto = caffe2_pb2.NetDef()
                     protobuftx.Merge(step_arg.s.decode("ascii"), step_proto)
                     map_ops(step_proto)
+    map_ops(model.param_init_net.Proto())
     map_ops(model.net.Proto())
     model._blob_to_device = mapping
 
@@ -1398,16 +1425,19 @@ def OptimizeGradientMemory(model,
                    that you will access externally.
     recycle_activations: whether to also recycle forward pass activations
     """
-    input_shapes_all_devices = {}
-    for b, shp in viewitems(input_shapes):
-        for d in model._devices:
-            input_shapes_all_devices["{}_{}/{}".
-                                     format(model._device_prefix, d, b)] = shp
+    if input_shapes is not None:
+        input_shapes_all_devices = {}
+        for b, shp in viewitems(input_shapes):
+            for d in model._devices:
+                input_shapes_all_devices["{}_{}/{}".
+                                         format(model._device_prefix, d, b)] = shp
 
-    (shapes, types) = workspace.InferShapesAndTypes(
-        [model.param_init_net, model.net],
-        input_shapes_all_devices,
-    )
+        (shapes, types) = workspace.InferShapesAndTypes(
+            [model.param_init_net, model.net],
+            input_shapes_all_devices,
+        )
+    else:
+        shapes = None
 
     for device in model._devices:
         namescope = "{}_{}/".format(model._device_prefix, device)

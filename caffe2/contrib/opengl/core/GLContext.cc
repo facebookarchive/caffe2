@@ -52,7 +52,7 @@ bool GLContext::GL_EXT_texture_border_clamp_defined() {
          checkOpenGLExtensions("GL_OES_texture_border_clamp");
 }
 
-bool supportOpenGLES3() {
+bool supportOpenGLES3(bool* half_float_supported) {
   int major = 0, minor = 0;
   getOpenGLESVersion(major, minor);
 
@@ -65,7 +65,9 @@ bool supportOpenGLES3() {
 
   if (!checkOpenGLExtensions("GL_EXT_color_buffer_half_float")) {
     LOG(ERROR) << "GL_EXT_color_buffer_half_float is not available";
-    return false;
+    if (half_float_supported) {
+      *half_float_supported = false;
+    }
   }
   return true;
 }
@@ -114,7 +116,7 @@ bool isSupportedRenderer() {
 
 bool isSupportedDevice() {
 #if CAFFE2_IOS
-  return iPhoneVersion() >= 6; // iPhone 5S and up
+  return iPhoneVersion() >= 7; // iPhone 6 and up
 #elif CAFFE2_ANDROID
   return isSupportedRenderer();
 #else

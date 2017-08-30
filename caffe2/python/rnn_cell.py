@@ -1,4 +1,4 @@
-# @package rnn_cell
+## @package rnn_cell
 # Module caffe2.python.rnn_cell
 from __future__ import absolute_import
 from __future__ import division
@@ -35,11 +35,19 @@ class RNNCell(object):
     As a result base class will provice apply_over_sequence method, which
     allows you to apply recurrent operations over a sequence of any length.
     '''
-
-    def __init__(self, name, forward_only=False):
+    def __init__(self, name, forward_only=False, initializer=None):
         self.name = name
         self.recompute_blobs = []
         self.forward_only = forward_only
+        self._initializer = initializer
+
+    @property
+    def initializer(self):
+        return self._initializer
+
+    @initializer.setter
+    def initializer(self, value):
+        self._initializer = value
 
     def scope(self, name):
         return self.name + '/' + name if self.name is not None else name
@@ -49,9 +57,16 @@ class RNNCell(object):
         model,
         inputs,
         seq_lengths,
-        initial_states,
+        initial_states=None,
         outputs_with_grads=None,
     ):
+        if initial_states is None:
+            with scope.NameScope(self.name):
+                if self.initializer is None:
+                    raise Exception("Either initial states"
+                                    "or initializer have to be set")
+                initial_states = self.initializer.create_states(model)
+
         preprocessed_inputs = self.prepare_input(model, inputs)
         step_model = ModelHelper(name=self.name, param_model=model)
         input_t, timestep = step_model.net.AddScopedExternalInputs(
@@ -83,6 +98,7 @@ class RNNCell(object):
             links=dict(zip(states_prev, states)),
             timestep=timestep,
             scope=self.name,
+            forward_only=self.forward_only,
             outputs_with_grads=outputs_with_grads,
             recompute_blobs_on_backward=self.recompute_blobs,
         )
@@ -181,6 +197,27 @@ class RNNCell(object):
         return state_outputs[output_sequence_index]
 
 
+class LSTMInitializer(object):
+    def __init__(self, hidden_size):
+        self.hidden_size = hidden_size
+
+    def create_states(self, model):
+        return [
+            model.create_param(
+                param_name='initial_hidden_state',
+                initializer=Initializer(operator_name='ConstantFill',
+                                        value=0.0),
+                shape=[self.hidden_size],
+            ),
+            model.create_param(
+                param_name='initial_cell_state',
+                initializer=Initializer(operator_name='ConstantFill',
+                                        value=0.0),
+                shape=[self.hidden_size],
+            )
+        ]
+
+
 class LSTMCell(RNNCell):
 
     def __init__(
@@ -190,9 +227,13 @@ class LSTMCell(RNNCell):
         forget_bias,
         memory_optimization,
         drop_states=False,
+        initializer=None,
         **kwargs
     ):
-        super(LSTMCell, self).__init__(**kwargs)
+        super(LSTMCell, self).__init__(initializer=initializer, **kwargs)
+        self.initializer = initializer or LSTMInitializer(
+            hidden_size=hidden_size)
+
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.forget_bias = float(forget_bias)
@@ -451,6 +492,17 @@ class DropoutCell(RNNCell):
         return output
 
 
+class MultiRNNCellInitializer(object):
+    def __init__(self, cells):
+        self.cells = cells
+
+    def create_states(self, model):
+        states = []
+        for cell in self.cells:
+            with core.NameScope(cell.name):
+                states.extend(cell.initializer.create_states(model))
+        return states
+
 class MultiRNNCell(RNNCell):
     '''
     Multilayer RNN via the composition of RNNCell instance.
@@ -520,6 +572,8 @@ class MultiRNNCell(RNNCell):
                     list(duplicates),
                 ),
             )
+
+        self.initializer = MultiRNNCellInitializer(cells)
 
     def prepare_input(self, model, input_blob):
         return self.cells[0].prepare_input(model, input_blob)
@@ -907,7 +961,7 @@ class MILSTMWithAttentionCell(AttentionCell):
         )
 
 
-def _RNN(
+def _LSTM(
     cell_class,
     model,
     input_blob,
@@ -924,57 +978,51 @@ def _RNN(
     drop_states=False,
     return_last_layer_only=True,
     static_rnn_unroll_size=None,
-    no_cell_state=False,
 ):
     '''
-    Adds a standard LSTM/MILSTM/GRU recurrent network operator to a model.
+    Adds a standard LSTM recurrent network operator to a model.
 
-    cell_class: LSTMCell, GRUCell or compatible subclass.
+    cell_class: LSTMCell or compatible subclass
 
-    model: ModelHelper object new operators would be added to.
+    model: ModelHelper object new operators would be added to
 
-    input_blob: the input sequence in a format T x N x D,
-            where T is sequence size, N - batch size and D - input dimension.
+    input_blob: the input sequence in a format T x N x D
+            where T is sequence size, N - batch size and D - input dimension
 
     seq_lengths: blob containing sequence lengths which would be passed to
-            LSTMUnit operator.
+            LSTMUnit operator
 
     initial_states: a list of (2 * num_layers) blobs representing the initial
-            hidden and cell states of each layer For LSTM classes and a list
-            of num_layers blobs for GRU. If this argument is None,
+            hidden and cell states of each layer. If this argument is None,
             these states will be added to the model as network parameters.
 
-    dim_in: input dimension.
+    dim_in: input dimension
 
-    dim_out: number of units per RNN layer
-            (use int for single-layer RNN, list of ints for multi-layer).
+    dim_out: number of units per LSTM layer
+            (use int for single-layer LSTM, list of ints for multi-layer)
 
     outputs_with_grads : position indices of output blobs for LAST LAYER which
             will receive external error gradient during backpropagation.
-            These outputs are: (h_all, h_last, c_all, c_last) for LSTM classes
-            and (h_all, h_last) for GRU.
+            These outputs are: (h_all, h_last, c_all, c_last)
 
-    return_params: if True, will return a dictionary of parameters of the RNN.
+    return_params: if True, will return a dictionary of parameters of the LSTM
 
-    memory_optimization: if enabled, the RNN step is recomputed on backward
+    memory_optimization: if enabled, the LSTM step is recomputed on backward
             step so that we don't need to store forward activations for each
             timestep. Saves memory with cost of computation.
 
-    forget_bias: forget gate bias (default 0.0).
+    forget_bias: forget gate bias (default 0.0)
 
-    forward_only: whether to create a backward pass.
+    forward_only: whether to create a backward pass
 
-    drop_states: drop invalid states, passed to LSTMUnit/GRUUnit operator.
+    drop_states: drop invalid states, passed through to LSTMUnit operator
 
     return_last_layer_only: only return outputs from final layer
-            (so that length of results does depend on number of layers).
+            (so that length of results does depend on number of layers)
 
     static_rnn_unroll_size: if not None, we will use static RNN which is
-            unrolled into Caffe2 graph. The size of the unroll is the value of
-            this parameter.
-
-    no_cell_state: whether there is cell state in the model.
-            It is False for LSTM and True for GRU.
+    unrolled into Caffe2 graph. The size of the unroll is the value of
+    this parameter.
     '''
     if type(dim_out) is not list and type(dim_out) is not tuple:
         dim_out = [dim_out]
@@ -982,7 +1030,7 @@ def _RNN(
 
     cells = []
     for i in range(num_layers):
-        name = '{}/layer_{}'.format(scope, i) if num_layers > 1 else scope
+        name = scope + "/layer_{}".format(i) if num_layers > 1 else scope
         cell = cell_class(
             input_size=(dim_in if i == 0 else dim_out[i - 1]),
             hidden_size=dim_out[i],
@@ -1004,34 +1052,8 @@ def _RNN(
         cell if static_rnn_unroll_size is None
         else UnrolledCell(cell, static_rnn_unroll_size))
 
-    if initial_states is None:
-        initial_states = []
-        for i in range(num_layers):
-            with core.NameScope(scope):
-                suffix = '_{}'.format(i) if num_layers > 1 else ''
-                initial_hidden = model.create_param(
-                    'initial_hidden_state' + suffix,
-                    shape=[dim_out[i]],
-                    initializer=Initializer('ConstantFill', value=0.0),
-                )
-                initial_states.append(initial_hidden)
-                if not no_cell_state:
-                    initial_cell = model.create_param(
-                        'initial_cell_state' + suffix,
-                        shape=[dim_out[i]],
-                        initializer=Initializer('ConstantFill', value=0.0),
-                    )
-                    initial_states.append(initial_cell)
-
-    num_states = 1 if no_cell_state else 2
-    assert len(initial_states) == num_states * num_layers, \
-        "Incorrect initial_states," \
-        + " was expecting {} elements".format(num_states * num_layers) \
-        + " but got {} elements".format(len(initial_states))
-
     # outputs_with_grads argument indexes into final layer
-    outputs_with_grads = [
-        2 * num_states * (num_layers - 1) + i for i in outputs_with_grads]
+    outputs_with_grads = [4 * (num_layers - 1) + i for i in outputs_with_grads]
     _, result = cell.apply_over_sequence(
         model=model,
         inputs=input_blob,
@@ -1041,7 +1063,7 @@ def _RNN(
     )
 
     if return_last_layer_only:
-        result = result[2 * num_states * (num_layers - 1):]
+        result = result[4 * (num_layers - 1):]
     if return_params:
         result = list(result) + [{
             'input': cell.get_input_params(),
@@ -1050,8 +1072,8 @@ def _RNN(
     return tuple(result)
 
 
-LSTM = functools.partial(_RNN, LSTMCell)
-MILSTM = functools.partial(_RNN, MILSTMCell)
+LSTM = functools.partial(_LSTM, LSTMCell)
+MILSTM = functools.partial(_LSTM, MILSTMCell)
 
 
 class UnrolledCell(RNNCell):
@@ -1084,7 +1106,7 @@ class UnrolledCell(RNNCell):
             scope_name = "timestep_{}".format(t)
             # Parameters of all timesteps are shared
             with ParameterSharing({scope_name: ''}),\
-                    scope.NameScope(scope_name):
+                 scope.NameScope(scope_name):
                 timestep = model.param_init_net.ConstantFill(
                     [], "timestep", value=t, shape=[1],
                     dtype=core.DataType.INT32,
@@ -1222,10 +1244,10 @@ def cudnn_LSTM(model, input_blob, initial_states, dim_in, dim_out,
 
         # Multiply by 4 since we have 4 gates per LSTM unit
         first_layer_sz = input_weight_size + recurrent_weight_size + \
-            input_bias_size + recurrent_bias_size
+                         input_bias_size + recurrent_bias_size
         upper_layer_sz = upper_layer_input_weight_size + \
-            recurrent_weight_size + input_bias_size + \
-            recurrent_bias_size
+                         recurrent_weight_size + input_bias_size + \
+                         recurrent_bias_size
         total_sz = 4 * (first_layer_sz + (num_layers - 1) * upper_layer_sz)
 
         weights = model.create_param(
@@ -1261,8 +1283,7 @@ def cudnn_LSTM(model, input_blob, initial_states, dim_in, dim_out,
                 p = {}
             for pname in weight_params + bias_params:
                 for j in range(0, num_layers):
-                    values = p[pname] if pname in p else init(
-                        j, pname, input_type)
+                    values = p[pname] if pname in p else init(j, pname, input_type)
                     model.param_init_net.RecurrentParamSet(
                         [input_blob, weights, values],
                         weights,

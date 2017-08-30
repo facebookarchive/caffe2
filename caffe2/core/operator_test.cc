@@ -90,9 +90,14 @@ TEST(OperatorTest, RegistryWorks) {
   op_def.set_type("JustTest");
   unique_ptr<OperatorBase> op = CreateOperator(op_def, &ws);
   EXPECT_NE(nullptr, op.get());
-  op_def.mutable_device_option()->set_device_type(CUDA);
-  op = CreateOperator(op_def, &ws);
-  EXPECT_NE(nullptr, op.get());
+  // After introducing events, CUDA operator creation has to have CUDA compiled
+  // as it needs to instantiate an Event object with CUDAContext. Thus we will
+  // guard this test below.
+  if (HasCudaRuntime()) {
+    op_def.mutable_device_option()->set_device_type(CUDA);
+    op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+  }
 }
 
 TEST(OperatorTest, RegistryWrongDevice) {
@@ -251,14 +256,18 @@ TEST(OperatorTest, TestSetUpInputOutputCount) {
   op_def.add_output("output");
   EXPECT_NE(nullptr, ws.CreateBlob("input"));
   EXPECT_NE(nullptr, ws.CreateBlob("input2"));
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
   // JustTest will only accept one single input.
   ASSERT_ANY_THROW(CreateOperator(op_def, &ws));
+#endif
 
   op_def.clear_input();
   op_def.add_input("input");
   op_def.add_output("output2");
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
   // JustTest will only produce one single output.
   ASSERT_ANY_THROW(CreateOperator(op_def, &ws));
+#endif
 }
 
 TEST(OperatorTest, TestOutputValues) {

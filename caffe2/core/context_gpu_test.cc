@@ -8,6 +8,8 @@
 #include "caffe2/core/context_gpu.h"
 #include <gtest/gtest.h>
 
+CAFFE2_DECLARE_bool(caffe2_cuda_full_device_control);
+
 namespace caffe2 {
 
 namespace {
@@ -16,12 +18,42 @@ std::shared_ptr<void> shared_from_new(std::pair<void*, MemoryDeleter>&& p) {
 }
 }
 
+TEST(CUDATest, HasCudaRuntime) {
+  EXPECT_TRUE(HasCudaRuntime());
+}
+
 TEST(CUDAContextTest, TestAllocDealloc) {
   if (!HasCudaGPU()) return;
   CUDAContext context(0);
   context.SwitchToDevice();
   auto data = shared_from_new(CUDAContext::New(10 * sizeof(float)));
   EXPECT_NE(data.get(), nullptr);
+}
+
+TEST(CUDAContextTest, TestSetGetDeviceWithoutCaffeMode) {
+  // For a while, set full device control to be true.
+  for (int i = 0; i < NumCudaDevices(); ++i) {
+    CaffeCudaSetDevice(i);
+    EXPECT_EQ(CaffeCudaGetDevice(), i);
+  }
+  for (int i = NumCudaDevices() - 1; i >= 0; --i) {
+    CaffeCudaSetDevice(i);
+    EXPECT_EQ(CaffeCudaGetDevice(), i);
+  }
+}
+
+TEST(CUDAContextTest, TestSetGetDeviceWithCaffeMode) {
+  // For a while, set full device control to be true.
+  FLAGS_caffe2_cuda_full_device_control = true;
+  for (int i = 0; i < NumCudaDevices(); ++i) {
+    CaffeCudaSetDevice(i);
+    EXPECT_EQ(CaffeCudaGetDevice(), i);
+  }
+  for (int i = NumCudaDevices() - 1; i >= 0; --i) {
+    CaffeCudaSetDevice(i);
+    EXPECT_EQ(CaffeCudaGetDevice(), i);
+  }
+  FLAGS_caffe2_cuda_full_device_control = false;
 }
 
 TEST(CUDAContextTest, MemoryPoolAllocateDealloc) {

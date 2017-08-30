@@ -116,4 +116,183 @@ class BooleanMaskOp<CUDAContext> final : public Operator<CUDAContext> {
 
 REGISTER_CUDA_OPERATOR(BooleanMask, BooleanMaskOp<CUDAContext>);
 
+namespace {
+
+#define minf (-1.0f * std::numeric_limits<float>::infinity())
+
+__global__ void sequenceMaskKernel(
+    int N,
+    int D,
+    const float* in,
+    const int* seq_lengths,
+    float fill_val,
+    float* out) {
+  CUDA_1D_KERNEL_LOOP(index, N * D) {
+    int i = index / D;
+    int j = index % D;
+
+    out[index] = (j >= seq_lengths[i] ? fill_val : in[index]);
+  }
+}
+
+__global__ void windowMaskKernel(
+    int N,
+    int D,
+    const float* in,
+    const int* window_centers,
+    const int radius,
+    float fill_val,
+    float* out) {
+  CUDA_1D_KERNEL_LOOP(index, N * D) {
+    int i = index / D;
+    int j = index % D;
+
+    out[index] =
+        (j < window_centers[i] - radius || j > window_centers[i] + radius
+             ? fill_val
+             : in[index]);
+  }
+}
+
+__global__ void
+upperMaskKernel(int N, int D, const float* in, float fill_val, float* out) {
+  CUDA_1D_KERNEL_LOOP(index, N * D) {
+    int i = index / D;
+    int j = index % D;
+
+    out[index] = (j > i ? fill_val : in[index]);
+  }
+}
+
+__global__ void
+lowerMaskKernel(int N, int D, const float* in, float fill_val, float* out) {
+  CUDA_1D_KERNEL_LOOP(index, N * D) {
+    int i = index / D;
+    int j = index % D;
+
+    out[index] = (j < i ? fill_val : in[index]);
+  }
+}
+
+__global__ void
+upperDiagMaskKernel(int N, int D, const float* in, float fill_val, float* out) {
+  CUDA_1D_KERNEL_LOOP(index, N * D) {
+    int i = index / D;
+    int j = index % D;
+
+    out[index] = (j >= i ? fill_val : in[index]);
+  }
+}
+
+__global__ void
+lowerDiagMaskKernel(int N, int D, const float* in, float fill_val, float* out) {
+  CUDA_1D_KERNEL_LOOP(index, N * D) {
+    int i = index / D;
+    int j = index % D;
+
+    out[index] = (j <= i ? fill_val : in[index]);
+  }
+}
+
+} // namespace
+
+template <>
+bool SequenceMaskOp<CUDAContext>::RunOnDevice() {
+  const Tensor<CUDAContext>* input = &Input(0);
+  const Tensor<CUDAContext>* sequence_lengths = nullptr;
+  const Tensor<CUDAContext>* window_centers = nullptr;
+
+  if (mode_ == "sequence") {
+    sequence_lengths = &Input(1);
+  } else if (mode_ == "window") {
+    window_centers = &Input(1);
+  }
+
+  auto* output = Output(0);
+  output->ResizeLike(*input);
+
+  const auto canonical_axis = input->canonical_axis_index(axis_);
+  const int left = input->size_to_dim(canonical_axis);
+  const int right = input->size_from_dim(canonical_axis);
+
+  float fill_val = (grad_ ? 0.0f : fill_val_);
+
+  if (mode_ == "sequence") {
+    sequenceMaskKernel<<<
+        CAFFE_GET_BLOCKS(left * right),
+        CAFFE_CUDA_NUM_THREADS,
+        0,
+        context_.cuda_stream()>>>(
+        left,
+        right,
+        input->data<float>(),
+        sequence_lengths->data<int>(),
+        fill_val,
+        output->mutable_data<float>());
+  } else if (mode_ == "window") {
+    windowMaskKernel<<<
+        CAFFE_GET_BLOCKS(left * right),
+        CAFFE_CUDA_NUM_THREADS,
+        0,
+        context_.cuda_stream()>>>(
+        left,
+        right,
+        input->data<float>(),
+        window_centers->data<int>(),
+        radius_,
+        fill_val,
+        output->mutable_data<float>());
+  } else if (mode_ == "upper") {
+    upperMaskKernel<<<
+        CAFFE_GET_BLOCKS(left * right),
+        CAFFE_CUDA_NUM_THREADS,
+        0,
+        context_.cuda_stream()>>>(
+        left,
+        right,
+        input->data<float>(),
+        fill_val,
+        output->mutable_data<float>());
+  } else if (mode_ == "lower") {
+    lowerMaskKernel<<<
+        CAFFE_GET_BLOCKS(left * right),
+        CAFFE_CUDA_NUM_THREADS,
+        0,
+        context_.cuda_stream()>>>(
+        left,
+        right,
+        input->data<float>(),
+        fill_val,
+        output->mutable_data<float>());
+  } else if (mode_ == "upperdiag") {
+    upperDiagMaskKernel<<<
+        CAFFE_GET_BLOCKS(left * right),
+        CAFFE_CUDA_NUM_THREADS,
+        0,
+        context_.cuda_stream()>>>(
+        left,
+        right,
+        input->data<float>(),
+        fill_val,
+        output->mutable_data<float>());
+  } else if (mode_ == "lowerdiag") {
+    lowerDiagMaskKernel<<<
+        CAFFE_GET_BLOCKS(left * right),
+        CAFFE_CUDA_NUM_THREADS,
+        0,
+        context_.cuda_stream()>>>(
+        left,
+        right,
+        input->data<float>(),
+        fill_val,
+        output->mutable_data<float>());
+  } else {
+    CAFFE_ENFORCE(false, "Unsupported mode for SequenceMaskOp!");
+  }
+
+  return true;
+}
+
+REGISTER_CUDA_OPERATOR(SequenceMask, SequenceMaskOp<CUDAContext>);
+
 } // caffe2

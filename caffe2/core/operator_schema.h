@@ -348,8 +348,9 @@ class OpSchemaRegistry {
 };
 
 // Helper function for creating simple tensorproto with dimension and type
+template <typename T_I = int>
 inline TensorShape CreateTensorShape(
-    vector<int> dims,
+    vector<T_I> dims,
     ::caffe2::TensorProto_DataType dt) {
   TensorShape ts;
   for (int d : dims) {
@@ -380,12 +381,26 @@ InferOpInputOutputDevice(const OperatorDef& op) {
 
 }  // namespace caffe2
 
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
+
 #define OPERATOR_SCHEMA(name)                            \
   void CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name(){}; \
-  static OpSchema& CAFFE_ANONYMOUS_VARIABLE(name) =      \
-      OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(name) =      \
+      &OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
 #define OPERATOR_SCHEMA_STR(name)                                  \
-  static OpSchema& CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
-      OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
+      &OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)
+
+#else // CAFFE2_NO_OPERATOR_SCHEMA
+
+#define OPERATOR_SCHEMA(name)                            \
+  void CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name(){}; \
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(name) =      \
+      1 ? nullptr : &OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
+#define OPERATOR_SCHEMA_STR(name)                                  \
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
+      1 ? nullptr : &OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)
+
+#endif // CAFFE2_NO_OPERATOR_SCHEMA
 
 #endif  // CAFFE2_CORE_OPERATOR_SCHEMA_H_

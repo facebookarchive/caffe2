@@ -65,7 +65,7 @@ REGISTER_CPU_OPERATOR(
     ScatterWeightedSumOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(Max, MaxOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(MaxGradient, MaxGradientOp<float, CPUContext>);
-REGISTER_CPU_OPERATOR(ScatterAssign, ScatterAssignOp<float, CPUContext>);
+REGISTER_CPU_OPERATOR(ScatterAssign, ScatterAssignOp<CPUContext>);
 // From whatever the current context, ensure the output is TensorCPU
 REGISTER_CPU_OPERATOR(
     EnsureCPUOutput,
@@ -78,7 +78,6 @@ REGISTER_CPU_OPERATOR(
     CopyOnDeviceLike,
     CopyOnDeviceLikeOp<CPUContext, CPUContext, CPUContext>);
 REGISTER_CPU_OPERATOR(Copy, CopyOp<CPUContext, CPUContext, CPUContext>);
-REGISTER_CPU_OPERATOR(Shape, ShapeOp<CPUContext>);
 REGISTER_CPU_OPERATOR(LengthsToShape, LengthsToShapeOp<CPUContext>);
 REGISTER_CPU_OPERATOR(HasElements, HasElementsOp<CPUContext>);
 REGISTER_CPU_OPERATOR(IsEmpty, IsEmptyOp<CPUContext>);
@@ -124,23 +123,23 @@ OPERATOR_SCHEMA(LengthsToShape).NumInputs(1).NumOutputs(1);
 OPERATOR_SCHEMA(Flatten)
     .NumInputs(1)
     .NumOutputs(1)
-    .TensorInferenceFunction(
-        [](const OperatorDef&, const vector<TensorShape>& in) {
-          vector<TensorShape> out(1);
-          int total = 1;
-          std::size_t index = 0;
-          for (auto d : in[0].dims()) {
-            // skip the first element
-            if (index++ == 0) {
-              continue;
-            }
-            total *= d;
-          }
-          out[0].set_data_type(in[0].data_type());
-          out[0].add_dims(in[0].dims(0));
-          out[0].add_dims(total);
-          return out;
-        })
+    .TensorInferenceFunction([](const OperatorDef&,
+                                const vector<TensorShape>& in) {
+      vector<TensorShape> out(1);
+      int total = 1;
+      std::size_t index = 0;
+      for (auto d : in[0].dims()) {
+        // skip the first element
+        if (index++ == 0) {
+          continue;
+        }
+        total *= d;
+      }
+      out[0].set_data_type(in[0].data_type());
+      out[0].add_dims(in[0].dims(0));
+      out[0].add_dims(total);
+      return out;
+    })
     .SetDoc(R"DOC(
 Flattens the input tensor into a 2D matrix, keeping the first dimension
 unchanged.
@@ -431,18 +430,6 @@ OPERATOR_SCHEMA(CopyOnDeviceLike)
     .Input(1, "dst", "Tensor, on which device the copy will be performed.")
     .Output(0, "output", "Tensor that will contain a copy of the input.");
 
-OPERATOR_SCHEMA(Shape)
-    .NumInputs(1)
-    .NumOutputs(1)
-    .TensorInferenceFunction([](const OperatorDef& /*def*/,
-                                const vector<TensorShape>& in) {
-      vector<TensorShape> out(1);
-      out[0].add_dims(in[0].dims().size());
-      out[0].set_data_type(TensorProto::INT32);
-      return out;
-    })
-    .SetDoc("Produce a 1D int64 tensor with the shape of the input tensor.");
-
 OPERATOR_SCHEMA(HasElements)
     .NumInputs(1)
     .NumOutputs(1)
@@ -457,12 +444,27 @@ OPERATOR_SCHEMA(IsEmpty)
     .NumInputs(1)
     .NumOutputs(1)
     .SetDoc("Returns true iff the input tensor has size == 0")
+    .ScalarType(::caffe2::TensorProto_DataType::TensorProto_DataType_BOOL)
     .Input(0, "tensor", "Tensor of any type.")
     .Output(0, "is_empty", "Scalar bool tensor. True if input is empty.");
 
 OPERATOR_SCHEMA(Gather)
     .NumInputs(2)
     .NumOutputs(1)
+    .TensorInferenceFunction([](const OperatorDef& def,
+                                const vector<TensorShape>& in) {
+      vector<TensorShape> out(0);
+      TensorShape output;
+      for(int d : in[1].dims()) {
+        output.add_dims(d);
+      }
+      for(int j = 1; j < in[0].dims_size(); j++) {
+        output.add_dims(in[0].dims(j));
+      }
+      output.set_data_type(in[0].data_type());
+      out.push_back(output);
+      return out;
+    })
     .SetDoc(R"DOC(
 Given DATA tensor of rank r >= 1, and INDICES tensor of rank q, gather
 entries of the outer-most dimension of DATA indexed by INDICES, and concatenate
@@ -491,7 +493,19 @@ Example:
 )DOC")
     .Input(0, "DATA", "Tensor of rank r >= 1.")
     .Input(1, "INDICES", "Tensor of int32/int64 indices, of any rank q.")
-    .Output(0, "OUTPUT", "Tensor of rank q + (r - 1).");
+    .Output(0, "OUTPUT", "Tensor of rank q + (r - 1).")
+    .TensorInferenceFunction([](const OperatorDef& def,
+                                const vector<TensorShape>& in) {
+      vector<TensorShape> out(1);
+      for (int i = 0; i < in[1].dims_size(); ++i) {
+        out[0].add_dims(in[1].dims(i));
+      }
+      for (int i = 1; i < in[0].dims_size(); ++i) {
+        out[0].add_dims(in[0].dims(i));
+      }
+      out[0].set_data_type(in[0].data_type());
+      return out;
+    });
 
 OPERATOR_SCHEMA(GatherRanges)
     .NumInputs(2)
@@ -678,6 +692,41 @@ Example:
     .Input(2, "ends", "1D tensor: end-indices for each dimension of data.")
     .Arg("starts", "List of starting indices")
     .Arg("ends", "List of ending indices")
+    .TensorInferenceFunction([](const OperatorDef& def,
+                                const vector<TensorShape>& in) {
+        if (in.size() > 1) {
+          // Cannot compute shape inference when the splits are defined
+          // in data.
+          return vector<TensorShape>();
+        }
+        auto const& data = in[0];
+
+        ArgumentHelper helper(def);
+        auto starts = helper.GetRepeatedArgument<int>("starts", vector<int>());
+        auto ends = helper.GetRepeatedArgument<int>("ends", vector<int>());
+        vector<int> dst_sizes(data.dims_size());
+
+        for (int i = 0; i < data.dims_size(); ++i) {
+          if (i >= starts.size()) {
+            continue;
+          }
+          if (data.dims_size() > 0) {
+            auto start = starts[i];
+            auto end = ends[i];
+            if (start < 0) {
+              start = data.dims(i) + 1 + start;
+            }
+            if (end < 0) {
+              end = data.dims(i) + 1 + end;
+            }
+            dst_sizes[i] = end - start;
+          } else {
+            dst_sizes[i] = 0;
+          }
+        }
+        return vector<TensorShape> {
+            CreateTensorShape(dst_sizes, data.data_type()) };
+    })
     .Output(0, "output", "Sliced data tensor.");
 
 OPERATOR_SCHEMA(SliceGradient);
@@ -857,7 +906,6 @@ class GetEnsureDenseGradient : public GradientMakerBase {
 REGISTER_GRADIENT(EnsureDense, GetEnsureDenseGradient);
 
 SHOULD_NOT_DO_GRADIENT(Print);
-SHOULD_NOT_DO_GRADIENT(Shape);
 SHOULD_NOT_DO_GRADIENT(HasElements);
 SHOULD_NOT_DO_GRADIENT(IsEmpty);
 SHOULD_NOT_DO_GRADIENT(LengthsToShape);
@@ -1165,4 +1213,40 @@ OPERATOR_SCHEMA(Size)
 
 REGISTER_CPU_OPERATOR(Size, SizeOp<CPUContext>);
 NO_GRADIENT(Size);
+
+template <>
+template <typename T>
+bool RangeOp<CPUContext>::DoRunOnDevice(
+    const T& start,
+    const T& step,
+    Tensor<CPUContext>* output) {
+  auto* output_data = output->template mutable_data<T>();
+  for (int i = 0; i < output->size(); ++i) {
+    output_data[i] = i * step + start;
+  }
+  return true;
+}
+
+OPERATOR_SCHEMA(Range)
+    .NumInputs(1, 3)
+    .NumOutputs(1)
+    .SetDoc(
+        "Values are generated within the half-open interval [start, stop) "
+        "(in other words, the interval including start but excluding stop). "
+        "When called with a single value, this will return `[0, v]` with the "
+        "result type inferred from the input types.")
+    .Input(
+        0,
+        "start",
+        "Optional scalar Tensor with the start of the interval (inclusive).")
+    .Input(1, "stop", "scalar Tensor with the end of the interval (exclusive)")
+    .Input(2, "step", "Optional scalar Tensor with spacing between values.")
+    .Output(
+        0,
+        "output",
+        "1D tensor of same type as inputs that contains the sequence.");
+
+REGISTER_CPU_OPERATOR(Range, RangeOp<CPUContext>);
+NO_GRADIENT(Range);
+
 } // namespace caffe2

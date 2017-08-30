@@ -17,7 +17,7 @@ if (CAFFE2_LONG_IS_INT32_OR_64)
   message(STATUS "Does not need to define long separately.")
 else()
   message(STATUS "Need to define long as a separate typeid.")
-  add_definitions(-DCAFFE2_UNIQUE_LONG_TYPEMETA)
+  set(CAFFE2_UNIQUE_LONG_TYPEMETA 1)
 endif()
 
 
@@ -62,8 +62,8 @@ if (CAFFE2_COMPILER_SUPPORTS_AVX2_EXTENSIONS)
   # in msvc.
   # Also see CMakeLists.txt under caffe2/perfkernels.
   if (NOT MSVC)
-    add_definitions(-DCAFFE2_PERF_WITH_AVX)
-    add_definitions(-DCAFFE2_PERF_WITH_AVX2)
+    set(CAFFE2_PERF_WITH_AVX 1)
+    set(CAFFE2_PERF_WITH_AVX2 1)
   endif()
 endif()
 
@@ -93,4 +93,10 @@ endif()
 # in the build command.
 if (IOS)
   add_definitions("-mfpu=neon-fp16")
+endif()
+
+# ---[ If we are buidling on ios, we should turn off deprecated-declarations
+# due to protobuf.
+if (IOS)
+  add_definitions("-Wno-deprecated-declarations")
 endif()

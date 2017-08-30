@@ -7,9 +7,11 @@ import numpy as np
 import unittest
 
 from caffe2.proto import caffe2_pb2
-from caffe2.python import core, workspace, test_util, model_helper, brew
+from caffe2.python import core, workspace, test_util, model_helper, brew, build
 
 
+@unittest.skipIf(build.CAFFE2_NO_OPERATOR_SCHEMA,
+                 'Built with CAFFE2_NO_OPERATOR_SCHEMA')
 class TestShapeInference(test_util.TestCase):
 
     def testShapeInferenceSimpleFC(self):
@@ -31,6 +33,20 @@ class TestShapeInference(test_util.TestCase):
         self.assertEquals(shapes['fc2_b'], [55])
         self.assertEquals(shapes['fc2'], [64, 55])
 
+    def testFCAxis2(self):
+        model = model_helper.ModelHelper(name="test_model")
+        model.net.FC(["x", "w", "b"], ["y"], axis=2)
+        workspace.FeedBlob("x", np.random.rand(4, 20, 36).astype(np.float32))
+        workspace.FeedBlob("w", np.random.rand(36, 36).astype(np.float32))
+        workspace.FeedBlob("b", np.random.rand(36,).astype(np.float32))
+        self.InferTensorRunAndCompare(model)
+
+    def testShapeInferenceSlice(self):
+        model = model_helper.ModelHelper(name="test_model")
+        model.net.Slice(["x"], ["y"], starts=[0, 0, 0, 0], ends=[-1, -1, -3, -1])
+        workspace.FeedBlob("x", np.random.rand(64, 1, 255, 384).astype(np.float32))
+        self.InferTensorRunAndCompare(model)
+
     def testShapeInferenceDistances(self):
         model = model_helper.ModelHelper(name="test_model")
         model.SquaredL2Distance(["x", "y"], "zsq")
@@ -39,6 +55,22 @@ class TestShapeInference(test_util.TestCase):
 
         workspace.FeedBlob("x", np.random.rand(10).astype(np.float32))
         workspace.FeedBlob("y", np.random.rand(10).astype(np.float32))
+        self.InferTensorRunAndCompare(model)
+
+    def testShapeInferenceReduceBackFrontX(self):
+        model = model_helper.ModelHelper(name="test_model")
+        model.net.ReduceBackSum(["x"], ["x_back_sum"])
+        model.net.ReduceBackMean(["x"], ["x_back_mean"])
+        model.net.ReduceFrontSum(["x"], ["x_front_sum"])
+        model.net.ReduceFrontMean(["x"], ["x_front_mean"])
+        workspace.FeedBlob("x", np.random.rand(10, 12, 18).astype(np.float32))
+        self.InferTensorRunAndCompare(model)
+
+    def testGather(self):
+        model = model_helper.ModelHelper(name="test_model")
+        model.net.Gather(["X", "idx"], "Y")
+        workspace.FeedBlob("X", np.random.rand(100, 4, 5).astype(np.float32))
+        workspace.FeedBlob("idx", np.array([[3, 18], [99, 4], [2, 5]]).astype(np.int32))
         self.InferTensorRunAndCompare(model)
 
     def testShapeInferenceConvNet(self):
@@ -51,7 +83,8 @@ class TestShapeInference(test_util.TestCase):
         brew.relu(model, 'conv1_spatbn_relu', 'conv1_spatbn_relu')
         brew.max_pool(model, 'conv1_spatbn_relu', 'pool1', kernel=3, stride=2)
         brew.fc(model, 'pool1', 'fc', dim_in=(64 * 56 * 56), dim_out=100)
-        model.Sigmoid('fc', 'fc_sigm')
+        brew.dropout(model, 'fc', 'fc_drop')
+        model.Sigmoid('fc_drop', 'fc_sigm')
         brew.softmax(model, 'fc_sigm', 'softmax')
         model.LabelCrossEntropy(['softmax', 'label'], 'xent')
         loss = model.AveragedLoss('xent', 'loss')
@@ -285,6 +318,7 @@ class TestShapeInference(test_util.TestCase):
 
         self.InferTensorRunAndCompare(model)
 
+
         model = model_helper.ModelHelper(name="test_model")
         model.Flatten("X", "Flat")
         model.Flatten("empty", "EmptyFlat")
@@ -299,6 +333,26 @@ class TestShapeInference(test_util.TestCase):
         workspace.FeedBlob("X", np.random.rand(4, 26, 32).astype(np.float32))
 
         self.InferTensorRunAndCompare(model)
+
+    def testConcat(self):
+        net = core.Net("concat")
+
+        net.Concat(["A", "B"], ["C", "splits"], axis=1)
+        net.Concat(["C", "D"], ["E"], order="NCHW")
+        net.Concat(["E", "F"], ["G"], add_axis=1, order="NHWC")
+        (shapes, types) = workspace.InferShapesAndTypes(
+            [net],
+            {
+                'A': [10, 12, 9, 10],
+                'B': [10, 9, 9, 10],
+                'D': [10, 2, 9, 10],
+                'F': [10, 23, 9, 10]
+            }
+        )
+        self.assertEqual(shapes['C'], [10, 21, 9, 10])
+        self.assertEqual(shapes['splits'], [2])
+        self.assertEqual(shapes['E'], [10, 23, 9, 10])
+        self.assertEqual(shapes['G'], [10, 23, 9, 2, 10])
 
     def testSqueeze(self):
         net = core.Net("sq")
@@ -404,7 +458,7 @@ class TestShapeInference(test_util.TestCase):
                     np.array(shapes[b]).astype(np.int32),
                     np.array(correct_shapes[b]).astype(np.int32)
                 ),
-                "Shape {} mismatch: {} vs. {}".format(
+                "Shape {} mismatch: {} vs. correct {}".format(
                     b, shapes[b], correct_shapes[b]
                 )
             )

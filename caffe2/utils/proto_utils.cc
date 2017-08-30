@@ -39,6 +39,12 @@ std::string DeviceTypeName(const int32_t& d) {
   }
 };
 
+bool IsSameDevice(const DeviceOption& lhs, const DeviceOption& rhs) {
+  return (
+      lhs.device_type() == rhs.device_type() &&
+      lhs.cuda_gpu_id() == rhs.cuda_gpu_id());
+}
+
 bool ReadStringFromFile(const char* filename, string* str) {
   std::ifstream ifs(filename, std::ios::in);
   if (!ifs) {
@@ -215,6 +221,15 @@ bool SupportsLosslessConversion(const InputType& value) {
 }
 }
 
+bool operator==(const NetDef& l, const NetDef& r) {
+  return l.SerializeAsString() == r.SerializeAsString();
+}
+
+std::ostream& operator<<(std::ostream& output, const NetDef& n) {
+  output << n.SerializeAsString();
+  return output;
+}
+
 #define INSTANTIATE_GET_SINGLE_ARGUMENT(                                      \
     T, fieldname, enforce_lossless_conversion)                                \
   template <>                                                                 \
@@ -263,6 +278,7 @@ INSTANTIATE_GET_SINGLE_ARGUMENT(uint8_t, i, true)
 INSTANTIATE_GET_SINGLE_ARGUMENT(uint16_t, i, true)
 INSTANTIATE_GET_SINGLE_ARGUMENT(size_t, i, true)
 INSTANTIATE_GET_SINGLE_ARGUMENT(string, s, false)
+INSTANTIATE_GET_SINGLE_ARGUMENT(NetDef, n, false)
 #undef INSTANTIATE_GET_SINGLE_ARGUMENT
 
 #define INSTANTIATE_GET_REPEATED_ARGUMENT(                             \
@@ -302,6 +318,7 @@ INSTANTIATE_GET_REPEATED_ARGUMENT(uint8_t, ints, true)
 INSTANTIATE_GET_REPEATED_ARGUMENT(uint16_t, ints, true)
 INSTANTIATE_GET_REPEATED_ARGUMENT(size_t, ints, true)
 INSTANTIATE_GET_REPEATED_ARGUMENT(string, strings, false)
+INSTANTIATE_GET_REPEATED_ARGUMENT(NetDef, nets, false)
 #undef INSTANTIATE_GET_REPEATED_ARGUMENT
 
 #define CAFFE2_MAKE_SINGULAR_ARGUMENT(T, fieldname)                            \

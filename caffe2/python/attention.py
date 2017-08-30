@@ -51,24 +51,10 @@ def _calc_attention_weights(
     encoder_lengths=None,
 ):
     if encoder_lengths is not None:
-        attention_logits = model.net.Squeeze(
-            [attention_logits_transposed],
-            [attention_logits_transposed],
-            dims=[2],
-        )
-        flat_attention_logits = model.net.UnpackSegments(
-            [encoder_lengths, attention_logits],
-            'flat_attention_logits',
-        )
-        masked_attention_logits = model.net.PackSegments(
-            [encoder_lengths, flat_attention_logits],
-            'masked_attention_logits',
-            pad_minf=True,
-        )
-        attention_logits_transposed = model.net.ExpandDims(
-            [masked_attention_logits],
-            [masked_attention_logits],
-            dims=[2],
+        attention_logits_transposed = model.net.SequenceMask(
+            [attention_logits_transposed, encoder_lengths],
+            ['masked_attention_logits'],
+            mode='sequence',
         )
 
     # [batch_size, encoder_length, 1]
@@ -303,24 +289,18 @@ def apply_dot_attention(
     # [batch_size, decoder_state_dim, 1]
     expanddims_squeezed_weighted_decoder_hidden_state = model.net.ExpandDims(
         squeezed_weighted_decoder_hidden_state,
-        s(scope, 'expanddims_squeezed_weighted_decoder_hidden_state'),
+        squeezed_weighted_decoder_hidden_state,
         dims=[2],
-    )
-
-    # [batch_size, encoder_length, encoder_output_dim]
-    encoder_outputs_for_dot_product = model.net.Transpose(
-        encoder_outputs_transposed,
-        s(scope, 'encoder_outputs_for_dot_product'),
-        axes=[0, 2, 1],
     )
 
     # [batch_size, encoder_output_dim, 1]
     attention_logits_transposed = model.net.BatchMatMul(
         [
-            encoder_outputs_for_dot_product,
+            encoder_outputs_transposed,
             expanddims_squeezed_weighted_decoder_hidden_state,
         ],
         s(scope, 'attention_logits'),
+        trans_a=1,
     )
 
     # [batch_size, encoder_length, 1]

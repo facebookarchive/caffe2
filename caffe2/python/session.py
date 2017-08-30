@@ -82,7 +82,7 @@ class Session(object):
         return self._open
 
     @classmethod
-    def compile(cls, runnable):
+    def compile(cls, runnable, workspace_type=None, setup_net_list=None):
         if isinstance(runnable, CompiledRunnable):
             assert cls == runnable.session_class, (
                 'Runnable was compiled for different session type. ' +
@@ -94,24 +94,56 @@ class Session(object):
             return cls._compiled_cache[runnable]
 
         if isinstance(runnable, TaskGroup):
+            if workspace_type:
+                if runnable.workspace_type():
+                    assert runnable.workspace_type() == workspace_type, \
+                        "Require {} but already have {}".format(
+                            workspace_type, runnable.workspace_type())
+                else:
+                    runnable._workspace_type = workspace_type
             tg = runnable
         else:
-            tg = TaskGroup(workspace_type=WorkspaceType.GLOBAL)
+            if workspace_type is None:
+                workspace_type = WorkspaceType.GLOBAL
+            tg = TaskGroup(workspace_type=workspace_type)
             if isinstance(runnable, Task):
                 tg.add(runnable)
             elif isinstance(runnable, core.ExecutionStep):
                 tg.add(Task(step=runnable))
+            elif isinstance(runnable, core.Plan):
+                # ExecutionSteps in Plan() object is supposed to run sequentially, while
+                # tasks in TaskGroup run in parallel. So if we have multiple
+                # ExecutionSteps in Plan() object, we choose to have a root
+                # ExecutionStep to wrap all ExecutionSteps.
+                assert len(runnable.Steps()) > 0
+                if len(runnable.Steps()) == 1:
+                    tg.add(Task(step=runnable.Steps()[0]))
+                else:
+                    # Task takes a list of ExecutionSteps and automatically wrap into
+                    # a root ExecutionStep
+                    tg.add(Task(step=runnable.Steps()))
             else:
                 step = core.execution_step('runnable', runnable)
                 tg.add(Task(step=step))
         compiled = CompiledRunnable(
-            cls._compile_task_group(tg), session_class=cls)
+            cls._compile_task_group(tg, setup_net_list), session_class=cls)
         cls._compiled_cache[runnable] = compiled
         return compiled
 
-    def run(self, runnable):
+    def run(self, runnable, workspace_type=None, setup_net_list=None):
+        """Run the given runnable.
+
+        Args:
+            runnable: Object recognized by the Session. Currently, we support
+                TaskGroup, Task, Plan, ExecutionStep, and Net.
+            workspace_type: A string defined in the WorkspaceType object.
+            setup_net_list: A list of Net objects or a list of NetDef protos.
+                So far this is only used by the DistributedSession, in which we
+                need to pass a list of special nets to setup the master.
+        """
         assert self.is_open(), 'Session is closed.'
-        self._run_compiled(self.compile(runnable).obj)
+        self._run_compiled(self.compile(runnable, workspace_type,
+                                        setup_net_list).obj)
 
     def close(self):
         if self.is_open():
@@ -125,7 +157,7 @@ class Session(object):
         raise NotImplementedError()
 
     @classmethod
-    def _compile_task_group(cls, task_group):
+    def _compile_task_group(cls, task_group, setup_net_list=None):
         return task_group
 
     def _do_close(self):
@@ -154,7 +186,7 @@ class LocalSession(Session):
         self._ws = ws or workspace.C.Workspace.current
 
     @classmethod
-    def _compile_task_group(cls, task_group):
+    def _compile_task_group(cls, task_group, setup_net_list=None):
         with Cluster():
             task = task_group.to_task()
         plan = core.Plan('task_group_plan')

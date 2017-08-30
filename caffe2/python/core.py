@@ -5,14 +5,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from collections import namedtuple, OrderedDict
+from collections import namedtuple, OrderedDict, defaultdict
 from past.builtins import basestring
 from future.utils import viewitems, viewkeys, viewvalues
 from itertools import chain
 from six import binary_type, string_types, text_type
 
 from caffe2.proto import caffe2_pb2
-from collections import defaultdict
 from caffe2.python import scope, utils, workspace
 import caffe2.python._import_c_extension as C
 import google.protobuf.text_format as protobuftx
@@ -1493,6 +1492,20 @@ class Net(object):
                     return True
         return blob_name in self._external_input_map
 
+    def UsedBlobNames(self):
+        """
+        Returns a set of blob names used in the net
+        """
+        blob_names = set()
+        for op in self._net.op:
+            blob_names |= set(op.input)
+            blob_names |= set(op.output)
+        if self._net.external_input:
+            blob_names |= set(self._net.external_input)
+        if self._net.external_output:
+            blob_names |= set(self._net.external_output)
+        return blob_names
+
     def GetBlobRef(self, blob_name):
         """
         Given the name of a blob produced by this net, return a BlobReference
@@ -2200,13 +2213,24 @@ def InjectCrossDeviceCopies(net, blob_to_device=None):
                         out_blob, blob_to_device[out_blob], device, op
                     )
                 )
-        blob_to_device.update({o: d for d, o in zip(output_dev, op.output)})
         new_op = caffe2_pb2.OperatorDef()
         new_op.CopyFrom(op)
 
         new_list = [temp_remap.get(b, b) for b in new_op.input]
         del new_op.input[:]
         new_op.input.extend(new_list)
+
+        # keep inplace blobs inplace
+        original_inputs = list(op.input)
+        for i, out in enumerate(new_op.output):
+            try:
+                input_idx = original_inputs.index(out)
+                new_op.output[i] = new_op.input[input_idx]
+            except ValueError:
+                pass
+
+        blob_to_device.update(
+            {o: d for d, o in zip(output_dev, new_op.output)})
         new_net.extend_ops([new_op])
 
     return new_net, blob_to_device
@@ -2426,6 +2450,57 @@ class ExecutionStep(object):
             for attr in net.get_attributes(name)
         ]
 
+    @classmethod
+    def create_from_proto(cls, step_proto, net_obj_dict, net_proto_dict):
+        """
+        Create ExecutionStep from ExecutionStep protobuf recursively
+        """
+        assert isinstance(step_proto, caffe2_pb2.ExecutionStep)
+        assert (len(step_proto.network) > 0 and len(step_proto.substep) == 0) or \
+            (len(step_proto.network) == 0 and len(step_proto.substep) > 0)
+
+        steps_or_nets = []
+        if len(step_proto.substep) > 0:
+            for substep_proto in step_proto.substep:
+                steps_or_nets.append(ExecutionStep.create_from_proto(
+                    substep_proto, net_obj_dict, net_proto_dict))
+        else:
+            for net_name in step_proto.network:
+                if net_name not in net_obj_dict:
+                    assert net_name in net_proto_dict
+                    net = Net(net_proto_dict[net_name])
+                    net_obj_dict[net_name] = net
+                net = net_obj_dict[net_name]
+                assert isinstance(net, Net)
+                steps_or_nets.append(net)
+
+        num_iter = step_proto.num_iter if step_proto.HasField('num_iter') else None
+        concurrent_substeps = step_proto.concurrent_substeps if\
+            step_proto.HasField('concurrent_substeps') else None
+        should_stop_blob = BlobReference(step_proto.should_stop_blob) if\
+            step_proto.HasField('should_stop_blob') else None
+        only_once = step_proto.only_once if\
+            step_proto.HasField('only_once') else None
+        num_concurrent_instances = step_proto.num_concurrent_instances if\
+            step_proto.HasField('num_concurrent_instances') else None
+        create_workspace = step_proto.create_workspace if\
+            step_proto.HasField('create_workspace') else None
+        run_every_ms = step_proto.run_every_ms if\
+            step_proto.HasField('run_every_ms') else None
+
+        return execution_step(
+            step_proto.name,
+            steps_or_nets,
+            num_iter=num_iter,
+            report_net=None,        # DEPRECATED
+            report_interval=None,   # DEPRECATED
+            concurrent_substeps=concurrent_substeps,
+            should_stop_blob=should_stop_blob,
+            only_once=only_once,
+            num_concurrent_instances=num_concurrent_instances,
+            create_workspace=create_workspace,
+            run_every_ms=run_every_ms)
+
 
 def add_nets_in_order(step, net_list):
     proto = step.Proto()
@@ -2446,6 +2521,7 @@ class Plan(object):
     def __init__(self, name_or_step):
         self._plan = caffe2_pb2.PlanDef()
         self._net_dict = OrderedDict()
+        self._steps = []    # A list of ExecutionStep
         if isinstance(name_or_step, ExecutionStep):
             self._plan.name = name_or_step.Name()
             self.AddStep(name_or_step)
@@ -2475,10 +2551,14 @@ class Plan(object):
         if not step.HasNets() and not step.HasSubsteps():
             return
         self._plan.execution_step.add().CopyFrom(step.Proto())
+        self._steps.append(step)
         # nets need to be added to the plan in order of usage
         net_list = []
         add_nets_in_order(step, net_list)
         self.AddNets([step.get_net(n) for n in net_list])
+
+    def Steps(self):
+        return self._steps
 
     def get_all_attributes(self, name):
         """
@@ -2490,6 +2570,25 @@ class Plan(object):
             for net in viewvalues(self._net_dict)
             for attr in net.get_attributes(name)
         ]
+
+    @classmethod
+    def create_from_proto(cls, plan_proto):
+        assert isinstance(plan_proto, caffe2_pb2.PlanDef)
+        plan = Plan(plan_proto.name)
+        plan._plan.CopyFrom(plan_proto)
+
+        net_obj_dict = {}
+        net_proto_dict = {}
+        for net_proto in plan_proto.network:
+            assert net_proto.name not in net_proto_dict
+            net_proto_dict[net_proto.name] = net_proto
+
+        for step_proto in plan_proto.execution_step:
+            step = ExecutionStep.create_from_proto(
+                step_proto, net_obj_dict, net_proto_dict)
+            plan.AddStep(step)
+
+        return plan
 
 
 def to_execution_step(step_or_nets, default_name=None):
@@ -2516,7 +2615,8 @@ def execution_step(default_name,
                    should_stop_blob=None,
                    only_once=None,
                    num_concurrent_instances=None,
-                   create_workspace=False):
+                   create_workspace=False,
+                   run_every_ms=None):
     """
     Helper for creating an ExecutionStep.
     - steps_or_nets can be:
@@ -2552,6 +2652,8 @@ def execution_step(default_name,
         step.SetNumConcurrentInstances(num_concurrent_instances)
     if create_workspace:
         step.SetCreateWorkspace(True)
+    if run_every_ms:
+        step.RunEveryMillis(run_every_ms)
 
     if isinstance(steps_or_nets, ExecutionStep):
         step.AddSubstep(steps_or_nets)

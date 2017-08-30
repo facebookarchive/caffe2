@@ -27,6 +27,37 @@ GLFilter::GLFilter(const std::string _kernel_name,
   }
 }
 
+const char* shader_utils = R"GLSL(
+#define unpackHalf4x16(pd) vec4(unpackHalf2x16(pd.x), unpackHalf2x16(pd.y))
+#define packHalf4x16(pd) uvec2(packHalf2x16(pd.xy), packHalf2x16(pd.zw))
+)GLSL";
+
+const char* half_float_texture_utils = R"GLSL(
+precision mediump sampler2D;
+
+#define TEXTURE_OUTPUT(_loc, _var) \
+        layout(location = _loc) out mediump vec4 _var
+#define TEXTURE_INPUT(_var) \
+        uniform sampler2D _var
+#define TEXTURE_LOAD(_input, _coord) \
+        texelFetch((_input), (_coord), 0)
+#define TEXTURE_STORE(_val) \
+        (_val)
+)GLSL";
+
+const char* half_float_compat_texture_utils = R"GLSL(
+precision highp usampler2D;
+
+#define TEXTURE_OUTPUT(_loc, _var) \
+        layout(location = _loc) out highp uvec2 _var
+#define TEXTURE_INPUT(_var) \
+        uniform usampler2D _var
+#define TEXTURE_LOAD(_input, _coord) \
+        unpackHalf4x16(texelFetch((_input), (_coord), 0).xy)
+#define TEXTURE_STORE(_val) \
+        (uvec2(packHalf4x16((_val))))
+)GLSL";
+
 std::string GLFilter::process_replacements(std::string shader,
                                            const replacements_t& replacements) const {
   for (auto&& replacement : replacements) {
@@ -41,12 +72,26 @@ std::string GLFilter::process_replacements(std::string shader,
           [&](std::stringstream& errmsg) { errmsg << "Couldn't find replacement tag: " << tag; });
     }
   }
+
+  // Add some #defines for convenience
+  std::string version_tag = "#version 300 es";
+  if (GLContext::getGLContext()->halfFloatTextureSupported()) {
+    shader.insert(
+        shader.find(version_tag) + version_tag.size(),
+        half_float_texture_utils);
+  } else {
+    shader.insert(
+        shader.find(version_tag) + version_tag.size(),
+        half_float_compat_texture_utils);
+  }
+  shader.insert(shader.find(version_tag) + version_tag.size(), shader_utils);
   return shader;
 }
 
+template <typename T>
 void GLFilter::attach_uniform_buffer(const binding* block,
                                      GLuint bindingPoint,
-                                     std::function<void(float16_t*, size_t)> loader) {
+                                     std::function<void(T*, size_t)> loader) {
   if (block->location >= 0) {
     if (bindingPoint < kMaxUniformBlocks) {
       if (uniformBlock[bindingPoint] == 0) {
@@ -72,11 +117,10 @@ void GLFilter::attach_uniform_buffer(const binding* block,
                << " at binding point " << bindingPoint;
       });
 
-      float16_t* blockData =
-          (float16_t*)glMapBufferRange(GL_UNIFORM_BUFFER,
-                                       0,
-                                       blockSize[bindingPoint],
-                                       GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+      T* blockData = (T*)glMapBufferRange(GL_UNIFORM_BUFFER,
+                                          0,
+                                          blockSize[bindingPoint],
+                                          GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
       if (blockData != NULL) {
         // Copy the data into the mapped buffer
         if (loader)
@@ -108,6 +152,9 @@ void GLFilter::attach_uniform_buffer(const binding* block,
     throwRuntimeError([&](std::stringstream& errmsg) { errmsg << "unbound uniform block"; });
   }
 }
+
+template void GLFilter::attach_uniform_buffer<float16_t>(
+    const binding* block, GLuint bindingPoint, std::function<void(float16_t*, size_t)> loader);
 
 static const GLenum unused_capability[] = {GL_CULL_FACE,
                                            GL_BLEND,

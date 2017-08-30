@@ -1,11 +1,17 @@
 #ifndef CAFFE2_OPERATORS_UTILITY_OPS_H_
 #define CAFFE2_OPERATORS_UTILITY_OPS_H_
 
+#include <math.h>
+
 #include "caffe2/core/common_omp.h"
 #include "caffe2/core/context.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/core/operator.h"
+#include "caffe2/core/types.h"
 #include "caffe2/utils/math.h"
+
+#include <map>
+#include <utility>
 
 namespace caffe2 {
 
@@ -566,28 +572,62 @@ class MaxGradientOp : public Operator<Context> {
  *
  * For now really works only on CPU because of INDICES access
  */
-template <typename T, class Context>
+template <class Context>
 class ScatterAssignOp : public Operator<Context> {
  public:
   USE_OPERATOR_CONTEXT_FUNCTIONS;
-  USE_SIMPLE_CTOR_DTOR(ScatterAssignOp);
+  virtual ~ScatterAssignOp() {}
+
+  ScatterAssignOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<Context>(operator_def, ws),
+        runners_({{{TensorProto_DataType_INT32, TensorProto_DataType_FLOAT},
+                   &ScatterAssignOp::DoRun<int32_t, float>},
+                  {{TensorProto_DataType_INT32, TensorProto_DataType_FLOAT16},
+                   &ScatterAssignOp::DoRun<int32_t, float16>},
+                  {{TensorProto_DataType_INT64, TensorProto_DataType_FLOAT},
+                   &ScatterAssignOp::DoRun<int64_t, float>},
+                  {{TensorProto_DataType_INT64, TensorProto_DataType_FLOAT16},
+                   &ScatterAssignOp::DoRun<int64_t, float16>}}) {}
 
   bool RunOnDevice() override {
-    // Use run-time polymorphism
+    const auto& data = Input(DATA);
+    const auto& slices = Input(SLICES);
     auto& indices = Input(INDICES);
-    if (indices.template IsType<int32_t>()) {
-      DoRun<int32_t>();
-    } else if (indices.template IsType<int64_t>()) {
-      DoRun<int64_t>();
-    } else {
-      LOG(FATAL) << "Unsupported type of INDICES in ScatterAssignOp: "
-                 << indices.meta().name();
-    }
+
+    const auto dataType = TypeMetaToDataType(data.meta());
+    const auto slicesType = TypeMetaToDataType(slices.meta());
+    const auto indicesType = TypeMetaToDataType(indices.meta());
+    auto* output = Output(0);
+
+    auto runner = GetRunner(dataType, slicesType, indicesType);
+    (this->*runner)();
     return true;
   }
 
  private:
-  template <typename Index>
+  typedef void (ScatterAssignOp::*RunnerType)();
+  typedef std::
+      map<std::pair<TensorProto_DataType, TensorProto_DataType>, RunnerType>
+          RunnerMap;
+
+  RunnerMap runners_;
+
+  RunnerType GetRunner(
+      const TensorProto_DataType dataType,
+      const TensorProto_DataType slicesType,
+      const TensorProto_DataType indicesType) {
+    CAFFE_ENFORCE_EQ(dataType, slicesType, "Data and slice types must match");
+    auto it = runners_.find({indicesType, dataType});
+    CAFFE_ENFORCE(
+        it != runners_.end(),
+        "Could not find the runner corresponding to indicesType, dataType = ",
+        indicesType,
+        " ",
+        dataType);
+    return it->second;
+  }
+
+  template <typename Index, typename T>
   void DoRun() {
     auto& input = Input(DATA);
     auto& indices = Input(INDICES);
@@ -1202,26 +1242,6 @@ class IsEmptyOp : public Operator<Context> {
   }
 };
 
-// RecordShapeOp records the shape of the input tensor to a vector of int. You
-// mostly don't need this operator explicitly, and it is mostly used in the
-// autodiff process.
-template <class Context>
-class ShapeOp : public Operator<Context> {
- public:
-  USE_OPERATOR_CONTEXT_FUNCTIONS;
-  USE_SIMPLE_CTOR_DTOR(ShapeOp);
-
-  bool RunOnDevice() override {
-    auto& input = Input(0);
-    auto* output = OperatorBase::Output<Tensor<Context>>(0);
-    output->Resize(input.ndim());
-    TIndex* output_data = output->template mutable_data<TIndex>();
-    context_.template CopyBytes<Context, Context>(
-        input.ndim() * sizeof(TIndex), input.dims().data(), output_data);
-    return true;
-  }
-};
-
 // Return the size of a tensor
 template <class Context>
 class SizeOp : public Operator<Context> {
@@ -1298,8 +1318,9 @@ class SqueezeOp : public Operator<Context> {
     auto* output = Output(0);
     output->CopyFrom(input, &context_);
 
-    CAFFE_ENFORCE(
-        input.dims().back() + 1 >= dims_.size(),
+    CAFFE_ENFORCE_GT(
+        input.ndim(),
+        dims_.back(),
         "Input needs at least ",
         (dims_.back() + 1),
         " dimensions.");
@@ -1739,6 +1760,86 @@ class AccumulateHistogramOp : public Operator<Context> {
   INPUT_TAGS(X_IN);
   OUTPUT_TAGS(CUR_HIST, ACC_HIST);
 };
+
+template <class Context>
+class RangeOp : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  USE_SIMPLE_CTOR_DTOR(RangeOp)
+
+  bool RunOnDevice() override {
+    return DispatchHelper<TensorTypes<int32_t, int64_t, float, double>>::call(
+        this, Input(0));
+  }
+
+  template <typename T>
+  T readScalarInput(const int index) {
+    if (std::is_same<Context, TensorCPU>::value) {
+      return Input(index).template data<T>()[0];
+    } else {
+      local_.template CopyFrom<Context>(Input(index));
+      return local_.template data<T>()[0];
+    }
+  }
+
+  template <typename T>
+  bool DoRunWithType() {
+    T stop = 0;
+    T start = 0;
+    T step = 1;
+
+    for (int i = 0; i < InputSize(); ++i) {
+      CAFFE_ENFORCE_EQ(Input(0).ndim(), 0, "All inputs must be scalar.");
+    }
+
+    switch (InputSize()) {
+      case 1:
+        stop = readScalarInput<T>(0);
+        break;
+      case 2:
+        start = readScalarInput<T>(0);
+        stop = readScalarInput<T>(1);
+        break;
+      case 3:
+        step = readScalarInput<T>(2);
+        start = readScalarInput<T>(0);
+        stop = readScalarInput<T>(1);
+        break;
+    }
+    CAFFE_ENFORCE_NE(step, 0, "Step size cannot be 0.");
+    int length;
+    auto diff = stop - start;
+    if (std::is_integral<T>::value) {
+      // Avoid casting to and from floats in case it introduces rounding and
+      // avoid mod because the compiler doesn't strip unused code until later.
+      length = diff / step;
+      if (length * step < diff) {
+        length += 1;
+      }
+    } else {
+      length = static_cast<int>(ceil(diff / step));
+    }
+    auto* output = Output(0);
+    // Match numpy's behavior here.
+    if (length <= 0) {
+      output->Resize(0);
+      // Called for the side effect of setting the data.
+      output->template mutable_data<T>();
+      return true;
+    } else {
+      output->Resize(length);
+      return DoRunOnDevice<T>(start, step, output);
+    }
+  }
+
+  template <typename T>
+  bool DoRunOnDevice(const T& start, const T& step, Tensor<Context>* output);
+
+ private:
+  // local CPU tensor for copying constants.
+  TensorCPU local_;
+};
+
 } // namespace caffe2
 
 #endif // CAFFE2_OPERATORS_UTILITY_OPS_H_

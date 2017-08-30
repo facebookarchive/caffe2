@@ -6,10 +6,12 @@ from __future__ import unicode_literals
 import numpy as np
 
 from caffe2.python import workspace, memonger, core, model_helper, brew
+from caffe2.proto import caffe2_pb2
 import caffe2.python.hypothesis_test_util as hu
 from future.utils import viewvalues
 import hypothesis.strategies as st
 from hypothesis import given, settings
+import unittest
 
 
 def has_blob(proto, needle):
@@ -221,6 +223,54 @@ class MemongerTest(hu.HypothesisTestCase):
         np.testing.assert_almost_equal(loss, optimized_loss)
         np.testing.assert_almost_equal(grad, optimized_grad)
 
+    @unittest.skipIf(not workspace.has_gpu_support, "No gpu support.")
+    def test_memonger_mix_cpu_gpu(self):
+        '''
+        Check that memonger does not make blobs cross CPU/GPU boundary
+        '''
+        m = model_helper.ModelHelper()
+        with core.DeviceScope(core.DeviceOption(caffe2_pb2.CUDA, 0)):
+            fc1 = brew.fc(m, "data", "fc1", dim_in=2, dim_out=2)
+            fc2 = brew.fc(m, fc1, "fc2", dim_in=2, dim_out=2)
+            fc3 = brew.fc(m, fc2, "fc3", dim_in=2, dim_out=2)
+            fc4 = brew.fc(m, fc3, "fc4", dim_in=2, dim_out=2)
+            fc4_cpu = m.net.CopyGPUToCPU(fc4, "fc4_cpu")
+        with core.DeviceScope(core.DeviceOption(caffe2_pb2.CPU, 0)):
+            fc5_cpu = brew.fc(m, fc4_cpu, "fc5_cpu", dim_in=2, dim_out=2)
+            fc6_cpu = brew.fc(m, fc5_cpu, "fc6_cpu", dim_in=2, dim_out=2)
+            fc7_cpu = brew.fc(m, fc6_cpu, "fc7_cpu", dim_in=2, dim_out=2)
+            fc7_cpu.Relu([], fc7_cpu) \
+               .Softmax([], "pred") \
+               .LabelCrossEntropy(["label"], ["xent"]) \
+               .AveragedLoss([], "loss")
+        m.AddGradientOperators(["loss"])
+
+        blobs_before = count_blobs(m.net.Proto())
+        optim_proto = memonger.share_grad_blobs(
+            m.net,
+            ["loss"],
+            set(viewvalues(m.param_to_grad)),
+            "",
+            share_activations=True,
+            dont_share_blobs=set(),
+        )
+        blobs_after = count_blobs(optim_proto)
+        self.assertLess(blobs_after, blobs_before)
+
+        # Create set of blobs on CPU side and GPU side and check they don't
+        # overlap
+        device_blobs = {caffe2_pb2.CPU: set(), caffe2_pb2.CUDA: set()}
+        for op in optim_proto.op:
+            if op.type not in ['CopyCPUToGPU', "CopyGPUToCPU"]:
+                dev = op.device_option.device_type
+                for b in list(op.input) + list(op.output):
+                    device_blobs[dev].add(b)
+
+        device_crossers = device_blobs[caffe2_pb2.CPU].intersection(
+            device_blobs[caffe2_pb2.CUDA]
+        )
+        self.assertEquals(device_crossers, set())
+
     @given(input_dim=st.integers(min_value=4, max_value=4),
            output_dim=st.integers(min_value=4, max_value=4),
            batch_size=st.integers(min_value=4, max_value=4))
@@ -402,6 +452,63 @@ class MemongerTest(hu.HypothesisTestCase):
         optimized_loss2 = workspace.FetchBlob("name_x/loss2")
         np.testing.assert_almost_equal(loss1, optimized_loss1)
         np.testing.assert_almost_equal(loss2, optimized_loss2)
+
+    def test_rnn(self):
+        from caffe2.python import rnn_cell
+        T = 5
+        model = model_helper.ModelHelper()
+        seq_lengths, labels = \
+            model.net.AddExternalInputs(
+                'seq_lengths', 'labels',
+            )
+        init_blobs = []
+        for i in range(2):
+            hidden_init, cell_init = model.net.AddExternalInputs(
+                "hidden_init_{}".format(i),
+                "cell_init_{}".format(i)
+            )
+            init_blobs.extend([hidden_init, cell_init])
+        model.param_init_net.ConstantFill([], ["input"], shape=[T, 4, 10])
+        output, last_hidden, _, last_state = rnn_cell.LSTM(
+            model=model,
+            input_blob="input",
+            seq_lengths=seq_lengths,
+            initial_states=init_blobs,
+            dim_in=10,
+            dim_out=[10, 10],
+            scope="lstm1",
+            forward_only=False,
+            drop_states=True,
+            return_last_layer_only=True,
+        )
+        softmax, loss = model.net.SoftmaxWithLoss(
+            [model.Flatten(output), "labels"],
+            ['softmax', 'loss'],
+        )
+
+        model.AddGradientOperators([loss])
+        blobs_before = count_blobs(model.net.Proto())
+        optim_proto = memonger.share_grad_blobs(
+            model.net,
+            ["loss"],
+            set(viewvalues(model.param_to_grad)),
+            "",
+            share_activations=True,
+            dont_share_blobs=set(),
+        )
+        blobs_after = count_blobs(optim_proto)
+        self.assertLess(blobs_after, blobs_before)
+
+        # Run once to see all blobs are set up correctly
+        for init_blob in init_blobs:
+            workspace.FeedBlob(init_blob, np.zeros(
+                [1, 4, 10], dtype=np.float32
+            ))
+        workspace.FeedBlob("seq_lengths", np.array([T] * 4, dtype=np.int32))
+        workspace.FeedBlob("labels", np.random.rand(T).astype(np.int32))
+
+        workspace.RunNetOnce(model.param_init_net)
+        workspace.RunNetOnce(model.net)
 
     def test_compute_interference_graph_inplace_ops(self):
         m = model_helper.ModelHelper()

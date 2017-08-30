@@ -66,7 +66,7 @@ DELEGATE_SINCOS_CUDA_FUNCTION(double)
 
 #undef DELEGATE_SINCOS_CUDA_FUNCTION
 
-#define DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(T, Funcname, expr)               \
+#define DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION(T, Funcname, expr)         \
   __global__ void _Kernel_##T##_##Funcname(                                   \
       const int N, const T* a, const T* b, T* y) {                            \
     CUDA_1D_KERNEL_LOOP(i, N) {                                               \
@@ -84,15 +84,68 @@ DELEGATE_SINCOS_CUDA_FUNCTION(double)
         context->cuda_stream()>>>(N, a, b, y);                                \
   }
 
-DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(float, Add, +);
-DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(float, Sub, -);
-DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(float, Mul, *);
-DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(float, Div, /);
+DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION(float, Add, +);
+DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION(float, Sub, -);
+DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION(float, Mul, *);
+DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION(float, Div, /);
 
-DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(float16, Add, +);
-DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(float16, Sub, -);
-DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(float16, Mul, *);
-DELEGATE_SIMPLE_CUDA_BINARY_FUNCTION(float16, Div, /);
+DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION(float16, Add, +);
+DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION(float16, Sub, -);
+DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION(float16, Mul, *);
+DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION(float16, Div, /);
+
+#undef DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION
+
+#define DELEGATE_SIMPLE_CUDA_BINARY_PREFIX_FUNCTION(T, Funcname, func)    \
+  __global__ void _Kernel_##T##_##Funcname(                               \
+      const int N, const T* a, const T* b, T* y) {                        \
+    CUDA_1D_KERNEL_LOOP(i, N) {                                           \
+      float r =                                                           \
+          func(convert::To<T, float>(a[i]), convert::To<T, float>(b[i])); \
+      y[i] = convert::To<float, T>(r);                                    \
+    }                                                                     \
+  }                                                                       \
+  template <>                                                             \
+  void Funcname<T, CUDAContext>(                                          \
+      const int N, const T* a, const T* b, T* y, CUDAContext* context) {  \
+    _Kernel_##T##_##Funcname<<<                                           \
+        CAFFE_GET_BLOCKS(N),                                              \
+        CAFFE_CUDA_NUM_THREADS,                                           \
+        0,                                                                \
+        context->cuda_stream()>>>(N, a, b, y);                            \
+  }
+
+DELEGATE_SIMPLE_CUDA_BINARY_PREFIX_FUNCTION(float, ElemwiseMax, fmaxf);
+
+#undef DELEGATE_SIMPLE_CUDA_BINARY_INFIX_FUNCTION
+
+#define DELEGATE_REDUCTION_FUNCTION(T, Funcname, func)                  \
+  template <>                                                           \
+  void Funcname<T, CUDAContext>(                                        \
+      const int N,                                                      \
+      const T* src,                                                     \
+      T* dst,                                                           \
+      Tensor<CUDAContext>* scratch_ptr,                                 \
+      CUDAContext* context) {                                           \
+    size_t memRequired = 0;                                             \
+    cub::DeviceReduce::func(                                            \
+        nullptr, memRequired, src, dst, N, context->cuda_stream());     \
+    auto buffer_size =                                                  \
+        static_cast<TIndex>((memRequired + sizeof(T) - 1) / sizeof(T)); \
+    scratch_ptr->Resize(std::vector<TIndex>{buffer_size});              \
+    cub::DeviceReduce::func(                                            \
+        static_cast<void*>(scratch_ptr->mutable_data<T>()),             \
+        memRequired,                                                    \
+        src,                                                            \
+        dst,                                                            \
+        N,                                                              \
+        context->cuda_stream());                                        \
+  }
+
+DELEGATE_REDUCTION_FUNCTION(float, ReduceMin, Min)
+DELEGATE_REDUCTION_FUNCTION(float, ReduceMax, Max)
+
+#undef DELEGATE_REDUCTION_FUNCTION
 
 // Caffe2 gemm provides a simpler interface to the gemm functions, with the
 // limitation that the data has to be contiguous in memory.
@@ -203,6 +256,98 @@ void Gemm<float16, CUDAContext>(
     CAFFE_THROW("Unsupported math type");
   }
 }
+
+#if CUDA_VERSION >= 9000
+
+// No change, but required. Defer to default CUDA engine
+template <>
+void Gemm<float, CUDAContext, TensorCoreEngine>(
+    const CBLAS_TRANSPOSE TransA,
+    const CBLAS_TRANSPOSE TransB,
+    const int M,
+    const int N,
+    const int K,
+    const float alpha,
+    const float* A,
+    const float* B,
+    const float beta,
+    float* C,
+    CUDAContext* context,
+    TensorProto::DataType math_type) {
+  return Gemm<float,CUDAContext>(TransA,
+                                 TransB,
+                                 M,
+                                 N,
+                                 K,
+                                 alpha,
+                                 A,
+                                 B,
+                                 beta,
+                                 C,
+                                 context,
+                                 math_type);
+}
+
+template <>
+void Gemm<float16, CUDAContext, TensorCoreEngine>(
+    const CBLAS_TRANSPOSE TransA,
+    const CBLAS_TRANSPOSE TransB,
+    const int M,
+    const int N,
+    const int K,
+    const float alpha,
+    const float16* A,
+    const float16* B,
+    const float beta,
+    float16* C,
+    CUDAContext* context,
+    TensorProto::DataType math_type) {
+  // Note that cublas follows fortran order, so the order is different from
+  // the cblas convention.
+  int lda = (TransA == CblasNoTrans) ? K : M;
+  int ldb = (TransB == CblasNoTrans) ? N : K;
+  cublasOperation_t cuTransA =
+      (TransA == CblasNoTrans) ? CUBLAS_OP_N : CUBLAS_OP_T;
+  cublasOperation_t cuTransB =
+      (TransB == CblasNoTrans) ? CUBLAS_OP_N : CUBLAS_OP_T;
+
+  // enable TensorCore for this call on this handle
+  if (TensorCoreAvailable()) {
+    CUBLAS_ENFORCE(cublasSetMathMode(
+        context->cublas_handle(),
+        CUBLAS_TENSOR_OP_MATH));
+  }
+
+  CUBLAS_CHECK(cublasGemmEx(
+      context->cublas_handle(),
+      cuTransB,
+      cuTransA,
+      N,
+      M,
+      K,
+      &alpha,
+      B,
+      CUDA_R_16F,
+      ldb,
+      A,
+      CUDA_R_16F,
+      lda,
+      &beta,
+      C,
+      CUDA_R_16F,
+      N,
+      CUDA_R_32F,
+      CUBLAS_GEMM_DFALT_TENSOR_OP));
+
+  // Now disable TensorCore math for subsequent calls to this handle
+  if (TensorCoreAvailable()) {
+    CUBLAS_ENFORCE(cublasSetMathMode(
+        context->cublas_handle(),
+        CUBLAS_DEFAULT_MATH));
+  }
+}
+
+#endif // CUDA_VERSION >= 9000
 
 template <>
 void GemmEx<float, CUDAContext>(
@@ -1532,6 +1677,20 @@ void CopyMatrix<CUDAContext>(
     CUDAContext* context) {
   cudaMemcpy2DAsync(B, ldb * itemsize, A, lda * itemsize, N * itemsize, M,
                     cudaMemcpyDeviceToDevice, context->cuda_stream());
+}
+
+template <>
+void CopyVector(
+    const int N,
+    const float* src,
+    float* dst,
+    CUDAContext* context) {
+  cudaMemcpyAsync(
+      dst,
+      src,
+      sizeof(float) * N,
+      cudaMemcpyDeviceToDevice,
+      context->cuda_stream());
 }
 
 namespace {

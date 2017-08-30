@@ -693,6 +693,14 @@ void addGlobalMethods(py::module& m) {
 #endif // CAFFE2_HAS_MKL_DNN
       );
 
+  m.attr("define_caffe2_no_operator_schema") = py::bool_(
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+      true
+#else // CAFFE2_NO_OPERATOR_SCHEMA
+      false
+#endif // CAFFE2_NO_OPERATOR_SCHEMA
+      );
+
   m.def("set_per_op_engine_pref", [](const PerOpEnginePrefType& pref) -> void {
     caffe2::SetPerOpEnginePref(pref);
   });
@@ -897,19 +905,71 @@ void addGlobalMethods(py::module& m) {
             ParseProtobufFromLargeString(net_def.cast<std::string>(), &def));
         py::gil_scoped_release g;
 
-        auto t = TransformRegistry()->Create(transform_key);
-        CAFFE_ENFORCE(
-            t != nullptr, "Transform not found in registry: ", transform_key);
-        NetDef transformed_net = t->ApplyTo(def);
+        auto transformed_net = ApplyTransform(transform_key, def);
 
         std::string protob;
         CAFFE_ENFORCE(transformed_net.SerializeToString(&protob));
         return py::bytes(protob);
       });
   m.def(
+      "apply_transform_if_faster",
+      [](const string& transform_key,
+         const py::bytes& net_def_bytes,
+         const py::bytes& init_def_bytes,
+         int warmup_runs,
+         int main_runs,
+         double improvement_threshold) {
+        NetDef def;
+        CAFFE_ENFORCE(ParseProtobufFromLargeString(
+            net_def_bytes.cast<std::string>(), &def));
+        NetDef init_def;
+        CAFFE_ENFORCE(ParseProtobufFromLargeString(
+            init_def_bytes.cast<std::string>(), &init_def));
+        py::gil_scoped_release g;
+
+        std::string protob;
+
+        auto transformed_net = ApplyTransformIfFaster(
+            transform_key,
+            def,
+            init_def,
+            warmup_runs,
+            main_runs,
+            improvement_threshold);
+
+        CAFFE_ENFORCE(transformed_net.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
+  m.def(
+      "memonger_compute_blob_recycling_for_dag",
+      [](const py::bytes& net_def,
+         const std::vector<string>& input_blobs,
+         const std::vector<int>& op_indices,
+         const std::unordered_set<string>& shareable_blob_names,
+         const string& namescope,
+         const std::unordered_set<string>& dont_share_blob_names,
+         const std::unordered_map<string, vector<int>>& blob_shapes) {
+        py::gil_scoped_release g;
+        NetDef net;
+        CAFFE_ENFORCE(
+            ParseProtobufFromLargeString(net_def.cast<std::string>(), &net));
+        NetDef optimized_proto =
+            caffe2::memonger::compute_blob_recycling_for_dag(
+                net,
+                input_blobs,
+                op_indices,
+                shareable_blob_names,
+                namescope,
+                dont_share_blob_names,
+                blob_shapes);
+        std::string protob;
+        CAFFE_ENFORCE(optimized_proto.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
+  m.def(
       "memonger_optimize_inference_net",
       [](const py::bytes& net_def,
-         const std::vector<std::string> static_blobs) {
+         const std::vector<std::string>& static_blobs) {
         NetDef def;
         CAFFE_ENFORCE(
             ParseProtobufFromLargeString(net_def.cast<std::string>(), &def));

@@ -17,8 +17,16 @@ OPERATOR_SCHEMA(FC)
       const auto canonical_axis =
           canonical_axis_index_(axis, in[0].dims().size());
       const int M = size_to_dim_(canonical_axis, GetDimsVector(in[0]));
-      const int N = in[1].dims(0);
-      out[0] = CreateTensorShape(vector<int>{M, N}, TensorProto::FLOAT);
+      auto axis_w = helper.GetSingleArgument<int32_t>("axis_w", 1);
+      const int canonical_axis_w =
+          canonical_axis_index_(axis_w, in[1].dims().size());
+      const int N = size_to_dim_(canonical_axis_w, GetDimsVector(in[1]));
+
+      vector<int> y_shape(in[0].dims().begin(), in[0].dims().end());
+      CAFFE_ENFORCE_LE(canonical_axis + 1, y_shape.size());
+      y_shape.resize(canonical_axis + 1);
+      y_shape[canonical_axis] = N;
+      out[0] = CreateTensorShape(y_shape, in[0].data_type());
       return out;
     })
     .SetDoc(R"DOC(
@@ -48,6 +56,11 @@ OPERATOR_SCHEMA(FC)
         "(int32_t) default to 1; describes the axis of the inputs; "
         "defaults to one because the 0th axis most likely describes "
         "the batch_size")
+    .Arg(
+        "axis_w",
+        "(int32_t) default to 1; describes the axis of the weight matrix W; "
+        "defaults to one because the 0th axis most likely describes "
+        "the batch_size")
     .Input(
         0,
         "X",
@@ -56,8 +69,8 @@ OPERATOR_SCHEMA(FC)
     .Input(
         1,
         "W",
-        "2D blob of size (KxN) containing fully connected weight "
-        "matrix")
+        "A tensor that is coerced into a 2D blob of size (KxN) "
+        "containing fully connected weight matrix")
     .Input(2, "b", "1D blob containing bias vector")
     .Output(0, "Y", "2D output tensor");
 

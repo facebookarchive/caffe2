@@ -34,7 +34,6 @@ option(BUILD_BINARY "Build C++ binaries" ON)
 option(BUILD_PYTHON "Build Python binaries" ON)
 option(BUILD_SHARED_LIBS "Build libcaffe2.so" ON)
 option(BUILD_TEST "Build C++ test binaries (need gtest and gbenchmark)" ON)
-option(USE_CNMEM "Use CNMEM" OFF)
 option(USE_CUDA "Use Cuda" ON)
 option(USE_FFMPEG "Use ffmpeg" OFF)
 option(USE_GFLAGS "Use GFLAGS" ON)
@@ -54,6 +53,7 @@ option(USE_OPENCV "Use openCV" ON)
 option(USE_OPENMP "Use OpenMP for parallel code" ON)
 option(USE_REDIS "Use Redis" OFF)
 option(USE_ROCKSDB "Use RocksDB" ON)
+option(USE_SNPE "Use Qualcomm's SNPE library" OFF)
 option(USE_THREADS "Use Threads" ON)
 option(USE_ZMQ "Use ZMQ" OFF)
 
@@ -116,12 +116,17 @@ if (CAFFE2_CPU_FLAGS)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAFFE2_CPU_FLAGS}")
 endif()
 
-# ---[ Include path needed for proto
-include_directories(BEFORE ${PROJECT_BINARY_DIR})
+# Prefix path to Caffe2 headers.
+# If a directory containing installed Caffe2 headers was inadvertently
+# added to the list of include directories, prefixing
+# PROJECT_SOURCE_DIR means this source tree always takes precedence.
+include_directories(BEFORE ${PROJECT_SOURCE_DIR})
+include_directories(BEFORE ${PROJECT_SOURCE_DIR}/build_host_protoc/include)
 
-# ---[ Third party builds.
-include_directories(${PROJECT_SOURCE_DIR})
-include_directories(${PROJECT_SOURCE_DIR}/build_host_protoc/include)
+# Prefix path to generated Caffe2 headers.
+# These need to take precedence over their empty counterparts located
+# in PROJECT_SOURCE_DIR.
+include_directories(BEFORE ${PROJECT_BINARY_DIR})
 
 # ---[ Old caffe protobuf.
 add_subdirectory(caffe/proto)
