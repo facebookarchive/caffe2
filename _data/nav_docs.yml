@@ -15,24 +15,17 @@
   items:
   - id: tutorials
   - id: intro-tutorial
+  - id: brew
   - id: models-datasets
-  - id: basics
-  - id: toy-regression
-  - id: image-preprocessing
-  - id: pretrained-models
-  - id: mnist
-  - id: create-dataset
   - id: AI-Camera-demo-android
   - id: char-rnn
   - id: sync-sgd
   - id: cplusplus_tutorial
+  - id: custom-operators
+  - id: sparse-operations
 - title: Reference
   items:
   - id: operators-catalogue
-  - id: custom-operators
-  - id: sparse-operations
-  - id: brew
-  - id: cnn
   - id: workspace
 - title: API
   items:
