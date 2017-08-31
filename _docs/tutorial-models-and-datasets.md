@@ -75,7 +75,7 @@ Let's jump into a specific example now that you have the overview. You will be l
 
 ### Example Models
 
-A small collection of pre-trained models is currently available at [caffe2/models on Gihub](https://github.com/caffe2/models):
+A small collection of pre-trained models is currently available at [caffe2/models on Github](https://github.com/caffe2/models):
 
 * bvlc_alexnet
 * bvlc_googlenet
