@@ -260,7 +260,11 @@ struct PinnedCPUAllocator final : CPUAllocator {
     std::lock_guard<std::mutex> lock(CUDAContext::mutex());
     cudaError_t err = cudaFreeHost(data);
     if (err == cudaErrorInvalidValue) {
+#if defined(_MSC_VER)
+      _aligned_free(data);
+#else
       free(data);
+#endif
       // Calling cudaGetLastError will reset the cuda error.
       cudaGetLastError();
     } else {
