@@ -56,6 +56,14 @@ option(USE_ROCKSDB "Use RocksDB" ON)
 option(USE_SNPE "Use Qualcomm's SNPE library" OFF)
 option(USE_THREADS "Use Threads" ON)
 option(USE_ZMQ "Use ZMQ" OFF)
+if(MSVC)
+  if(BUILD_BUILD_SHARED_LIBS)
+    set(USE_STATIC_RUNTIME_DEFAULT OFF)
+  else()
+    set(USE_STATIC_RUNTIME_DEFAULT ON)
+  endif()
+  option(USE_STATIC_RUNTIME "Link to the static runtime (/MT) instead of dynamic (/MD)" ${USE_STATIC_RUNTIME_DEFAULT})
+endif()
 
 # External projects
 include(ExternalProject)
@@ -99,7 +107,7 @@ else()
   foreach(flag_var
       CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
       CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-    if (NOT ${BUILD_SHARED_LIBS})
+    if (USE_STATIC_RUNTIME)
       if(${flag_var} MATCHES "/MD")
         string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
       endif(${flag_var} MATCHES "/MD")

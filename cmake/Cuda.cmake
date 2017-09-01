@@ -253,7 +253,7 @@ endif()
 # Debug and Release symbol support
 if (MSVC)
   if (${CMAKE_BUILD_TYPE} MATCHES "Release")
-    if (${BUILD_SHARED_LIBS})
+    if (NOT USE_STATIC_RUNTIME)
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -MD")
     else()
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -MT")
@@ -263,7 +263,7 @@ if (MSVC)
             "Caffe2 currently does not support the combination of MSVC, Cuda "
             "and Debug mode. Either set USE_CUDA=OFF or set the build type "
             "to Release")
-    if (${BUILD_SHARED_LIBS})
+    if (NOT USE_STATIC_RUNTIME)
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -MDd")
     else()
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -MTd")
