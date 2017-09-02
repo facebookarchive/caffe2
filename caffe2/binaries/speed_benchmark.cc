@@ -1,3 +1,5 @@
+#include <string>
+
 #include "caffe2/core/init.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/proto/caffe2.pb.h"
@@ -63,7 +65,7 @@ int main(int argc, char** argv) {
         vector<string> input_dims_str = caffe2::split(',', input_dims_list[i]);
         vector<int> input_dims;
         for (const string& s : input_dims_str) {
-          input_dims.push_back(std::stoi(s));
+          input_dims.push_back(caffe2::stoi(s));
         }
         caffe2::TensorCPU* tensor =
             workspace->GetBlob(input_names[i])->GetMutable<caffe2::TensorCPU>();
