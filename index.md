@@ -19,9 +19,8 @@ id: home
             </div>
             <div class="landing-col-md-3 box">
                 <a class="iconImages" href="https://twitter.com/caffe2ai"><img height="100" src="./static/images/landing-twitter.svg"></a>
-                <h4>Follow us on Twitter</h4>
-                <p>Keep up with everything Caffe2 through our <a href=
-                "https://twitter.com/caffe2ai">@caffe2ai Twitter account</a>. Annoucements, meetups, releases will all be posted here.</p>
+                <h4>Follow us on Facebook & Twitter</h4>
+                <p>Keep up with everything Caffe2 through our <a href="https://www.facebook.com/Caffe2AI">Facebook Page</a> & <a href="https://twitter.com/caffe2ai">Twitter account</a>. Annoucements, meetups, releases will all be posted here.</p>
             </div>
         </div>
     </div>
