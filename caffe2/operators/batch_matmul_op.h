@@ -17,7 +17,7 @@ class BatchMatMulOp final : public Operator<Context> {
         trans_b_(OperatorBase::GetSingleArgument<int>("trans_b", 0)),
         use_scratch_(OperatorBase::GetSingleArgument<int>("use_scratch", 0)) {
     if (use_scratch_)
-      scratch_ = new Tensor<Context>();
+      scratch_ = std::make_shared<Tensor<Context> >();
   }
   ~BatchMatMulOp() {}
 
@@ -90,7 +90,7 @@ class BatchMatMulOp final : public Operator<Context> {
         0,
         Y->template mutable_data<T>(),
         &context_,
-        use_scratch_ ? scratch_ : nullptr);
+        use_scratch_ ? scratch_.get() : nullptr);
     return true;
   }
 
@@ -99,7 +99,7 @@ class BatchMatMulOp final : public Operator<Context> {
   bool trans_b_;
 
   bool use_scratch_;
-  Tensor<Context>* scratch_;
+  std::shared_ptr<Tensor<Context> > scratch_;
 };
 
 } // namespace caffe2
