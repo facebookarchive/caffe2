@@ -13,9 +13,9 @@ id: home
                 <p>Want to win funding for AI research using Caffe2? <a href="https://research.fb.com/programs/research-awards/proposals/caffe2-rfp/">Submit your proposals</a>.</p>
             </div>
             <div class="landing-col-md-3 box">
-                <a class="iconImages" href="https://www.facebook.com/pg/Caffe2AI/videos/"><img height="100" src="./static/images/landing-meetup.svg"></a>
-                <h4>Caffe2 Meetup</h4>
-                <p><a href="https://www.facebook.com/pg/Caffe2AI/videos/">Recordings for Caffe2 meetups are available on the new Caffe2 Page.</a></p>
+                <a class="iconImages" href="https://research.fb.com/facebook-and-microsoft-introduce-new-open-ecosystem-for-interchangeable-ai-frameworks/"><img height="100" src="./static/images/algorithms.png"></a>
+                <h4>ONNX (Open Neural Network Exchange)</h4>
+                <p>Check out our new ONNX (Open Neural Network Exchange) that enables framework interoperability for developers. (<a href="https://research.fb.com/facebook-and-microsoft-introduce-new-open-ecosystem-for-interchangeable-ai-frameworks/">More details</a>)</p>
             </div>
             <div class="landing-col-md-3 box">
                 <a class="iconImages" href="https://twitter.com/caffe2ai"><img height="100" src="./static/images/landing-twitter.svg"></a>
