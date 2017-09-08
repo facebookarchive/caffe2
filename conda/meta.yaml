@@ -18,7 +18,7 @@ requirements:
     - numpy
     - six
     - eigen
-    - python <3
+    - python
     - protobuf ==3.4.0
     - cmake
     - leveldb
@@ -30,11 +30,12 @@ requirements:
     - numpy
     - six
     - eigen
-    - python <3
+    - python
     - protobuf ==3.4.0
     - leveldb
     - lmdb
     - snappy
+    - future
 
 about:
   home: https://caffe2.ai/
