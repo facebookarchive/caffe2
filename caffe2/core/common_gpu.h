@@ -2,11 +2,25 @@
 #define CAFFE2_CORE_COMMON_GPU_H_
 
 #include <assert.h>
-#include <cublas_v2.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
+
+// Disable strict aliasing errors for CUDA 9.
+// The cuda_fp16.h header in CUDA 9 RC triggers this diagnostic.
+// It is included by cusparse.h as well, so guarding the
+// inclusion of that header here is not enough.
+#if CUDA_VERSION >= 9000
+#ifdef __GNUC__
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#pragma GCC diagnostic push
+#endif
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif // __GNUC__
+#endif // CUDA_VERSION >= 9000
+
+#include <cublas_v2.h>
 #include <curand.h>
-#include <driver_types.h>  // cuda driver types
+#include <driver_types.h>
 
 #include "caffe2/core/logging.h"
 #include "caffe2/core/common.h"
@@ -27,12 +41,36 @@
 #include <cuda_fp16.h>
 #endif
 
+// Re-enable strict aliasing diagnostic if it was disabled.
+#if CUDA_VERSION >= 9000
+#ifdef __GNUC__
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#pragma GCC diagnostic pop
+#endif
+#endif // __GNUC__
+#endif // CUDA_VERSION >= 9000
+
 /**
  * The maximum number of GPUs that caffe2 recognizes.
  */
-#define CAFFE2_COMPILE_TIME_MAX_GPUS 8
+#define CAFFE2_COMPILE_TIME_MAX_GPUS 16
+/**
+ * The maximum number of peers that each gpu can have when doing p2p setup.
+ * Currently, according to NVidia documentation, each device can support a
+ * system-wide maximum of eight peer connections.
+ * When Caffe2 sets up peer access resources, if we have more than 8 gpus,
+ * we will enable peer access in groups of 8.
+ */
+#define CAFFE2_CUDA_MAX_PEER_SIZE 8
 
 namespace caffe2 {
+
+#if CUDA_VERSION >= 9000
+/**
+ * Empty class to identify TensorCore-based math
+ */
+class TensorCoreEngine {};
+#endif
 
 /**
  * A runtime function to report the cuda version that Caffe2 is built with.
@@ -52,6 +90,11 @@ int NumCudaDevices();
  * cuda gpus present in the machine, or there are hardware configuration
  * problems like an insufficient driver, this function will still return false,
  * meaning that there is no usable GPU present.
+ *
+ * In the open source build, it is possible that Caffe2's GPU code is
+ * dynamically loaded, and as a result a library could be only linked to the
+ * CPU code, but want to test if cuda is later available or not. In this case,
+ * one should use HasCudaRuntime() from common.h.
  */
 inline bool HasCudaGPU() { return NumCudaDevices() > 0; }
 
@@ -72,7 +115,12 @@ int GetDefaultGPUID();
 /**
  * Gets the current GPU id. This is a simple wrapper around cudaGetDevice().
  */
-int GetCurrentGPUID();
+int CaffeCudaGetDevice();
+
+/**
+ * Gets the current GPU id. This is a simple wrapper around cudaGetDevice().
+ */
+void CaffeCudaSetDevice(const int id);
 
 /**
  * Gets the GPU id that the current pointer is located at.
@@ -99,6 +147,11 @@ void DeviceQuery(const int deviceid);
 bool GetCudaPeerAccessPattern(vector<vector<bool> >* pattern);
 
 /**
+ * Return the availability of TensorCores for math
+ */
+bool TensorCoreAvailable();
+
+/**
  * Return a human readable cublas error string.
  */
 const char* cublasGetErrorString(cublasStatus_t error);
@@ -109,7 +162,7 @@ const char* cublasGetErrorString(cublasStatus_t error);
 const char* curandGetErrorString(curandStatus_t error);
 
 // CUDA: various checks for different function calls.
-#define CUDA_CHECK(condition)       \
+#define CUDA_ENFORCE(condition, ...)     \
   do {                              \
     cudaError_t error = condition;  \
     CAFFE_ENFORCE_EQ(               \
@@ -120,9 +173,23 @@ const char* curandGetErrorString(curandStatus_t error);
         ":",                        \
         __LINE__,                   \
         ": ",                       \
-        cudaGetErrorString(error)); \
+        cudaGetErrorString(error), ##__VA_ARGS__); \
+  } while (0)
+#define CUDA_CHECK(condition)                                 \
+  do {                                                        \
+    cudaError_t error = condition;                            \
+    CHECK(error == cudaSuccess) << cudaGetErrorString(error); \
   } while (0)
 
+#define CUDA_DRIVERAPI_ENFORCE(condition)                            \
+  do {                                                               \
+    CUresult result = condition;                                     \
+    if (result != CUDA_SUCCESS) {                                    \
+      const char* msg;                                               \
+      cuGetErrorName(result, &msg);                                  \
+      CAFFE_THROW("Error at: ", __FILE__, ":", __LINE__, ": ", msg); \
+    }                                                                \
+  } while (0)
 #define CUDA_DRIVERAPI_CHECK(condition)                                 \
   do {                                                                  \
     CUresult result = condition;                                        \
@@ -134,7 +201,7 @@ const char* curandGetErrorString(curandStatus_t error);
     }                                                                   \
   } while (0)
 
-#define CUBLAS_CHECK(condition)                  \
+#define CUBLAS_ENFORCE(condition)                \
   do {                                           \
     cublasStatus_t status = condition;           \
     CAFFE_ENFORCE_EQ(                            \
@@ -147,8 +214,14 @@ const char* curandGetErrorString(curandStatus_t error);
         ": ",                                    \
         ::caffe2::cublasGetErrorString(status)); \
   } while (0)
+#define CUBLAS_CHECK(condition)                    \
+  do {                                             \
+    cublasStatus_t status = condition;             \
+    CHECK(status == CUBLAS_STATUS_SUCCESS)         \
+        << ::caffe2::cublasGetErrorString(status); \
+  } while (0)
 
-#define CURAND_CHECK(condition)                  \
+#define CURAND_ENFORCE(condition)                \
   do {                                           \
     curandStatus_t status = condition;           \
     CAFFE_ENFORCE_EQ(                            \
@@ -160,6 +233,12 @@ const char* curandGetErrorString(curandStatus_t error);
         __LINE__,                                \
         ": ",                                    \
         ::caffe2::curandGetErrorString(status)); \
+  } while (0)
+#define CURAND_CHECK(condition)                    \
+  do {                                             \
+    curandStatus_t status = condition;             \
+    CHECK(status == CURAND_STATUS_SUCCESS)         \
+        << ::caffe2::curandGetErrorString(status); \
   } while (0)
 
 #define CUDA_1D_KERNEL_LOOP(i, n)                                              \
@@ -209,15 +288,14 @@ inline int CAFFE_GET_BLOCKS(const int N) {
 
 class DeviceGuard {
  public:
-  explicit DeviceGuard(int newDevice)
-      : previous_(GetCurrentGPUID()) {
+  explicit DeviceGuard(int newDevice) : previous_(CaffeCudaGetDevice()) {
     if (previous_ != newDevice) {
-      CUDA_CHECK(cudaSetDevice(newDevice));
+      CaffeCudaSetDevice(newDevice);
     }
   }
 
-  ~DeviceGuard() {
-    CUDA_CHECK(cudaSetDevice(previous_));
+  ~DeviceGuard() noexcept {
+    CaffeCudaSetDevice(previous_);
   }
 
  private:

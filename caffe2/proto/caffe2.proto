@@ -54,12 +54,22 @@ message TensorProto {
   // workspace in a multi-GPU environment.
   optional DeviceOption device_detail = 8;
   // When loading from chunks this is going to indicate where to put data in the
-  // full array. When not used full data must to be present
+  // full array. When not used full data have to be present
   message Segment {
     required int64 begin = 1;
     required int64 end = 2;
   }
   optional Segment segment = 11;
+}
+
+message QTensorProto {
+  repeated int64 dims = 1;
+  required int32 precision = 2;
+  required double scale = 3;
+  required double bias = 4;
+  required bool is_signed = 5;
+  repeated int32 data = 6 [packed = true];
+  optional string name = 7;
 }
 
 // TensorProtos stores multiple TensorProto objects in one single proto. This
@@ -69,6 +79,19 @@ message TensorProtos {
   repeated TensorProto protos = 1;
 }
 
+message TensorShape {
+  repeated int64 dims = 1;
+  optional TensorProto.DataType data_type = 2 [default = FLOAT];
+  repeated int32 unknown_dims = 3;
+  optional bool unknown_shape = 4 [default = false];
+  optional string name = 5;
+
+}
+
+message TensorShapes {
+  repeated TensorShape shapes = 1;
+}
+
 // A named argument containing either singular float, integer and string
 // values, or repeated float, int and string arrays.
 message Argument {
@@ -76,9 +99,11 @@ message Argument {
   optional float f = 2;
   optional int64 i = 3;
   optional bytes s = 4;
+  optional NetDef n = 8;
   repeated float floats = 5;
   repeated int64 ints = 6;
   repeated bytes strings = 7;
+  repeated NetDef nets = 9;
 }
 
 // DeviceType that Caffe2 currently supports.
@@ -88,6 +113,8 @@ enum DeviceType {
   CPU = 0;                    // In default, we will use CPU.
   CUDA = 1;                   // CUDA.
   MKLDNN = 2;                 // Reserved for explicit MKLDNN
+  // Change the following number if you add more devices in the code.
+  COMPILE_TIME_MAX_DEVICE_TYPES = 3;
   ONLY_FOR_TEST = 20901701;   // This device type is only for test.
 }
 
@@ -95,6 +122,8 @@ enum DeviceType {
 // different DeviceTypes, so currently all devices share the same DeviceOption
 // proto. Fields that are specific to a device type is ignored if the type does
 // not match.
+// Note: if you add fields to the DeviceOption, make sure you add the
+// corresponding changes to IsSameDevice() function in utils/proto_utils.{h,cc}.
 message DeviceOption {
   // [general] Options that need to be carried out before running the execution.
   // optional DeviceType device_type = 1 [ default = CPU ];
@@ -133,6 +162,10 @@ message OperatorDef {
   // Operator implementation, and are only used by the Net class for
   // scheduling purposes.
   repeated string control_input = 8;
+
+  // is_gradient_op argument is only used as a hint in shape inference
+  // and has no runtime significance
+  optional bool is_gradient_op = 9 [default = false];
 }
 
 // Network definition.
@@ -206,11 +239,14 @@ message ExecutionStep {
   // execution terminates when the output[0] is `false`.
   optional string criteria_network = 5 [deprecated=true];
 
-  // If specified, run report_net asynchronously every `report_interval`
-  // seconds. Report_net is guaranteed to run at least once after all
-  // substeps have finished.
+  // DEPRECATED. Use `run_every_ms`.
   optional string report_net = 7;
   optional int32 report_interval = 8;
+
+  // If provided, execute this step at every time interval (in millisecs)
+  // while its sibiling execution steps execute in parallel. This step is
+  // guaranteed to run at least once after all non-interval siblings finished.
+  optional int64 run_every_ms = 11;
 
   // If false or not set, execute sub-steps serially.
   // If true, execute all substeps concurrently, each one in a separte thread.
@@ -233,6 +269,13 @@ message ExecutionStep {
   // if only_once is true, this step will only be executed once. this ONLY takes
   // effect when using should_stop_blob
   optional bool only_once = 10;
+
+  // Whether to create a child workspace for this step.
+  // If yes, the workflow and nets are re-created every time this step is run.
+  optional bool create_workspace = 12;
+
+  // How many copies of the children execution steps to run concurrently.
+  optional int32 num_concurrent_instances = 13;
 }
 
 message PlanDef {
@@ -253,7 +296,12 @@ message BlobProto {
   optional string name = 1;
   optional string type = 2;
   optional TensorProto tensor = 3;
-  optional string content = 4;
+  optional bytes content = 4;
+  optional QTensorProto qtensor = 5;
+  // If blob is not Tensor and is divided into chunks, content_num_chunks
+  // contains number of chunks, into which blob was divided.
+  optional int32 content_num_chunks = 6;
+  optional int32 content_chunk_id = 7;
 }
 
 // Protobuf format to serialize DBReader.

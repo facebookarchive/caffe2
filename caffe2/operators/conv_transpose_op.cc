@@ -2,16 +2,11 @@
 #include "caffe2/operators/conv_transpose_op_impl.h"
 
 namespace caffe2 {
-namespace {
 
 REGISTER_CPU_OPERATOR(ConvTranspose, ConvTransposeOp<float, CPUContext>);
 
-REGISTER_CPU_OPERATOR(
-    ConvTransposeGradient,
-    ConvTransposeGradientOp<float, CPUContext>);
-
 OPERATOR_SCHEMA(ConvTranspose)
-    .NumInputs(3)
+    .NumInputs(2, 3)
     .NumOutputs(1)
     .SetDoc(R"DOC(
     The transposed convolution consumes an input vector, the filter blob, and
@@ -43,7 +38,7 @@ OPERATOR_SCHEMA(ConvTranspose)
         2,
         "bias",
         "The 1D bias blob that is added through the convolution;"
-        "has size (C)")
+        "has size (C). Optional, if not passed, will treat it as all 0.")
     .Output(
         0,
         "Y",
@@ -51,20 +46,4 @@ OPERATOR_SCHEMA(ConvTranspose)
         "transposed convolution. The output dimensions are functions of the kernel"
         " size, stride size, and pad lengths.");
 
-OPERATOR_SCHEMA(ConvTransposeGradient).NumInputs(3).NumOutputs(2, 3);
-
-class GetConvTransposeGradient : public GradientMakerBase {
-  using GradientMakerBase::GradientMakerBase;
-  vector<OperatorDef> GetGradientDefs() override {
-    CAFFE_ENFORCE(3 == def_.input_size());
-    return SingleGradientDef(
-        "ConvTransposeGradient",
-        "",
-        vector<string>{I(0), I(1), GO(0)},
-        vector<string>{GI(1), GI(2), GI(0)});
-  }
-};
-REGISTER_GRADIENT(ConvTranspose, GetConvTransposeGradient);
-
-} // namespace
 } // namespace caffe2

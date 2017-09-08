@@ -1,9 +1,9 @@
 #include "caffe2/core/blob.h"
 #include "caffe2/core/blob_serialization.h"
 #include "caffe2/core/common.h"
-#include "caffe2/utils/mkl_utils.h"
+#include "caffe2/mkl/mkl_utils.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #ifdef CAFFE2_HAS_MKL_DNN
 
@@ -35,7 +35,7 @@ TEST(MKLTest, MKLMemorySerialization) {
     EXPECT_EQ(tensor_proto.float_data(i), static_cast<float>(i));
   }
   Blob new_blob;
-  EXPECT_TRUE(new_blob.Deserialize(serialized));
+  EXPECT_NO_THROW(new_blob.Deserialize(serialized));
   EXPECT_TRUE(new_blob.IsType<MKLMemory<float>>());
   const auto& new_mkl_memory = blob.Get<MKLMemory<float>>();
   EXPECT_EQ(new_mkl_memory.dims().size(), 3);

@@ -8,6 +8,18 @@
 #include "caffe2/core/init.h"
 #include "caffe2/core/logging.h"
 
+CAFFE2_DEFINE_bool(
+    caffe2_cuda_full_device_control,
+    false,
+    "If true, assume all the cudaSetDevice and cudaGetDevice calls will be "
+    "controlled by Caffe2, and non-Caffe2 code will ensure that the entry and "
+    "exit point has the same cuda device. Under the hood, Caffe2 will use "
+    "thread local variables to cache the device, in order to speed up set and "
+    "get device calls. This is an experimental feature that may have non "
+    "trivial side effects, so use it with care and only enable it if you are "
+    "absolutely sure. Also, this flag should not be changed after the program "
+    "initializes.");
+
 namespace caffe2 {
 
 int NumCudaDevices() {
@@ -75,6 +87,8 @@ int NumCudaDevices() {
 
 namespace {
 int gDefaultGPUID = 0;
+// Only used when FLAGS_caffe2_cuda_full_device_control is set true.
+thread_local int gCurrentDevice = -1;
 }  // namespace
 
 void SetDefaultGPUID(const int deviceid) {
@@ -88,17 +102,53 @@ void SetDefaultGPUID(const int deviceid) {
       NumCudaDevices());
   gDefaultGPUID = deviceid;
 }
+
 int GetDefaultGPUID() { return gDefaultGPUID; }
 
-int GetCurrentGPUID() {
-  int gpu_id = 0;
-  CUDA_CHECK(cudaGetDevice(&gpu_id));
-  return gpu_id;
+int CaffeCudaGetDevice() {
+  if (FLAGS_caffe2_cuda_full_device_control) {
+    if (gCurrentDevice < 0) {
+      CUDA_ENFORCE(cudaGetDevice(&gCurrentDevice));
+    }
+    return gCurrentDevice;
+  } else {
+    int gpu_id = 0;
+    CUDA_ENFORCE(cudaGetDevice(&gpu_id));
+    return gpu_id;
+  }
+}
+
+void CaffeCudaSetDevice(const int id) {
+  if (FLAGS_caffe2_cuda_full_device_control) {
+    if (gCurrentDevice != id) {
+      CUDA_ENFORCE(cudaSetDevice(id));
+    }
+    gCurrentDevice = id;
+  } else {
+    CUDA_ENFORCE(cudaSetDevice(id));
+  }
 }
 
 int GetGPUIDForPointer(const void* ptr) {
   cudaPointerAttributes attr;
-  CUDA_CHECK(cudaPointerGetAttributes(&attr, ptr));
+  cudaError_t err = cudaPointerGetAttributes(&attr, ptr);
+
+  if (err == cudaErrorInvalidValue) {
+    // Occurs when the pointer is in the CPU address space that is
+    // unmanaged by CUDA; make sure the last error state is cleared,
+    // since it is persistent
+    err = cudaGetLastError();
+    CHECK(err == cudaErrorInvalidValue);
+    return -1;
+  }
+
+  // Otherwise, there must be no error
+  CUDA_ENFORCE(err);
+
+  if (attr.memoryType == cudaMemoryTypeHost) {
+    return -1;
+  }
+
   return attr.device;
 }
 
@@ -115,7 +165,7 @@ const cudaDeviceProp& GetDeviceProperty(const int deviceid) {
   if (props.size() == 0) {
     props.resize(NumCudaDevices());
     for (int i = 0; i < NumCudaDevices(); ++i) {
-      CUDA_CHECK(cudaGetDeviceProperties(&props[i], i));
+      CUDA_ENFORCE(cudaGetDeviceProperties(&props[i], i));
     }
   }
   return props[deviceid];
@@ -174,6 +224,18 @@ bool GetCudaPeerAccessPattern(vector<vector<bool> >* pattern) {
     }
   }
   return true;
+}
+
+bool TensorCoreAvailable() {
+  // requires CUDA 9.0 and above
+#if CUDA_VERSION < 9000
+  return false;
+#else
+  int device = CaffeCudaGetDevice();
+  auto& prop = GetDeviceProperty(device);
+
+  return prop.major >= 7;
+#endif
 }
 
 const char* cublasGetErrorString(cublasStatus_t error) {
@@ -239,4 +301,18 @@ const char* curandGetErrorString(curandStatus_t error) {
   // To suppress compiler warning.
   return "Unrecognized curand error string";
 }
+
+// Turn on the flag g_caffe2_has_cuda_linked to true for HasCudaRuntime()
+// function.
+extern bool g_caffe2_has_cuda_linked;
+namespace {
+class CudaRuntimeFlagFlipper {
+ public:
+  CudaRuntimeFlagFlipper() {
+    g_caffe2_has_cuda_linked = true;
+  }
+};
+static CudaRuntimeFlagFlipper g_flipper;
+} // namespace
+
 }  // namespace caffe2

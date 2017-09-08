@@ -1,7 +1,14 @@
 #include "recurrent_network_op.h"
+#include "caffe2/core/workspace.h"
+
+CAFFE2_DEFINE_bool(
+    caffe2_rnn_executor,
+    true,
+    "If set, uses special RNN executor for executing RecurrentNetworkOp");
 
 namespace caffe2 {
-namespace {
+CAFFE_KNOWN_TYPE(detail::ScratchWorkspaces);
+
 REGISTER_CPU_OPERATOR(RecurrentNetwork, RecurrentNetworkOp<float, CPUContext>);
 OPERATOR_SCHEMA(RecurrentNetwork)
     .NumInputs(1, INT_MAX)
@@ -32,30 +39,63 @@ REGISTER_CPU_OPERATOR(
     RecurrentNetworkGradientOp<float, CPUContext>);
 OPERATOR_SCHEMA(RecurrentNetworkGradient);
 
+REGISTER_CPU_OPERATOR(
+    rnn_internal_accumulate_gradient_input,
+    AccumulateInputGradientOp<float, CPUContext>);
+OPERATOR_SCHEMA(rnn_internal_accumulate_gradient_input)
+    .NumInputs(3)
+    .NumOutputs(1, INT_MAX)
+    .EnforceInplace({{2, 0}})
+    .Private()
+    .SetDoc("--internal--");
+
+REGISTER_CPU_OPERATOR(
+    rnn_internal_apply_link,
+    RNNApplyLinkOp<float, CPUContext>);
+OPERATOR_SCHEMA(rnn_internal_apply_link)
+    .NumInputs(2)
+    .NumOutputs(2)
+    .EnforceInplace({{1, 1}})
+    .Private()
+    .SetDoc("--internal--");
+
 struct GetRecurrentNetworkGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   std::vector<OperatorDef> GetGradientDefs() override {
+    ArgumentHelper argsHelper(def_);
+    auto params = argsHelper.GetRepeatedArgument<int32_t>("param");
+    auto recurrentInputs =
+        argsHelper.GetRepeatedArgument<int32_t>("initial_recurrent_state_ids");
+
     std::vector<std::string> gradientInputs;
 
-    // Grad output of output (0)
-    gradientInputs.push_back(GO(0));
+    // Argument specifies which outputs have external gradient, (0) by default
+    auto outputs_with_grads =
+        argsHelper.GetRepeatedArgument<int32_t>("outputs_with_grads");
+    CAFFE_ENFORCE(outputs_with_grads.size() > 0);
+    for (auto id : outputs_with_grads) {
+      gradientInputs.push_back(GO(id));
+    }
 
     // All inputs and outputs are passed back
     for (int i = 0; i < def_.input_size(); ++i) {
       gradientInputs.push_back(I(i));
     }
-
     for (int i = 0; i < def_.output_size(); ++i) {
       gradientInputs.push_back(O(i));
     }
 
-    // Grad WRT all inputs - only a few of these are actually filled
-    // (in particular, parameters and input), but this should be OK
-    // for now.
+    // We calculate gradients only for parameters and recurrent inputs
     std::vector<std::string> gradientOutputs;
-    for (int i = 0; i < def_.input_size(); ++i) {
-      gradientOutputs.push_back(GI(i));
+    gradientOutputs.push_back(GI(0));
+    for (auto id : params) {
+      gradientOutputs.push_back(GI(id));
     }
+    for (auto id : recurrentInputs) {
+      gradientOutputs.push_back(GI(id));
+    }
+
+    VLOG(1) << "Gradient blobs: " << Join(", ", gradientOutputs);
 
     return SingleGradientDef(
         "RecurrentNetworkGradient", "", gradientInputs, gradientOutputs);
@@ -63,5 +103,106 @@ struct GetRecurrentNetworkGradient : public GradientMakerBase {
 };
 
 REGISTER_GRADIENT(RecurrentNetwork, GetRecurrentNetworkGradient);
+
+namespace detail {
+
+void PrependOps(std::vector<OperatorDef> ops, NetDef* netdef) {
+  for (auto& o : netdef->op()) {
+    ops.push_back(o);
+  }
+  netdef->mutable_op()->Clear();
+  for (auto& o : ops) {
+    auto* ao = netdef->add_op();
+    ao->CopyFrom(o);
+  }
 }
+
+void AddApplyLinkOps(
+    const vector<Link>& links,
+    std::string timestep,
+    const DeviceOption& device_option,
+    NetDef* netdef) {
+  std::vector<OperatorDef> ops;
+  for (auto& link : links) {
+    OperatorDef opdef;
+    opdef.set_type("rnn_internal_apply_link");
+    opdef.add_input(timestep);
+    opdef.add_input(link.external);
+    opdef.add_output(link.internal);
+    opdef.add_output(link.external);
+    opdef.mutable_device_option()->CopyFrom(device_option);
+
+    Argument* offset_arg = opdef.add_arg();
+    offset_arg->set_name("offset");
+    offset_arg->set_i(link.offset);
+
+    Argument* window_arg = opdef.add_arg();
+    window_arg->set_name("window");
+    window_arg->set_i(link.window);
+
+    // Find out if the linked blob is used first as an output: then we need
+    // to add control_input to that op
+    for (auto& op : *netdef->mutable_op()) {
+      if (HasInput(op, link.internal)) {
+        // First appears as an input, no need to do antyhing
+        continue;
+      }
+      if (HasOutput(op, link.internal)) {
+        op.add_control_input(link.internal);
+        break;
+      }
+    }
+
+    ops.push_back(opdef);
+
+    netdef->add_external_input(link.internal);
+    netdef->add_external_input(link.external);
+  }
+
+  detail::PrependOps(ops, netdef);
+}
+
+void extractLinks(
+    OperatorBase* op,
+    const std::string& internalArg,
+    const std::string& externalArg,
+    const std::string& offsetArg,
+    const std::string& windowArg,
+    std::vector<detail::Link>* links) {
+  const auto& internal = op->GetRepeatedArgument<std::string>(internalArg);
+  const auto& external = op->GetRepeatedArgument<std::string>(externalArg);
+  const auto& offset = op->GetRepeatedArgument<int32_t>(offsetArg);
+  const auto& window = op->GetRepeatedArgument<int32_t>(
+      windowArg, vector<int32_t>(offset.size(), 1));
+  CAFFE_ENFORCE_EQ(
+      internal.size(),
+      offset.size(),
+      "internal/offset mismatch: ",
+      internalArg,
+      " ",
+      externalArg);
+  CAFFE_ENFORCE_EQ(
+      external.size(),
+      offset.size(),
+      "external/offset mismatch: ",
+      externalArg,
+      " ",
+      offsetArg);
+  CAFFE_ENFORCE_EQ(
+      external.size(),
+      window.size(),
+      "external/window mismatch: ",
+      externalArg,
+      " ",
+      windowArg);
+  for (auto i = 0; i < internal.size(); ++i) {
+    detail::Link l;
+    l.internal = internal[i];
+    l.external = external[i];
+    l.offset = offset[i];
+    l.window = window[i];
+    links->push_back(l);
+  }
+}
+} // namespace detail
 }

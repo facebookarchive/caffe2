@@ -1,3 +1,5 @@
+## @package muji
+# Module caffe2.python.muji
 """muji.py does multi-gpu training for caffe2 with no need to change the c++
 side code. Everything is defined on the computation graph level.
 
@@ -8,7 +10,6 @@ Currently, here are the assumptions: we only support the following use cases:
     between {1, 2, 3, 4} and {5, 6, 7, 8}.
 """
 
-from caffe2.python import core
 from caffe2.proto import caffe2_pb2
 
 
@@ -32,7 +33,7 @@ def Allreduce(net, blobs, reduced_affix="_reduced", gpu_indices=None):
     """The general Allreduce interface that reroutes the function calls.
   """
     if gpu_indices is None:
-        gpu_indices = range(len(blobs))
+        gpu_indices = list(range(len(blobs)))
     if len(gpu_indices) != len(blobs):
         raise RuntimeError(
             "gpu_indices length and blobs length mismatch: %d vs %d" %

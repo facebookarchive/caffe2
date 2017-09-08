@@ -58,9 +58,9 @@ EnforceNotMet::EnforceNotMet(
     const char* file,
     const int line,
     const char* condition,
-    const string& msg)
+    const string& msg,
+    const void* caller)
     : msg_stack_{MakeString(
-          FetchStackTrace(),
           "[enforce fail at ",
           StripBasename(std::string(file)),
           ":",
@@ -69,10 +69,12 @@ EnforceNotMet::EnforceNotMet(
           condition,
           ". ",
           msg,
-          " ")} {
+          " ")},
+      stack_trace_(FetchStackTrace()) {
   if (FLAGS_caffe2_use_fatal_for_enforce) {
     LOG(FATAL) << msg_stack_[0];
   }
+  caller_ = caller;
   full_msg_ = this->msg();
 }
 
@@ -82,11 +84,16 @@ void EnforceNotMet::AppendMessage(const string& msg) {
 }
 
 string EnforceNotMet::msg() const {
-  return std::accumulate(msg_stack_.begin(), msg_stack_.end(), string(""));
+  return std::accumulate(msg_stack_.begin(), msg_stack_.end(), string("")) +
+      stack_trace_;
 }
 
 const char* EnforceNotMet::what() const noexcept {
   return full_msg_.c_str();
+}
+
+const void* EnforceNotMet::caller() const noexcept {
+  return caller_;
 }
 
 }  // namespace caffe2
@@ -144,6 +151,11 @@ bool InitCaffeLogging(int* argc, char** argv) {
   }
   return true;
 }
+
+void ShowLogInfoToStderr() {
+  FLAGS_logtostderr = 1;
+  FLAGS_minloglevel = std::min(FLAGS_minloglevel, google::INFO);
+}
 }  // namespace caffe2
 
 #else  // !CAFFE2_USE_GOOGLE_GLOG
@@ -172,6 +184,10 @@ bool InitCaffeLogging(int* argc, char** argv) {
     FLAGS_caffe2_log_level = FATAL;
   }
   return true;
+}
+
+void ShowLogInfoToStderr() {
+  FLAGS_caffe2_log_level = INFO;
 }
 
 MessageLogger::MessageLogger(const char *file, int line, int severity)
@@ -223,7 +239,7 @@ MessageLogger::~MessageLogger() {
   int android_level_index = FATAL - std::min(FATAL, severity_);
   int level = android_log_levels[std::min(android_level_index, 5)];
   // Output the log string the Android log at the appropriate level.
-  __android_log_print(level, tag_, stream_.str().c_str());
+  __android_log_print(level, tag_, "%s", stream_.str().c_str());
   // Indicate termination if needed.
   if (severity_ == FATAL) {
     __android_log_print(ANDROID_LOG_FATAL, tag_, "terminating.\n");

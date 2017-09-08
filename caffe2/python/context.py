@@ -1,18 +1,12 @@
+## @package context
+# Module caffe2.python.context
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
 import threading
-
-_CONTEXT_MANAGER = threading.local()
-
-
-def context_manager():
-    global _CONTEXT_MANAGER
-    if not hasattr(_CONTEXT_MANAGER, 'obj'):
-        _CONTEXT_MANAGER.obj = ContextManager()
-    return _CONTEXT_MANAGER.obj
+import six
 
 
 class ContextInfo(object):
@@ -20,7 +14,13 @@ class ContextInfo(object):
         self.cls = cls
         self.allow_default = allow_default
         self.arg_name = arg_name
-        self._stack = []
+        self._local_stack = threading.local()
+
+    @property
+    def _stack(self):
+        if not hasattr(self._local_stack, 'obj'):
+            self._local_stack.obj = []
+        return self._local_stack.obj
 
     def enter(self, value):
         self._stack.append(value)
@@ -54,6 +54,14 @@ class ContextManager(object):
         return self._ctxs[cls]
 
 
+_CONTEXT_MANAGER = ContextManager()
+
+
+def context_manager():
+    global _CONTEXT_MANAGER
+    return _CONTEXT_MANAGER
+
+
 def __enter__(self):
     if self._prev_enter is not None:
         self._prev_enter()
@@ -65,6 +73,14 @@ def __exit__(self, *args):
     context_manager().get(self._ctx_class).exit(self)
     if self._prev_exit is not None:
         self._prev_exit(*args)
+
+
+def __call__(self, func):
+    @six.wraps(func)
+    def wrapper(*args, **kwargs):
+        with self:
+            return func(*args, **kwargs)
+    return wrapper
 
 
 @classmethod
@@ -88,6 +104,7 @@ class define_context(object):
         cls._ctx_class = cls
         cls.__enter__ = __enter__
         cls.__exit__ = __exit__
+        cls.__call__ = __call__
         cls.current = current
         return cls
 

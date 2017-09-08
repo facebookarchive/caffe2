@@ -14,10 +14,29 @@ Creates a common world for communication operators.
     .Arg("size", "(int) size of the common world.")
     .Arg("rank", "(int) rank of this node in the common world.");
 
-OPERATOR_SCHEMA(Broadcast)
-    .NumInputs(2)
+OPERATOR_SCHEMA(CloneCommonWorld)
+    .NumInputs(1)
     .NumOutputs(1)
-    .EnforceInplace({{1, 0}})
+    .SetDoc(R"DOC(
+Clones existing common world.
+)DOC")
+    .Input(0, "existing_comm_world", "Existing common world to clone.")
+    .Output(0, "comm_world", "A common world for collective operations.");
+
+OPERATOR_SCHEMA(DestroyCommonWorld)
+    .NumInputs(1)
+    .NumOutputs(1)
+    .EnforceInplace({{0, 0}})
+    .SetDoc("Closes all connections managed by a common world.")
+    .Input(0, "common_world", "The common world to be destroyed.");
+
+OPERATOR_SCHEMA(Broadcast)
+    .NumInputsOutputs([](int in, int out) {
+      return in >= 2 && out == (in - 1);
+    })
+    .EnforceInplace([](int in, int out) { return (in - 1) == out; })
+    .InputsCanCrossDevices()
+    .IdenticalTypeAndShapeOfInput(0)
     .SetDoc(R"DOC(
 Does a broadcast operation from the root node to every other node. The tensor
 on each node should have been pre-created with the same shape and data type.
@@ -30,6 +49,8 @@ on each node should have been pre-created with the same shape and data type.
 OPERATOR_SCHEMA(Reduce)
     .NumInputs(2)
     .NumOutputs(1)
+    .InputsCanCrossDevices()
+    .IdenticalTypeAndShapeOfInput(0)
     .SetDoc(R"DOC(
 Does a reduce operation from every node to the root node. Currently only
 Sum is supported.
@@ -40,9 +61,12 @@ Sum is supported.
     .Arg("root", "(int, default 0) the root to run reduce into.");
 
 OPERATOR_SCHEMA(Allreduce)
-    .NumInputs(2)
-    .NumOutputs(1)
-    .AllowInplace({{1, 0}})
+    .NumInputsOutputs([](int in, int out) {
+      return in >= 2 && out == (in - 1);
+    })
+    .EnforceInplace([](int in, int out) { return (in - 1) == out; })
+    .IdenticalTypeAndShapeOfInput(0)
+    .InputsCanCrossDevices()
     .SetDoc(R"DOC(
 Does an allreduce operation among the nodes. Currently only Sum is supported.
 )DOC")
@@ -53,12 +77,20 @@ Does an allreduce operation among the nodes. Currently only Sum is supported.
 OPERATOR_SCHEMA(Allgather)
     .NumInputs(2)
     .NumOutputs(1)
+    .InputsCanCrossDevices()
     .SetDoc(R"DOC(
 Does an allgather operation among the nodes.
 )DOC")
     .Input(0, "comm_world", "The common world.")
     .Input(1, "X", "A tensor to be allgathered.")
     .Output(0, "Y", "The allgathered tensor, same on all nodes.");
+
+OPERATOR_SCHEMA(Barrier)
+    .NumInputs(1)
+    .SetDoc(R"DOC(
+Does a barrier operation among the nodes.
+)DOC")
+    .Input(0, "comm_world", "The common world.");
 
 OPERATOR_SCHEMA(SendTensor)
     .NumInputs({2, 4})
@@ -130,19 +162,25 @@ Receives the tensor from another node.
         "has already known the tensor's shape and information.");
 
 SHOULD_NOT_DO_GRADIENT(CreateCommonWorld);
+SHOULD_NOT_DO_GRADIENT(CloneCommonWorld);
+SHOULD_NOT_DO_GRADIENT(DestroyCommonWorld);
 SHOULD_NOT_DO_GRADIENT(Broadcast);
 SHOULD_NOT_DO_GRADIENT(Reduce);
 SHOULD_NOT_DO_GRADIENT(Allgather);
 SHOULD_NOT_DO_GRADIENT(Allreduce);
+SHOULD_NOT_DO_GRADIENT(Barrier);
 SHOULD_NOT_DO_GRADIENT(SendTensor);
 SHOULD_NOT_DO_GRADIENT(ReceiveTensor);
 
 // Communication operators do not have default engines.
 REGISTER_CPU_OPERATOR(CreateCommonWorld, NoDefaultEngineOp<CPUContext>);
+REGISTER_CPU_OPERATOR(CloneCommonWorld, NoDefaultEngineOp<CPUContext>);
+REGISTER_CPU_OPERATOR(DestroyCommonWorld, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Broadcast, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Reduce, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Allgather, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Allreduce, NoDefaultEngineOp<CPUContext>);
+REGISTER_CPU_OPERATOR(Barrier, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(SendTensor, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(ReceiveTensor, NoDefaultEngineOp<CPUContext>);
 

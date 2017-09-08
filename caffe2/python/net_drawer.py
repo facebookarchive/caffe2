@@ -1,16 +1,23 @@
+## @package net_drawer
+# Module caffe2.python.net_drawer
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 import argparse
 import json
+import logging
 from collections import defaultdict
 from caffe2.python import utils
+from future.utils import viewitems
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 try:
     import pydot
 except ImportError:
-    print(
+    logger.info(
         'Cannot import pydot, which is required for drawing a network. This '
         'can usually be installed in python with "pip install pydot". Also, '
         'pydot requires graphviz to convert dot files to pdf: in ubuntu, this '
@@ -249,11 +256,92 @@ def GetPlanGraph(plan_def, name=None, rankdir='TB'):
     return graph
 
 
+def GetGraphInJson(operators_or_net, output_filepath):
+    operators, _ = _rectify_operator_and_name(operators_or_net, None)
+    blob_strid_to_node_id = {}
+    node_name_counts = defaultdict(int)
+    nodes = []
+    edges = []
+    for op_id, op in enumerate(operators):
+        op_label = op.name + '/' + op.type if op.name else op.type
+        op_node_id = len(nodes)
+        nodes.append({
+            'id': op_node_id,
+            'label': op_label,
+            'op_id': op_id,
+            'type': 'op'
+        })
+        for input_name in op.input:
+            strid = _escape_label(
+                input_name + str(node_name_counts[input_name]))
+            if strid not in blob_strid_to_node_id:
+                input_node = {
+                    'id': len(nodes),
+                    'label': input_name,
+                    'type': 'blob'
+                }
+                blob_strid_to_node_id[strid] = len(nodes)
+                nodes.append(input_node)
+            else:
+                input_node = nodes[blob_strid_to_node_id[strid]]
+            edges.append({
+                'source': blob_strid_to_node_id[strid],
+                'target': op_node_id
+            })
+        for output_name in op.output:
+            strid = _escape_label(
+                output_name + str(node_name_counts[output_name]))
+            if strid in blob_strid_to_node_id:
+                # we are overwriting an existing blob. need to update the count.
+                node_name_counts[output_name] += 1
+                strid = _escape_label(
+                    output_name + str(node_name_counts[output_name]))
+
+            if strid not in blob_strid_to_node_id:
+                output_node = {
+                    'id': len(nodes),
+                    'label': output_name,
+                    'type': 'blob'
+                }
+                blob_strid_to_node_id[strid] = len(nodes)
+                nodes.append(output_node)
+            edges.append({
+                'source': op_node_id,
+                'target': blob_strid_to_node_id[strid]
+            })
+
+    with open(output_filepath, 'w') as f:
+        json.dump({'nodes': nodes, 'edges': edges}, f)
+
+
+# A dummy minimal PNG image used by GetGraphPngSafe as a
+# placeholder when rendering fail to run.
+_DummyPngImage = (
+    b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00'
+    b'\x01\x01\x00\x00\x00\x007n\xf9$\x00\x00\x00\nIDATx\x9cc`\x00\x00'
+    b'\x00\x02\x00\x01H\xaf\xa4q\x00\x00\x00\x00IEND\xaeB`\x82')
+
+
+def GetGraphPngSafe(func, *args, **kwargs):
+    """
+    Invokes `func` (e.g. GetPydotGraph) with args. If anything fails - returns
+    and empty image instead of throwing Exception
+    """
+    try:
+        graph = func(*args, **kwargs)
+        if not isinstance(graph, pydot.Dot):
+            raise ValueError("func is expected to return pydot.Dot")
+        return graph.create_png()
+    except Exception as e:
+        logger.error("Failed to draw graph: {}".format(e))
+        return _DummyPngImage
+
+
 def main():
     parser = argparse.ArgumentParser(description="Caffe2 net drawer.")
     parser.add_argument(
         "--input",
-        type=str,
+        type=str, required=True,
         help="The input protobuf file."
     )
     parser.add_argument(
@@ -285,7 +373,7 @@ def main():
                 caffe2_pb2.NetDef: lambda x: {x.name: x.op},
             }
         )
-    for key, operators in graphs.items():
+    for key, operators in viewitems(graphs):
         if args.minimal:
             graph = GetPydotGraphMinimal(
                 operators,
@@ -312,6 +400,7 @@ def main():
                 'apt-get install graphviz". We have generated the .dot file '
                 'but will not be able to generate pdf file for now.'
             )
+
 
 if __name__ == '__main__':
     main()

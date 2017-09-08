@@ -1,8 +1,20 @@
+## @package caffe_translator
+# Module caffe2.python.caffe_translator
 #!/usr/bin/env python2
+
+import argparse
+import copy
+import logging
+import numpy as np  # noqa
 
 from caffe2.proto import caffe2_pb2, caffe2_legacy_pb2
 from caffe.proto import caffe_pb2
-from caffe2.python import core, utils
+from caffe2.python import core, utils, workspace
+from google.protobuf import text_format
+
+logging.basicConfig()
+log = logging.getLogger("caffe_translator")
+log.setLevel(logging.INFO)
 
 
 def _StateMeetsRule(state, rule):
@@ -11,7 +23,7 @@ def _StateMeetsRule(state, rule):
         return False
     if rule.HasField('min_level') and state.level < rule.min_level:
         return False
-    if rule.HasField('max_level') and state.level > rule.max_lavel:
+    if rule.HasField('max_level') and state.level > rule.max_level:
         return False
     curr_stages = set(list(state.stage))
     # all stages in rule.stages should be in, otherwise it's not a match.
@@ -74,7 +86,7 @@ class TranslatorRegistry(object):
         net = caffe2_pb2.NetDef()
         net.name = caffe_net.name
         net_params = caffe2_pb2.TensorProtos()
-        if len(caffe_net.layer) == 0:
+        if len(caffe_net.layers) > 0:
             raise ValueError(
                 'I think something is wrong. This translation script '
                 'only accepts new style layers that are stored in the '
@@ -82,10 +94,10 @@ class TranslatorRegistry(object):
             )
         for layer in caffe_net.layer:
             if not _ShouldInclude(net_state, layer):
-                print('Current net state does not need layer {}'
-                      .format(layer.name))
+                log.info('Current net state does not need layer {}'
+                            .format(layer.name))
                 continue
-            print('Translate layer {}'.format(layer.name))
+            log.info('Translate layer {}'.format(layer.name))
             # Get pretrained one
             pretrained_layers = (
                 [l for l in pretrained_net.layer
@@ -117,7 +129,7 @@ def TranslateModel(*args, **kwargs):
     return TranslatorRegistry.TranslateModel(*args, **kwargs)
 
 
-def ConvertTensorProtosToInitNet(net_params):
+def ConvertTensorProtosToInitNet(net_params, input_name):
     """Takes the net_params returned from TranslateModel, and wrap it as an
     init net that contain GivenTensorFill.
 
@@ -137,6 +149,7 @@ def ConvertTensorProtosToInitNet(net_params):
                 utils.MakeArgument("shape", list(tensor.dims)),
                 utils.MakeArgument("values", tensor.float_data)])
         init_net.op.extend([op])
+    init_net.op.extend([core.CreateOperator("ConstantFill", [], [input_name], shape=[1])])
     return init_net
 
 
@@ -160,6 +173,11 @@ def AddArgument(op, key, value):
 
 @TranslatorRegistry.Register("Input")
 def TranslateInput(layer, pretrained_blobs, is_test):
+    return [], []
+
+
+@TranslatorRegistry.Register("VideoData")
+def TranslateVideoData(layer, pretrained_blobs, is_test):
     return [], []
 
 
@@ -212,79 +230,69 @@ def _TranslateStridePadKernelHelper(param, caffe_op):
         AddArgument(caffe_op, "kernel", kernel)
 
 
+@TranslatorRegistry.Register("Convolution3D")
+def TranslateConvNd(layer, pretrained_blobs, is_test):
+    param = layer.convolution3d_param
+    caffe_op = BaseTranslate(layer, "Conv")
+    output = caffe_op.output[0]
+    caffe_op.input.append(output + '_w')
+
+    AddArgument(
+        caffe_op,
+        "kernels",
+        [param.kernel_depth, param.kernel_size, param.kernel_size])
+    AddArgument(
+        caffe_op,
+        "strides",
+        [param.temporal_stride, param.stride, param.stride])
+    temporal_pad = 0
+    spatial_pad = 0
+    if hasattr(param, 'temporal_pad'):
+        temporal_pad = param.temporal_pad
+    if hasattr(param, 'pad'):
+        spatial_pad = param.pad
+    AddArgument(caffe_op, "pads", [temporal_pad, spatial_pad, spatial_pad] * 2)
+
+    # weight
+    params = [
+        utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_w')]
+    # bias
+    if len(pretrained_blobs) == 2:
+        caffe_op.input.append(output + '_b')
+        params.append(
+            utils.NumpyArrayToCaffe2Tensor(
+                pretrained_blobs[1].flatten(), output + '_b'))
+    return caffe_op, params
+
+
 @TranslatorRegistry.Register("Convolution")
 def TranslateConv(layer, pretrained_blobs, is_test):
     param = layer.convolution_param
-    if param.group > 1:
-        return TranslateConvWithGroups(layer, pretrained_blobs, is_test)
-    # If there is no odd things, we will basically translate it to a standard
-    # caffe2 op.
     caffe_op = BaseTranslate(layer, "Conv")
     output = caffe_op.output[0]
-    caffe_op.input.extend([output + '_w', output + '_b'])
+    caffe_op.input.append(output + '_w')
     _TranslateStridePadKernelHelper(param, caffe_op)
-    weight = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_w')
-    bias = utils.NumpyArrayToCaffe2Tensor(
-        pretrained_blobs[1].flatten(), output + '_b'
-    )
-    return caffe_op, [weight, bias]
-
-
-def TranslateConvWithGroups(layer, pretrained_blobs, is_test):
-    print(
-        "Legacy warning: convolution with groups seem to be less and less " +
-        "popular, so we no longer have it as a first-class citizen op. " +
-        "Instead, we will simulate it with depth split followed by conv " +
-        "followed by depth concat."
-    )
-    caffe_ops = []
-    caffe_params = []
-    param = layer.convolution_param
-    weight, bias = pretrained_blobs
-    bias = bias.flatten()
-    n, c, h, w = weight.shape
-    g = param.group  # group
-    od = int(n / g)  # output dimension
-    if (od * g != n):
-        # This should not happen: n should always be divisible by g.
-        raise ValueError("This should not happen.")
-    output = layer.top[0]
-    # first, depth_split
-    depth_split_op = core.CreateOperator(
-        "DepthSplit",
-        str(layer.bottom[0]),
-        ['_' + output + '_gconv_split_' + str(i) for i in range(g)],
-        split=[c for i in range(g)],
-        order="NCHW"
-    )
-    caffe_ops.append(depth_split_op)
-    # second, convolutions
-    for i in range(g):
-        # convolution layer i
-        this_weight = utils.NumpyArrayToCaffe2Tensor(
-            weight[i * od:(i + 1) * od], output + '_gconv_' + str(i) + '_w'
-        )
-        this_bias = utils.NumpyArrayToCaffe2Tensor(
-            bias[i * od:(i + 1) * od], output + '_gconv_' + str(i) + '_b'
-        )
-        conv_op = core.CreateOperator(
-            "Conv",
-            [depth_split_op.output[i], this_weight.name, this_bias.name],
-            ['_' + output + '_gconv_conv_' + str(i)],
-            order="NCHW"
-        )
-        _TranslateStridePadKernelHelper(param, conv_op)
-        caffe_ops.append(conv_op)
-        caffe_params.extend([this_weight, this_bias])
-    # third, depth concat
-    depth_concat_op = core.CreateOperator(
-        "Concat",
-        ['_' + output + '_gconv_conv_' + str(i) for i in range(g)],
-        [output, '_' + output + '_gconv_concat_dims'],
-        order="NCHW"
-    )
-    caffe_ops.append(depth_concat_op)
-    return caffe_ops, caffe_params
+    # weight
+    params = [
+        utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_w')]
+    # bias
+    if len(pretrained_blobs) == 2:
+        caffe_op.input.append(output + '_b')
+        params.append(
+            utils.NumpyArrayToCaffe2Tensor(
+                pretrained_blobs[1].flatten(), output + '_b'))
+    # Group convolution option
+    if param.group != 1:
+        AddArgument(caffe_op, "group", param.group)
+    # Get dilation - not tested. If you have a model and this checks out,
+    # please provide a test and uncomment this.
+    if len(param.dilation) > 0:
+        if len(param.dilation) == 1:
+            AddArgument(caffe_op, "dilation", param.dilation[0])
+        elif len(param.dilation) == 2:
+            AddArgument(caffe_op, "dilation_h", param.dilation[0])
+            AddArgument(caffe_op, "dilation_w", param.dilation[1])
+    return caffe_op, params
 
 
 @TranslatorRegistry.Register("Deconvolution")
@@ -320,10 +328,51 @@ def TranslatePool(layer, pretrained_blobs, is_test):
         caffe_op = BaseTranslate(layer, "AveragePool")
     _TranslateStridePadKernelHelper(param, caffe_op)
     AddArgument(caffe_op, "order", "NCHW")
-    AddArgument(caffe_op, "legacy_pad",
-                caffe2_legacy_pb2.CAFFE_LEGACY_POOLING)
+    try:
+        # In the Facebook port of Caffe, a torch_pooling field was added to
+        # map the pooling computation of Torch. Essentially, it uses
+        #   floor((height + 2 * padding - kernel) / stride) + 1
+        # instead of
+        #   ceil((height + 2 * padding - kernel) / stride) + 1
+        # which is Caffe's version.
+        # Torch pooling is actually the same as Caffe2 pooling, so we don't
+        # need to do anything.
+        is_torch_pooling = param.torch_pooling
+    except AttributeError:
+        is_torch_pooling = False
+    if not is_torch_pooling:
+        AddArgument(caffe_op, "legacy_pad",
+                    caffe2_legacy_pb2.CAFFE_LEGACY_POOLING)
     if param.global_pooling:
         AddArgument(caffe_op, "global_pooling", 1)
+    return caffe_op, []
+
+
+@TranslatorRegistry.Register("Pooling3D")
+def TranslatePool3D(layer, pretrained_blobs, is_test):
+    param = layer.pooling3d_param
+    if param.pool == caffe_pb2.Pooling3DParameter.MAX:
+        caffe_op = BaseTranslate(layer, "MaxPool")
+
+    elif param.pool == caffe_pb2.Pooling3DParameter.AVE:
+        caffe_op = BaseTranslate(layer, "AveragePool")
+    AddArgument(caffe_op, "order", "NCHW")
+    AddArgument(
+        caffe_op,
+        "kernels",
+        [param.kernel_depth, param.kernel_size, param.kernel_size])
+
+    AddArgument(
+        caffe_op,
+        "strides",
+        [param.temporal_stride, param.stride, param.stride])
+    temporal_pad = 0
+    spatial_pad = 0
+    if hasattr(param, 'temporal_pad'):
+        temporal_pad = param.temporal_pad
+    if hasattr(param, 'pad'):
+        spatial_pad = param.pad
+    AddArgument(caffe_op, "pads", [temporal_pad, spatial_pad, spatial_pad] * 2)
     return caffe_op, []
 
 
@@ -345,11 +394,33 @@ def TranslateLRN(layer, pretrained_blobs, is_test):
 
 @TranslatorRegistry.Register("InnerProduct")
 def TranslateInnerProduct(layer, pretrained_blobs, is_test):
+    param = layer.inner_product_param
+    try:
+        if param.axis != 1 or param.transpose:
+            raise ValueError(
+                "We don't have testing case for non-default axis and transpose "
+                "cases yet so we are disabling it for now. If you have a model "
+                "with this, please do send us your model for us to update this "
+                "support, and you are more than welcome to send a PR for this.")
+    except AttributeError:
+        # We might be using an historic Caffe protobuf that does not have axis
+        # and transpose arguments, so we will silently pass.
+        pass
     caffe_op = BaseTranslate(layer, "FC")
     output = caffe_op.output[0]
     caffe_op.input.extend([output + '_w', output + '_b'])
+    # To provide the old-style 4-dimensional blob (1, 1, dim_output, dim_input)
+    # case, we always explicitly reshape the pretrained blob.
+    if pretrained_blobs[0].ndim not in [2, 4]:
+        raise ValueError("Unexpected weight ndim.")
+    if (pretrained_blobs[0].ndim == 4 and
+            list(pretrained_blobs[0].shape[:2]) != [1, 1]):
+        raise ValueError(
+            "If pretrained blob has 4 dims (old-style Caffe), the first two "
+            "should be of value 1, but I got " + str(pretrained_blobs[0].shape))
     weight = utils.NumpyArrayToCaffe2Tensor(
-        pretrained_blobs[0][0, 0], output + '_w'
+        pretrained_blobs[0].reshape(-1, pretrained_blobs[0].shape[-1]),
+        output + '_w'
     )
     bias = utils.NumpyArrayToCaffe2Tensor(
         pretrained_blobs[1].flatten(), output + '_b'
@@ -394,7 +465,7 @@ def TranslateSoftmaxWithLoss(layer, pretrained_blobs, is_test):
 def TranslateAccuracy(layer, pretrained_blobs, is_test):
     caffe_op = BaseTranslate(layer, "Accuracy")
     if layer.accuracy_param.top_k != 1:
-        print("Warning: Translation does not support Accuracy layers top_k >1.")
+        AddArgument(caffe_op, "top_k", layer.accuracy_param.top_k)
     return caffe_op, []
 
 
@@ -425,6 +496,49 @@ def TranslateInstanceNorm(layer, pretrained_blobs, is_test):
     return caffe_op, [weight, bias]
 
 
+@TranslatorRegistry.Register("BatchNorm")
+def TranslateBatchNorm(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "SpatialBN")
+    output = caffe_op.output[0]
+    param = layer.batch_norm_param
+    AddArgument(caffe_op, "is_test", is_test)
+    AddArgument(caffe_op, "epsilon", param.eps)
+    AddArgument(caffe_op, "order", "NCHW")
+
+    caffe_op.input.extend(
+        [output + "_scale",
+         output + "_bias",
+         output + "_mean",
+         output + "_var"])
+    if not is_test:
+        caffe_op.output.extend(
+            [output + "_mean",
+             output + "_var",
+             output + "_saved_mean",
+             output + "_saved_var"])
+
+    n_channels = pretrained_blobs[0].shape[0]
+    if pretrained_blobs[2][0] != 0:
+        mean = utils.NumpyArrayToCaffe2Tensor(
+            (1. / pretrained_blobs[2][0]) * pretrained_blobs[0],
+            output + '_mean')
+        var = utils.NumpyArrayToCaffe2Tensor(
+            (1. / pretrained_blobs[2][0]) * pretrained_blobs[1],
+            output + '_var')
+    else:
+        raise RuntimeError("scalar is zero.")
+    pretrained_blobs[2][0] = 1
+    pretrained_blobs[2] = np.tile(pretrained_blobs[2], (n_channels, ))
+    scale = utils.NumpyArrayToCaffe2Tensor(
+        pretrained_blobs[2],
+        output + '_scale')
+    bias = utils.NumpyArrayToCaffe2Tensor(
+        np.zeros_like(pretrained_blobs[2]),
+        output + '_bias')
+
+    return caffe_op, [scale, bias, mean, var]
+
+
 @TranslatorRegistry.Register("Eltwise")
 def TranslateElementWise(layer, pretrained_blobs, is_test):
     param = layer.eltwise_param
@@ -438,20 +552,50 @@ def TranslateElementWise(layer, pretrained_blobs, is_test):
 
 @TranslatorRegistry.Register("Scale")
 def TranslateScale(layer, pretrained_blobs, is_test):
-    caffe_op = BaseTranslate(layer, "Mul")
+    mul_op = BaseTranslate(layer, "Mul")
     scale_param = layer.scale_param
-    AddArgument(caffe_op, "axis", scale_param.axis)
-    AddArgument(caffe_op, "broadcast", True)
-    if len(caffe_op.input) == 1:
+    AddArgument(mul_op, "axis", scale_param.axis)
+    AddArgument(mul_op, "broadcast", True)
+    if len(mul_op.input) == 1:
         # the scale parameter is in pretrained blobs
         if scale_param.num_axes != 1:
             raise RuntimeError("This path has not been verified yet.")
-        output = caffe_op.output[0]
-        caffe_op.input.append(output + '_w')
-        weight = utils.NumpyArrayToCaffe2Tensor(
-            pretrained_blobs[0].flatten(), output + '_w')
-        return caffe_op, [weight]
-    elif len(caffe_op.input) == 2:
+
+        output = mul_op.output[0]
+        mul_op_param = output + '_w'
+        mul_op.input.append(mul_op_param)
+        weights = []
+        weights.append(utils.NumpyArrayToCaffe2Tensor(
+            pretrained_blobs[0].flatten(), mul_op_param))
+
+        add_op = None
+        if len(pretrained_blobs) == 1:
+            # No bias-term in Scale layer
+            pass
+        elif len(pretrained_blobs) == 2:
+            # Caffe Scale layer supports a bias term such that it computes
+            # (scale_param * X + bias), whereas Caffe2 Mul op doesn't.
+            # Include a separate Add op for the bias followed by Mul.
+            add_op = copy.deepcopy(mul_op)
+            add_op.type = "Add"
+            add_op_param = output + '_b'
+            internal_blob = output + "_internal"
+            del mul_op.output[:]
+            mul_op.output.append(internal_blob)
+            del add_op.input[:]
+            add_op.input.append(internal_blob)
+            add_op.input.append(add_op_param)
+            weights.append(utils.NumpyArrayToCaffe2Tensor(
+                pretrained_blobs[1].flatten(), add_op_param))
+        else:
+            raise RuntimeError("Unexpected number of pretrained blobs in Scale")
+
+        caffe_ops = [mul_op]
+        if add_op:
+            caffe_ops.append(add_op)
+        assert len(caffe_ops) == len(weights)
+        return caffe_ops, weights
+    elif len(mul_op.input) == 2:
         # TODO(jiayq): find a protobuf that uses this and verify.
         raise RuntimeError("This path has not been verified yet.")
     else:
@@ -465,3 +609,122 @@ def TranslateReshape(layer, pretrained_blobs, is_test):
     reshape_param = layer.reshape_param
     AddArgument(caffe_op, 'shape', reshape_param.shape.dim)
     return caffe_op, []
+
+
+@TranslatorRegistry.Register("Flatten")
+def TranslateFlatten(layer, pretrained_blobs, is_test):
+    param = layer.flatten_param
+    if param.end_axis != -1:
+        raise NotImplementedError("flatten_param.end_axis not supported yet.")
+
+    if param.axis == 0:
+        caffe_op = BaseTranslate(layer, "FlattenToVec")
+    elif param.axis == 1:
+        caffe_op = BaseTranslate(layer, "Flatten")
+    else:
+        # This could be a Reshape op, but dim size is not known here.
+        raise NotImplementedError(
+            "Not supported yet for flatten_param.axis {}.".format(param.axis))
+
+    return caffe_op, []
+
+
+@TranslatorRegistry.Register("Sigmoid")
+def TranslateSigmoid(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "Sigmoid")
+    return caffe_op, []
+
+
+@TranslatorRegistry.Register("ROIPooling")
+def TranslateROIPooling(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "RoIPool")
+    AddArgument(caffe_op, "order", "NCHW")
+
+    if is_test:
+        AddArgument(caffe_op, "is_test", is_test)
+    else:
+        # Only used for gradient computation
+        caffe_op.output.append(caffe_op.output[0] + '_argmaxes')
+
+    param = layer.roi_pooling_param
+    if param.HasField('pooled_h'):
+        AddArgument(caffe_op, 'pooled_h', param.pooled_h)
+    if param.HasField('pooled_w'):
+        AddArgument(caffe_op, 'pooled_w', param.pooled_w)
+    if param.HasField('spatial_scale'):
+        AddArgument(caffe_op, 'spatial_scale', param.spatial_scale)
+
+    return caffe_op, []
+
+
+@TranslatorRegistry.Register("PReLU")
+def TranslatePRelu(layer, pretrained_blobs, is_test):
+    caffe_op = BaseTranslate(layer, "PRelu")
+    output = caffe_op.output[0]
+    caffe_op.input.extend([output + '_Slope'])
+    slope = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_Slope')
+
+    return caffe_op, [slope]
+
+
+@TranslatorRegistry.Register("Reduction")
+def TranslateReduction(layer, pretrained_blobs, is_test):
+    param = layer.reduction_param
+    if param.operation == caffe_pb2.ReductionParameter.SUM:
+        caffe_op = BaseTranslate(layer, "ReduceBackSum")
+    elif param.operation == caffe_pb2.ReductionParameter.MEAN:
+        caffe_op = BaseTranslate(layer, "ReduceBackMean")
+    else:
+        raise NotImplementedError("Not yet supported")
+
+    if param.axis > 0:
+        # We can't figure out the number of dims to reduce from positive axis
+        # for back reduction since the shape info is not known here.
+        raise NotImplementedError("Not yet supported")
+    num_reduce_dim = -param.axis
+    AddArgument(caffe_op, "num_reduce_dim", num_reduce_dim)
+
+    return caffe_op, []
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description="Utilitity to convert pretrained caffe models to Caffe2 models.")
+    parser.add_argument("prototext", help="Caffe prototext.")
+    parser.add_argument("caffemodel", help="Caffe trained model.")
+    parser.add_argument("--init_net", help="Caffe2 initialization net.", default="init_net.pb")
+    parser.add_argument("--predict_net", help="Caffe2 prediction net.", default="predict_net.pb")
+    args = parser.parse_args()
+
+    caffenet = caffe_pb2.NetParameter()
+    caffenet_pretrained = caffe_pb2.NetParameter()
+    input_proto = args.prototext
+    input_caffemodel = args.caffemodel
+    output_init_net = args.init_net
+    output_predict_net = args.predict_net
+
+    text_format.Merge(
+        open(input_proto, 'r').read(), caffenet
+    )
+    caffenet_pretrained.ParseFromString(
+        open(input_caffemodel, 'rb').read()
+    )
+    net, pretrained_params = TranslateModel(
+        caffenet, caffenet_pretrained, is_test=True
+    )
+
+    # Assume there is one input and one output
+    external_input = net.op[0].input[0]
+    external_output = net.op[-1].output[0]
+
+    net.external_input.extend([external_input])
+    net.external_input.extend([param.name for param in pretrained_params.protos])
+    net.external_output.extend([external_output])
+    init_net = ConvertTensorProtosToInitNet(pretrained_params, external_input)
+
+    for param in pretrained_params.protos:
+        workspace.FeedBlob(param.name, utils.Caffe2TensorToNumpyArray(param))
+    with open(output_predict_net, 'wb') as f:
+        f.write(net.SerializeToString())
+    with open(output_init_net, 'wb') as f:
+        f.write(init_net.SerializeToString())

@@ -29,25 +29,25 @@ class NCCLContext {
       DeviceGuard g(devices_[i]);
       // get stream priorities
       int lo_pri, hi_pri;
-      CUDA_CHECK(cudaDeviceGetStreamPriorityRange(&lo_pri, &hi_pri));
-      CUDA_CHECK(cudaStreamCreateWithPriority(
+      CUDA_ENFORCE(cudaDeviceGetStreamPriorityRange(&lo_pri, &hi_pri));
+      CUDA_ENFORCE(cudaStreamCreateWithPriority(
           &streams_[i], cudaStreamNonBlocking, hi_pri));
-      CUDA_CHECK(cudaEventCreateWithFlags(
+      CUDA_ENFORCE(cudaEventCreateWithFlags(
           &events_[i], cudaEventDefault | cudaEventDisableTiming));
     }
     DeviceGuard g(master_gpu_id_);
-    CUDA_CHECK(cudaEventCreateWithFlags(
+    CUDA_ENFORCE(cudaEventCreateWithFlags(
         &master_event_, cudaEventDefault | cudaEventDisableTiming));
   }
 
   ~NCCLContext() {
     for (auto i = 0; i < devices_.size(); ++i) {
       DeviceGuard g(devices_[i]);
-      CUDA_CHECK(cudaStreamDestroy(streams_[i]));
-      CUDA_CHECK(cudaEventDestroy(events_[i]));
+      CUDA_ENFORCE(cudaStreamDestroy(streams_[i]));
+      CUDA_ENFORCE(cudaEventDestroy(events_[i]));
     }
     DeviceGuard g(master_gpu_id_);
-    CUDA_CHECK(cudaEventDestroy(master_event_));
+    CUDA_ENFORCE(cudaEventDestroy(master_event_));
     for (auto& comm : comms_) {
       ncclCommDestroy(comm);
     }
@@ -103,7 +103,7 @@ class ncclTypeWrapper<float> {
   static const ncclDataType_t type = ncclFloat;
 };
 
-#ifdef CUDA_HAS_HALF
+#ifdef CAFFE_HAS_CUDA_FP16
 template <>
 class ncclTypeWrapper<float16> {
  public:
@@ -123,28 +123,50 @@ void runNCCL(const NCCLExecution& ex, F&& f) {
   // the original stream.
   {
     DeviceGuard g(ex.stream_gpu_id);
-    CUDA_CHECK(cudaEventRecord(context->master_event_, ex.stream));
+    CUDA_ENFORCE(cudaEventRecord(context->master_event_, ex.stream));
   }
 
-  for (auto i = 0; i < ex.elements.size(); ++i) {
-    auto& ctx = ex.elements[i];
-    DeviceGuard g(ctx.device);
-    auto& comm = comms[i];
-    auto& stream = streams[i];
-    auto& event = events[i];
+  {
+    // lock out alloc / free while NCCL launches
+    std::lock_guard<std::mutex> lock(CUDAContext::mutex());
 
-    DCHECK_EQ(ctx.device, GetGPUIDForPointer(ctx.src->raw_data()));
-    CUDA_CHECK(cudaStreamWaitEvent(stream, context->master_event_, 0));
-    f(ctx, comm, stream);
-    // Record an event on each children stream that we have finished
-    // our computation
-    CUDA_CHECK(cudaEventRecord(event, stream));
+#if NCCL_VERSION_MIN(2, 0, 0)
+    ncclGroupStart();
+#endif
+
+    for (auto i = 0; i < ex.elements.size(); ++i) {
+      auto& ctx = ex.elements[i];
+      DeviceGuard g(ctx.device);
+      auto& comm = comms[i];
+      auto& stream = streams[i];
+      auto& event = events[i];
+
+      DCHECK_EQ(ctx.device, GetGPUIDForPointer(ctx.src->raw_data()));
+      CUDA_ENFORCE(cudaStreamWaitEvent(stream, context->master_event_, 0));
+      f(ctx, comm, stream);
+    }
+
+#if NCCL_VERSION_MIN(2, 0, 0)
+    ncclGroupEnd();
+#endif
+
+    for (auto i = 0; i < ex.elements.size(); ++i) {
+      auto& ctx = ex.elements[i];
+      DeviceGuard g(ctx.device);
+      auto& comm = comms[i];
+      auto& stream = streams[i];
+      auto& event = events[i];
+
+      // Record an event on each children stream that we have finished
+      // our computation
+      CUDA_ENFORCE(cudaEventRecord(event, stream));
+    }
   }
 
   // Now, wait on all the events in the original stream.
   DeviceGuard dg(ex.stream_gpu_id);
   for (auto& event : events) {
-    CUDA_CHECK(cudaStreamWaitEvent(CHECK_NOTNULL(ex.stream), event, 0));
+    CUDA_ENFORCE(cudaStreamWaitEvent(CHECK_NOTNULL(ex.stream), event, 0));
   }
 }
 
@@ -217,6 +239,15 @@ void NCCL<T>::AllGather(const NCCLExecution& ex) {
         }
         ctx.dst->Resize(dims);
         ctx.dst->template mutable_data<T>();
+#if NCCL_VERSION_MIN(2, 0, 0)
+        CAFFE_NCCL_CHECK(ncclAllGather(
+            ctx.src->raw_data(),
+            ctx.dst->raw_mutable_data(),
+            ctx.src->size(),
+            ncclTypeWrapper<T>::type,
+            comm,
+            stream));
+#else
         CAFFE_NCCL_CHECK(ncclAllGather(
             ctx.src->raw_data(),
             ctx.src->size(),
@@ -224,12 +255,13 @@ void NCCL<T>::AllGather(const NCCLExecution& ex) {
             ctx.dst->raw_mutable_data(),
             comm,
             stream));
+#endif
       });
 }
 
 // Explicit instantiation
 template class NCCL<float>;
-#ifdef CUDA_HAS_HALF
+#ifdef CAFFE_HAS_CUDA_FP16
 template class NCCL<float16>;
 #endif
 }

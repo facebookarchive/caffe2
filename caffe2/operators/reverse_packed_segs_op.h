@@ -56,9 +56,15 @@ class ReversePackedSegsOp final : public Operator<Context> {
 
     const T* data_ptr = data.template data<T>();
     const LengthType* lengths_ptr = lengths.template data<LengthType>();
+
+    vector<LengthType> lengths_host(batch_size);
+    context_.template Copy<LengthType, Context, CPUContext>(
+        batch_size, lengths_ptr, &lengths_host[0]);
+    context_.FinishDeviceComputation();
+
     T* rev_data_ptr = output->template mutable_data<T>();
     for (TIndex i = 0; i < batch_size; i++) {
-      const auto& seg_length = lengths_ptr[i];
+      const auto& seg_length = lengths_host[i];
       CAFFE_ENFORCE_LE(seg_length, max_length);
       TIndex j = 0;
       for (; j < seg_length; j++) {

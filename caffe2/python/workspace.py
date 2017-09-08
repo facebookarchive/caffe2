@@ -1,13 +1,21 @@
+## @package workspace
+# Module caffe2.python.workspace
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 import contextlib
 from google.protobuf.message import Message
 from multiprocessing import Process
 import os
+from collections import defaultdict
+import logging
+import numpy as np
+from past.builtins import basestring
 import shutil
 import socket
 import tempfile
-import logging
 
-import numpy as np
 from caffe2.proto import caffe2_pb2
 from caffe2.python import scope, utils
 
@@ -27,6 +35,9 @@ SwitchWorkspace = C.switch_workspace
 RootFolder = C.root_folder
 Workspaces = C.workspaces
 BenchmarkNet = C.benchmark_net
+Predictor = C.Predictor
+
+operator_tracebacks = defaultdict(dict)
 
 is_asan = C.is_asan
 has_gpu_support = C.has_gpu_support
@@ -34,19 +45,16 @@ if has_gpu_support:
     NumCudaDevices = C.num_cuda_devices
     SetDefaultGPUID = C.set_default_gpu_id
     GetDefaultGPUID = C.get_default_gpu_id
+    GetCuDNNVersion = C.get_cudnn_version
 
     def GetCudaPeerAccessPattern():
         return np.asarray(C.get_cuda_peer_access_pattern())
 else:
-    def NumCudaDevices():
-        return 0
-
-# Python 2 and 3 compatibility: test if basestring exists
-try:
-    basestring  # NOQA
-except NameError:
-    # This is python3 so we define basestring.
-    basestring = str
+    NumCudaDevices = lambda: 0 # noqa
+    SetDefaultGPUID = lambda x: None # noqa
+    GetDefaultGPUID = lambda: 0 # noqa
+    GetCuDNNVersion = lambda: 0 # noqa
+    GetCudaPeerAccessPattern = lambda: np.array([]) # noqa
 
 
 def _GetFreeFlaskPort():
@@ -92,8 +100,8 @@ def StartMint(root_folder=None, port=None):
     return process
 
 
-def StringfyProto(obj):
-    """Stringfy a protocol buffer object.
+def StringifyProto(obj):
+    """Stringify a protocol buffer object.
 
   Inputs:
     obj: a protocol buffer object, or a Pycaffe2 object that has a Proto()
@@ -103,7 +111,7 @@ def StringfyProto(obj):
   Raises:
     AttributeError: if the passed in object does not have the right attribute.
   """
-    if type(obj) is str:
+    if isinstance(obj, basestring):
         return obj
     else:
         if isinstance(obj, Message):
@@ -113,7 +121,7 @@ def StringfyProto(obj):
         elif hasattr(obj, 'Proto'):
             return obj.Proto().SerializeToString()
         else:
-            raise ValueError("Unexpected argument to StringfyProto of type " +
+            raise ValueError("Unexpected argument to StringifyProto of type " +
                              type(obj).__name__)
 
 
@@ -127,16 +135,22 @@ def ResetWorkspace(root_folder=None):
         return C.reset_workspace(root_folder)
 
 
-def CreateNet(net, input_blobs=None):
+def CreateNet(net, overwrite=False, input_blobs=None):
     if input_blobs is None:
         input_blobs = []
     for input_blob in input_blobs:
         C.create_blob(input_blob)
-    return C.create_net(StringfyProto(net))
+    return CallWithExceptionIntercept(
+        C.create_net,
+        C.Workspace.current._last_failed_op_net_position,
+        GetNetName(net),
+        StringifyProto(net), overwrite,
+    )
+
 
 
 def RunOperatorOnce(operator):
-    return C.run_operator_once(StringfyProto(operator))
+    return C.run_operator_once(StringifyProto(operator))
 
 
 def RunOperatorsOnce(operators):
@@ -147,19 +161,45 @@ def RunOperatorsOnce(operators):
     return True
 
 
+def CallWithExceptionIntercept(func, op_id_fetcher, net_name, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except Exception:
+        op_id = op_id_fetcher()
+        net_tracebacks = operator_tracebacks.get(net_name, None)
+        print("Traceback for operator {} in network {}".format(op_id, net_name))
+        if net_tracebacks and op_id in net_tracebacks:
+            tb = net_tracebacks[op_id]
+            for line in tb:
+                print(':'.join(map(str, line)))
+        raise
+
+
 def RunNetOnce(net):
-    return C.run_net_once(StringfyProto(net))
+    return CallWithExceptionIntercept(
+        C.run_net_once,
+        C.Workspace.current._last_failed_op_net_position,
+        GetNetName(net),
+        StringifyProto(net),
+    )
 
 
-def RunNet(name):
+def RunNet(name, num_iter=1, allow_fail=False):
     """Runs a given net.
 
     Inputs:
       name: the name of the net, or a reference to the net.
+      num_iter: number of iterations to run
+      allow_fail: if True, does not assert on net exec failure but returns False
     Returns:
       True or an exception.
     """
-    return C.run_net(StringifyNetName(name))
+    return CallWithExceptionIntercept(
+        C.run_net,
+        C.Workspace.current._last_failed_op_net_position,
+        GetNetName(name),
+        StringifyNetName(name), num_iter, allow_fail,
+    )
 
 
 def RunPlan(plan_or_step):
@@ -167,7 +207,36 @@ def RunPlan(plan_or_step):
     import caffe2.python.core as core
     if isinstance(plan_or_step, core.ExecutionStep):
         plan_or_step = core.Plan(plan_or_step)
-    return C.run_plan(StringfyProto(plan_or_step))
+    return C.run_plan(StringifyProto(plan_or_step))
+
+
+def InferShapesAndTypes(nets, blob_dimensions=None):
+    """Infers the shapes and types for the specified nets.
+
+    Inputs:
+      nets: the list of nets
+      blob_dimensions (optional): a dictionary of blobs and their dimensions.
+          If not specified, the workspace blobs are used.
+    Returns:
+      A tuple of (shapes, types) dictionaries keyed by blob name.
+    """
+    net_protos = [StringifyProto(n.Proto()) for n in nets]
+    if blob_dimensions is None:
+        blobdesc_prototxt = C.infer_shapes_and_types_from_workspace(net_protos)
+    else:
+        blobdesc_prototxt = C.infer_shapes_and_types_from_map(
+            net_protos, blob_dimensions
+        )
+    blobdesc_proto = caffe2_pb2.TensorShapes()
+    blobdesc_proto.ParseFromString(blobdesc_prototxt)
+    shapes = {}
+    types = {}
+    for ts in blobdesc_proto.shapes:
+        if not ts.unknown_shape:
+            shapes[ts.name] = list(ts.dims)
+            types[ts.name] = ts.data_type
+
+    return (shapes, types)
 
 
 def _StringifyName(name, expected_type):
@@ -186,6 +255,16 @@ def StringifyNetName(name):
     return _StringifyName(name, "Net")
 
 
+def GetNetName(net):
+    if isinstance(net, basestring):
+        return net
+    if type(net).__name__ == "Net":
+        return net.Name()
+    if isinstance(net, caffe2_pb2.NetDef):
+        return net.name
+    raise Exception("Not a Net object: {}".format(str(net)))
+
+
 def FeedBlob(name, arr, device_option=None):
     """Feeds a blob into the workspace.
 
@@ -199,7 +278,7 @@ def FeedBlob(name, arr, device_option=None):
     """
     if type(arr) is caffe2_pb2.TensorProto:
         arr = utils.Caffe2TensorToNumpyArray(arr)
-    if type(arr) is np.ndarray and arr.dtype.kind == 'S':
+    if type(arr) is np.ndarray and arr.dtype.kind in 'SU':
         # Plain NumPy strings are weird, let's use objects instead
         arr = arr.astype(np.object)
 
@@ -217,7 +296,7 @@ def FeedBlob(name, arr, device_option=None):
 
     name = StringifyBlobName(name)
     if device_option is not None:
-        return C.feed_blob(name, arr, StringfyProto(device_option))
+        return C.feed_blob(name, arr, StringifyProto(device_option))
     else:
         return C.feed_blob(name, arr)
 
@@ -242,6 +321,68 @@ def FetchBlob(name):
       Fetched blob (numpy array or string) if successful
     """
     return C.fetch_blob(StringifyBlobName(name))
+
+
+def ApplyTransform(transform_key, net):
+    """Apply a Transform to a NetDef protobuf object, and returns the new
+    transformed NetDef.
+
+    Inputs:
+      transform_key: the name of the transform, as it is stored in the registry
+      net: a NetDef protobuf object
+    Returns:
+      Transformed NetDef protobuf object.
+    """
+    transformed_net = caffe2_pb2.NetDef()
+    transformed_str = C.apply_transform(
+        str(transform_key).encode('utf-8'),
+        net.SerializeToString(),
+    )
+    transformed_net.ParseFromString(transformed_str)
+    return transformed_net
+
+
+def ApplyTransformIfFaster(transform_key, net, init_net, **kwargs):
+    """Apply a Transform to a NetDef protobuf object, and returns the new
+    transformed NetDef, only if it runs faster than the original.
+
+    The runs are performed on the current active workspace (gWorkspace).
+    You should initialize that workspace before making a call to this function.
+
+    Inputs:
+      transform_key: the name of the transform, as it is stored in the registry
+      net: a NetDef protobuf object
+      init_net: The net to initialize the workspace.
+      warmup_runs (optional):
+        Determines how many times the net is run before testing.
+        Will be 5 by default.
+      main_runs (optional):
+        Determines how many times the net is run during testing.
+        Will be 10 by default.
+      improvement_threshold (optional):
+        Determines the factor which the new net needs to be faster
+        in order to replace the old. Will be 1.01 by default.
+
+    Returns:
+      Either a Transformed NetDef protobuf object, or the original netdef.
+    """
+
+    warmup_runs = kwargs['warmup_runs'] if 'warmup_runs' in kwargs else 5
+    main_runs = kwargs['main_runs'] if 'main_runs' in kwargs else 10
+    improvement_threshold = kwargs['improvement_threshold'] \
+        if 'improvement_threshold' in kwargs else 1.01
+
+    transformed_net = caffe2_pb2.NetDef()
+    transformed_str = C.apply_transform_if_faster(
+        str(transform_key).encode('utf-8'),
+        net.SerializeToString(),
+        init_net.SerializeToString(),
+        warmup_runs,
+        main_runs,
+        float(improvement_threshold),
+    )
+    transformed_net.ParseFromString(transformed_str)
+    return transformed_net
 
 
 def GetNameScope():
@@ -269,52 +410,6 @@ class _BlobDict(object):
 
 
 blobs = _BlobDict()
-
-
-class Model(object):
-    def __init__(self, net, parameters, inputs, outputs, device_option=None):
-        """Initializes a model.
-
-        Inputs:
-          net: a Caffe2 NetDef protocol buffer.
-          parameters: a TensorProtos object containing the parameters to feed
-              into the network.
-          inputs: a list of strings specifying the input blob names.
-          outputs: a list of strings specifying the output blob names.
-          device_option (optional): the device option used to run the model. If
-              not given, we will use the net's device option.
-        """
-        self._name = net.name
-        self._inputs = inputs
-        self._outputs = outputs
-        if device_option:
-            self._device_option = device_option.SerializeToString()
-        else:
-            self._device_option = net.device_option.SerializeToString()
-        # For a caffe2 net, before we create it, it needs to have all the
-        # parameter blobs ready. The construction is in two steps: feed in all
-        # the parameters first, and then create the network object.
-        for param in parameters.protos:
-            print('Feeding parameter {}'.format(param.name))
-            FeedBlob(param.name, param, net.device_option)
-        if not CreateNet(net, inputs):
-            raise RuntimeError("Error when creating the model.")
-
-    def Run(self, input_arrs):
-        """Runs the model with the given input.
-
-        Inputs:
-          input_arrs: an iterable of input arrays.
-        Outputs:
-          output_arrs: a list of output arrays.
-        """
-        if len(input_arrs) != len(self._inputs):
-            raise RuntimeError("Incorrect number of inputs.")
-        for i, input_arr in enumerate(input_arrs):
-            FeedBlob(self._inputs[i], input_arr, self._device_option)
-        if not RunNet(self._name):
-            raise RuntimeError("Error in running the network.")
-        return [FetchBlob(s) for s in self._outputs]
 
 
 ################################################################################
@@ -440,9 +535,16 @@ def FeedImmediate(*args, **kwargs):
 
 # CWorkspace utilities
 
-def _Workspace_create_net(ws, net):
-    return ws._create_net(StringfyProto(net))
-C.Workspace.create_net = _Workspace_create_net
+def _Workspace_create_net_with_exception_intercept(ws, net, overwrite=False):
+    return CallWithExceptionIntercept(
+        ws._create_net,
+        ws._last_failed_op_net_position,
+        GetNetName(net),
+        StringifyProto(net), overwrite,
+    )
+
+
+C.Workspace.create_net = _Workspace_create_net_with_exception_intercept
 
 
 def _Workspace_run(ws, obj):
@@ -451,18 +553,26 @@ def _Workspace_run(ws, obj):
     if isinstance(obj, caffe2_pb2.PlanDef):
         return ws._run_plan(obj.SerializeToString())
     if isinstance(obj, caffe2_pb2.NetDef):
-        return ws._run_net(obj.SerializeToString())
+        return CallWithExceptionIntercept(
+            ws._run_net,
+            ws._last_failed_op_net_position,
+            GetNetName(obj),
+            obj.SerializeToString(),
+        )
+        # return ws._run_net(obj.SerializeToString())
     if isinstance(obj, caffe2_pb2.OperatorDef):
         return ws._run_operator(obj.SerializeToString())
     raise ValueError(
         "Don't know how to do Workspace.run() on {}".format(type(obj)))
+
 
 C.Workspace.run = _Workspace_run
 
 
 def _Blob_feed(blob, arg, device_option=None):
     if device_option is not None:
-        device_option = StringfyProto(device_option)
+        device_option = StringifyProto(device_option)
     return blob._feed(arg, device_option)
+
 
 C.Blob.feed = _Blob_feed

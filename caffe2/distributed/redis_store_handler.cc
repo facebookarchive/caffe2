@@ -42,7 +42,13 @@ void RedisStoreHandler::set(const std::string& name, const std::string& data) {
   CAFFE_ENFORCE_NE(ptr, (void*)nullptr, redis_->errstr);
   redisReply* reply = static_cast<redisReply*>(ptr);
   CAFFE_ENFORCE_EQ(reply->type, REDIS_REPLY_INTEGER);
-  CAFFE_ENFORCE_EQ(reply->integer, 1, "Value at ", name, " was already set");
+  CAFFE_ENFORCE_EQ(
+      reply->integer,
+      1,
+      "Value at ",
+      name,
+      " was already set",
+      " (perhaps you reused a run ID you have used before?)");
 }
 
 std::string RedisStoreHandler::get(const std::string& name) {
@@ -89,12 +95,20 @@ bool RedisStoreHandler::check(const std::vector<std::string>& names) {
   return reply->integer == names.size();
 }
 
-void RedisStoreHandler::wait(const std::vector<std::string>& names) {
+void RedisStoreHandler::wait(
+    const std::vector<std::string>& names,
+    const std::chrono::milliseconds& timeout) {
   // Simple approach: poll...
   // Complex approach: use pub/sub.
   // Polling is fine for the typical rendezvous use case, as it is
   // only done at initialization time and  not at run time.
+  const auto start = std::chrono::steady_clock::now();
   while (!check(names)) {
+    const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(
+        std::chrono::steady_clock::now() - start);
+    if (timeout != kNoTimeout && elapsed > timeout) {
+      STORE_HANDLER_TIMEOUT("Wait timeout for name(s): ", Join(" ", names));
+    }
     /* sleep override */
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }

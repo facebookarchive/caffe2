@@ -1,7 +1,7 @@
 #include <algorithm>
 
 #include "caffe2/core/logging.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace caffe2 {
 
@@ -16,7 +16,7 @@ TEST(LoggingTest, TestEnforceFalse) {
   try {
     CAFFE_ENFORCE(false, "This throws.");
     // This should never be triggered.
-    EXPECT_FALSE(true);
+    ADD_FAILURE();
   } catch (const EnforceNotMet& err) {
   }
   std::swap(FLAGS_caffe2_use_fatal_for_enforce, kFalse);
@@ -28,7 +28,7 @@ TEST(LoggingTest, TestEnforceEquals) {
   try {
     CAFFE_ENFORCE_THAT(Equals(++x, ++y));
     // This should never be triggered.
-    EXPECT_FALSE(true);
+    ADD_FAILURE();
   } catch (const EnforceNotMet& err) {
     EXPECT_NE(err.msg().find("5 vs 6"), string::npos);
   }
@@ -62,6 +62,15 @@ TEST(LoggingTest, EnforceShowcase) {
       one * two + three, three * two, "It's a pretty complicated expression"));
 
   WRAP_AND_PRINT(CAFFE_ENFORCE_THAT(Equals(one * two + three, three * two)));
+}
+
+TEST(LoggingTest, Join) {
+  auto s = Join(", ", vector<int>({1, 2, 3}));
+  EXPECT_EQ(s, "1, 2, 3");
+  s = Join(":", vector<string>());
+  EXPECT_EQ(s, "");
+  s = Join(", ", set<int>({3, 1, 2}));
+  EXPECT_EQ(s, "1, 2, 3");
 }
 
 #if GTEST_HAS_DEATH_TEST

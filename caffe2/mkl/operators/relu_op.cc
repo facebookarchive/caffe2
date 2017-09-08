@@ -1,5 +1,5 @@
 #include "caffe2/operators/relu_op.h"
-#include "caffe2/utils/mkl_utils.h"
+#include "caffe2/mkl/mkl_utils.h"
 
 #include "caffe2/utils/math.h"
 
@@ -16,21 +16,31 @@ class MKLReluOp : public MKLOperator<T> {
   bool RunOnDevice() override {
     auto& X = Input(0);
     auto* Y = Output(0);
-    if (input_size_cache_.size() != 1 || input_size_cache_[0] != X.dims()) {
+
+    bool dims_changed;
+    CHECK_INPUT_DIMS(X, dims_changed);
+    if (dims_changed) {
       // First run or changed input size, will need to recreate environment
       primitive_.Reset(dnnReLUCreateForward<T>, nullptr, X.layout(), 0.f);
-      Y->Reset(X.dims(), primitive_, dnnResourceDst);
+      if (&X != Y) {
+        Y->Reset(X.dims(), primitive_, dnnResourceDst);
+      }
       buffer_.Reset(X.dims(), primitive_, dnnResourceDst, true);
     }
-    // Try to share from the output: this will save a copy if the output is
-    // already allocated and is having the same layout as the buffer has.
+    // Try to share from the output: this allows us to avoid unnecessary copy
+    // operations, if the output is already allocated and is having the same
+    // layout as the buffer has.
     buffer_.ShareFrom(*Y);
+    CAFFE_ENFORCE(dnnLayoutCompare_F32(X.layout(), buffer_.layout()));
     resources_[dnnResourceSrc] = X.buffer();
     resources_[dnnResourceDst] = buffer_.buffer();
     ExecutePrimitive();
     buffer_.CopyTo(Y, primitive_, dnnResourceDst);
     return true;
   }
+
+ private:
+  vector<TIndex> cached_input_dims_;
 };
 
 template <typename T>

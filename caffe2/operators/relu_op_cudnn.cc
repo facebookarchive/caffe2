@@ -5,7 +5,6 @@
 
 namespace caffe2 {
 
-template <typename T>
 class CuDNNReluOp final : public Operator<CUDAContext> {
  public:
   CuDNNReluOp(const OperatorDef& operator_def, Workspace* ws)
@@ -13,21 +12,21 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
         cudnn_wrapper_(&context_),
         order_(StringToStorageOrder(
             OperatorBase::GetSingleArgument<string>("order", "NCHW"))) {
-    CUDNN_CHECK(cudnnCreateTensorDescriptor(&data_desc_));
-    CUDNN_CHECK(cudnnCreateActivationDescriptor(&activ_desc_));
-    CUDNN_CHECK(cudnnSetActivationDescriptor(
+    CUDNN_ENFORCE(cudnnCreateTensorDescriptor(&data_desc_));
+    CUDNN_ENFORCE(cudnnCreateActivationDescriptor(&activ_desc_));
+    CUDNN_ENFORCE(cudnnSetActivationDescriptor(
         activ_desc_, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
   }
 
   ~CuDNNReluOp() {
-    CUDNN_CHECK(cudnnDestroyTensorDescriptor(data_desc_));
-    CUDNN_CHECK(cudnnDestroyActivationDescriptor(activ_desc_));
+    CUDNN_ENFORCE(cudnnDestroyTensorDescriptor(data_desc_));
+    CUDNN_ENFORCE(cudnnDestroyActivationDescriptor(activ_desc_));
   }
 
-  bool RunOnDevice() override {
+  template <typename T, typename M>
+  bool DoRunWithType() {
     const auto& X = Input(0);
     auto* Y = Output(0);
-    Y->ResizeLike(X);
     // See if we need to reshape.
     if (X.dims() != cudnn_input_dims_) {
       VLOG(1) << "Setting descriptors.";
@@ -43,14 +42,40 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
         // and wrap everything into C.
         C = X.size() / X.dim32(0);
       }
-      CUDNN_CHECK(cudnnSetTensor4dDescriptor(
-          data_desc_, GetCudnnTensorFormat(order_),
-          cudnnTypeWrapper<T>::type, X.dim32(0), C, H, W));
+      CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
+          data_desc_,
+          GetCudnnTensorFormat(order_),
+          cudnnTypeWrapper<T>::type,
+          X.dim32(0),
+          C,
+          H,
+          W));
     }
-    CUDNN_CHECK(cudnnActivationForward(cudnn_wrapper_.inline_cudnn_handle(),
-        activ_desc_, cudnnTypeWrapper<T>::kOne(), data_desc_,
-        X.template data<T>(), cudnnTypeWrapper<T>::kZero(),
-        data_desc_, Y->template mutable_data<T>()));
+    CUDNN_ENFORCE(cudnnActivationForward(
+        cudnn_wrapper_.inline_cudnn_handle(),
+        activ_desc_,
+        cudnnTypeWrapper<T>::kOne(),
+        data_desc_,
+        X.template data<T>(),
+        cudnnTypeWrapper<T>::kZero(),
+        data_desc_,
+        Y->template mutable_data<T>()));
+    return true;
+  }
+
+  bool RunOnDevice() override {
+    // dispatch based on contents of tensor(s)
+    const auto& X = Input(0);
+    auto* Y = Output(0);
+    Y->ResizeLike(X);
+
+    if (X.IsType<float>()) {
+      return DoRunWithType<float,float>();
+    } else if (X.IsType<float16>()) {
+      return DoRunWithType<float16,float>();
+    } else {
+      LOG(FATAL) << "Unsupported input types";
+    }
     return true;
   }
 
@@ -69,7 +94,6 @@ class CuDNNReluOp final : public Operator<CUDAContext> {
 // data, or it treats input=0 the same way as input<0. This is of course not
 // very safe, but we have been running in this way in Caffe for a while so it
 // *might* be safe to assume so.
-template <typename T>
 class CuDNNReluGradientOp final : public Operator<CUDAContext> {
  public:
   CuDNNReluGradientOp(const OperatorDef& operator_def, Workspace* ws)
@@ -77,22 +101,22 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
         cudnn_wrapper_(&context_),
         order_(StringToStorageOrder(
             OperatorBase::GetSingleArgument<string>("order", "NCHW"))) {
-    CUDNN_CHECK(cudnnCreateTensorDescriptor(&data_desc_));
-    CUDNN_CHECK(cudnnCreateActivationDescriptor(&activ_desc_));
-    CUDNN_CHECK(cudnnSetActivationDescriptor(
+    CUDNN_ENFORCE(cudnnCreateTensorDescriptor(&data_desc_));
+    CUDNN_ENFORCE(cudnnCreateActivationDescriptor(&activ_desc_));
+    CUDNN_ENFORCE(cudnnSetActivationDescriptor(
         activ_desc_, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
   }
 
   ~CuDNNReluGradientOp() {
-    CUDNN_CHECK(cudnnDestroyTensorDescriptor(data_desc_));
-    CUDNN_CHECK(cudnnDestroyActivationDescriptor(activ_desc_));
+    CUDNN_ENFORCE(cudnnDestroyTensorDescriptor(data_desc_));
+    CUDNN_ENFORCE(cudnnDestroyActivationDescriptor(activ_desc_));
   }
 
-  bool RunOnDevice() override {
+  template <typename T, typename M>
+  bool DoRunWithType() {
     const auto& Y = Input(0);
     const auto& dY = Input(1);
     auto* dX = Output(0);
-    dX->ResizeLike(Y);
     // See if we need to reshape.
     if (Y.dims() != cudnn_input_dims_) {
       VLOG(1) << "Setting descriptors.";
@@ -108,16 +132,49 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
         // and wrap everything into C.
         C = Y.size() / Y.dim32(0);
       }
-      CUDNN_CHECK(cudnnSetTensor4dDescriptor(
-          data_desc_, GetCudnnTensorFormat(order_),
-          cudnnTypeWrapper<T>::type, Y.dim32(0), C, H, W));
+      CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
+          data_desc_,
+          GetCudnnTensorFormat(order_),
+          cudnnTypeWrapper<T>::type,
+          Y.dim32(0),
+          C,
+          H,
+          W));
     }
-    const typename cudnnTypeWrapper<T>::ScalingParamType kOne = 1;
-    const typename cudnnTypeWrapper<T>::ScalingParamType kZero = 0;
-    CUDNN_CHECK(cudnnActivationBackward(cudnn_wrapper_.inline_cudnn_handle(),
-        activ_desc_, &kOne, data_desc_, Y.template data<T>(),
-        data_desc_, dY.template data<T>(), data_desc_, Y.template data<T>(),
-        &kZero, data_desc_, dX->template mutable_data<T>()));
+    CUDNN_ENFORCE(cudnnActivationBackward(
+        cudnn_wrapper_.inline_cudnn_handle(),
+        activ_desc_,
+        cudnnTypeWrapper<T>::kOne(),
+        data_desc_,
+        Y.template data<T>(),
+        data_desc_,
+        dY.template data<T>(),
+        data_desc_,
+        // Note: strictly speaking, we should be using the input data in this
+        // case, but for the ReLU case we rely on the underlying implementation
+        // that only the output is needed to calculate the Relu gradient. This
+        // will enable us to do memory optimization for in-place relu. To
+        // ensure this is correct, a unit test is provided at
+        // caffe2/python/operator_test/relu_op_test.py
+        Y.template data<T>(),
+        cudnnTypeWrapper<T>::kZero(),
+        data_desc_,
+        dX->template mutable_data<T>()));
+    return true;
+  }
+
+  bool RunOnDevice() override {
+    const auto& Y = Input(0);
+    auto* dX = Output(0);
+    dX->ResizeLike(Y);
+
+    if (Y.IsType<float>()) {
+      return DoRunWithType<float,float>();
+    } else if (Y.IsType<float16>()) {
+      return DoRunWithType<float16,float>();
+    } else {
+      LOG(FATAL) << "Unsupported input types";
+    }
     return true;
   }
 
@@ -131,9 +188,7 @@ class CuDNNReluGradientOp final : public Operator<CUDAContext> {
 };
 
 namespace {
-REGISTER_CUDNN_OPERATOR(Relu, CuDNNReluOp<float>);
-REGISTER_CUDNN_OPERATOR(ReluGradient, CuDNNReluGradientOp<float>);
-REGISTER_CUDNN_OPERATOR(ReluFp16, CuDNNReluOp<float16>);
-REGISTER_CUDNN_OPERATOR(ReluFp16Gradient, CuDNNReluGradientOp<float16>);
+REGISTER_CUDNN_OPERATOR(Relu, CuDNNReluOp);
+REGISTER_CUDNN_OPERATOR(ReluGradient, CuDNNReluGradientOp);
 }  // namespace
 }  // namespace caffe2

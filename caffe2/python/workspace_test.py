@@ -1,14 +1,18 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import numpy as np
 import os
 import unittest
 
 from caffe2.proto import caffe2_pb2
-from caffe2.python import core, test_util, workspace
+from caffe2.python import core, test_util, workspace, model_helper, brew
 
 import caffe2.python.hypothesis_test_util as htu
 import hypothesis.strategies as st
 from hypothesis import given
-from caffe2.proto import caffe2_pb2
 
 
 class TestWorkspace(unittest.TestCase):
@@ -96,9 +100,9 @@ class TestWorkspace(unittest.TestCase):
             tensor.init([3, 4], core.DataType.STRING)
 
         """ feed (copy) data into tensor """
-        val = np.array([['abc', 'def'], ['ghi', 'jkl']], dtype=np.object)
+        val = np.array([[b'abc', b'def'], [b'ghi', b'jkl']], dtype=np.object)
         tensor.feed(val)
-        self.assertEquals(tensor.data[0, 0], 'abc')
+        self.assertEquals(tensor.data[0, 0], b'abc')
         np.testing.assert_array_equal(ws.blobs["tensor"].fetch(), val)
 
         val = np.array([1.1, 10.2])
@@ -176,10 +180,10 @@ class TestWorkspace(unittest.TestCase):
     def testFetchFeedLongStringTensor(self):
         # long strings trigger array of object creation
         strs = np.array([
-            ' '.join(10 * ['long string']),
-            ' '.join(128 * ['very long string']),
-            'small \0\1\2 string',
-            "Hello, world! I have special \0 symbols \1!"])
+            b' '.join(10 * [b'long string']),
+            b' '.join(128 * [b'very long string']),
+            b'small \0\1\2 string',
+            b"Hello, world! I have special \0 symbols \1!"])
         workspace.FeedBlob('my_str_tensor', strs)
         strs2 = workspace.FetchBlob('my_str_tensor')
         self.assertEqual(strs.shape, strs2.shape)
@@ -188,7 +192,7 @@ class TestWorkspace(unittest.TestCase):
 
     def testFetchFeedShortStringTensor(self):
         # small strings trigger NPY_STRING array
-        strs = np.array(['elem1', 'elem 2', 'element 3'])
+        strs = np.array([b'elem1', b'elem 2', b'element 3'])
         workspace.FeedBlob('my_str_tensor_2', strs)
         strs2 = workspace.FetchBlob('my_str_tensor_2')
         self.assertEqual(strs.shape, strs2.shape)
@@ -197,14 +201,14 @@ class TestWorkspace(unittest.TestCase):
 
     def testFetchFeedPlainString(self):
         # this is actual string, not a tensor of strings
-        s = "Hello, world! I have special \0 symbols \1!"
+        s = b"Hello, world! I have special \0 symbols \1!"
         workspace.FeedBlob('my_plain_string', s)
         s2 = workspace.FetchBlob('my_plain_string')
         self.assertEqual(s, s2)
 
     def testFetchBlobs(self):
-        s1 = "test1"
-        s2 = "test2"
+        s1 = b"test1"
+        s2 = b"test2"
         workspace.FeedBlob('s1', s1)
         workspace.FeedBlob('s2', s2)
         fetch1, fetch2 = workspace.FetchBlobs(['s1', 's2'])
@@ -362,9 +366,18 @@ class TestCWorkspace(htu.HypothesisTestCase):
         net = core.Net("test-net")
         net.ConstantFill([], "testblob", shape=[1, 2, 3, 4], value=1.0)
         ws.create_net(net)
+        # If we do not specify overwrite, this should raise an error.
+        with self.assertRaises(RuntimeError):
+            ws.create_net(net)
+        # But, if we specify overwrite, this should pass.
+        ws.create_net(net, True)
+        # Overwrite can also be a kwarg.
+        ws.create_net(net, overwrite=True)
         self.assertIn("testblob", ws.blobs)
-        self.assertIn("test-net", ws.nets)
-        net = ws.nets["test-net"].run()
+        self.assertEqual(len(ws.nets), 1)
+        net_name = net.Proto().name
+        self.assertIn("test-net", net_name)
+        net = ws.nets[net_name].run()
         blob = ws.blobs["testblob"]
         np.testing.assert_array_equal(
             np.ones((1, 2, 3, 4), dtype=np.float32),
@@ -372,7 +385,6 @@ class TestCWorkspace(htu.HypothesisTestCase):
 
     @given(name=st.text(), value=st.floats(min_value=-1, max_value=1.0))
     def test_operator_run(self, name, value):
-        name = name.encode("ascii", "ignore")
         ws = workspace.C.Workspace()
         op = core.CreateOperator(
             "ConstantFill", [], [name], shape=[1], value=value)
@@ -385,9 +397,6 @@ class TestCWorkspace(htu.HypothesisTestCase):
            net_name=st.text(),
            value=st.floats(min_value=-1, max_value=1.0))
     def test_net_run(self, blob_name, net_name, value):
-        blob_name = blob_name.encode("ascii", "ignore")
-        net_name = net_name.encode("ascii", "ignore")
-
         ws = workspace.C.Workspace()
         net = core.Net(net_name)
         net.ConstantFill([], [blob_name], shape=[1], value=value)
@@ -402,10 +411,6 @@ class TestCWorkspace(htu.HypothesisTestCase):
            plan_name=st.text(),
            value=st.floats(min_value=-1, max_value=1.0))
     def test_plan_run(self, blob_name, plan_name, net_name, value):
-        blob_name = blob_name.encode("ascii", "ignore")
-        net_name = net_name.encode("ascii", "ignore")
-        plan_name = plan_name.encode("ascii", "ignore")
-
         ws = workspace.C.Workspace()
         plan = core.Plan(plan_name)
         net = core.Net(net_name)
@@ -415,7 +420,7 @@ class TestCWorkspace(htu.HypothesisTestCase):
 
         ws.run(plan)
         self.assertIn(blob_name, ws.blobs)
-        self.assertIn(str(net), ws.nets)
+        self.assertIn(net.Name(), ws.nets)
         np.testing.assert_allclose(
             [value], ws.blobs[blob_name].fetch(), atol=1e-4, rtol=1e-4)
 
@@ -423,16 +428,12 @@ class TestCWorkspace(htu.HypothesisTestCase):
            net_name=st.text(),
            value=st.floats(min_value=-1, max_value=1.0))
     def test_net_create(self, blob_name, net_name, value):
-        blob_name = blob_name.encode("ascii", "ignore")
-        net_name = net_name.encode("ascii", "ignore")
-
         ws = workspace.C.Workspace()
         net = core.Net(net_name)
-        net_name = str(net)
         net.ConstantFill([], [blob_name], shape=[1], value=value)
         ws.create_net(net).run()
         self.assertIn(blob_name, ws.blobs)
-        self.assertIn(net_name, ws.nets)
+        self.assertIn(net.Name(), ws.nets)
         np.testing.assert_allclose(
             [value], ws.blobs[blob_name].fetch(), atol=1e-4, rtol=1e-4)
 
@@ -440,7 +441,6 @@ class TestCWorkspace(htu.HypothesisTestCase):
            value=htu.tensor(),
            device_option=st.sampled_from(htu.device_options))
     def test_array_serde(self, name, value, device_option):
-        name = name.encode("ascii", "ignore")
         ws = workspace.C.Workspace()
         ws.create_blob(name).feed(value, device_option=device_option)
         self.assertIn(name, ws.blobs)
@@ -452,8 +452,7 @@ class TestCWorkspace(htu.HypothesisTestCase):
 
     @given(name=st.text(), value=st.text())
     def test_string_serde(self, name, value):
-        name = name.encode("ascii", "ignore")
-        value = value.encode("ascii", "ignore")
+        value = value.encode('ascii', 'ignore')
         ws = workspace.C.Workspace()
         ws.create_blob(name).feed(value)
         self.assertIn(name, ws.blobs)
@@ -465,8 +464,132 @@ class TestCWorkspace(htu.HypothesisTestCase):
 
     def test_exception(self):
         ws = workspace.C.Workspace()
-        with self.assertRaises(RuntimeError):
+
+        with self.assertRaises(TypeError):
             ws.create_net("...")
+
+
+class TestPredictor(unittest.TestCase):
+    def _create_model(self):
+        m = model_helper.ModelHelper()
+        y = brew.fc(m, "data", "y",
+                    dim_in=4, dim_out=2,
+                    weight_init=('ConstantFill', dict(value=1.0)),
+                    bias_init=('ConstantFill', dict(value=0.0)),
+                    axis=0)
+        m.net.AddExternalOutput(y)
+        return m
+
+    # Use this test with a bigger model to see how using Predictor allows to
+    # avoid issues with low protobuf size limit in Python
+    #
+    # def test_predictor_predefined(self):
+    #     workspace.ResetWorkspace()
+    #     path = 'caffe2/caffe2/test/assets/'
+    #     with open(path + 'squeeze_predict_net.pb') as f:
+    #         self.predict_net = f.read()
+    #     with open(path + 'squeeze_init_net.pb') as f:
+    #         self.init_net = f.read()
+    #     self.predictor = workspace.Predictor(self.init_net, self.predict_net)
+
+    #     inputs = [np.zeros((1, 3, 256, 256), dtype='f')]
+    #     outputs = self.predictor.run(inputs)
+    #     self.assertEqual(len(outputs), 1)
+    #     self.assertEqual(outputs[0].shape, (1, 1000, 1, 1))
+    #     self.assertAlmostEqual(outputs[0][0][0][0][0], 5.19026289e-05)
+
+    def test_predictor_memory_model(self):
+        workspace.ResetWorkspace()
+        m = self._create_model()
+        workspace.FeedBlob("data", np.zeros([4], dtype='float32'))
+        self.predictor = workspace.Predictor(
+            workspace.StringifyProto(m.param_init_net.Proto()),
+            workspace.StringifyProto(m.net.Proto()))
+
+        inputs = np.array([1, 3, 256, 256], dtype='float32')
+        outputs = self.predictor.run([inputs])
+        np.testing.assert_array_almost_equal(
+            np.array([[516, 516]], dtype='float32'), outputs)
+
+
+class TestTransform(htu.HypothesisTestCase):
+    @given(input_dim=st.integers(min_value=1, max_value=10),
+           output_dim=st.integers(min_value=1, max_value=10),
+           batch_size=st.integers(min_value=1, max_value=10))
+    def test_simple_transform(self, input_dim, output_dim, batch_size):
+        m = model_helper.ModelHelper()
+        fc1 = brew.fc(m, "data", "fc1", dim_in=input_dim, dim_out=output_dim)
+        fc2 = brew.fc(m, fc1, "fc2", dim_in=output_dim, dim_out=output_dim)
+        conv = brew.conv(m, fc2, "conv",
+                            dim_in=output_dim,
+                            dim_out=output_dim,
+                            use_cudnn=True,
+                            engine="CUDNN",
+                            kernel=3)
+
+        conv.Relu([], conv)\
+           .Softmax([], "pred") \
+           .LabelCrossEntropy(["label"], ["xent"]) \
+           .AveragedLoss([], "loss")
+
+        transformed_net_proto = workspace.ApplyTransform(
+            "ConvToNNPack",
+            m.net.Proto())
+
+        self.assertEqual(transformed_net_proto.op[2].engine, "NNPACK")
+
+    @given(input_dim=st.integers(min_value=1, max_value=10),
+           output_dim=st.integers(min_value=1, max_value=10),
+           batch_size=st.integers(min_value=1, max_value=10))
+    def test_registry_invalid(self, input_dim, output_dim, batch_size):
+        m = model_helper.ModelHelper()
+        brew.fc(m, "data", "fc1", dim_in=input_dim, dim_out=output_dim)
+        with self.assertRaises(RuntimeError):
+            workspace.ApplyTransform(
+                "definitely_not_a_real_transform",
+                m.net.Proto())
+
+    @given(value=st.floats(min_value=-1, max_value=1))
+    def test_apply_transform_if_faster(self, value):
+
+        init_net = core.Net("init_net")
+        init_net.ConstantFill([], ["data"], shape=[5, 5, 5, 5], value=value)
+        init_net.ConstantFill([], ["conv_w"], shape=[5, 5, 3, 3], value=value)
+        init_net.ConstantFill([], ["conv_b"], shape=[5], value=value)
+
+        self.assertEqual(
+            workspace.RunNetOnce(init_net.Proto().SerializeToString()), True)
+
+        m = model_helper.ModelHelper()
+        conv = brew.conv(m, "data", "conv",
+                            dim_in=5,
+                            dim_out=5,
+                            kernel=3,
+                            use_cudnn=True,
+                            engine="CUDNN")
+
+        conv.Relu([], conv)\
+           .Softmax([], "pred") \
+           .AveragedLoss([], "loss")
+
+        self.assertEqual(
+            workspace.RunNetOnce(m.net.Proto().SerializeToString()), True)
+
+        proto = workspace.ApplyTransformIfFaster(
+            "ConvToNNPack",
+            m.net.Proto(),
+            init_net.Proto())
+        self.assertEqual(
+            workspace.RunNetOnce(proto.SerializeToString()), True)
+        proto = workspace.ApplyTransformIfFaster(
+            "ConvToNNPack",
+            m.net.Proto(),
+            init_net.Proto(),
+            warmup_runs=10,
+            main_runs=100,
+            improvement_threshold=2.0)
+        self.assertEqual(
+            workspace.RunNetOnce(proto.SerializeToString()), True)
 
 
 if __name__ == '__main__':

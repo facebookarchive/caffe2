@@ -1,6 +1,6 @@
 #include "caffe2/core/blob.h"
 #include "caffe2/core/blob_serialization.h"
-#include "caffe2/utils/mkl_utils.h"
+#include "caffe2/mkl/mkl_utils.h"
 
 #ifdef CAFFE2_HAS_MKL_DNN
 
@@ -76,7 +76,7 @@ class MKLMemorySerializer : public BlobSerializerBase {
  */
 class MKLMemoryDeserializer : public BlobDeserializerBase {
  public:
-  bool Deserialize(const BlobProto& blob_proto, Blob* blob) override {
+  void Deserialize(const BlobProto& blob_proto, Blob* blob) override {
     const TensorProto& proto = blob_proto.tensor();
     CAFFE_ENFORCE(
         proto.data_type() == TensorProto_DataType_FLOAT ||
@@ -106,7 +106,6 @@ class MKLMemoryDeserializer : public BlobDeserializerBase {
       default:
         CAFFE_THROW("This should not happen, we guarded things above already.");
     }
-    return true;
   }
 };
 

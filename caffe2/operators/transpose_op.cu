@@ -7,7 +7,7 @@
 namespace caffe2 {
 
 // Cuda memory is precious so let's do a lower ndim limit.
-#define COMPILE_TIME_CUDA_MAX_TRANSPOSE_DIMS 5
+#define COMPILE_TIME_CUDA_MAX_TRANSPOSE_DIMS 6
 
 namespace {
 // TODO(jiayq): one possible optimization is to copy the buffer into a shared
@@ -41,16 +41,19 @@ bool TransposeOp<CUDAContext>::DoRunWithType() {
   auto* output = Output(0);
   int count = input.size();
   int ndim = input.ndim();
-  CAFFE_ENFORCE(count < std::numeric_limits<int>::max(),
-                "Transpose op on GPU only supports int32"); 
-  CAFFE_ENFORCE(ndim < COMPILE_TIME_CUDA_MAX_TRANSPOSE_DIMS,
-                "Input ndim exceeds compile time max."); 
+  CAFFE_ENFORCE(
+      count < std::numeric_limits<int>::max(),
+      "Transpose op on GPU only supports int32");
+  CAFFE_ENFORCE(
+      ndim <= COMPILE_TIME_CUDA_MAX_TRANSPOSE_DIMS,
+      "Input ndim exceeds compile time max.");
+
   // Buffer contains the following data:
   // (1) the dimenions of the inputs
   // (2) the dimension of the outputs
   // (3) the axis mapping from inputs to outputs
-  TensorCPU buffer_cpu(vector<int>{3 * ndim});
-  int* buffer_data = buffer_cpu.mutable_data<int>();
+  buffer_cpu_.Resize(3 * ndim);
+  int* buffer_data = buffer_cpu_.mutable_data<int>();
   for (int i = 0; i < ndim; ++i) {
     *(buffer_data++) = input.dim32(i);
   }
@@ -61,7 +64,7 @@ bool TransposeOp<CUDAContext>::DoRunWithType() {
     *(buffer_data++) = axes_[i];
   }
   // Copy the dimension information to GPU.
-  buffer_.CopyFrom(buffer_cpu, &context_);
+  buffer_.CopyFrom(buffer_cpu_, &context_);
   transpose_gpu<T><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS,
                      0, context_.cuda_stream()>>>(
       count, input.template data<T>(), output->template mutable_data<T>(),

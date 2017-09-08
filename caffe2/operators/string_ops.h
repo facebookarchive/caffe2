@@ -19,7 +19,7 @@ struct ForEach {
   explicit ForEach(OperatorBase& op) : functor(op) {}
 
   template <typename In, typename Out, typename Context>
-  void operator()(int n, const In* in, Out* out, Context* c) {
+  void operator()(int n, const In* in, Out* out, Context* /*c*/) {
     for (int i = 0; i < n; ++i) {
       out[i] = functor(in[i]);
     }
@@ -33,6 +33,41 @@ using StringElementwiseOp = UnaryElementwiseWithArgsOp<
     CPUContext,
     ForEach<ScalarFunctor>,
     TypeMap>;
+
+template <class Context>
+class StringJoinOp final : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+
+  StringJoinOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<Context>(operator_def, ws),
+        delimiter_(
+            OperatorBase::GetSingleArgument<std::string>("delimiter", ",")),
+        axis_(OperatorBase::GetSingleArgument<int>("axis", 0)) {
+    CAFFE_ENFORCE(axis_ == 0 || axis_ == 1);
+  }
+
+  bool RunOnDevice() override {
+    return DispatchHelper<TensorTypes<
+        float,
+        double,
+        int8_t,
+        uint8_t,
+        int16_t,
+        uint16_t,
+        int32_t,
+        int64_t,
+        std::string,
+        bool>>::call(this, Input(0));
+  }
+
+  template <typename T>
+  bool DoRunWithType();
+
+ protected:
+  std::string delimiter_;
+  int axis_;
+};
 
 } // namespace caffe2
 

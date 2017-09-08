@@ -2,57 +2,6 @@
 
 namespace caffe2 {
 
-// For arithmetic operators, Eigen provides a good way to vectorize even
-// when broadcasting.
-#define EIGEN_FUNCTOR(name, eigen_op, input_type, output_type)               \
-  struct Eigen##name##Functor {                                              \
-    template <int b_is_scalar, typename T, typename R>                       \
-    inline void Run(size_t n, const T* a, const T* b, R* out, CPUContext*) { \
-      if (b_is_scalar) {                                                     \
-        EigenVectorArrayMap<R>(out, n) =                                     \
-            eigen_op((ConstEigenVectorArrayMap<T>(a, n)), (b[0]));           \
-      } else {                                                               \
-        EigenVectorArrayMap<R>(out, n) = eigen_op(                           \
-            (ConstEigenVectorArrayMap<T>(a, n)),                             \
-            (ConstEigenVectorArrayMap<T>(b, n)));                            \
-      }                                                                      \
-    }                                                                        \
-    template <typename T, typename R>                                        \
-    void RunWithBroadcast(                                                   \
-        const T* a,                                                          \
-        const T* b,                                                          \
-        R* out,                                                              \
-        size_t pre,                                                          \
-        size_t n,                                                            \
-        CPUContext*) {                                                       \
-      EigenArrayMap<R>(out, n, pre) = eigen_op(                              \
-          (ConstEigenArrayMap<T>(a, n, pre).colwise()),                      \
-          (ConstEigenVectorArrayMap<T>(b, n)));                              \
-    }                                                                        \
-    template <typename T, typename R>                                        \
-    void RunWithBroadcast2(                                                  \
-        const T* a,                                                          \
-        const T* b,                                                          \
-        R* out,                                                              \
-        size_t pre,                                                          \
-        size_t n,                                                            \
-        size_t post,                                                         \
-        CPUContext*) {                                                       \
-      for (int i = 0; i < pre; ++i) {                                        \
-        EigenArrayMap<R>(out + i * n * post, post, n) = eigen_op(            \
-            (ConstEigenArrayMap<T>(a + i * n * post, post, n).rowwise()),    \
-            (Eigen::Map<const Eigen::Array<T, 1, Eigen::Dynamic>>(b, n)));   \
-      }                                                                      \
-    }                                                                        \
-  };                                                                         \
-  REGISTER_CPU_OPERATOR(                                                     \
-      name,                                                                  \
-      BinaryElementwiseOp<                                                   \
-          input_type,                                                        \
-          CPUContext,                                                        \
-          Eigen##name##Functor,                                              \
-          output_type>)
-
 // For some comparison and logical operators, eigen does not have vectorized
 // math so we need to improvise.
 #define NAIVE_FUNCTOR(name, op, input_type, output_type)                       \
@@ -103,21 +52,6 @@ namespace caffe2 {
           Naive##name##Functor,                                                \
           output_type>)
 
-// See the operations supported here:
-// https://eigen.tuxfamily.org/dox-devel/group__QuickRefPage.html
-#define EIGEN_ADD(x, y) ((x) + (y))
-EIGEN_FUNCTOR(Add, EIGEN_ADD, NumericTypes, SameTypeAsInput);
-#undef EIGEN_ADD
-#define EIGEN_SUB(x, y) ((x) - (y))
-EIGEN_FUNCTOR(Sub, EIGEN_SUB, NumericTypes, SameTypeAsInput);
-#undef EIGEN_SUB
-#define EIGEN_MUL(x, y) ((x) * (y))
-EIGEN_FUNCTOR(Mul, EIGEN_MUL, NumericTypes, SameTypeAsInput);
-#undef EIGEN_MUL
-#define EIGEN_DIV(x, y) ((x) / (y))
-EIGEN_FUNCTOR(Div, EIGEN_DIV, NumericTypes, SameTypeAsInput);
-#undef EIGEN_DIV
-
 #define NAIVE_LT(x, y) ((x) < (y))
 NAIVE_FUNCTOR(LT, NAIVE_LT, NumericTypes, FixedType<bool>);
 #undef NAIVE_LT
@@ -154,31 +88,95 @@ REGISTER_CPU_OPERATOR(
     Not,
     UnaryElementwiseOp<BoolTypes, CPUContext, NotFunctor>);
 
-template <>
-bool DivGradientOp<float, CPUContext>::RunOnDevice() {
-  auto& Y = Input(0);
-  auto& Z = Input(1);
-  auto& dZ = Input(2);
-  auto* dX = Output(0);
-  auto* dY = Output(1);
-  DCHECK_GT(Y.size(), 0);
-  DCHECK_GT(Z.size(), 0);
-  dX->ResizeLike(Y);
-  dY->ResizeLike(Y);
+template <typename T>
+void SRLHelper::sum2one(const T* x, T* y, size_t n) {
+  *y = ConstEigenArrayMap<T>(x, n, 1).sum();
+}
 
-  const float* Ydata = Y.data<float>();
-  const float* Zdata = Z.data<float>();
-  const float* dZdata = dZ.data<float>();
-  float* dXdata = dX->mutable_data<float>();
-  float* dYdata = dY->mutable_data<float>();
-  #pragma omp parallel for
-  for (int i = 0; i < Y.size(); ++i) {
-    dXdata[i] = dZdata[i] / Ydata[i];
-    dYdata[i] = - (dZdata[i] * Zdata[i]) / Ydata[i];
+template <typename T>
+void SRLHelper::RunWithBroadcastFront(
+    const T* x,
+    T* y,
+    size_t pre,
+    size_t n,
+    CPUContext*) {
+  EigenArrayMap<T>(y, n, 1) = ConstEigenArrayMap<T>(x, n, pre).rowwise().sum();
+}
+
+template <typename T>
+void SRLHelper::RunWithBroadcastBack(
+    const T* x,
+    T* y,
+    size_t post,
+    size_t n,
+    CPUContext*) {
+  EigenArrayMap<T>(y, 1, n) = ConstEigenArrayMap<T>(x, post, n).colwise().sum();
+}
+
+template <typename T>
+void SRLHelper::RunWithBroadcast2(
+    const T* a,
+    T* y,
+    size_t pre,
+    size_t n,
+    size_t post,
+    CPUContext*) {
+  for (int i = 0; i < n; ++i) {
+    y[i] = 0;
+    for (int j = 0; j < pre; ++j) {
+      for (int k = 0; k < post; ++k) {
+        y[i] += a[(j * n + i) * post + k];
+      }
+    }
+  }
+}
+
+template <>
+template <typename T>
+bool SumReduceLikeOp<CPUContext>::DoRunWithType() {
+  const auto& A = Input(0);
+  const auto& B = Input(1);
+  auto* C = Output(0);
+  CAFFE_ENFORCE(&B != C, "In-place is not allowed.");
+  C->ResizeLike(B);
+  const T* Adata = A.template data<T>();
+  auto* Cdata = C->template mutable_data<T>();
+  if (B.size() == 1) {
+    auto count = A.size();
+    SRLHelper::sum2one<T>(Adata, Cdata, count);
+  } else {
+    CAFFE_ENFORCE_GT(
+        A.ndim(),
+        B.ndim(),
+        "If you are doing ReduceSumLike, input1 should have "
+        "a smaller number of dimensions.");
+    const int axis = (axis_ == -1 ? A.ndim() - B.ndim() : axis_);
+    CAFFE_ENFORCE(
+        axis >= 0 && axis < A.ndim(),
+        "ReduceSum axis should be in the range of the number "
+        "of dimensions of the first input.");
+    size_t pre = 1, n = 1, post = 1;
+    for (int i = 0; i < axis; ++i) {
+      pre *= A.dim(i);
+    }
+    for (int i = 0; i < B.ndim(); ++i) {
+      CAFFE_ENFORCE_EQ(
+          A.dim(i + axis), B.dim(i), "Broadcast dimension mismatch.");
+      n *= B.dim(i);
+    }
+    for (int i = axis + B.ndim(); i < A.ndim(); ++i) {
+      post *= A.dim(i);
+    }
+    if (post == 1) {
+      SRLHelper::RunWithBroadcastFront<T>(Adata, Cdata, pre, n, &context_);
+    } else if (pre == 1) {
+      SRLHelper::RunWithBroadcastBack<T>(Adata, Cdata, post, n, &context_);
+    } else {
+      SRLHelper::RunWithBroadcast2<T>(Adata, Cdata, pre, n, post, &context_);
+    }
   }
   return true;
 }
-
-REGISTER_CPU_OPERATOR(DivGradient, DivGradientOp<float, CPUContext>);
+REGISTER_CPU_OPERATOR(SumReduceLike, SumReduceLikeOp<CPUContext>);
 
 }  // namespace caffe2

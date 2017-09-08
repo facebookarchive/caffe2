@@ -41,7 +41,17 @@ constexpr bool IsUsingGoogleLogging() {
 #endif
 }
 
-inline void MakeStringInternal(std::stringstream& ss) {}
+/**
+ * A utility to allow one to show log info to stderr after the program starts.
+ *
+ * This is similar to calling GLOG's --logtostderr, or setting caffe2_log_level
+ * to smaller than INFO. You are recommended to only use this in a few sparse
+ * cases, such as when you want to write a tutorial or something. Normally, use
+ * the commandline flags to set the log level.
+ */
+void ShowLogInfoToStderr();
+
+inline void MakeStringInternal(std::stringstream& /*ss*/) {}
 
 template <typename T>
 inline void MakeStringInternal(std::stringstream& ss, const T& t) {
@@ -71,6 +81,16 @@ inline string MakeString(const char* c_str) {
   return string(c_str);
 }
 
+template <class Container>
+inline string Join(const string& delimiter, const Container& v) {
+  std::stringstream s;
+  int cnt = static_cast<int64_t>(v.size()) - 1;
+  for (auto i = v.begin(); i != v.end(); ++i, --cnt) {
+    s << (*i) << (cnt ? delimiter : "");
+  }
+  return s.str();
+}
+
 // Obtains the base name from a full path.
 string StripBasename(const std::string& full_path);
 
@@ -89,7 +109,8 @@ class EnforceNotMet : public std::exception {
       const char* file,
       const int line,
       const char* condition,
-      const string& msg);
+      const string& msg,
+      const void* caller=nullptr);
   void AppendMessage(const string& msg);
   string msg() const;
   inline const vector<string>& msg_stack() const {
@@ -98,9 +119,13 @@ class EnforceNotMet : public std::exception {
 
   const char* what() const noexcept override;
 
+  const void* caller() const noexcept;
+
  private:
   vector<string> msg_stack_;
   string full_msg_;
+  string stack_trace_;
+  const void* caller_;
 };
 
 #define CAFFE_ENFORCE(condition, ...)                                         \
@@ -108,6 +133,14 @@ class EnforceNotMet : public std::exception {
     if (!(condition)) {                                                       \
       throw ::caffe2::EnforceNotMet(                                          \
           __FILE__, __LINE__, #condition, ::caffe2::MakeString(__VA_ARGS__)); \
+    }                                                                         \
+  } while (false)
+
+#define CAFFE_ENFORCE_WITH_CALLER(condition, ...)                             \
+  do {                                                                        \
+    if (!(condition)) {                                                       \
+      throw ::caffe2::EnforceNotMet(                                          \
+          __FILE__, __LINE__, #condition, ::caffe2::MakeString(__VA_ARGS__), this); \
     }                                                                         \
   } while (false)
 
@@ -148,8 +181,12 @@ struct EnforceOK {};
 
 class EnforceFailMessage {
  public:
+#ifdef _MSC_VER
+  // MSVC + NVCC ignores constexpr and will issue a warning if included.
+  /* implicit */ EnforceFailMessage(EnforceOK) : msg_(nullptr) {}
+#else
   constexpr /* implicit */ EnforceFailMessage(EnforceOK) : msg_(nullptr) {}
-
+#endif
   EnforceFailMessage(EnforceFailMessage&&) = default;
   EnforceFailMessage(const EnforceFailMessage&) = delete;
   EnforceFailMessage& operator=(EnforceFailMessage&&) = delete;
@@ -170,7 +207,7 @@ class EnforceFailMessage {
     msg_ = new std::string(std::move(msg));
   }
   inline bool bad() const {
-    return msg_;
+    return msg_ != nullptr;
   }
   std::string get_message_and_free(std::string&& extra) const {
     std::string r;
@@ -215,6 +252,20 @@ BINARY_COMP_HELPER(LessEquals, <=)
           r.get_message_and_free(::caffe2::MakeString(__VA_ARGS__))); \
     }                                                                 \
   } while (false)
+
+#define CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER(condition, expr, ...)                 \
+  do {                                                                \
+    using namespace ::caffe2::enforce_detail;                         \
+    const EnforceFailMessage& r = (condition);                        \
+    if (r.bad()) {                                                    \
+      throw ::caffe2::EnforceNotMet(                                  \
+          __FILE__,                                                   \
+          __LINE__,                                                   \
+          expr,                                                       \
+          r.get_message_and_free(::caffe2::MakeString(__VA_ARGS__)),  \
+          this);                                                      \
+    }                                                                 \
+  } while (false)
 }
 
 #define CAFFE_ENFORCE_THAT(condition, ...) \
@@ -232,7 +283,18 @@ BINARY_COMP_HELPER(LessEquals, <=)
   CAFFE_ENFORCE_THAT_IMPL(GreaterEquals((x), (y)), #x " >= " #y, __VA_ARGS__)
 #define CAFFE_ENFORCE_GT(x, y, ...) \
   CAFFE_ENFORCE_THAT_IMPL(Greater((x), (y)), #x " > " #y, __VA_ARGS__)
-
+#define CAFFE_ENFORCE_EQ_WITH_CALLER(x, y, ...) \
+  CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER(Equals((x), (y)), #x " == " #y, __VA_ARGS__)
+#define CAFFE_ENFORCE_NE_WITH_CALLER(x, y, ...) \
+  CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER(NotEquals((x), (y)), #x " != " #y, __VA_ARGS__)
+#define CAFFE_ENFORCE_LE_WITH_CALLER(x, y, ...) \
+  CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER(LessEquals((x), (y)), #x " <= " #y, __VA_ARGS__)
+#define CAFFE_ENFORCE_LT_WITH_CALLER(x, y, ...) \
+  CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER(Less((x), (y)), #x " < " #y, __VA_ARGS__)
+#define CAFFE_ENFORCE_GE_WITH_CALLER(x, y, ...) \
+  CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER(GreaterEquals((x), (y)), #x " >= " #y, __VA_ARGS__)
+#define CAFFE_ENFORCE_GT_WITH_CALLER(x, y, ...) \
+  CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER(Greater((x), (y)), #x " > " #y, __VA_ARGS__)
 } // namespace caffe2
 
 #endif // CAFFE2_CORE_LOGGING_H_

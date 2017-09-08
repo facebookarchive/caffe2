@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from caffe2.python import core
+from caffe2.proto import caffe2_pb2
 from hypothesis import given
 import caffe2.python.hypothesis_test_util as hu
 import hypothesis.strategies as st
@@ -25,11 +26,42 @@ def _one_hots():
 
 class TestOneHotOps(hu.HypothesisTestCase):
     @given(
+        x=hu.tensor(
+            min_dim=2, max_dim=2, dtype=np.int32,
+            elements=st.integers(min_value=0, max_value=10)),
+        **hu.gcs_cpu_only)
+    def test_batch_one_hot(self, x, gc, dc):
+        d = x.shape[1]
+        lens = []
+        vals = []
+        for i in range(0, d):
+            val = np.unique(x[:, i])
+            vals.extend(val)
+            lens.append(len(val))
+        lens = np.array(lens, dtype=np.int32)
+        vals = np.array(vals, dtype=np.int32)
+
+        def ref(x, lens, vals):
+            output_dim = vals.size
+            ret = np.zeros((x.shape[0], output_dim)).astype(x.dtype)
+            p = 0
+            for i, l in enumerate(lens):
+                for j in range(0, l):
+                    v = vals[p + j]
+                    ret[x[:, i] == v, p + j] = 1
+                p += lens[i]
+            return (ret, )
+
+        op = core.CreateOperator('BatchOneHot', ["X", "LENS", "VALS"], ["Y"])
+        self.assertReferenceChecks(gc, op, [x, lens, vals], ref)
+
+    @given(
         hot_indices=hu.tensor(
             min_dim=1, max_dim=1, dtype=np.int64,
             elements=st.integers(min_value=0, max_value=42)),
-        end_padding=st.integers(min_value=0, max_value=2))
-    def test_one_hot(self, hot_indices, end_padding):
+        end_padding=st.integers(min_value=0, max_value=2),
+        **hu.gcs)
+    def test_one_hot(self, hot_indices, end_padding, gc, dc):
 
         def one_hot_ref(hot_indices, size):
             out = np.zeros([len(hot_indices), size], dtype=float)
@@ -43,10 +75,11 @@ class TestOneHotOps(hu.HypothesisTestCase):
             size = 1
         op = core.CreateOperator('OneHot', ['hot_indices', 'size'], ['output'])
         self.assertReferenceChecks(
-            hu.cpu_do,
+            gc,
             op,
             [hot_indices, size],
-            one_hot_ref)
+            one_hot_ref,
+            input_device_options={'size': core.DeviceOption(caffe2_pb2.CPU)})
 
     @given(hot_indices=_one_hots())
     def test_segment_one_hot(self, hot_indices):
@@ -74,6 +107,7 @@ class TestOneHotOps(hu.HypothesisTestCase):
             op,
             [lengths, indices, index_size],
             segment_one_hot_ref)
+
 
 if __name__ == "__main__":
     import unittest

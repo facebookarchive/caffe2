@@ -33,11 +33,14 @@ bool LabelCrossEntropyOp<float, CPUContext>::RunOnDevice() {
   const auto* Xdata = X.data<float>();
   const auto* labelData = label.data<int>();
   auto* Ydata = Y->mutable_data<float>();
+  CAFFE_ENFORCE(
+      (ConstEigenVectorArrayMap<int>(labelData, N) < D).all() &&
+          (ConstEigenVectorArrayMap<int>(labelData, N) >= 0).all(),
+      "Label seems to be outside of supported range. Supported labels are in "
+      "range [0,",
+      D,
+      ")");
   for (int i = 0; i < N; ++i) {
-    CAFFE_ENFORCE(
-        labelData[i] < D,
-        "Label seems incorrect: label value larger than number of classes: ",
-        labelData[i], " vs ", D);
     Ydata[i] = -log(std::max(Xdata[i * D + labelData[i]], kLOG_THRESHOLD()));
   }
   return true;
@@ -205,7 +208,7 @@ bool CrossEntropyOp<float, CPUContext>::RunOnDevice() {
       "most the number of classes, ",
       D,
       ".");
-  EigenArrayMap<float>(Ydata, N, 1) =
+  EigenArrayMap<float>(Ydata, 1, N) =
       -(ConstEigenArrayMap<float>(labelData, D, N) *
         ConstEigenArrayMap<float>(Xdata, D, N).cwiseMax(kLOG_THRESHOLD()).log())
            .colwise()
@@ -247,17 +250,16 @@ bool CrossEntropyGradientOp<float, CPUContext>::RunOnDevice() {
   return true;
 }
 
-
-namespace {
 REGISTER_CPU_OPERATOR(LabelCrossEntropy,
                       LabelCrossEntropyOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(LabelCrossEntropyGradient,
                       LabelCrossEntropyGradientOp<float, CPUContext>);
 
 OPERATOR_SCHEMA(LabelCrossEntropy)
-  .NumInputs(2)
-  .NumOutputs(1)
-  .SetDoc(R"DOC(
+    .NumInputs(2)
+    .NumOutputs(1)
+    .IdenticalTypeAndShapeOfInputDim(0, 0)
+    .SetDoc(R"DOC(
 Operator computes the cross entropy between the input and the label set. In
  practice, it is most commonly used at the end of models, after the SoftMax
  operator and before the AveragedLoss operator. Note that LabelCrossEntropy
@@ -271,11 +273,14 @@ Operator computes the cross entropy between the input and the label set. In
  where (i, j) is the classifier's prediction of the jth class (the correct one),
  and i is the batch size. Each log has a lower limit for numerical stability.
 )DOC")
-  .Input(0, "X", "Input blob from the previous layer, which is almost always "
-  "the result of a softmax operation; X is a 2D array of size N x D, where N "
-  "is the batch size and D is the number of classes")
-  .Input(1, "label", "Blob containing the labels used to compare the input")
-  .Output(0, "Y", "Output blob after the cross entropy computation");
+    .Input(
+        0,
+        "X",
+        "Input blob from the previous layer, which is almost always "
+        "the result of a softmax operation; X is a 2D array of size N x D, where N "
+        "is the batch size and D is the number of classes")
+    .Input(1, "label", "Blob containing the labels used to compare the input")
+    .Output(0, "Y", "Output blob after the cross entropy computation");
 OPERATOR_SCHEMA(LabelCrossEntropyGradient)
   .NumInputs(3)
   .NumOutputs(1);
@@ -304,16 +309,26 @@ REGISTER_CPU_OPERATOR(
     SigmoidCrossEntropyWithLogitsGradientOp<float, CPUContext>);
 
 OPERATOR_SCHEMA(MakeTwoClass)
-  .NumInputs(1)
-  .NumOutputs(1)
-  .SetDoc(R"DOC(
+    .NumInputs(1)
+    .NumOutputs(1)
+    .TensorInferenceFunction(
+        [](const OperatorDef& /* unused */, const vector<TensorShape>& in) {
+          vector<TensorShape> out(1);
+          out[0].add_dims(in[0].dims(0));
+          out[0].add_dims(2);
+          return out;
+        })
+    .SetDoc(R"DOC(
 Given a vector of probabilities, this operator transforms this into a 2-column
  matrix with complimentary probabilities for binary classification. In explicit
  terms, given the vector X, the output Y is vstack(1 - X, X).
   )DOC")
-  .Input(0, "X", "Input vector of probabilities")
-  .Output(0, "Y", "2-column matrix with complimentary probabilities of X for "
-  "binary classification");
+    .Input(0, "X", "Input vector of probabilities")
+    .Output(
+        0,
+        "Y",
+        "2-column matrix with complimentary probabilities of X for "
+        "binary classification");
 
 OPERATOR_SCHEMA(MakeTwoClassGradient)
   .NumInputs(1)
@@ -322,6 +337,7 @@ OPERATOR_SCHEMA(MakeTwoClassGradient)
 OPERATOR_SCHEMA(SigmoidCrossEntropyWithLogits)
     .NumInputs(2)
     .NumOutputs(1)
+    .IdenticalTypeAndShapeOfInputDim(0, 0)
     .SetDoc(R"DOC(
 Given two matrices logits and targets, of same shape,
 (batch_size, num_classes), computes the sigmoid cross entropy between the two.
@@ -367,9 +383,10 @@ REGISTER_CPU_OPERATOR(CrossEntropyGradient,
                       CrossEntropyGradientOp<float, CPUContext>);
 
 OPERATOR_SCHEMA(CrossEntropy)
-  .NumInputs(2)
-  .NumOutputs(1)
-  .SetDoc(R"DOC(
+    .NumInputs(2)
+    .NumOutputs(1)
+    .IdenticalTypeAndShapeOfInputDim(0, 0)
+    .SetDoc(R"DOC(
 Operator computes the cross entropy between the input and the label set. In
  practice, it is most commonly used at the end of models, after the SoftMax
  operator and before the AveragedLoss operator. Note that CrossEntropy
@@ -384,11 +401,14 @@ Operator computes the cross entropy between the input and the label set. In
  where (i, j) is the classifier's prediction of the jth class (the correct one),
  and i is the batch size. Each log has a lower limit for numerical stability.
 )DOC")
-  .Input(0, "X", "Input blob from the previous layer, which is almost always "
-  "the result of a softmax operation; X is a 2D array of size N x D, where N "
-  "is the batch size and D is the number of classes")
-  .Input(1, "label", "Blob containing the labels used to compare the input")
-  .Output(0, "Y", "Output blob after the cross entropy computation");
+    .Input(
+        0,
+        "X",
+        "Input blob from the previous layer, which is almost always "
+        "the result of a softmax operation; X is a 2D array of size N x D, where N "
+        "is the batch size and D is the number of classes")
+    .Input(1, "label", "Blob containing the labels used to compare the input")
+    .Output(0, "Y", "Output blob after the cross entropy computation");
 OPERATOR_SCHEMA(CrossEntropyGradient)
   .NumInputs(3)
   .NumOutputs(1);
@@ -404,5 +424,4 @@ class GetCrossEntropyGradient : public GradientMakerBase {
 };
 REGISTER_GRADIENT(CrossEntropy, GetCrossEntropyGradient);
 
-}  // namespace
 }  // namespace caffe2

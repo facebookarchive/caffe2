@@ -18,6 +18,9 @@ static_assert(
     CUDNN_VERSION >= 5000,
     "Caffe2 requires cudnn version 5.0 or above.");
 
+#define CUDNN_VERSION_MIN(major, minor, patch) \
+  (CUDNN_VERSION >= ((major) * 1000 + (minor) * 100 + (patch)))
+
 namespace caffe2 {
 
 namespace internal {
@@ -56,7 +59,7 @@ inline const char* cudnnGetErrorString(cudnnStatus_t status) {
 
 // A macro that wraps around a cudnn statement so we can check if the cudnn
 // execution finishes or not.
-#define CUDNN_CHECK(condition)                            \
+#define CUDNN_ENFORCE(condition)                          \
   do {                                                    \
     cudnnStatus_t status = condition;                     \
     CAFFE_ENFORCE_EQ(                                     \
@@ -69,6 +72,31 @@ inline const char* cudnnGetErrorString(cudnnStatus_t status) {
         ": ",                                             \
         ::caffe2::internal::cudnnGetErrorString(status)); \
   } while (0)
+#define CUDNN_CHECK(condition)                              \
+  do {                                                      \
+    cudnnStatus_t status = condition;                       \
+    CHECK(status == CUDNN_STATUS_SUCCESS)                   \
+        << ::caffe2::internal::cudnnGetErrorString(status); \
+  } while (0)
+
+// report the version of cuDNN Caffe2 was compiled with
+inline size_t cudnnCompiledVersion() {
+  return CUDNN_VERSION;
+}
+// report the runtime version of cuDNN
+inline size_t cudnnRuntimeVersion() {
+  return cudnnGetVersion();
+}
+
+// Check compatibility of compiled and runtime cuDNN versions
+inline void CheckCuDNNVersions() {
+  // Version format is major*1000 + minor*100 + patch
+  // Major, minor and patch versions must all match
+  bool version_match = cudnnCompiledVersion() == cudnnRuntimeVersion();
+  CAFFE_ENFORCE(version_match,
+                "cuDNN compiled (", cudnnCompiledVersion(), ") and "
+                "runtime (", cudnnRuntimeVersion(), ") versions mismatch");
+}
 
 /**
  * cudnnTypeWrapper is a wrapper class that allows us to refer to the cudnn type
@@ -83,6 +111,7 @@ class cudnnTypeWrapper<float> {
  public:
   static const cudnnDataType_t type = CUDNN_DATA_FLOAT;
   typedef const float ScalingParamType;
+  typedef float BNParamType;
   static ScalingParamType* kOne() {
     static ScalingParamType v = 1.0;
     return &v;
@@ -98,6 +127,7 @@ class cudnnTypeWrapper<double> {
  public:
   static const cudnnDataType_t type = CUDNN_DATA_DOUBLE;
   typedef const double ScalingParamType;
+  typedef double BNParamType;
   static ScalingParamType* kOne() {
     static ScalingParamType v = 1.0;
     return &v;
@@ -113,6 +143,7 @@ class cudnnTypeWrapper<float16> {
  public:
   static const cudnnDataType_t type = CUDNN_DATA_HALF;
   typedef const float ScalingParamType;
+  typedef float BNParamType;
   static ScalingParamType* kOne() {
     static ScalingParamType v = 1.0;
     return &v;
@@ -148,9 +179,9 @@ inline cudnnTensorFormat_t GetCudnnTensorFormat(const StorageOrder& order) {
 class cudnnTensorDescWrapper {
  public:
   cudnnTensorDescWrapper() {
-    CUDNN_CHECK(cudnnCreateTensorDescriptor(&desc_));
+    CUDNN_ENFORCE(cudnnCreateTensorDescriptor(&desc_));
   }
-  ~cudnnTensorDescWrapper() {
+  ~cudnnTensorDescWrapper() noexcept {
     CUDNN_CHECK(cudnnDestroyTensorDescriptor(desc_));
   }
 
@@ -170,7 +201,7 @@ class cudnnTensorDescWrapper {
     format_ = format;
     type_ = type;
     dims_ = dims;
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(
+    CUDNN_ENFORCE(cudnnSetTensor4dDescriptor(
         desc_,
         format,
         type,
@@ -202,9 +233,9 @@ class cudnnTensorDescWrapper {
 class cudnnFilterDescWrapper {
  public:
   cudnnFilterDescWrapper() {
-    CUDNN_CHECK(cudnnCreateFilterDescriptor(&desc_));
+    CUDNN_ENFORCE(cudnnCreateFilterDescriptor(&desc_));
   }
-  ~cudnnFilterDescWrapper() {
+  ~cudnnFilterDescWrapper() noexcept {
     CUDNN_CHECK(cudnnDestroyFilterDescriptor(desc_));
   }
 
@@ -224,7 +255,7 @@ class cudnnFilterDescWrapper {
     order_ = order;
     type_ = type;
     dims_ = dims;
-    CUDNN_CHECK(cudnnSetFilter4dDescriptor(
+    CUDNN_ENFORCE(cudnnSetFilter4dDescriptor(
         desc_,
         type,
         GetCudnnTensorFormat(order),
@@ -268,7 +299,7 @@ class CuDNNHandles {
     }
   }
 
-  ~CuDNNHandles() {
+  ~CuDNNHandles() noexcept {
     for (int i = 0; i < CAFFE2_COMPILE_TIME_MAX_GPUS; ++i) {
       if (cudnn_handle_[i]) {
         CUDNN_CHECK(cudnnDestroy(cudnn_handle_[i]));
@@ -288,31 +319,26 @@ class CuDNNHandles {
  * not need more than one cudnn workspace per device.
  */
 struct CuDNNWorkspace {
-  ~CuDNNWorkspace() {
-    if (data_) {
-      CUDAContext::Delete(data_);
-    }
-  }
+  ~CuDNNWorkspace() noexcept {}
 
   void* get(size_t nbytes) {
     if (nbytes_ < nbytes) {
       reset();
-      data_ = CUDAContext::New(nbytes);
+      auto data_and_deleter = CUDAContext::New(nbytes);
+      data_ = {data_and_deleter.first, std::move(data_and_deleter.second)};
       nbytes_ = nbytes;
     }
     CAFFE_ENFORCE_GE(nbytes_, nbytes);
-    return data_;
+    return data_.get();
   }
 
   void reset() {
-    if (data_) {
-      CUDAContext::Delete(data_);
-    }
     data_ = nullptr;
     nbytes_ = 0;
   }
 
-  void* data_{nullptr};
+ private:
+  std::unique_ptr<void, MemoryDeleter> data_{nullptr};
   size_t nbytes_{0};
 };
 
@@ -324,14 +350,14 @@ class CuDNNState {
  public:
   explicit CuDNNState(size_t gpu_id) : gpu_id_(gpu_id) {
     DeviceGuard g(gpu_id_);
-    CUDNN_CHECK(cudnnCreate(&cudnn_handle_));
-    CUDA_CHECK(cudaEventCreate(&before_));
-    CUDA_CHECK(cudaEventCreate(&after_));
-    CUDA_CHECK(cudaStreamCreate(&stream_));
-    CUDNN_CHECK(cudnnSetStream(cudnn_handle_, stream_));
+    CUDNN_ENFORCE(cudnnCreate(&cudnn_handle_));
+    CUDA_ENFORCE(cudaEventCreate(&before_));
+    CUDA_ENFORCE(cudaEventCreate(&after_));
+    CUDA_ENFORCE(cudaStreamCreate(&stream_));
+    CUDNN_ENFORCE(cudnnSetStream(cudnn_handle_, stream_));
   }
 
-  ~CuDNNState() {
+  ~CuDNNState() noexcept {
     DeviceGuard g(gpu_id_);
     CUDNN_CHECK(cudnnDestroy(cudnn_handle_));
     CUDA_CHECK(cudaStreamDestroy(stream_));
@@ -349,11 +375,11 @@ class CuDNNState {
 
   template <typename F>
   void execute(cudaStream_t stream, F&& f) {
-    CUDA_CHECK(cudaEventRecord(before_, stream));
-    CUDA_CHECK(cudaStreamWaitEvent(stream_, before_, 0));
+    CUDA_ENFORCE(cudaEventRecord(before_, stream));
+    CUDA_ENFORCE(cudaStreamWaitEvent(stream_, before_, 0));
     f(this);
-    CUDA_CHECK(cudaEventRecord(after_, stream_));
-    CUDA_CHECK(cudaStreamWaitEvent(stream, after_, 0));
+    CUDA_ENFORCE(cudaEventRecord(after_, stream_));
+    CUDA_ENFORCE(cudaStreamWaitEvent(stream, after_, 0));
   }
 
  private:
@@ -390,13 +416,11 @@ class CuDNNWrapper {
   cudnnHandle_t& inline_cudnn_handle() {
     int gpu_id = context_->cuda_gpu_id();
     auto& cudnn_handle_ = tls_cudnn_handles_.cudnn_handle_[gpu_id];
-    if (cudnn_handle_) {
-      return cudnn_handle_;
-    } else {
+    if (!cudnn_handle_) {
       context_->SwitchToDevice();
-      CUDNN_CHECK(cudnnCreate(&cudnn_handle_));
-      CUDNN_CHECK(cudnnSetStream(cudnn_handle_, context_->cuda_stream()));
+      CUDNN_ENFORCE(cudnnCreate(&cudnn_handle_));
     }
+    CUDNN_ENFORCE(cudnnSetStream(cudnn_handle_, context_->cuda_stream()));
     return cudnn_handle_;
   }
 

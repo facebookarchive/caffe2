@@ -1,3 +1,5 @@
+## @package text_file_reader
+# Module caffe2.python.text_file_reader
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -13,7 +15,7 @@ class TextFileReader(Reader):
     """
     def __init__(self, init_net, filename, schema, num_passes=1, batch_size=1):
         """
-        Create op for building a HiveReader instance in the workspace.
+        Create op for building a TextFileReader instance in the workspace.
 
         Args:
             init_net   : Net that will be run only once at startup.

@@ -2,6 +2,7 @@
 #define CAFFE2_CORE_WORKSPACE_H_
 
 #include "caffe2/core/common.h"
+#include "caffe2/core/observer.h"
 
 #ifndef CAFFE2_MOBILE
 #error "mobile build state not defined"
@@ -22,6 +23,8 @@
 #include "caffe2/utils/threadpool/ThreadPool.h"
 #endif // CAFFE2_MOBILE
 
+CAFFE2_DECLARE_bool(caffe2_print_blob_sizes_at_exit);
+
 namespace caffe2 {
 
 class NetBase;
@@ -34,7 +37,7 @@ struct StopOnSignal {
 
   StopOnSignal(const StopOnSignal& other) : handler_(other.handler_) {}
 
-  bool operator()(int iter) {
+  bool operator()(int /*iter*/) {
     return handler_->CheckForSignals() != SignalHandler::Action::STOP;
   }
 
@@ -54,7 +57,8 @@ class Workspace {
   /**
    * Initializes an empty workspace.
    */
-  Workspace() {}
+  Workspace() : root_folder_("."), shared_(nullptr), blob_inheritance_(false) {}
+
   /**
    * Initializes an empty workspace with the given root folder.
    *
@@ -63,7 +67,8 @@ class Workspace {
    * by the workspace.
    */
   explicit Workspace(const string& root_folder)
-      : root_folder_(root_folder) {}
+      : root_folder_(root_folder), shared_(nullptr), blob_inheritance_(false) {}
+
   /**
    * Initializes a workspace with a shared workspace.
    *
@@ -74,13 +79,36 @@ class Workspace {
    * created workspace.
    */
   explicit Workspace(Workspace* const shared)
-      : shared_(shared) {}
+      : root_folder_("."), shared_(shared), blob_inheritance_(true) {}
+
+  /**
+   * Initializes workspace with parent workspace, blob name remapping
+   * (new name -> parent blob name), no other blobs are inherited from
+   * parent workspace
+   */
+  Workspace(
+      Workspace* const shared,
+      const std::unordered_map<string, string>& forwarded_blobs)
+      : root_folder_("."), shared_(shared), blob_inheritance_(false) {
+    CAFFE_ENFORCE(shared_, "Parent workspace must be specified");
+    for (const auto& forwarded : forwarded_blobs) {
+      CAFFE_ENFORCE(
+          shared_->HasBlob(forwarded.second), "Invalid parent workspace blob");
+    }
+    forwarded_blobs_ = forwarded_blobs; // copy
+  }
+
   /**
    * Initializes a workspace with a root folder and a shared workspace.
    */
   Workspace(const string& root_folder, Workspace* shared)
-      : root_folder_(root_folder), shared_(shared) {}
-  ~Workspace() {}
+      : root_folder_(root_folder), shared_(shared), blob_inheritance_(true) {}
+
+  ~Workspace() {
+    if (FLAGS_caffe2_print_blob_sizes_at_exit) {
+      PrintBlobSizes();
+    }
+  }
 
   /**
    * Return list of blobs owned by this Workspace, not including blobs
@@ -103,8 +131,22 @@ class Workspace {
    * Checks if a blob with the given name is present in the current workspace.
    */
   inline bool HasBlob(const string& name) const {
-    return (blob_map_.count(name) || (shared_ && shared_->HasBlob(name)));
+    // First, check the local workspace,
+    // Then, check the forwarding map, then the parent workspace
+    if (blob_map_.count(name)) {
+      return true;
+    }
+    if (shared_) {
+      if (forwarded_blobs_.count(name)) {
+        return shared_->HasBlob(forwarded_blobs_.at(name));
+      }
+      return blob_inheritance_ && shared_->HasBlob(name);
+    }
+    return false;
   }
+
+  void PrintBlobSizes();
+
   /**
    * Creates a blob of the given name. The pointer to the blob is returned, but
    * the workspace keeps ownership of the pointer. If a blob of the given name
@@ -128,15 +170,19 @@ class Workspace {
    */
   Blob* GetBlob(const string& name);
 
-  // CreateNet creates a network in the current workspace. It can then
-  // be referred to by RunNet().
   /**
    * Creates a network with the given NetDef, and returns the pointer to the
    * network. If there is anything wrong during the creation of the network, a
    * nullptr is returned. The Workspace keeps ownership of the pointer.
+   *
+   * If there is already a net created in the workspace with the given name,
+   * CreateNet will overwrite it if overwrite=true is specified. Otherwise, an
+   * exception is thrown.
    */
-  NetBase* CreateNet(const NetDef& net_def);
-
+  NetBase* CreateNet(const NetDef& net_def, bool overwrite = false);
+  NetBase* CreateNet(
+      const std::shared_ptr<const NetDef>& net_def,
+      bool overwrite = false);
   /**
    * Gets the pointer to a created net. The workspace keeps ownership of the
    * network.
@@ -187,16 +233,16 @@ class Workspace {
   bool RunOperatorOnce(const OperatorDef& op_def);
   bool RunNetOnce(const NetDef& net_def);
 
- protected:
-  bool ExecuteStepRecursive(
-      const ExecutionStep& execution,
-      ShouldContinue externalShouldContinue);
+ public:
+  std::atomic<int> last_failed_op_net_position;
 
  private:
   BlobMap blob_map_;
   NetMap net_map_;
-  string root_folder_ = ".";
-  Workspace* shared_ = nullptr;
+  const string root_folder_;
+  const Workspace* shared_;
+  std::unordered_map<string, string> forwarded_blobs_;
+  const bool blob_inheritance_;
 #if CAFFE2_MOBILE
   std::unique_ptr<ThreadPool> thread_pool_;
   std::mutex thread_pool_creation_mutex_;

@@ -2,7 +2,7 @@
 
 #include "caffe2/core/net.h"
 #include "caffe2/core/operator.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace caffe2 {
 
@@ -12,7 +12,9 @@ namespace caffe2 {
 class JustTest : public OperatorBase {
  public:
   using OperatorBase::OperatorBase;
-  bool Run() override { return true; }
+  bool Run(int /* unused */ /*stream_id*/) override {
+    return true;
+  }
   virtual string type() {
     return "base";
   }
@@ -24,7 +26,7 @@ class JustTestAndNeverConstructs : public JustTest {
       : JustTest(def, ws) {
     throw UnsupportedOperatorFeature("I just don't construct.");
   }
-  bool Run() override {
+  bool Run(int /* unused */ /*stream_id*/) override {
     return true;
   }
   string type() override {
@@ -35,7 +37,7 @@ class JustTestAndNeverConstructs : public JustTest {
 class JustTestAndDoesConstruct : public JustTest {
  public:
   using JustTest::JustTest;
-  bool Run() override {
+  bool Run(int /* unused */ /*stream_id*/) override {
     return true;
   }
   string type() override {
@@ -46,7 +48,7 @@ class JustTestAndDoesConstruct : public JustTest {
 class JustTestWithSomeOutput : public JustTest {
  public:
   using JustTest::JustTest;
-  bool Run() override {
+  bool Run(int /* unused */ /*stream_id*/) override {
     *OperatorBase::Output<int>(0) = 5;
     return true;
   }
@@ -65,11 +67,15 @@ class ThrowException : public Operator<CPUContext> {
 };
 
 OPERATOR_SCHEMA(JustTest).NumInputs(0, 1).NumOutputs(0, 1);
+OPERATOR_SCHEMA(JustTestCPUOnly).NumInputs(0, 1).NumOutputs(0, 1);
 OPERATOR_SCHEMA(ThrowException).NumInputs(0).NumOutputs(0);
+OPERATOR_SCHEMA(JustTestWithSomeOutput);
 
 REGISTER_CPU_OPERATOR(JustTest, JustTest);
+REGISTER_CPU_OPERATOR(JustTestCPUOnly, JustTest);
 REGISTER_CPU_OPERATOR_WITH_ENGINE(JustTest, FOO, JustTestAndNeverConstructs);
 REGISTER_CPU_OPERATOR_WITH_ENGINE(JustTest, BAR, JustTestAndDoesConstruct);
+REGISTER_CPU_OPERATOR_WITH_ENGINE(JustTest, BAZ, JustTestAndDoesConstruct);
 REGISTER_CUDA_OPERATOR(JustTest, JustTest);
 REGISTER_CPU_OPERATOR(ThrowException, ThrowException);
 REGISTER_CPU_OPERATOR(JustTestWithSomeOutput, JustTestWithSomeOutput);
@@ -84,9 +90,27 @@ TEST(OperatorTest, RegistryWorks) {
   op_def.set_type("JustTest");
   unique_ptr<OperatorBase> op = CreateOperator(op_def, &ws);
   EXPECT_NE(nullptr, op.get());
+  // After introducing events, CUDA operator creation has to have CUDA compiled
+  // as it needs to instantiate an Event object with CUDAContext. Thus we will
+  // guard this test below.
+  if (HasCudaRuntime()) {
+    op_def.mutable_device_option()->set_device_type(CUDA);
+    op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+  }
+}
+
+TEST(OperatorTest, RegistryWrongDevice) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTypeCPUOnly");
   op_def.mutable_device_option()->set_device_type(CUDA);
-  op = CreateOperator(op_def, &ws);
-  EXPECT_NE(nullptr, op.get());
+  try {
+    CreateOperator(op_def, &ws);
+    LOG(FATAL) << "No exception was thrown";
+  } catch (const std::exception& e) {
+    LOG(INFO) << "Exception " << e.what();
+  }
 }
 
 TEST(OperatorTest, ExceptionWorks) {
@@ -160,6 +184,12 @@ TEST(OperatorTest, TestParameterAccess) {
   EXPECT_EQ(i[0], 1);
   EXPECT_EQ(i[1], 2);
   EXPECT_EQ(op.GetSingleArgument<string>("arg2", "default"), "argstring");
+  auto default1 = op.GetRepeatedArgument<int>("arg3", {2, 3});
+  EXPECT_EQ(default1.size(), 2);
+  EXPECT_EQ(default1[0], 2);
+  EXPECT_EQ(default1[1], 3);
+  auto default2 = op.GetRepeatedArgument<int>("arg4");
+  EXPECT_EQ(default2.size(), 0);
 }
 
 TEST(OperatorTest, CannotAccessParameterWithWrongType) {
@@ -226,14 +256,18 @@ TEST(OperatorTest, TestSetUpInputOutputCount) {
   op_def.add_output("output");
   EXPECT_NE(nullptr, ws.CreateBlob("input"));
   EXPECT_NE(nullptr, ws.CreateBlob("input2"));
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
   // JustTest will only accept one single input.
   ASSERT_ANY_THROW(CreateOperator(op_def, &ws));
+#endif
 
   op_def.clear_input();
   op_def.add_input("input");
   op_def.add_output("output2");
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
   // JustTest will only produce one single output.
   ASSERT_ANY_THROW(CreateOperator(op_def, &ws));
+#endif
 }
 
 TEST(OperatorTest, TestOutputValues) {
@@ -337,6 +371,108 @@ TEST(OperatorGradientRegistryTest, GradientSimple) {
   EXPECT_EQ(meta.g_input_.size(), 1);
   EXPECT_TRUE(meta.g_input_[0].IsDense());
   EXPECT_EQ(meta.g_input_[0].dense_, "in_grad");
+}
+
+TEST(EnginePrefTest, PerOpEnginePref) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTest");
+
+  SetPerOpEnginePref({{DeviceType::CPU, {{"JustTest", {"BAR"}}}}});
+  {
+    const auto op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+    EXPECT_EQ(static_cast<JustTest*>(op.get())->type(), "BAR");
+  }
+  // clear
+  SetPerOpEnginePref({});
+
+  // Invalid operator type
+  ASSERT_THROW(
+      SetPerOpEnginePref({{DeviceType::CPU, {{"NO_EXIST", {"BAR"}}}}}),
+      EnforceNotMet);
+}
+
+TEST(EnginePrefTest, GlobalEnginePref) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTest");
+
+  SetGlobalEnginePref({{DeviceType::CPU, {"FOO", "BAR"}}});
+  {
+    const auto op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+    EXPECT_EQ(static_cast<JustTest*>(op.get())->type(), "BAR");
+  }
+  // clear
+  SetGlobalEnginePref({});
+
+  SetGlobalEnginePref({{DeviceType::CPU, {"FOO"}}});
+  {
+    const auto op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+    EXPECT_EQ(static_cast<JustTest*>(op.get())->type(), "base");
+  }
+  // clear
+  SetGlobalEnginePref({});
+
+  // Invalid device type
+  ASSERT_THROW(SetGlobalEnginePref({{8888, {"FOO"}}}), EnforceNotMet);
+}
+
+TEST(EnginePrefTest, GlobalEnginePrefAndPerOpEnginePref) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTest");
+
+  SetPerOpEnginePref({{DeviceType::CPU, {{"JustTest", {"BAR"}}}}});
+  SetGlobalEnginePref({{DeviceType::CPU, {"BAZ"}}});
+  {
+    const auto op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+    // per op pref takes precedence
+    EXPECT_EQ(static_cast<JustTest*>(op.get())->type(), "BAR");
+  }
+  // clear
+  SetPerOpEnginePref({});
+  SetGlobalEnginePref({});
+}
+
+TEST(EnginePrefTest, GlobalEnginePrefAndPerOpEnginePrefAndOpDef) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTest");
+  op_def.set_engine("BAR");
+
+  SetPerOpEnginePref({{DeviceType::CPU, {{"JustTest", {"BAZ"}}}}});
+  SetGlobalEnginePref({{DeviceType::CPU, {"BAZ"}}});
+  {
+    const auto op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+    // operator_def takes precedence
+    EXPECT_EQ(static_cast<JustTest*>(op.get())->type(), "BAR");
+  }
+  // clear
+  SetPerOpEnginePref({});
+  SetGlobalEnginePref({});
+}
+
+TEST(EnginePrefTest, SetOpEnginePref) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTest");
+
+  SetPerOpEnginePref({{DeviceType::CPU, {{"JustTest", {"BAZ"}}}}});
+  SetOpEnginePref("JustTest", {{DeviceType::CPU, {"BAR"}}});
+  {
+    const auto op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+    // operator_def takes precedence
+    EXPECT_EQ(static_cast<JustTest*>(op.get())->type(), "BAR");
+  }
+  // clear
+  SetPerOpEnginePref({});
+  SetGlobalEnginePref({});
 }
 
 }  // namespace caffe2

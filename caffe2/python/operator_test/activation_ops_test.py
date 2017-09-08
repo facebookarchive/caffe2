@@ -16,7 +16,7 @@ class TestActivations(hu.HypothesisTestCase):
     @given(X=hu.tensor(),
            alpha=st.floats(min_value=0.1, max_value=2.0),
            inplace=st.booleans(),
-           **hu.gcs_cpu_only)
+           **hu.gcs)
     def test_elu(self, X, alpha, inplace, gc, dc):
         # go away from the origin point to avoid kink problems
         X += 0.04 * np.sign(X)
@@ -43,9 +43,10 @@ class TestActivations(hu.HypothesisTestCase):
            inplace=st.booleans(),
            shared=st.booleans(),
            order=st.sampled_from(["NCHW", "NHWC"]),
-           **hu.gcs_cpu_only)
-    def test_prelu(self, X, alpha, inplace, shared, order, gc, dc):
-        np.random.seed(20)
+           seed=st.sampled_from([20, 100]),
+           **hu.gcs)
+    def test_prelu(self, X, alpha, inplace, shared, order, seed, gc, dc):
+        np.random.seed(seed)
         W = np.random.randn(
             X.shape[1] if order == "NCHW" else X.shape[3]).astype(np.float32)
 
@@ -76,9 +77,33 @@ class TestActivations(hu.HypothesisTestCase):
 
         if not inplace:
             # Gradient check wrt X
-            self.assertGradientChecks(gc, op, [X, W], 0, [0])
+            self.assertGradientChecks(gc, op, [X, W], 0, [0], stepsize=1e-2)
             # Gradient check wrt W
-            self.assertGradientChecks(gc, op, [X, W], 1, [0])
+            self.assertGradientChecks(gc, op, [X, W], 1, [0], stepsize=1e-2)
+
+    @given(X=hu.tensor(),
+           alpha=st.floats(min_value=0.1, max_value=2.0),
+           inplace=st.booleans(),
+           **hu.gcs)
+    def test_leaky_relu(self, X, alpha, inplace, gc, dc):
+        # go away from the origin point to avoid kink problems
+        X += 0.04 * np.sign(X)
+        X[X == 0.0] += 0.04
+
+        def leaky_relu_ref(X):
+            Y = X.copy()
+            neg_indices = X <= 0
+            Y[neg_indices] = Y[neg_indices] * alpha
+            return (Y,)
+
+        op = core.CreateOperator(
+            "LeakyRelu",
+            ["X"], ["Y" if not inplace else "X"],
+            alpha=alpha)
+        self.assertReferenceChecks(gc, op, [X], leaky_relu_ref)
+        # Check over multiple devices
+        self.assertDeviceChecks(dc, op, [X], [0])
+
 
 if __name__ == "__main__":
     import unittest

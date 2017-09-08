@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "caffe2/core/common.h"
+#include "caffe2/core/logging.h"
 #include "caffe2/core/registry.h"
 #include "caffe2/proto/caffe2.pb.h"
 
@@ -133,7 +134,7 @@ class OpSchema {
   // shape specified by TensorProto objects (whose data fields are empty), and
   // produces a series of output type and shape.
   typedef std::function<
-      vector<TensorProto>(const OperatorDef&, const vector<TensorProto>&)>
+      vector<TensorShape>(const OperatorDef&, const vector<TensorShape>&)>
       TensorInferenceFunctionType;
   /**
    * @brief Sets the tensor inference function, which is a std::function object
@@ -145,14 +146,50 @@ class OpSchema {
    * the input.
    */
   OpSchema& IdenticalTypeAndShape();
+  OpSchema& IdenticalTypeAndShapeOfInput(int idx);
+  OpSchema& IdenticalTypeAndShapeOfInputDim(int idx, int dim);
+  OpSchema& ScalarType(::caffe2::TensorProto_DataType dt);
+
   /**
    * @brief A function to allow one to infer the type and shape from the op
    * schema.
    */
-  inline vector<TensorProto> InferTensor(
+  inline vector<TensorShape> InferTensor(
       const OperatorDef& def,
-      const vector<TensorProto> input_type_shape) const {
+      const vector<TensorShape> input_type_shape) const {
     return tensor_inference_function_(def, input_type_shape);
+  }
+
+  /*
+   * @brief A struct to store various cost information about
+   * an operator such as FLOPs and total memory use.
+   */
+  struct Cost {
+    uint64_t flops; // Floating point operations.
+    uint64_t bytes_moved; // Total memory used.
+  };
+  /**
+   * @brief Registers a function that takes in an OperatorDef
+   * and a series of input shapes and returns the total "cost"
+   * required to run the operator via struct by value.
+   */
+  typedef std::function<
+      struct Cost(const OperatorDef&, const vector<TensorShape>&)>
+      CostInferenceFunctionType;
+
+  /**
+   * @brief Register the Cost inference function.
+   */
+  OpSchema& CostInferenceFunction(CostInferenceFunctionType&& function);
+  bool HasCostInferenceFunction() const {
+    return !!cost_inference_function_;
+  }
+  inline struct Cost InferCost(
+      const OperatorDef& def,
+      const vector<TensorShape>& input_tensor_shape) const {
+    CAFFE_ENFORCE(
+        cost_inference_function_, "Cost inference function not defined.");
+    return (*cost_inference_function_)(def, input_tensor_shape);
   }
 
   // Functions to do documentation for the operator schema.
@@ -163,6 +200,12 @@ class OpSchema {
   // Calls the passed function with `this` as an argument. Useful for
   // adding docs for temlated/macro ops.
   OpSchema& FillUsing(std::function<void(OpSchema&)> populator);
+
+  // Remove from documentation
+  OpSchema& Private();
+
+  // This op can pass data across devices
+  OpSchema& InputsCanCrossDevices();
 
   /**
    * @brief A function to allow one to get the number of outputs based on the
@@ -181,6 +224,29 @@ class OpSchema {
   const std::vector<std::pair<const char*, const char*>>& output_desc() {
     return output_desc_;
   }
+  bool private_op() {
+    return private_;
+  }
+  bool inputs_can_cross_devices() const {
+    return inputs_can_cross_devices_;
+  }
+
+  /**
+   * @brief Returns the required device location of inputs and outputs.
+   */
+  using DeviceInferenceFunctionType = std::function<
+      std::pair<std::vector<DeviceOption>, std::vector<DeviceOption>>(
+          const OperatorDef& def)>;
+
+  OpSchema& DeviceInferenceFunction(DeviceInferenceFunctionType function);
+
+  /**
+   * @brief Infer required device location of an op's inputs and outputs
+   */
+  inline std::pair<std::vector<DeviceOption>, std::vector<DeviceOption>>
+  InferDevice(const OperatorDef& def) const {
+    return device_inference_function_(def);
+  }
 
  private:
   string file_;
@@ -193,6 +259,8 @@ class OpSchema {
   int max_input_ = std::numeric_limits<int>::max();
   int min_output_ = 0;
   int max_output_ = std::numeric_limits<int>::max();
+  bool private_ = false;
+  bool inputs_can_cross_devices_ = false;
   std::function<bool(int)> num_inputs_allowed_
       = [](int) { return true; };
   std::function<bool(int)> num_outputs_allowed_
@@ -206,9 +274,23 @@ class OpSchema {
   std::function<bool(int, int)> inplace_enforced_
       = [](int, int) { return false; };
   TensorInferenceFunctionType tensor_inference_function_ =
-      [](const OperatorDef& def, const vector<TensorProto>&) {
-        // In default, return a vector of TensorProto that has nothing set.
-        return vector<TensorProto>(def.output_size());
+      [](const OperatorDef& def, const vector<TensorShape>&) {
+        vector<TensorShape> out;
+        for (int i = 0; i < def.output_size(); i++) {
+          TensorShape ts;
+          ts.set_unknown_shape(true);
+          out.push_back(ts);
+        }
+        return out;
+      };
+  std::unique_ptr<CostInferenceFunctionType> cost_inference_function_ = nullptr;
+  DeviceInferenceFunctionType device_inference_function_ =
+      [](const OperatorDef& def) {
+        auto op_device =
+            def.has_device_option() ? def.device_option() : DeviceOption();
+        vector<DeviceOption> in_dev(def.input_size(), op_device);
+        vector<DeviceOption> out_dev(def.output_size(), op_device);
+        return std::make_pair(in_dev, out_dev);
       };
 };
 
@@ -222,6 +304,7 @@ class OpSchemaRegistry {
     auto& m = map();
     if (m.count(key)) {
       const auto& schema = m[key];
+      std::ios_base::Init init;
       std::cerr << "Trying to register schema with name "
                 << key << " from file " << file << " line " << line
                 << ", but it is already registered from file "
@@ -258,13 +341,60 @@ class OpSchemaRegistry {
   static CaffeMap<string, OpSchema>& map();
 };
 
+// Helper function for creating simple tensorproto with dimension and type
+template <typename T_I = int>
+inline TensorShape CreateTensorShape(
+    vector<T_I> dims,
+    ::caffe2::TensorProto_DataType dt) {
+  TensorShape ts;
+  for (int d : dims) {
+    ts.add_dims(d);
+  }
+  ts.set_data_type(dt);
+  return ts;
+}
+
+// Helper function
+inline vector<TIndex> GetDimsVector(const TensorShape& shape) {
+  vector<TIndex> dims;
+  for (auto d : shape.dims()) {
+    dims.push_back(d);
+  }
+  return dims;
+}
+
+// Helper function for infer op inputs and outputs device information.
+inline std::pair<std::vector<DeviceOption>, std::vector<DeviceOption>>
+InferOpInputOutputDevice(const OperatorDef& op) {
+  auto op_schema = OpSchemaRegistry::Schema(op.type());
+  CAFFE_ENFORCE(
+      op_schema, "Device inference failed. No schema for: ", op.type());
+  // TODO(wyiming) : add try catch here.
+  return op_schema->InferDevice(op);
+}
+
 }  // namespace caffe2
 
-#define OPERATOR_SCHEMA(name)                                                 \
-  static OpSchema& CAFFE_ANONYMOUS_VARIABLE(name) =                           \
-    OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
+
+#define OPERATOR_SCHEMA(name)                            \
+  void CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name(){}; \
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(name) =      \
+      &OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
 #define OPERATOR_SCHEMA_STR(name)                                  \
-  static OpSchema& CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
-      OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
+      &OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)
+
+#else // CAFFE2_NO_OPERATOR_SCHEMA
+
+#define OPERATOR_SCHEMA(name)                            \
+  void CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name(){}; \
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(name) =      \
+      1 ? nullptr : &OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
+#define OPERATOR_SCHEMA_STR(name)                                  \
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
+      1 ? nullptr : &OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)
+
+#endif // CAFFE2_NO_OPERATOR_SCHEMA
 
 #endif  // CAFFE2_CORE_OPERATOR_SCHEMA_H_

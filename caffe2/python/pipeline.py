@@ -1,3 +1,5 @@
+## @package pipeline
+# Module caffe2.python.pipeline
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -5,9 +7,9 @@ from __future__ import unicode_literals
 
 from caffe2.python import core, queue_util
 from caffe2.python.dataio import Reader, Writer
-from caffe2.python.net_builder import NetBuilder
+from caffe2.python.net_builder import NetBuilder, ops
 from caffe2.python.schema import as_record, Field
-from caffe2.python.task import Task, TaskGroup
+from caffe2.python.task import Node, Task, TaskGroup
 
 
 class Output(object):
@@ -91,7 +93,7 @@ def normalize_processor_output(output):
 
 def pipe(
         input, output=None, num_threads=1, processor=None, name=None,
-        capacity=None, group=None):
+        capacity=None, group=None, num_runtime_threads=1):
     """
     Given a Reader, Queue or DataStream in `input`, and optionally, a Writer,
     Queue or DataStream in `output`, creates a Task that, when run, will
@@ -104,13 +106,16 @@ def pipe(
                      until a stop is signaled either by the reader or the
                      writer.
         output:      either a Writer, a Queue or a DataStream that will be
-                     writen to as long as neither reader or writer signal
+                     writen to as long as neither reader nor writer signal
                      a stop condition. If output is not provided or is None,
                      a Queue is created with given `capacity` and writen to.
         num_threads: number of concurrent threads used for processing and
                      piping. If set to 0, no Task is created, and a
                      reader is returned instead -- the reader returned will
                      read from the reader passed in and process it.
+                     ** DEPRECATED **. Use `num_runtime_threads` instead.
+                     This option will be removed once all readers/processors
+                     support `num_runtime_threads`.
         processor:   (optional) function that takes an input record and
                      optionally returns a record; this will be called
                      between read and write steps. If the processor does
@@ -123,21 +128,25 @@ def pipe(
                      is created and written to.
         group:       (optional) explicitly add the created Task to this
                      TaskGroup, instead of using the currently active one.
+        num_runtime_threads: Similar to `num_threads`, but instead of expanding
+                     the tasks with a `for` loop in python, does that at
+                     runtime. This is preferable to `num_threads`, but some
+                     processors/readers still require to be called multiple
+                     times in python.
 
     Returns:
         Output Queue, DataStream, Reader, or None, depending on the parameters
         passed.
     """
-    result, step = _pipe_step(
-        input, output, num_threads, processor, name, capacity, group)
-    if step is not None:
-        Task(step=step, group=group)
+    result, _ = _pipe_step(
+        input, output, num_threads, processor, name, capacity, group,
+        num_runtime_threads)
     return result
 
 
 def pipe_and_output(
         input, output=None, num_threads=1, processor=None, name=None,
-        capacity=None, group=None, final_outputs=None):
+        capacity=None, group=None, num_runtime_threads=1, final_outputs=None):
     """
     Similar to `pipe`, with the additional ability for the pipe Task to
     return output values to the `Session` once done.
@@ -148,11 +157,10 @@ def pipe_and_output(
             task_outputs: TaskOutput object, fetchable from the client after
                           session.run() returns.
     """
-    result, step = _pipe_step(
+    assert num_threads > 0
+    result, task = _pipe_step(
         input, output, num_threads, processor, name, capacity, group,
-        final_outputs)
-    assert step is not None
-    task = Task(step=step, group=group, outputs=final_outputs)
+        num_runtime_threads, final_outputs)
     output = None
     if final_outputs is not None:
         output = task.outputs()
@@ -161,76 +169,184 @@ def pipe_and_output(
     return result, output
 
 
+def processor_name(processor):
+    if hasattr(processor, 'name'):
+        return processor.name
+    if hasattr(processor, 'func_name'):
+        if processor.func_name == '<lambda>':
+            return processor.__module__
+        if hasattr(processor, 'im_class'):
+            return '%s.%s' % (processor.im_class.__name__, processor.func_name)
+        return processor.func_name
+    return processor.__class__.__name__
+
+
+def _runtime_threads_task(name, group, final_outputs, reader, num_threads,
+                          output, capacity):
+    node_name = str(Node.current())
+    profiler_name = "{0}/{1}/{2}/{3}/{4}".format(
+        node_name,
+        "pipe",
+        name,
+        processor_name(input) if input else "NoInput",
+        processor_name(output) if output else "NoOutput")
+
+    with Task(name=name, group=group, outputs=final_outputs,
+              num_instances=num_threads) as task:
+        global_exit_net = core.Net('pipe:exit')
+        global_init_net = core.Net('pipe:init')
+        reader.setup_ex(global_init_net, global_exit_net)
+
+        init_net = core.Net('pipe:instance:init')
+        exit_net = core.Net('pipe:instance:exit')
+        read_nets, status, rec = reader.read_record_ex(init_net, exit_net)
+        init_net.ConstantFill(
+            [], [status],
+            shape=[],
+            value=False,
+            dtype=core.DataType.BOOL
+        )
+
+        if rec is not None:
+            out_queue, writer = _init_output(
+                output, capacity, global_init_net, global_exit_net)
+            write_nets, _ = writer.write_record_ex(
+                rec, init_net, exit_net, status)
+        else:
+            out_queue = None
+            write_nets = []
+
+        with ops.task_init():
+            ops.net(global_init_net)
+        with ops.task_instance_init():
+            ops.net(init_net)
+
+        timer_start_net = core.Net('timer_start')
+        timer = timer_start_net.TimerBegin([], counter_name=profiler_name)
+        timer_end_net = core.Net('timer_end')
+        timer_end_net.TimerEnd(timer, [])
+
+        ops.net(core.execution_step(
+            'body',
+            [timer_start_net] + list(read_nets) + list(write_nets) +
+            [timer_end_net],
+            should_stop_blob=status))
+        ops.net(timer_end_net)
+
+        with ops.task_instance_exit():
+            ops.net(exit_net)
+        with ops.task_exit():
+            ops.net(global_exit_net)
+
+    return out_queue, task
+
+
+def _static_threads_task(name, group, final_outputs, reader, num_threads,
+                         output, capacity):
+    node_name = str(Node.current())
+    profiler_name = "{0}/{1}/{2}/{3}/{4}".format(
+        node_name,
+        "pipe",
+        name,
+        processor_name(input) if input else "NoInput",
+        processor_name(output) if output else "NoOutput")
+
+    with Task(name=name, group=group, outputs=final_outputs) as task:
+        global_exit_net = core.Net('exit')
+        global_init_net = core.Net('init')
+        reader.setup_ex(global_init_net, global_exit_net)
+
+        out_queue = None
+        writer = None
+
+        steps = []
+        for thread_id in range(num_threads):
+            with NetBuilder(name='t:%d' % thread_id) as nb:
+                init_net = core.Net('init')
+                exit_net = core.Net('exit')
+                read_nets, status, rec = reader.read_record_ex(
+                    init_net, exit_net)
+                init_net.ConstantFill(
+                    [], [status],
+                    shape=[],
+                    value=False,
+                    dtype=core.DataType.BOOL
+                )
+
+                if rec is not None:
+                    if writer is None:
+                        # hack so that the out queue gets the right name prefix
+                        # (otherwise they would be prefixed with the thread id)
+                        with NetBuilder(_fullname=task.name):
+                            out_queue, writer = _init_output(
+                                output, capacity, global_init_net,
+                                global_exit_net)
+                    write_nets, _ = writer.write_record_ex(
+                        rec, init_net, exit_net, status)
+                else:
+                    write_nets = []
+
+                timer_start_net = core.Net('timer_start')
+                timer = timer_start_net.TimerBegin([], counter_name=profiler_name)
+                timer_end_net = core.Net('timer_end')
+                timer_end_net.TimerEnd(timer, [])
+
+                ops.net(init_net)
+                ops.net(core.execution_step(
+                    'body',
+                    [timer_start_net] + list(read_nets) + list(write_nets) +
+                    [timer_end_net],
+                    should_stop_blob=status))
+                ops.net(timer_end_net)
+                ops.net(exit_net)
+            steps.append(core.to_execution_step(nb))
+        ops.net(global_init_net)
+        ops.net(core.execution_step('body', steps, concurrent_substeps=True))
+        ops.net(global_exit_net)
+    return out_queue, task
+
+
 def _pipe_step(
         input, output=None, num_threads=1, processor=None, name=None,
-        capacity=None, group=None, final_outputs=None):
+        capacity=None, group=None, num_runtime_threads=None, final_outputs=None):
     """
     """
-    group = TaskGroup.current(group)
-    if name is None:
-        name = 'processor:%d' % group.num_registered_tasks()
+    assert num_threads <= 1 or num_runtime_threads <= 1, (
+        'Only one of num_threads or num_runtime_threads must be set.')
 
     if isinstance(input, Reader):
         reader = input
     elif hasattr(input, 'reader'):
         reader = input.reader()
     else:
-        raise ValueError('in must be a reader, queue or streaam.')
+        raise ValueError('in must be a reader, queue or stream.')
 
     if processor is not None:
         reader = ProcessingReader(reader, processor)
 
-    if num_threads == 0:
+    if num_threads == 0 or num_runtime_threads == 0:
         assert output is None
         return reader, None
 
-    global_exit_net = core.Net(name + '_producer_global_exit')
-    global_init_net = core.Net(name + '_producer_global_init')
-    out_queue = None
-    writer = None
+    if name is None and processor is not None:
+        name = processor_name(processor)
+    if name is None and output is not None:
+        name = 'pipe_into:%s' % processor_name(output)
+    if name is None:
+        name = 'pipe_from:%s' % processor_name(input)
 
-    reader.setup_ex(global_init_net, global_exit_net)
-
-    steps = []
-    for thread_id in range(num_threads):
-        init_net = core.Net(name + "_init_net_%d" % thread_id)
-        exit_net = core.Net(name + "_exit_net_%d" % thread_id)
-
-        read_nets, status, rec = reader.read_record_ex(init_net, exit_net)
-
-        if rec is not None:
-            if writer is None:
-                out_queue, writer = _init_output(
-                    output, capacity, global_init_net, global_exit_net)
-            write_nets, _ = writer.write_record_ex(
-                rec, init_net, exit_net, status)
-        else:
-            write_nets = []
-
-        step = core.execution_step(
-            name + "_thread_%d" % thread_id, [
-                core.execution_step(name + "_init_step", init_net),
-                core.execution_step(
-                    name + "_worker_step",
-                    list(read_nets) + list(write_nets),
-                    should_stop_blob=status
-                ), core.execution_step(name + "_exit_step", exit_net)
-            ]
-        )
-        steps.append(step)
-    step = core.execution_step(
-        "sender_step", [
-            core.execution_step('init_step', global_init_net),
-            core.execution_step(
-                "sender_steps", steps, concurrent_substeps=True),
-            core.execution_step('finish_step', global_exit_net),
-        ])
-    return out_queue, step
+    if num_threads > 1:
+        return _static_threads_task(
+            name, group, final_outputs, reader, num_threads, output, capacity)
+    else:
+        return _runtime_threads_task(
+            name, group, final_outputs, reader, num_runtime_threads, output,
+            capacity)
 
 
 class ProcessingReader(Reader):
     """
-    Reader that reads from a upstream reader, calls the processor, and returns
+    Reader that reads from an upstream reader, calls the processor, and returns
     the processed record.
     """
     def __init__(self, reader, processor):
@@ -243,7 +359,7 @@ class ProcessingReader(Reader):
 
     def read_ex(self, init_net, exit_net):
         read_nets, status, rec = self.reader.read_record_ex(init_net, exit_net)
-        with NetBuilder():
+        with NetBuilder(_stop_blob=status):
             # Current NetBuilder is optionally used inside the processor,
             # then its children are retrived inside of
             # normalize_processor_output.
@@ -269,10 +385,11 @@ class NetProcessor(object):
     and (optionally) output records set, with net.set_input_record() and
     net.set_output_record().
     """
-    def __init__(self, net, stop_signal=None, thread_init_nets=None):
+    def __init__(self, net, stop_signal=None, thread_init_nets=None, name=None):
         assert isinstance(net, core.Net)
         assert stop_signal is None or isinstance(
             stop_signal, core.BlobReference)
+        self.name = name or str(net)
         self.thread_init_nets = thread_init_nets or []
         self.net = net
         self._stop_signal = stop_signal
@@ -288,7 +405,7 @@ class NetProcessor(object):
 
     def __call__(self, rec):
         assert not self._frozen
-        prefix = '/worker:%d/' % len(self._blob_maps)
+        prefix = NetBuilder.current().name + '/'
         blob_remap = {}
         for net in self.thread_init_nets:
             new_net, _ = core.clone_and_bind_net(

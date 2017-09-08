@@ -1,6 +1,7 @@
 #ifndef CAFFE2_OPERATORS_ELEMENTWISE_OP_H_
 #define CAFFE2_OPERATORS_ELEMENTWISE_OP_H_
 
+#include "caffe2/core/common_omp.h"
 #include "caffe2/core/context.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/core/operator.h"
@@ -64,7 +65,7 @@ class UnaryElementwiseWithArgsOp : public Operator<Context> {
  */
 template <typename Functor>
 struct WithDefaultConstructor {
-  explicit WithDefaultConstructor(OperatorBase& op) {}
+  explicit WithDefaultConstructor(OperatorBase& /*op*/) {}
 
   template <typename In, typename Out, typename Context>
   void operator()(int n, const In* in, Out* out, Context* c) {
@@ -224,29 +225,29 @@ struct WithoutBroadcast {
   }
   template <typename T, typename R, typename Context>
   inline void RunWithBroadcast(
-      const T* a,
-      const T* b,
-      R* out,
-      size_t pre,
-      size_t n,
+      const T* /*a*/,
+      const T* /*b*/,
+      R* /*out*/,
+      size_t /*pre*/,
+      size_t /*n*/,
       Context*) {
     CAFFE_NOT_IMPLEMENTED;
   }
   template <typename T, typename R, typename Context>
   inline void RunWithBroadcast2(
-      const T* a,
-      const T* b,
-      R* out,
-      size_t pre,
-      size_t n,
-      size_t post,
+      const T* /*a*/,
+      const T* /*b*/,
+      R* /*out*/,
+      size_t /*pre*/,
+      size_t /*n*/,
+      size_t /*post*/,
       Context*) {
     CAFFE_NOT_IMPLEMENTED;
   }
 };
 
 // Gradient operator for elementwise division.
-template <typename T, class Context>
+template <class Context>
 class DivGradientOp final : public Operator<Context> {
  public:
   USE_SIMPLE_CTOR_DTOR(DivGradientOp);
@@ -255,16 +256,148 @@ class DivGradientOp final : public Operator<Context> {
   bool RunOnDevice() override;
 };
 
+namespace SRLHelper {
+
+template <typename T>
+void sum2one(const T* a, T* y, size_t n);
+
+template <typename T>
+void RunWithBroadcastFront(const T* a, T* y, size_t pre, size_t n, CPUContext*);
+
+template <typename T>
+void RunWithBroadcastBack(const T* a, T* y, size_t post, size_t n, CPUContext*);
+
+template <typename T>
+void RunWithBroadcast2(
+    const T* a,
+    T* y,
+    size_t pre,
+    size_t n,
+    size_t post,
+    CPUContext*);
+
+} // namespace SRLHelper
+
 // Sum reduction operator that is used for computing the gradient in cases
 // where the forward op is in broadcast mode.
 template <class Context>
 class SumReduceLikeOp final : public Operator<Context> {
  public:
-  USE_SIMPLE_CTOR_DTOR(SumReduceLikeOp);
   USE_OPERATOR_CONTEXT_FUNCTIONS;
+  SumReduceLikeOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<Context>(operator_def, ws),
+        OP_SINGLE_ARG(int, "axis", axis_, -1),
+        OP_SINGLE_ARG(string, "axis_str", axis_str_, ""),
+        OP_SINGLE_ARG(string, "order", order_, "NCHW") {
+    if (axis_ != -1) {
+      // Get axis from an explicit axis argument.
+      CAFFE_ENFORCE_EQ(
+          axis_str_.size(),
+          0,
+          "Args axis and axis_str cannot be used simultaneously.");
+    } else if (axis_str_.size()) {
+      // Get the axis index semantically.
+      CAFFE_ENFORCE_EQ(
+          axis_str_.size(), 1, "Unsupported axis string", axis_str_);
+      size_t semantic_axis = order_.find(axis_str_);
+      CAFFE_ENFORCE_NE(
+          semantic_axis,
+          string::npos,
+          "Unrecognizable axis string ",
+          axis_str_,
+          " from order string ",
+          order_);
+      axis_ = semantic_axis;
+    }
+  }
 
-  bool RunOnDevice() override;
+  bool RunOnDevice() override {
+    return DispatchHelper<TensorTypes<float, double>>::call(this, Input(0));
+  }
+
+  template <typename T>
+  bool DoRunWithType();
+
+ private:
+  int axis_;
+  string axis_str_;
+  string order_;
+  Tensor<Context> ones_;
+  Tensor<Context> sum_buffer_;
 };
+
+template <class Context>
+bool DivGradientOp<Context>::RunOnDevice() {
+  auto& Y = Input(0);
+  auto& Z = Input(1);
+  auto& dZ = Input(2);
+  auto* dX = Output(0);
+  auto* dY = Output(1);
+  CAFFE_ENFORCE_GT(Y.size(), 0);
+  CAFFE_ENFORCE_GT(Z.size(), 0);
+  dX->ResizeLike(Y);
+  dY->ResizeLike(Y);
+
+  const float* Ydata = Y.template data<float>();
+  const float* Zdata = Z.template data<float>();
+  const float* dZdata = dZ.template data<float>();
+  float* dXdata = dX->template mutable_data<float>();
+  float* dYdata = dY->template mutable_data<float>();
+
+  ElementWiseDivide(context_, Y.size(), dXdata, dYdata, dZdata, Ydata, Zdata);
+  return true;
+}
+
+// For arithmetic operators, Eigen provides a good way to vectorize even
+// when broadcasting.
+#define EIGEN_FUNCTOR(name, eigen_op, input_type, output_type)               \
+  struct Eigen##name##Functor {                                              \
+    template <int b_is_scalar, typename T, typename R>                       \
+    inline void Run(size_t n, const T* a, const T* b, R* out, CPUContext*) { \
+      if (b_is_scalar) {                                                     \
+        EigenVectorArrayMap<R>(out, n) =                                     \
+            eigen_op((ConstEigenVectorArrayMap<T>(a, n)), (b[0]));           \
+      } else {                                                               \
+        EigenVectorArrayMap<R>(out, n) = eigen_op(                           \
+            (ConstEigenVectorArrayMap<T>(a, n)),                             \
+            (ConstEigenVectorArrayMap<T>(b, n)));                            \
+      }                                                                      \
+    }                                                                        \
+    template <typename T, typename R>                                        \
+    void RunWithBroadcast(                                                   \
+        const T* a,                                                          \
+        const T* b,                                                          \
+        R* out,                                                              \
+        size_t pre,                                                          \
+        size_t n,                                                            \
+        CPUContext*) {                                                       \
+      EigenArrayMap<R>(out, n, pre) = eigen_op(                              \
+          (ConstEigenArrayMap<T>(a, n, pre).colwise()),                      \
+          (ConstEigenVectorArrayMap<T>(b, n)));                              \
+    }                                                                        \
+    template <typename T, typename R>                                        \
+    void RunWithBroadcast2(                                                  \
+        const T* a,                                                          \
+        const T* b,                                                          \
+        R* out,                                                              \
+        size_t pre,                                                          \
+        size_t n,                                                            \
+        size_t post,                                                         \
+        CPUContext*) {                                                       \
+      for (int i = 0; i < pre; ++i) {                                        \
+        EigenArrayMap<R>(out + i * n * post, post, n) = eigen_op(            \
+            (ConstEigenArrayMap<T>(a + i * n * post, post, n).rowwise()),    \
+            (Eigen::Map<const Eigen::Array<T, 1, Eigen::Dynamic>>(b, n)));   \
+      }                                                                      \
+    }                                                                        \
+  };                                                                         \
+  REGISTER_CPU_OPERATOR(                                                     \
+      name,                                                                  \
+      BinaryElementwiseOp<                                                   \
+          input_type,                                                        \
+          CPUContext,                                                        \
+          Eigen##name##Functor,                                              \
+          output_type>)
 
 } // namespace caffe2
 

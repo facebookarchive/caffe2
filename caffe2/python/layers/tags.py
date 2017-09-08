@@ -1,7 +1,11 @@
+## @package tags
+# Module caffe2.python.layers.tags
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
+import six
 
 from caffe2.python import context
 
@@ -27,8 +31,15 @@ class TagContext(object):
 class Tags(object):
     # TODO(amalevich): Tags might need to live in their own contexts, add this
     # split later
-    TRAIN_ONLY = 'train_only'
+    EXCLUDE_FROM_TRAIN = 'exclude_from_train'
+    EXCLUDE_FROM_EVAL = 'exclude_from_eval'
+    EXCLUDE_FROM_PREDICTION = 'exclude_from_prediction'
+    EXCLUDE_FROM_ACCUMULATE_PRED = 'exclude_from_accumulate_pred'
     PREPROCESSING = 'preprocessing'
+    HANDLE_AS_SPARSE_LAYER = 'handle_as_sparse_layer'
+    GRADIENT_FROM_PS = 'gradient_from_ps'
+    PREFER_GPU = 'prefer_gpu'
+    CPU_ONLY = 'cpu_only'
 
     # In certain cases we want to have different schema for training and
     # prediction, as an example in prediction we might need to have only
@@ -48,3 +59,18 @@ class Tags(object):
 
     def __exit__(self, type, value, traceback):
         TagContext.current().remove_tags(self.tags)
+
+    def __call__(self, func):
+        @six.wraps(func)
+        def wrapper(*args, **kwargs):
+            with self:
+                return func(*args, **kwargs)
+        return wrapper
+
+
+Tags.TRAIN_ONLY = [Tags.EXCLUDE_FROM_PREDICTION, Tags.EXCLUDE_FROM_EVAL,
+                   Tags.EXCLUDE_FROM_ACCUMULATE_PRED]
+Tags.EVAL_ONLY = [Tags.EXCLUDE_FROM_PREDICTION, Tags.EXCLUDE_FROM_TRAIN,
+                  Tags.EXCLUDE_FROM_ACCUMULATE_PRED]
+Tags.PREDICTION_ONLY = [Tags.EXCLUDE_FROM_TRAIN, Tags.EXCLUDE_FROM_EVAL,
+                        Tags.EXCLUDE_FROM_ACCUMULATE_PRED]

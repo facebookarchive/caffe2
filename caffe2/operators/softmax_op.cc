@@ -17,13 +17,25 @@ bool SoftmaxOp<float, CPUContext>::RunOnDevice() {
   if (scale_.size() != N) {
     scale_.Resize(N);
   }
+  if (rowmax_.size() != N) {
+    rowmax_.Resize(N);
+  }
   if (sum_multiplier_.size() != D) {
     sum_multiplier_.Resize(D);
     math::Set<float, CPUContext>(D, 1.f, sum_multiplier_.mutable_data<float>(),
                                  &context_);
   }
 
-  SoftmaxCPU(context_, N, D, X, Ydata, scale_, sum_multiplier_);
+  SoftmaxCPU(
+      context_,
+      N,
+      D,
+      X.data<float>(),
+      Ydata,
+      scale_.mutable_data<float>(),
+      sum_multiplier_.data<float>(),
+      false,
+      rowmax_.mutable_data<float>());
   return true;
 }
 
@@ -63,20 +75,37 @@ bool SoftmaxGradientOp<float, CPUContext>::RunOnDevice() {
   return true;
 }
 
-namespace {
 REGISTER_CPU_OPERATOR(Softmax, SoftmaxOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(SoftmaxGradient, SoftmaxGradientOp<float, CPUContext>);
 
 OPERATOR_SCHEMA(Softmax)
   .NumInputs(1)
   .NumOutputs(1)
+  .IdenticalTypeAndShape()
   .SetDoc(R"DOC(
 The operator computes the softmax normalized values for each layer in the batch
  of the given input. The input is a 2-D tensor (Tensor<float>) of size
 (batch_size x input_feature_dimensions). The output tensor has the same shape
 and contains the softmax normalized values of the corresponding input.
+
+X does not need to explicitly be a 2D vector; rather, it will be
+coerced into one. For an arbitrary n-dimensional tensor
+X \in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is
+the axis provided, then X will be coerced into a 2-dimensional tensor with
+dimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default
+case where axis=1, this means the X tensor will be coerced into a 2D tensor
+of dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.
+In this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.
+Each of these dimensions must be matched correctly, or else the operator
+will throw errors.
 )DOC")
-  .Input(0, "input", "The input data as 2-D Tensor<float>.")
+  .Arg("axis",
+       "(int) default to 1; describes the axis of the inputs when coerced "
+       "to 2D; defaults to one because the 0th axis most likely describes "
+       "the batch_size")
+  .Input(0, "input",
+         "The input tensor that's coerced into a 2D matrix of size (NxD) "
+         "as described above.")
   .Output(0, "output", "The softmax normalized output values with the same "
           "shape as input tensor.");
 
@@ -95,5 +124,4 @@ class GetSoftmaxGradient : public GradientMakerBase {
 REGISTER_GRADIENT(Softmax, GetSoftmaxGradient);
 REGISTER_GRADIENT(SoftmaxFp16, GetSoftmaxGradient);
 
-}  // namespace
 }  // namespace caffe2

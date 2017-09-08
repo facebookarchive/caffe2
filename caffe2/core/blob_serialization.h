@@ -11,12 +11,17 @@
 #include "caffe2/core/tensor.h"
 #include "caffe2/core/typeid.h"
 #include "caffe2/core/types.h"
+#include "caffe2/utils/simple_queue.h"
 
 CAFFE2_DECLARE_int(caffe2_tensor_chunk_size);
+CAFFE2_DECLARE_int(caffe2_max_tensor_serializer_threads);
+CAFFE2_DECLARE_bool(caffe2_serialize_fp16_as_bytes);
 
 namespace caffe2 {
 
 constexpr auto kTensorBlobType = "Tensor";
+// String used to separate chunk id from the blob name when storing in DB
+constexpr auto kChunkIdSeparator = "#%";
 
 // The Blob serialization registry and serializer creator functions.
 CAFFE_DECLARE_TYPED_REGISTRY(
@@ -40,7 +45,7 @@ template <class Context>
 class TensorSerializer : public BlobSerializerBase {
  public:
   TensorSerializer() : context_() {}
-  ~TensorSerializer() {}
+  ~TensorSerializer() override {}
   /**
    * Serializes a Blob. Note that this blob has to contain Tensor<Context>,
    * otherwise this function produces a fatal error.
@@ -73,7 +78,7 @@ class BlobDeserializerBase {
   virtual ~BlobDeserializerBase() {}
 
   // Deserializes from a BlobProto object.
-  virtual bool Deserialize(const BlobProto& proto, Blob* blob) = 0;
+  virtual void Deserialize(const BlobProto& proto, Blob* blob) = 0;
 };
 
 CAFFE_DECLARE_REGISTRY(BlobDeserializerRegistry, BlobDeserializerBase);
@@ -95,8 +100,8 @@ inline unique_ptr<BlobDeserializerBase> CreateDeserializer(const string& type) {
 template <class Context>
 class TensorDeserializer : public BlobDeserializerBase {
  public:
-  bool Deserialize(const BlobProto& proto, Blob* blob) override;
-  bool Deserialize(const TensorProto& proto, Tensor<Context>* tensor);
+  void Deserialize(const BlobProto& proto, Blob* blob) override;
+  void Deserialize(const TensorProto& proto, Tensor<Context>* tensor);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,8 +186,7 @@ void TensorSerializer<Context>::Serialize(
     const Blob& blob,
     const string& name,
     BlobSerializerBase::SerializationAcceptor acceptor) {
-  this->SerializeWithChunkSize(
-      blob, name, acceptor, FLAGS_caffe2_tensor_chunk_size);
+  this->SerializeWithChunkSize(blob, name, acceptor, kDefaultChunkSize);
 }
 
 template <class Context>
@@ -193,42 +197,64 @@ void TensorSerializer<Context>::SerializeWithChunkSize(
     int chunk_size) {
   CAFFE_ENFORCE(blob.IsType<Tensor<Context>>());
   const auto& tensor = blob.template Get<Tensor<Context>>();
-  chunk_size = chunk_size == -1 ? FLAGS_caffe2_tensor_chunk_size : chunk_size;
+  if (chunk_size == kNoChunking) {
+    chunk_size = tensor.size() + 1; // to account for empty tensors
+  } else if (chunk_size == kDefaultChunkSize) {
+    chunk_size = FLAGS_caffe2_tensor_chunk_size;
+  }
+
+  auto processChunk = [&](int64_t chunkStart) {
+    BlobProto blob_proto;
+    blob_proto.set_name(name);
+    blob_proto.set_type(kTensorBlobType);
+    TensorProto& proto = *blob_proto.mutable_tensor();
+    proto.set_name(name);
+    this->Serialize(
+        tensor, name, blob_proto.mutable_tensor(), chunkStart, chunk_size);
+    acceptor(
+        MakeString(name, kChunkIdSeparator, chunkStart / chunk_size),
+        blob_proto.SerializeAsString());
+  };
 
 #ifndef __ANDROID__
   std::vector<std::future<void>> futures;
+  // Poorman's IOBound ThreadPool
+  SimpleQueue<size_t> chunkQueue;
+  auto task = [&]() {
+    size_t chunkStart;
+    while (chunkQueue.Pop(&chunkStart)) {
+      processChunk(chunkStart);
+    }
+  };
+  if (tensor.size() > chunk_size) {
+    for (int i = 0; i < FLAGS_caffe2_max_tensor_serializer_threads; ++i) {
+      futures.emplace_back(std::async(std::launch::async, task));
+    }
+  }
 #endif
 
+  VLOG(1) << "Serializing blob " << name;
   // Serialize whole vector. If vector is empty, it's shape still needs to be
   // serialized in empty proto
   for (size_t chunkBegin = 0;
        chunkBegin < std::max(tensor.size(), static_cast<TIndex>(1));
        chunkBegin += chunk_size) {
-    auto task = [&](size_t chunkStart) {
-      BlobProto blob_proto;
-      blob_proto.set_name(name);
-      blob_proto.set_type(kTensorBlobType);
-      TensorProto& proto = *blob_proto.mutable_tensor();
-      proto.set_name(name);
-      this->Serialize(
-          tensor, name, blob_proto.mutable_tensor(), chunkStart, chunk_size);
-      acceptor(name, blob_proto.SerializeAsString());
-    };
+    VLOG(2) << "Starting a chunk at " << chunkBegin;
 #ifndef __ANDROID__
     if (tensor.size() > chunk_size) {
-      futures.emplace_back(std::async(std::launch::async, task, chunkBegin));
+      chunkQueue.Push(chunkBegin);
     } else {
       // Sync mode for small tensors
-      task(chunkBegin);
+      processChunk(chunkBegin);
     }
 #else
     // Since Android does not have std::future, we will always do sync mode
-    //
-    task(chunkBegin);
+    processChunk(chunkBegin);
 #endif
   }
 
 #ifndef __ANDROID__
+  chunkQueue.NoMoreJobs();
   for (auto& fut : futures) {
     fut.get();
   }
@@ -237,8 +263,11 @@ void TensorSerializer<Context>::SerializeWithChunkSize(
 
 template <class Context>
 void TensorSerializer<Context>::Serialize(
-    const Tensor<Context>& input, const string& name,
-    TensorProto* proto_ptr, size_t chunkBegin, int32_t chunkSize) {
+    const Tensor<Context>& input,
+    const string& /*name*/,
+    TensorProto* proto_ptr,
+    size_t chunkBegin,
+    int32_t chunkSize) {
   CAFFE_ENFORCE(
       chunkBegin <= input.size(),
       "Chunk begin is out of tensor: ",
@@ -338,14 +367,31 @@ void TensorSerializer<Context>::Serialize(
         proto.mutable_int64_data(),
         &this->context_);
     break;
-  case TensorProto_DataType_FLOAT16:
-    detail::CopyToProtoWithCast(
-        chunkSize,
-        reinterpret_cast<const uint16_t*>(input.template data<float16>()) +
-            chunkBegin,
-        proto.mutable_int32_data(),
-        &this->context_);
-    break;
+  case TensorProto_DataType_FLOAT16: {
+    if (FLAGS_caffe2_serialize_fp16_as_bytes) {
+      const int kValue = 1;
+      CAFFE_ENFORCE_EQ(
+          reinterpret_cast<const char*>(&kValue)[0],
+          1,
+          "Serialization of FLOAT16 on big endian platform "
+          "is not written yet.");
+      unique_ptr<char[]> buffer(new char[2 * chunkSize]);
+      this->context_.template Copy<char, Context, CPUContext>(
+          2 * chunkSize,
+          reinterpret_cast<const char*>(
+              input.template data<float16>() + chunkBegin),
+          buffer.get());
+      this->context_.FinishDeviceComputation();
+      proto.set_byte_data(buffer.release(), 2 * chunkSize);
+    } else {
+      detail::CopyToProtoWithCast(
+          chunkSize,
+          reinterpret_cast<const uint16_t*>(input.template data<float16>()) +
+              chunkBegin,
+          proto.mutable_int32_data(),
+          &this->context_);
+    }
+  } break;
   case TensorProto_DataType_DOUBLE:
     detail::CopyToProtoAsIs(
         chunkSize,
@@ -363,20 +409,20 @@ void TensorSerializer<Context>::Serialize(
 }
 
 template <class Context>
-bool TensorDeserializer<Context>::Deserialize(
-    const BlobProto& blob_proto, Blob* blob) {
-  return Deserialize(
-      blob_proto.tensor(),
-      blob->GetMutable<Tensor<Context>>());
+void TensorDeserializer<Context>::Deserialize(
+    const BlobProto& blob_proto,
+    Blob* blob) {
+  Deserialize(blob_proto.tensor(), blob->GetMutable<Tensor<Context>>());
 }
 
 template <class Context>
-bool TensorDeserializer<Context>::Deserialize(
-    const TensorProto& proto, Tensor<Context>* tensor) {
+void TensorDeserializer<Context>::Deserialize(
+    const TensorProto& proto,
+    Tensor<Context>* tensor) {
   // We create a local context for deserializing. Since Caffe2 contexts are
   // usually lightweighted, this should not involve too much overhead.
   Context context(proto.device_detail());
-  context.SwitchToDevice();
+  context.SwitchToDevice(0);
   vector<TIndex> dims;
   for (const TIndex d : proto.dims()) {
     dims.push_back(d);
@@ -417,10 +463,8 @@ bool TensorDeserializer<Context>::Deserialize(
     case TensorProto_DataType_BYTE:
       // Since BYTE stores the data in a string field instead of a repreated
       // field we will have it special cased.
-      if (chunkSize != proto.byte_data().size()) {
-        LOG(ERROR) << "Incorrect proto field size.";
-        return false;
-      }
+      CAFFE_ENFORCE_EQ(
+          chunkSize, proto.byte_data().size(), "Incorrect proto field size.");
       context.template Copy<uint8_t, Context, CPUContext>(
           chunkSize,
           reinterpret_cast<const uint8_t*>(proto.byte_data().data()),
@@ -478,13 +522,31 @@ bool TensorDeserializer<Context>::Deserialize(
           &context);
       break;
     case TensorProto_DataType_FLOAT16:
-      detail::CopyFromProtoWithCast(
-          chunkSize,
-          proto.int32_data(),
-          reinterpret_cast<uint16_t*>(
-              tensor->template mutable_data<float16>()) +
-              chunkBegin,
-          &context);
+      if (proto.has_byte_data()) {
+        const int kValue = 1;
+        CAFFE_ENFORCE_EQ(
+            reinterpret_cast<const char*>(&kValue)[0],
+            1,
+            "Serialization of FLOAT16 on big endian platform "
+            "is not written yet.");
+        CAFFE_ENFORCE_EQ(
+            2 * chunkSize,
+            proto.byte_data().size(),
+            "Incorrect proto field size.");
+        context.template Copy<float16, Context, CPUContext>(
+            chunkSize,
+            reinterpret_cast<const float16*>(proto.byte_data().data()),
+            tensor->template mutable_data<float16>() + chunkBegin);
+      } else {
+        // Backward compatibility with models which used int32_data field
+        detail::CopyFromProtoWithCast(
+            chunkSize,
+            proto.int32_data(),
+            reinterpret_cast<uint16_t*>(
+                tensor->template mutable_data<float16>()) +
+                chunkBegin,
+            &context);
+      }
       break;
     case TensorProto_DataType_DOUBLE:
       detail::CopyFromProtoAsIs(
@@ -494,12 +556,9 @@ bool TensorDeserializer<Context>::Deserialize(
           &context);
       break;
     case TensorProto_DataType_UNDEFINED:
-      LOG(ERROR)
-          << "Cannot deserialize from a TensorProto UNDEFINED data type.";
-      return false;
+      CAFFE_THROW("Cannot deserialize from a TensorProto UNDEFINED data type.");
   }
   context.FinishDeviceComputation();
-  return true;
 }
 
 }  // namespace caffe2

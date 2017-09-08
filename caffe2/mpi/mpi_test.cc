@@ -3,7 +3,7 @@
 #include "caffe2/core/operator.h"
 #include "caffe2/mpi/mpi_common.h"
 #include "google/protobuf/text_format.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 CAFFE2_DEFINE_string(
     caffe_test_root, "gen/", "The root of the caffe test folder.");
@@ -14,8 +14,7 @@ const char kBcastNet[] = R"NET(
   name: "bcast"
   op {
     output: "comm"
-    type: "CreateCommonWorld"
-    engine: "MPI"
+    type: "MPICreateCommonWorld"
   }
   op {
     output: "X"
@@ -33,8 +32,7 @@ const char kBcastNet[] = R"NET(
     input: "comm"
     input: "X"
     output: "X"
-    type: "Broadcast"
-    engine: "MPI"
+    type: "MPIBroadcast"
     arg {
       name: "root"
       i: 0
@@ -74,8 +72,7 @@ const char kReduceNet[] = R"NET(
   name: "reduce"
   op {
     output: "comm"
-    type: "CreateCommonWorld"
-    engine: "MPI"
+    type: "MPICreateCommonWorld"
   }
   op {
     output: "X"
@@ -93,8 +90,7 @@ const char kReduceNet[] = R"NET(
     input: "comm"
     input: "X"
     output: "X_reduced"
-    type: "Reduce"
-    engine: "MPI"
+    type: "MPIReduce"
     arg {
       name: "root"
       i: 0
@@ -109,13 +105,13 @@ TEST(MPITest, TestMPIReduce) {
   // Let's set the network's constant fill value to be the mpi rank.
   auto* arg = net_def.mutable_op(1)->mutable_arg(1);
   CAFFE_ENFORCE_EQ(arg->name(), "value");
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  arg->set_f(rank);
-  int size;
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  int rank0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank0);
+  arg->set_f(rank0);
+  int size0;
+  MPI_Comm_size(MPI_COMM_WORLD, &size0);
 
-  for (int root = 0; root < size; ++root) {
+  for (int root = 0; root < size0; ++root) {
     net_def.mutable_op(2)->mutable_arg(0)->set_i(root);
     Workspace ws;
     unique_ptr<NetBase> net(CreateNet(net_def, &ws));
@@ -141,8 +137,7 @@ const char kMPIAllgatherNet[] = R"NET(
   name: "allgather"
   op {
     output: "comm"
-    type: "CreateCommonWorld"
-    engine: "MPI"
+    type: "MPICreateCommonWorld"
   }
   op {
     output: "X"
@@ -161,8 +156,7 @@ const char kMPIAllgatherNet[] = R"NET(
     input: "comm"
     input: "X"
     output: "X_gathered"
-    engine: "MPI"
-    type: "Allgather"
+    type: "MPIAllgather"
   }
 )NET";
 
@@ -202,8 +196,7 @@ const char kMPIAllreduceNet[] = R"NET(
   name: "allreduce"
   op {
     output: "comm"
-    type: "CreateCommonWorld"
-    engine: "MPI"
+    type: "MPICreateCommonWorld"
   }
   op {
     output: "X"
@@ -221,8 +214,7 @@ const char kMPIAllreduceNet[] = R"NET(
     input: "comm"
     input: "X"
     output: "X_reduced"
-    type: "Allreduce"
-    engine: "MPI"
+    type: "MPIAllreduce"
   }
 )NET";
 
@@ -261,8 +253,7 @@ const char kInPlaceMPIAllreduceNet[] = R"NET(
   name: "allreduce"
   op {
     output: "comm"
-    type: "CreateCommonWorld"
-    engine: "MPI"
+    type: "MPICreateCommonWorld"
   }
   op {
     output: "X"
@@ -280,8 +271,7 @@ const char kInPlaceMPIAllreduceNet[] = R"NET(
     input: "comm"
     input: "X"
     output: "X"
-    type: "Allreduce"
-    engine: "MPI"
+    type: "MPIAllreduce"
   }
 )NET";
 

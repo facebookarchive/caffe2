@@ -1,4 +1,4 @@
-// Implementes the math functions for CPU.
+// Implements the math functions for CPU.
 // The implementation in this file allows us to route the underlying numerical
 // computation library to different backends. Notably:
 // (1) For all BLAS-related functions, one can explicitly request a BLAS backend
@@ -11,21 +11,25 @@
 //     platforms, it allows one to quickly port Caffe2 to different platforms
 //     where BLAS may not be present.
 
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <random>
-
-#ifdef CAFFE2_USE_MKL
-#include <mkl.h>
-#endif  // CAFFE2_USE_MKL
+#include <unordered_set>
 
 #include "caffe2/utils/math.h"
 #include "caffe2/utils/cpu_neon.h"
 #include "caffe2/core/context.h"
 #include "Eigen/Core"
 #include "Eigen/Dense"
+
+#ifdef CAFFE2_USE_MKL
+#include <mkl.h>
+#endif  // CAFFE2_USE_MKL
+
+#if defined(_MSC_VER)
+#include <process.h>
+#endif
 
 namespace caffe2 {
 namespace math {
@@ -55,9 +59,18 @@ namespace math {
 // CblasTrans, respectively, for each of A and B.
 template <>
 void Gemm<float, CPUContext>(
-    const CBLAS_TRANSPOSE TransA, const CBLAS_TRANSPOSE TransB,
-    const int M, const int N, const int K, const float alpha, const float* A,
-    const float* B, const float beta, float* C, CPUContext* context) {
+    const CBLAS_TRANSPOSE TransA,
+    const CBLAS_TRANSPOSE TransB,
+    const int M,
+    const int N,
+    const int K,
+    const float alpha,
+    const float* A,
+    const float* B,
+    const float beta,
+    float* C,
+    CPUContext* context,
+    TensorProto::DataType math_type) {
   auto C_mat = EigenMatrixMap<float>(C, N, M);
   if (beta == 0) {
     C_mat.setZero();
@@ -175,7 +188,8 @@ void Gemv<float, CPUContext>(
     const float* x,
     const float beta,
     float* y,
-    CPUContext* context) {
+    CPUContext* context,
+    TensorProto::DataType math_type) {
   EigenVectorMap<float> y_vec(y, TransA == CblasNoTrans ? M : N);
   if (beta == 0) {
     // In Caffe2 we often do a lazy initialization, which may contain NaNs in
@@ -202,25 +216,22 @@ void Gemv<float, CPUContext>(
   }
 }
 
-#define CAFFE2_SPECIALIZED_SCALE(T)                                         \
-  namespace detail {                                                        \
-  template <>                                                               \
-  void ScaleDynamic<T, CPUContext>(                                         \
-      const int n,                                                          \
-      const T alpha,                                                        \
-      const T* x,                                                           \
-      T* y,                                                                 \
-      CPUContext* context) {                                                \
-    EigenVectorMap<T>(y, n) = ConstEigenVectorMap<T>(x, n) * alpha;         \
-  }                                                                         \
-  }                                                                         \
-  template <>                                                               \
-  void Scale<T, CPUContext>(                                                \
-      const int n, const T* alpha, const T* x, T* y, CPUContext* context) { \
-    EigenVectorMap<T>(y, n) = ConstEigenVectorMap<T>(x, n) * (*alpha);      \
+#define CAFFE2_SPECIALIZED_SCALE(T)                                            \
+  template <>                                                                  \
+  void Scale<T, CPUContext>(                                                   \
+      const int n, const float alpha, const T* x, T* y, CPUContext* context) { \
+    EigenVectorMap<T>(y, n) = ConstEigenVectorMap<T>(x, n) * alpha;            \
+  }                                                                            \
+  template <>                                                                  \
+  void Scale<T, CPUContext>(                                                   \
+      const int n,                                                             \
+      const float* alpha,                                                      \
+      const T* x,                                                              \
+      T* y,                                                                    \
+      CPUContext* context) {                                                   \
+    EigenVectorMap<T>(y, n) = ConstEigenVectorMap<T>(x, n) * (*alpha);         \
   }
 CAFFE2_SPECIALIZED_SCALE(float)
-CAFFE2_SPECIALIZED_SCALE(double)
 #undef CAFFE2_SPECIALIZED_SCALE
 
 #define CAFFE2_SPECIALIZED_DOT(T)                                              \
@@ -231,20 +242,13 @@ void Dot<T, CPUContext>(                                                       \
   *y = ConstEigenVectorMap<T>(a, N).dot(ConstEigenVectorMap<T>(b, N));         \
 }
 CAFFE2_SPECIALIZED_DOT(float)
-CAFFE2_SPECIALIZED_DOT(double)
 #undef CAFFE2_SPECIALIZED_DOT
 
 #define CAFFE2_SPECIALIZED_AXPY(T)                                          \
-  namespace detail {                                                        \
   template <>                                                               \
-  void AxpyDynamic<T, CPUContext>(                                          \
-      const int N,                                                          \
-      const T alpha,                                                        \
-      const T* x,                                                           \
-      T* Y,                                                                 \
-      CPUContext* context) {                                                \
+  void Axpy<T, CPUContext>(                                                 \
+      const int N, const T alpha, const T* x, T* Y, CPUContext* context) {  \
     EigenVectorMap<T>(Y, N) += ConstEigenVectorMap<T>(x, N) * alpha;        \
-  }                                                                         \
   }                                                                         \
   template <>                                                               \
   void Axpy<T, CPUContext>(                                                 \
@@ -252,7 +256,6 @@ CAFFE2_SPECIALIZED_DOT(double)
     EigenVectorMap<T>(Y, N) += ConstEigenVectorMap<T>(x, N) * (*alpha);     \
   }
 CAFFE2_SPECIALIZED_AXPY(float)
-CAFFE2_SPECIALIZED_AXPY(double)
 #undef CAFFE2_SPECIALIZED_AXPY
 
 #define CAFFE2_SPECIALIZED_AXPBY(T)                                            \
@@ -263,16 +266,24 @@ void Axpby<T, CPUContext>(const int N, const T alpha, const T* x,              \
   y_vec = y_vec * beta + ConstEigenVectorMap<T>(x, N) * alpha;                 \
 }
 CAFFE2_SPECIALIZED_AXPBY(float)
-CAFFE2_SPECIALIZED_AXPBY(double)
 #undef CAFFE2_SPECIALIZED_AXPBY
 
 #else  // CAFFE2_USE_EIGEN_FOR_BLAS
 
 template <>
 void Gemm<float, CPUContext>(
-    const CBLAS_TRANSPOSE TransA, const CBLAS_TRANSPOSE TransB,
-    const int M, const int N, const int K, const float alpha, const float* A,
-    const float* B, const float beta, float* C, CPUContext* context) {
+    const CBLAS_TRANSPOSE TransA,
+    const CBLAS_TRANSPOSE TransB,
+    const int M,
+    const int N,
+    const int K,
+    const float alpha,
+    const float* A,
+    const float* B,
+    const float beta,
+    float* C,
+    CPUContext* /*context*/,
+    TensorProto::DataType /*math_type*/) {
   int lda = (TransA == CblasNoTrans) ? K : M;
   int ldb = (TransB == CblasNoTrans) ? N : K;
   cblas_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb,
@@ -294,96 +305,96 @@ void GemmEx<float, CPUContext>(
     const float beta,
     float* C,
     const int ldc,
-    CPUContext* context) {
+    CPUContext* /*context*/) {
   cblas_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb,
               beta, C, ldc);
 }
 
 template <>
 void Gemv<float, CPUContext>(
-    const CBLAS_TRANSPOSE TransA, const int M, const int N, const float alpha,
-    const float* A, const float* x, const float beta, float* y,
-    CPUContext* context) {
+    const CBLAS_TRANSPOSE TransA,
+    const int M,
+    const int N,
+    const float alpha,
+    const float* A,
+    const float* x,
+    const float beta,
+    float* y,
+    CPUContext* /*context*/,
+    TensorProto::DataType /*math_type*/) {
   cblas_sgemv(CblasRowMajor, TransA, M, N, alpha, A, N, x, 1, beta, y, 1);
 }
 
-#define CAFFE2_SPECIALIZED_SCALE(T, prefix)                                 \
-  namespace detail {                                                       \
-  template <>                                                               \
-  void ScaleDynamic<T, CPUContext>(                                         \
-      const int n,                                                          \
-      const T alpha,                                                        \
-      const T* x,                                                           \
-      T* y,                                                                 \
-      CPUContext* context) {                                                \
-    if (y != x)                                                             \
-      cblas_##prefix##copy(n, x, 1, y, 1);                                  \
-    cblas_##prefix##scal(n, alpha, y, 1);                                   \
-  }                                                                         \
-  }                                                                         \
-  template <>                                                               \
-  void Scale<T, CPUContext>(                                                \
-      const int n, const T* alpha, const T* x, T* y, CPUContext* context) { \
-    if (y != x)                                                             \
-      cblas_##prefix##copy(n, x, 1, y, 1);                                  \
-    cblas_##prefix##scal(n, *alpha, y, 1);                                  \
+#define CAFFE2_SPECIALIZED_SCALE(T, prefix)                             \
+  template <>                                                           \
+  void Scale<T, CPUContext>(                                            \
+      const int n, const float alpha, const T* x, T* y, CPUContext*) {  \
+    if (y != x)                                                         \
+      cblas_##prefix##copy(n, x, 1, y, 1);                              \
+    cblas_##prefix##scal(n, static_cast<float>(alpha), y, 1);           \
+  }                                                                     \
+  template <>                                                           \
+  void Scale<T, CPUContext>(                                            \
+      const int n, const float* alpha, const T* x, T* y, CPUContext*) { \
+    if (y != x)                                                         \
+      cblas_##prefix##copy(n, x, 1, y, 1);                              \
+    cblas_##prefix##scal(n, static_cast<float>(*alpha), y, 1);          \
   }
 CAFFE2_SPECIALIZED_SCALE(float, s)
-CAFFE2_SPECIALIZED_SCALE(double, d)
 #undef CAFFE2_SPECIALIZED_SCALE
 
-#define CAFFE2_SPECIALIZED_DOT(T, prefix)                                      \
-template<>                                                                     \
-void Dot<T, CPUContext>(                                                       \
-    const int N, const T* a, const T* b, T* y,                                 \
-    CPUContext* context) {                                                     \
-  *y = cblas_##prefix##dot(N, a, 1, b, 1);                                     \
-}
+#define CAFFE2_SPECIALIZED_DOT(T, prefix)                       \
+  template <>                                                   \
+  void Dot<T, CPUContext>(                                      \
+      const int N, const T* a, const T* b, T* y, CPUContext*) { \
+    *y = cblas_##prefix##dot(N, a, 1, b, 1);                    \
+  }
 CAFFE2_SPECIALIZED_DOT(float, s)
-CAFFE2_SPECIALIZED_DOT(double, d)
 #undef CAFFE2_SPECIALIZED_DOT
 
-#define CAFFE2_SPECIALIZED_AXPY(T, prefix)                                  \
-  namespace detail {                                                        \
-  template <>                                                               \
-  void AxpyDynamic<T, CPUContext>(                                          \
-      const int N,                                                          \
-      const T alpha,                                                        \
-      const T* x,                                                           \
-      T* y,                                                                 \
-      CPUContext* context) {                                                \
-    cblas_##prefix##axpy(N, alpha, x, 1, y, 1);                             \
-  }                                                                         \
-  }                                                                         \
-  template <>                                                               \
-  void Axpy<T, CPUContext>(                                                 \
-      const int N, const T* alpha, const T* x, T* y, CPUContext* context) { \
-    cblas_##prefix##axpy(N, *alpha, x, 1, y, 1);                            \
+#define CAFFE2_SPECIALIZED_AXPY(T, prefix)                          \
+  template <>                                                       \
+  void Axpy<T, CPUContext>(                                         \
+      const int N, const T alpha, const T* x, T* y, CPUContext*) {  \
+    cblas_##prefix##axpy(N, alpha, x, 1, y, 1);                     \
+  }                                                                 \
+  template <>                                                       \
+  void Axpy<T, CPUContext>(                                         \
+      const int N, const T* alpha, const T* x, T* y, CPUContext*) { \
+    cblas_##prefix##axpy(N, *alpha, x, 1, y, 1);                    \
   }
 CAFFE2_SPECIALIZED_AXPY(float, s)
-CAFFE2_SPECIALIZED_AXPY(double, d)
 #undef CAFFE2_SPECIALIZED_AXPY
 
 // cblas_[sd]axpby is not a standard blas function, and if MKL is not present,
 // we will need to implement it.
 #ifdef CAFFE2_USE_MKL
-#define CAFFE2_SPECIALIZED_AXPBY(T, prefix)                                    \
-template <>                                                                    \
-void Axpby<T, CPUContext>(const int N, const T alpha, const T* x,              \
-                          const T beta, T* y, CPUContext* context) {           \
-  cblas_##prefix##axpby(N, alpha, x, 1, beta, y, 1);                           \
-}
+#define CAFFE2_SPECIALIZED_AXPBY(T, prefix)            \
+  template <>                                          \
+  void Axpby<T, CPUContext>(                           \
+      const int N,                                     \
+      const T alpha,                                   \
+      const T* x,                                      \
+      const T beta,                                    \
+      T* y,                                            \
+      CPUContext*) {                                   \
+    cblas_##prefix##axpby(N, alpha, x, 1, beta, y, 1); \
+  }
 #else  // CAFFE2_USE_MKL
-#define CAFFE2_SPECIALIZED_AXPBY(T, prefix)                                    \
-template <>                                                                    \
-void Axpby<T, CPUContext>(const int N, const T alpha, const T* x,              \
-                          const T beta, T* y, CPUContext* context) {           \
-  cblas_##prefix##scal(N, beta, y, 1);                                         \
-  cblas_##prefix##axpy(N, alpha, x, 1, y, 1);                                  \
-}
+#define CAFFE2_SPECIALIZED_AXPBY(T, prefix)     \
+  template <>                                   \
+  void Axpby<T, CPUContext>(                    \
+      const int N,                              \
+      const T alpha,                            \
+      const T* x,                               \
+      const T beta,                             \
+      T* y,                                     \
+      CPUContext*) {                            \
+    cblas_##prefix##scal(N, beta, y, 1);        \
+    cblas_##prefix##axpy(N, alpha, x, 1, y, 1); \
+  }
 #endif  // CAFFE2_USE_MKL
 CAFFE2_SPECIALIZED_AXPBY(float, s)
-CAFFE2_SPECIALIZED_AXPBY(double, d)
 #undef CAFFE2_SPECIALIZED_AXPBY
 
 #endif  // CAFFE2_USE_EIGEN_FOR_BLAS
@@ -399,11 +410,10 @@ CAFFE2_SPECIALIZED_AXPBY(double, d)
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef CAFFE2_USE_MKL
 
-#define DELEGATE_SIMPLE_UNARY_FUNCTION(T, Funcname, OriginalFunc, ...) \
-  template <>                                                          \
-  void Funcname<T, CPUContext>(                                        \
-      const int N, const T* x, T* y, CPUContext* context) {            \
-    OriginalFunc(N, x, y, ##__VA_ARGS__);                              \
+#define DELEGATE_SIMPLE_UNARY_FUNCTION(T, Funcname, OriginalFunc, ...)       \
+  template <>                                                                \
+  void Funcname<T, CPUContext>(const int N, const T* x, T* y, CPUContext*) { \
+    OriginalFunc(N, x, y, ##__VA_ARGS__);                                    \
   }
 DELEGATE_SIMPLE_UNARY_FUNCTION(
     float,
@@ -417,27 +427,45 @@ DELEGATE_SIMPLE_UNARY_FUNCTION(
     VML_HA | VML_FTZDAZ_OFF | VML_ERRMODE_IGNORE)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Log, vsLn)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Log, vdLn)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Cos, vsCos)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, Cos, vdCos)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sin, vsSin)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sin, vdSin)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Abs, vsAbs)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, Abs, vdAbs)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqrt, vsSqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sqrt, vdSqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, InvSqrt, vsInvSqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, InvSqrt, vdInvSqrt)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqr, vsSqr)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sqr, vdSqr)
 #undef DELEGATE_SIMPLE_UNARY_FUNCTION
 
-#define DELEGATE_POWX_FUNCTION(T, OriginalFunc)                                \
-template <>                                                                    \
-void Powx<T, CPUContext>(                                                      \
-    const int N, const T* a, T b, T* y, CPUContext* context) {                 \
-  OriginalFunc(N, a, b, y);                                                    \
-}
+#define DELEGATE_SINCOS_FUNCTION(T, OriginalFunc)           \
+  template <>                                               \
+  void SinCos<T, CPUContext>(                               \
+      const int N, const T* a, T* ys, T* yc, CPUContext*) { \
+    OriginalFunc(N, a, ys, yc);                             \
+  }
+DELEGATE_SINCOS_FUNCTION(float, vsSinCos)
+DELEGATE_SINCOS_FUNCTION(double, vdSinCos)
+#undef DELEGATE_SINCOS_FUNCTION
+
+#define DELEGATE_POWX_FUNCTION(T, OriginalFunc)                               \
+  template <>                                                                 \
+  void Powx<T, CPUContext>(const int N, const T* a, T b, T* y, CPUContext*) { \
+    OriginalFunc(N, a, b, y);                                                 \
+  }
 DELEGATE_POWX_FUNCTION(float, vsPowx)
 DELEGATE_POWX_FUNCTION(double, vdPowx)
 #undef DELEGATE_POWX_FUNCTION
 
-#define DELEGATE_SIMPLE_BINARY_FUNCTION(T, Funcname, OriginalFunc)             \
-template <>                                                                    \
-void Funcname<T, CPUContext>(                                                  \
-    const int N, const T* a, const T* b, T* y,                                 \
-    CPUContext* context) {                                                     \
-  OriginalFunc(N, a, b, y);                                                    \
-}
+#define DELEGATE_SIMPLE_BINARY_FUNCTION(T, Funcname, OriginalFunc) \
+  template <>                                                      \
+  void Funcname<T, CPUContext>(                                    \
+      const int N, const T* a, const T* b, T* y, CPUContext*) {    \
+    OriginalFunc(N, a, b, y);                                      \
+  }
 DELEGATE_SIMPLE_BINARY_FUNCTION(float,  Add, vsAdd)
 DELEGATE_SIMPLE_BINARY_FUNCTION(double, Add, vdAdd)
 DELEGATE_SIMPLE_BINARY_FUNCTION(float,  Sub, vsSub)
@@ -450,28 +478,38 @@ DELEGATE_SIMPLE_BINARY_FUNCTION(double, Div, vdDiv)
 
 #else  // CAFFE2_USE_MKL
 
-#define DELEGATE_SIMPLE_UNARY_FUNCTION(T, Funcname, expr)                      \
-template <>                                                                    \
-void Funcname<T, CPUContext>(const int N, const T* x, T* y,                    \
-                             CPUContext* context) {                            \
-  EigenVectorMap<T>(y, N) = ConstEigenVectorMap<T>(x, N).array().expr();       \
-}
+#define DELEGATE_SIMPLE_UNARY_FUNCTION(T, Funcname, expr)                    \
+  template <>                                                                \
+  void Funcname<T, CPUContext>(const int N, const T* x, T* y, CPUContext*) { \
+    EigenVectorMap<T>(y, N) = ConstEigenVectorMap<T>(x, N).array().expr();   \
+  }
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Exp, exp)
-DELEGATE_SIMPLE_UNARY_FUNCTION(double, Exp, exp)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Log, log)
-DELEGATE_SIMPLE_UNARY_FUNCTION(double, Log, log)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Cos, cos)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sin, sin)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Abs, abs)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqrt, sqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, InvSqrt, rsqrt)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqr, square)
-DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sqr, square)
 #undef DELEGATE_SIMPLE_UNARY_FUNCTION
 
-#define DELEGATE_POWX_FUNCTION(T)                                              \
-template <>                                                                    \
-void Powx<T, CPUContext>(                                                      \
-    const int N, const T* a, T b, T* y, CPUContext* context) {                 \
-  EigenVectorMap<T>(y, N) = ConstEigenVectorMap<T>(a, N).array().pow(b);       \
-}
+#define DELEGATE_SINCOS_FUNCTION(T)                                        \
+  template <>                                                              \
+  void SinCos<T, CPUContext>(                                              \
+      const int N, const T* x, T* ys, T* yc, CPUContext*) {                \
+    EigenVectorMap<T>(ys, N) = ConstEigenVectorMap<T>(x, N).array().sin(); \
+    EigenVectorMap<T>(yc, N) = ConstEigenVectorMap<T>(x, N).array().cos(); \
+  }
+DELEGATE_SINCOS_FUNCTION(float)
+DELEGATE_SINCOS_FUNCTION(double)
+#undef DELEGATE_SINCOS_FUNCTION
+
+#define DELEGATE_POWX_FUNCTION(T)                                             \
+  template <>                                                                 \
+  void Powx<T, CPUContext>(const int N, const T* a, T b, T* y, CPUContext*) { \
+    EigenVectorMap<T>(y, N) = ConstEigenVectorMap<T>(a, N).array().pow(b);    \
+  }
 DELEGATE_POWX_FUNCTION(float)
-DELEGATE_POWX_FUNCTION(double)
 #undef DELEGATE_POWX_FUNCTION
 
 #endif  // CAFFE2_USE_MKL
@@ -497,7 +535,6 @@ EIGEN_SIMPLE_BINARY_FUNCTION(int64_t, Funcname, expr)
 
 #define DEFINE_SIMPLE_BINARY_FUNCTION(Funcname, expr)                          \
 EIGEN_SIMPLE_BINARY_FUNCTION(float, Funcname, expr)                            \
-EIGEN_SIMPLE_BINARY_FUNCTION(double, Funcname, expr)                           \
 EIGEN_SIMPLE_BINARY_FUNCTION(int32_t, Funcname, expr)                          \
 EIGEN_SIMPLE_BINARY_FUNCTION(int64_t, Funcname, expr)
 
@@ -518,56 +555,104 @@ DEFINE_SIMPLE_BINARY_FUNCTION(Div, /)
 // Eigen or via custom code.
 ////////////////////////////////////////////////////////////////////////////////
 
-#define CAFFE2_SPECIALIZED_ROWWISEMAX(T)                                       \
-template <> void RowwiseMax<T, CPUContext>(                                    \
-    const int N, const int D, const T* x, T* y, CPUContext* context) {         \
-  EigenVectorMap<T>(y, N) =                                                    \
-      ConstEigenMatrixMap<T>(x, D, N).colwise().maxCoeff();                    \
-}
-CAFFE2_SPECIALIZED_ROWWISEMAX(float)
+#define CAFFE2_SPECIALIZED_REDUCEMIN(T)    \
+  template <>                              \
+  void ReduceMin<T, CPUContext>(           \
+      const int N,                         \
+      const T* x,                          \
+      T* y,                                \
+      Tensor<CPUContext>* /*scratch_ptr*/, \
+      CPUContext* /*context*/) {           \
+    *y = *std::min_element(x, x + N);      \
+  }
+CAFFE2_SPECIALIZED_REDUCEMIN(float)
+#undef CAFFE2_SPECIALIZED_REDUCEMIN
 
-#define CAFFE2_SPECIALIZED_COLWISEMAX(T)                                       \
-template <> void ColwiseMax<T, CPUContext>(                                    \
-    const int N, const int D, const T* x, T* y, CPUContext* context) {         \
-  EigenVectorMap<T>(y, D) =                                                    \
-      ConstEigenMatrixMap<T>(x, D, N).rowwise().maxCoeff();                    \
-}
+#define CAFFE2_SPECIALIZED_REDUCEMAX(T)    \
+  template <>                              \
+  void ReduceMax<T, CPUContext>(           \
+      const int N,                         \
+      const T* x,                          \
+      T* y,                                \
+      Tensor<CPUContext>* /*scratch_ptr*/, \
+      CPUContext* /*context*/) {           \
+    *y = *std::max_element(x, x + N);      \
+  }
+CAFFE2_SPECIALIZED_REDUCEMAX(float)
+CAFFE2_SPECIALIZED_REDUCEMAX(int32_t)
+CAFFE2_SPECIALIZED_REDUCEMAX(int64_t)
+
+#undef CAFFE2_SPECIALIZED_REDUCEMAX
+
+#define CAFFE2_SPECIALIZED_ROWWISEMAX(T)                         \
+  template <>                                                    \
+  void RowwiseMax<T, CPUContext>(                                \
+      const int N, const int D, const T* x, T* y, CPUContext*) { \
+    EigenVectorMap<T>(y, N) =                                    \
+        ConstEigenMatrixMap<T>(x, D, N).colwise().maxCoeff();    \
+  }
+CAFFE2_SPECIALIZED_ROWWISEMAX(float)
+#undef CAFFE2_SPECIALIZED_ROWWISEMAX
+
+#define CAFFE2_SPECIALIZED_COLWISEMAX(T)                         \
+  template <>                                                    \
+  void ColwiseMax<T, CPUContext>(                                \
+      const int N, const int D, const T* x, T* y, CPUContext*) { \
+    EigenVectorMap<T>(y, D) =                                    \
+        ConstEigenMatrixMap<T>(x, D, N).rowwise().maxCoeff();    \
+  }
 CAFFE2_SPECIALIZED_COLWISEMAX(float)
+#undef CAFFE2_SPECIALIZED_COLWISEMAX
+
+#define CAFFE2_SPECIALIZED_ELEMWISEMAX(T)                                   \
+  template <>                                                               \
+  void ElemwiseMax<T, CPUContext>(                                          \
+      const int N, const T* x, const T* y, T* z, CPUContext* /*context*/) { \
+    std::transform(x, x + N, y, z, [](const T& x_i, const T& y_i) {         \
+      return std::max(x_i, y_i);                                            \
+    });                                                                     \
+  }
+CAFFE2_SPECIALIZED_ELEMWISEMAX(float)
+#undef CAFFE2_SPECIALIZED_ELEMWISEMAX
+
+#define CAFFE2_SPECIALIZED_MAXIMUM(T)                                          \
+  template <>                                                                  \
+  void Maximum<T, CPUContext>(                                                 \
+      const int N, const float alpha, const T* x, T* y, CPUContext* context) { \
+    std::transform(                                                            \
+        x, x + N, y, [&alpha](const T& x_i) { return std::max(x_i, alpha); }); \
+  }
+CAFFE2_SPECIALIZED_MAXIMUM(float)
+#undef CAFFE2_SPECIALIZED_MAXIMUM
 
 // AddToRow and AddToCol adds the corresponding row/col vector b to the matrix a
 // of shape M x N. The actual implementation uses eigen which is column major,
 // so notice the row/column swap in the actual implementation.
-#define DELEGATE_BROADCAST_BINARY_FUNCTION(T, Funcname, expr)               \
-  template <>                                                               \
-  void Funcname##ToRow<T, CPUContext>(                                      \
-      const int M,                                                          \
-      const int N,                                                          \
-      const T* a,                                                           \
-      const T* b,                                                           \
-      T* y,                                                                 \
-      CPUContext*) {                                                        \
-    EigenArrayMap<T>(y, N, M) = ConstEigenArrayMap<T>(a, N, M).colwise()    \
-                                    expr ConstEigenVectorArrayMap<T>(b, N); \
-  }                                                                         \
-  /* inplace versions */                                                    \
-  template <>                                                               \
-  void Funcname##ToRow<T, CPUContext>(                                      \
-      const int M, const int N, const T* x, T* y, CPUContext* context) {    \
-    EigenArrayMap<T>(y, N, M).colwise() expr## =                            \
-        ConstEigenVectorArrayMap<T>(x, N);                                  \
-  }                                                                         \
-  template <>                                                               \
-  void Funcname##ToCol<T, CPUContext>(                                      \
-      const int M, const int N, const T* x, T* y, CPUContext* context) {    \
-    EigenArrayMap<T>(y, N, M).rowwise() expr## =                            \
-        ConstEigenVectorArrayMap<T>(x, M).transpose();                      \
+#define DELEGATE_BROADCAST_BINARY_FUNCTION(T, Funcname, expr)                \
+  template <>                                                                \
+  void Funcname##ToRow<T, CPUContext>(                                       \
+      const int M, const int N, const T* a, const T* b, T* y, CPUContext*) { \
+    EigenArrayMap<T>(y, N, M) = ConstEigenArrayMap<T>(a, N, M).colwise()     \
+                                    expr ConstEigenVectorArrayMap<T>(b, N);  \
+  }                                                                          \
+  /* inplace versions */                                                     \
+  template <>                                                                \
+  void Funcname##ToRow<T, CPUContext>(                                       \
+      const int M, const int N, const T* x, T* y, CPUContext*) {             \
+    EigenArrayMap<T>(y, N, M).colwise() expr## =                             \
+        ConstEigenVectorArrayMap<T>(x, N);                                   \
+  }                                                                          \
+  template <>                                                                \
+  void Funcname##ToCol<T, CPUContext>(                                       \
+      const int M, const int N, const T* x, T* y, CPUContext*) {             \
+    EigenArrayMap<T>(y, N, M).rowwise() expr## =                             \
+        ConstEigenVectorArrayMap<T>(x, M).transpose();                       \
   }
 
 #define DEFINE_BROADCAST_BINARY_FUNCTION(name, op)                       \
   DELEGATE_BROADCAST_BINARY_FUNCTION(int32_t, name, op)                  \
   DELEGATE_BROADCAST_BINARY_FUNCTION(int64_t, name, op)                  \
   DELEGATE_BROADCAST_BINARY_FUNCTION(float, name, op)                    \
-  DELEGATE_BROADCAST_BINARY_FUNCTION(double, name, op)
 
 DEFINE_BROADCAST_BINARY_FUNCTION(Add, +)
 DEFINE_BROADCAST_BINARY_FUNCTION(Sub, -)
@@ -577,49 +662,51 @@ DEFINE_BROADCAST_BINARY_FUNCTION(Div, /)
 #undef DEFINE_BROADCAST_BINARY_FUNCTION
 #undef DELEGATE_BROADCAST_BINARY_FUNCTION
 
-#define CAFFE2_SPECIALIZED_SET(T)                                 \
-  template <>                                                     \
-  void Set<T, CPUContext>(                                        \
-      const TIndex N, const T alpha, T* Y, CPUContext* context) { \
-    if (alpha == (T)0) {                                          \
-      memset(Y, 0, N * sizeof(T));                                \
-    } else {                                                      \
-      EigenVectorMap<T>(Y, N).setConstant(alpha);                 \
-    }                                                             \
+#define CAFFE2_SPECIALIZED_SET(T)                                             \
+  template <>                                                                 \
+  void Set<T, CPUContext>(const TIndex N, const T alpha, T* Y, CPUContext*) { \
+    if (alpha == (T)0) {                                                      \
+      memset(Y, 0, N * sizeof(T));                                            \
+    } else {                                                                  \
+      EigenVectorMap<T>(Y, N).setConstant(alpha);                             \
+    }                                                                         \
   }
 
 CAFFE2_SPECIALIZED_SET(float);
 CAFFE2_SPECIALIZED_SET(double);
+CAFFE2_SPECIALIZED_SET(int8_t);
+CAFFE2_SPECIALIZED_SET(int16_t);
 CAFFE2_SPECIALIZED_SET(int);
 CAFFE2_SPECIALIZED_SET(int64_t);
 CAFFE2_SPECIALIZED_SET(bool);
 CAFFE2_SPECIALIZED_SET(char);
+CAFFE2_SPECIALIZED_SET(uint8_t);
+CAFFE2_SPECIALIZED_SET(uint16_t);
 #undef CAFFE2_SPECIALIZED_SET
 
-#define CAFFE2_INSTANTIATE_BINARY_OP(name, op, T)                          \
-  template <>                                                              \
-  void name<T, CPUContext>(                                                \
-      const int n, const T* a, const T* b, bool* y, CPUContext* context) { \
-    for (int i = 0; i < n; ++i) {                                          \
-      y[i] = a[i] op b[i];                                                 \
-    }                                                                      \
-  }                                                                        \
-  template <>                                                              \
-  void name##ToRow<T, CPUContext>(                                         \
-      const int m,                                                         \
-      const int n,                                                         \
-      const T* a,                                                          \
-      const T* b,                                                          \
-      bool* y,                                                             \
-      CPUContext* context) {                                               \
-    for (int i = 0; i < n * m; ++i) {                                      \
-      y[i] = a[i] op b[i % n];                                             \
-    }                                                                      \
+#define CAFFE2_INSTANTIATE_BINARY_OP(name, op, T)                  \
+  template <>                                                      \
+  void name<T, CPUContext>(                                        \
+      const int n, const T* a, const T* b, bool* y, CPUContext*) { \
+    for (int i = 0; i < n; ++i) {                                  \
+      y[i] = a[i] op b[i];                                         \
+    }                                                              \
+  }                                                                \
+  template <>                                                      \
+  void name##ToRow<T, CPUContext>(                                 \
+      const int m,                                                 \
+      const int n,                                                 \
+      const T* a,                                                  \
+      const T* b,                                                  \
+      bool* y,                                                     \
+      CPUContext*) {                                               \
+    for (int i = 0; i < n * m; ++i) {                              \
+      y[i] = a[i] op b[i % n];                                     \
+    }                                                              \
   }
 
 #define CAFFE2_DEFINE_BINARY_OP(name, op)         \
   CAFFE2_INSTANTIATE_BINARY_OP(name, op, float)   \
-  CAFFE2_INSTANTIATE_BINARY_OP(name, op, double)  \
   CAFFE2_INSTANTIATE_BINARY_OP(name, op, int32_t) \
   CAFFE2_INSTANTIATE_BINARY_OP(name, op, int64_t)
 
@@ -637,7 +724,7 @@ void Not<bool, CPUContext>(
     const int n,
     const bool* x,
     bool* y,
-    CPUContext* context) {
+    CPUContext* /*context*/) {
   for (int i = 0; i < n; ++i) {
     y[i] = !x[i];
   }
@@ -645,6 +732,23 @@ void Not<bool, CPUContext>(
 
 #undef CAFFE2_DEFINE_BINARY_OP
 #undef CAFFE2_INSTANTIATE_BINARY_OP
+
+#define CAFFE2_SPECIALIZED_CPU_ADD_STRIPED_BATCH(T)             \
+  template <>                                                   \
+  void AddStripedBatch(                                         \
+      const int N,                                              \
+      const T* first,                                           \
+      T* y,                                                     \
+      const int stripe,                                         \
+      const int batch,                                          \
+      CPUContext* context) {                                    \
+    for (int j = 0; j < batch; j++) {                           \
+      Add<T, CPUContext>(N, first + j * stripe, y, y, context); \
+    }                                                           \
+  }
+
+CAFFE2_SPECIALIZED_CPU_ADD_STRIPED_BATCH(float);
+#undef CAFFE2_SPECIALIZED_CPU_ADD_STRIPED_BATCH
 
 template <>
 void RandUniform<float, CPUContext>(
@@ -666,6 +770,37 @@ void RandUniform<int, CPUContext>(
   }
 }
 
+#define CAFFE2_SPECIALIZED_RAND_UNIFORM_UNIQUE(T)                      \
+  template <>                                                          \
+  void RandUniformUnique<T, CPUContext>(                               \
+      const size_t n,                                                  \
+      const T a,                                                       \
+      const T b,                                                       \
+      T* r,                                                            \
+      const size_t m,                                                  \
+      const T* avoid,                                                  \
+      CPUContext* context) {                                           \
+    CAFFE_ENFORCE_LE(                                                  \
+        n, b - a - m + 1, "Cannot satisfy the unique requirement");    \
+    std::unordered_set<T> avoid_set(n);                                \
+    if (m) {                                                           \
+      avoid_set.insert(avoid, avoid + m);                              \
+      CAFFE_ENFORCE_EQ(m, avoid_set.size(), "Avoid should be unique"); \
+    }                                                                  \
+    std::uniform_int_distribution<T> distribution(a, b);               \
+    T v = 0;                                                           \
+    for (size_t i = 0; i < n; ++i) {                                   \
+      do {                                                             \
+        v = distribution(context->RandGenerator());                    \
+      } while (avoid_set.count(v));                                    \
+      r[i] = v;                                                        \
+      avoid_set.insert(v);                                             \
+    }                                                                  \
+  }
+
+CAFFE2_SPECIALIZED_RAND_UNIFORM_UNIQUE(int32_t);
+CAFFE2_SPECIALIZED_RAND_UNIFORM_UNIQUE(int64_t);
+#undef CAFFE2_SPECIALIZED_RAND_UNIFORM_UNIQUE
 
 template <>
 void RandGaussian<float, CPUContext>(
@@ -677,28 +812,150 @@ void RandGaussian<float, CPUContext>(
   }
 }
 
-template<>
-void Sum<float, CPUContext>(
-    const int N, const float* x, float* y,
-    CPUContext* context) {
-  *y = ConstEigenVectorMap<float>(x, N).sum();
-}
+#define CAFFE2_SPECIALIZED_SUM(T)            \
+  template <>                                \
+  void Sum<T, CPUContext>(                   \
+      const int N,                           \
+      const T* x,                            \
+      T* y,                                  \
+      CPUContext* /* unused */,              \
+      Tensor<CPUContext>* /* unused */) {    \
+    *y = ConstEigenVectorMap<T>(x, N).sum(); \
+  }
 
-template<>
-void Sum<double, CPUContext>(
-    const int N, const double* x, double* y,
-    CPUContext* context) {
-  *y = ConstEigenVectorMap<double>(x, N).sum();
+CAFFE2_SPECIALIZED_SUM(float);
+CAFFE2_SPECIALIZED_SUM(int32_t);
+CAFFE2_SPECIALIZED_SUM(int64_t);
+
+#undef CAFFE2_SPECIALIZED_SUM
+
+template <>
+void SumSqr<float, CPUContext>(
+    const int N,
+    const float* x,
+    float* y,
+    CPUContext* /*context*/ /* unused */,
+    Tensor<CPUContext>* /*scratch_ptr*/ /* unused */) {
+  *y = ConstEigenVectorMap<float>(x, N).squaredNorm();
 }
 
 template <>
 void Select<float, CPUContext>(
-      const int N, const int D, const float* x, const int* idx, float* y,
-      CPUContext* context) {
+    const int N,
+    const int D,
+    const float* x,
+    const int* idx,
+    float* y,
+    CPUContext* /*context*/) {
   for (int i = 0; i < N; ++i) {
     DCHECK_LT(idx[i], D);
     y[i] = x[i * D + idx[i]];
   }
+}
+// Ported from caffe 1.
+template <>
+void Im2colNd<float, CPUContext, StorageOrder::NCHW>(
+    const float* data_img,
+    const int* im_shape,
+    const int* col_shape,
+    const int /* img_size*/,
+    const int /* col_size*/,
+    const int* kernel_shape,
+    const int* stride,
+    const int* dilation,
+    const int* pad,
+    const int N,
+    float* data_col,
+    CPUContext* /* context */,
+    bool accumulate_output) {
+  int kernel_size = 1;
+  for (int i = 0; i < N; ++i) {
+    kernel_size *= kernel_shape[i];
+  }
+  const int channels_col = col_shape[0];
+  vector<int> d_offset(N, 0);
+  vector<int> d_iter(N, 0);
+  for (int c_col = 0; c_col < channels_col; ++c_col) {
+    // Loop over spatial axes in reverse order to compute a per-axis offset.
+    int offset = c_col;
+    for (int d_i = N - 1; d_i >= 0; --d_i) {
+      if (d_i < N - 1) {
+        offset /= kernel_shape[d_i + 1];
+      }
+      d_offset[d_i] = offset % kernel_shape[d_i];
+    }
+    for (bool incremented = true; incremented;) {
+      // Loop over spatial axes in forward order to compute the indices in the
+      // image and column, and whether the index lies in the padding.
+      int index_col = c_col;
+      int index_im = c_col / kernel_size;
+      bool is_padding = false;
+      for (int d_i = 0; d_i < N; ++d_i) {
+        const int d = d_iter[d_i];
+        const int d_im =
+            d * stride[d_i] - pad[d_i] + d_offset[d_i] * dilation[d_i];
+        is_padding |= d_im < 0 || d_im >= im_shape[d_i + 1];
+        index_col *= col_shape[d_i + 1];
+        index_col += d;
+        index_im *= im_shape[d_i + 1];
+        index_im += d_im;
+      }
+      if (!accumulate_output) {
+        if (is_padding) {
+          data_col[index_col] = 0;
+        } else {
+          data_col[index_col] = data_img[index_im];
+        }
+      } else if (!is_padding) { // col2im
+        data_col[index_im] += data_img[index_col];
+      }
+      // Loop over spatial axes in reverse order to choose an index,
+      // like counting.
+      incremented = false;
+      for (int d_i = N - 1; d_i >= 0; --d_i) {
+        const int d_max = col_shape[d_i + 1];
+        DCHECK_LT(d_iter[d_i], d_max);
+        if (d_iter[d_i] == d_max - 1) {
+          d_iter[d_i] = 0;
+        } else { // d_iter[d_i] < d_max - 1
+          ++d_iter[d_i];
+          incremented = true;
+          break;
+        }
+      }
+    } // while(incremented) {
+  } // for (int c = 0; c < channels_col; ++c) {
+}
+
+template <>
+void Col2imNd<float, CPUContext, StorageOrder::NCHW>(
+    const float* data_col,
+    const int* img_shape,
+    const int* col_shape,
+    const int img_size,
+    const int col_size,
+    const int* kernel_shape,
+    const int* stride,
+    const int* dilation,
+    const int* pad,
+    const int N,
+    float* data_img,
+    CPUContext* context) {
+  Set<float, CPUContext>(img_size, 0, data_img, context);
+  Im2colNd<float, CPUContext, StorageOrder::NCHW>(
+      data_col,
+      img_shape,
+      col_shape,
+      img_size,
+      col_size,
+      kernel_shape,
+      stride,
+      dilation,
+      pad,
+      N,
+      data_img,
+      context,
+      true);
 }
 
 template <>
@@ -718,7 +975,7 @@ void Im2col<float, CPUContext, StorageOrder::NCHW>(
     const int stride_h,
     const int stride_w,
     float* data_col,
-    CPUContext* context) {
+    CPUContext* /*context*/) {
   const int output_h =
       (height + pad_b + pad_t - (dilation_h * (kernel_h - 1) + 1)) / stride_h +
       1;
@@ -836,7 +1093,7 @@ void Im2col<float, CPUContext, StorageOrder::NHWC>(
     const int stride_h,
     const int stride_w,
     float* data_col,
-    CPUContext* context) {
+    CPUContext* /*context*/) {
   const int dkernel_h = dilation_h * (kernel_h - 1) + 1;
   const int dkernel_w = dilation_w * (kernel_w - 1) + 1;
 
@@ -1027,11 +1284,11 @@ void Col2im<float, CPUContext, StorageOrder::NHWC>(
 
 template <>
 void BiasCHW<float, CPUContext>(
-  const float* bias,
-  const int bias_channels,
-  const int image_size,
-  float* image,
-  CPUContext* context) {
+    const float* bias,
+    const int bias_channels,
+    const int image_size,
+    float* image,
+    CPUContext* /*context*/) {
   // Sum the per-channel bias into every image plane
   for (int c = 0; c < bias_channels; ++c) {
     float b = bias[c];
@@ -1111,8 +1368,14 @@ void BiasCHW<float, CPUContext>(
 
 template <>
 void CopyMatrix<CPUContext>(
-    const size_t itemsize, const int M, const int N, const void* A,
-    const int lda, void* B, const int ldb, CPUContext* context) {
+    const size_t itemsize,
+    const int M,
+    const int N,
+    const void* A,
+    const int lda,
+    void* B,
+    const int ldb,
+    CPUContext* /*context*/) {
   if (lda == N && ldb == N) {
     // can coalese to a single memcpy of size M * N
     memcpy(
@@ -1127,18 +1390,32 @@ void CopyMatrix<CPUContext>(
   }
 }
 
+#define CAFFE2_SPECIALIZED_COPYVECTOR(T)                            \
+  template <>                                                       \
+  void CopyVector<T, CPUContext>(                                   \
+      const int N, const T* src, T* dst, CPUContext* /*context*/) { \
+    if (src != dst && N > 0) {                                      \
+      memcpy(dst, src, sizeof(T) * N);                              \
+    }                                                               \
+  }
+CAFFE2_SPECIALIZED_COPYVECTOR(float)
+#undef CAFFE2_SPECIALIZED_COPYVECTOR
+
 uint32_t randomNumberSeed() {
-  // Copied from folly::randomNumberSeed (at 418ad4)
+  // Originally copied from folly::randomNumberSeed (at 418ad4)
+  // modified to use chrono instead of sys/time.h
   static std::atomic<uint32_t> seedInput(0);
-  struct timeval tv;
-  gettimeofday(&tv, nullptr);
+  auto tv = std::chrono::system_clock::now().time_since_epoch();
+  uint64_t usec = static_cast<uint64_t>(
+      std::chrono::duration_cast<std::chrono::microseconds>(tv).count());
+  uint32_t tv_sec = usec / 1000000;
+  uint32_t tv_usec = usec % 1000000;
   const uint32_t kPrime0 = 51551;
   const uint32_t kPrime1 = 61631;
   const uint32_t kPrime2 = 64997;
   const uint32_t kPrime3 = 111857;
   return kPrime0 * (seedInput++) + kPrime1 * static_cast<uint32_t>(getpid()) +
-      kPrime2 * static_cast<uint32_t>(tv.tv_sec) +
-      kPrime3 * static_cast<uint32_t>(tv.tv_usec);
+      kPrime2 * tv_sec + kPrime3 * tv_usec;
 }
 
 }  // namespace math

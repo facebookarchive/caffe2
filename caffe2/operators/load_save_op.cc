@@ -9,12 +9,26 @@ void LoadOp<CPUContext>::SetCurrentDevice(BlobProto* proto) {
   }
 }
 
-namespace {
+REGISTER_CPU_OPERATOR(DBExists, DBExistsOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Load, LoadOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Save, SaveOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Checkpoint, CheckpointOp<CPUContext>);
 // CPU Operator old name: do NOT use, we may deprecate this later.
 REGISTER_CPU_OPERATOR(Snapshot, CheckpointOp<CPUContext>);
+
+OPERATOR_SCHEMA(DBExists)
+    .NumInputs(0)
+    .NumOutputs(1)
+    .SetDoc(R"DOC(
+Checks if the DB exists.
+)DOC")
+    .Output(0, "exists", "A scalar bool Tensor.")
+    .Arg(
+        "absolute_path",
+        "(int, default 0) if set, use the db path directly and do not prepend "
+        "the current root folder of the workspace.")
+    .Arg("db_name", "(string) the path to the db to load.")
+    .Arg("db_type", "(string) the type of the db.");
 
 OPERATOR_SCHEMA(Load)
     .NumInputs(0, 1)
@@ -32,6 +46,17 @@ DBReader to load from, and we ignore the db and db_type arguments.
         "absolute_path",
         "(int, default 0) if set, use the db path directly and do not prepend "
         "the current root folder of the workspace.")
+    .Arg(
+        "add_prefix",
+        "(string, default=\"\") blobs will be prefixed with this when loading."
+        "Useful for avoiding collisions with blobs existing in the workspace."
+        "The output blob names specified to this op should include this prefix.")
+    .Arg(
+        "strip_prefix",
+        "(string, default=\"\") characters in the provided blob "
+        " names that match strip_prefix will be removed prior to loading."
+        " Also, characters that precede strip_prefix will be removed. Useful "
+        " for removing device scope from blob names.")
     .Arg("db", "(string) the path to the db to load.")
     .Arg("db_type", "(string) the type of the db.")
     .Arg(
@@ -42,19 +67,41 @@ DBReader to load from, and we ignore the db and db_type arguments.
     .Arg(
         "load_all",
         "(int, default 0) if nonzero, will load all blobs pointed to by the db "
-        "to the workspace overwriting/creating blobs as needed.");
+        "to the workspace overwriting/creating blobs as needed.")
+    .Arg(
+        "allow_incomplete",
+        "(bool, default false) if true, will allow not loading all the output "
+        "blobs specified in the outputs")
+    .Arg(
+        "source_blob_names",
+        "(list of strings) if set, used instead of output "
+        "blob names, to specify which blobs in the db shall be loaded. Must be "
+        "the same length as number of output blobs.");
 
-OPERATOR_SCHEMA(Save).NumInputs(1, INT_MAX).NumOutputs(0)
-.SetDoc(R"DOC(
+OPERATOR_SCHEMA(Save)
+    .NumInputs(1, INT_MAX)
+    .NumOutputs(0)
+    .SetDoc(R"DOC(
 The Save operator saves a set of blobs to a db. It takes [1, infinity) number
 of inputs and has no output. The contents of the inputs are written into the
 db specified by the arguments.
 )DOC")
-.Arg("absolute_path",
-     "(int, default 0) if set, use the db path directly and do not prepend "
-     "the current root folder of the workspace.")
-.Arg("db", "(string) the path to the db to load.")
-.Arg("db_type", "(string) the type of the db.");
+    .Arg(
+        "absolute_path",
+        "(int, default 0) if set, use the db path directly and do not prepend "
+        "the current root folder of the workspace.")
+     .Arg(
+         "strip_prefix",
+         "(string, default=\"\") characters in the provided blob "
+         " names that match strip_prefix will be removed prior to saving."
+         " Also, characters that precede strip_prefix will be removed. Useful "
+         " for removing device scope from blob names.")
+    .Arg(
+        "blob_name_overrides",
+        "(list of strings) if set, used instead of original "
+        "blob names. Must be the same length as number of blobs.")
+    .Arg("db", "(string) the path to the db to load.")
+    .Arg("db_type", "(string) the type of the db.");
 
 OPERATOR_SCHEMA(Checkpoint)
     .NumInputs(1, INT_MAX)
@@ -81,9 +128,11 @@ counter). This is determined whether we need to do checkpointing.
         "(int, default 1) the checkpointing is carried out when "
         "(iter mod every) is zero.");
 
+OPERATOR_SCHEMA(Snapshot);
+
 NO_GRADIENT(Load);
+SHOULD_NOT_DO_GRADIENT(DBExists);
 SHOULD_NOT_DO_GRADIENT(Save);
 SHOULD_NOT_DO_GRADIENT(Checkpoint);
 SHOULD_NOT_DO_GRADIENT(Snapshot);
-}  // namespace
 }  // namespace caffe2

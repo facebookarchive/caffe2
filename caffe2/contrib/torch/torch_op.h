@@ -56,7 +56,7 @@ class Torch final {
     return Traits::tensorTy;
   }
 
-  void setContext(Context* context) {}
+  void setContext(Context* /*context*/) {}
 
   void setTensor(typename Traits::Tensor* t, Blob* blob) {
     CAFFE_ENFORCE_EQ(tensorTy(*blob), Traits::tensorTy);
@@ -260,8 +260,8 @@ class TorchOpBase : public Operator<Context> {
     if (paramBlobs.size() != 0) {
       lua_getfield(L, -1, "parameters");
       lua_pushvalue(L, -2);
-      int err = lua_pcall(L, 1, LUA_MULTRET, 0);
-      CAFFE_ENFORCE_EQ(err, 0);
+      int err2 = lua_pcall(L, 1, LUA_MULTRET, 0);
+      CAFFE_ENFORCE_EQ(err2, 0);
       CAFFE_ENFORCE_EQ(lua_gettop(L), 3);
       lua_pushnil(L);
       int i = 0;

@@ -16,8 +16,8 @@ class HSoftmaxOpBase : public Operator<Context> {
   HSoftmaxOpBase(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws) {
     HierarchyProto hierarchy;
-    hierarchy.ParseFromString(
-        OperatorBase::GetSingleArgument<string>("hierarchy", ""));
+    CAFFE_ENFORCE(hierarchy.ParseFromString(
+        OperatorBase::GetSingleArgument<string>("hierarchy", "")));
     for (const auto& path : hierarchy.paths()) {
       hierarchy_all_map_.emplace(path.word_id(), path);
     }
@@ -117,7 +117,8 @@ class HSoftmaxSearchOp final : public HSoftmaxOp<T, Context> {
       : HSoftmaxOp<T, Context>(operator_def, ws),
         top_n_(OperatorBase::GetSingleArgument<int>("topN", 5)),
         beam_(OperatorBase::GetSingleArgument<float>("beam", 0.01)) {
-    tree_.ParseFromString(OperatorBase::GetSingleArgument<string>("tree", ""));
+    CAFFE_ENFORCE(tree_.ParseFromString(
+        OperatorBase::GetSingleArgument<string>("tree", "")));
   }
   bool RunOnDevice() override;
 
@@ -152,17 +153,10 @@ class HuffmanTreeHierarchyOp : public Operator<Context> {
  private:
   // Internal huffman tree data.
   struct Node {
-    Node(int l, int count)
-        : label(l),
-          count(count),
-          index(-1),
-          parent_index(-1),
-          left_ch_index(-1),
-          right_ch_index(-1) {}
+    Node(T l, int count)
+        : label(l), count(count), left_ch_index(-1), right_ch_index(-1) {}
     T label;
     int count;
-    int index;
-    int parent_index;
     int left_ch_index;
     int right_ch_index;
   };

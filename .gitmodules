@@ -10,9 +10,6 @@
 [submodule "third_party/cub"]
 	path = third_party/cub
 	url = https://github.com/NVlabs/cub.git
-[submodule "third_party/protobuf"]
-	path = third_party/protobuf
-	url = https://github.com/google/protobuf.git
 [submodule "third_party/eigen"]
 	path = third_party/eigen
 	url = https://github.com/RLovelett/eigen.git
@@ -22,3 +19,33 @@
 [submodule "third_party/nervanagpu"]
 	path = third_party/nervanagpu
 	url = https://github.com/NervanaSystems/nervanagpu.git
+[submodule "third_party/benchmark"]
+	path = third_party/benchmark
+	url = https://github.com/google/benchmark.git
+[submodule "third_party/protobuf"]
+	path = third_party/protobuf
+	url = https://github.com/google/protobuf.git
+[submodule "third_party/android-cmake"]
+	path = third_party/android-cmake
+	url = https://github.com/Yangqing/android-cmake.git
+[submodule "third_party/ios-cmake"]
+	path = third_party/ios-cmake
+	url = https://github.com/Yangqing/ios-cmake.git
+[submodule "third_party/NNPACK"]
+	path = third_party/NNPACK
+	url = https://github.com/Maratyszcza/NNPACK.git
+[submodule "third_party/gloo"]
+	path = third_party/gloo
+	url = https://github.com/facebookincubator/gloo
+[submodule "third_party/NNPACK_deps/pthreadpool"]
+	path = third_party/NNPACK_deps/pthreadpool
+	url = https://github.com/Maratyszcza/pthreadpool.git
+[submodule "third_party/NNPACK_deps/FXdiv"]
+	path = third_party/NNPACK_deps/FXdiv
+	url = https://github.com/Maratyszcza/FXdiv.git
+[submodule "third_party/NNPACK_deps/FP16"]
+	path = third_party/NNPACK_deps/FP16
+	url = https://github.com/Maratyszcza/FP16.git
+[submodule "third_party/NNPACK_deps/psimd"]
+	path = third_party/NNPACK_deps/psimd
+	url = https://github.com/Maratyszcza/psimd.git

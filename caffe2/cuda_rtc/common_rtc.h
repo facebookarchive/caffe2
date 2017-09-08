@@ -1,6 +1,9 @@
 #ifndef CAFFE2_CUDA_RTC_COMMON_RTC_H_
 #define CAFFE2_CUDA_RTC_COMMON_RTC_H_
 
+#include <sstream>
+#include <string>
+
 #include <cuda.h>
 #include <nvrtc.h>
 
@@ -21,7 +24,7 @@ class CudaRTCFunction {
   CudaRTCFunction() : module_loaded_(false) {}
   ~CudaRTCFunction() {
     if (module_loaded_) {
-      CUDA_DRIVERAPI_CHECK(cuModuleUnload(module_));
+      CUDA_DRIVERAPI_ENFORCE(cuModuleUnload(module_));
     }
   }
 
@@ -48,24 +51,26 @@ class CudaRTCFunction {
     if (compile_result != NVRTC_SUCCESS) {
       size_t log_size;
       NVRTC_CHECK(nvrtcGetProgramLogSize(prog, &log_size));
-      char nvrtc_log[log_size];
-      NVRTC_CHECK(nvrtcGetProgramLog(prog, nvrtc_log));
+      vector<char> nvrtc_log(log_size);
+      NVRTC_CHECK(nvrtcGetProgramLog(prog, nvrtc_log.data()));
       LOG(FATAL) << "Compilation failure for nvrtc("
-                      << nvrtcGetErrorString(compile_result)
-                      << "): \n" << nvrtc_log;
+                 << nvrtcGetErrorString(compile_result) << "): \n"
+                 << nvrtc_log.data();
     }
     size_t ptx_size;
     NVRTC_CHECK(nvrtcGetPTXSize(prog, &ptx_size));
-    char nvrtc_ptx[ptx_size];
-    NVRTC_CHECK(nvrtcGetPTX(prog, nvrtc_ptx));
+    vector<char> nvrtc_ptx(ptx_size);
+    NVRTC_CHECK(nvrtcGetPTX(prog, nvrtc_ptx.data()));
     NVRTC_CHECK(nvrtcDestroyProgram(&prog));
     // After compilation, load the module.
     if (module_loaded_) {
-      CUDA_DRIVERAPI_CHECK(cuModuleUnload(module_));
+      CUDA_DRIVERAPI_ENFORCE(cuModuleUnload(module_));
     }
-    CUDA_DRIVERAPI_CHECK(cuModuleLoadDataEx(&module_, nvrtc_ptx, 0, 0, 0));
+    CUDA_DRIVERAPI_ENFORCE(
+        cuModuleLoadDataEx(&module_, nvrtc_ptx.data(), 0, 0, 0));
     module_loaded_ = true;
-    CUDA_DRIVERAPI_CHECK(cuModuleGetFunction(&kernel_, module_, name.c_str()));
+    CUDA_DRIVERAPI_ENFORCE(
+        cuModuleGetFunction(&kernel_, module_, name.c_str()));
   }
 
   template <typename... Args>
@@ -76,9 +81,8 @@ class CudaRTCFunction {
     CAFFE_ENFORCE(
         module_loaded_, "Cannot call Launch before a module is loaded.");
     void * args_voidp[] = {&args...};
-    CUDA_DRIVERAPI_CHECK(cuLaunchKernel(
-        kernel_, gx, gy, gz, bx, by, bz, shared_mem, stream,
-        args_voidp, 0));
+    CUDA_DRIVERAPI_ENFORCE(cuLaunchKernel(
+        kernel_, gx, gy, gz, bx, by, bz, shared_mem, stream, args_voidp, 0));
   }
 
   void LaunchEx(unsigned int gx, unsigned int gy, unsigned int gz,
@@ -87,9 +91,8 @@ class CudaRTCFunction {
                 void** extra) {
     CAFFE_ENFORCE(
         module_loaded_, "Cannot call Launch before a module is loaded.");
-    CUDA_DRIVERAPI_CHECK(cuLaunchKernel(
-        kernel_, gx, gy, gz, bx, by, bz, shared_mem, stream,
-        nullptr, extra));
+    CUDA_DRIVERAPI_ENFORCE(cuLaunchKernel(
+        kernel_, gx, gy, gz, bx, by, bz, shared_mem, stream, nullptr, extra));
   }
 
  private:
@@ -99,7 +102,7 @@ class CudaRTCFunction {
 };
 
 // TODO: this is in no way unique and is just a hack right now.
-inline string GetUniqueName() {
+inline std::string GetUniqueName() {
   static constexpr int len = 20;
   static const char alpha[] =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

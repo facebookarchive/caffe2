@@ -3,11 +3,13 @@
 
 #include "caffe2/core/common.h"
 #include "caffe2/core/context.h"
-#include "caffe2/core/context_gpu.h"
 #include "caffe2/core/operator.h"
+#include "caffe2/mkl/mkl_utils.h"
 #include "caffe2/proto/caffe2.pb.h"
 
+#ifdef CAFFE2_HAS_MKL_DNN
 namespace caffe2 {
+namespace mkl {
 
 /**
  * @brief A templated class to allow one to wrap a CPU operator as an MKL
@@ -33,7 +35,7 @@ namespace caffe2 {
  * can use the SkipOutputCopy template argument to do that. For example, if
  * MyMagic produces two outputs and the first output is always going to live on
  * the CPU, you can do
- *     REGISTER_CUDA_OPERATOR(MyMagic,
+ *     REGISTER_MKL_OPERATOR(MyMagic,
  *                            MKLFallbackOp<MyMagicOp, SkipIndices<0>>);
  */
 template <class CPUOp, typename SkipOutputCopy = SkipIndices<>>
@@ -45,7 +47,8 @@ class MKLFallbackOp final : public Operator<MKLContext> {
     CAFFE_ENFORCE_EQ(def.device_option().device_type(), MKLDNN);
     OperatorDef base_def_(def);
     // base_def_ runs on CPU, so we will set its device option to CPU.
-    base_def_.clear_device_option();
+    // Copy to allow random_seed to be correctly propagated.
+    base_def_.mutable_device_option()->CopyFrom(def.device_option());
     base_def_.mutable_device_option()->set_device_type(CPU);
     // Set up the symbols for the local workspace.
     for (const string& name : def.input()) {
@@ -80,7 +83,7 @@ class MKLFallbackOp final : public Operator<MKLContext> {
 
     if (!base_op_->Run()) {
       LOG(ERROR) << "Base op run failed in MKLFallbackOp. Def: "
-                 << ProtoDebugString(def());
+                 << ProtoDebugString(this->debug_def());
       return false;
     }
 
@@ -94,18 +97,18 @@ class MKLFallbackOp final : public Operator<MKLContext> {
           "MKL fallback op currently does not support non-TensorCPU "
           "output type who needs copying.");
       const auto& src = local_output_blobs_[i]->template Get<TensorCPU>();
-      if (src.IsType<float>()) {
+      if (src.template IsType<float>()) {
         Blob* dst = OperatorBase::OutputBlob(i);
-        if (!dst->IsType<MKLMemory<float>>() ||
+        if (!dst->template IsType<MKLMemory<float>>() ||
             dst->Get<MKLMemory<float>>().dims() != src.dims()) {
-          dst->Reset(new MKLMemory<float>(src.dims());
+          dst->Reset(new MKLMemory<float>(src.dims()));
         }
         dst->GetMutable<MKLMemory<float>>()->CopyFrom(src);
-      } else if (src.IsType<double>()) {
+      } else if (src.template IsType<double>()) {
         Blob* dst = OperatorBase::OutputBlob(i);
-        if (!dst->IsType<MKLMemory<double>>() ||
+        if (!dst->template IsType<MKLMemory<double>>() ||
             dst->Get<MKLMemory<double>>().dims() != src.dims()) {
-          dst->Reset(new MKLMemory<double>(src.dims());
+          dst->Reset(new MKLMemory<double>(src.dims()));
         }
         dst->GetMutable<MKLMemory<double>>()->CopyFrom(src);
       } else {
@@ -121,7 +124,9 @@ class MKLFallbackOp final : public Operator<MKLContext> {
   vector<Blob*> local_output_blobs_;
   std::unique_ptr<CPUOp> base_op_;
 };
+}
 
 } // namespace caffe2
 
+#endif // CAFFE2_HAS_MKL_DNN
 #endif // CAFFE2_OPERATORS_OPERATOR_FALLBACK_H_

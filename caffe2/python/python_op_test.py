@@ -18,6 +18,22 @@ def MainOpFunctionThatThrowsRuntimeError(inputs, _):
     return SubFunctionThatThrowsRuntimeError()
 
 
+def op_builder(name, index, extra):
+    iterations = [0]
+    assert name == 'name'
+    assert index == 5
+    assert extra - 4.2 < 0.0001
+
+    def my_op(inputs, outputs):
+        assert inputs[0].data[0] == iterations[0]
+        assert name == 'name'
+        assert index == 5
+        assert extra - 4.2 < 0.0001
+        iterations[0] += 1
+
+    return my_op
+
+
 class PythonOpTest(hu.HypothesisTestCase):
     @given(x=hu.tensor())
     def test_feed(self, x):
@@ -46,6 +62,23 @@ class PythonOpTest(hu.HypothesisTestCase):
         net.Python(f)(["x"], [])
         workspace.FeedBlob("x", x)
         workspace.RunNetOnce(net)
+
+    def test_builder_tuple(self):
+        net = core.Net("builder_template")
+        iter_blob = 'iter'
+        net.Python((op_builder, ['name', 5], {'extra': 4.2}))([iter_blob], [])
+        net.Python((op_builder, ['name', 5], {'extra': 4.2}))([iter_blob], [])
+        for repeat in range(2):
+            # check that the builder will be called exactly once for each
+            # PythonOp constructor. Cloning the net will also trigger a call
+            # to the builder when the net is created.
+            cloned_net = net.Clone('builder_%d' % repeat)
+            workspace.FeedBlob(iter_blob, np.array([0]))
+            # Builder gets called once per python op in the line below
+            workspace.CreateNet(cloned_net)
+            for i in range(10):
+                workspace.FeedBlob(iter_blob, np.array([i]))
+                workspace.RunNet(cloned_net)
 
     @given(x=hu.tensor())
     def test_feed_with_gc(self, x):
@@ -165,3 +198,33 @@ class PythonOpTest(hu.HypothesisTestCase):
         for idx in [0, 1]:
             self.assertGradientChecks(gc, op, [x1, x2], idx, [0, 1])
         self.assertDeviceChecks(dc, op, [x1, x2], [0, 1])
+
+    @given(inputs=hu.tensors(n=3), **hu.gcs)
+    def test_gradient_multiple_with_indices(self, inputs, gc, dc):
+        (x1, x2, x3) = inputs
+
+        def f(inputs, outputs):
+            for idx in [0, 1, 2]:
+                self.assertEqual(type(inputs[idx].shape), tuple)
+                outputs[idx].reshape(inputs[idx].shape)
+                outputs[idx].data[...] = inputs[idx].data * 2
+
+        def grad_f(inputs, outputs):
+            # Ordering is [inputs, outputs, grad_outputs]
+            self.assertEqual(len(inputs), 8)
+            self.assertEqual(len(outputs), 1)
+            for (grad_output_idx, grad_input_idx) in [(6, 0)]:
+                grad_output = inputs[grad_output_idx]
+                grad_input = outputs[grad_input_idx]
+                grad_input.reshape(grad_output.shape)
+                grad_input.data[...] = grad_output.data * 2
+
+        op = CreatePythonOperator(
+            f, ["x1", "x2", "x3"], ["y1", "y2", "y3"],
+            grad_f=grad_f,
+            grad_output_indices=[0, 2],  # Receive grad outputs for y1 and y3
+            grad_input_indices=[0]       # Produce grad inputs for x1
+        )
+
+        self.assertGradientChecks(gc, op, [x1, x2, x3], 0, [0, 2])
+        self.assertDeviceChecks(dc, op, [x1, x2, x3], [0, 1, 2])

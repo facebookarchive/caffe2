@@ -34,15 +34,21 @@ bool EigenConvOp<T>::RunOnDeviceWithOrderNCHW() {
   CAFFE_ENFORCE(4 == filter.ndim());
   const int M = filter.dim32(0);
   CAFFE_ENFORCE(filter.dim32(1) == C);
-  CAFFE_ENFORCE(filter.dim32(2) == kernel_h_);
-  CAFFE_ENFORCE(filter.dim32(3) == kernel_w_);
+  CAFFE_ENFORCE(filter.dim32(2) == kernel_h());
+  CAFFE_ENFORCE(filter.dim32(3) == kernel_w());
   ConvPoolOpBase<CPUContext>::SetOutputSize(X, Y, filter.dim32(0));
-  Eigen::array<TIndex, 4> kernel_shuffles({2, 3, 1, 0});
-  Eigen::array<TIndex, 4> input_shuffles({0, 2, 3, 1});
+  Eigen::array<TIndex, 4> kernel_shuffles
+      { {TIndex(2), TIndex(3), TIndex(1), TIndex(0)} };
+  Eigen::array<TIndex, 4> input_shuffles
+      { {TIndex(0), TIndex(2), TIndex(3), TIndex(1)} };
 
   Eigen::Tensor<T, 4, Eigen::RowMajor> filter_tensor =
       Eigen::TensorMap<Eigen::Tensor<T, 4, Eigen::RowMajor>>(
-          const_cast<T*>(filter.template data<T>()), M, C, kernel_h_, kernel_w_)
+          const_cast<T*>(filter.template data<T>()),
+          M,
+          C,
+          kernel_h(),
+          kernel_w())
           .shuffle(kernel_shuffles);
   Eigen::Tensor<T, 4, Eigen::RowMajor> X_tensor =
       Eigen::TensorMap<Eigen::Tensor<T, 4, Eigen::RowMajor>>(
@@ -58,11 +64,11 @@ bool EigenConvOp<T>::RunOnDeviceWithOrderNCHW() {
   contract_dims[0] = Eigen::IndexPair<TensorIndex>(1, 0);
 
   Eigen::DSizes<TensorIndex, 2> pre_contract_dims;
-  pre_contract_dims[1] = kernel_h_ * kernel_w_ * C;
+  pre_contract_dims[1] = kernel_h() * kernel_w() * C;
   pre_contract_dims[0] = Y->size() / M;
 
   Eigen::DSizes<TensorIndex, 2> kernel_dims;
-  kernel_dims[0] = kernel_h_ * kernel_w_ * C;
+  kernel_dims[0] = kernel_h() * kernel_w() * C;
   kernel_dims[1] = M;
 
   Eigen::array<TensorIndex, 4> bcast_dims;
@@ -75,18 +81,18 @@ bool EigenConvOp<T>::RunOnDeviceWithOrderNCHW() {
       Y->dim32(0), Y->dim32(2), Y->dim32(3), Y->dim32(1));
   Y_tensor = X_tensor
                  .extract_image_patches(
-                     kernel_w_,
-                     kernel_h_,
-                     stride_w_,
-                     stride_h_,
-                     dilation_w_,
-                     dilation_h_,
+                     kernel_w(),
+                     kernel_h(),
+                     stride_w(),
+                     stride_h(),
+                     dilation_w(),
+                     dilation_h(),
                      1,
                      1,
-                     pad_l_,
-                     pad_r_,
-                     pad_t_,
-                     pad_b_,
+                     pad_l(),
+                     pad_r(),
+                     pad_t(),
+                     pad_b(),
                      0)
                  .reshape(pre_contract_dims)
                  .contract(filter_tensor.reshape(kernel_dims), contract_dims)
@@ -104,7 +110,8 @@ bool EigenConvOp<T>::RunOnDeviceWithOrderNCHW() {
   }
 
   // Do a last transpose.
-  Eigen::array<TIndex, 4> output_shuffles({0, 3, 1, 2});
+  Eigen::array<TIndex, 4> output_shuffles
+      { {TIndex(0), TIndex(3), TIndex(1), TIndex(2) } };
 
   Eigen::TensorMap<Eigen::Tensor<T, 4, Eigen::RowMajor>>(
       Y->template mutable_data<T>(), N, M, Y->dim32(2), Y->dim32(3)) =
@@ -120,16 +127,16 @@ bool EigenConvOp<T>::RunOnDeviceWithOrderNHWC() {
   const int N = X.dim32(0), H = X.dim32(1), W = X.dim32(2), C = X.dim32(3);
   CAFFE_ENFORCE(4 == filter.ndim());
   const int M = filter.dim32(0);
-  CAFFE_ENFORCE(filter.dim32(1) == kernel_h_);
-  CAFFE_ENFORCE(filter.dim32(2) == kernel_w_);
+  CAFFE_ENFORCE(filter.dim32(1) == kernel_h());
+  CAFFE_ENFORCE(filter.dim32(2) == kernel_w());
   CAFFE_ENFORCE(filter.dim32(3) == C);
   ConvPoolOpBase<CPUContext>::SetOutputSize(X, Y, filter.dim32(0));
   // Eigen expects filter to be of shape (kernel_h, kernel_w, C, M) for
   // optimization purposes, so we will create a temp one.
   Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> temp_filter(
-      M, kernel_h_ * kernel_w_ * C);
+      M, kernel_h() * kernel_w() * C);
   temp_filter = ConstEigenArrayMap<T>(
-                    filter.template data<T>(), kernel_h_ * kernel_w_ * C, M)
+                    filter.template data<T>(), kernel_h() * kernel_w() * C, M)
                     .transpose();
 
   // Create tensor maps, and call spatial convolution.
@@ -140,7 +147,7 @@ bool EigenConvOp<T>::RunOnDeviceWithOrderNHWC() {
   Eigen::TensorMap<Eigen::Tensor<T, 4, Eigen::RowMajor>> Y_tensor(
       Y->template mutable_data<T>(), N, Y->dim32(1), Y->dim32(2), M);
   Eigen::TensorMap<Eigen::Tensor<T, 4, Eigen::RowMajor>> filter_tensor(
-      const_cast<T*>(temp_filter.data()), kernel_h_, kernel_w_, C, M);
+      const_cast<T*>(temp_filter.data()), kernel_h(), kernel_w(), C, M);
 
   // For Eigen, the definition of row and col actually correspond to width
   // and height instead of the other way round, so notice how we pass the
@@ -151,11 +158,11 @@ bool EigenConvOp<T>::RunOnDeviceWithOrderNHWC() {
   contract_dims[0] = Eigen::IndexPair<TensorIndex>(1, 0);
 
   Eigen::DSizes<TensorIndex, 2> pre_contract_dims;
-  pre_contract_dims[1] = kernel_h_ * kernel_w_ * C;
+  pre_contract_dims[1] = kernel_h() * kernel_w() * C;
   pre_contract_dims[0] = Y->size() / M;
 
   Eigen::DSizes<TensorIndex, 2> kernel_dims;
-  kernel_dims[0] = kernel_h_ * kernel_w_ * C;
+  kernel_dims[0] = kernel_h() * kernel_w() * C;
   kernel_dims[1] = M;
 
   Eigen::array<TensorIndex, 4> bcast_dims;
@@ -166,18 +173,18 @@ bool EigenConvOp<T>::RunOnDeviceWithOrderNHWC() {
 
   Y_tensor = X_tensor
                  .extract_image_patches(
-                     kernel_w_,
-                     kernel_h_,
-                     stride_w_,
-                     stride_h_,
-                     dilation_w_,
-                     dilation_h_,
+                     kernel_w(),
+                     kernel_h(),
+                     stride_w(),
+                     stride_h(),
+                     dilation_w(),
+                     dilation_h(),
                      1,
                      1,
-                     pad_l_,
-                     pad_r_,
-                     pad_t_,
-                     pad_b_,
+                     pad_l(),
+                     pad_r(),
+                     pad_t(),
+                     pad_b(),
                      0)
                  .reshape(pre_contract_dims)
                  .contract(filter_tensor.reshape(kernel_dims), contract_dims)
@@ -200,5 +207,8 @@ bool EigenConvOp<T>::RunOnDeviceWithOrderNHWC() {
 }
 
 REGISTER_CPU_OPERATOR_WITH_ENGINE(Conv, EIGEN, EigenConvOp<float>);
+REGISTER_CPU_OPERATOR_WITH_ENGINE(Conv1D, EIGEN, EigenConvOp<float>);
+REGISTER_CPU_OPERATOR_WITH_ENGINE(Conv2D, EIGEN, EigenConvOp<float>);
+REGISTER_CPU_OPERATOR_WITH_ENGINE(Conv3D, EIGEN, EigenConvOp<float>);
 
 } // namespace caffe2

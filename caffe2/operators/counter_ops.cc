@@ -4,7 +4,6 @@
 
 namespace caffe2 {
 namespace {
-namespace {
 /**
  *  @brief CounterSerializer is the serializer for Counter type.
  *
@@ -43,7 +42,7 @@ class CounterSerializer : public BlobSerializerBase {
  */
 class CounterDeserializer : public BlobDeserializerBase {
  public:
-  bool Deserialize(const BlobProto& proto, Blob* blob) override {
+  void Deserialize(const BlobProto& proto, Blob* blob) override {
     auto tensorProto = proto.tensor();
     CAFFE_ENFORCE_EQ(tensorProto.dims_size(), 1, "Unexpected size of dims");
     CAFFE_ENFORCE_EQ(tensorProto.dims(0), 1, "Unexpected value of dims");
@@ -55,7 +54,6 @@ class CounterDeserializer : public BlobDeserializerBase {
         tensorProto.int64_data_size(), 1, "Unexpected size of data");
     *blob->GetMutable<std::unique_ptr<Counter<int64_t>>>() =
         caffe2::make_unique<Counter<int64_t>>(tensorProto.int64_data(0));
-    return true;
   }
 };
 }
@@ -84,12 +82,13 @@ argument.
 
 OPERATOR_SCHEMA(ResetCounter)
     .NumInputs(1)
-    .NumOutputs(0)
+    .NumOutputs(0, 1)
     .SetDoc(R"DOC(
 Resets a count-down counter with initial value specified by the 'init_count'
 argument.
 )DOC")
     .Input(0, "counter", "A blob pointing to an instance of a new counter.")
+    .Output(0, "previous_value", "(optional) Previous value of the counter.")
     .Arg("init_count", "Resets counter to this value, must be >= 0.");
 
 OPERATOR_SCHEMA(CountDown)
@@ -123,6 +122,7 @@ Increases count value by 1 and outputs the previous value atomically
 OPERATOR_SCHEMA(RetrieveCount)
     .NumInputs(1)
     .NumOutputs(1)
+    .ScalarType(TensorProto::INT64)
     .SetDoc(R"DOC(
 Retrieve the current value from the counter.
 )DOC")
@@ -134,8 +134,6 @@ SHOULD_NOT_DO_GRADIENT(ResetCounter);
 SHOULD_NOT_DO_GRADIENT(CountDown);
 SHOULD_NOT_DO_GRADIENT(CountUp);
 SHOULD_NOT_DO_GRADIENT(RetrieveCount);
-
-} // namespace
 
 CAFFE_KNOWN_TYPE(std::unique_ptr<Counter<int64_t>>);
 REGISTER_BLOB_SERIALIZER(

@@ -36,6 +36,11 @@ class SimpleQueue {
     return true;
   }
 
+  int size() {
+    std::unique_lock<std::mutex> mutex_lock(mutex_);
+    return queue_.size();
+  }
+
   // Push pushes a value to the queue.
   void Push(const T& value) {
     {
@@ -66,7 +71,7 @@ class SimpleQueue {
   std::queue<T> queue_;
   bool no_more_jobs_;
   // We do not allow copy constructors.
-  SimpleQueue(const SimpleQueue& src) {}
+  SimpleQueue(const SimpleQueue& /*src*/) {}
 };
 
 }  // namespace caffe2

@@ -14,16 +14,16 @@ void SetUsageMessage(const string& str) {
     // Usage message has already been set, so we will simply return.
     return;
   }
-  google::SetUsageMessage(str);
+  gflags::SetUsageMessage(str);
 }
 
 const char* UsageMessage() {
-  return google::ProgramUsage();
+  return gflags::ProgramUsage();
 }
 
 bool ParseCaffeCommandLineFlags(int* pargc, char*** pargv) {
   if (*pargc == 0) return true;
-  return google::ParseCommandLineFlags(pargc, pargv, true);
+  return gflags::ParseCommandLineFlags(pargc, pargv, true);
 }
 
 bool CommandLineFlagsHasBeenParsed() {
@@ -63,7 +63,7 @@ bool ParseCaffeCommandLineFlags(int* pargc, char*** pargv) {
   for (int i = 1; i < *pargc; ++i) {
     string arg(argv[i]);
 
-    if (arg == "--help") {
+    if (arg.find("--help") != string::npos) {
       // Print the help message, and quit.
       std::cout << UsageMessage() << std::endl;
       std::cout << "Arguments: " << std::endl;

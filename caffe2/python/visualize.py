@@ -1,3 +1,5 @@
+## @package visualize
+# Module caffe2.python.visualize
 """Functions that could be used to visualize Tensors.
 
 This is adapted from the old-time iceberk package that Yangqing wrote... Oh gold
@@ -83,7 +85,7 @@ class PatchVisualizer(object):
                 cmap = cm.gray
         image = np.ones(image_shape) * bg_func(patches)
         for pid in range(num_patches):
-            row = pid / ncols * patch_size_expand[0]
+            row = pid // ncols * patch_size_expand[0]
             col = pid % ncols * patch_size_expand[1]
             image[row:row+patches.shape[1], col:col+patches.shape[2]] = \
                 patches[pid]

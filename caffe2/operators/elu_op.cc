@@ -8,12 +8,14 @@ template <>
 bool EluOp<float, CPUContext>::RunOnDevice() {
   auto& X = Input(0);
   auto* Y = Output(0);
+  // Otherwise inplace gradient and Elu dosen't make sense.
+  CAFFE_ENFORCE_GE(alpha_, 0);
   Y->ResizeLike(X);
   const auto* Xdata = X.template data<float>();
   auto* Ydata = Y->template mutable_data<float>();
   ConstEigenVectorArrayMap<float> Xvec(Xdata, X.size());
   EigenVectorArrayMap<float> Yvec(Ydata, Y->size());
-  Yvec = (Xvec > 0).select(Xvec, alpha_ * (Xvec.exp() - 1.0f));
+  Yvec = Xvec.cwiseMax(0.f) + (alpha_ * (Xvec.exp() - 1.0f)).cwiseMin(0.f);
   return true;
 }
 
@@ -36,7 +38,6 @@ bool EluGradientOp<float, CPUContext>::RunOnDevice() {
   return true;
 }
 
-namespace {
 REGISTER_CPU_OPERATOR(Elu, EluOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(EluGradient, EluGradientOp<float, CPUContext>);
 
@@ -45,6 +46,7 @@ OPERATOR_SCHEMA(Elu)
     .NumInputs(1)
     .NumOutputs(1)
     .AllowInplace({{0, 0}})
+    .IdenticalTypeAndShape()
     .SetDoc(R"DOC(
 
 Elu takes one input data (Tensor<T>) and produces one output data
@@ -77,5 +79,4 @@ class GetEluGradient : public GradientMakerBase {
 };
 REGISTER_GRADIENT(Elu, GetEluGradient);
 
-} // namespace
 } // namespace caffe2

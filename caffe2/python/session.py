@@ -1,3 +1,5 @@
+## @package session
+# Module caffe2.python.session
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -5,7 +7,14 @@ from __future__ import unicode_literals
 
 
 from caffe2.python import core, workspace
-from caffe2.python.task import Task, TaskGroup, WorkspaceType
+from caffe2.python.task import Cluster, Task, TaskGroup, WorkspaceType
+
+
+class CompiledRunnable(object):
+    """ Wrapper for compiled runnable returned from session.compile() """
+    def __init__(self, obj, session_class):
+        self.obj = obj
+        self.session_class = session_class
 
 
 class Session(object):
@@ -59,32 +68,82 @@ class Session(object):
     Blob visibility:
         Tasks running in different nodes in parallel will always run under
         different workspaces, so it must be assumed that they won't be able to
-        access each other's blobs. On the other hand, tasks running on the same
-        node are guaranteed to run on the same workspace within a run.
+        access each other's blobs. Tasks running on the same node will follow
+        Workspace hierarchy rules: tasks running on separate private workspaces
+        will only be able to share blobs defined on a common parent Workspace.
     """
+
+    _compiled_cache = {}
+
     def __init__(self):
         self._open = True
-        self._runnable_cache = {}
 
     def is_open(self):
         return self._open
 
-    def run(self, runnable):
-        assert self.is_open(), 'Session is closed.'
-        if runnable not in self._runnable_cache:
-            if isinstance(runnable, TaskGroup):
-                tg = runnable
-            else:
-                tg = TaskGroup(workspace_type=WorkspaceType.GLOBAL)
-                if isinstance(runnable, Task):
-                    tg.add(runnable)
-                elif isinstance(runnable, core.ExecutionStep):
-                    tg.add(Task(step=runnable))
+    @classmethod
+    def compile(cls, runnable, workspace_type=None, setup_net_list=None):
+        if isinstance(runnable, CompiledRunnable):
+            assert cls == runnable.session_class, (
+                'Runnable was compiled for different session type. ' +
+                'Need: %s, got: %s' % (
+                    cls.__name__, runnable.session_class.__name__))
+            return runnable
+
+        if runnable in cls._compiled_cache:
+            return cls._compiled_cache[runnable]
+
+        if isinstance(runnable, TaskGroup):
+            if workspace_type:
+                if runnable.workspace_type():
+                    assert runnable.workspace_type() == workspace_type, \
+                        "Require {} but already have {}".format(
+                            workspace_type, runnable.workspace_type())
                 else:
-                    step = core.execution_step('runnable', runnable)
-                    tg.add(Task(step=step))
-            self._runnable_cache[runnable] = tg
-        self._run_task_group(self._runnable_cache[runnable])
+                    runnable._workspace_type = workspace_type
+            tg = runnable
+        else:
+            if workspace_type is None:
+                workspace_type = WorkspaceType.GLOBAL
+            tg = TaskGroup(workspace_type=workspace_type)
+            if isinstance(runnable, Task):
+                tg.add(runnable)
+            elif isinstance(runnable, core.ExecutionStep):
+                tg.add(Task(step=runnable))
+            elif isinstance(runnable, core.Plan):
+                # ExecutionSteps in Plan() object is supposed to run sequentially, while
+                # tasks in TaskGroup run in parallel. So if we have multiple
+                # ExecutionSteps in Plan() object, we choose to have a root
+                # ExecutionStep to wrap all ExecutionSteps.
+                assert len(runnable.Steps()) > 0
+                if len(runnable.Steps()) == 1:
+                    tg.add(Task(step=runnable.Steps()[0]))
+                else:
+                    # Task takes a list of ExecutionSteps and automatically wrap into
+                    # a root ExecutionStep
+                    tg.add(Task(step=runnable.Steps()))
+            else:
+                step = core.execution_step('runnable', runnable)
+                tg.add(Task(step=step))
+        compiled = CompiledRunnable(
+            cls._compile_task_group(tg, setup_net_list), session_class=cls)
+        cls._compiled_cache[runnable] = compiled
+        return compiled
+
+    def run(self, runnable, workspace_type=None, setup_net_list=None):
+        """Run the given runnable.
+
+        Args:
+            runnable: Object recognized by the Session. Currently, we support
+                TaskGroup, Task, Plan, ExecutionStep, and Net.
+            workspace_type: A string defined in the WorkspaceType object.
+            setup_net_list: A list of Net objects or a list of NetDef protos.
+                So far this is only used by the DistributedSession, in which we
+                need to pass a list of special nets to setup the master.
+        """
+        assert self.is_open(), 'Session is closed.'
+        self._run_compiled(self.compile(runnable, workspace_type,
+                                        setup_net_list).obj)
 
     def close(self):
         if self.is_open():
@@ -94,8 +153,12 @@ class Session(object):
     def fetch_output(self, output):
         raise NotImplementedError()
 
-    def _run_task_group(self, task_group):
+    def _run_compiled(self, task_group):
         raise NotImplementedError()
+
+    @classmethod
+    def _compile_task_group(cls, task_group, setup_net_list=None):
+        return task_group
 
     def _do_close(self):
         pass
@@ -120,26 +183,28 @@ class LocalSession(Session):
     """
     def __init__(self, ws=None):
         Session.__init__(self)
-        self._ws = ws or workspace.C.Workspace()
-        self._plan_caches = {}
+        self._ws = ws or workspace.C.Workspace.current
 
-    def _run_task_group(self, task_group):
-        if task_group not in self._plan_caches:
+    @classmethod
+    def _compile_task_group(cls, task_group, setup_net_list=None):
+        with Cluster():
             task = task_group.to_task()
-            plan = core.Plan('task_group_plan')
-            plan.AddStep(task.get_step())
-            self._plan_caches[task_group] = (plan, task)
-        plan, task = self._plan_caches[task_group]
+        plan = core.Plan('task_group_plan')
+        plan.AddStep(task.get_step())
+        return (plan, task.output_list(), task.workspace_type)
+
+    def _run_compiled(self, compiled):
+        plan, output_list, workspace_type = compiled
 
         # make sure the output blobs belong to the parent workspace
         outputs = []
-        for name in task.output_names():
+        for name in output_list.names():
             self._ws.create_blob(str(name))
             outputs.append(core.BlobReference(str(name)))
-        task.set_outputs(outputs, _fetch_func=self._fetch_output)
+        output_list.set_values(outputs, _fetch_func=self._fetch_output)
         task_ws = (
             workspace.C.Workspace(self._ws)
-            if task.workspace_type == WorkspaceType.PRIVATE else self._ws)
+            if workspace_type == WorkspaceType.PRIVATE else self._ws)
         with workspace.WorkspaceGuard(task_ws):
             task_ws.run(plan)
 

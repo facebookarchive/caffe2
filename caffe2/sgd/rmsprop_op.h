@@ -1,5 +1,6 @@
 #pragma once
 
+#include "caffe2/core/common_omp.h"
 #include "caffe2/core/operator.h"
 
 namespace caffe2 {
@@ -17,17 +18,7 @@ void rmsprop_update(
     float momentum,
     float epsilon,
     const float* lr,
-    Context* context) {
-#pragma omp parallel for
-  for (auto i = 0; i < N; ++i) {
-    // Update new mean square estimate
-    nms[i] = ms[i] + (1.0f - decay) * (g[i] * g[i] - ms[i]);
-    // Update momentum estimate
-    nmom[i] = mom[i] * momentum + lr[0] * g[i] / std::sqrt(epsilon + nms[i]);
-    // New gradient is the momentum
-    ng[i] = nmom[i];
-  }
-}
+    Context* context);
 
 template <typename T, class Context>
 class RmsPropOp final : public Operator<Context> {
@@ -35,9 +26,9 @@ class RmsPropOp final : public Operator<Context> {
   USE_OPERATOR_CONTEXT_FUNCTIONS;
   RmsPropOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws),
-        decay_(OperatorBase::GetSingleArgument<float>("decay", 0.9)),
-        momentum_(OperatorBase::GetSingleArgument<float>("momentum", 0.0)),
-        epsilon_(OperatorBase::GetSingleArgument<float>("epsilon", 1e-5)) {}
+        decay_(OperatorBase::GetSingleArgument<float>("decay", 0.9f)),
+        momentum_(OperatorBase::GetSingleArgument<float>("momentum", 0.0f)),
+        epsilon_(OperatorBase::GetSingleArgument<float>("epsilon", 1e-5f)) {}
   bool RunOnDevice() override {
     CAFFE_ENFORCE(Input(LR).size() == 1);
     CAFFE_ENFORCE(Input(GRAD).size() == Input(MEAN_SQUARES).size());

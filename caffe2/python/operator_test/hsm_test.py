@@ -119,7 +119,8 @@ class TestHsm(hu.HypothesisTestCase):
         for i in range(names.shape[0]):
             for j in range(names.shape[1]):
                 if names[i][j]:
-                    assert(names[i][j] == p_names[i][j])
+                    self.assertEquals(
+                        names[i][j], p_names[i][j].item().encode('utf-8'))
                     self.assertAlmostEqual(
                         scores[i][j], p_scores[i][j], delta=0.001)
 
@@ -207,8 +208,8 @@ class TestHsm(hu.HypothesisTestCase):
 
     def test_huffman_tree_hierarchy(self):
         workspace.GlobalInit(['caffe2'])
-        labelSet = range(1, 7)
-        counts = [2, 4, 10, 15, 25, 40]
+        labelSet = list(range(0, 6))
+        counts = [1, 2, 3, 4, 5, 6]
         labels = sum([[l] * c for (l, c) in zip(labelSet, counts)], [])
         Y = np.array(labels).astype(np.int64)
         workspace.FeedBlob("labels", Y)
@@ -222,24 +223,29 @@ class TestHsm(hu.HypothesisTestCase):
             'HuffmanTreeHierarchy',
             arg=[arg])
         workspace.RunOperatorOnce(op)
-        huffmanTreePaths = workspace.FetchBlob('huffman_tree')
-        treePathOutput = hsm_pb2.HierarchyProto()
-        treePathOutput.ParseFromString(huffmanTreePaths[0])
+        huffmanTreeOutput = workspace.FetchBlob('huffman_tree')
+        treeOutput = hsm_pb2.TreeProto()
+        treeOutput.ParseFromString(huffmanTreeOutput[0])
+        treePathOutput = hsmu.create_hierarchy(treeOutput)
 
-        def checkPath(label, path, indices, code):
-            self.assertEqual(path.word_id, label)
+        label_to_path = {}
+        for path in treePathOutput.paths:
+            label_to_path[path.word_id] = path
+
+        def checkPath(label, indices, code):
+            path = label_to_path[label]
             self.assertEqual(len(path.path_nodes), len(code))
             self.assertEqual(len(path.path_nodes), len(code))
             for path_node, index, target in \
                     zip(path.path_nodes, indices, code):
                 self.assertEqual(path_node.index, index)
                 self.assertEqual(path_node.target, target)
-        checkPath(1, treePathOutput.paths[0], [4, 3, 2, 1, 0], [1, 1, 1, 0, 0])
-        checkPath(2, treePathOutput.paths[1], [4, 3, 2, 1, 0], [1, 1, 1, 0, 1])
-        checkPath(3, treePathOutput.paths[2], [4, 3, 2, 1], [1, 1, 1, 1])
-        checkPath(4, treePathOutput.paths[3], [4, 3, 2], [1, 1, 0])
-        checkPath(5, treePathOutput.paths[4], [4, 3], [1, 0])
-        checkPath(6, treePathOutput.paths[5], [4], [0])
+        checkPath(0, [0, 4, 6, 8], [1, 0, 0, 0])
+        checkPath(1, [0, 4, 6, 8], [1, 0, 0, 1])
+        checkPath(2, [0, 4, 6], [1, 0, 1])
+        checkPath(3, [0, 2], [0, 0])
+        checkPath(4, [0, 2], [0, 1])
+        checkPath(5, [0, 4], [1, 1])
 
 if __name__ == '__main__':
     unittest.main()

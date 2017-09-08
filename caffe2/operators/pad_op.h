@@ -32,19 +32,23 @@ class PadImageOp final : public ConvPoolOpBase<Context> {
         legacy_pad_ == LegacyPadding::NOTSET,
         "Padding layer only supports explicit pad values.");
     CAFFE_ENFORCE(
-        dilation_h_ == 1 && dilation_w_ == 1,
+        dilation_h() == 1 && dilation_w() == 1,
         "Pooling op does not support dilation right now.");
     CAFFE_ENFORCE(
-        stride_h_ == 1 && stride_w_ == 1,
+        stride_h() == 1 && stride_w() == 1,
         "Pooling op does not support stride right now.");
     // Pad op does not use kernel sizes, so we set it to 1 for computing the
     // output size.
-    kernel_h_ = kernel_w_ = 1;
+    kernel_.assign(pads_.size() / 2, 1);
   }
   ~PadImageOp() {}
 
   bool RunOnDeviceWithOrderNCHW() override;
   bool RunOnDeviceWithOrderNHWC() override;
+
+  static std::vector<TensorShape> PadTensorInference(
+      const OperatorDef& def,
+      const vector<TensorShape>& in);
 
  private:
   PadMode mode_;
@@ -66,11 +70,11 @@ class PadImageGradientOp final : public ConvPoolOpBase<Context> {
         legacy_pad_ == LegacyPadding::NOTSET,
         "Padding layer only supports explicit pad values.");
     CAFFE_ENFORCE(
-        dilation_h_ == 1 && dilation_w_ == 1,
+        dilation_h() == 1 && dilation_w() == 1,
         "Pooling op does not support dilation right now.");
     // Pad op does not use kernel sizes, so we set it to 1 for computing the
     // output size.
-    kernel_h_ = kernel_w_ = 1;
+    kernel_.assign(pads_.size() / 2, 1);
   }
   ~PadImageGradientOp() {}
 

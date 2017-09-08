@@ -19,7 +19,7 @@ class LearningRateFunctor {
 template <typename T>
 class FixedLearningRate : public LearningRateFunctor<T> {
  public:
-  T operator()(const int64_t iter) const override {
+  T operator()(const int64_t /*iter*/) const override {
     return 1.;
   }
 };
@@ -61,6 +61,19 @@ class InvLearningRate : public LearningRateFunctor<T> {
   }
   T gamma_;
   T power_;
+};
+
+// Poly: return (1 - iter/max_iter) ^ (power)
+template <typename T>
+class PolyLearningRate : public LearningRateFunctor<T> {
+ public:
+  PolyLearningRate(const T power, const int64_t max_iter) 
+      : power_(power), max_iter_(max_iter) {}
+  T operator()(const int64_t iter) const override {
+    return std::pow(1 - T(iter)/T(max_iter_), power_);
+  }
+  T power_;
+  uint64_t max_iter_;
 };
 
 }  // namespace caffe2

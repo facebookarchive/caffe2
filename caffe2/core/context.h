@@ -1,49 +1,21 @@
 #ifndef CAFFE2_CORE_CONTEXT_H_
 #define CAFFE2_CORE_CONTEXT_H_
 
-#include <ctime>
 #include <cstdlib>
+#include <ctime>
 #include <random>
+#include <unordered_map>
 
+#include "caffe2/core/allocator.h"
+#include "caffe2/core/event.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/core/typeid.h"
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/utils/math.h"
 
+CAFFE2_DECLARE_bool(caffe2_report_cpu_memory_usage);
+
 namespace caffe2 {
-
-// Use 32-byte alignment should be enough for computation up to AVX512.
-constexpr size_t gCaffe2Alignment = 32;
-
-// A virtual allocator class to do memory allocation and deallocation.
-struct CPUAllocator {
-  CPUAllocator() {}
-  virtual ~CPUAllocator() {}
-  virtual void* New(size_t nbytes) = 0;
-  virtual void Delete(void* data) = 0;
-};
-
-struct DefaultCPUAllocator final : CPUAllocator {
-  DefaultCPUAllocator() {}
-  ~DefaultCPUAllocator() {}
-  void* New(size_t nbytes) override {
-    void* data = nullptr;
-#ifdef __ANDROID__
-    data = memalign(gCaffe2Alignment, nbytes);
-#else
-    CAFFE_ENFORCE_EQ(posix_memalign(&data, gCaffe2Alignment, nbytes), 0);
-#endif
-    memset(data, 0, nbytes);
-    return data;
-  }
-  void Delete(void* data) override { free(data); }
-};
-
-// Get the CPU Alloctor.
-CPUAllocator* GetCPUAllocator();
-// Sets the CPU allocator to the given allocator: the caller gives away the
-// ownership of the pointer.
-void SetCPUAllocator(CPUAllocator* alloc);
 
 /**
  * The CPU Context, representing the bare minimum of what a Context class in
@@ -61,13 +33,21 @@ void SetCPUAllocator(CPUAllocator* alloc);
  * implementing if you want to write your own context class:
  * - void SwitchToDevice(): any necessary code to switch to the device before
  *     running anything.
- * - bool FinishDeviceComputation(): any wrapping-up work after all the
+ * - void WaitEvent(const Event& ev): make the current context to wait on
+ *     an event. For example, for cuda, this is the equivalent of
+ *     cudaStreamWaitEvent. For CPU context, it essentially synchronizes the
+ *     event.
+ * - void Record(Event* ev): record the async activities on the current context
+ *     to the event. For example, for cuda, this is the equivalent of
+ *     cudaEventRecord on the current stream. For CPU context, it is always
+ *     synchronous.
+ * - void FinishDeviceComputation(): any wrapping-up work after all the
  *     computation of the operator is done. If there are errors during the
- *     execution, return false. For example, in a CUDAContext, this function
+ *     execution, throw exception. For example, in a CUDAContext, this function
  *     carries out a stream synchronization and spots potential errors for
  *     the cuda kernel calls.
- * - static void* New(size_t nbytes): allocates memory.
- * - static void Delete(void* data): deletes memory.
+ * - static std::pair<void*, MemoryDeleter> New(size_t nbytes): allocates
+       memory and returns a deleter.
  * - template <class SrcContext, class DstContext> void CopyBytes(...): does
  *     cross context memory copy.
  * - template <typename T, class SrcContext, class DstContext> void Copy(...):
@@ -80,6 +60,7 @@ void SetCPUAllocator(CPUAllocator* alloc);
  */
 class CPUContext final {
  public:
+  typedef std::mt19937 rand_gen_type;
   CPUContext() : random_seed_(math::randomNumberSeed()) {}
   explicit CPUContext(const DeviceOption& option)
       : random_seed_(
@@ -88,22 +69,42 @@ class CPUContext final {
     CAFFE_ENFORCE_EQ(option.device_type(), CPU);
   }
 
-  ~CPUContext() {}
+  ~CPUContext() noexcept {}
 
-  inline void SwitchToDevice() {}
-  inline bool FinishDeviceComputation() { return true; }
+  inline void SwitchToDevice(int /*stream_id*/) {}
+  inline void SwitchToDevice() {
+    SwitchToDevice(0);
+  }
 
-  inline std::mt19937& RandGenerator() {
+  inline void WaitEvent(const Event& ev) {
+    ev.Wait(CPU, this);
+  }
+  inline void Record(Event* ev) const {
+    CAFFE_ENFORCE(ev, "Event must not be null.");
+    ev->Record(CPU, this);
+  }
+
+  inline void FinishDeviceComputation() {}
+
+  inline rand_gen_type& RandGenerator() {
     if (!random_generator_.get()) {
-      random_generator_.reset(new std::mt19937(random_seed_));
+      random_generator_.reset(new rand_gen_type(random_seed_));
     }
     return *random_generator_.get();
   }
 
-  inline static void* New(size_t nbytes) {
-    return GetCPUAllocator()->New(nbytes);
+  static std::pair<void*, MemoryDeleter> New(size_t nbytes) {
+    auto data_and_deleter = GetCPUAllocator()->New(nbytes);
+    if (FLAGS_caffe2_report_cpu_memory_usage) {
+      reporter_.New(data_and_deleter.first, nbytes);
+      auto original_deleter = data_and_deleter.second;
+      data_and_deleter.second = [original_deleter](void* data) {
+        reporter_.Delete(data);
+        original_deleter(data);
+      };
+    }
+    return data_and_deleter;
   }
-  inline static void Delete(void* data) { GetCPUAllocator()->Delete(data); }
 
   // Two copy functions that deals with cross-device copies.
   template <class SrcContext, class DstContext>
@@ -135,7 +136,8 @@ class CPUContext final {
  protected:
   // TODO(jiayq): instead of hard-coding a generator, make it more flexible.
   int random_seed_{1701};
-  std::unique_ptr<std::mt19937> random_generator_;
+  std::unique_ptr<rand_gen_type> random_generator_;
+  static MemoryAllocationReporter reporter_;
 };
 
 template<>

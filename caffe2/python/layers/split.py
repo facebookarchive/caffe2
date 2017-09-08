@@ -1,9 +1,11 @@
+## @package split
+# Module caffe2.python.layers.split
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from caffe2.python import core, schema
+from caffe2.python import schema
 from caffe2.python.layers.layers import (
     ModelLayer,
 )
@@ -36,8 +38,8 @@ class Split(ModelLayer):
         output_scalars = [
             schema.Scalar(
                 (data_type, output_shape),
-                core.ScopedBlobReference(
-                    model.net.NextName(self.name + '_output_{}'.format(i))))
+                self.get_next_blob_reference('output_{}'.format(i)),
+            )
             for i in range(num_splits)
         ]
         self.output_schema = schema.Tuple(*output_scalars)

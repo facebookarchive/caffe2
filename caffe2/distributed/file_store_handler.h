@@ -6,7 +6,7 @@ namespace caffe2 {
 
 class FileStoreHandler : public StoreHandler {
  public:
-  explicit FileStoreHandler(std::string& path);
+  explicit FileStoreHandler(const std::string& path, const std::string& prefix);
   virtual ~FileStoreHandler();
 
   virtual void set(const std::string& name, const std::string& data) override;
@@ -17,12 +17,16 @@ class FileStoreHandler : public StoreHandler {
 
   virtual bool check(const std::vector<std::string>& names) override;
 
-  virtual void wait(const std::vector<std::string>& names) override;
+  virtual void wait(
+      const std::vector<std::string>& names,
+      const std::chrono::milliseconds& timeout = kDefaultTimeout) override;
 
  protected:
   std::string basePath_;
 
   std::string realPath(const std::string& path);
+
+  std::string tmpPath(const std::string& name);
 
   std::string objectPath(const std::string& name);
 };

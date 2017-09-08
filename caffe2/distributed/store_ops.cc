@@ -7,23 +7,15 @@ constexpr auto kAddValue = "add_value";
 
 StoreSetOp::StoreSetOp(const OperatorDef& operator_def, Workspace* ws)
     : Operator<CPUContext>(operator_def, ws),
-      blobName_(GetSingleArgument<std::string>(kBlobName, "")) {}
+      blobName_(
+          GetSingleArgument<std::string>(kBlobName, operator_def.input(DATA))) {
+}
 
 bool StoreSetOp::RunOnDevice() {
-  // Use argument as name, if specified.
-  // Otherwise, use input blob name.
-  auto& name = blobName_;
-  if (name.empty()) {
-    name = def().input(DATA);
-  }
-
   // Serialize and pass to store
   auto* handler =
       OperatorBase::Input<std::unique_ptr<StoreHandler>>(HANDLER).get();
-  OperatorBase::Inputs()[DATA]->Serialize(
-      name, [handler](const std::string& name, const std::string& data) {
-        handler->set(name, data);
-      });
+  handler->set(blobName_, InputBlob(DATA).Serialize(blobName_));
   return true;
 }
 
@@ -42,20 +34,15 @@ is the data in that blob. The key can be overridden by specifying the
 
 StoreGetOp::StoreGetOp(const OperatorDef& operator_def, Workspace* ws)
     : Operator<CPUContext>(operator_def, ws),
-      blobName_(GetSingleArgument<std::string>(kBlobName, "")) {}
+      blobName_(GetSingleArgument<std::string>(
+          kBlobName,
+          operator_def.output(DATA))) {}
 
 bool StoreGetOp::RunOnDevice() {
-  // Use argument as name, if specified.
-  // Otherwise, use output blob name.
-  auto& name = blobName_;
-  if (name.empty()) {
-    name = def().output(DATA);
-  }
-
   // Get from store and deserialize
   auto* handler =
       OperatorBase::Input<std::unique_ptr<StoreHandler>>(HANDLER).get();
-  OperatorBase::Outputs()[DATA]->Deserialize(handler->get(name));
+  OperatorBase::Outputs()[DATA]->Deserialize(handler->get(blobName_));
   return true;
 }
 

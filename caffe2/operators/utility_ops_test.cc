@@ -2,7 +2,7 @@
 
 #include "caffe2/core/flags.h"
 #include "caffe2/operators/utility_ops.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 CAFFE2_DECLARE_string(caffe_test_root);
 
@@ -49,6 +49,25 @@ TEST(UtilityOpTest, testEnsureCPUOutput) {
     EXPECT_LT(Y_cpu.data<float>()[i], 3.15);
     EXPECT_GT(Y_cpu.data<float>()[i], 3.13);
   }
+}
+
+TEST(UtilityOpTest, testReshapeWithScalar) {
+  Workspace ws;
+  OperatorDef def;
+  def.set_name("test_reshape");
+  def.set_type("Reshape");
+  def.add_input("X");
+  def.add_output("XNew");
+  def.add_output("OldShape");
+  def.add_arg()->CopyFrom(MakeArgument("shape", vector<int64_t>{1}));
+  AddConstInput(vector<TIndex>(), 3.14, "X", &ws);
+  // execute the op
+  unique_ptr<OperatorBase> op(CreateOperator(def, &ws));
+  EXPECT_TRUE(op->Run());
+  Blob* XNew = ws.GetBlob("XNew");
+  const TensorCPU& XNewTensor = XNew->Get<Tensor<CPUContext>>();
+  EXPECT_EQ(1, XNewTensor.ndim());
+  EXPECT_EQ(1, XNewTensor.size());
 }
 
 } // namespace caffe2

@@ -18,7 +18,7 @@ void adam_update(
     float eps_hat,
     float correction,
     const float* lr,
-    Context* context) {
+    Context* /*context*/) {
   for (auto i = 0; i < N; ++i) {
     float gi = g[i];
     float mi = nm[i] = m[i] * beta1 + gi * (1 - beta1);
@@ -42,7 +42,7 @@ void adam_compute(
     float eps_hat,
     float correction,
     const float* lr,
-    Context* context) {
+    Context* /*context*/) {
   for (auto i = 0; i < N; ++i) {
     float gi = g[i];
     float mi = nm[i] = m[i] * beta1 + gi * (1 - beta1);
@@ -58,9 +58,9 @@ class AdamOp final : public Operator<Context> {
   USE_OPERATOR_CONTEXT_FUNCTIONS;
   AdamOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws),
-        beta1_(OperatorBase::GetSingleArgument<float>("beta1", 0.9)),
-        beta2_(OperatorBase::GetSingleArgument<float>("beta2", 0.999)),
-        epsilon_(OperatorBase::GetSingleArgument<float>("epsilon", 1e-5)) {}
+        beta1_(OperatorBase::GetSingleArgument<float>("beta1", 0.9f)),
+        beta2_(OperatorBase::GetSingleArgument<float>("beta2", 0.999f)),
+        epsilon_(OperatorBase::GetSingleArgument<float>("epsilon", 1e-5f)) {}
   bool RunOnDevice() override {
     // Iter live on the CPU
     CAFFE_ENFORCE(OperatorBase::InputIsType<TensorCPU>(ITER));
@@ -110,11 +110,18 @@ class SparseAdamOp final : public Operator<Context> {
   USE_OPERATOR_CONTEXT_FUNCTIONS;
   SparseAdamOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws),
-        beta1_(OperatorBase::GetSingleArgument<float>("beta1", 0.9)),
-        beta2_(OperatorBase::GetSingleArgument<float>("beta2", 0.999)),
-        epsilon_(OperatorBase::GetSingleArgument<float>("epsilon", 1e-5)) {}
+        beta1_(OperatorBase::GetSingleArgument<float>("beta1", 0.9f)),
+        beta2_(OperatorBase::GetSingleArgument<float>("beta2", 0.999f)),
+        epsilon_(OperatorBase::GetSingleArgument<float>("epsilon", 1e-5f)) {}
 
   bool RunOnDevice() override {
+    // Enforce shapes
+    CAFFE_ENFORCE_EQ(Input(PARAM).size(), Input(MOMENT_1).size());
+    CAFFE_ENFORCE_EQ(Input(PARAM).size(), Input(MOMENT_2).size());
+    CAFFE_ENFORCE_EQ(Input(PARAM).size_from_dim(1),
+        Input(GRAD).size_from_dim(Input(INDICES).ndim()));
+    CAFFE_ENFORCE_EQ(Input(LR).size(), 1);
+
     return DispatchHelper<TensorTypes<int32_t, int64_t>>::call(
         this, Input(INDICES));
   }
@@ -129,12 +136,8 @@ class SparseAdamOp final : public Operator<Context> {
     const auto correction =
         std::sqrt(T(1.) - std::pow(beta2_, t)) / (T(1.) - std::pow(beta1_, t));
 
-    Output(OUTPUT_PARAM)->ResizeLike(Input(PARAM));
-    Output(OUTPUT_MOMENT_1)->ResizeLike(Input(MOMENT_1));
-    Output(OUTPUT_MOMENT_2)->ResizeLike(Input(MOMENT_2));
-
-    auto n = Input(GRAD).dim(0);
-    auto block_size = Input(GRAD).size() / n;
+    auto block_size = Input(PARAM).size() / Input(PARAM).dim(0);
+    auto n = Input(GRAD).size() / block_size;
 
     const auto* paramIn = Input(PARAM).template data<T>();
     const auto* indices = Input(INDICES).template data<SIndex>();
@@ -147,6 +150,7 @@ class SparseAdamOp final : public Operator<Context> {
 
     for (auto i = 0; i < n; ++i) {
       auto idx = indices[i];
+
       if (block_size == 1) {
         float gi = gradIn[i];
         float mi = moment1Out[idx] =
@@ -159,6 +163,28 @@ class SparseAdamOp final : public Operator<Context> {
       } else {
         auto offsetI = i * block_size;
         auto offsetIdx = idx * block_size;
+
+#ifndef NDEBUG
+        CAFFE_ENFORCE_GE(
+            Input(PARAM).size(),
+            block_size + offsetIdx,
+            this->debug_def().input(PARAM),
+            ", out of bound,  idx:",
+            idx,
+            " for input i:",
+            i,
+            " and block size:",
+            block_size);
+        CAFFE_ENFORCE_GE(
+            Input(GRAD).size(),
+            block_size + offsetI,
+            this->debug_def().input(GRAD),
+            ", out of bound idx, idx:",
+            idx,
+            " for input i:",
+            i);
+#endif
+
         adam_compute(
             block_size,
             paramIn + offsetIdx,

@@ -1,19 +1,26 @@
+## @package layer_model_helper
+# Module caffe2.python.layer_model_helper
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
 from caffe2.python import core, model_helper, schema
+from caffe2.python.modeling.parameter_sharing import (
+    parameter_sharing_context,
+)
+from caffe2.python.optimizer import get_param_device
 from caffe2.python.layers import layers
-
-from functools import partial
+from caffe2.proto import caffe2_pb2
+from future.utils import viewitems
 
 import logging
 import numpy as np
+import six
 logger = logging.getLogger(__name__)
 
 
-class LayerModelHelper(model_helper.ModelHelperBase):
+class LayerModelHelper(model_helper.ModelHelper):
     """
     Model helper for building models on top of layers abstractions.
 
@@ -25,7 +32,8 @@ class LayerModelHelper(model_helper.ModelHelperBase):
     operators from train net.
     """
 
-    def __init__(self, name, input_feature_schema, trainer_extra_schema):
+    def __init__(self, name, input_feature_schema, trainer_extra_schema,
+                 keep_blobs=False):
         super(LayerModelHelper, self).__init__(name=name)
         self._layer_names = set()
         self._layers = []
@@ -43,46 +51,63 @@ class LayerModelHelper(model_helper.ModelHelperBase):
         self._input_feature_schema = schema.NewRecord(
             self.net,
             input_feature_schema
-        )
+        ) if not keep_blobs else input_feature_schema.clone()
         self._trainer_extra_schema = schema.NewRecord(
             self.net,
             trainer_extra_schema
-        )
+        ) if not keep_blobs else trainer_extra_schema.clone()
+        self._metrics_schema = schema.Struct()
 
         self._init_global_constants()
         self.param_init_net = self.create_init_net('param_init_net')
 
-    def add_global_constant(self, name, array, dtype=None):
+    def add_metric_field(self, name, value):
+        assert name not in self._metrics_schema.fields, (
+            "Try to add metric field twice: {}".format(name))
+        self._metrics_schema = self._metrics_schema + schema.Struct(
+            (name, value)
+        )
+
+    def add_global_constant(self, name, array=None, dtype=None,
+                            initializer=None):
         # This is global namescope for constants. They will be created in all
         # init_nets and there should be very few of them.
         assert name not in self.global_constants
-        self.global_constants[name] = core.BlobReference(
-            self.net.NextName(name))
+        self.global_constants[name] = self.net.NextBlob(name)
 
-        if dtype is None:
-            array = np.array(array)
-        else:
-            array = np.array(array, dtype=dtype)
+        if array is not None:
+            assert initializer is None,\
+                "Only one from array and initializer should be specified"
+            if dtype is None:
+                array = np.array(array)
+            else:
+                array = np.array(array, dtype=dtype)
 
-        # TODO: make GivenTensor generic
-        op_name = None
-        if array.dtype == np.int32:
-            op_name = 'GivenTensorIntFill'
-        elif array.dtype == np.int64:
-            op_name = 'GivenTensorInt64Fill'
-        elif array.dtype == np.str:
-            op_name = 'GivenTensorStringFill'
+            # TODO: make GivenTensor generic
+            op_name = None
+            if array.dtype == np.int32:
+                op_name = 'GivenTensorIntFill'
+            elif array.dtype == np.int64:
+                op_name = 'GivenTensorInt64Fill'
+            elif array.dtype == np.str:
+                op_name = 'GivenTensorStringFill'
+            elif array.dtype == np.bool:
+                op_name = 'GivenTensorBoolFill'
+            else:
+                op_name = 'GivenTensorFill'
+
+            def initializer(blob_name):
+                return core.CreateOperator(op_name,
+                                           [],
+                                           blob_name,
+                                           shape=array.shape,
+                                           values=array.flatten().tolist()
+                                           )
         else:
-            op_name = 'GivenTensorFill'
+            assert initializer is not None
 
         self.global_constant_initializers.append(
-            core.CreateOperator(op_name,
-                                [],
-                                self.global_constants[name],
-                                shape=array.shape,
-                                values=array.flatten().tolist()
-                                )
-        )
+            initializer(self.global_constants[name]))
         return self.global_constants[name]
 
     def _init_global_constants(self):
@@ -91,6 +116,7 @@ class LayerModelHelper(model_helper.ModelHelperBase):
         self.add_global_constant('ONE', 1.0)
         self.add_global_constant('ZERO', 0.0)
         self.add_global_constant('ZERO_RANGE', [0, 0], dtype='int32')
+        self.add_global_constant('OFFLINE_TRAINING', True, dtype='bool')
 
     def _add_global_constants(self, init_net):
         for initializer_op in self.global_constant_initializers:
@@ -101,20 +127,74 @@ class LayerModelHelper(model_helper.ModelHelperBase):
         self._add_global_constants(init_net)
         return init_net
 
-    def next_block_name(self, prefix):
-        return prefix + "_{}".format(
-            len(filter(lambda x: x.startswith(prefix), self._layer_names)))
+    def create_param(self, param_name, shape, initializer, optimizer=None,
+                     ps_param=None):
+        if isinstance(param_name, core.BlobReference):
+            param_name = str(param_name)
+        elif isinstance(param_name, six.string_types):
+            # Parameter name will be equal to current Namescope that got
+            # resolved with the respect of parameter sharing of the scopes.
+            param_name = parameter_sharing_context.get_parameter_name(
+                param_name)
+        else:
+            raise "Unsupported type for param_name"
+
+        param_blob = core.BlobReference(param_name)
+
+        if len(initializer) == 1:
+            init_op_args = {}
+        else:
+            assert len(initializer) == 2
+            init_op_args = initializer[1]
+        if shape is not None:
+            init_op_args.update({'shape': shape})
+
+        param = layers.LayerParameter(
+            parameter=param_blob,
+            initializer=core.CreateOperator(
+                initializer[0],
+                [],
+                param_blob,
+                **init_op_args
+            ),
+            optimizer=optimizer,
+            ps_param=ps_param,
+        )
+
+        return param
+
+    def next_layer_name(self, prefix):
+        base_name = core.ScopedName(prefix)
+        name = base_name
+        index = 0
+        while name in self._layer_names:
+            name = base_name + '_auto_' + str(index)
+            index += 1
+
+        self._layer_names.add(name)
+        return name
 
     def add_layer(self, layer):
         self._layers.append(layer)
         for param in layer.get_parameters():
-            self.param_to_optim[str(param.parameter)] = param.optimizer
+            assert isinstance(param.parameter, core.BlobReference)
+
+            self.param_to_optim[str(param.parameter)] = \
+                param.optimizer or self.default_optimizer
 
         # The primary value of adding everything to self.net - generation of the
         # operators right away, i.e. if error happens it'll be detected
-        # immediately. Other then this - create_x_net should be called.
+        # immediately. Other than this - create_x_net should be called.
         layer.add_operators(self.net, self.param_init_net)
-        return layer.get_output_schema()
+        return layer.output_schema
+
+    def get_parameter_blobs(self):
+        param_blobs = []
+        for layer in self._layers:
+            for param in layer.get_parameters():
+                param_blobs.append(param.parameter)
+
+        return param_blobs
 
     @property
     def default_optimizer(self):
@@ -131,6 +211,17 @@ class LayerModelHelper(model_helper.ModelHelperBase):
     @property
     def trainer_extra_schema(self):
         return self._trainer_extra_schema
+
+    @property
+    def metrics_schema(self):
+        """
+        Returns the schema that represents model output that should be used for
+        metric reporting.
+
+        During the training/evaluation this schema will be appended to the
+        schema that represents model output.
+        """
+        return self._metrics_schema
 
     @property
     def output_schema(self):
@@ -152,146 +243,85 @@ class LayerModelHelper(model_helper.ModelHelperBase):
         assert self._loss is None
         self._loss = loss
 
-    def __getattr__(self, layer):
-        if not layers.layer_exists(layer):
-            raise ValueError(
-                "Tring to create non-registered layer: {0}".format(layer))
+    def add_loss(self, loss, name='unnamed'):
+        assert loss is not None, "Added loss should not be None"
+        assert isinstance(loss, schema.Scalar) or isinstance(
+            loss, schema.Struct
+        ), "Added loss should be a scalar or a struct"
+        if self._loss is None:
+            self._loss = schema.Struct((name, loss))
+        else:
+            prefix_base = name + '_auto_'
+            index = 0
+            prefix = name
+            while prefix in self._loss:
+                prefix = prefix_base + str(index)
+                index += 1
+            loss_struct = schema.Struct((prefix, loss))
+            self._loss = self._loss + loss_struct
 
-        def wrapper(*args, **kwargs):
-            return self.add_layer(
-                layers.create_layer(layer, self, *args, **kwargs))
-        return wrapper
+    def __getattr__(self, layer):
+        if layer.startswith('__'):
+            raise AttributeError(layer)
+
+        # TODO(amalevich): Add add support for ifbpy inline documentation
+        if layers.layer_exists(layer):
+            def wrapper(*args, **kwargs):
+                return self.add_layer(
+                    layers.create_layer(layer, self, *args, **kwargs))
+            return wrapper
+        elif core.IsOperator(layer):
+            def wrapper(*args, **kwargs):
+                def apply_operator(net, in_record, out_record, **kwargs):
+                    # TODO(amalevich): Switch to net.operator as soon as it gets
+                    # landed
+                    net.__getattr__(layer)(in_record.field_blobs(),
+                                           out_record.field_blobs(),
+                                           **kwargs)
+
+                if 'name' not in kwargs:
+                    kwargs['name'] = layer
+                return self.add_layer(
+                    layers.create_layer('Functional',
+                                        self, *args, function=apply_operator,
+                                        **kwargs))
+            return wrapper
+        else:
+            raise ValueError(
+                "Trying to create non-registered layer: {}".format(layer))
 
     @property
     def layers(self):
         return self._layers
 
-    # TODO(amalevich): Optimizer should not really in model. Move it out.
-    # Copy over from another Helper
-    def SgdOptim(self, base_lr=0.01, policy='fixed', **kwargs):
-        return partial(self.Sgd, base_lr=base_lr, policy=policy, **kwargs)
-
-    def AdagradOptim(self, alpha=0.01, epsilon=1e-4, **kwargs):
-        return partial(self.Adagrad, alpha=alpha, epsilon=epsilon, **kwargs)
-
-    def FtrlOptim(self, alpha=0.01, beta=1e-4, lambda1=0, lambda2=0, **kwargs):
-        return partial(self.Ftrl, alpha=alpha, beta=beta, lambda1=lambda1,
-                       lambda2=lambda2, **kwargs)
+    def apply_optimizers(
+        self,
+        train_net,
+        train_init_net,
+        grad_map,
+        blob_to_device=None,
+    ):
+        CPU = core.DeviceOption(caffe2_pb2.CPU)
+        # if given, blob_to_device is a map from blob to device_option
+        blob_to_device = blob_to_device or {}
+        for param, optimizer in viewitems(self.param_to_optim):
+            assert optimizer is not None, \
+                "default optimizer must have been set in add_layer"
+            # note that not all params has gradient and thus we sent None if
+            # gradient does not exists
+            device = get_param_device(
+                param,
+                grad_map.get(str(param)),
+                param_to_device=blob_to_device,
+                default_device=CPU,
+            )
+            with core.DeviceScope(device):
+                optimizer(
+                    train_net, train_init_net, param, grad_map.get(str(param)))
 
     def _GetOne(self):
         return self.global_constants['ONE']
 
-    def Adagrad(self, net, param_init_net,
-                param, grad, alpha, epsilon, sparse_dedup_aggregator=None,
-                engine=''):
-        if alpha <= 0:
-            return
-
-        param_square_sum = param_init_net.ConstantFill(
-            [param],
-            core.ScopedBlobReference(param + "_square_sum"),
-            value=0.0
-        )
-        # Set learning rate to negative so that we can add the grad to param
-        # directly later.
-        lr = param_init_net.ConstantFill(
-            [], core.ScopedBlobReference(param + "_lr"), value=-alpha)
-        if isinstance(grad, core.GradientSlice):
-            if sparse_dedup_aggregator:
-                grad = net.DeduplicateGradientSlices(
-                    grad, aggregator=sparse_dedup_aggregator)
-
-            net.SparseAdagrad(
-                [param, param_square_sum, grad.indices, grad.values, lr],
-                [param, param_square_sum],
-                epsilon=epsilon,
-                engine=engine
-            )
-
-        else:
-            net.Adagrad(
-                [param, param_square_sum, grad, lr],
-                [param, param_square_sum],
-                epsilon=epsilon,
-                engine=engine
-            )
-
-    def Ftrl(self, net, param_init_net,
-             param, grad, alpha, beta, lambda1, lambda2,
-             sparse_dedup_aggregator=None, engine=''):
-        if alpha <= 0:
-            return
-
-        nz = param_init_net.ConstantFill(
-            [param],
-            core.ScopedBlobReference(param + "_ftrl_nz"),
-            extra_shape=[2],
-            value=0.0
-        )
-        if isinstance(grad, core.GradientSlice):
-            if sparse_dedup_aggregator:
-                grad = net.DeduplicateGradientSlices(
-                    grad, aggregator=sparse_dedup_aggregator)
-
-            net.SparseFtrl(
-                [param, nz, grad.indices, grad.values],
-                [param, nz],
-                engine=engine,
-                alpha=alpha,
-                beta=beta,
-                lambda1=lambda1,
-                lambda2=lambda2
-            )
-        else:
-            net.Ftrl(
-                [param, nz, grad],
-                [param, nz],
-                engine=engine,
-                alpha=alpha,
-                beta=beta,
-                lambda1=lambda1,
-                lambda2=lambda2
-            )
-
-    def Sgd(self, net, param_init_net,
-            param, grad, base_lr, policy, momentum=0.0, **kwargs):
-        if (base_lr <= 0):
-            return
-        # Set learning rate to negative so that we can add the grad to param
-        # directly later.
-
-        # TODO(amalevich): Get rid of iter duplication if other parts are good
-        # enough
-        lr = net.LearningRate(
-            [net.Iter([], 1)],
-            core.ScopedBlobReference(param + "_lr"),
-            base_lr=-base_lr,
-            policy=policy,
-            **kwargs
-        )
-
-        if momentum > 0:
-            momentum_data = param_init_net.ConstantFill(
-                param, core.ScopedBlobReference(param + "_momentum"), value=0.)
-
-        if isinstance(grad, core.GradientSlice):
-            assert momentum == 0., "Doesn't support momentum for sparse"
-            net.ScatterWeightedSum(
-                [param, self._GetOne(),
-                 grad.indices, grad.values, lr],
-                param
-            )
-        else:
-            if momentum > 0.:
-                net.MomentumSGD(
-                    [grad, momentum_data, lr], [grad, momentum_data],
-                    momentum=momentum,
-                    nesterov=1)
-                coeff = self._GetOne()
-            else:
-                coeff = lr
-
-            net.WeightedSum(
-                [param, self._GetOne(), grad, coeff],
-                param
-            )
+    # An optimizer which allows us to do NO optimization
+    def NoOptim(self, *args, **kwargs):
+        pass

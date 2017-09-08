@@ -3,9 +3,10 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <fstream>
 #include <sstream>
-#include <typeinfo>
 #include <type_traits>
+#include <typeinfo>
 #include <vector>
 
 #include "caffe2/core/common.h"
@@ -19,6 +20,11 @@
 // keep the memory allocated for its maximum capacity reshaped to so far.
 CAFFE2_DECLARE_bool(caffe2_keep_on_shrink);
 
+// Since we can have high variance in blob memory allocated across different
+// inputs in the same run, we will shrink the blob only if the memory gain
+// is larger than this flag in bytes.
+CAFFE2_DECLARE_int64(caffe2_max_keep_on_shrink_memory);
+
 namespace caffe2 {
 
 /**
@@ -27,6 +33,37 @@ namespace caffe2 {
 inline vector<TIndex> ToVectorTIndex(const std::vector<int>& src) {
   return vector<TIndex>(src.begin(), src.end());
 }
+
+/**
+ * Return product of all dimensions starting from K
+ */
+inline TIndex size_from_dim_(int k, vector<TIndex> dims) {
+  TIndex r = 1;
+  for (int i = k; i < dims.size(); ++i) {
+    r *= dims[i];
+  }
+  return r;
+}
+
+// Product of all dims up to
+inline TIndex size_to_dim_(int k, vector<TIndex> dims) {
+  CAFFE_ENFORCE(k < dims.size());
+  TIndex r = 1;
+  for (int i = 0; i < k; ++i) {
+    r *= dims[i];
+  }
+  return r;
+}
+
+inline int canonical_axis_index_(int axis_index, int ndims) {
+  CAFFE_ENFORCE_GE(axis_index, -ndims);
+  CAFFE_ENFORCE_LT(axis_index, ndims);
+  if (axis_index < 0) {
+    return axis_index + ndims;
+  }
+  return axis_index;
+}
+
 
 /**
  * @brief Tensor is the basic class in Caffe2 that stores a contiguous memory
@@ -88,11 +125,8 @@ class Tensor {
   Tensor(const vector<TIndex>& dims, const vector<T>& values, Context* context)
       : meta_(TypeMeta::Make<T>()) {
     Resize(dims);
-    CAFFE_ENFORCE_EQ(values.size(), size_);
-    T* data = mutable_data<T>();
-    for (TIndex i = 0; i < size_; ++i) {
-      data[i] = values[i];
-    }
+    CAFFE_ENFORCE_EQ_WITH_CALLER(values.size(), size_);
+    context->template Copy<T, CPUContext, Context>(size_, values.data(), mutable_data<T>());
   }
 
   /**
@@ -102,10 +136,7 @@ class Tensor {
             typename = typename std::enable_if<std::is_scalar<T>::value>::type>
   Tensor(const T& value, Context* context) {
     Resize(vector<TIndex>{});
-    T* data = mutable_data<T>();
-    for (TIndex i = 0; i < size_; ++i) {
-      data[i] = value;
-    }
+    context->template Copy<T, CPUContext, Context>(size_, &value, mutable_data<T>());
   }
 
   /**
@@ -142,7 +173,7 @@ class Tensor {
     CopyFrom(src, &tmp_context);
   }
 
-  virtual ~Tensor() {}
+  virtual ~Tensor() noexcept {}
 
   /**
    * @brief Extends the outer-most dimension of this tensor by num elements,
@@ -155,7 +186,7 @@ class Tensor {
    */
   template <class ContextForCopy>
   void Extend(TIndex num, float growthPct, ContextForCopy* context) {
-    CAFFE_ENFORCE_GE(dims_.size(), 1);
+    CAFFE_ENFORCE_GE_WITH_CALLER(dims_.size(), 1);
     auto newDims = dims_;
     newDims[0] += num;
     if (!data_) {
@@ -199,6 +230,7 @@ class Tensor {
         meta_, oldSize, oldData.get(), newData);
     dims_ = oldDims;
     size_ = oldSize;
+    reserved_ = true;
   }
 
   /**
@@ -208,8 +240,8 @@ class Tensor {
    * that the extra capacity after the end of the shurnk tensor is maintained.
    */
   void Shrink(TIndex outer_dim) {
-    CAFFE_ENFORCE(dims_.size() >= 1, "Tensor must be at least 1D");
-    CAFFE_ENFORCE(
+    CAFFE_ENFORCE_WITH_CALLER(dims_.size() >= 1, "Tensor must be at least 1D");
+    CAFFE_ENFORCE_WITH_CALLER(
         outer_dim <= dims_[0],
         "New outer dimension must be smaller than current.");
     dims_[0] = outer_dim;
@@ -236,12 +268,23 @@ class Tensor {
   template <typename... Ts>
   void Resize(Ts... dim_source) {
     bool size_changed = SetDims(dim_source...);
-    // If needed, we will free the data. the next mutable_data() call
-    // will create the data storage.
-    if (size_changed && (capacity_ < size_ * meta_.itemsize() ||
-                         !FLAGS_caffe2_keep_on_shrink)) {
-      data_.reset();
-      capacity_ = 0;
+    if (size_changed) {
+      // If needed, we will free the data. the next mutable_data() call
+      // will create the data storage.
+      int64_t new_size = size_ * meta_.itemsize();
+      bool reset_tensor = false;
+      if (reserved_) {
+        // If tensor is reserved then don't claim its memeory unless capacity_
+        // is smaller than new size
+        reset_tensor = capacity_ < new_size;
+      } else {
+        reset_tensor = capacity_ < new_size || !FLAGS_caffe2_keep_on_shrink ||
+            capacity_ - new_size > FLAGS_caffe2_max_keep_on_shrink_memory;
+      }
+
+      if (reset_tensor) {
+        FreeMemory();
+      }
     }
   }
 
@@ -264,10 +307,10 @@ class Tensor {
   inline void Reshape(const vector<TIndex>& dims) {
     TIndex new_size = 1;
     for (auto d : dims) {
-      CAFFE_ENFORCE_GE(d, 0);
+      CAFFE_ENFORCE_GE_WITH_CALLER(d, 0);
       new_size *= d;
     }
-    CAFFE_ENFORCE(
+    CAFFE_ENFORCE_WITH_CALLER(
         new_size == size_,
         "New size and old size are not equal. You cannot use Reshape, "
         "but should use Resize."
@@ -281,6 +324,20 @@ class Tensor {
 
   inline void Reshape(const vector<int>& dims) {
     Reshape(ToVectorTIndex(dims));
+  }
+
+  /**
+   * Release whatever memory the tensor was holding but keep size and type
+   * information. Subsequent call to mutable_data will trigger new memory
+   * allocation.
+   */
+  inline void FreeMemory() {
+    data_.reset();
+    capacity_ = 0;
+    // If reserved is true and we changed tensor memory then it is fine
+    // to switch it to false, if Resize is called from Reserve and it triggers
+    // FreeMemory() then reserved_ will be set to true at end of Reserve()
+    reserved_ = false;
   }
 
   /**
@@ -299,6 +356,16 @@ class Tensor {
     return ss.str();
   }
 
+  void swap(Tensor<Context>& other) {
+    std::swap(dims_, other.dims_);
+    std::swap(size_, other.size_);
+    std::swap(meta_, other.meta_);
+    std::swap(data_, other.data_);
+    std::swap(shares_data_, other.shares_data_);
+    std::swap(capacity_, other.capacity_);
+    std::swap(reserved_, other.reserved_);
+  }
+
   /**
    * @brief Shares the data with another tensor.
    *
@@ -313,17 +380,20 @@ class Tensor {
    */
   void ShareData(const Tensor& src) {
     meta_ = src.meta();
-    CAFFE_ENFORCE_EQ(
+    CAFFE_ENFORCE_EQ_WITH_CALLER(
         src.size_,
         size_,
         "Size mismatch - did you call reshape before sharing the data?");
     // It is possible that the source tensor hasn't called mutable_data() yet,
     // in which case ShareData() doesn't make much sense since we don't really
     // know what to share yet.
-    CAFFE_ENFORCE(src.data_.get(), "Source tensor has no content yet.");
+    CAFFE_ENFORCE_WITH_CALLER(
+        src.data_.get() || src.size_ == 0,
+        "Source tensor has no content and has size > 0");
     // Finally, do sharing.
     data_ = src.data_;
     capacity_ = src.capacity_;
+    shares_data_ = true;
   }
 
   /**
@@ -336,11 +406,57 @@ class Tensor {
    */
   template <typename T>
   void ShareExternalPointer(T* src, size_t capacity = 0) {
-    meta_ = TypeMeta::Make<T>();
-    CAFFE_ENFORCE(
-        size_ > 0,
+    ShareExternalPointer(
+        src, capacity, [](void*) -> void {}, true /* no ownership */);
+  }
+
+  /**
+   * @brief Shares the data with an externally managed pointer.
+   *
+   * This overload takes a Deleter functor to be called when this tensor is
+   * reallocated or freed.
+   */
+  template <typename T, typename Deleter>
+  void ShareExternalPointer(
+      T* src,
+      size_t capacity,
+      Deleter&& d,
+      bool no_ownership = false) {
+    ShareExternalPointer(
+        src,
+        TypeMeta::Make<T>(),
+        capacity,
+        std::forward<Deleter>(d),
+        no_ownership);
+  }
+
+  void
+  ShareExternalPointer(void* src, const TypeMeta& meta, size_t capacity = 0) {
+    ShareExternalPointer(
+        src, meta, capacity, [](void*) -> void {}, true /* no ownership */);
+  }
+
+  template <class Deleter>
+  void ShareExternalPointer(
+      void* src,
+      const TypeMeta& meta,
+      size_t capacity,
+      Deleter&& d,
+      bool no_ownership = false) {
+    meta_ = meta;
+    CAFFE_ENFORCE_WITH_CALLER(
+        meta_.id(),
+        "To share with a raw external pointer you need to have meta "
+        "already set.");
+    CAFFE_ENFORCE_WITH_CALLER(
+        size_ >= 0,
         "To share data with a raw pointer, you need to set shape first.");
-    data_.reset(src, [](void*)->void {});
+    if (no_ownership) {
+      // We use aliasing contructor to avoid calling delete
+      data_ = std::shared_ptr<void>(std::shared_ptr<void>(), src);
+    } else {
+      data_.reset(src, std::forward<Deleter>(d));
+    }
     // Sets capacity. If not specified, we will implicitly assume that
     // the capacity is the current size.
     if (capacity) {
@@ -348,6 +464,11 @@ class Tensor {
     } else {
       capacity_ = nbytes();
     }
+    shares_data_ = true;
+  }
+
+  bool shares_data() const {
+    return shares_data_;
   }
 
   /**
@@ -355,7 +476,7 @@ class Tensor {
    * or raw_mutable_data() must have been called prior to this function call.
    */
   inline const void* raw_data() const {
-    CAFFE_ENFORCE(data_.get() || size_ == 0);
+    CAFFE_ENFORCE_WITH_CALLER(data_.get() || size_ == 0);
     return data_.get();
   }
 
@@ -367,14 +488,14 @@ class Tensor {
    */
   template <typename T>
   inline const T* data() const {
-    CAFFE_ENFORCE(
+    CAFFE_ENFORCE_WITH_CALLER(
         data_.get() || size_ == 0,
         "The tensor is of non-zero shape, but its data is not allocated yet. "
         "Caffe2 uses a lazy allocation, so you will need to call "
         "mutable_data() or raw_mutable_data() to actually allocate memory.");
-    CAFFE_ENFORCE(
+    CAFFE_ENFORCE_WITH_CALLER(
         IsType<T>(),
-        "Tensor type mistmatch, caller expects elements to be ",
+        "Tensor type mismatch, caller expects elements to be ",
         TypeMeta::Name<T>(),
         " while tensor contains ",
         meta_.name());
@@ -398,9 +519,8 @@ class Tensor {
       return data_.get();
     } else {
       meta_ = meta;
-      CAFFE_ENFORCE_GE(
-          size_,
-          0,
+      CAFFE_ENFORCE_WITH_CALLER(
+          size_ >= 0,
           "Tensor is not initialized. You probably need to call Resize() "
           "before calling mutable_data()");
       if (size_ == 0) {
@@ -412,17 +532,18 @@ class Tensor {
         // destruction procedure.
         auto size = size_;
         auto dtor = meta_.dtor();
+        auto ptr_and_deleter = Context::New(size_ * meta_.itemsize());
+        auto deleter = std::move(ptr_and_deleter.second);
         data_.reset(
-            static_cast<void*>(Context::New(size_ * meta_.itemsize())),
-            [size, dtor](void* ptr) -> void {
-                dtor(ptr, size);
-                Context::Delete(ptr);
+            ptr_and_deleter.first, [size, dtor, deleter](void* ptr) -> void {
+              dtor(ptr, size);
+              deleter(ptr);
             });
         meta_.ctor()(data_.get(), size_);
       } else {
         // For fundamental type, new and delete is easier.
-        data_.reset(static_cast<void*>(Context::New(size_ * meta_.itemsize())),
-                    Context::Delete);
+        auto ptr_and_deleter = Context::New(size_ * meta_.itemsize());
+        data_.reset(ptr_and_deleter.first, std::move(ptr_and_deleter.second));
       }
       capacity_ = size_ * meta_.itemsize();
       return data_.get();
@@ -439,9 +560,8 @@ class Tensor {
    * and a new storage will be created.
    */
   inline void* raw_mutable_data() {
-    CAFFE_ENFORCE_NE(
-        meta_.id(),
-        0,
+    CAFFE_ENFORCE_WITH_CALLER(
+        meta_.id() != 0,
         "Calling raw_mutable_data() without meta, but the current meta is "
         "of unknown type.");
     return raw_mutable_data(meta_);
@@ -480,29 +600,21 @@ class Tensor {
    * This is equivalent to calling size() * itemsize().
    */
   inline size_t nbytes() const { return size_ * meta_.itemsize(); }
+
+  inline size_t capacity_nbytes() const {
+    return capacity_;
+  }
   /**
    * Returns the dimensions of the tensor as a vector.
    */
   inline const vector<TIndex>& dims() const { return dims_; }
-  /**
-   * Return product of all dimensions starting from K
-   */
+
   inline TIndex size_from_dim(int k) const {
-    TIndex r = 1;
-    for (int i = k; i < dims_.size(); ++i) {
-      r *= dims_[i];
-    }
-    return r;
+    return size_from_dim_(k, dims_);
   }
 
-  // Product of all dims up to
   inline TIndex size_to_dim(int k) const {
-    CAFFE_ENFORCE(k < dims_.size());
-    TIndex r = 1;
-    for (int i = 0; i < k; ++i) {
-      r *= dims_[i];
-    }
-    return r;
+    return size_to_dim_(k, dims_);
   }
 
   /**
@@ -517,13 +629,9 @@ class Tensor {
   *        Dies on out of range index.
   */
   inline int canonical_axis_index(int axis_index) const {
-    CAFFE_ENFORCE_GE(axis_index, -ndim());
-    CAFFE_ENFORCE_LT(axis_index, ndim());
-    if (axis_index < 0) {
-      return axis_index + ndim();
-    }
-    return axis_index;
+    return canonical_axis_index_(axis_index, ndim());
   }
+
   /**
    * Checks if the tensor content is of the given data type.
    */
@@ -542,9 +650,11 @@ class Tensor {
    * call dim() instead.
    */
   inline int dim32(const int i) const {
-    DCHECK_LT(i, dims_.size()) << "Exceeding ndim limit " << dims_.size();
-    DCHECK_GE(i, 0) << "Cannot have negative index";
-    CAFFE_ENFORCE_LT(dims_[i], std::numeric_limits<int>::max());
+    #ifndef NDEBUG
+    CAFFE_ENFORCE_LT_WITH_CALLER(i, dims_.size(), "Exceeding ndim limit");
+    CAFFE_ENFORCE_GE_WITH_CALLER(i, 0, "Cannot have negative dimension index");
+    #endif
+    CAFFE_ENFORCE_LT_WITH_CALLER(dims_[i], std::numeric_limits<int>::max());
     return static_cast<int>(dims_[i]);
   }
 
@@ -554,8 +664,10 @@ class Tensor {
    * this function will produce a fatal message.
    */
   inline TIndex dim(const int i) const {
-    DCHECK_LT(i, dims_.size()) << "Exceeding ndim limit " << dims_.size();
-    DCHECK_GE(i, 0) << "Cannot have negative index";
+    #ifndef NDEBUG
+    CAFFE_ENFORCE_LT_WITH_CALLER(i, dims_.size(), "Exceeding ndim limit");
+    CAFFE_ENFORCE_GE_WITH_CALLER(i, 0, "Cannot have negative dimension index");
+    #endif
     return dims_[i];
   }
 
@@ -564,7 +676,9 @@ class Tensor {
   TIndex size_ = -1;
   TypeMeta meta_;
   std::shared_ptr<void> data_;
+  bool shares_data_ = false;
   size_t capacity_ = 0;
+  bool reserved_ = false;
   // In case of chunk load we store how much data was already loaded
 
  private:
@@ -575,7 +689,7 @@ class Tensor {
     auto old_size = size_;
     dims_.resize(src.size());
     TIndex new_size = 1;
-    for (int i = 0; i < src.size(); ++i) {
+    for (unsigned int i = 0; i < src.size(); ++i) {
       new_size *= src[i];
       dims_[i] = src[i];
     }
@@ -639,6 +753,94 @@ class Tensor {
 
 // For simplicity, we will typedef Tensor<CPUContext> to TensorCPU.
 typedef Tensor<CPUContext> TensorCPU;
+
+constexpr int k_limit_default_ = 1000;
+
+// Type call registry
+typedef TypeMeta (*TypeCall)(const void*);
+TypeCall GetTypeCallFunction(CaffeTypeId id);
+void RegisterTypeCallFunction(CaffeTypeId id, TypeCall c);
+
+template <class Context>
+TypeMeta GetTensorType(const void* c) {
+  const Tensor<Context>* tc = static_cast<const Tensor<Context>*>(c);
+  return tc->meta();
+}
+
+// Shape call registry
+typedef vector<TIndex> (*TensorInfoCall)(
+    const void*,
+    bool* shares_data,
+    size_t* capacity,
+    DeviceOption* device);
+TensorInfoCall GetTensorInfoFunction(CaffeTypeId id);
+void RegisterTensorInfoFunction(CaffeTypeId id, TensorInfoCall c);
+
+template <class Context>
+vector<TIndex> GetTensorInfo(
+    const void* c,
+    bool* shares_data,
+    size_t* capacity,
+    DeviceOption* device) {
+  const Tensor<Context>* tc = static_cast<const Tensor<Context>*>(c);
+  *shares_data = tc->shares_data();
+  *capacity = tc->capacity_nbytes();
+  device->set_device_type(CPU);
+  device->set_cuda_gpu_id(0);
+  return tc->dims();
+}
+
+class TensorPrinter {
+ public:
+  explicit TensorPrinter(
+      const std::string& tensor_name = "",
+      const std::string& file_name = "",
+      int limit = k_limit_default_);
+  ~TensorPrinter();
+
+  template <class T>
+  void Print(const Tensor<CPUContext>& tensor);
+
+  template <class Context>
+  void PrintMeta(const Tensor<Context>& tensor);
+
+  string MetaStr(const Tensor<CPUContext>& tensor);
+
+ private:
+  bool to_file_;
+  int limit_;
+  std::unique_ptr<std::ofstream> log_file_;
+  std::string tensor_name_;
+};
+
+template <class T>
+void TensorPrinter::Print(const Tensor<CPUContext>& tensor) {
+  std::stringstream values_stream;
+  // One most likely doesn't want to print int64-number of items for visual
+  // inspection, so we cast down to int here.
+  int total_count = std::min(tensor.size(), TIndex(limit_));
+  const T* tensor_data = tensor.template data<T>();
+  for (int i = 0; i < total_count - 1; ++i) {
+    values_stream << tensor_data[i] << ",";
+  }
+  // We do not add a comma after the last item.
+  values_stream << tensor_data[total_count - 1];
+  if (to_file_) {
+    (*log_file_) << MetaStr(tensor) << values_stream.str() << std::endl;
+  } else {
+    // Log to console.
+    LOG(INFO) << MetaStr(tensor) << values_stream.str();
+  }
+}
+
+template <class Context>
+void TensorPrinter::PrintMeta(const Tensor<Context>& tensor) {
+  if (to_file_) {
+    (*log_file_) << MetaStr(tensor) << std::endl;
+  } else {
+    LOG(INFO) << MetaStr(tensor);
+  }
+}
 
 }  // namespace caffe2
 #endif  // CAFFE2_CORE_TENSOR_H_

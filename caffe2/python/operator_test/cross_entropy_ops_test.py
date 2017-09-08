@@ -42,8 +42,9 @@ class TestCrossEntropyOps(hu.HypothesisTestCase):
                 ),
             )
         ),
+        **hu.gcs
     )
-    def test_sigmoid_cross_entropy_with_logits(self, inputs):
+    def test_sigmoid_cross_entropy_with_logits(self, inputs, gc, dc):
         logits, targets = inputs
 
         def sigmoid_xentr_logit_ref(logits, targets):
@@ -63,29 +64,32 @@ class TestCrossEntropyOps(hu.HypothesisTestCase):
             ['logits', 'targets'],
             ['xentropy'])
         self.assertReferenceChecks(
-            hu.cpu_do,
-            op,
-            [logits, targets],
-            sigmoid_xentr_logit_ref,
+            device_option=gc,
+            op=op,
+            inputs=[logits, targets],
+            reference=sigmoid_xentr_logit_ref,
             output_to_grad='xentropy',
             grad_reference=sigmoid_xentr_logit_grad_ref)
 
     @given(n=st.integers(2, 10),
+           b=st.integers(1, 5),
            **hu.gcs_cpu_only)
-    def test_soft_label_cross_entropy(self, n, gc, dc):
+    def test_soft_label_cross_entropy(self, n, b, gc, dc):
         # Initialize X and add 1e-2 for numerical stability
-        X = np.random.rand(n).astype(np.float32)
+        X = np.random.rand(b, n).astype(np.float32)
         X = X + 1e-2
-        X = np.expand_dims((X / np.sum(X)), axis=0)
+        for i in range(b):
+            X[i] = X[i] / np.sum(X[i])
 
         # Initialize label
-        label = np.random.rand(n).astype(np.float32)
-        label = np.expand_dims((label / np.sum(label)), axis=0)
+        label = np.random.rand(b, n).astype(np.float32)
+        for i in range(b):
+            label[i] = label[i] / np.sum(label[i])
 
         # Reference implementation of cross entropy with soft labels
         def soft_label_xentr_ref(X, label):
-            xent = [np.sum((-label[0][i] * np.log(max(X[0][i], 1e-20))
-                    for i in range(len(X[0]))))]
+            xent = [np.sum((-label[j][i] * np.log(max(X[j][i], 1e-20))
+                            for i in range(len(X[0])))) for j in range(b)]
             return (xent,)
 
         op = core.CreateOperator("CrossEntropy", ["X", "label"], ["Y"])

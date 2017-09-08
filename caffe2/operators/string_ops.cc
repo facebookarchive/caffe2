@@ -2,6 +2,49 @@
 #include "caffe2/core/operator.h"
 
 namespace caffe2 {
+
+template <>
+template <typename T>
+bool StringJoinOp<CPUContext>::DoRunWithType() {
+  const auto& input = Input(0);
+  auto* output = Output(0);
+  CAFFE_ENFORCE_GT(input.size(), 0);
+  CAFFE_ENFORCE_LE(input.ndim(), 2, "Only 1-D and 2-D tensors are supported");
+
+  const auto* inputData = input.data<T>();
+  int rowSize = (input.ndim() == 2) ? input.dim(1) : 1;
+  if (this->axis_ == 0) {
+    output->Resize(input.dim(0));
+    auto* outputData = output->mutable_data<std::string>();
+
+    int offset = 0;
+    for (int i = 0; i < input.dim(0); ++i) {
+      std::stringstream stream;
+      std::copy(
+          inputData + offset,
+          inputData + offset + rowSize,
+          std::ostream_iterator<T>(stream, delimiter_.c_str()));
+      outputData[i] = stream.str();
+      offset += rowSize;
+    }
+  } else if (this->axis_ == 1) {
+    output->Resize(input.dim(1));
+    auto* outputData = output->mutable_data<std::string>();
+
+    for (int j = 0; j < input.dim(1); ++j) {
+      std::stringstream stream;
+      for (int i = 0; i < input.dim(0); ++i) {
+        stream << inputData[i * rowSize + j] << delimiter_;
+      }
+      outputData[j] = stream.str();
+    }
+  } else {
+    CAFFE_ENFORCE(false, "Not supported");
+  }
+
+  return true;
+}
+
 namespace {
 
 struct StartsWith {
@@ -65,6 +108,7 @@ REGISTER_CPU_OPERATOR(
 REGISTER_CPU_OPERATOR(
     StringEndsWith,
     StringElementwiseOp<EndsWith, FixedType<bool>>);
+REGISTER_CPU_OPERATOR(StringJoin, StringJoinOp<CPUContext>);
 
 OPERATOR_SCHEMA(StringPrefix)
     .NumInputs(1)
@@ -120,9 +164,29 @@ Returns tensor of boolean of the same dimension of input.
     .Input(0, "strings", "Tensor of std::string.")
     .Output(0, "bools", "Tensor of bools of same shape as input.");
 
+OPERATOR_SCHEMA(StringJoin)
+    .NumInputs(1)
+    .NumOutputs(1)
+    .SetDoc(R"DOC(
+Takes a 1-D or a 2-D tensor as input and joins elements in each row with the
+provided delimieter. Output is a 1-D tensor of size equal to the first dimension
+of the input. Each element in the output tensor is a string of concatenated
+elements corresponding to each row in the input tensor. For 1-D input, each
+element is treated as a row.
+)DOC")
+    .Arg("delimiter", "Delimiter for join (Default: \",\").")
+    .Arg("axis", "Axis for the join (either 0 or 1)")
+    .Input(0, "input", "1-D or 2-D tensor")
+    .Output(
+        0,
+        "strings",
+        "1-D tensor of strings created by joining row elements from the "
+        "input tensor.");
+
 SHOULD_NOT_DO_GRADIENT(StringPrefix);
 SHOULD_NOT_DO_GRADIENT(StringSuffix);
 SHOULD_NOT_DO_GRADIENT(StringStartsWith);
 SHOULD_NOT_DO_GRADIENT(StringEndsWith);
+SHOULD_NOT_DO_GRADIENT(StringJoin);
 }
 } // namespace caffe2

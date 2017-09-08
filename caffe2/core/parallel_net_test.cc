@@ -5,7 +5,7 @@
 #include "caffe2/core/net.h"
 #include "caffe2/core/operator.h"
 #include "google/protobuf/text_format.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace caffe2 {
 
@@ -47,10 +47,8 @@ class SleepOp final : public Operator<CPUContext> {
 
 OPERATOR_SCHEMA(Sleep).NumInputs(0, INT_MAX).NumOutputs(0, 1);
 
-namespace {
 REGISTER_CPU_OPERATOR(Sleep, SleepOp);
 REGISTER_CUDA_OPERATOR(Sleep, SleepOp);
-}  // namespace
 
 const char kSleepNetDefString[] =
 "  name: \"sleepnet\""

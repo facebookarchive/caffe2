@@ -84,11 +84,11 @@ def _gather_padding_ref(start_pad_width, end_pad_width, data, lengths):
     pad_width = start_pad_width + end_pad_width
     ptr = 0
     for length in lengths:
-        for i in range(start_pad_width):
+        for _ in range(start_pad_width):
             start_padding += data[ptr]
             ptr += 1
         ptr += length - pad_width
-        for i in range(end_pad_width):
+        for _ in range(end_pad_width):
             end_padding += data[ptr]
             ptr += 1
     return (start_padding, end_padding)
@@ -190,7 +190,7 @@ class TestSequenceOps(hu.HypothesisTestCase):
                           elements=st.floats(min_value=-np.inf,
                                              max_value=np.inf),
                           min_value=1, max_value=10),
-                          **hu.gcs_cpu_only)
+                          **hu.gcs)
     def test_reverse_packed_segs(self, data, gc, dc):
         max_length = data.shape[0]
         batch_size = data.shape[1]

@@ -7,7 +7,7 @@
 #include "caffe2/core/db.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/proto/caffe2.pb.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace caffe2 {
 namespace db {
@@ -124,7 +124,7 @@ TEST(DBReaderTest, Reader) {
   EXPECT_EQ(proto.db_type(), "leveldb");
   EXPECT_EQ(proto.key(), "05");
   // Test restoring the reader from the serialized proto.
-  EXPECT_TRUE(reader_blob.Deserialize(str));
+  EXPECT_NO_THROW(reader_blob.Deserialize(str));
   EXPECT_TRUE(reader_blob.IsType<DBReader>());
   const DBReader& new_reader = reader_blob.Get<DBReader>();
   EXPECT_TRUE(new_reader.cursor() != nullptr);

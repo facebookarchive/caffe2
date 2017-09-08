@@ -4,8 +4,8 @@ namespace caffe2 {
 
 struct NegativeCPUFunctor {
   template <typename T>
-  inline void operator()(const int n, const T* x,
-                         T* y, CPUContext* device_context) {
+  inline void
+  operator()(const int n, const T* x, T* y, CPUContext* /*device_context*/) {
     EigenVectorMap<T>(y, n) = -ConstEigenVectorMap<T>(x, n);
     // for (int i = 0; i < n; ++i) {
     //  y[i] = -x[i];
@@ -13,21 +13,21 @@ struct NegativeCPUFunctor {
   }
 };
 
-namespace {
 REGISTER_CPU_OPERATOR(
     Negative, UnaryElementwiseOp<
         TensorTypes<float, double, int, long>, CPUContext, NegativeCPUFunctor>);
 
 // Input: X, output: Y
 OPERATOR_SCHEMA(Negative)
-  .NumInputs(1)
-  .NumOutputs(1)
-  .AllowInplace({{0, 0}})
-  .SetDoc(R"DOC(
+    .NumInputs(1)
+    .NumOutputs(1)
+    .AllowInplace({{0, 0}})
+    .IdenticalTypeAndShape()
+    .SetDoc(R"DOC(
 Computes the element-wise negative of the input.
 )DOC")
-  .Input(0, "X", "1D input tensor")
-  .Output(0, "Y", "1D input tensor");
+    .Input(0, "X", "1D input tensor")
+    .Output(0, "Y", "1D input tensor");
 
 class GetNegativeGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
@@ -39,5 +39,4 @@ class GetNegativeGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(Negative, GetNegativeGradient);
-}  // namespace
 }  // namespace caffe2

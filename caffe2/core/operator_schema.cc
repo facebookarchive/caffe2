@@ -54,18 +54,19 @@ bool OpSchema::Verify(const OperatorDef& def) const {
       if (def.input(in_idx) == def.output(out_idx) &&
           (!inplace_allowed_(in_idx, out_idx)
           && !inplace_enforced_(in_idx, out_idx))) {
-        LOG(ERROR)
-            << "Input index " << in_idx << " and output idx "
-            << out_idx << " are set to be in-place but this is actually not "
-            << "supported by op " << def.type();
+        LOG(ERROR) << "Input index " << in_idx << " and output idx " << out_idx
+                   << " (" << def.input(in_idx) << ")"
+                   << " are set to be in-place but this is actually not "
+                   << "supported by op " << def.type();
         return false;
       }
       if (def.input(in_idx) != def.output(out_idx) &&
           inplace_enforced_(in_idx, out_idx)) {
-        LOG(ERROR)
-            << "Input index " << in_idx << " and output idx " << out_idx
-            << " are not in-place but should be as required by op "
-            << def.type();
+        LOG(ERROR) << "Input index " << in_idx << " (" << def.input(in_idx) << ")"
+                   << " and output idx " << out_idx
+                   << " (" << def.output(in_idx) << ")"
+                   << " are not in-place but should be as required by op "
+                   << def.type();
         return false;
       }
     }
@@ -165,6 +166,16 @@ OpSchema& OpSchema::EnforceOneToOneInplace() {
   return EnforceInplace([](int in, int out) { return in == out; });
 }
 
+OpSchema& OpSchema::Private() {
+  private_ = true;
+  return *this;
+}
+
+OpSchema& OpSchema::InputsCanCrossDevices() {
+  inputs_can_cross_devices_ = true;
+  return *this;
+}
+
 OpSchema& OpSchema::TensorInferenceFunction(
     TensorInferenceFunctionType function) {
   tensor_inference_function_ = function;
@@ -173,9 +184,50 @@ OpSchema& OpSchema::TensorInferenceFunction(
 
 OpSchema& OpSchema::IdenticalTypeAndShape() {
   return TensorInferenceFunction(
-      [](const OperatorDef&, const vector<TensorProto>& input_types) {
-        return vector<TensorProto>(input_types);
+      [](const OperatorDef&, const vector<TensorShape>& input_types) {
+        return vector<TensorShape>(input_types);
       });
+}
+
+OpSchema& OpSchema::IdenticalTypeAndShapeOfInput(int idx) {
+  return TensorInferenceFunction(
+      [idx](const OperatorDef&, const vector<TensorShape>& input_types) {
+        vector<TensorShape> out(1);
+        out[0] = input_types[idx];
+        return out;
+      });
+}
+
+OpSchema& OpSchema::IdenticalTypeAndShapeOfInputDim(int idx, int dim) {
+  return TensorInferenceFunction(
+      [idx, dim](const OperatorDef&, const vector<TensorShape>& input_types) {
+        vector<TensorShape> out(1);
+        out[0].add_dims(input_types[idx].dims(dim));
+        out[0].set_data_type(input_types[idx].data_type());
+        return out;
+      });
+}
+
+OpSchema& OpSchema::ScalarType(::caffe2::TensorProto_DataType dt) {
+  return TensorInferenceFunction(
+      [dt](const OperatorDef&, const vector<TensorShape>& /*input_types*/) {
+        vector<TensorShape> out(1);
+        out[0].set_data_type(dt);
+        return out;
+      });
+}
+
+OpSchema& OpSchema::CostInferenceFunction(
+    CostInferenceFunctionType&& function) {
+  cost_inference_function_ =
+      caffe2::make_unique<CostInferenceFunctionType>(function);
+  return *this;
+}
+
+OpSchema& OpSchema::DeviceInferenceFunction(
+    DeviceInferenceFunctionType function) {
+  device_inference_function_ = function;
+  return *this;
 }
 
 OpSchema& OpSchema::SetDoc(const string& doc) {

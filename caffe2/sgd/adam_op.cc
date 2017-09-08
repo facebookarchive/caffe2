@@ -2,7 +2,6 @@
 
 namespace caffe2 {
 
-namespace {
 REGISTER_CPU_OPERATOR(Adam, AdamOp<float, CPUContext>);
 OPERATOR_SCHEMA(Adam)
     .NumInputs(6)
@@ -43,12 +42,12 @@ REGISTER_CPU_OPERATOR(SparseAdam, SparseAdamOp<float, CPUContext>);
 OPERATOR_SCHEMA(SparseAdam)
     .NumInputs(7)
     .NumOutputs(3)
-    .AllowInplace({{0, 0}, {1, 1}, {2, 2}})
+    .EnforceInplace({{0, 0}, {1, 1}, {2, 2}})
     .SetDoc(R"DOC(
 
 Computes the Adam Update for the sparse case.
 Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the dense
-Adam on on (param, moment1[indices], momemnt2[indices], lr, iter) and returns
+Adam on (param, moment1[indices], momemnt2[indices], lr, iter) and returns
 (new_param, new_moment1, new_moment2) as in dense case
 
 )DOC")
@@ -68,6 +67,5 @@ Adam on on (param, moment1[indices], momemnt2[indices], lr, iter) and returns
 
 SHOULD_NOT_DO_GRADIENT(Adam);
 SHOULD_NOT_DO_GRADIENT(SparseAdam);
-}
 
 }

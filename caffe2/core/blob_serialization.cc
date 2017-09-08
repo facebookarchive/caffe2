@@ -4,11 +4,22 @@
 #include <mutex>
 
 #include "caffe2/core/blob.h"
+#include "caffe2/utils/proto_utils.h"
 
 CAFFE2_DEFINE_int(
     caffe2_tensor_chunk_size,
     1000000,
     "Chunk size to split tensor data into");
+
+CAFFE2_DEFINE_int(
+    caffe2_max_tensor_serializer_threads,
+    16,
+    "Maximal number of threads that can be used for tensor serialization");
+
+CAFFE2_DEFINE_bool(
+    caffe2_serialize_fp16_as_bytes,
+    false,
+    "Serialize FLOAT16 tensors using byte_data field");
 
 namespace caffe2 {
 /**
@@ -45,42 +56,10 @@ class StringSerializer : public BlobSerializerBase {
  */
 class StringDeserializer : public BlobDeserializerBase {
  public:
-  bool Deserialize(const BlobProto& proto, Blob* blob) override {
+  void Deserialize(const BlobProto& proto, Blob* blob) override {
     *blob->GetMutable<std::string>() = proto.content();
-    return true;
   }
 };
-
-namespace {
-
-// A wrapper function to return tensor type string appended with the device
-// name, for use in blob serialization / deserialization. This should have one
-// to one correspondence with caffe2/proto/caffe2.proto: enum DeviceType.
-//
-// Note that we can't use DeviceType_Name, because that is only available in
-// protobuf-full, and some platforms (like mobile) may want to use
-// protobuf-lite instead.
-std::string TensorDeviceTypeName(const int32_t& d) {
-  switch (d) {
-    case CPU:
-      return "TensorCPU";
-    case CUDA:
-      return "TensorCUDA";
-    case MKLDNN:
-      return "TensorMKLDNN";
-    default:
-      CAFFE_THROW(
-          "Unknown device: ",
-          d,
-          ". If you have recently updated the caffe2.proto file to add a new "
-          "device type, did you forget to update the TensorDeviceTypeName() "
-          "function to reflect such recent changes?");
-      // The below code won't run but is needed to suppress some compiler
-      // warnings.
-      return "";
-  }
-};
-}
 
 // The blob serialization member function implementation.
 void Blob::Serialize(
@@ -94,21 +73,21 @@ void Blob::Serialize(
 
 // The blob serialization member function implementation.
 std::string Blob::Serialize(const string& name) const {
-  std::stringstream data;
-  std::mutex mutex;
-  BlobSerializerBase::SerializationAcceptor acceptor =
-    [&data, &mutex](const std::string&, const std::string& blob) {
-    std::lock_guard<std::mutex> guard(mutex);
-    data << blob;
+  std::string data;
+  BlobSerializerBase::SerializationAcceptor acceptor = [&data](
+      const std::string&, const std::string& blob) {
+    DCHECK(data.empty()); // should be called once with kNoChunking
+    data = blob;
   };
-  this->Serialize(name, acceptor);
-  return data.str();
+  this->Serialize(name, acceptor, kNoChunking);
+  return data;
 }
 
 // Specialization for StoreDeviceDetail for CPU - nothing needs to be done.
 template <>
 void TensorSerializer<CPUContext>::StoreDeviceDetail(
-    const Tensor<CPUContext>& input, TensorProto* proto) {}
+    const Tensor<CPUContext>& /*input*/,
+    TensorProto* /*proto*/) {}
 
 // The actual serialization registry objects.
 CAFFE_DEFINE_TYPED_REGISTRY(
@@ -118,32 +97,32 @@ CAFFE_DEFINE_TYPED_REGISTRY(
 
 CAFFE_DEFINE_REGISTRY(BlobDeserializerRegistry, BlobDeserializerBase);
 
-bool Blob::Deserialize(const string& content) {
+void Blob::Deserialize(const string& content) {
   BlobProto blob_proto;
-  if (!blob_proto.ParseFromString(content)) {
-    LOG(ERROR) << "Cannot parse content into a BlobProto.";
-    return false;
-  }
-  return Deserialize(blob_proto);
+  CAFFE_ENFORCE(
+      blob_proto.ParseFromString(content),
+      "Cannot parse content into a BlobProto.");
+  Deserialize(blob_proto);
 }
 
-bool Blob::Deserialize(const BlobProto& blob_proto) {
+void Blob::Deserialize(const BlobProto& blob_proto) {
   if (blob_proto.type() == kTensorBlobType) {
     // This is a tensor object. Depending on the device type, we will
     // use the corresponding TensorDeserializer.
-    auto deserializer = CreateDeserializer(TensorDeviceTypeName(
-        blob_proto.tensor().device_detail().device_type()));
+    auto deserializer = CreateDeserializer(
+        "Tensor" +
+        DeviceTypeName(blob_proto.tensor().device_detail().device_type()));
     // Tensor's deserializer should always be registered, but we will double
     // check if it is not null anyway.
     CAFFE_ENFORCE(deserializer.get());
-    return deserializer->Deserialize(blob_proto, this);
+    deserializer->Deserialize(blob_proto, this);
   } else {
     auto deserializer = CreateDeserializer(blob_proto.type());
-    if (!deserializer.get()) {
-      LOG(ERROR) << "No registered deserializer for type " << blob_proto.type();
-      return false;
-    }
-    return deserializer->Deserialize(blob_proto, this);
+    CAFFE_ENFORCE(
+        deserializer.get(),
+        "No registered deserializer for type ",
+        blob_proto.type());
+    deserializer->Deserialize(blob_proto, this);
   }
 }
 

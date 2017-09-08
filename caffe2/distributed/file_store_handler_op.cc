@@ -1,16 +1,10 @@
 #include "file_store_handler_op.h"
 
-#include <caffe2/core/context_gpu.h>
-
 namespace caffe2 {
 
 REGISTER_CPU_OPERATOR(
     FileStoreHandlerCreate,
     FileStoreHandlerCreateOp<CPUContext>);
-
-REGISTER_CUDA_OPERATOR(
-    FileStoreHandlerCreate,
-    FileStoreHandlerCreateOp<CUDAContext>);
 
 OPERATOR_SCHEMA(FileStoreHandlerCreate)
     .NumInputs(0)
@@ -24,6 +18,7 @@ cumbersome. Use an ephemeral path to ensure multiple processes or runs
 don't interfere.
 )DOC")
     .Arg("path", "base path used by the FileStoreHandler")
+    .Arg("prefix", "prefix for all keys used by this store")
     .Output(0, "handler", "unique_ptr<StoreHandler>");
 
 NO_GRADIENT(FileStoreHandlerCreateOp);

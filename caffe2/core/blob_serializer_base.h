@@ -7,6 +7,9 @@ namespace caffe2 {
 
 class Blob;
 
+constexpr int kDefaultChunkSize = -1;
+constexpr int kNoChunking = 0;
+
 /**
  * @brief BlobSerializerBase is an abstract class that serializes a blob to a
  * string.
@@ -43,7 +46,7 @@ class BlobSerializerBase {
       const Blob& blob,
       const std::string& name,
       SerializationAcceptor acceptor,
-      int chunk_size) {
+      int /*chunk_size*/) {
     // Base implementation.
     Serialize(blob, name, acceptor);
   }

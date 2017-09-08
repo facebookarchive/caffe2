@@ -1,7 +1,6 @@
 #include "caffe2/utils/proto_utils.h"
 
 #include <fcntl.h>
-#include <unistd.h>
 #include <cerrno>
 #include <fstream>
 
@@ -18,6 +17,33 @@ using ::google::protobuf::Message;
 using ::google::protobuf::MessageLite;
 
 namespace caffe2 {
+
+std::string DeviceTypeName(const int32_t& d) {
+  switch (d) {
+    case CPU:
+      return "CPU";
+    case CUDA:
+      return "CUDA";
+    case MKLDNN:
+      return "MKLDNN";
+    default:
+      CAFFE_THROW(
+          "Unknown device: ",
+          d,
+          ". If you have recently updated the caffe2.proto file to add a new "
+          "device type, did you forget to update the TensorDeviceTypeName() "
+          "function to reflect such recent changes?");
+      // The below code won't run but is needed to suppress some compiler
+      // warnings.
+      return "";
+  }
+};
+
+bool IsSameDevice(const DeviceOption& lhs, const DeviceOption& rhs) {
+  return (
+      lhs.device_type() == rhs.device_type() &&
+      lhs.cuda_gpu_id() == rhs.cuda_gpu_id());
+}
 
 bool ReadStringFromFile(const char* filename, string* str) {
   std::ifstream ifs(filename, std::ios::in);
@@ -83,7 +109,9 @@ bool ReadProtoFromBinaryFile(const char* filename, MessageLite* proto) {
   return proto->ParseFromCodedStream(&coded_stream);
 }
 
-void WriteProtoToBinaryFile(const MessageLite& proto, const char* filename) {
+void WriteProtoToBinaryFile(
+    const MessageLite& /*proto*/,
+    const char* /*filename*/) {
   LOG(FATAL) << "Not implemented yet.";
 }
 
@@ -117,7 +145,11 @@ void WriteProtoToTextFile(const Message& proto, const char* filename) {
 }
 
 bool ReadProtoFromBinaryFile(const char* filename, MessageLite* proto) {
+#if defined (_MSC_VER)  // for MSC compiler binary flag needs to be specified
+  int fd = open(filename, O_RDONLY | O_BINARY);
+#else
   int fd = open(filename, O_RDONLY);
+#endif
   CAFFE_ENFORCE_NE(fd, -1, "File not found: ", filename);
   std::unique_ptr<ZeroCopyInputStream> raw_input(new FileInputStream(fd));
   std::unique_ptr<CodedInputStream> coded_input(
@@ -149,8 +181,7 @@ void WriteProtoToBinaryFile(const MessageLite& proto, const char* filename) {
 ArgumentHelper::ArgumentHelper(const OperatorDef& def) {
   for (auto& arg : def.arg()) {
     if (arg_map_.count(arg.name())) {
-      if (arg.SerializeAsString() !=
-          arg_map_[arg.name()]->SerializeAsString()) {
+      if (arg.SerializeAsString() != arg_map_[arg.name()].SerializeAsString()) {
         // If there are two arguments of the same name but different contents,
         // we will throw an error.
         CAFFE_THROW(
@@ -159,11 +190,22 @@ ArgumentHelper::ArgumentHelper(const OperatorDef& def) {
             "but with different contents.",
             ProtoDebugString(def));
       } else {
-        LOG(WARNING) << "Duplicated argument name found in operator def: "
+        LOG(WARNING) << "Duplicated argument name [" << arg.name()
+                     << "] found in operator def: "
                      << ProtoDebugString(def);
       }
     }
-    arg_map_[arg.name()] = &arg;
+    arg_map_[arg.name()] = arg;
+  }
+}
+
+ArgumentHelper::ArgumentHelper(const NetDef& netdef) {
+  for (auto& arg : netdef.arg()) {
+    CAFFE_ENFORCE(
+        arg_map_.count(arg.name()) == 0,
+        "Duplicated argument name [", arg.name(), "] found in net def: ",
+        ProtoDebugString(netdef));
+    arg_map_[arg.name()] = arg;
   }
 }
 
@@ -171,7 +213,26 @@ bool ArgumentHelper::HasArgument(const string& name) const {
   return arg_map_.count(name);
 }
 
-#define INSTANTIATE_GET_SINGLE_ARGUMENT(T, fieldname)                         \
+namespace {
+// Helper function to verify that conversion between types won't loose any
+// significant bit.
+template <typename InputType, typename TargetType>
+bool SupportsLosslessConversion(const InputType& value) {
+  return static_cast<InputType>(static_cast<TargetType>(value)) == value;
+}
+}
+
+bool operator==(const NetDef& l, const NetDef& r) {
+  return l.SerializeAsString() == r.SerializeAsString();
+}
+
+std::ostream& operator<<(std::ostream& output, const NetDef& n) {
+  output << n.SerializeAsString();
+  return output;
+}
+
+#define INSTANTIATE_GET_SINGLE_ARGUMENT(                                      \
+    T, fieldname, enforce_lossless_conversion)                                \
   template <>                                                                 \
   T ArgumentHelper::GetSingleArgument<T>(                                     \
       const string& name, const T& default_value) const {                     \
@@ -181,46 +242,84 @@ bool ArgumentHelper::HasArgument(const string& name) const {
       return default_value;                                                   \
     }                                                                         \
     CAFFE_ENFORCE(                                                            \
-        arg_map_.at(name)->has_##fieldname(),                                 \
+        arg_map_.at(name).has_##fieldname(),                                  \
         "Argument ",                                                          \
         name,                                                                 \
         " does not have the right field: expected field " #fieldname);        \
-    return arg_map_.at(name)->fieldname();                                    \
+    auto value = arg_map_.at(name).fieldname();                               \
+    if (enforce_lossless_conversion) {                                        \
+      auto supportsConversion =                                               \
+          SupportsLosslessConversion<decltype(value), T>(value);              \
+      CAFFE_ENFORCE(                                                          \
+          supportsConversion,                                                 \
+          "Value",                                                            \
+          value,                                                              \
+          " of argument ",                                                    \
+          name,                                                               \
+          "cannot be represented correctly in a target type");                \
+    }                                                                         \
+    return value;                                                             \
   }                                                                           \
   template <>                                                                 \
   bool ArgumentHelper::HasSingleArgumentOfType<T>(const string& name) const { \
     if (arg_map_.count(name) == 0) {                                          \
       return false;                                                           \
     }                                                                         \
-    return arg_map_.at(name)->has_##fieldname();                              \
+    return arg_map_.at(name).has_##fieldname();                               \
   }
 
-INSTANTIATE_GET_SINGLE_ARGUMENT(float, f)
-INSTANTIATE_GET_SINGLE_ARGUMENT(int, i)
-INSTANTIATE_GET_SINGLE_ARGUMENT(bool, i)
-INSTANTIATE_GET_SINGLE_ARGUMENT(int64_t, i)
-INSTANTIATE_GET_SINGLE_ARGUMENT(size_t, i)
-INSTANTIATE_GET_SINGLE_ARGUMENT(string, s)
+INSTANTIATE_GET_SINGLE_ARGUMENT(float, f, false)
+INSTANTIATE_GET_SINGLE_ARGUMENT(double, f, false)
+INSTANTIATE_GET_SINGLE_ARGUMENT(bool, i, false)
+INSTANTIATE_GET_SINGLE_ARGUMENT(int8_t, i, true)
+INSTANTIATE_GET_SINGLE_ARGUMENT(int16_t, i, true)
+INSTANTIATE_GET_SINGLE_ARGUMENT(int, i, true)
+INSTANTIATE_GET_SINGLE_ARGUMENT(int64_t, i, true)
+INSTANTIATE_GET_SINGLE_ARGUMENT(uint8_t, i, true)
+INSTANTIATE_GET_SINGLE_ARGUMENT(uint16_t, i, true)
+INSTANTIATE_GET_SINGLE_ARGUMENT(size_t, i, true)
+INSTANTIATE_GET_SINGLE_ARGUMENT(string, s, false)
+INSTANTIATE_GET_SINGLE_ARGUMENT(NetDef, n, false)
 #undef INSTANTIATE_GET_SINGLE_ARGUMENT
 
-#define INSTANTIATE_GET_REPEATED_ARGUMENT(T, fieldname)                        \
-  template <>                                                                  \
-  vector<T> ArgumentHelper::GetRepeatedArgument<T>(const string& name) const { \
-    if (arg_map_.count(name) == 0) {                                           \
-      return vector<T>();                                                      \
-    }                                                                          \
-    vector<T> values;                                                          \
-    for (const auto& v : arg_map_.at(name)->fieldname())                       \
-      values.push_back(v);                                                     \
-    return values;                                                             \
+#define INSTANTIATE_GET_REPEATED_ARGUMENT(                             \
+    T, fieldname, enforce_lossless_conversion)                         \
+  template <>                                                          \
+  vector<T> ArgumentHelper::GetRepeatedArgument<T>(                    \
+      const string& name, const std::vector<T>& default_value) const { \
+    if (arg_map_.count(name) == 0) {                                   \
+      return default_value;                                            \
+    }                                                                  \
+    vector<T> values;                                                  \
+    for (const auto& v : arg_map_.at(name).fieldname()) {              \
+      if (enforce_lossless_conversion) {                               \
+        auto supportsConversion =                                      \
+            SupportsLosslessConversion<decltype(v), T>(v);             \
+        CAFFE_ENFORCE(                                                 \
+            supportsConversion,                                        \
+            "Value",                                                   \
+            v,                                                         \
+            " of argument ",                                           \
+            name,                                                      \
+            "cannot be represented correctly in a target type");       \
+      }                                                                \
+      values.push_back(v);                                             \
+    }                                                                  \
+    return values;                                                     \
   }
 
-INSTANTIATE_GET_REPEATED_ARGUMENT(float, floats)
-INSTANTIATE_GET_REPEATED_ARGUMENT(int, ints)
-INSTANTIATE_GET_REPEATED_ARGUMENT(bool, ints)
-INSTANTIATE_GET_REPEATED_ARGUMENT(int64_t, ints)
-INSTANTIATE_GET_REPEATED_ARGUMENT(size_t, ints)
-INSTANTIATE_GET_REPEATED_ARGUMENT(string, strings)
+INSTANTIATE_GET_REPEATED_ARGUMENT(float, floats, false)
+INSTANTIATE_GET_REPEATED_ARGUMENT(double, floats, false)
+INSTANTIATE_GET_REPEATED_ARGUMENT(bool, ints, false)
+INSTANTIATE_GET_REPEATED_ARGUMENT(int8_t, ints, true)
+INSTANTIATE_GET_REPEATED_ARGUMENT(int16_t, ints, true)
+INSTANTIATE_GET_REPEATED_ARGUMENT(int, ints, true)
+INSTANTIATE_GET_REPEATED_ARGUMENT(int64_t, ints, true)
+INSTANTIATE_GET_REPEATED_ARGUMENT(uint8_t, ints, true)
+INSTANTIATE_GET_REPEATED_ARGUMENT(uint16_t, ints, true)
+INSTANTIATE_GET_REPEATED_ARGUMENT(size_t, ints, true)
+INSTANTIATE_GET_REPEATED_ARGUMENT(string, strings, false)
+INSTANTIATE_GET_REPEATED_ARGUMENT(NetDef, nets, false)
 #undef INSTANTIATE_GET_REPEATED_ARGUMENT
 
 #define CAFFE2_MAKE_SINGULAR_ARGUMENT(T, fieldname)                            \
@@ -264,20 +363,55 @@ CAFFE2_MAKE_REPEATED_ARGUMENT(int64_t, ints)
 CAFFE2_MAKE_REPEATED_ARGUMENT(string, strings)
 #undef CAFFE2_MAKE_REPEATED_ARGUMENT
 
+bool HasOutput(const OperatorDef& op, const std::string& output) {
+  for (const auto& outp : op.output()) {
+    if (outp == output) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool HasInput(const OperatorDef& op, const std::string& input) {
+  for (const auto& inp : op.input()) {
+    if (inp == input) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const Argument& GetArgument(const OperatorDef& def, const string& name) {
   for (const Argument& arg : def.arg()) {
     if (arg.name() == name) {
       return arg;
     }
   }
-  LOG(FATAL) << "Argument named " << name << " does not exist.";
-  // To suppress compiler warning of return values. This will never execute.
-  static Argument _dummy_arg_to_suppress_compiler_warning;
-  return _dummy_arg_to_suppress_compiler_warning;
+  CAFFE_THROW(
+      "Argument named ",
+      name,
+      " does not exist in operator ",
+      ProtoDebugString(def));
+}
+
+bool GetFlagArgument(
+    const OperatorDef& def,
+    const string& name,
+    bool def_value) {
+  for (const Argument& arg : def.arg()) {
+    if (arg.name() == name) {
+      CAFFE_ENFORCE(
+          arg.has_i(), "Can't parse argument as bool: ", ProtoDebugString(arg));
+      return arg.i();
+    }
+  }
+  return def_value;
 }
 
 Argument* GetMutableArgument(
-    const string& name, const bool create_if_missing, OperatorDef* def) {
+    const string& name,
+    const bool create_if_missing,
+    OperatorDef* def) {
   for (int i = 0; i < def->arg_size(); ++i) {
     if (def->arg(i).name() == name) {
       return def->mutable_arg(i);

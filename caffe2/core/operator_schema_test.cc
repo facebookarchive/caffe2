@@ -1,8 +1,9 @@
-#include "caffe2/core/operator_schema.h"
 #include "caffe2/core/logging.h"
+#include "caffe2/core/operator.h"
+#include "caffe2/core/operator_schema.h"
 #include "caffe2/utils/proto_utils.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace caffe2 {
 
@@ -14,6 +15,10 @@ OPERATOR_SCHEMA(OpSchemaTestOp)
 
 TEST(OperatorSchemaTest, BasicSchema) {
   const OpSchema* schema = OpSchemaRegistry::Schema("OpSchemaTestOp");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
   EXPECT_TRUE(schema != nullptr);
   EXPECT_TRUE(schema->doc() != nullptr);
   OperatorDef def1 = CreateOperatorDef(
@@ -36,6 +41,10 @@ OPERATOR_SCHEMA(OpSchemaSpecifiedInputOutputOp)
 TEST(OperatorSchemaTest, SpecifiedInputOutput) {
   const OpSchema* schema
       = OpSchemaRegistry::Schema("OpSchemaSpecifiedInputOutputOp");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
   EXPECT_TRUE(schema != nullptr);
   OperatorDef def1 = CreateOperatorDef(
       "OpSchemaSpecifiedInputOutputOp", "",
@@ -59,6 +68,10 @@ OPERATOR_SCHEMA(OpSchemaInputOutputRelationOp)
 TEST(OperatorSchemaTest, InputOutputRelation) {
   const OpSchema* schema
       = OpSchemaRegistry::Schema("OpSchemaInputOutputRelationOp");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
   EXPECT_TRUE(schema != nullptr);
   OperatorDef def1 = CreateOperatorDef(
       "OpSchemaInputOutputRelationOp", "",
@@ -80,6 +93,10 @@ OPERATOR_SCHEMA(OpSchemaSameInputOutputOp)
 TEST(OperatorSchemaTest, SameInputOutput) {
   const OpSchema* schema =
       OpSchemaRegistry::Schema("OpSchemaSameInputOutputOp");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
   OperatorDef def1 = CreateOperatorDef(
       "OpSchemaSameInputOutputOp", "",
       vector<string>{"in"}, vector<string>{"out"});
@@ -101,6 +118,10 @@ OPERATOR_SCHEMA(OpSchemaCalculateOutputOp)
 TEST(OperatorSchemaTest, CalculateOutput) {
   const OpSchema* schema =
       OpSchemaRegistry::Schema("OpSchemaCalculateOutputOp");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
   OperatorDef def1 = CreateOperatorDef(
       "OpSchemaCalculateOutputOp", "",
       vector<string>{"in"}, vector<string>{"out"});
@@ -123,6 +144,10 @@ OPERATOR_SCHEMA(OpSchemaInplace)
 TEST(OperatorSchemaTest, Inplace) {
   const OpSchema* schema =
       OpSchemaRegistry::Schema("OpSchemaInplace");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
   OperatorDef def1 = CreateOperatorDef(
       "OpSchemaInplace", "",
       vector<string>{"in1", "in2"}, vector<string>{"out1", "in2"});
@@ -146,39 +171,47 @@ OPERATOR_SCHEMA(OpSchemaSameInputOutputTensorInference).IdenticalTypeAndShape();
 TEST(OperatorSchemaTest, TensorInferenceIdentical) {
   const OpSchema* schema =
       OpSchemaRegistry::Schema("OpSchemaSameInputOutputTensorInference");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
   OperatorDef def = CreateOperatorDef(
       "OpSchemaSameInputOutputTensorInference",
       "",
       vector<string>{"in"},
       vector<string>{"out"});
-  vector<TensorProto> protos(1);
-  protos[0].set_data_type(TensorProto::FLOAT);
-  protos[0].add_dims(1);
-  protos[0].add_dims(2);
-  protos[0].add_dims(3);
-  vector<TensorProto> out = schema->InferTensor(def, protos);
+  vector<TensorShape> shapes(1);
+  shapes[0].set_data_type(TensorProto::FLOAT);
+  shapes[0].add_dims(1);
+  shapes[0].add_dims(2);
+  shapes[0].add_dims(3);
+  vector<TensorShape> out = schema->InferTensor(def, shapes);
   EXPECT_EQ(out.size(), 1);
-  EXPECT_EQ(out[0].SerializeAsString(), protos[0].SerializeAsString());
+  EXPECT_EQ(out[0].SerializeAsString(), shapes[0].SerializeAsString());
 }
 
 OPERATOR_SCHEMA(OpSchemaArbitraryTensorInference)
     .TensorInferenceFunction(
-        [](const OperatorDef&, const vector<TensorProto>&) {
-          vector<TensorProto> protos(1);
-          protos[0].set_data_type(TensorProto::FLOAT);
-          protos[0].add_dims(1701);
-          return protos;
+        [](const OperatorDef&, const vector<TensorShape>&) {
+          vector<TensorShape> shapes(1);
+          shapes[0].set_data_type(TensorProto::FLOAT);
+          shapes[0].add_dims(1701);
+          return shapes;
         });
 
 TEST(OperatorSchemaTest, TensorInferenceArbitrary) {
   const OpSchema* schema =
       OpSchemaRegistry::Schema("OpSchemaArbitraryTensorInference");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
   OperatorDef def = CreateOperatorDef(
       "OpSchemaArbitraryTensorInference",
       "",
       vector<string>{"in"},
       vector<string>{"out"});
-  vector<TensorProto> out = schema->InferTensor(def, vector<TensorProto>());
+  vector<TensorShape> out = schema->InferTensor(def, vector<TensorShape>());
   EXPECT_EQ(out.size(), 1);
   EXPECT_EQ(out[0].data_type(), TensorProto::FLOAT);
   EXPECT_EQ(out[0].dims_size(), 1);
@@ -190,6 +223,10 @@ TEST(OperatorSchemaTest, TestCastSchema) {
   // deduces the
   // schema from the "to" argument.
   const OpSchema* schema = OpSchemaRegistry::Schema("Cast");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
   if (!schema) {
     // Compiled without the Cast op.
     return;
@@ -200,12 +237,43 @@ TEST(OperatorSchemaTest, TestCastSchema) {
       vector<string>{"in"},
       vector<string>{"out"},
       vector<Argument>{MakeArgument<int64_t>("to", TensorProto::UINT8)});
-  vector<TensorProto> out = schema->InferTensor(def, vector<TensorProto>(1));
+  vector<TensorShape> out = schema->InferTensor(def, vector<TensorShape>(1));
   EXPECT_EQ(out.size(), 1);
   // Data type should be inferred.
   EXPECT_EQ(out[0].data_type(), TensorProto::UINT8);
   // Dim should not be set (same as input);
   EXPECT_EQ(out[0].dims_size(), 0);
+}
+
+OPERATOR_SCHEMA(OpSchemaCostInference)
+    .NumInputs(2)
+    .NumOutputs(2)
+    .CostInferenceFunction([](const OperatorDef& /*def*/,
+                              const vector<TensorShape>& inputs) {
+      struct OpSchema::Cost c;
+      c.flops = 2 * inputs[0].dims(0) * inputs[0].dims(1) * inputs[1].dims(1);
+      return c;
+    });
+
+TEST(OperatorSchemaTest, TestCostInference) {
+  const OpSchema* schema = OpSchemaRegistry::Schema("OpSchemaCostInference");
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+  EXPECT_TRUE(schema == nullptr);
+  return;
+#endif
+  if (!schema) {
+    return;
+  }
+  OperatorDef def = CreateOperatorDef(
+      "OpSchemaCostInference", "", vector<string>{"in"}, vector<string>{"out"});
+  vector<TensorShape> shapes(2);
+  shapes[0].set_data_type(TensorProto::FLOAT);
+  shapes[0].add_dims(10);
+  shapes[0].add_dims(10);
+  shapes[1].set_data_type(TensorProto::FLOAT);
+  shapes[1].add_dims(10);
+  shapes[1].add_dims(10);
+  EXPECT_EQ(2000, schema->InferCost(def, shapes).flops);
 }
 
 }  // namespace caffe2

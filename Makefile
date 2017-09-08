@@ -1,21 +1,21 @@
-# This makefile does nothing but delegating the actual compilation to build.py.
+# This makefile does nothing but delegating the actual building to cmake.
 
 all:
-	@python build.py build
+	@mkdir -p build && cd build && cmake .. $(shell python ./scripts/get_python_cmake_flags.py) && $(MAKE)
+
+local:
+	@./scripts/build_local.sh
 
 android:
-	@python build_android.py build
+	@./scripts/build_android.sh
 
-clean:
-	@python build.py clean
+ios:
+	@./scripts/build_ios.sh
 
-test:
-	@python build.py test
-
-lint:
-	@find caffe2 -type f -exec python brewtool/cpplint.py {} \;
+clean: # This will remove ALL build folders.
+	@rm -r build*/
 
 linecount:
-	@cloc --read-lang-def=brewtool/caffe.cloc caffe2 || \
+	@cloc --read-lang-def=caffe.cloc caffe2 || \
 		echo "Cloc is not available on the machine. You can install cloc with " && \
 		echo "    sudo apt-get install cloc"

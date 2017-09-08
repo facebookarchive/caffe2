@@ -22,7 +22,6 @@ bool DropoutOp<float, CUDAContext>::RunOnDevice() {
   auto* mask = Output(1);
   Y->Resize(X.dims());
   mask->Resize(X.dims());
-  DCHECK_GT(X.size(), 0);
   if (is_test_) {
     if (Y != &X) {
       context_.Copy<float, CUDAContext, CUDAContext>(
@@ -34,8 +33,9 @@ bool DropoutOp<float, CUDAContext>::RunOnDevice() {
     // boolean numbers, we will generate into dY and write the result to
     // mask.
     float* Ydata = Y->mutable_data<float>();
-    CURAND_CHECK(curandGenerateUniform(
-        context_.curand_generator(), Ydata, X.size()));
+    CAFFE_ENFORCE(X.data<float>() != Ydata, "In-place GPU dropout is broken");
+    CURAND_ENFORCE(
+        curandGenerateUniform(context_.curand_generator(), Ydata, X.size()));
     DropoutKernel<<<CAFFE_GET_BLOCKS(X.size()), CAFFE_CUDA_NUM_THREADS,
                     0, context_.cuda_stream()>>>(
         X.size(), ratio_, X.data<float>(), Ydata, mask->mutable_data<bool>());
@@ -58,8 +58,7 @@ bool DropoutGradientOp<float, CUDAContext>::RunOnDevice() {
   auto& dY = Input(0);
   auto& mask = Input(1);
   auto* dX = Output(0);
-  DCHECK_GT(dY.size(), 0);
-  DCHECK_EQ(dY.size(), mask.size());
+  CAFFE_ENFORCE_EQ(dY.size(), mask.size());
   dX->Resize(dY.dims());
   if (is_test_) {
     if (dX != &dY) {
@@ -79,8 +78,6 @@ bool DropoutGradientOp<float, CUDAContext>::RunOnDevice() {
 }
 
 
-namespace {
 REGISTER_CUDA_OPERATOR(Dropout, DropoutOp<float, CUDAContext>);
 REGISTER_CUDA_OPERATOR(DropoutGrad, DropoutGradientOp<float, CUDAContext>);
-}  // namespace
 }  // namespace caffe2

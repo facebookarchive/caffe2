@@ -1,12 +1,12 @@
 #include "caffe2/operators/accumulate_op.h"
 
 namespace caffe2 {
-namespace {
 REGISTER_CPU_OPERATOR(Accumulate, AccumulateOp<float, CPUContext>);
 
 OPERATOR_SCHEMA(Accumulate)
   .NumInputs(1)
   .NumOutputs(1)
+  .IdenticalTypeAndShape()
   .SetDoc(R"DOC(
 Accumulate operator accumulates the input tensor to the output tensor. If the
 output tensor already has the right size, we add to it; otherwise, we first
@@ -26,5 +26,4 @@ argument.
   .Output(0, "output", "Accumulated output tensor");
 
 SHOULD_NOT_DO_GRADIENT(Accumulate);
-}  // namespace
 }  // namespace caffe2

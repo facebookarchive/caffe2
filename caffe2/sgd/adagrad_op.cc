@@ -2,7 +2,6 @@
 
 namespace caffe2 {
 
-namespace {
 REGISTER_CPU_OPERATOR(Adagrad, AdagradOp<float, CPUContext>);
 OPERATOR_SCHEMA(Adagrad)
     .NumInputs(4)
@@ -32,7 +31,7 @@ REGISTER_CPU_OPERATOR(SparseAdagrad, SparseAdagradOp<float, CPUContext>);
 OPERATOR_SCHEMA(SparseAdagrad)
     .NumInputs(5)
     .NumOutputs(2)
-    .AllowInplace({{0, 0}, {1, 1}})
+    .EnforceInplace({{0, 0}, {1, 1}})
     .SetDoc(R"DOC(
 
 Given inputs (param, history, indices, grad, lr), runs the dense AdaGrad
@@ -51,5 +50,4 @@ new_history) as in the dense case.
 
 SHOULD_NOT_DO_GRADIENT(Adagrad);
 SHOULD_NOT_DO_GRADIENT(SparseAdagrad);
-}
 }

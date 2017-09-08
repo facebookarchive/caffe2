@@ -1,12 +1,24 @@
+/**
+ * @file flags.h
+ * @brief Commandline flags support for Caffe2.
+ *
+ * This is a portable commandline flags tool for caffe2, so we can optionally
+ * choose to use gflags or a lightweighted custom implementation if gflags is
+ * not possible on a certain platform. If you have gflags installed, set the
+ * macro CAFFE2_USE_GFLAGS will seamlessly route everything to gflags.
+ *
+ * To define a flag foo of type bool default to true, do the following in the
+ * *global* namespace:
+ *     CAFFE2_DEFINE_bool(foo, true, "An example.");
+ *
+ * To use it in another .cc file, you can use CAFFE2_DECLARE_* as follows:
+ *     CAFFE2_DECLARE_bool(foo);
+ *
+ * In both cases, you can then access the flag via caffe2::FLAGS_foo.
+ */
+
 #ifndef CAFFE2_CORE_FLAGS_H_
 #define CAFFE2_CORE_FLAGS_H_
-// A lightweighted commandline flags tool for caffe2, so we do not need to rely
-// on gflags. If you have gflags installed, set the macro CAFFE2_USE_GFLAGS will
-// seamlessly route everything to gflags.
-
-#ifdef CAFFE2_USE_GFLAGS
-#include <gflags/gflags.h>
-#endif
 
 #include "caffe2/core/registry.h"
 
@@ -44,16 +56,28 @@ bool CommandLineFlagsHasBeenParsed();
 
 #ifdef CAFFE2_USE_GFLAGS
 
+#include <gflags/gflags.h>
+
+// gflags before 2.0 uses namespace google and after 2.1 uses namespace gflags.
+// Using GFLAGS_GFLAGS_H_ to capture this change.
+#ifndef GFLAGS_GFLAGS_H_
+namespace gflags = google;
+#endif  // GFLAGS_GFLAGS_H_
+
 #define CAFFE2_GFLAGS_DEF_WRAPPER(type, name, default_value, help_str)         \
   DEFINE_##type(name, default_value, help_str);                                \
   namespace caffe2 {                                                           \
     using ::FLAGS_##name;                                                      \
   }
 
-#define CAFFE2_DEFINE_int(...) CAFFE2_GFLAGS_DEF_WRAPPER(int32, __VA_ARGS__)
-#define CAFFE2_DEFINE_int64(...) CAFFE2_GFLAGS_DEF_WRAPPER(int64, __VA_ARGS__)
-#define CAFFE2_DEFINE_double(...) CAFFE2_GFLAGS_DEF_WRAPPER(double, __VA_ARGS__)
-#define CAFFE2_DEFINE_bool(...) CAFFE2_GFLAGS_DEF_WRAPPER(bool, __VA_ARGS__)
+#define CAFFE2_DEFINE_int(name, default_value, help_str)                       \
+  CAFFE2_GFLAGS_DEF_WRAPPER(int32, name, default_value, help_str)
+#define CAFFE2_DEFINE_int64(name, default_value, help_str)                     \
+  CAFFE2_GFLAGS_DEF_WRAPPER(int64, name, default_value, help_str)              
+#define CAFFE2_DEFINE_double(name, default_value, help_str)                    \
+  CAFFE2_GFLAGS_DEF_WRAPPER(double, name, default_value, help_str)
+#define CAFFE2_DEFINE_bool(name, default_value, help_str)                      \
+  CAFFE2_GFLAGS_DEF_WRAPPER(bool, name, default_value, help_str)
 #define CAFFE2_DEFINE_string(name, default_value, help_str) \
   CAFFE2_GFLAGS_DEF_WRAPPER(string, name, default_value, help_str)
 

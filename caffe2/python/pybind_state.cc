@@ -5,11 +5,21 @@
 
 #include "caffe2/core/asan.h"
 #include "caffe2/core/db.h"
+#include "caffe2/core/operator.h"
 #include "caffe2/core/predictor.h"
-#include "caffe2/utils/mkl_utils.h"
+#include "caffe2/core/transform.h"
+#include "caffe2/mkl/mkl_utils.h"
+#include "caffe2/utils/cpuid.h"
+#include "caffe2/utils/string_utils.h"
+#include "google/protobuf/io/coded_stream.h"
+#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 
 namespace caffe2 {
 namespace python {
+
+// A dummy variable to overcome the pybind11 py::arg::operator= ambiguity
+// for some earlier versions of pybind11.
+constexpr bool kPyBindFalse = false;
 
 namespace py = pybind11;
 
@@ -33,7 +43,7 @@ REGISTER_BLOB_FEEDER(CPU, TensorFeeder<CPUContext>);
 class StringFetcher : public BlobFetcherBase {
  public:
   py::object Fetch(const Blob& blob) override {
-    return py::str(blob.Get<string>());
+    return py::bytes(blob.Get<string>());
   }
 };
 REGISTER_BLOB_FETCHER((TypeMeta::Id<string>()), StringFetcher);
@@ -78,6 +88,8 @@ const TypeMeta& NumpyTypeToCaffe(int numpy_type) {
       {NPY_UINT8, TypeMeta::Make<uint8_t>()},
       {NPY_UINT16, TypeMeta::Make<uint16_t>()},
       {NPY_OBJECT, TypeMeta::Make<std::string>()},
+      {NPY_UNICODE, TypeMeta::Make<std::string>()},
+      {NPY_STRING, TypeMeta::Make<std::string>()},
       // Note: Add more types here.
   };
   static TypeMeta unknown_type;
@@ -112,27 +124,136 @@ struct Func {
   py::object py_func;
   bool needs_workspace;
 };
-using FuncRegistery = std::unordered_map<std::string, Func>;
+using FuncRegistry = std::unordered_map<std::string, Func>;
 
-FuncRegistery& gRegistery() {
+FuncRegistry& gRegistry() {
   // Always leak the objects registered here.
-  static FuncRegistery* r = new FuncRegistery();
+  static FuncRegistry* r = new FuncRegistry();
   return *r;
 }
 
 const Func& getOpFunc(const std::string& token) {
   CAFFE_ENFORCE(
-      gRegistery().count(token),
+      gRegistry().count(token),
       "Python operator for ",
       token,
       " is not available. If you use distributed training it probably means "
       "that python implementation has to be registered in each of the workers");
-  return gRegistery()[token];
+  return gRegistry()[token];
 }
 
 const Func& getGradientFunc(const std::string& token) {
   return getOpFunc(token + "_gradient");
 }
+
+py::object fetchBlob(Workspace* ws, const std::string& name) {
+  CAFFE_ENFORCE(ws->HasBlob(name), "Can't find blob: ", name);
+  const caffe2::Blob& blob = *(ws->GetBlob(name));
+  auto fetcher = CreateFetcher(blob.meta().id());
+  if (fetcher) {
+    return fetcher->Fetch(blob);
+  } else {
+    // If there is no fetcher registered, return a metainfo string.
+    // If all branches failed, we will return a metainfo string.
+    std::stringstream ss;
+    ss << caffe2::string(name) << ", a C++ native class of type "
+       << blob.TypeName() << ".";
+    return py::bytes(ss.str());
+  }
+}
+}
+
+void printPythonStackTrace() {
+  PyObject *type = nullptr, *value = nullptr, *trace = nullptr;
+  PyErr_Fetch(&type, &value, &trace);
+  PyTracebackObject* traceback = reinterpret_cast<PyTracebackObject*>(trace);
+  vector<PyTracebackObject*> trace_vec;
+  while (traceback) {
+    trace_vec.push_back(traceback);
+    traceback = traceback->tb_next;
+  }
+  for (int i = trace_vec.size() - 1; i >= 0; --i) {
+    int line = trace_vec[i]->tb_lineno;
+    const char* filename;
+    const char* funcname;
+    if (PyUnicode_Check(trace_vec[i]->tb_frame->f_code->co_filename)) {
+      auto encoded = PyUnicode_AsEncodedString(
+          trace_vec[i]->tb_frame->f_code->co_filename, "ASCII", "replace");
+      if (encoded != nullptr) {
+        filename = strdup(PyBytes_AS_STRING(encoded));
+        Py_DECREF(encoded);
+      } else {
+        filename = "<unknown>";
+      }
+    } else {
+      filename = PyBytes_AsString(trace_vec[i]->tb_frame->f_code->co_filename);
+    }
+    if (PyUnicode_Check(trace_vec[i]->tb_frame->f_code->co_name)) {
+      auto encoded = PyUnicode_AsEncodedString(
+          trace_vec[i]->tb_frame->f_code->co_name, "ASCII", "replace");
+      if (encoded != nullptr) {
+        funcname = strdup(PyBytes_AS_STRING(encoded));
+        Py_DECREF(encoded);
+      } else {
+        funcname = "<unknown>";
+      }
+    } else {
+      funcname = PyBytes_AsString(trace_vec[i]->tb_frame->f_code->co_name);
+    }
+
+    LOG(ERROR) << "    # " << trace_vec.size() - i - 1 << "  " << filename
+               << " (" << line << "): " << funcname;
+  }
+  Py_XDECREF(type);
+  Py_XDECREF(value);
+  Py_XDECREF(trace);
+}
+
+PythonOpBase::PythonOpBase(
+    const OperatorDef& operator_def,
+    Workspace* ws,
+    const std::string& pickled_builder_arg_name)
+    : Operator(operator_def, ws),
+      ws_(ws),
+      token_(OperatorBase::GetSingleArgument<std::string>("token", "")) {
+  using namespace python_detail;
+  auto pickled = GetSingleArgument<string>(pickled_builder_arg_name, "");
+  CAFFE_ENFORCE(
+      !pickled.empty() || !token_.empty(),
+      "PythonOp requires either pickled_builder or token arg.");
+  if (!pickled.empty()) {
+    py::gil_scoped_acquire g;
+    try {
+      auto pickle =
+          py::object(PyImport_ImportModule("pickle"), /* borrowed */ false);
+      CAFFE_ENFORCE(pickle);
+      auto loads = pickle.attr("loads").cast<py::object>();
+      CAFFE_ENFORCE(loads);
+      auto builder_call = loads(py::bytes(pickled)).cast<py::tuple>();
+      CAFFE_ENFORCE(builder_call);
+      CAFFE_ENFORCE_EQ(py::len(builder_call), 3);
+      auto func = builder_call[0].cast<py::object>();
+      auto args = builder_call[1].cast<py::tuple>();
+      auto kwargs = builder_call[2].cast<py::dict>();
+      auto built_func = func(*args, **kwargs);
+      CAFFE_ENFORCE(built_func);
+      built_func_.reset(new Func{
+          built_func, GetSingleArgument<bool>("pass_workspace", false)});
+    } catch (const py::error_already_set& e) {
+      LOG(ERROR) << "Python exception encountered while creating PythonOp: "
+                 << e.what() << "\nTraceback: ";
+      printPythonStackTrace();
+      CAFFE_THROW("Python exception encountered while creating PythonOp.");
+    }
+  }
+}
+
+PythonOpBase::~PythonOpBase() {
+  if (built_func_) {
+    // since it may trigger python interpreter when refcount reaches zero
+    py::gil_scoped_acquire g;
+    built_func_.reset();
+  }
 }
 
 bool PythonOpBase::RunOnDevice() {
@@ -146,61 +267,43 @@ bool PythonOpBase::RunOnDevice() {
   for (auto i = 0; i < OutputSize(); ++i) {
     outputs.push_back(Output(i));
   }
-  auto& pyFunc = getFunc();
+  auto* pyFunc = built_func_ ? built_func_.get() : &getFunc(token_);
+  CAFFE_ENFORCE(pyFunc);
   {
     // Acquire GIL for call to Python runtime.
     py::gil_scoped_acquire g;
     try {
-      if (pyFunc.needs_workspace) {
-        pyFunc.py_func(inputs, outputs, ws_);
+      if (pyFunc->needs_workspace) {
+        pyFunc->py_func(inputs, outputs, ws_);
       } else {
-        pyFunc.py_func(inputs, outputs);
+        pyFunc->py_func(inputs, outputs);
       }
     } catch (const py::error_already_set& e) {
       LOG(ERROR) << "Exception encountered running PythonOp function: "
                  << e.what() << "\nTraceback: ";
-      PyObject *type = nullptr, *value = nullptr, *trace = nullptr;
-      PyErr_Fetch(&type, &value, &trace);
-      PyTracebackObject* traceback =
-          reinterpret_cast<PyTracebackObject*>(trace);
-      vector<PyTracebackObject*> trace_vec;
-      while (traceback) {
-        trace_vec.push_back(traceback);
-        traceback = traceback->tb_next;
-      }
-      for (int i = trace_vec.size() - 1; i >= 0; --i) {
-        int line = trace_vec[i]->tb_lineno;
-        const char* filename =
-            PyString_AsString(trace_vec[i]->tb_frame->f_code->co_filename);
-        const char* funcname =
-            PyString_AsString(trace_vec[i]->tb_frame->f_code->co_name);
-        LOG(ERROR) << "    # " << trace_vec.size() - i - 1 << "  " << filename
-                   << " (" << line << "): " << funcname;
-      }
-      Py_XDECREF(type);
-      Py_XDECREF(value);
-      Py_XDECREF(trace);
+      printPythonStackTrace();
       return false;
     }
   }
   return true;
 }
 
-const python_detail::Func& PythonOp::getFunc() {
-  const std::string& token =
-      OperatorBase::GetSingleArgument<std::string>("token", "");
+const python_detail::Func& PythonOp::getFunc(const std::string& token) {
   return python_detail::getOpFunc(token);
 }
 
-const python_detail::Func& PythonGradientOp::getFunc() {
-  const std::string& token =
-      OperatorBase::GetSingleArgument<std::string>("token", "");
+const python_detail::Func& PythonGradientOp::getFunc(const std::string& token) {
   return python_detail::getGradientFunc(token);
 }
 
 struct GetPythonGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   std::vector<OperatorDef> GetGradientDefs() override {
+    ArgumentHelper helper(Def());
+    auto gradOutputIndices =
+        helper.GetRepeatedArgument<int>("grad_output_indices");
+    auto gradInputIndices =
+        helper.GetRepeatedArgument<int>("grad_input_indices");
     std::vector<std::string> gradientInputs;
     for (int i = 0; i < def_.input_size(); ++i) {
       gradientInputs.push_back(I(i));
@@ -208,12 +311,26 @@ struct GetPythonGradient : public GradientMakerBase {
     for (int i = 0; i < def_.output_size(); ++i) {
       gradientInputs.push_back(O(i));
     }
-    for (int i = 0; i < def_.output_size(); ++i) {
-      gradientInputs.push_back(GO(i));
+    if (gradOutputIndices.size() > 0) {
+      for (int i = 0; i < gradOutputIndices.size(); ++i) {
+        int GO_i = gradOutputIndices[i];
+        gradientInputs.push_back(GO(GO_i));
+      }
+    } else {
+      for (int i = 0; i < def_.output_size(); ++i) {
+        gradientInputs.push_back(GO(i));
+      }
     }
     std::vector<std::string> gradientOutputs;
-    for (int i = 0; i < def_.input_size(); ++i) {
-      gradientOutputs.push_back(GI(i));
+    if (gradInputIndices.size() > 0) {
+      for (int i = 0; i < gradInputIndices.size(); ++i) {
+        int GI_i = gradInputIndices[i];
+        gradientOutputs.push_back(GI(GI_i));
+      }
+    } else {
+      for (int i = 0; i < def_.input_size(); ++i) {
+        gradientOutputs.push_back(GI(i));
+      }
     }
 
     return SingleGradientDef(
@@ -228,6 +345,14 @@ OPERATOR_SCHEMA(Python).AllowInplace([](int, int) { return true; });
 OPERATOR_SCHEMA(PythonGradient).AllowInplace([](int, int) { return true; });
 
 REGISTER_GRADIENT(Python, GetPythonGradient);
+
+static bool ParseProtobufFromLargeString(const string& str, Message* proto) {
+  ::google::protobuf::io::ArrayInputStream input_stream(str.data(), str.size());
+  ::google::protobuf::io::CodedInputStream coded_stream(&input_stream);
+  // Set PlanDef message size limit to 1G.
+  coded_stream.SetTotalBytesLimit(1024LL << 20, 512LL << 20);
+  return proto->ParseFromCodedStream(&coded_stream);
+}
 
 void addObjectMethods(py::module& m) {
   py::class_<NetBase>(m, "Net").def("run", [](NetBase* net) {
@@ -244,7 +369,7 @@ void addObjectMethods(py::module& m) {
       .def(
           "deserialize",
           [](Blob* blob, py::bytes serialized) {
-            CAFFE_ENFORCE(blob->Deserialize(serialized));
+            blob->Deserialize(serialized);
           })
       .def(
           "fetch",
@@ -270,8 +395,8 @@ void addObjectMethods(py::module& m) {
             DeviceOption option;
             if (device_option != py::none()) {
               // If we have a device option passed in, read it.
-              CAFFE_ENFORCE(option.ParseFromString(
-                  py::bytes(device_option).cast<std::string>()));
+              CAFFE_ENFORCE(ParseProtobufFromLargeString(
+                  py::bytes(device_option).cast<std::string>(), &option));
             }
             if (PyArray_Check(arg.ptr())) { // numpy array
               PyArrayObject* array =
@@ -283,7 +408,7 @@ void addObjectMethods(py::module& m) {
               return true;
             }
 
-            if (PyString_Check(arg.ptr())) { // string
+            if (PyBytes_Check(arg.ptr()) || PyUnicode_Check(arg.ptr())) {
               *blob->GetMutable<std::string>() = arg.cast<std::string>();
               return true;
             }
@@ -375,24 +500,34 @@ void addObjectMethods(py::module& m) {
           })
       .def(
           "_create_net",
-          [](Workspace* self, py::bytes def) -> py::object {
+          [](Workspace* self, py::bytes def, bool overwrite) -> py::object {
             caffe2::NetDef proto;
-            CAFFE_ENFORCE(proto.ParseFromString(def));
-            auto* net = self->CreateNet(proto);
+            CAFFE_ENFORCE(
+                ParseProtobufFromLargeString(def.cast<std::string>(), &proto));
+            auto* net = self->CreateNet(proto, overwrite);
             CAFFE_ENFORCE(net);
             return py::cast(net, py::return_value_policy::reference_internal);
-          })
+          },
+          py::arg("def"),
+          py::arg("overwrite") = kPyBindFalse)
       .def(
           "create_blob",
           [](Workspace* self, const std::string& name) -> py::object {
             auto* blob = self->CreateBlob(name);
             return py::cast(blob, py::return_value_policy::reference_internal);
           })
+      .def("fetch_blob", &python_detail::fetchBlob)
+      .def(
+          "has_blob",
+          [](Workspace* self, const std::string& name) {
+            return self->HasBlob(name);
+          })
       .def(
           "_run_net",
           [](Workspace* self, py::bytes def) {
             caffe2::NetDef proto;
-            CAFFE_ENFORCE(proto.ParseFromString(def));
+            CAFFE_ENFORCE(
+                ParseProtobufFromLargeString(def.cast<std::string>(), &proto));
             py::gil_scoped_release g;
             CAFFE_ENFORCE(self->RunNetOnce(proto));
           })
@@ -400,7 +535,8 @@ void addObjectMethods(py::module& m) {
           "_run_operator",
           [](Workspace* self, py::bytes def) {
             caffe2::OperatorDef proto;
-            CAFFE_ENFORCE(proto.ParseFromString(def));
+            CAFFE_ENFORCE(
+                ParseProtobufFromLargeString(def.cast<std::string>(), &proto));
             py::gil_scoped_release g;
             CAFFE_ENFORCE(self->RunOperatorOnce(proto));
           })
@@ -408,9 +544,16 @@ void addObjectMethods(py::module& m) {
           "_run_plan",
           [](Workspace* self, py::bytes def) {
             caffe2::PlanDef proto;
-            CAFFE_ENFORCE(proto.ParseFromString(def));
+            CAFFE_ENFORCE(
+                ParseProtobufFromLargeString(def.cast<std::string>(), &proto));
             py::gil_scoped_release g;
             CAFFE_ENFORCE(self->RunPlan(proto));
+          })
+      .def(
+          "_last_failed_op_net_position",
+          [](Workspace* self) {
+            CAFFE_ENFORCE(self);
+            return (int)self->last_failed_op_net_position;
           })
       .def_property_readonly_static("current", [](py::object /* type */) {
         auto ws = gWorkspaces.find(gCurrentWorkspaceName);
@@ -431,10 +574,10 @@ void addObjectMethods(py::module& m) {
 
   m.def(
       "get_gradient_defs",
-      [](const py::bytes& op_def,
-         std::vector<GradientWrapper> output_gradients) {
+      [](py::bytes op_def, std::vector<GradientWrapper> output_gradients) {
         OperatorDef def;
-        CAFFE_ENFORCE(def.ParseFromString(op_def));
+        CAFFE_ENFORCE(
+            ParseProtobufFromLargeString(op_def.cast<std::string>(), &def));
         CAFFE_ENFORCE(caffe2::GradientRegistry()->Has(def.type()));
         const auto& meta = GetGradientForOp(def, output_gradients);
         std::vector<py::bytes> grad_ops;
@@ -466,11 +609,16 @@ void addObjectMethods(py::module& m) {
       .def("new_cursor", &db::DB::NewCursor)
       .def("close", &db::DB::Close);
   m.def("create_db", &db::CreateDB);
+  m.def("registered_dbs", []() {
+    return caffe2::db::Caffe2DBRegistry()->Keys();
+  });
+
 
   // OpSchema
   py::class_<OpSchema>(m, "OpSchema")
       .def_property_readonly("file", &OpSchema::file)
       .def_property_readonly("line", &OpSchema::line)
+      .def_property_readonly("private", &OpSchema::private_op)
       .def_property_readonly(
           "doc", &OpSchema::doc, py::return_value_policy::reference)
       .def_property_readonly("arg_desc", &OpSchema::arg_desc)
@@ -498,10 +646,39 @@ void addObjectMethods(py::module& m) {
       .def(
           "__init__",
           [](Predictor& instance, py::bytes init_net, py::bytes predict_net) {
+            CAFFE_ENFORCE(gWorkspace);
             NetDef init_net_, predict_net_;
-            CAFFE_ENFORCE(init_net_.ParseFromString(init_net));
-            CAFFE_ENFORCE(predict_net_.ParseFromString(predict_net));
-            new (&instance) Predictor(init_net_, predict_net_);
+            CAFFE_ENFORCE(ParseProtobufFromLargeString(
+                init_net.cast<std::string>(), &init_net_));
+            CAFFE_ENFORCE(ParseProtobufFromLargeString(
+                predict_net.cast<std::string>(), &predict_net_));
+            new (&instance) Predictor(init_net_, predict_net_, gWorkspace);
+          })
+      .def(
+          "run",
+          [](Predictor& instance,
+             std::vector<py::object> inputs) -> std::vector<py::object> {
+            std::vector<TensorCPU*> tensors;
+            std::vector<TensorCPU> tensors_data(inputs.size());
+            for (auto i = 0; i < inputs.size(); ++i) {
+              auto input = inputs[i];
+              CAFFE_ENFORCE(
+                  PyArray_Check(input.ptr()),
+                  "Input must be of type numpy array.");
+              PyArrayObject* array =
+                  reinterpret_cast<PyArrayObject*>(input.ptr());
+              TensorFeeder<CPUContext>().FeedTensor(
+                  DeviceOption(), array, &(tensors_data[i]));
+              tensors.push_back(&(tensors_data[i]));
+            }
+            std::vector<TensorCPU*> out;
+            instance.run(tensors, &out);
+            std::vector<py::object> pyout;
+            for (auto t : out) {
+              pyout.push_back(
+                  TensorFetcher<CPUContext>().FetchTensor(*t, true).obj);
+            }
+            return pyout;
           });
 }
 
@@ -515,6 +692,34 @@ void addGlobalMethods(py::module& m) {
       false
 #endif // CAFFE2_HAS_MKL_DNN
       );
+
+  m.attr("define_caffe2_no_operator_schema") = py::bool_(
+#ifdef CAFFE2_NO_OPERATOR_SCHEMA
+      true
+#else // CAFFE2_NO_OPERATOR_SCHEMA
+      false
+#endif // CAFFE2_NO_OPERATOR_SCHEMA
+      );
+
+  m.def("set_per_op_engine_pref", [](const PerOpEnginePrefType& pref) -> void {
+    caffe2::SetPerOpEnginePref(pref);
+  });
+
+  m.def("set_global_engine_pref", [](const GlobalEnginePrefType& pref) -> void {
+    caffe2::SetGlobalEnginePref(pref);
+  });
+  m.def(
+      "set_engine_pref",
+      [](const PerOpEnginePrefType& per_op_pref,
+         const GlobalEnginePrefType& global_pref) -> void {
+        caffe2::SetEnginePref(per_op_pref, global_pref);
+      });
+  m.def(
+      "set_op_engine_pref",
+      [](const std::string& op_type,
+         const CaffeMap<int, EnginePrefType>& op_pref) -> void {
+        caffe2::SetOpEnginePref(op_type, op_pref);
+      });
 
   m.def("global_init", [](std::vector<std::string> args) -> void {
     int argc = args.size();
@@ -547,9 +752,9 @@ void addGlobalMethods(py::module& m) {
   m.def("on_module_exit", []() { gWorkspaces.clear(); });
   // create_if_missing not used by necessary for pybind to do
   // properly do function overloading.
-  m.def("switch_workspace", [](Workspace* ws, py::object create_if_missing) {
-    gWorkspace = ws;
-  });
+  m.def(
+      "switch_workspace",
+      [](Workspace* ws, py::object /*create_if_missing*/) { gWorkspace = ws; });
   m.def(
       "switch_workspace",
       [](const std::string& name, const py::object create_if_missing) {
@@ -589,6 +794,16 @@ void addGlobalMethods(py::module& m) {
     }
     return names;
   });
+  m.def("nearby_opnames", [](const std::string& name) {
+    std::vector<std::string> alternatives;
+    int editTolerance = 3;
+    for (auto it : caffe2::CPUOperatorRegistry()->Keys()) {
+      if(editDistance(it, name, editTolerance) < editTolerance + 1) {
+        alternatives.push_back(it);
+      }
+    }
+    return alternatives;
+  });
   m.def("local_blobs", []() {
     CAFFE_ENFORCE(gWorkspace);
     return gWorkspace->LocalBlobs();
@@ -601,23 +816,37 @@ void addGlobalMethods(py::module& m) {
     CAFFE_ENFORCE(gWorkspace);
     return gWorkspace->HasBlob(name);
   });
-  m.def("create_net", [](py::bytes net_def) {
-    caffe2::NetDef proto;
-    CAFFE_ENFORCE(
-        proto.ParseFromString(net_def),
-        "Can't parse net proto: ",
-        std::string(net_def));
-    CAFFE_ENFORCE(
-        gWorkspace->CreateNet(proto),
-        "Error creating net with proto: ",
-        std::string(net_def));
-    return true;
-  });
-  m.def("run_net", [](const std::string& name) {
+  m.def(
+      "create_net",
+      [](py::bytes net_def, bool overwrite) {
+        CAFFE_ENFORCE(gWorkspace);
+        caffe2::NetDef proto;
+        CAFFE_ENFORCE(
+            ParseProtobufFromLargeString(net_def.cast<std::string>(), &proto),
+            "Can't parse net proto: ",
+            net_def.cast<std::string>());
+        CAFFE_ENFORCE(
+            gWorkspace->CreateNet(proto, overwrite),
+            "Error creating net with proto: ",
+            net_def.cast<std::string>());
+        return true;
+      },
+      py::arg("net_def"),
+      py::arg("overwrite") = kPyBindFalse);
+  m.def("run_net", [](const std::string& name, int num_iter, bool allow_fail) {
     CAFFE_ENFORCE(gWorkspace);
     CAFFE_ENFORCE(gWorkspace->GetNet(name), "Can't find net ", name);
     py::gil_scoped_release g;
-    CAFFE_ENFORCE(gWorkspace->RunNet(name), "Error running net ", name);
+    for (int i = 0; i < num_iter; i++) {
+      bool success = gWorkspace->RunNet(name);
+      if (!allow_fail) {
+        CAFFE_ENFORCE(success, "Error running net ", name);
+      } else {
+        if (!success) {
+          return false;
+        }
+      }
+    }
     return true;
   });
   m.def(
@@ -628,7 +857,7 @@ void addGlobalMethods(py::module& m) {
          bool run_individual) {
         CAFFE_ENFORCE(gWorkspace);
         auto* net = gWorkspace->GetNet(name);
-        CAFFE_ENFORCE(net);
+        CAFFE_ENFORCE(net, "Didn't find net: ", name);
         py::gil_scoped_release g;
         vector<float> stat =
             net->TEST_Benchmark(warmup_runs, main_runs, run_individual);
@@ -644,7 +873,8 @@ void addGlobalMethods(py::module& m) {
   m.def("run_operator_once", [](const py::bytes& op_def) {
     CAFFE_ENFORCE(gWorkspace);
     OperatorDef def;
-    CAFFE_ENFORCE(def.ParseFromString(op_def));
+    CAFFE_ENFORCE(
+        ParseProtobufFromLargeString(op_def.cast<std::string>(), &def));
     py::gil_scoped_release g;
     CAFFE_ENFORCE(gWorkspace->RunOperatorOnce(def));
     return true;
@@ -652,7 +882,8 @@ void addGlobalMethods(py::module& m) {
   m.def("run_net_once", [](const py::bytes& net_def) {
     CAFFE_ENFORCE(gWorkspace);
     NetDef def;
-    CAFFE_ENFORCE(def.ParseFromString(net_def));
+    CAFFE_ENFORCE(
+        ParseProtobufFromLargeString(net_def.cast<std::string>(), &def));
     py::gil_scoped_release g;
     CAFFE_ENFORCE(gWorkspace->RunNetOnce(def));
     return true;
@@ -660,30 +891,143 @@ void addGlobalMethods(py::module& m) {
   m.def("run_plan", [](const py::bytes& plan_def) {
     CAFFE_ENFORCE(gWorkspace);
     PlanDef def;
-    CAFFE_ENFORCE(def.ParseFromString(plan_def));
+    CAFFE_ENFORCE(
+        ParseProtobufFromLargeString(plan_def.cast<std::string>(), &def));
     py::gil_scoped_release g;
     CAFFE_ENFORCE(gWorkspace->RunPlan(def));
     return true;
   });
+  m.def(
+      "apply_transform",
+      [](const string& transform_key, const py::bytes& net_def) {
+        NetDef def;
+        CAFFE_ENFORCE(
+            ParseProtobufFromLargeString(net_def.cast<std::string>(), &def));
+        py::gil_scoped_release g;
+
+        auto transformed_net = ApplyTransform(transform_key, def);
+
+        std::string protob;
+        CAFFE_ENFORCE(transformed_net.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
+  m.def(
+      "apply_transform_if_faster",
+      [](const string& transform_key,
+         const py::bytes& net_def_bytes,
+         const py::bytes& init_def_bytes,
+         int warmup_runs,
+         int main_runs,
+         double improvement_threshold) {
+        NetDef def;
+        CAFFE_ENFORCE(ParseProtobufFromLargeString(
+            net_def_bytes.cast<std::string>(), &def));
+        NetDef init_def;
+        CAFFE_ENFORCE(ParseProtobufFromLargeString(
+            init_def_bytes.cast<std::string>(), &init_def));
+        py::gil_scoped_release g;
+
+        std::string protob;
+
+        auto transformed_net = ApplyTransformIfFaster(
+            transform_key,
+            def,
+            init_def,
+            warmup_runs,
+            main_runs,
+            improvement_threshold);
+
+        CAFFE_ENFORCE(transformed_net.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
+  m.def(
+      "memonger_compute_blob_recycling_for_dag",
+      [](const py::bytes& net_def,
+         const std::vector<string>& input_blobs,
+         const std::vector<int>& op_indices,
+         const std::unordered_set<string>& shareable_blob_names,
+         const string& namescope,
+         const std::unordered_set<string>& dont_share_blob_names,
+         const std::unordered_map<string, vector<int>>& blob_shapes) {
+        py::gil_scoped_release g;
+        NetDef net;
+        CAFFE_ENFORCE(
+            ParseProtobufFromLargeString(net_def.cast<std::string>(), &net));
+        NetDef optimized_proto =
+            caffe2::memonger::compute_blob_recycling_for_dag(
+                net,
+                input_blobs,
+                op_indices,
+                shareable_blob_names,
+                namescope,
+                dont_share_blob_names,
+                blob_shapes);
+        std::string protob;
+        CAFFE_ENFORCE(optimized_proto.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
+  m.def(
+      "memonger_optimize_inference_net",
+      [](const py::bytes& net_def,
+         const std::vector<std::string>& static_blobs) {
+        NetDef def;
+        CAFFE_ENFORCE(
+            ParseProtobufFromLargeString(net_def.cast<std::string>(), &def));
+        py::gil_scoped_release g;
+
+        std::set<string> static_blobs_set(
+            static_blobs.begin(), static_blobs.end());
+        NetDef optimized =
+            caffe2::memonger::optimize_inference_net(def, static_blobs_set);
+
+        std::string protob;
+        CAFFE_ENFORCE(optimized.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
+  m.def(
+      "infer_shapes_and_types_from_workspace",
+      [](const std::vector<py::bytes>& net_protos) {
+        CAFFE_ENFORCE(gWorkspace);
+
+        // Parse protobuffers to NetDefs
+        std::vector<std::unique_ptr<caffe2::NetDef>> nets;
+        for (auto proto : net_protos) {
+          std::unique_ptr<NetDef> def(new NetDef());
+          CAFFE_ENFORCE(def.get()->ParseFromString(proto));
+          nets.push_back(std::move(def));
+        }
+
+        auto blob_info = InferBlobShapesAndTypesFromWorkspace(gWorkspace, nets);
+
+        std::string protob;
+        CAFFE_ENFORCE(blob_info.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
+  m.def(
+      "infer_shapes_and_types_from_map",
+      [](const std::vector<py::bytes>& net_protos,
+         const std::map<std::string, std::vector<TIndex>> blob_dimensions) {
+        // Parse protobuffers to NetDefs
+        std::vector<std::unique_ptr<caffe2::NetDef>> nets;
+        for (auto proto : net_protos) {
+          std::unique_ptr<NetDef> def(new NetDef());
+          CAFFE_ENFORCE(def.get()->ParseFromString(proto));
+          nets.push_back(std::move(def));
+        }
+
+        auto blob_info = InferBlobShapesAndTypesFromMap(blob_dimensions, nets);
+
+        std::string protob;
+        CAFFE_ENFORCE(blob_info.SerializeToString(&protob));
+        return py::bytes(protob);
+      });
   m.def("create_blob", [](const std::string& name) {
     CAFFE_ENFORCE(gWorkspace);
     CAFFE_ENFORCE(gWorkspace->CreateBlob(name));
     return true;
   });
   m.def("fetch_blob", [](const std::string& name) -> py::object {
-    CAFFE_ENFORCE(gWorkspace->HasBlob(name), "Can't find blob: ", name);
-    const caffe2::Blob& blob = *(gWorkspace->GetBlob(name));
-    auto fetcher = CreateFetcher(blob.meta().id());
-    if (fetcher) {
-      return fetcher->Fetch(blob);
-    } else {
-      // If there is no fetcher registered, return a metainfo string.
-      // If all branches failed, we will return a metainfo string.
-      std::stringstream ss;
-      ss << caffe2::string(name) << ", a C++ native class of type "
-         << blob.TypeName() << ".";
-      return py::str(ss.str());
-    }
+    return python_detail::fetchBlob(gWorkspace, name);
   });
   m.def(
       "feed_blob",
@@ -691,8 +1035,8 @@ void addGlobalMethods(py::module& m) {
         DeviceOption option;
         if (device_option != py::none()) {
           // If we have a device option passed in, read it.
-          CAFFE_ENFORCE(option.ParseFromString(
-              py::bytes(device_option).cast<std::string>()));
+          CAFFE_ENFORCE(ParseProtobufFromLargeString(
+              py::bytes(device_option).cast<std::string>(), &option));
         }
         auto* blob = gWorkspace->CreateBlob(name);
         if (PyArray_Check(arg.ptr())) { // numpy array
@@ -702,8 +1046,7 @@ void addGlobalMethods(py::module& m) {
           feeder->Feed(option, array, blob);
           return true;
         }
-
-        if (PyString_Check(arg.ptr())) { // string
+        if (PyBytes_Check(arg.ptr()) || PyUnicode_Check(arg.ptr())) { // string
           *blob->GetMutable<std::string>() = arg.cast<std::string>();
           return true;
         }
@@ -727,36 +1070,60 @@ void addGlobalMethods(py::module& m) {
       [](const std::string& name, const py::bytes& serialized) {
         CAFFE_ENFORCE(gWorkspace);
         auto* blob = gWorkspace->CreateBlob(name);
-        CAFFE_ENFORCE(blob->Deserialize(serialized.cast<std::string>()));
+        blob->Deserialize(serialized.cast<std::string>());
       });
 
   // we support 2 possible signatures of python op: (inputs, outputs) or
   // (inputs, outputs, workspace)
-  m.def("register_python_op", [](py::object func, bool pass_workspace) {
-    using namespace python_detail;
-    CAFFE_ENFORCE(func != py::none());
-    const std::string name = func.attr("__name__").cast<std::string>();
-    // Unique name since registry is never cleared.
-    const std::string token = name + to_string(gRegistery().size());
-    CAFFE_ENFORCE(gRegistery().find(name) == gRegistery().end());
-    gRegistery()[token] = Func{func, pass_workspace};
-    return token;
-  });
-
+  m.def(
+      "register_python_op",
+      [](py::object func, bool pass_workspace, std::string name) {
+        using namespace python_detail;
+        CAFFE_ENFORCE(func != py::none());
+        if (!name.empty()) {
+          name += ":";
+        }
+        name += func.attr("__name__").cast<std::string>();
+        std::string token = name;
+        for (int i = 1; gRegistry().count(token) > 0; ++i) {
+          token = name + ":" + to_string(i);
+        }
+        gRegistry()[token] = Func{func, pass_workspace};
+        return token;
+      });
   m.def(
       "register_python_gradient_op",
       [](const std::string& token, py::object func) {
         using namespace python_detail;
         CAFFE_ENFORCE(func != py::none());
-        CAFFE_ENFORCE(gRegistery().find(token) != gRegistery().end());
+        CAFFE_ENFORCE(gRegistry().find(token) != gRegistry().end());
         // For global sanity gradient ops shouldn't access workspace
-        gRegistery()[token + "_gradient"] = Func{func, false};
+        gRegistry()[token + "_gradient"] = Func{func, false};
       });
+  m.def("infer_op_input_output_device", [](const py::bytes& op) {
+    std::unique_ptr<caffe2::OperatorDef> def(new caffe2::OperatorDef());
+    CAFFE_ENFORCE(def.get()->ParseFromString(op));
+    // device_info is a pair of vector of DeviceOption.
+    // `first` is for inputs, `second` is for outputs.
+    auto device_info = InferOpInputOutputDevice(*def);
 
-#define CAFFE2_CPU_FEATURE_SUPPORT(feature)      \
-  m.def("builtin_cpu_supports_" #feature, []() { \
-    return __builtin_cpu_supports(#feature);     \
-  })
+    std::vector<py::bytes> in_res;
+    std::vector<py::bytes> out_res;
+    for (auto& in_dev : device_info.first) {
+      std::string protob;
+      CAFFE_ENFORCE(in_dev.SerializeToString(&protob));
+      in_res.push_back(py::bytes(protob));
+    }
+    for (auto& out_dev : device_info.second) {
+      std::string protob;
+      CAFFE_ENFORCE(out_dev.SerializeToString(&protob));
+      out_res.push_back(py::bytes(protob));
+    }
+    return std::make_pair(in_res, out_res);
+  });
+
+#define CAFFE2_CPU_FEATURE_SUPPORT(feature) \
+  m.def("builtin_cpu_supports_" #feature, []() { return GetCpuId().feature(); })
 
   CAFFE2_CPU_FEATURE_SUPPORT(avx2);
 
@@ -764,11 +1131,9 @@ void addGlobalMethods(py::module& m) {
 
   auto initialize = [&]() {
     // Initialization of the module
-    ([]() {
-      // This is a workaround so we can deal with numpy's import_array behavior.
-      // Despite the fact that you may think import_array() is a function call,
-      // it is defined as a macro (as of 1.10).
-      import_array();
+    ([]() -> void {
+      // import_array1() forces a void return value.
+      import_array1();
     })();
     // Single threaded, so safe
     static bool initialized = false;

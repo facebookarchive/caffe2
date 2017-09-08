@@ -2,7 +2,8 @@
 
 #include "caffe2/core/context.h"
 #include "caffe2/core/operator.h"
-#include "caffe2/utils/mkl_utils.h"
+#include "caffe2/mkl/mkl_utils.h"
+#include "caffe2/utils/cpuid.h"
 
 #ifdef CAFFE2_HAS_MKL_SGEMM_PACK
 
@@ -19,7 +20,7 @@ class PackedFCOp final : public Operator<CPUContext> {
       : Operator<CPUContext>(operator_def, ws),
         axis_(OperatorBase::GetSingleArgument<int32_t>("axis", 1)) {
     OPERATOR_NEEDS_FEATURE(
-        __builtin_cpu_supports("avx2") || operator_def.type() == "PackedFC",
+        GetCpuId().avx2() || operator_def.type() == "PackedFC",
         "If you are trying to use PackedFCOp as a FC with PACKED engine on "
         "a machine that does not have avx2, be noted that the functionality "
         "is not tuned and you are better off directly using FC.");
@@ -27,9 +28,9 @@ class PackedFCOp final : public Operator<CPUContext> {
     // from the check above, as the above is a performance hint and the below
     // is about correctness.
     CAFFE_ENFORCE(
-        __builtin_cpu_supports("avx2"),
+        GetCpuId().avx2(),
         "Do not run PackedFC on a machine that does not have avx2 "
-        "right now, as there is an known issue with MKL 2017.0.098 "
+        "right now, as there is a known issue with MKL 2017.0.098 "
         "that produces wrong results on non-avx2 machines.");
   }
   ~PackedFCOp() {}

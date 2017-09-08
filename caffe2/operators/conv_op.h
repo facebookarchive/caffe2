@@ -3,7 +3,10 @@
 
 #include "caffe2/core/context.h"
 #include "caffe2/core/operator.h"
+#include "caffe2/operators/conv_op_shared.h"
 #include "caffe2/operators/conv_pool_op_base.h"
+
+CAFFE2_DECLARE_bool(caffe2_force_shared_col_buffer);
 
 namespace caffe2 {
 
@@ -18,6 +21,12 @@ class ConvOp final : public ConvPoolOpBase<Context> {
     CAFFE_ENFORCE(
         group_ == 1 || order_ == StorageOrder::NCHW,
         "Group convolution only supports NCHW order right now.");
+
+    // Create shared buffer mutex in the constructor
+    // to avoid race-condition in DAGNet.
+    if (FLAGS_caffe2_force_shared_col_buffer || shared_buffer_) {
+      createSharedBuffer<Context>(ws_);
+    }
   }
   ~ConvOp() {}
 
@@ -27,6 +36,8 @@ class ConvOp final : public ConvPoolOpBase<Context> {
  private:
   Tensor<Context> col_buffer_;
   Tensor<Context> bias_multiplier_;
+  Tensor<Context> img_shape_device_;
+  Tensor<Context> col_buffer_shape_device_;
   // Input: X, W, b
   // Output: Y
   INPUT_TAGS(INPUT, FILTER, BIAS);
@@ -54,6 +65,8 @@ class ConvGradientOp final : public ConvPoolOpBase<Context> {
  private:
   Tensor<Context> col_buffer_;
   Tensor<Context> bias_multiplier_;
+  Tensor<Context> img_shape_device_;
+  Tensor<Context> col_buffer_shape_device_;
   bool no_bias_;
   // input: X, W, dY
   // output: dW, db, and optionally dX
