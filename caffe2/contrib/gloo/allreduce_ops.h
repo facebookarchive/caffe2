@@ -24,7 +24,9 @@ class AllreduceOp final : public Operator<Context> {
       : Operator<Context>(operator_def, ws),
         ws_(ws),
         status_blob_(
-            OperatorBase::GetSingleArgument<std::string>("status_blob", "")) {
+            OperatorBase::GetSingleArgument<std::string>("status_blob", "")),
+        gpu_direct_(
+            OperatorBase::GetSingleArgument<bool>("gpu_direct", false)) {
     if (status_blob_ != "") {
       ws_->CreateBlob(status_blob_);
     }
@@ -160,6 +162,7 @@ class AllreduceOp final : public Operator<Context> {
   GlooParameters current_;
   Workspace* ws_;
   std::string status_blob_;
+  const bool gpu_direct_;
 };
 
 } // namespace gloo
