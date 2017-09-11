@@ -9,7 +9,8 @@ from __future__ import unicode_literals
 def concat(model, blobs_in, blob_out, **kwargs):
     """Depth Concat."""
     if kwargs.get('order') and kwargs.get('axis'):
-        raise ValueError("Don't set both order and axis")
+        # The backend throws an error if both are given
+        kwargs.pop('order')
 
     return model.net.Concat(
         blobs_in,
