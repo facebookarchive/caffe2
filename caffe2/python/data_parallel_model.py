@@ -1075,7 +1075,7 @@ def _AllReduceBlobsDistributed(
         # so we need a temporary blob
         reduced_blob = str(master_blob) + "_red"
 
-        def allreduce(blobs):
+        def allreduce(blobs, **kwargs):
             with core.DeviceScope(reducing_device_opt):
                 comm_world, control_input = \
                     context.get_control_and_context(blobs[0])
@@ -1086,12 +1086,17 @@ def _AllReduceBlobsDistributed(
                     engine=all_reduce_engine,
                     control_input=control_input,
                     status_blob="allreduce_{}_status".format(blob_name),
+                    **kwargs
                 )
 
         if rendezvous['engine'] == 'GLOO':
             # With Gloo cross GPU and cross machine allreduce
-            # can be executed in a single operation
-            allreduce(blobs_group)
+            # can be executed in a single operation.
+            # Try to use GPUDirect if transport == ibverbs.
+            allreduce(
+                blobs_group,
+                gpu_direct=(rendezvous.get("transport", None) == "ibverbs"),
+            )
         else:
             # Step 1: sum blobs from local GPUs to master GPU
             with core.DeviceScope(master_device_opt):
