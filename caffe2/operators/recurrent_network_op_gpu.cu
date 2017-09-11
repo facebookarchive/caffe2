@@ -126,6 +126,11 @@ bool AccumulateInputGradientOp<CUDAContext>::RunOnDevice() {
   return DispatchHelper<TensorTypes<float, float16>>::call(this, Input(1));
 }
 
+template <>
+bool RNNApplyLinkOp<CUDAContext>::RunOnDevice() {
+  return DispatchHelper<TensorTypes<float, float16>>::call(this, Input(1));
+}
+
 REGISTER_CUDA_OPERATOR(
     RecurrentNetwork,
     RecurrentNetworkOp<CUDAContext>);
@@ -137,7 +142,7 @@ REGISTER_CUDA_OPERATOR(
     AccumulateInputGradientOp<CUDAContext>);
 REGISTER_CUDA_OPERATOR(
     rnn_internal_apply_link,
-    RNNApplyLinkOp<float, CUDAContext>);
+    RNNApplyLinkOp<CUDAContext>);
 
 
 } // namespace caffe2

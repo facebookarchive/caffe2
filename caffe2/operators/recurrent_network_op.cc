@@ -51,7 +51,7 @@ OPERATOR_SCHEMA(rnn_internal_accumulate_gradient_input)
 
 REGISTER_CPU_OPERATOR(
     rnn_internal_apply_link,
-    RNNApplyLinkOp<float, CPUContext>);
+    RNNApplyLinkOp<CPUContext>);
 OPERATOR_SCHEMA(rnn_internal_apply_link)
     .NumInputs(2)
     .NumOutputs(2)

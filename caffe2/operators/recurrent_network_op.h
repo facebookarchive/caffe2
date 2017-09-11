@@ -858,7 +858,7 @@ class AccumulateInputGradientOp : public Operator<Context> {
   int offset_;
 };
 
-template <typename T, class Context>
+template <class Context>
 class RNNApplyLinkOp : public Operator<Context> {
  public:
   RNNApplyLinkOp(const OperatorDef& def, Workspace* ws)
@@ -871,7 +871,8 @@ class RNNApplyLinkOp : public Operator<Context> {
 
   USE_OPERATOR_CONTEXT_FUNCTIONS;
 
-  bool RunOnDevice() override {
+  template <typename T>
+  bool DoRunWithType() {
     // Both internal and external appear as both input and output to enforce
     // correct dependency computation.
     const auto t =
@@ -892,6 +893,10 @@ class RNNApplyLinkOp : public Operator<Context> {
     internal_out->ShareExternalPointer(
         externalData, externalTimestepSize * window_);
     return true;
+  }
+
+  bool RunOnDevice() override {
+    return DoRunWithType<float>();
   }
 
  private:
