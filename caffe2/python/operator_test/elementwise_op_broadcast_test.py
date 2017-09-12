@@ -3,6 +3,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import unittest
+
 from hypothesis import given
 import numpy as np
 
@@ -243,6 +245,7 @@ class TestElementwiseBroadcast(hu.HypothesisTestCase):
         dc_cpu_only = [d for d in dc if d.device_type != caffe2_pb2.CUDA]
         self.assertDeviceChecks(dc_cpu_only, op, [X, Y], [0])
 
+    @unittest.skipIf(not workspace.has_gpu_support, "No gpu support")
     @given(**hu.gcs_gpu_only)
     def test_sum_reduce_fp16(self, gc, dc):
         # Set broadcast and no axis, i.e. broadcasting last dimensions.
@@ -300,5 +303,4 @@ class TestElementwiseBroadcast(hu.HypothesisTestCase):
             threshold=1e-3)
 
 if __name__ == "__main__":
-    import unittest
     unittest.main()
