@@ -651,14 +651,14 @@ class MultiRNNCell(RNNCell):
                 )
                 connected_outputs.append(layer_output)
             state_index += num_states
-	if len(connected_outputs) > 1:
+        if len(connected_outputs) > 1:
             output = brew.sum(
                 model,
                 connected_outputs,
                 self.scope('residual_output'),
             )
         else:
-	    output = connected_outputs[0]
+            output = connected_outputs[0]
         return output
 
     def _prepare_output_sequence(self, model, states):
@@ -674,14 +674,14 @@ class MultiRNNCell(RNNCell):
                 )
                 connected_outputs.append(layer_output)
             state_index += num_states
-	if len(connected_outputs) > 1:
+        if len(connected_outputs) > 1:
             output = brew.sum(
                 model,
                 connected_outputs,
                 self.scope('residual_output_sequence'),
             )
-	else:
-	    output = connected_outputs[0]
+        else:
+            output = connected_outputs[0]
         return output
 
 
