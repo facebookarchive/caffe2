@@ -134,7 +134,13 @@ bool IsGoogleLoggingInitialized();
 namespace caffe2 {
 bool InitCaffeLogging(int* argc, char** argv) {
   if (*argc == 0) return true;
-  if (!::google::glog_internal_namespace_::IsGoogleLoggingInitialized()) {
+#if !(defined(_MSC_VER) && defined(GLOG_IS_A_DLL))
+  // IsGoogleLoggingInitialized is not exported from the glog DLL
+  // so we can't call it. If our program calls InitGoogleLogging twice glog will
+  // abort it.
+  if (!::google::glog_internal_namespace_::IsGoogleLoggingInitialized())
+#endif
+  {
     ::google::InitGoogleLogging(argv[0]);
 #if !defined(_MSC_VER)
     ::google::InstallFailureSignalHandler();
