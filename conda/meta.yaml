@@ -10,6 +10,8 @@ source:
 build:
   number: 1
   skip: True  # [win]
+  script_env:
+    - CONDA_CMAKE_ARGS
 
 requirements:
   build:
