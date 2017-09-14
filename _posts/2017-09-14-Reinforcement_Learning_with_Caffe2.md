@@ -19,5 +19,6 @@ This project, called RL_Caffe2, contains several RL implementations built on Caf
 
 3. **Actor-Critic**: An implementation of the Actor Critic model as described in [https://arxiv.org/pdf/1509.02971.pdf](https://arxiv.org/pdf/1509.02971.pdf)
 
+![](/static/images/pacman.png)
 
 * Github (RL_Caffe2): [https://github.com/caffe2/reinforcement-learning-models](https://github.com/caffe2/reinforcement-learning-models)
