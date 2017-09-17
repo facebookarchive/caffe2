@@ -7,23 +7,6 @@ project(Caffe2 CXX C)
 
 # TODO(bwasti): versioning
 
-# Useful functions.
-function (exclude OUTPUT INPUT)
-set(EXCLUDES ${ARGN})
-foreach(EXCLUDE ${EXCLUDES})
-        list(REMOVE_ITEM INPUT "${EXCLUDE}")
-endforeach()
-set(${OUTPUT} ${INPUT} PARENT_SCOPE)
-endfunction(exclude)
-
-function (prepend OUTPUT PREPEND)
-set(OUT "")
-foreach(ITEM ${ARGN})
-        list(APPEND OUT "${PREPEND}${ITEM}")
-endforeach()
-set(${OUTPUT} ${OUT} PARENT_SCOPE)
-endfunction(prepend)
-
 # ---[ CMake scripts + modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 set(CMAKE_MACOSX_RPATH 1)
