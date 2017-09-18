@@ -175,17 +175,6 @@ if (BUILD_PYTHON)
   target_link_libraries(
       caffe2_pybind11_state ${Caffe2_CPU_LINK} ${Caffe2_DEPENDENCY_LIBS}
       ${Caffe2_PYTHON_DEPENDENCY_LIBS})
-  # Add rpath to the python target, so that we will be able to load it. This
-  # is in order to ease the problem of anaconda's ipython DYLD bug, detailed
-  # here:
-  #     https://github.com/BVLC/caffe/issues/2720
-  #     https://github.com/ipython/ipython/issues/8878
-  if (APPLE)
-    add_custom_command(
-        TARGET caffe2_pybind11_state POST_BUILD
-        COMMAND install_name_tool -add_rpath ${CMAKE_INSTALL_PREFIX}/lib
-                $<TARGET_FILE:caffe2_pybind11_state>)
-  endif()
   install(TARGETS caffe2_pybind11_state DESTINATION caffe2/python)
 
   if(USE_CUDA)
@@ -203,12 +192,6 @@ if (BUILD_PYTHON)
     target_link_libraries(
         caffe2_pybind11_state_gpu ${Caffe2_CPU_LINK} ${Caffe2_GPU_LINK} ${Caffe2_DEPENDENCY_LIBS}
         ${Caffe2_CUDA_DEPENDENCY_LIBS} ${Caffe2_PYTHON_DEPENDENCY_LIBS})
-    if (APPLE)
-      add_custom_command(
-          TARGET caffe2_pybind11_state_gpu POST_BUILD
-          COMMAND install_name_tool -add_rpath ${CMAKE_INSTALL_PREFIX}/lib
-                  $<TARGET_FILE:caffe2_pybind11_state_gpu>)
-    endif()
     install(TARGETS caffe2_pybind11_state_gpu DESTINATION caffe2/python)
   endif()
 
