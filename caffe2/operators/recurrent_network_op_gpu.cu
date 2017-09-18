@@ -35,78 +35,24 @@ void initRecurrentInput_kernel(
 }; // namespace
 
 template <>
-void initializeRecurrentInput<float,CUDAContext>(
-    const RecurrentInput& rc,
-    int32_t seqLen,
-    int32_t batchSize,
-    Workspace* ws,
+void repeatCopy(
+    size_t repeat_n,
+    size_t n,
+    const float* src,
+    float* dst,
     CUDAContext* context) {
-  auto stateBlob = ws->GetBlob(rc.state);
-  CAFFE_ENFORCE(stateBlob);
-  auto* state = stateBlob->GetMutable<Tensor<CUDAContext>>();
-
-  auto inputBlob = ws->GetBlob(rc.input);
-  CAFFE_ENFORCE(inputBlob);
-  const auto& input = inputBlob->Get<Tensor<CUDAContext>>();
-  CAFFE_ENFORCE_GE(input.ndim(), 1, rc.input);
-  CAFFE_ENFORCE_LE(input.ndim(), 3, rc.input);
-
-  const auto stateSize = input.dim(input.ndim() - 1);
-  // States at [0, ..., T] (inclusive)
-  state->Resize(seqLen + 1, batchSize, stateSize);
-
-  if (input.ndim() == 3) {
-    CAFFE_ENFORCE_EQ(input.dim(0), 1, rc.input);
-  }
-  if (input.ndim() >= 2) {
-    CAFFE_ENFORCE_EQ(input.dim(input.ndim() - 2), batchSize, rc.input);
-    context->Copy<float, CUDAContext, CUDAContext>(
-        batchSize * stateSize,
-        input.data<float>(),
-        state->mutable_data<float>());
-  } else {
-    initRecurrentInput_kernel<float><<<batchSize, CAFFE_CUDA_NUM_THREADS, 0, context->cuda_stream()>>>(
-        stateSize,
-        input.data<float>(),
-        state->mutable_data<float>());
-  }
+    initRecurrentInput_kernel<float><<<repeat_n, CAFFE_CUDA_NUM_THREADS, 0, context->cuda_stream()>>>(
+        n, src, dst);
 }
 template <>
-void initializeRecurrentInput<float16,CUDAContext>(
-    const RecurrentInput& rc,
-    int32_t seqLen,
-    int32_t batchSize,
-    Workspace* ws,
+void repeatCopy(
+    size_t repeat_n,
+    size_t n,
+    const float16* src,
+    float16* dst,
     CUDAContext* context) {
-  auto stateBlob = ws->GetBlob(rc.state);
-  CAFFE_ENFORCE(stateBlob);
-  auto* state = stateBlob->GetMutable<Tensor<CUDAContext>>();
-
-  auto inputBlob = ws->GetBlob(rc.input);
-  CAFFE_ENFORCE(inputBlob);
-  const auto& input = inputBlob->Get<Tensor<CUDAContext>>();
-  CAFFE_ENFORCE_GE(input.ndim(), 1, rc.input);
-  CAFFE_ENFORCE_LE(input.ndim(), 3, rc.input);
-
-  const auto stateSize = input.dim(input.ndim() - 1);
-  // States at [0, ..., T] (inclusive)
-  state->Resize(seqLen + 1, batchSize, stateSize);
-
-  if (input.ndim() == 3) {
-    CAFFE_ENFORCE_EQ(input.dim(0), 1, rc.input);
-  }
-  if (input.ndim() >= 2) {
-    CAFFE_ENFORCE_EQ(input.dim(input.ndim() - 2), batchSize, rc.input);
-    context->Copy<float16, CUDAContext, CUDAContext>(
-        batchSize * stateSize,
-        input.data<float16>(),
-        state->mutable_data<float16>());
-  } else {
-    initRecurrentInput_kernel<float16><<<batchSize, CAFFE_CUDA_NUM_THREADS, 0, context->cuda_stream()>>>(
-        stateSize,
-        input.data<float16>(),
-        state->mutable_data<float16>());
-  }
+    initRecurrentInput_kernel<float16><<<repeat_n, CAFFE_CUDA_NUM_THREADS, 0, context->cuda_stream()>>>(
+        n, src, dst);
 }
 
 }; // namespace detail

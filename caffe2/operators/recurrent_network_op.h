@@ -88,6 +88,18 @@ void applyOffsetAlias(
       dst->size());
 }
 
+template <typename T, class Context>
+void repeatCopy(
+    size_t repeat_n,
+    size_t n,
+    const T* src,
+    T* dst,
+    Context* context) {
+  for (int i = 0; i < repeat_n; ++i) {
+    context->template Copy<T, Context, Context>(n, src, dst + i * n);
+  }
+}
+
 /**
  * Copy external input to the step net into the first item of
  * (T + 1) X batch_size X input_size tensor
@@ -128,14 +140,14 @@ void initializeRecurrentInput(
         input.template data<T>(),
         state->template mutable_data<T>());
   } else {
-    for (int i = 0; i < batchSize; ++i) {
-      // Usually, the initial state is the same for all inputs in the batch.
-      // So the op conveniently accepts 1-D input and copies it batchSize times.
-      context->template Copy<T, Context, Context>(
+    // Usually, the initial state is the same for all inputs in the batch.
+    // So the op conveniently accepts 1-D input and copies it batchSize times.
+    repeatCopy<T, Context>(
+          batchSize,
           stateSize,
           input.template data<T>(),
-          state->template mutable_data<T>() + i * stateSize);
-    }
+          state->template mutable_data<T>(),
+          context);
   }
 }
 
