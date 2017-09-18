@@ -1,21 +1,24 @@
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
+# ---[ Project and semantic versioning.
+project(Caffe2 CXX C)
+
+set(CAFFE2_VERSION_MAJOR 0)
+set(CAFFE2_VERSION_MINOR 8)
+set(CAFFE2_VERSION_PATCH 1)
+set(CAFFE2_VERSION
+    ${CAFFE2_VERSION_MAJOR}.${CAFFE2_VERSION_MINOR}.${CAFFE2_VERSION_PATCH})
+
+
+# ---[ Do not search cmake install prefix. See the following link for details:
+# https://github.com/caffe2/caffe2/commit/251d2d0c521c781276eea3748d92fc92e5dbceab
 message(STATUS "Setting CMAKE_FIND_NO_INSTALL_PREFIX")
 set(CMAKE_FIND_NO_INSTALL_PREFIX TRUE)
 
-project(Caffe2 CXX C)
 
-# TODO(bwasti): versioning
-
-# ---[ CMake scripts + modules
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
-set(CMAKE_MACOSX_RPATH 1)
-
-enable_testing()
-
-# options
-# Note: if you add an option below, make sure you also add it to
-# cmake/Summary.cmake
+# ---[ Options.
+# Note to developers: if you add an option below, make sure you also add it to
+# cmake/Summary.cmake so that the summary prints out the option values.
 option(BUILD_BINARY "Build C++ binaries" ON)
 option(BUILD_PYTHON "Build Python binaries" ON)
 option(BUILD_SHARED_LIBS "Build libcaffe2.so" ON)
@@ -42,6 +45,13 @@ option(USE_ROCKSDB "Use RocksDB" ON)
 option(USE_SNPE "Use Qualcomm's SNPE library" OFF)
 option(USE_THREADS "Use Threads" ON)
 option(USE_ZMQ "Use ZMQ" OFF)
+
+
+# ---[ CMake scripts + modules
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
+set(CMAKE_MACOSX_RPATH 1)
+
+enable_testing()
 
 # External projects
 include(ExternalProject)
@@ -119,7 +129,7 @@ add_subdirectory(caffe/proto)
 # ---[ Main build
 add_subdirectory(caffe2)
 
-Caffe2_print_configuration_summary()
+caffe2_print_configuration_summary()
 
 if(NOT TARGET uninstall)
   configure_file(
