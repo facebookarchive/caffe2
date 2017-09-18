@@ -199,7 +199,7 @@ OPERATOR_SCHEMA(NCCLReduce)
     .InputsCanCrossDevices()
     .AllowInplace([](int in, int out) -> bool {
       return (out == 0);
-    });
+    })
     .DeviceInferenceFunction(ncclOpDevInfer);
 SHOULD_NOT_DO_GRADIENT(NCCLReduce);
 
