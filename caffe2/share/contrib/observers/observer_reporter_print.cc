@@ -2,9 +2,11 @@
 
 namespace caffe2 {
 
+const std::string ObserverReporterPrint::IDENTIFIER = "Caffe2Observer : ";
+
 void
 ObserverReporterPrint::printNet(NetBase *net, double net_delay) {
-  LOG(INFO) << "Net Name: " << net->Name() << "  Net Delay: " << net_delay;
+  LOG(INFO) << IDENTIFIER << "Net Name: " << net->Name() << "  Net Delay: " << net_delay;
 }
 
 void
@@ -12,11 +14,10 @@ ObserverReporterPrint::printNetWithOperators(
     NetBase *net,
     double net_delay,
     std::vector<std::pair<std::string, double> > & delays) {
-  printNet(net, net_delay);
-  LOG(INFO) << "  Operator Delays: ";
+  LOG(INFO) << IDENTIFIER << "Operator Delays Start";
   for (auto &p : delays) {
-    LOG(INFO) << p.first << " : " << p.second;
+    LOG(INFO) << IDENTIFIER << p.first << " : " << p.second;
   }
-  LOG(INFO) << "===============";
+  LOG(INFO) << IDENTIFIER << "Operator Delays End";
 }
 }

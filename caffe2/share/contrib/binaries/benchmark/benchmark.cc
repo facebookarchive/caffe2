@@ -110,7 +110,12 @@ int main(int argc, char** argv) {
       caffe2::FLAGS_iter,
       ".");
   for (int i = 0; i < caffe2::FLAGS_iter; ++i) {
+    caffe2::QPLConfig::initSampleRate(1, 0, caffe2::FLAGS_warmup);
     CAFFE_ENFORCE(net->Run(), "Main run ", i, " has failed.");
+    if (caffe2::FLAGS_run_individual) {
+      caffe2::QPLConfig::initSampleRate(1, 1, caffe2::FLAGS_warmup);
+      CAFFE_ENFORCE(net->Run(), "Main run ", i, " with operator has failed.");
+    }
   }
 
   string output_prefix =
