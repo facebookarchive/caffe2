@@ -3,6 +3,7 @@
 import argparse
 import sys
 from platforms.platforms import getPlatforms
+from reporters.reporters import getReporters
 import logging
 
 logger = logging.getLogger(__name__)
@@ -40,9 +41,9 @@ class BenchmarkDriver(object):
         parser.add_argument("--output_folder",
             help="The folder that the output should be written to. This "
             "folder must already exist in the file system.")
-        parser.add_argument("--warmup", default=0,
+        parser.add_argument("--warmup", default=0, type=int,
             help="The number of iterations to warm up.")
-        parser.add_argument("--iter", default=10,
+        parser.add_argument("--iter", default=10, type=int, 
             help="The number of iterations to run.")
         parser.add_argument("--run_individual", action="store_true",
             help="Whether to benchmark individual operators.")
@@ -51,12 +52,17 @@ class BenchmarkDriver(object):
             help="Run the benchmark on all collected android devices.")
         parser.add_argument("--host", action="store_true",
             help="Run the benchmark on the host.")
+        parser.add_argument("--local_reporter", action="store_true",
+            help="Save the result to a file")
         args = parser.parse_args()
         return args
 
     def runBenchmark(self, platforms):
+        reporters = getReporters(self.args)
         for platform in platforms:
-            platform.runOnPlatform()
+            data = platform.runOnPlatform()
+            for reporter in reporters:
+                reporter.report(data)
 
     def run(self):
         platforms = getPlatforms(self.args)

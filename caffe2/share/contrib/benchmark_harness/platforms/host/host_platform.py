@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 class HostPlatform(PlatformBase):
     def __init__(self, args):
         super(HostPlatform, self).__init__(args)
+        self.output = None
 
     def setupPlatform(self):
         pass
@@ -20,8 +21,8 @@ class HostPlatform(PlatformBase):
             "--init_net", self.args.init_net,
             "--net", self.args.net,
             "--input", self.args.input,
-            "--warmup", self.args.warmup,
-            "--iter", self.args.iter,
+            "--warmup", str(self.args.warmup),
+            "--iter", str(self.args.iter),
             ]
         if self.args.input_file:
             cmd.extend(["--input_file", self.args.input_file])
@@ -36,7 +37,45 @@ class HostPlatform(PlatformBase):
         logger.log(logging.INFO,
                     "Running: %s",
                     command)
-        return subprocess.check_output(cmd)
+        pipes = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        std_out, std_err = pipes.communicate()
+        assert pipes.returncode == 0, "Benchmark run failed"
+        if len(std_err):
+            self.output = std_err
 
     def collectData(self):
-        pass
+        results = []
+        rows = self.output.split('\n')
+        useful_rows = [row for row in rows if row.find(self.IDENTIFIER) >= 0]
+        i = 0
+        while (i < len(useful_rows)):
+            row = useful_rows[i]
+            net_start_idx = row.find(self.NET_NAME)
+            if net_start_idx > 0:
+                content = row[net_start_idx:].split(':')
+                assert len(content) == 2, "Net delay row doesn't have two items"
+                result = {}
+                for x in content:
+                    pair = x.strip().split('-')
+                    assert len(pair) == 2, "Net delay field doesn't have two items"
+                    result[pair[0].strip()] = pair[1].strip()
+                if useful_rows[i+1].find(self.OPERATOR_DELAYS_START) >= 0:
+                    i = self._collectOperatorDelayData(useful_rows, result, i+1)
+                results.append(result)
+            i += 1
+        assert len(results) == self.args.iter, "Incorrect number of results collected"
+        return results
+
+
+    def _collectOperatorDelayData(self, rows, result, start_idx):
+        res = {}
+        i = start_idx+1
+        while i < len(rows) and rows[i].find(self.OPERATOR_DELAYS_END) < 0:
+            row = rows[i]
+            start_idx = row.find(self.IDENTIFIER) + len(self.IDENTIFIER)
+            pair = row[start_idx:].strip().split('-')
+            assert len(pair) == 2, "Operator delay doesn't have two items"
+            res[pair[0].strip()] = pair[1].strip()
+            i = i+1
+        result['Operators Delay'] = res
+        return i
