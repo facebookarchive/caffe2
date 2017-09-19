@@ -5,9 +5,6 @@ import sys
 import arg_parse
 from platforms.platforms import getPlatforms
 from reporters.reporters import getReporters
-import logging
-
-logger = logging.getLogger(__name__)
 
 class BenchmarkDriver(object):
     def __init__(self):

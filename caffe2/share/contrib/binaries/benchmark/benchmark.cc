@@ -45,6 +45,7 @@ using std::vector;
 
 int main(int argc, char** argv) {
   caffe2::GlobalInit(&argc, &argv);
+  caffe2::ShowLogInfoToStderr();
   unique_ptr<caffe2::Workspace> workspace(new caffe2::Workspace());
 
   // Run initialization network.

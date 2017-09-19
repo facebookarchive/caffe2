@@ -3,12 +3,20 @@
 from platforms.platform_base import PlatformBase
 import os.path as path
 
+from arg_parse import getArgs
+
 class AndroidPlatform(PlatformBase):
     def __init__(self, adb):
         super(AndroidPlatform, self).__init__()
         self.adb = adb
+        self.output = None
 
     def setupPlatform(self):
+        try:
+            self.adb.run('logcat', "-G", "1M")
+        except Exception:
+            self.adb.run('logcat', "-G", "256K")
+        self.adb.run('logcat', '-c')
         self.adb.push(getArgs().net)
         self.adb.push(getArgs().init_net)
         if getArgs().input_file:
@@ -38,7 +46,6 @@ class AndroidPlatform(PlatformBase):
             cmd.extend(["--output_folder", self.adb.dir + "output"])
         if getArgs().run_individual:
             cmd.extend(["--run_individual", "true"])
-        self.adb.shell(cmd)
 
-    def collectData(self):
-        pass
+        self.adb.shell(cmd)
+        self.output = self.adb.run('logcat', '-d', '-e', self.IDENTIFIER)

@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
-import logging
 import subprocess
 import os.path as path
-
-logger = logging.getLogger(__name__)
+from custom_logger import getLogger
 
 class ADB(object):
-    def __init__(self, device=None, adb_log_level=logging.INFO):
-        self.adb_log_level = adb_log_level
+    def __init__(self, device=None):
         self.device = device
         self.dir = "/data/local/tmp/"
 
@@ -41,7 +38,5 @@ class ADB(object):
         return self.run("shell", cmd)
 
     def _call(self, subprocess_cmd, cmd, **kwargs):
-        logger.log(self.adb_log_level,
-                   'Running: %s',
-                   ' '.join(cmd))
+        getLogger().info('Running: %s', ' '.join(cmd))
         return subprocess_cmd(cmd, **kwargs)

@@ -3,6 +3,7 @@
 from android.android_driver import AndroidDriver
 from host.host_platform import HostPlatform
 from arg_parse import getArgs
+from custom_logger import getLogger
 
 def getPlatforms():
     platforms = []
@@ -12,5 +13,5 @@ def getPlatforms():
         driver = AndroidDriver()
         platforms.extend(driver.getAndroidPlatforms())
     if not platforms:
-        logger.log(logger.ERROR, "No platform is specified.")
+        getLogger().error("No platform is specified.")
     return platforms

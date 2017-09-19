@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
 from platforms.platform_base import PlatformBase
-import logging
 import subprocess
 from arg_parse import getArgs, getParser
-
-logger = logging.getLogger(__name__)
+from custom_logger import getLogger
 
 getParser().add_argument("--host", action="store_true",
     help="Run the benchmark on the host.")
@@ -38,7 +36,7 @@ class HostPlatform(PlatformBase):
         if getArgs().run_individual:
             cmd.extend(["--run_individual", "true"])
         command = ' '.join(cmd)
-        logger.log(logging.INFO,
+        getLogger().log(getLogger().INFO,
                     "Running: %s",
                     command)
         pipes = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
