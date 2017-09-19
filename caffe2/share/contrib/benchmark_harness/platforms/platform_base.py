@@ -7,8 +7,7 @@ class PlatformBase(object):
     NET_DELAY = 'Net Delay'
     OPERATOR_DELAYS_START = 'Operators Delay Start'
     OPERATOR_DELAYS_END = 'Operators Delay End'
-    def __init__(self, args):
-        self.args = args
+    def __init__(self):
         pass
 
     def setupPlatform(self):

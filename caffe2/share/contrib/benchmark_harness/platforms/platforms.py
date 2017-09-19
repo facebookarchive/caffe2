@@ -2,14 +2,14 @@
 
 from android.android_driver import AndroidDriver
 from host.host_platform import HostPlatform
+from arg_parse import getArgs
 
-
-def getPlatforms(args):
+def getPlatforms():
     platforms = []
-    if args.host:
-        platforms.append(HostPlatform(args))
-    if args.android:
-        driver = AndroidDriver(args)
+    if getArgs().host:
+        platforms.append(HostPlatform())
+    if getArgs().android:
+        driver = AndroidDriver()
         platforms.extend(driver.getAndroidPlatforms())
     if not platforms:
         logger.log(logger.ERROR, "No platform is specified.")

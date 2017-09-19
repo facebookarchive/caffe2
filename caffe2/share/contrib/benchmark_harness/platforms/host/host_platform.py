@@ -3,12 +3,16 @@
 from platforms.platform_base import PlatformBase
 import logging
 import subprocess
+from arg_parse import getArgs, getParser
 
 logger = logging.getLogger(__name__)
 
+getParser().add_argument("--host", action="store_true",
+    help="Run the benchmark on the host.")
+
 class HostPlatform(PlatformBase):
-    def __init__(self, args):
-        super(HostPlatform, self).__init__(args)
+    def __init__(self):
+        super(HostPlatform, self).__init__()
         self.output = None
 
     def setupPlatform(self):
@@ -16,22 +20,22 @@ class HostPlatform(PlatformBase):
 
     def runBenchmark(self):
         cmd = [
-            self.args.program,
+            getArgs().program,
             "--logtostderr", "1",
-            "--init_net", self.args.init_net,
-            "--net", self.args.net,
-            "--input", self.args.input,
-            "--warmup", str(self.args.warmup),
-            "--iter", str(self.args.iter),
+            "--init_net", getArgs().init_net,
+            "--net", getArgs().net,
+            "--input", getArgs().input,
+            "--warmup", str(getArgs().warmup),
+            "--iter", str(getArgs().iter),
             ]
-        if self.args.input_file:
-            cmd.extend(["--input_file", self.args.input_file])
-        if self.args.input_dims:
-            cmd.extend(["--input_dims", self.args.input_dims])
-        if self.args.output:
-            cmd.extend(["--output", self.args.output])
-            cmd.extend(["--output_folder", self.args.output_folder + "output"])
-        if self.args.run_individual:
+        if getArgs().input_file:
+            cmd.extend(["--input_file", getArgs().input_file])
+        if getArgs().input_dims:
+            cmd.extend(["--input_dims", getArgs().input_dims])
+        if getArgs().output:
+            cmd.extend(["--output", getArgs().output])
+            cmd.extend(["--output_folder", getArgs().output_folder + "output"])
+        if getArgs().run_individual:
             cmd.extend(["--run_individual", "true"])
         command = ' '.join(cmd)
         logger.log(logging.INFO,
@@ -63,7 +67,7 @@ class HostPlatform(PlatformBase):
                     i = self._collectOperatorDelayData(useful_rows, result, i+1)
                 results.append(result)
             i += 1
-        assert len(results) == self.args.iter, "Incorrect number of results collected"
+        assert len(results) == getArgs().iter, "Incorrect number of results collected"
         return results
 
 

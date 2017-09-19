@@ -2,10 +2,13 @@
 
 from adb import ADB
 from android_platform import AndroidPlatform
+from arg_parse import getArgs, getParser
+
+getParser().add_argument("--android", action="store_true",
+    help="Run the benchmark on all collected android devices.")
 
 class AndroidDriver:
-    def __init__(self, args, devices = None):
-        self.args = args
+    def __init__(self, devices = None):
         self.adb = ADB()
         if devices:
             if isinstance(devices, string):
@@ -31,5 +34,5 @@ class AndroidDriver:
         platforms = []
         for device in self.devices:
             adb = ADB(device)
-            platforms.append(AndroidPlatform(adb, self.args))
+            platforms.append(AndroidPlatform(adb))
         return platforms
