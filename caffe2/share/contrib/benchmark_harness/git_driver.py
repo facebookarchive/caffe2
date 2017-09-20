@@ -32,10 +32,10 @@ class GitDriver(object):
             self.git.checkout(getArgs().git_commit)
             if getArgs().android:
                 build_android = getArgs().git_dir + "/scripts/build_android.sh"
-                run(build_android)
+                processRun(build_android)
             if getArgs().host:
                 build_local = getArgs().git_dir + "/scripts/build_local.sh"
-                run(build_local)
+                processRun(build_local)
 
     def _processConfig(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
