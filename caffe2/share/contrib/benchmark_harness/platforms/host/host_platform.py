@@ -2,6 +2,7 @@
 
 from platforms.platform_base import PlatformBase
 import subprocess
+import platform
 from arg_parse import getArgs, getParser
 from custom_logger import getLogger
 
@@ -42,3 +43,9 @@ class HostPlatform(PlatformBase):
         assert pipes.returncode == 0, "Benchmark run failed"
         if len(std_err):
             self.output = std_err
+
+    def collectData(self):
+        result = super(HostPlatform, self).collectData()
+        arch = platform.processor()
+        result[self.SUMMARY][self.PLATFORM] = arch
+        return result

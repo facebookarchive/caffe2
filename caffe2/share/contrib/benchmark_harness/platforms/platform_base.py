@@ -13,6 +13,7 @@ class PlatformBase(object):
     OPERATOR_DELAYS_END = 'Operators Delay End'
     DETAILS = 'details'
     SUMMARY = 'summary'
+    PLATFORM = 'platform'
     def __init__(self):
         pass
 

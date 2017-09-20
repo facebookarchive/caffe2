@@ -48,4 +48,10 @@ class AndroidPlatform(PlatformBase):
             cmd.extend(["--run_individual", "true"])
 
         self.adb.shell(cmd)
-        self.output = self.adb.run('logcat', '-d', '-e', self.IDENTIFIER)
+        self.output = self.adb.run('logcat', '-d')
+
+    def collectData(self):
+        result = super(AndroidPlatform, self).collectData()
+        arch = self.adb.shell(['getprop', 'ro.product.model'])
+        result[self.SUMMARY][self.PLATFORM] = arch
+        return result
