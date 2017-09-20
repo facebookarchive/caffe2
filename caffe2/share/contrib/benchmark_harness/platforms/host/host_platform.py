@@ -3,8 +3,8 @@
 from platforms.platform_base import PlatformBase
 import subprocess
 import platform
-from arg_parse import getArgs, getParser
-from custom_logger import getLogger
+from utils.arg_parse import getArgs, getParser
+from utils.custom_logger import getLogger
 
 getParser().add_argument("--host", action="store_true",
     help="Run the benchmark on the host.")

@@ -3,7 +3,7 @@
 from platforms.platform_base import PlatformBase
 import os.path as path
 
-from arg_parse import getArgs
+from utils.arg_parse import getArgs
 
 class AndroidPlatform(PlatformBase):
     def __init__(self, adb):

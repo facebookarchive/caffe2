@@ -2,7 +2,7 @@
 
 from adb import ADB
 from android_platform import AndroidPlatform
-from arg_parse import getArgs, getParser
+from utils.arg_parse import getArgs, getParser
 
 getParser().add_argument("--android", action="store_true",
     help="Run the benchmark on all collected android devices.")

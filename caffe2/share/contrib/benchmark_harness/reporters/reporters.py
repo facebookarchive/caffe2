@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from arg_parse import getArgs
+from utils.arg_parse import getArgs
 from local_reporter.local_reporter import LocalReporter
 
 

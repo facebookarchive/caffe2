@@ -2,7 +2,7 @@
 
 import subprocess
 import os.path as path
-from custom_logger import getLogger
+from utils.custom_logger import getLogger
 
 class ADB(object):
     def __init__(self, device=None):

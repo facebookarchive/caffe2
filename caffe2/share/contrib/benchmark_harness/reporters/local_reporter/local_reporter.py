@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from arg_parse import getParser, getArgs
+from utils.arg_parse import getParser, getArgs
 from reporters.reporter_base import ReporterBase
 
 import json

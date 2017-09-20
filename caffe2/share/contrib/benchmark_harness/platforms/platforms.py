@@ -2,8 +2,8 @@
 
 from android.android_driver import AndroidDriver
 from host.host_platform import HostPlatform
-from arg_parse import getArgs
-from custom_logger import getLogger
+from utils.arg_parse import getArgs
+from utils.custom_logger import getLogger
 
 def getPlatforms():
     platforms = []

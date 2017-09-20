@@ -2,7 +2,7 @@
 
 import collections
 import time
-from arg_parse import getArgs
+from utils.arg_parse import getArgs
 
 class PlatformBase(object):
     # Class constant, need to change observer_reporter_print.cc if the names are changed

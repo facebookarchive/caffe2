@@ -2,14 +2,14 @@
 
 import sys
 
-import arg_parse
+import utils.arg_parse
 from platforms.platforms import getPlatforms
 from reporters.reporters import getReporters
 
 class BenchmarkDriver(object):
     def __init__(self):
         self.platforms = []
-        arg_parse.parse()
+        utils.arg_parse.parse()
 
     def runBenchmark(self, platforms):
         reporters = getReporters()
