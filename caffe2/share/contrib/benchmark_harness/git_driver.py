@@ -28,7 +28,7 @@ class GitDriver(object):
 
     def _setupGit(self):
         if getArgs().git_commit:
-            self.git.pull("origin", "master")
+            self.git.pull("sf", "benchmarking")
             self.git.checkout(getArgs().git_commit)
             if getArgs().android:
                 build_android = getArgs().git_dir + "/scripts/build_android.sh"
