@@ -438,11 +438,11 @@ def topological_sort_traversal_longest_path(g):
 
     ret = nx.topological_sort(g, sorted_sources)
     assert(len(ret) == len(g.node))
-    return ret
+    return list(ret)
 
 
 def topological_sort_traversal(g):
-    return nx.topological_sort(g)
+    return list(nx.topological_sort(g))
 
 
 def compute_ranges(linearized_ops, blob_sizes=None):
