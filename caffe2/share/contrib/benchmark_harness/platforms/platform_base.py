@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import collections
+import time
 from arg_parse import getArgs
 
 class PlatformBase(object):
@@ -9,6 +11,8 @@ class PlatformBase(object):
     NET_DELAY = 'Net Delay'
     OPERATOR_DELAYS_START = 'Operators Delay Start'
     OPERATOR_DELAYS_END = 'Operators Delay End'
+    DETAILS = 'details'
+    SUMMARY = 'summary'
     def __init__(self):
         pass
 
@@ -27,6 +31,7 @@ class PlatformBase(object):
         results = []
         rows = self.output.split('\n')
         useful_rows = [row for row in rows if row.find(self.IDENTIFIER) >= 0]
+        net_name = None
         i = 0
         while (i < len(useful_rows)):
             row = useful_rows[i]
@@ -38,24 +43,53 @@ class PlatformBase(object):
                 for x in content:
                     pair = x.strip().split('-')
                     assert len(pair) == 2, "Net delay field doesn't have two items"
-                    result[pair[0].strip()] = pair[1].strip()
+                    if pair[0].strip() == self.NET_NAME:
+                        net_name = pair[1].strip()
+                    else:
+                        result[pair[0].strip()] = float(pair[1].strip())
                 if useful_rows[i+1].find(self.OPERATOR_DELAYS_START) >= 0:
                     i = self._collectOperatorDelayData(useful_rows, result, i+1)
                 results.append(result)
             i += 1
         assert len(results) == getArgs().iter, "Incorrect number of results collected"
-        return results
+        return self._processData(results, net_name)
 
 
     def _collectOperatorDelayData(self, rows, result, start_idx):
-        res = {}
         i = start_idx+1
         while i < len(rows) and rows[i].find(self.OPERATOR_DELAYS_END) < 0:
             row = rows[i]
             start_idx = row.find(self.IDENTIFIER) + len(self.IDENTIFIER)
             pair = row[start_idx:].strip().split('-')
             assert len(pair) == 2, "Operator delay doesn't have two items"
-            res[pair[0].strip()] = pair[1].strip()
+            result[pair[0].strip()] = float(pair[1].strip())
             i = i+1
-        result['Operators Delay'] = res
         return i
+
+    def _processData(self, data, net_name):
+        ts = time.time()
+        details = collections.defaultdict(list)
+        for d in data:
+            for k, v in d.items():
+                details[k].append(v)
+        for d in details:
+            details[d].sort()
+
+        summary = {}
+        summary['time'] = ts
+        summary[self.NET_NAME] = net_name
+        for d in details:
+            values = details[d]
+            length = len(values)
+            one_summary = {}
+            one_summary['min'] = values[0]
+            one_summary['max'] = values[-1]
+            if (len(d) % 2) == 1:
+                one_summary['median'] = values[length // 2]
+            else:
+                one_summary['median'] = (values[(length - 1) //2] + values[length // 2]) / 2
+            summary[d] = one_summary
+        results = {}
+        results[self.DETAILS] = details
+        results[self.SUMMARY] = summary
+        return results

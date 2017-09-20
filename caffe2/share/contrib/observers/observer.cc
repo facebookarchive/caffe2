@@ -102,8 +102,8 @@ caffe2::string TimeNetObserver::getObserverName(
            ? op->debug_def().name()
            : (op->debug_def().output_size() ? op->debug_def().output(0)
                                             : "NO_OUTPUT") : "NO_DEF");
-  caffe2::string name = "ID: " + caffe2::to_string(idx) + " " +
-      opType + " " + displayName;
+  caffe2::string name = "ID_" + caffe2::to_string(idx) + "_" +
+      opType + "_" + displayName;
   return name;
 }
 

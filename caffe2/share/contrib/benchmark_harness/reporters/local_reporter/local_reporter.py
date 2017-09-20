@@ -11,16 +11,25 @@ getParser().add_argument("--local_reporter", action="store_true",
     help="Save the result to a file")
 
 class LocalReporter(ReporterBase):
-    DETAILS = 'details'
     def __init__(self):
         super(LocalReporter, self).__init__()
 
     def report(self, content):
-        if os.path.isdir(self.DETAILS):
-            shutil.rmtree(self.DETAILS, True)
-        os.mkdir(self.DETAILS)
-        for i in range(len(content)):
-            filename = self.DETAILS + "/" + str(i) + ".txt"
-            content_i = json.dumps(content[i])
+        net_name = content[self.SUMMARY][self.NET_NAME]
+        dirname = self.getFilename(net_name)
+        if os.path.isdir(dirname):
+            shutil.rmtree(dirname, True)
+        os.mkdir(dirname)
+        details = content[self.DETAILS]
+        for d in details:
+            filename = dirname + "/" + self.getFilename(d) + ".txt"
+            content_d = json.dumps(details[d])
             with open(filename, 'w') as file:
-                file.write(content_i)
+                file.write(content_d)
+        filename = dirname + "/" + self.getFilename(self.SUMMARY) + ".txt"
+        with open(filename, 'w') as file:
+            content_summary = json.dumps(content[self.SUMMARY])
+            file.write(content_summary)
+
+    def getFilename(self, name):
+        return name.replace(' ', '-').replace('/', '-')
