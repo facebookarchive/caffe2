@@ -25,8 +25,15 @@ class LocalReporter(ReporterBase):
         dirname = platformdir + "/" + netdir + "/"
         if getArgs().output_dir:
             dirname = getArgs().output_dir + "/" + dirname
-        if os.path.isdir(dirname):
-            shutil.rmtree(dirname, True)
+        if getArgs().git_commit:
+            dirname = dirname + getArgs().git_commit + "/"
+            if os.path.exists(dirname):
+                shutil.rmtree(dirname, True)
+        else:
+            i = 0
+            while os.path.exists(dirname + str(i)):
+                i = i+1
+            dirname = dirname + str(i) + "/"
         os.makedirs(dirname)
         details = content[self.DETAILS]
         for d in details:

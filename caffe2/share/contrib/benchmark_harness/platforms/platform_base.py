@@ -14,6 +14,7 @@ class PlatformBase(object):
     DETAILS = 'details'
     SUMMARY = 'summary'
     PLATFORM = 'platform'
+    COMMIT = 'commit'
     def __init__(self):
         pass
 
@@ -93,4 +94,6 @@ class PlatformBase(object):
         results = {}
         results[self.DETAILS] = details
         results[self.SUMMARY] = summary
+        if getArgs().git_commit:
+            results[self.COMMIT] = getArgs().git_commit
         return results
