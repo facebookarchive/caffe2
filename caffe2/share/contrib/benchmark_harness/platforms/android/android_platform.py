@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from platforms.platform_base import PlatformBase
 import os.path as path

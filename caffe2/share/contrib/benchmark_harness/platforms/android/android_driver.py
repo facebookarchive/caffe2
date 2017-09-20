@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from adb import ADB
 from android_platform import AndroidPlatform

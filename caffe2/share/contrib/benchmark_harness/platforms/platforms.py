@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from android.android_driver import AndroidDriver
 from host.host_platform import HostPlatform

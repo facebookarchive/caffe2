@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from arg_parse import getArgs
 from local_reporter.local_reporter import LocalReporter

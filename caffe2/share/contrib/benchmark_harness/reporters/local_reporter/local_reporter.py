@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from arg_parse import getParser, getArgs
 from reporters.reporter_base import ReporterBase
