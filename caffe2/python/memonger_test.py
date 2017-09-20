@@ -516,7 +516,9 @@ class MemongerTest(hu.HypothesisTestCase):
         m.Copy("b1", "b1")
         m.Copy("b1", "b1")
         g = memonger.compute_interference_graph(m.net.Proto().op)
-        self.assertEqual(g.edges(), [(0, 1), (0, 2), (1, 2)])
+        self.assertEqual(
+            [e for e in g.edges()],
+            [(0, 1), (0, 2), (1, 2)])
 
     def test_topological_sort_longest_path(self):
         m = model_helper.ModelHelper()
