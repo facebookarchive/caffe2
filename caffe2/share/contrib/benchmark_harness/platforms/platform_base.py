@@ -91,9 +91,9 @@ class PlatformBase(object):
             else:
                 one_summary['median'] = (values[(length - 1) //2] + values[length // 2]) / 2
             summary[d] = one_summary
+        if getArgs().git_commit:
+            summary[self.COMMIT] = getArgs().git_commit
         results = {}
         results[self.DETAILS] = details
         results[self.SUMMARY] = summary
-        if getArgs().git_commit:
-            results[self.COMMIT] = getArgs().git_commit
         return results

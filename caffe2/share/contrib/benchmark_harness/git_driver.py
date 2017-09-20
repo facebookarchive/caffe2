@@ -25,11 +25,13 @@ class GitDriver(object):
     def __init__(self):
         parse()
         self.git = Git(getArgs().git_dir)
+        self.commit_hash = None
 
     def _setupGit(self):
         if getArgs().git_commit:
             self.git.pull("sf", "benchmarking")
             self.git.checkout(getArgs().git_commit)
+            self.commit_hash = self.git.run('rev-parse', 'HEAD')
             if getArgs().android:
                 build_android = getArgs().git_dir + "/scripts/build_android.sh"
                 processRun(build_android)
@@ -47,7 +49,7 @@ class GitDriver(object):
                 (" --android" if getArgs().android else "") +
                 (" --host" if getArgs().host else "") +
                 (" --local_reporter "+ getArgs().local_reporter if getArgs().local_reporter else "") +
-                (" --git_commit " + getArgs().git_commit if getArgs().git_commit else "")).strip()
+                (" --git_commit " + self.commit_hash if self.commit_hash else "")).strip()
                 for x in configs]
         return configs
 
