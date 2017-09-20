@@ -7,10 +7,8 @@ import json
 import os
 import shutil
 
-getParser().add_argument("--local_reporter", action="store_true",
-    help="Save the result to a file.")
-getParser().add_argument("--output_dir",
-    help="The directory to save the benchmark output.")
+getParser().add_argument("--local_reporter",
+    help="Save the result to a directory specified by this argument.")
 
 
 class LocalReporter(ReporterBase):
@@ -23,8 +21,8 @@ class LocalReporter(ReporterBase):
         platform_name = content[self.SUMMARY][self.PLATFORM]
         platformdir = self.getFilename(platform_name)
         dirname = platformdir + "/" + netdir + "/"
-        if getArgs().output_dir:
-            dirname = getArgs().output_dir + "/" + dirname
+        if getArgs().local_reporter:
+            dirname = getArgs().local_reporter + "/" + dirname
         if getArgs().git_commit:
             dirname = dirname + getArgs().git_commit + "/"
             if os.path.exists(dirname):

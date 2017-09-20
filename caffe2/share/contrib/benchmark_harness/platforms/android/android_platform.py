@@ -21,10 +21,11 @@ class AndroidPlatform(PlatformBase):
         self.adb.push(getArgs().init_net)
         if getArgs().input_file:
             self.adb.push(getArgs().input_file)
-        self.adb.push(getArgs().program)
+
+        self.adb.push(self._getProgram())
 
     def runBenchmark(self):
-        basename = path.basename(getArgs().program)
+        basename = path.basename(self._getProgram())
         program = self.adb.dir + basename
         init_net = path.basename(getArgs().init_net)
         net = path.basename(getArgs().net)
@@ -55,3 +56,11 @@ class AndroidPlatform(PlatformBase):
         arch = self.adb.shell(['getprop', 'ro.product.model'])
         result[self.SUMMARY][self.PLATFORM] = arch
         return result
+
+    def _getProgram(self):
+        if getArgs().program:
+            program = getArgs().program
+        elif getArgs().exec_base_dir:
+            program = getArgs().exec_base_dir + \
+                '/build_android/caffe2/share/contrib/binaries/benchmark/binaries/benchmark'
+        return program

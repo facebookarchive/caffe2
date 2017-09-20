@@ -19,7 +19,6 @@ class HostPlatform(PlatformBase):
 
     def runBenchmark(self):
         cmd = [
-            getArgs().program,
             "--logtostderr", "1",
             "--init_net", getArgs().init_net,
             "--net", getArgs().net,
@@ -27,6 +26,11 @@ class HostPlatform(PlatformBase):
             "--warmup", str(getArgs().warmup),
             "--iter", str(getArgs().iter),
             ]
+        if getArgs().program:
+            cmd.insert(0, getArgs().program)
+        elif getArgs().exec_base_dir:
+            cmd.insert(0, getArgs().exec_base_dir +
+                '/build/caffe2/share/contrib/binaries/benchmark/binaries/benchmark')
         if getArgs().input_file:
             cmd.extend(["--input_file", getArgs().input_file])
         if getArgs().input_dims:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import subprocess
+from utils.subprocess_with_logger import processRun
 import os.path as path
 from utils.custom_logger import getLogger
 
@@ -20,7 +20,7 @@ class ADB(object):
                 adb.extend(item)
             else:
                 adb.append(item)
-        return self._call(subprocess.check_output, adb)
+        return processRun(adb)
 
     def push(self, src, tgt = None):
         if tgt is None:
@@ -39,7 +39,3 @@ class ADB(object):
 
     def shell(self, cmd):
         return self.run("shell", cmd)
-
-    def _call(self, subprocess_cmd, cmd, **kwargs):
-        getLogger().info('Running: %s', ' '.join(cmd))
-        return subprocess_cmd(cmd, **kwargs)

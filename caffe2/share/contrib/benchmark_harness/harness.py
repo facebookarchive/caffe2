@@ -2,10 +2,9 @@
 
 import sys
 
-import utils.arg_parse
 from platforms.platforms import getPlatforms
 from reporters.reporters import getReporters
-from utils.arg_parse import getParser
+from utils.arg_parse import getParser, parse
 
 getParser().add_argument("--net", required=True,
     help="The given predict net to benchmark.")
@@ -39,14 +38,16 @@ getParser().add_argument("--iter", default=10, type=int,
     help="The number of iterations to run.")
 getParser().add_argument("--run_individual", action="store_true",
     help="Whether to benchmark individual operators.")
-getParser().add_argument("program", help="The program to run on the platform.")
+getParser().add_argument("--program",
+    help="The program to run on the platform.")
 getParser().add_argument("--git_commit",
     help="The git commit on this benchmark run.")
+getParser().add_argument("--exec_base_dir",
+    help="The base directory of the commit that the program is built from")
 
 class BenchmarkDriver(object):
     def __init__(self):
-        self.platforms = []
-        utils.arg_parse.parse()
+        parse()
 
     def runBenchmark(self, platforms):
         reporters = getReporters()
