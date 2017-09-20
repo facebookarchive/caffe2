@@ -34,6 +34,9 @@ class ADB(object):
         source = self.dir + basename
         return self.run("pull", source, tgt)
 
+    def logcat(self, *args):
+        return self.run("logcat", *args)
+
     def shell(self, cmd):
         return self.run("shell", cmd)
 

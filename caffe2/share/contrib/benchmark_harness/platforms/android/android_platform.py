@@ -13,10 +13,10 @@ class AndroidPlatform(PlatformBase):
 
     def setupPlatform(self):
         try:
-            self.adb.run('logcat', "-G", "1M")
+            self.adb.logcat("-G", "1M")
         except Exception:
-            self.adb.run('logcat', "-G", "256K")
-        self.adb.run('logcat', '-c')
+            self.adb.logcat("-G", "256K")
+        self.adb.logcat('-b', 'all', '-c')
         self.adb.push(getArgs().net)
         self.adb.push(getArgs().init_net)
         if getArgs().input_file:
@@ -48,7 +48,7 @@ class AndroidPlatform(PlatformBase):
             cmd.extend(["--run_individual", "true"])
 
         self.adb.shell(cmd)
-        self.output = self.adb.run('logcat', '-d')
+        self.output = self.adb.logcat('-d')
 
     def collectData(self):
         result = super(AndroidPlatform, self).collectData()
