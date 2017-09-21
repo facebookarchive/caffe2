@@ -37,7 +37,7 @@ class GitDriver(object):
             self.git.checkout(getArgs().git_commit)
             new_commit_hash = self.git.run('rev-parse', 'HEAD')
             if new_commit_hash == self.commit_hash:
-                return false
+                return False
             if getArgs().android:
                 shutil.rmtree(getArgs().git_dir + "/build_android")
                 build_android = getArgs().git_dir + "/scripts/build_android.sh"
@@ -46,7 +46,7 @@ class GitDriver(object):
                 shutil.rmtree(getArgs().git_dir + "/build")
                 build_local = getArgs().git_dir + "/scripts/build_local.sh"
                 processRun(build_local)
-            return true
+            return True
 
     def _processConfig(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -73,6 +73,9 @@ class GitDriver(object):
 
     def run(self):
         configs = self._processConfig()
+        if not getArgs().interval:
+            self.runOnce(configs)
+            return
         interval = getArgs().interval if getArgs().interval else 300
         while True:
             prev_ts = time.time()
