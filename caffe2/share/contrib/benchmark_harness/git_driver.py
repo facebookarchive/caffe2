@@ -40,6 +40,7 @@ class GitDriver(object):
             new_commit_hash = self.git.run('rev-parse', 'HEAD')
             if new_commit_hash == self.commit_hash:
                 return False
+            self.commit_hash = new_commit_hash
             if getArgs().android:
                 shutil.rmtree(getArgs().git_dir + "/build_android")
                 build_android = getArgs().git_dir + "/scripts/build_android.sh"
