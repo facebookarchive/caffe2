@@ -66,6 +66,7 @@ class GitDriver(object):
 
     def runOnce(self, configs):
         if not self._setupGit():
+            getLogger().info("No new commit, sleeping...")
             return
         for config in configs:
             cmds = config.split(' ')
@@ -76,14 +77,17 @@ class GitDriver(object):
     def run(self):
         configs = self._processConfig()
         if not getArgs().interval:
+            getLogger().info("Single run...")
             self.runOnce(configs)
             return
+        getLogger().info("Continuous run...")
         interval = getArgs().interval
         while True:
             if getArgs().status_file:
                 with open(getArgs().status_file, 'r') as file:
                     content = file.read().strip()
                     if content == "0":
+                        getLogger().info("Existing...")
                         return
             prev_ts = time.time()
             self.runOnce(configs)
