@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import shutil
 from utils.arg_parse import getParser, getArgs, parse
 from utils.git import Git
 from utils.custom_logger import getLogger
@@ -33,9 +34,11 @@ class GitDriver(object):
             self.git.checkout(getArgs().git_commit)
             self.commit_hash = self.git.run('rev-parse', 'HEAD')
             if getArgs().android:
+                shutil.rmtree(getArgs().git_dir + "/build_android")
                 build_android = getArgs().git_dir + "/scripts/build_android.sh"
                 processRun(build_android)
             if getArgs().host:
+                shutil.rmtree(getArgs().git_dir + "/build")
                 build_local = getArgs().git_dir + "/scripts/build_local.sh"
                 processRun(build_local)
 

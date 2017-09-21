@@ -16,6 +16,7 @@ class PlatformBase(object):
     PLATFORM = 'platform'
     COMMIT = 'commit'
     def __init__(self):
+        self.output = None
         pass
 
     def setupPlatform(self):
@@ -28,6 +29,9 @@ class PlatformBase(object):
         self.setupPlatform()
         self.runBenchmark()
         return self.collectData()
+
+    def getOutput(self):
+        return self.output
 
     def collectData(self):
         results = []

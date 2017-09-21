@@ -55,6 +55,7 @@ class AndroidPlatform(PlatformBase):
         result = super(AndroidPlatform, self).collectData()
         arch = self.adb.shell(['getprop', 'ro.product.model'])
         result[self.SUMMARY][self.PLATFORM] = arch
+        self.output = result
         return result
 
     def _getProgram(self):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import threading
 
 from platforms.platforms import getPlatforms
 from reporters.reporters import getReporters
@@ -49,16 +50,20 @@ class BenchmarkDriver(object):
     def __init__(self):
         parse()
 
-    def runBenchmark(self, platforms):
-        reporters = getReporters()
-        for platform in platforms:
-            data = platform.runOnPlatform()
-            for reporter in reporters:
-                reporter.report(data)
+    def runBenchmark(self, platform, reporters):
+        platform.runOnPlatform()
+        for reporter in reporters:
+            reporter.report(platform.getOutput())
 
     def run(self):
+        # reporter is stateless
+        reporters = getReporters()
         platforms = getPlatforms()
-        self.runBenchmark(platforms)
+        threads = []
+        for platform in platforms:
+            t = threading.Thread(target=self.runBenchmark, args=(platform, reporters,))
+            threads.append(t)
+            t.start()
 
 if __name__ == "__main__":
     app = BenchmarkDriver()

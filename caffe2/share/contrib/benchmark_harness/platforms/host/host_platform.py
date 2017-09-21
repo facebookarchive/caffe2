@@ -52,4 +52,5 @@ class HostPlatform(PlatformBase):
         result = super(HostPlatform, self).collectData()
         arch = platform.processor()
         result[self.SUMMARY][self.PLATFORM] = arch
+        self.output = result
         return result
