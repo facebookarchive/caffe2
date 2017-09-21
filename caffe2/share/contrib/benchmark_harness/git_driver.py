@@ -24,6 +24,8 @@ getParser().add_argument("--local_reporter",
     help="Save the result to a directory specified by this argument.")
 getParser().add_argument("--interval", type=int,
     help="The minimum time interval in seconds between two benchmark runs.")
+getParser().add_argument("--status_file",
+    help="A file to inform the driver stops running when the content of the file is 0.")
 
 class GitDriver(object):
     def __init__(self):
@@ -76,8 +78,13 @@ class GitDriver(object):
         if not getArgs().interval:
             self.runOnce(configs)
             return
-        interval = getArgs().interval if getArgs().interval else 300
+        interval = getArgs().interval
         while True:
+            if getArgs().status_file:
+                with open(getArgs().status_file, 'r') as file:
+                    content = file.read().strip()
+                    if content == "0":
+                        return
             prev_ts = time.time()
             self.runOnce(configs)
             current_ts = time.time()
