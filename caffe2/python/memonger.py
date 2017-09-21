@@ -332,16 +332,16 @@ def _get_path(pred_list, dist_list):
 
     ret = []
     cur = target
-    # Hack to get networkx 2.0 happy: it uses list in pred.
-    # TODO(akyrola): are there cases with multiple predecessors?
-    if nx.__version__ < '2.0':
-        while cur is not None:
-            ret.append(cur)
-            cur = pred_list[cur]
-    else:
-        while cur is not None:
-            ret.append(cur)
+
+
+    while cur is not None:
+        ret.append(cur)
+        # Hack to get networkx 2.0 happy: it uses list in pred.
+        # TODO(tulloch): are there cases with multiple predecessors?
+        try:
             cur = pred_list[cur][0]
+        except TypeError:
+            cur = pred_list[cur]
 
     return list(reversed(ret))
 
