@@ -27,6 +27,10 @@ exclude(Caffe2_CPU_SRCS "${Caffe2_CPU_SRCS}" ${Caffe2_GPU_SRCS})
 # will directly link nnpack pthreadpool.
 file(GLOB_RECURSE tmp pthreadpool*)
 exclude(Caffe2_CPU_SRCS "${Caffe2_CPU_SRCS}" ${tmp})
+if(MSVC)
+  file(GLOB_RECURSE tmp *ThreadPool.cc)
+  exclude(Caffe2_CPU_SRCS "${Caffe2_CPU_SRCS}" ${tmp})
+endif()
 
 # ---[ GPU test files
 file(GLOB_RECURSE tmp *_gpu_test.cc)

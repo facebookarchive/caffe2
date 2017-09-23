@@ -252,8 +252,8 @@ bool LayerNormGradientOp<CUDAContext>::DoRunWithType<float>() {
   auto* ginput = Output(0);
 
   const auto canonical_axis = norm_inputs.canonical_axis_index(axis_);
-  const int left = norm_inputs.size_to_dim(canonical_axis);
-  const int right = norm_inputs.size_from_dim(canonical_axis);
+  const TIndex left = norm_inputs.size_to_dim(canonical_axis);
+  const TIndex right = norm_inputs.size_from_dim(canonical_axis);
 
   ginput->ResizeLike(norm_inputs);
   std::vector<TIndex> stats_dims(
@@ -261,7 +261,7 @@ bool LayerNormGradientOp<CUDAContext>::DoRunWithType<float>() {
   stats_dims.push_back(1);
   dmean_.Resize(stats_dims);
   dstdev_.Resize(stats_dims);
-  gscratch_.Resize(std::vector<size_t>{left, right});
+  gscratch_.Resize(std::vector<TIndex>{left, right});
 
   std::vector<int> segs(left + 1);
   std::iota(segs.begin(), segs.end(), 0);
@@ -291,7 +291,7 @@ bool LayerNormGradientOp<CUDAContext>::DoRunWithType<float>() {
       dout.data<float>(),
       gscratch_.mutable_data<float>());
 
-  dstdev_.Resize(vector<size_t>{left, 1});
+  dstdev_.Resize(vector<TIndex>{left, 1});
   // dstdev = reduce(temp1)
   allocScratchAndReduce(
       gscratch_.data<float>(),

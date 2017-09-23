@@ -37,6 +37,10 @@ function(caffe2_detect_installed_gpus out_variable)
                     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     if(__nvcc_res EQUAL 0)
+      # nvcc outputs text containing line breaks when building with MSVC.
+      # The line below prevents CMake from inserting a variable with line
+      # breaks in the cache
+      string(REGEX MATCH "([1-9].[0-9])" __nvcc_out "${__nvcc_out}")
       string(REPLACE "2.1" "2.1(2.0)" __nvcc_out "${__nvcc_out}")
       set(CUDA_gpu_detect_output ${__nvcc_out} CACHE INTERNAL "Returned GPU architetures from caffe_detect_gpus tool" FORCE)
     endif()
@@ -249,7 +253,7 @@ endif()
 # Debug and Release symbol support
 if (MSVC)
   if (${CMAKE_BUILD_TYPE} MATCHES "Release")
-    if (${BUILD_SHARED_LIBS})
+    if (NOT USE_STATIC_RUNTIME)
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -MD")
     else()
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -MT")
@@ -259,7 +263,7 @@ if (MSVC)
             "Caffe2 currently does not support the combination of MSVC, Cuda "
             "and Debug mode. Either set USE_CUDA=OFF or set the build type "
             "to Release")
-    if (${BUILD_SHARED_LIBS})
+    if (NOT USE_STATIC_RUNTIME)
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -MDd")
     else()
       list(APPEND CUDA_NVCC_FLAGS "-Xcompiler -MTd")

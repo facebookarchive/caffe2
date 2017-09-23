@@ -467,6 +467,15 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
   cudnnPoolingDescriptor_t pooling_desc_;
   cudnnPoolingMode_t mode_;
 
+// MSVC defines IN and OUT in minwindef.h
+#ifdef IN
+#undef IN
+#endif
+
+#ifdef OUT
+#undef OUT
+#endif
+
   // Input: X, Y, dY
   // Output: dX
   INPUT_TAGS(IN, OUT, OUT_GRAD);
