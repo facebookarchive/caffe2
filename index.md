@@ -1,6 +1,6 @@
 ---
 layout: home
-title: Caffe 2
+title: Caffe2
 id: home
 ---
 

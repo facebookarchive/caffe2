@@ -1,4 +1,4 @@
-## User Documentation for Caffe 2
+## User Documentation for Caffe2
 
 This directory will contain the user and feature documentation for Caffe2. The documentation will be hosted on GitHub pages.
 
