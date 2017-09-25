@@ -3,7 +3,7 @@
 import os
 import shutil
 import time
-from utils.arg_parse import getParser, getArgs, parse
+from utils.arg_parse import getParser, getArgs, getUnknowns, parse
 from utils.git import Git
 from utils.custom_logger import getLogger
 from utils.subprocess_with_logger import processRun
@@ -20,21 +20,14 @@ getParser().add_argument("--host", action="store_true",
     help="Run the benchmark on the host.")
 getParser().add_argument("--android", action="store_true",
     help="Run the benchmark on all collected android devices.")
-getParser().add_argument("--local_reporter",
-    help="Save the result to a directory specified by this argument.")
 getParser().add_argument("--interval", type=int,
     help="The minimum time interval in seconds between two benchmark runs.")
 getParser().add_argument("--status_file",
     help="A file to inform the driver stops running when the content of the file is 0.")
-getParser().add_argument("--remote_reporter",
-    help="Save the result to a remote server. "
-    "The style is domain_name>/<endpoint>|<category>")
-getParser().add_argument("--remote_access_token",
-    help="The access token to access the remote server")
 
 class GitDriver(object):
     def __init__(self):
-        parse()
+        parse(True)
         self.git = Git(getArgs().git_dir)
         self.commit_hash = None
 
@@ -58,6 +51,7 @@ class GitDriver(object):
 
     def _processConfig(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
+        unknowns = getUnknowns()
         with open(getArgs().config, 'r') as file:
             content = file.read().splitlines()
             configs = [x.strip().replace('<test_dir>', getArgs().tests_dir) for x in content]
@@ -65,10 +59,8 @@ class GitDriver(object):
                 " --exec_base_dir " + getArgs().git_dir +
                 (" --android" if getArgs().android else "") +
                 (" --host" if getArgs().host else "") +
-                (" --local_reporter " + getArgs().local_reporter if getArgs().local_reporter else "") +
-                (" --remote_reporter \"" + getArgs().remote_reporter  + "\"" if getArgs().remote_reporter else "") +
-                (" --remote_access_token \"" + getArgs().remote_access_token  + "\"" if getArgs().remote_access_token else "") +
-                (" --git_commit " + self.commit_hash if self.commit_hash else "")).strip()
+                (" --git_commit " + self.commit_hash if self.commit_hash else "")).strip() + " " +
+                ' '.join(['"' + x + '"' for x in unknowns])
                 for x in configs]
         return configs
 
