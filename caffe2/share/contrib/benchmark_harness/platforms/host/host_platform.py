@@ -51,6 +51,6 @@ class HostPlatform(PlatformBase):
     def collectData(self):
         result = super(HostPlatform, self).collectData()
         arch = platform.processor()
-        result[self.SUMMARY][self.PLATFORM] = arch
+        result[self.META][self.PLATFORM] = arch
         self.output = result
         return result

@@ -11,8 +11,8 @@ class PlatformBase(object):
     NET_DELAY = 'Net Delay'
     OPERATOR_DELAYS_START = 'Operators Delay Start'
     OPERATOR_DELAYS_END = 'Operators Delay End'
-    DETAILS = 'details'
-    SUMMARY = 'summary'
+    DATA = 'data'
+    META = 'meta'
     PLATFORM = 'platform'
     COMMIT = 'commit'
     def __init__(self):
@@ -57,7 +57,11 @@ class PlatformBase(object):
                     i = self._collectOperatorDelayData(useful_rows, result, i+1)
                 results.append(result)
             i += 1
-        assert len(results) == getArgs().iter, "Incorrect number of results collected"
+        if len(results) > getArgs().iter:
+            # Android 5 has an issue that logcat -c does not clear the entry
+            results = results[-getArgs().iter:]
+        else:
+            assert len(results) == getArgs().iter, "Incorrect number of results collected"
         return self._processData(results, net_name)
 
 
@@ -81,23 +85,29 @@ class PlatformBase(object):
         for d in details:
             details[d].sort()
 
-        summary = {}
-        summary['time'] = ts
-        summary[self.NET_NAME] = net_name
+        processed_data = {}
         for d in details:
             values = details[d]
-            length = len(values)
-            one_summary = {}
-            one_summary['min'] = values[0]
-            one_summary['max'] = values[-1]
-            if (len(d) % 2) == 1:
-                one_summary['median'] = values[length // 2]
-            else:
-                one_summary['median'] = (values[(length - 1) //2] + values[length // 2]) / 2
-            summary[d] = one_summary
+            assert len(values) > 0
+            processed_data[d] = {
+                'values' : values,
+                'summary' : {
+                    'min' : values[0],
+                    'max' : values[-1],
+                    'median' : self._getMedian(values),
+                }
+            }
+        meta = {}
+        meta['time'] = ts
+        meta[self.NET_NAME] = net_name
         if getArgs().git_commit:
-            summary[self.COMMIT] = getArgs().git_commit
+            meta[self.COMMIT] = getArgs().git_commit
         results = {}
-        results[self.DETAILS] = details
-        results[self.SUMMARY] = summary
+        results[self.DATA] = processed_data
+        results[self.META] = meta
         return results
+
+    def _getMedian(self, values):
+        length = len(values)
+        return values[length // 2] if (length % 2) == 1 else \
+            (values[(length - 1) //2] + values[length // 2]) / 2

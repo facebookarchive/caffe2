@@ -2,6 +2,7 @@
 
 from platforms.platform_base import PlatformBase
 import os.path as path
+import time
 
 from utils.arg_parse import getArgs
 
@@ -17,6 +18,7 @@ class AndroidPlatform(PlatformBase):
         except Exception:
             self.adb.logcat("-G", "256K")
         self.adb.logcat('-b', 'all', '-c')
+        time.sleep(1)
         self.adb.push(getArgs().net)
         self.adb.push(getArgs().init_net)
         if getArgs().input_file:
@@ -53,8 +55,8 @@ class AndroidPlatform(PlatformBase):
 
     def collectData(self):
         result = super(AndroidPlatform, self).collectData()
-        arch = self.adb.shell(['getprop', 'ro.product.model'])
-        result[self.SUMMARY][self.PLATFORM] = arch
+        arch = self.adb.shell(['getprop', 'ro.product.model']).strip()
+        result[self.META][self.PLATFORM] = arch
         self.output = result
         return result
 

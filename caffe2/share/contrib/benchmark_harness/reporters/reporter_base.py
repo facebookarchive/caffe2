@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 class ReporterBase(object):
-    DETAILS = 'details'
-    SUMMARY = 'summary'
+    DATA = 'data'
+    META = 'meta'
     NET_NAME = 'Net Name'
     PLATFORM = 'platform'
     def __init__(self):

@@ -26,6 +26,9 @@ getParser().add_argument("--interval", type=int,
     help="The minimum time interval in seconds between two benchmark runs.")
 getParser().add_argument("--status_file",
     help="A file to inform the driver stops running when the content of the file is 0.")
+getParser().add_argument("--remote_reporter",
+    help="Save the result to a remote server. "
+    "The style is <appid>|<app_secret>|domain_name>/<endpoint>|<category>")
 
 class GitDriver(object):
     def __init__(self):
@@ -60,7 +63,8 @@ class GitDriver(object):
                 " --exec_base_dir " + getArgs().git_dir +
                 (" --android" if getArgs().android else "") +
                 (" --host" if getArgs().host else "") +
-                (" --local_reporter "+ getArgs().local_reporter if getArgs().local_reporter else "") +
+                (" --local_reporter " + getArgs().local_reporter if getArgs().local_reporter else "") +
+                (" --remote_reporter \"" + getArgs().remote_reporter  + "\"" if getArgs().remote_reporter else "") +
                 (" --git_commit " + self.commit_hash if self.commit_hash else "")).strip()
                 for x in configs]
         return configs

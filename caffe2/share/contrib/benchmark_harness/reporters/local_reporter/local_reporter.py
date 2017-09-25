@@ -17,11 +17,11 @@ class LocalReporter(ReporterBase):
         super(LocalReporter, self).__init__()
 
     def report(self, content):
-        net_name = content[self.SUMMARY][self.NET_NAME]
+        net_name = content[self.META][self.NET_NAME]
         netdir = self._getFilename(net_name) + "/"
-        platform_name = content[self.SUMMARY][self.PLATFORM]
+        platform_name = content[self.META][self.PLATFORM]
         platformdir = self._getFilename(platform_name) + "/"
-        ts = float(content[self.SUMMARY]['time'])
+        ts = float(content[self.META]['time'])
         dt = datetime.datetime.fromtimestamp(ts)
         datedir = str(dt.year) + "/" + str(dt.month) + "/" + str(dt.day) + "/"
         dirname = platformdir + netdir + datedir
@@ -32,16 +32,16 @@ class LocalReporter(ReporterBase):
             i = i+1
         dirname = dirname + str(i) + "/"
         os.makedirs(dirname)
-        details = content[self.DETAILS]
-        for d in details:
+        data = content[self.DATA]
+        for d in data:
             filename = dirname + self._getFilename(d) + ".txt"
-            content_d = json.dumps(details[d])
+            content_d = json.dumps(data[d])
             with open(filename, 'w') as file:
                 file.write(content_d)
-        filename = dirname + self._getFilename(self.SUMMARY) + ".txt"
+        filename = dirname + self._getFilename(self.META) + ".txt"
         with open(filename, 'w') as file:
-            content_summary = json.dumps(content[self.SUMMARY])
-            file.write(content_summary)
+            content_meta = json.dumps(content[self.META])
+            file.write(content_meta)
 
     def _getFilename(self, name):
         filename = name.replace(' ', '-').replace('/', '-')
