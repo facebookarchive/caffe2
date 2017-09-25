@@ -84,6 +84,5 @@ class RemoteReporter(ReporterBase):
         }
         request = requests.post(url, json=parameters)
         result = request.json()
-        import pdb; pdb.set_trace()
         count_key = 'count'
         return request.ok and count_key in result and result[count_key] == num_logs

@@ -28,7 +28,9 @@ getParser().add_argument("--status_file",
     help="A file to inform the driver stops running when the content of the file is 0.")
 getParser().add_argument("--remote_reporter",
     help="Save the result to a remote server. "
-    "The style is <appid>|<app_secret>|domain_name>/<endpoint>|<category>")
+    "The style is domain_name>/<endpoint>|<category>")
+getParser().add_argument("--remote_access_token",
+    help="The access token to access the remote server")
 
 class GitDriver(object):
     def __init__(self):
@@ -45,11 +47,11 @@ class GitDriver(object):
                 return False
             self.commit_hash = new_commit_hash
             if getArgs().android:
-                shutil.rmtree(getArgs().git_dir + "/build_android")
+                # shutil.rmtree(getArgs().git_dir + "/build_android")
                 build_android = getArgs().git_dir + "/scripts/build_android.sh"
                 processRun(build_android)
             if getArgs().host:
-                shutil.rmtree(getArgs().git_dir + "/build")
+                # shutil.rmtree(getArgs().git_dir + "/build")
                 build_local = getArgs().git_dir + "/scripts/build_local.sh"
                 processRun(build_local)
             return True
@@ -65,6 +67,7 @@ class GitDriver(object):
                 (" --host" if getArgs().host else "") +
                 (" --local_reporter " + getArgs().local_reporter if getArgs().local_reporter else "") +
                 (" --remote_reporter \"" + getArgs().remote_reporter  + "\"" if getArgs().remote_reporter else "") +
+                (" --remote_access_token \"" + getArgs().remote_access_token  + "\"" if getArgs().remote_access_token else "") +
                 (" --git_commit " + self.commit_hash if self.commit_hash else "")).strip()
                 for x in configs]
         return configs
