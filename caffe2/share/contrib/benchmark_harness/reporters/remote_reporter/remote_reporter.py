@@ -95,4 +95,6 @@ class RemoteReporter(ReporterBase):
                 getLogger().error("%s is not in request return value", count_key)
             else:
                 getLogger().error("Sent %d records out of a total of %d", result[count_key], num_logs)
+        else:
+            getLogger().info("Sent %d records to remote server %s successfully.", num_logs, url)
         return is_good
