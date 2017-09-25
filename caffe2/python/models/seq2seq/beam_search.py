@@ -87,6 +87,9 @@ class BeamSearchForwardOnly(object):
         return self.timestep
 
     # TODO: make attentions a generic state
+    # data_dependencies is a list of blobs that the operator should wait for
+    # before beginning execution. This ensures that ops are run in the correct
+    # order when the RecurrentNetwork op is embedded in a DAGNet, for ex.
     def apply(
         self,
         inputs,
@@ -94,6 +97,7 @@ class BeamSearchForwardOnly(object):
         log_probs,
         attentions,
         state_configs,
+        data_dependencies,
         word_rewards=None,
         possible_translation_tokens=None,
         go_token_id=None,
@@ -227,7 +231,7 @@ class BeamSearchForwardOnly(object):
                 state_config.state_link.blob,
                 [
                     state_config.state_link.blob,
-                    'state_old_shape_before_choosing_per_hypo',
+                    state_config.state_link.blob + '_old_shape',
                 ],
                 shape=[self.beam_size, -1],
             )
@@ -317,7 +321,8 @@ class BeamSearchForwardOnly(object):
         all_inputs = (
             [fake_input] +
             self.step_model.params +
-            [state_config.initial_value for state_config in state_configs]
+            [state_config.initial_value for state_config in state_configs] +
+            data_dependencies
         )
         forward_links = []
         recurrent_states = []

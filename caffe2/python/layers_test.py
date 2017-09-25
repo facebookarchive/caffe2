@@ -387,9 +387,11 @@ class TestLayers(LayersTestCase):
         schema.FeedRecord(input_record, [X])
         last_n = self.model.LastNWindowCollector(input_record, num_to_collect)
         self.run_train_net_forward_only()
-        output_record = schema.FetchRecord(last_n)
+        output_record = schema.FetchRecord(last_n.last_n)
         start = max(0, 5 - num_to_collect)
         npt.assert_array_equal(X[start:], output_record())
+        num_visited = schema.FetchRecord(last_n.num_visited)
+        npt.assert_array_equal([5], num_visited())
 
     def testUniformSampling(self):
         input_record = self.new_record(schema.Scalar(np.int32))
@@ -411,6 +413,13 @@ class TestLayers(LayersTestCase):
                      dtype=np.float32),
             sampling_prob
         )
+
+    def testUniformSamplingWithIncorrectSampleSize(self):
+        input_record = self.new_record(schema.Scalar(np.int32))
+        num_samples = 200
+        num_elements = 100
+        with self.assertRaises(AssertionError):
+            self.model.UniformSampling(input_record, num_samples, num_elements)
 
     def testGatherRecord(self):
         indices = np.array([1, 3, 4], dtype=np.int32)
@@ -861,7 +870,7 @@ class TestLayers(LayersTestCase):
             """
             output = workspace.FetchBlob(rff_output)
             output_ref = scale * np.cos(np.dot(X, np.transpose(W)) + b)
-            npt.assert_allclose(output, output_ref, rtol=1e-4)
+            npt.assert_allclose(output, output_ref, rtol=1e-3, atol=1e-3)
 
         X = np.random.random((batch_size, input_dims)).astype(np.float32)
         scale = np.sqrt(2.0 / output_dims)
@@ -954,7 +963,7 @@ class TestLayers(LayersTestCase):
             output_ref = np.multiply(x_pow, h_rand_features)
 
             # Comparing net output and computed output
-            npt.assert_allclose(net_output, output_ref, rtol=1e-4)
+            npt.assert_allclose(net_output, output_ref, rtol=1e-3, atol=1e-3)
 
         X = np.random.normal(size=(batch_size, input_dims)).astype(np.float32)
         input_record = self.new_record(schema.Scalar((np.float32, (input_dims,))))
@@ -1080,7 +1089,7 @@ class TestLayers(LayersTestCase):
             output_ref = np.multiply(np.multiply(x_pow, h_rand_features), x_learn)
 
             # Comparing net output and computed output
-            npt.assert_allclose(net_output, output_ref, rtol=1e-4)
+            npt.assert_allclose(net_output, output_ref, rtol=1e-3, atol=1e-3)
 
         X_full = np.random.normal(size=(batch_size, input_dims)).astype(np.float32)
         if use_struct_input:

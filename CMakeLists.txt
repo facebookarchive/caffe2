@@ -37,6 +37,7 @@ option(BUILD_BINARY "Build C++ binaries" ON)
 option(BUILD_PYTHON "Build Python binaries" ON)
 option(BUILD_SHARED_LIBS "Build libcaffe2.so" ON)
 option(BUILD_TEST "Build C++ test binaries (need gtest and gbenchmark)" ON)
+option(USE_ATEN "Use ATen" OFF)
 option(USE_CUDA "Use Cuda" ON)
 option(USE_FFMPEG "Use ffmpeg" OFF)
 option(USE_GFLAGS "Use GFLAGS" ON)
@@ -124,9 +125,6 @@ endif()
 # added to the list of include directories, prefixing
 # PROJECT_SOURCE_DIR means this source tree always takes precedence.
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
-if (Caffe2_IS_CUSTOM_PROTOBUF)
-  include_directories(BEFORE ${PROJECT_SOURCE_DIR}/build_host_protoc/include)
-endif()
 
 # Prefix path to generated Caffe2 headers.
 # These need to take precedence over their empty counterparts located
