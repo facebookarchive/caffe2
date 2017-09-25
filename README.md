@@ -19,7 +19,7 @@ Please participate in our survey (https://www.surveymonkey.com/r/caffe2). We wil
 
 ## License
 
-Caffe2 is released under the [Apache 2.0 license](https://github.com/caffe2/caffe2/blob/master/LICENSE).
+Caffe2 is released under the [Apache 2.0 license](https://github.com/caffe2/caffe2/blob/master/LICENSE). See the [NOTICE](https://github.com/caffe2/caffe2/blob/master/NOTICE) file for details.
 
 ### Further Resources on [Caffe2.ai](http://caffe2.ai)
 
