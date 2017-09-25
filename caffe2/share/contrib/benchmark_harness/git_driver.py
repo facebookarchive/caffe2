@@ -80,7 +80,8 @@ class GitDriver(object):
             cmds = config.split(' ')
             cmd = [x.strip() for x in cmds]
             getLogger().info("Running: %s", ' '.join(cmd))
-            processRun(cmd)
+            # cannot use subprocess because it conflicts with requests
+            os.system(' '.join(cmd))
 
     def run(self):
         configs = self._processConfig()

@@ -2,6 +2,7 @@
 
 from utils.arg_parse import getParser, getArgs
 from reporters.reporter_base import ReporterBase
+from utils.custom_logger import getLogger
 
 import json
 import requests
@@ -85,4 +86,13 @@ class RemoteReporter(ReporterBase):
         request = requests.post(url, json=parameters)
         result = request.json()
         count_key = 'count'
-        return request.ok and count_key in result and result[count_key] == num_logs
+        is_good = request.ok and count_key in result and result[count_key] == num_logs
+        if not is_good:
+            getLogger().error("Submit data to remote server failed")
+            if not request.ok:
+                getLogger().error("Request is not okay")
+            elif not count_key in result:
+                getLogger().error("%s is not in request return value", count_key)
+            else:
+                getLogger().error("Sent %d records out of a total of %d", result[count_key], num_logs)
+        return is_good
