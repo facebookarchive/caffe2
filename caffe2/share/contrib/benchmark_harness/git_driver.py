@@ -3,19 +3,19 @@
 import os
 import shutil
 import time
-from utils.arg_parse import getParser, getArgs, getUnknowns, parse
+from utils.arg_parse import getParser, getArgs, getUnknowns, parseKnown
 from utils.git import Git
 from utils.custom_logger import getLogger
 from utils.subprocess_with_logger import processRun
 
 getParser().add_argument("--config", required=True,
     help="The test config file containing all the tests to run")
-getParser().add_argument("--tests_dir", required=True,
-    help="The root directory that all tests resides.")
+getParser().add_argument("--models_dir", required=True,
+    help="The root directory that all models resides.")
 getParser().add_argument("--git_dir", required=True,
     help="The base git directory.")
-getParser().add_argument("--git_commit",
-    help="The git commit on this benchmark run.")
+getParser().add_argument("--git_commit", default="master",
+    help="The git commit this benchmark runs on. It can be a branch.")
 getParser().add_argument("--host", action="store_true",
     help="Run the benchmark on the host.")
 getParser().add_argument("--android", action="store_true",
@@ -24,41 +24,41 @@ getParser().add_argument("--interval", type=int,
     help="The minimum time interval in seconds between two benchmark runs.")
 getParser().add_argument("--status_file",
     help="A file to inform the driver stops running when the content of the file is 0.")
-getParser().add_argument("--git_pull", default="origin master",
-    help="The git pull remote and branch.")
-
+getParser().add_argument("--git_repository", default="origin",
+    help="The remote git repository.")
+getParser().add_argument("--git_branch", default="master",
+    help="The remote git repository branch.")
 
 class GitDriver(object):
     def __init__(self):
-        parse(True)
+        parseKnown()
         self.git = Git(getArgs().git_dir)
         self.commit_hash = None
 
     def _setupGit(self):
-        if getArgs().git_commit:
-            self.git.pull(*getArgs().git_pull.split(' '))
-            self.git.checkout(getArgs().git_commit)
-            new_commit_hash = self.git.run('rev-parse', 'HEAD')
-            if new_commit_hash == self.commit_hash:
-                getLogger().info("Commit %s is already processed.", new_commit_hash)
-                return False
-            self.commit_hash = new_commit_hash
-            if getArgs().android:
-                # shutil.rmtree(getArgs().git_dir + "/build_android")
-                build_android = getArgs().git_dir + "/scripts/build_android.sh"
-                processRun(build_android)
-            if getArgs().host:
-                # shutil.rmtree(getArgs().git_dir + "/build")
-                build_local = getArgs().git_dir + "/scripts/build_local.sh"
-                processRun(build_local)
-            return True
+        self.git.pull(getArgs().git_repository, getArgs().git_branch)
+        self.git.checkout(getArgs().git_commit)
+        new_commit_hash = self.git.run('rev-parse', 'HEAD')
+        if new_commit_hash == self.commit_hash:
+            getLogger().info("Commit %s is already processed.", new_commit_hash)
+            return False
+        self.commit_hash = new_commit_hash
+        if getArgs().android:
+            # shutil.rmtree(getArgs().git_dir + "/build_android")
+            build_android = getArgs().git_dir + "/scripts/build_android.sh"
+            processRun(build_android)
+        if getArgs().host:
+            # shutil.rmtree(getArgs().git_dir + "/build")
+            build_local = getArgs().git_dir + "/scripts/build_local.sh"
+            processRun(build_local)
+        return True
 
     def _processConfig(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         unknowns = getUnknowns()
         with open(getArgs().config, 'r') as file:
             content = file.read().splitlines()
-            configs = [x.strip().replace('<test_dir>', getArgs().tests_dir) for x in content]
+            configs = [x.strip().replace('<models_dir>', getArgs().models_dir) for x in content]
             configs = [(dir_path + "/harness.py " + x +
                 " --exec_base_dir " + getArgs().git_dir +
                 (" --android" if getArgs().android else "") +
