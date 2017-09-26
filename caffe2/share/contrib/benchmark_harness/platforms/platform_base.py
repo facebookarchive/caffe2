@@ -2,6 +2,7 @@
 
 import collections
 import time
+import sys
 from utils.arg_parse import getArgs
 
 class PlatformBase(object):
@@ -99,11 +100,12 @@ class PlatformBase(object):
             }
         meta = {}
         meta['time'] = ts
-        if getArgs().git_commit_time:
-            meta['commit_time'] = getArgs().git_commit_time
         meta[self.NET_NAME] = net_name
+        meta['command'] = ' '.join(sys.argv)
         if getArgs().git_commit:
             meta[self.COMMIT] = getArgs().git_commit
+        if getArgs().git_commit_time:
+            meta['commit_time'] = getArgs().git_commit_time
         results = {}
         results[self.DATA] = processed_data
         results[self.META] = meta
