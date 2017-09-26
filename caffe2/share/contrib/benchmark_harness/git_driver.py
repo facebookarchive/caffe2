@@ -34,15 +34,17 @@ class GitDriver(object):
         parseKnown()
         self.git = Git(getArgs().git_dir)
         self.commit_hash = None
+        self.commit_hash_time = -1
 
     def _setupGit(self):
         self.git.pull(getArgs().git_repository, getArgs().git_branch)
         self.git.checkout(getArgs().git_commit)
-        new_commit_hash = self.git.run('rev-parse', 'HEAD')
+        new_commit_hash = self.git.run('rev-parse', 'HEAD').rstrip()
         if new_commit_hash == self.commit_hash:
             getLogger().info("Commit %s is already processed.", new_commit_hash)
             return False
         self.commit_hash = new_commit_hash
+        self.commit_hash_time = self.git.run('show', '-s', '--format=%ct', new_commit_hash)
         if getArgs().android:
             # shutil.rmtree(getArgs().git_dir + "/build_android")
             build_android = getArgs().git_dir + "/scripts/build_android.sh"
@@ -63,7 +65,8 @@ class GitDriver(object):
                 " --exec_base_dir " + getArgs().git_dir +
                 (" --android" if getArgs().android else "") +
                 (" --host" if getArgs().host else "") +
-                (" --git_commit " + self.commit_hash if self.commit_hash else "")).strip() + " " +
+                (" --git_commit " + self.commit_hash) +
+                (" --git_commit_time " + self.commit_hash_time)).strip() + " " +
                 ' '.join(['"' + x + '"' for x in unknowns])
                 for x in configs]
         return configs

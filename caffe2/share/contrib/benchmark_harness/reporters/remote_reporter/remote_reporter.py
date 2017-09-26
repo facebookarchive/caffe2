@@ -53,11 +53,17 @@ class RemoteReporter(ReporterBase):
         meta = content[self.META]
         ts = int(meta['time'])
         meta.pop('time', None)
+        commit_time = None
+        if meta['commit_time']:
+            commit_time = int(meta['commit_time'])
+            meta.pop('commit_time', None)
         for item in content[self.DATA]:
             data = content[self.DATA][item]
             new_meta = meta.copy()
             new_meta['type'] = item
             summary = {'time': ts}
+            if commit_time:
+                summary['commit_time'] = commit_time
             for k in data['summary']:
                 summary[k] = int(data['summary'][k] * 1000)
             values = data['values']

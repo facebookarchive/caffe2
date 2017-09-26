@@ -99,6 +99,8 @@ class PlatformBase(object):
             }
         meta = {}
         meta['time'] = ts
+        if getArgs().git_commit_time:
+            meta['commit_time'] = getArgs().git_commit_time
         meta[self.NET_NAME] = net_name
         if getArgs().git_commit:
             meta[self.COMMIT] = getArgs().git_commit
