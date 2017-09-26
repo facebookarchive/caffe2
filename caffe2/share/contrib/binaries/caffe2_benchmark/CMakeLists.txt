@@ -1,5 +1,5 @@
-set(__target "benchmark")
-add_executable(${__target} "${CMAKE_CURRENT_SOURCE_DIR}/benchmark.cc" ${Caffe2_CPU_OBSERVER_SRCS})
+set(__target "caffe2_benchmark")
+add_executable(${__target} "${CMAKE_CURRENT_SOURCE_DIR}/caffe2_benchmark.cc" ${Caffe2_CPU_OBSERVER_SRCS})
 add_dependencies(${__target} ${Caffe2_MAIN_LIBS_ORDER})
 target_link_libraries(${__target} ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS})
 install(TARGETS ${__target} DESTINATION bin)

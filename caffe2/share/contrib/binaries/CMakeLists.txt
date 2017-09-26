@@ -1,1 +1,1 @@
-add_subdirectory(benchmark)
+add_subdirectory(caffe2_benchmark)

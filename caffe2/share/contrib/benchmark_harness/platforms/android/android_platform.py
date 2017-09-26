@@ -65,5 +65,5 @@ class AndroidPlatform(PlatformBase):
             program = getArgs().program
         elif getArgs().exec_base_dir:
             program = getArgs().exec_base_dir + \
-                '/build_android/caffe2/share/contrib/binaries/benchmark/binaries/benchmark'
+                '/build_android/caffe2/share/contrib/binaries/caffe2_benchmark/binaries/caffe2_benchmark'
         return program
