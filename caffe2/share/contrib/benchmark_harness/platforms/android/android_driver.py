@@ -5,7 +5,7 @@ from android_platform import AndroidPlatform
 from utils.arg_parse import getArgs, getParser
 
 getParser().add_argument("--android", action="store_true",
-    help="Run the benchmark on all collected android devices.")
+    help="Run the benchmark on all connected android devices.")
 
 class AndroidDriver:
     def __init__(self, devices = None):

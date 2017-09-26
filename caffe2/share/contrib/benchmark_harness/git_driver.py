@@ -19,7 +19,7 @@ getParser().add_argument("--git_commit", default="master",
 getParser().add_argument("--host", action="store_true",
     help="Run the benchmark on the host.")
 getParser().add_argument("--android", action="store_true",
-    help="Run the benchmark on all collected android devices.")
+    help="Run the benchmark on all connected android devices.")
 getParser().add_argument("--interval", type=int,
     help="The minimum time interval in seconds between two benchmark runs.")
 getParser().add_argument("--status_file",

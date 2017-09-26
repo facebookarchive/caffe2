@@ -44,7 +44,7 @@ getParser().add_argument("--program",
 getParser().add_argument("--git_commit",
     help="The git commit on this benchmark run.")
 getParser().add_argument("--git_commit_time", type=float,
-    help="The commit time of the git repository")
+    help="The commit time to the git repository")
 getParser().add_argument("--exec_base_dir",
     help="The base directory of the commit that the program is built from")
 

@@ -21,7 +21,7 @@ Perform one benchmark run
 
 optional arguments:
   -h, --help            show this help message and exit
-  --android             Run the benchmark on all collected android devices.
+  --android             Run the benchmark on all connected android devices.
   --host                Run the benchmark on the host.
   --local_reporter LOCAL_REPORTER
                         Save the result to a directory specified by this
@@ -60,7 +60,7 @@ optional arguments:
   --git_commit GIT_COMMIT
                         The git commit on this benchmark run.
   --git_commit_time GIT_COMMIT_TIME
-                        The commit time of the git repository
+                        The commit time to the git repository
   --exec_base_dir EXEC_BASE_DIR
                         The base directory of the commit that the program is
                         built from
@@ -96,7 +96,7 @@ optional arguments:
                         The git commit this benchmark runs on. It can be a
                         branch.
   --host                Run the benchmark on the host.
-  --android             Run the benchmark on all collected android devices.
+  --android             Run the benchmark on all connected android devices.
   --interval INTERVAL   The minimum time interval in seconds between two
                         benchmark runs.
   --status_file STATUS_FILE
