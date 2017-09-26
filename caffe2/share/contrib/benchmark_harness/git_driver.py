@@ -24,6 +24,9 @@ getParser().add_argument("--interval", type=int,
     help="The minimum time interval in seconds between two benchmark runs.")
 getParser().add_argument("--status_file",
     help="A file to inform the driver stops running when the content of the file is 0.")
+getParser().add_argument("--git_pull", default="origin master",
+    help="The git pull remote and branch.")
+
 
 class GitDriver(object):
     def __init__(self):
@@ -33,10 +36,11 @@ class GitDriver(object):
 
     def _setupGit(self):
         if getArgs().git_commit:
-            self.git.pull("sf", "benchmarking")
+            self.git.pull(*getArgs().git_pull.split(' '))
             self.git.checkout(getArgs().git_commit)
             new_commit_hash = self.git.run('rev-parse', 'HEAD')
             if new_commit_hash == self.commit_hash:
+                getLogger().info("Commit %s is already processed.", new_commit_hash)
                 return False
             self.commit_hash = new_commit_hash
             if getArgs().android:
@@ -75,6 +79,7 @@ class GitDriver(object):
             getLogger().info("Running: %s", ' '.join(cmd))
             # cannot use subprocess because it conflicts with requests
             os.system(' '.join(cmd))
+        getLogger().info("Done oone benchmark run.")
 
     def run(self):
         if not getArgs().interval:
