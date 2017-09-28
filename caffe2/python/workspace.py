@@ -55,6 +55,7 @@ Predictor = C.Predictor
 operator_tracebacks = defaultdict(dict)
 
 is_asan = C.is_asan
+build_options = C.get_build_options()
 has_gpu_support = C.has_gpu_support
 if has_gpu_support:
     NumCudaDevices = C.num_cuda_devices
