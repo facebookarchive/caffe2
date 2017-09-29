@@ -33,9 +33,9 @@ TimeNetObserver::~TimeNetObserver() {
 bool TimeNetObserver::Start() {
   // Select whether to log the operator or the net.
   // We have one sample rate for the entire app.
-  int netSampleRate = QPLConfig::getNetSampleRate();
-  int operatorNetSampleRatio = QPLConfig::getOpoeratorNetSampleRatio();
-  int skipIters = QPLConfig::getSkipIters();
+  int netSampleRate = ObserverConfig::getNetSampleRate();
+  int operatorNetSampleRatio = ObserverConfig::getOpoeratorNetSampleRatio();
+  int skipIters = ObserverConfig::getSkipIters();
   if (skipIters <= numRuns_ &&
       netSampleRate > 0 &&
       rand() % netSampleRate == 0) {
@@ -70,7 +70,7 @@ bool TimeNetObserver::Start() {
 bool TimeNetObserver::Stop() {
   if (logType_ == TimeNetObserver::NET_DELAY) {
     auto current_run_time = timer_.MilliSeconds();
-    QPLConfig::getReporter()->printNet(subject_, current_run_time);
+    ObserverConfig::getReporter()->printNet(subject_, current_run_time);
   } else if (logType_ == TimeNetObserver::OPERATOR_DELAY) {
     auto current_run_time = timer_.MilliSeconds();
     const auto& operators = subject_->GetOperators();
@@ -83,7 +83,7 @@ bool TimeNetObserver::Stop() {
       std::pair<std::string, double> name_delay_pair = {name, delay};
       operator_delays.push_back(name_delay_pair);
     }
-    QPLConfig::getReporter()->printNetWithOperators(subject_, current_run_time,
+    ObserverConfig::getReporter()->printNetWithOperators(subject_, current_run_time,
         operator_delays);
     /* clear all operator delay after use so that we don't spent time
        collecting the operator delay info in later runs */

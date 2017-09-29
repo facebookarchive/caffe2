@@ -13,7 +13,7 @@ namespace caffe2 {
                                                         Log operator metrics every n * m iterations
   skipIters_ == n: skip the first n iterations of the net.
 */
-class QPLConfig {
+class ObserverConfig {
 public:
   static void initSampleRate(
       int netSampleRate,

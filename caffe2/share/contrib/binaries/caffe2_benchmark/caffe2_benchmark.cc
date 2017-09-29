@@ -94,11 +94,11 @@ int main(int argc, char** argv) {
   CHECK_NOTNULL(net);
 
   LOG(INFO) << "Starting benchmark.";
-  caffe2::QPLConfig::initSampleRate(
+  caffe2::ObserverConfig::initSampleRate(
       1,
       caffe2::FLAGS_run_individual,
       caffe2::FLAGS_warmup);
-  caffe2::QPLConfig::setReporter(caffe2::make_unique<caffe2::ObserverReporterPrint>());
+  caffe2::ObserverConfig::setReporter(caffe2::make_unique<caffe2::ObserverReporterPrint>());
   LOG(INFO) << "Running warmup runs.";
   for (int i = 0; i < caffe2::FLAGS_warmup; ++i) {
     CAFFE_ENFORCE(net->Run(), "Warmup run ", i, " has failed.");
@@ -111,10 +111,10 @@ int main(int argc, char** argv) {
       caffe2::FLAGS_iter,
       ".");
   for (int i = 0; i < caffe2::FLAGS_iter; ++i) {
-    caffe2::QPLConfig::initSampleRate(1, 0, caffe2::FLAGS_warmup);
+    caffe2::ObserverConfig::initSampleRate(1, 0, caffe2::FLAGS_warmup);
     CAFFE_ENFORCE(net->Run(), "Main run ", i, " has failed.");
     if (caffe2::FLAGS_run_individual) {
-      caffe2::QPLConfig::initSampleRate(1, 1, caffe2::FLAGS_warmup);
+      caffe2::ObserverConfig::initSampleRate(1, 1, caffe2::FLAGS_warmup);
       CAFFE_ENFORCE(net->Run(), "Main run ", i, " with operator has failed.");
     }
   }

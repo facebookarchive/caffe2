@@ -2,9 +2,9 @@
 
 namespace caffe2 {
 
-int QPLConfig::netSampleRate_ = 1;
-int QPLConfig::operatorNetSampleRatio_ = 0;
-int QPLConfig::skipIters_ = 10;
+int ObserverConfig::netSampleRate_ = 1;
+int ObserverConfig::operatorNetSampleRatio_ = 0;
+int ObserverConfig::skipIters_ = 10;
 
-unique_ptr<ObserverReporter> QPLConfig::reporter_ = nullptr;
+unique_ptr<ObserverReporter> ObserverConfig::reporter_ = nullptr;
 }
