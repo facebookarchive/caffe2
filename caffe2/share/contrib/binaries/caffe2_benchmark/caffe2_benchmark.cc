@@ -8,7 +8,7 @@
 #include "caffe2/core/logging.h"
 #include "caffe2/share/contrib/observers/observer_config.h"
 #include "caffe2/share/contrib/observers/observer_reporter_print.h"
-#include "caffe2/share/contrib/observers/observer.h"
+#include "caffe2/share/contrib/observers/perf_observer.h"
 
 CAFFE2_DEFINE_string(net, "", "The given net to benchmark.");
 CAFFE2_DEFINE_string(init_net, "",
