@@ -139,7 +139,7 @@ class GitDriver(object):
             configs = [(dir_path + "/harness.py " + x +
                 (" --android" if getArgs().android else "") +
                 (" --host" if getArgs().host else "") +
-                (" --git_info \'" + json.dumps(git_ifno) + "\'")
+                (" --git_info \'" + json.dumps(git_info) + "\'")
                 (" --git_commit " + self.commit_hash) +
                 (" --git_commit_time " + self.commit_hash_time)).strip() + " " +
                 ' '.join(['"' + x + '"' for x in unknowns])
