@@ -22,3 +22,9 @@ class Git(object):
 
     def checkout(self, *args):
         return self.run('checkout', *args)
+
+    def getCommitHash(self, commit):
+        return self.run('rev-parse', commit).rstrip()
+
+    def getCommitTime(self, commit):
+        return int(self.run('show', '-s', '--format=%ct', commit).strip())

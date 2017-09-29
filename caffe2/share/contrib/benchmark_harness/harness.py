@@ -41,29 +41,25 @@ getParser().add_argument("--run_individual", action="store_true",
     help="Whether to benchmark individual operators.")
 getParser().add_argument("--program",
     help="The program to run on the platform.")
-getParser().add_argument("--git_commit",
-    help="The git commit on this benchmark run.")
-getParser().add_argument("--git_commit_time", type=float,
-    help="The commit time to the git repository")
-getParser().add_argument("--exec_base_dir",
-    help="The base directory of the commit that the program is built from")
+getParser().add_argument("--info",
+    help="The json serialized options describing the control and treatment.")
 
 class BenchmarkDriver(object):
     def __init__(self):
         parse()
 
-    def runBenchmark(self, platform, reporters):
-        platform.runOnPlatform()
+    def runBenchmark(self, platform):
+        reporters = getReporters()
+        output = platform.runOnPlatform()
         for reporter in reporters:
-            reporter.report(platform.getOutput())
+            reporter.report(output)
 
     def run(self):
         # reporter is stateless
-        reporters = getReporters()
         platforms = getPlatforms()
         threads = []
         for platform in platforms:
-            t = threading.Thread(target=self.runBenchmark, args=(platform, reporters,))
+            t = threading.Thread(target=self.runBenchmark, args=(platform))
             threads.append(t)
             t.start()
 

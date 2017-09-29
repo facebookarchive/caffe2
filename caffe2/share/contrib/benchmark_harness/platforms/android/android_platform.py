@@ -10,9 +10,8 @@ class AndroidPlatform(PlatformBase):
     def __init__(self, adb):
         super(AndroidPlatform, self).__init__()
         self.adb = adb
-        self.output = None
 
-    def setupPlatform(self):
+    def setupPlatform(self, info):
         try:
             self.adb.logcat("-G", "1M")
         except Exception:
@@ -24,10 +23,10 @@ class AndroidPlatform(PlatformBase):
         if getArgs().input_file:
             self.adb.push(getArgs().input_file)
 
-        self.adb.push(self._getProgram())
+        self.adb.push(info['grogram_android'])
 
-    def runBenchmark(self):
-        basename = path.basename(self._getProgram())
+    def runBenchmark(self, info):
+        basename = path.basename(info['grogram_android']
         program = self.adb.dir + basename
         init_net = path.basename(getArgs().init_net)
         net = path.basename(getArgs().net)
@@ -51,19 +50,10 @@ class AndroidPlatform(PlatformBase):
             cmd.extend(["--run_individual", "true"])
 
         self.adb.shell(cmd)
-        self.output = self.adb.logcat('-d')
+        return self.adb.logcat('-d')
 
-    def collectData(self):
+    def collectData(self, info, output):
         result = super(AndroidPlatform, self).collectData()
         arch = self.adb.shell(['getprop', 'ro.product.model']).strip()
         result[self.META][self.PLATFORM] = arch
-        self.output = result
         return result
-
-    def _getProgram(self):
-        if getArgs().program:
-            program = getArgs().program
-        elif getArgs().exec_base_dir:
-            program = getArgs().exec_base_dir + \
-                '/build_android/caffe2/share/contrib/binaries/caffe2_benchmark/binaries/caffe2_benchmark'
-        return program
