@@ -12,12 +12,11 @@ getParser().add_argument("--host", action="store_true",
 class HostPlatform(PlatformBase):
     def __init__(self):
         super(HostPlatform, self).__init__()
-        self.output = None
 
-    def setupPlatform(self):
+    def setupPlatform(self, info):
         pass
 
-    def runBenchmark(self):
+    def runBenchmark(self, info):
         cmd = [
             "--logtostderr", "1",
             "--init_net", getArgs().init_net,
@@ -46,11 +45,12 @@ class HostPlatform(PlatformBase):
         std_out, std_err = pipes.communicate()
         assert pipes.returncode == 0, "Benchmark run failed"
         if len(std_err):
-            self.output = std_err
+            return std_err
+        else:
+            return ""
 
-    def collectData(self):
+    def collectData(self, info):
         result = super(HostPlatform, self).collectData()
         arch = platform.processor()
         result[self.META][self.PLATFORM] = arch
-        self.output = result
         return result

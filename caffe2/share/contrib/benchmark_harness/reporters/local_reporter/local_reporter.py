@@ -25,8 +25,7 @@ class LocalReporter(ReporterBase):
         dt = datetime.datetime.fromtimestamp(ts)
         datedir = str(dt.year) + "/" + str(dt.month) + "/" + str(dt.day) + "/"
         dirname = platformdir + netdir + datedir
-        if getArgs().local_reporter:
-            dirname = getArgs().local_reporter + "/" + dirname
+        dirname = getArgs().local_reporter + "/" + dirname
         i = 0
         while os.path.exists(dirname + str(i)):
             i = i+1

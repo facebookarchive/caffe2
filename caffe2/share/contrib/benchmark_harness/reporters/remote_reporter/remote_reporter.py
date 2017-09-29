@@ -50,28 +50,31 @@ class RemoteReporter(ReporterBase):
 
     def _composeMessages(self, content, category):
         logs = []
-        meta = content[self.META]
-        ts = int(meta['time'])
-        meta.pop('time', None)
-        commit_time = None
-        if meta['commit_time']:
-            commit_time = int(meta['commit_time'])
-            meta.pop('commit_time', None)
+        meta = content[self.META].copy()
+        base_summary = {}
+        self._updateTime(meta, base_summary, 'time')
+        self._updateTime(meta, base_summary, 'commit_time')
+        self._updateTime(meta, base_summary, 'control_time')
+        self._updateTime(meta, base_summary, 'control_commit_time')
+
         for item in content[self.DATA]:
             data = content[self.DATA][item]
             new_meta = meta.copy()
             new_meta['type'] = item
-            summary = {'time': ts}
-            if commit_time:
-                summary['commit_time'] = commit_time
-            for k in data['summary']:
-                summary[k] = int(data['summary'][k] * 1000)
+            summary = base_summary.copy()
+            self._updateSummaryData(data['summary'], summary, "")
+            if data['control_summary']:
+                self._updateSummaryData(data['control_summary'], summary, "control_")
+
             values = data['values']
             message = {
                 'int' : summary,
                 'normal' : new_meta,
                 'normvector' : {'values' : values},
             }
+            if data['control_values']:
+                message['normvector']['control_values'] = data['control_values']
+                
             message_string = json.dumps(message, sort_keys=True)
             log = {
                 'category': category,
@@ -81,6 +84,16 @@ class RemoteReporter(ReporterBase):
             }
             logs.append(log)
         return logs
+
+    def _updateTime(self, meta, summary, key):
+        if meta[key]:
+            ts = int(meta[key])
+            meta.pop(key, None)
+            summary[key] = ts
+
+    def _updateSummaryData(self, data, summary, prefix):
+        for k in data:
+            summary[prefix + k] = int(data[k] * 1000)
 
     def _log(self, url, access_token, logs):
         num_logs = len(logs)
