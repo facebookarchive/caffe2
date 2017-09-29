@@ -136,12 +136,10 @@ class GitDriver(object):
         with open(getArgs().config, 'r') as file:
             content = file.read().splitlines()
             configs = [x.strip().replace('<models_dir>', getArgs().models_dir) for x in content]
-            configs = [(dir_path + "/harness.py " + x +
+            configs = [dir_path + "/harness.py " + x +
                 (" --android" if getArgs().android else "") +
                 (" --host" if getArgs().host else "") +
-                (" --git_info \'" + json.dumps(git_info) + "\'")
-                (" --git_commit " + self.commit_hash) +
-                (" --git_commit_time " + self.commit_hash_time)).strip() + " " +
+                (" --git_info \'" + json.dumps(git_info) + "\'") + " " +
                 ' '.join(['"' + x + '"' for x in unknowns])
                 for x in configs]
         return configs
