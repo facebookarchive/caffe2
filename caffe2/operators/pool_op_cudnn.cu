@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/common_cudnn.h"
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/operators/conv_pool_op_base.h"
@@ -287,7 +303,14 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
         operator_def.type() == "MaxPool1DGradient" ||
         operator_def.type() == "MaxPool2DGradient" ||
         operator_def.type() == "MaxPool3DGradient") {
+      bool deterministic =
+          OperatorBase::GetSingleArgument<bool>("deterministic", false);
+#if CUDNN_VERSION_MIN(6, 0, 0)
+      mode_ =
+          deterministic ? CUDNN_POOLING_MAX_DETERMINISTIC : CUDNN_POOLING_MAX;
+#else
       mode_ = CUDNN_POOLING_MAX;
+#endif
     } else if (
         operator_def.type() == "AveragePoolGradient" ||
         operator_def.type() == "AveragePool1DGradient" ||
@@ -359,7 +382,8 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
                   dX->mutable_data<float>());
           return true;
         }
-        if (mode_ == CUDNN_POOLING_MAX) {
+        if (mode_ == CUDNN_POOLING_MAX ||
+            mode_ == CUDNN_POOLING_MAX_DETERMINISTIC) {
           global_maxpool_backward_NCHW<float>
               <<<CAFFE_GET_BLOCKS(dX->size()),
                  CAFFE_CUDA_NUM_THREADS,

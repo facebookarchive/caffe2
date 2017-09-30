@@ -1,10 +1,26 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #include "caffe2/core/common.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/core/timer.h"
 
 #include "../core/DataTransfer.h"
+#include "../core/GLContext.h"
 #include "../core/GLImage.h"
 #include "../core/GLPlainTexture.h"
 #include "../core/ImageAllocator.h"
@@ -26,6 +42,9 @@ class CopyToOpenGLOp final : public Operator<CPUContext>, ImageAllocator<T> {
     const int input_width = X.dim32(3);
     const int input_height = X.dim32(2);
     const int input_size = input_width * input_height;
+
+    // set up the OpenGL context
+    GLContext::getGLContext()->set_context();
 
     const float* input = X.template data<float>();
 

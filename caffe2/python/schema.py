@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package schema
 # Module caffe2.python.schema
 """
@@ -568,7 +583,7 @@ class Scalar(Field):
 
         Scalar(np.float64)
 
-            Scalar field of type float32. Caffe2 will expect readers and
+            Scalar field of type float64. Caffe2 will expect readers and
             datasets to expose it as a 1D tensor of doubles (vector), where
             the size of the vector is determined by this fields' domain.
 

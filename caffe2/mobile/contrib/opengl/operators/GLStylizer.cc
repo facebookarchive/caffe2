@@ -1,9 +1,25 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #include "../core/GLContext.h"
 #include "../core/GLFilter.h"
 #include "../core/GLImage.h"
 #include "../core/ImageAllocator.h"
+
 #include "caffe2/core/common.h"
 #include "caffe2/core/context.h"
 #include "caffe2/core/operator.h"
@@ -22,12 +38,10 @@ class GLStylizer : public GLFilter {
       : GLFilter(_deprocess ? "GLDeStylizer" : "GLStylizer",
                  vertex_shader,
                  fragment_shader,
-                 std::vector<binding*>(
-                     {BINDING(inputData), BINDING(mean), BINDING(noise_std), BINDING(outputSize)}),
+                 std::vector<binding*>({BINDING(inputData), BINDING(mean), BINDING(noise_std), BINDING(outputSize)}),
                  {/* no uniform blocks */},
                  {/* no attributes */},
-                 {{"DEPROCESS", caffe2::to_string(_deprocess)},
-                  {"RGBAINPUT", caffe2::to_string(input_format)}}),
+                 {{"DEPROCESS", caffe2::to_string(_deprocess)}, {"RGBAINPUT", caffe2::to_string(input_format)}}),
         deprocess(_deprocess) {}
 
   template <typename T1, typename T2>
@@ -157,6 +171,9 @@ class OpenGLTensorToTextureStylizerPreprocessOp : public Operator<CPUContext>,
     // get the buffers from input tensors
     const float* mean_buffer = mean.template data<float>();
     const uint8_t* input_buffer = input.template data<uint8_t>();
+
+    // set up the OpenGL context
+    GLContext::getGLContext()->set_context();
 
     GLImageVector<float16_t>* output_images = ImageAllocator<float16_t>::newImage(num_images,
                                                                                   input_width,

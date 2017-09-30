@@ -1,4 +1,19 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #pragma once
 
@@ -19,19 +34,15 @@ class GLFilter {
   GLuint program = 0;
   GLuint frameBuffer = 0;
   static constexpr int kMaxUniformBlocks = 12;
-  struct uniformBlockInfo {
-    GLuint buffer;
-    GLint size;
-    bool initialized;
-  };
-  std::vector<std::vector<uniformBlockInfo>> uniformBlock;
+  GLuint uniformBlock[kMaxUniformBlocks] = {0};
+  GLint blockSize[kMaxUniformBlocks]     = {0};
   bool frame_buffer_initialized = false;
 
   // glGetError() can be expensive, we should turn error checking off when we're done with debugging
 
-  static constexpr bool check_opengl_errors = false;
+  static constexpr bool check_opengl_errors = true;
 
- public:
+public:
   typedef std::vector<std::pair<std::string, std::string>> replacements_t;
 
   struct binding {
@@ -80,9 +91,7 @@ class GLFilter {
 
   template <typename T>
   void attach_uniform_buffer(const binding* block,
-                             GLuint bindingPoint,
-                             std::function<void(T*, size_t)> loader,
-                             int batch = -1);
+                             GLuint bindingPoint, std::function<void(T*, size_t)> loader);
 
   void run(const std::vector<texture_attachment>& input,
            const std::vector<const GLTexture*>& output,

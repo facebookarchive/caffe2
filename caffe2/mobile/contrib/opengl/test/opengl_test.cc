@@ -1,4 +1,19 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #include "opengl_test.h"
 
@@ -223,6 +238,17 @@ void testOpenGLCopyOps(int N, int C, int H, int W, float error, int tile_x = 1, 
   checkError(t1, t2, error);
 }
 
+typedef enum {
+  AveragePool,
+  MaxPool,
+  Conv,
+  ConvTranspose,
+  ConvPRelu,
+  ConvTransposePRelu,
+  ConvRelu,
+  ConvTransposeRelu
+} PoolOp;
+
 const char* glPoolOperationName[] = {"OpenGLAveragePool",
                                      "OpenGLMaxPool",
                                      "OpenGLConv",
@@ -252,12 +278,12 @@ void testOpenGLConv(int N,
                     int stride,
                     PoolOp poolOp,
                     float error,
-                    bool random_input,
-                    int input_batch_size,
-                    int output_batch_size,
-                    int input_tile_x,
-                    int input_tile_y,
-                    bool tiling) {
+                    bool random_input     = true,
+                    int input_batch_size  = 1,
+                    int output_batch_size = 1,
+                    int input_tile_x      = 1,
+                    int input_tile_y      = 1,
+                    bool tiling           = false) {
   LOG(INFO) << "OpenGL Conv Test: "
             << "input C: " << C << ", output C: " << K << ", H: " << H << ", W: " << W
             << ", K: " << kernel_w << "x" << kernel_h << ", P: " << pad << ", S: " << stride
@@ -648,8 +674,7 @@ void testOpenGLRelu(int N, int C, int H, int W, int input_tile_x, int input_tile
   checkError(ws.GetBlob("Y_cpu")->Get<TensorCPU>(), ws.GetBlob("Y_ref")->Get<TensorCPU>(), error);
 }
 
-void testOpenGLAdd(
-    int N, int C, int H, int W, float error = 0.1, int input_tile_x = 1, int input_tile_y = 1) {
+void testOpenGLAdd(int N, int C, int H, int W, float error = 0.1, int input_tile_x = 1, int input_tile_y = 1) {
   LOG(INFO) << "OpenGL Add Test "
             << "C: " << C << ", H: " << H << ", W: " << W;
   Workspace ws;
@@ -2169,8 +2194,7 @@ int runModelBenchmarks(caffe2::NetDef& init_net,
   if (engine == "CPU") {
     net_def.CopyFrom(predict_net);
   } else if (engine == "OPENGL") {
-    if (!caffe2::tryConvertToOpenGL(
-            init_net, predict_net, &net_def, use_texture_input, use_tiling, run_fusion)) {
+    if (!caffe2::tryConvertToOpenGL(init_net, predict_net, &net_def, use_texture_input, use_tiling, run_fusion)) {
       CAFFE_THROW("Failed to convert to openGL. Benchmark failed to run");
       return -1;
     }

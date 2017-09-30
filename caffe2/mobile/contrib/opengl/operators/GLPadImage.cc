@@ -1,4 +1,19 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #include "../core/GLFilter.h"
 #include "../core/GLImage.h"
@@ -139,8 +154,8 @@ class OpenGLPadImageOp final : public ConvPoolOpBase<CPUContext>, ImageAllocator
       padImage_.reset(new GLPadImage());
       LOG(INFO) << input_channels << ": " << input_height << " X " << input_width << " => "
                 << output_channels << ": " << output_height << " X " << output_width;
-      LOG(INFO) << "Padmode: " << mode_ << ", pad_l = " << pad_l() << ", pad_r = " << pad_r()
-                << ", pad_t = " << pad_t() << ", pad_b = " << pad_b();
+      LOG(INFO) << "Padmode: " << mode_ << ", pad_l = " << pad_l() << ", pad_r = " << pad_r() << ", pad_t = " << pad_t()
+                << ", pad_b = " << pad_b();
     }
 
     padImage_->pad(input, *output, pad_l(), pad_t());

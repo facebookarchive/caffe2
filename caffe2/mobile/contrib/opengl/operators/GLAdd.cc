@@ -1,4 +1,19 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #include "../core/GLFilter.h"
 #include "../core/GLImage.h"
@@ -75,10 +90,7 @@ void GLAdd::add(const GLImageVector<T>& input_images0,
 
       run(input_attachments,
           {output_image->textures.begin() + is, output_image->textures.begin() + is + 1},
-          [&]() {
-            glUniform2i(
-                outputSize->location, output_image->texture_width, output_image->texture_height);
-          },
+          [&]() { glUniform2i(outputSize->location, output_image->texture_width, output_image->texture_height); },
           output_image->texture_width,
           output_image->texture_height);
     }
@@ -94,8 +106,7 @@ class OpenGLAddOp final : public Operator<CPUContext>, ImageAllocator<T> {
     OPERATOR_NEEDS_FEATURE(OperatorBase::HasArgument("broadcast") == false,
                            "OpenGLAdd does not support broadcast");
 
-    OPERATOR_NEEDS_FEATURE(OperatorBase::HasArgument("axis") == false,
-                           "OpenGLAdd does not support axis");
+    OPERATOR_NEEDS_FEATURE(OperatorBase::HasArgument("axis") == false, "OpenGLAdd does not support axis");
   }
 
   bool RunOnDevice() override {
@@ -108,8 +119,8 @@ class OpenGLAddOp final : public Operator<CPUContext>, ImageAllocator<T> {
     const int input_channels = input0.channels();
     const int input_width = input0.width();
     const int input_height = input0.height();
-    const int input_tile_x = input0.tile_x();
-    const int input_tile_y = input0.tile_y();
+    const int input_tile_x   = input0.tile_x();
+    const int input_tile_y   = input0.tile_y();
 
     CAFFE_ENFORCE_EQ(input1.channels(), input_channels);
     CAFFE_ENFORCE_EQ(input1.width(), input_width);
@@ -120,18 +131,13 @@ class OpenGLAddOp final : public Operator<CPUContext>, ImageAllocator<T> {
     const int output_channels = input_channels;
     const int output_width = input_width;
     const int output_height = input_height;
-    const int output_tile_x = input_tile_x;
-    const int output_tile_y = input_tile_y;
+    const int output_tile_x   = input_tile_x;
+    const int output_tile_y   = input_tile_y;
 
     int is_last = OperatorBase::GetSingleArgument<int>("is_last", 0);
 
-    GLImageVector<T>* output = ImageAllocator<T>::newImage(num_images,
-                                                           output_width,
-                                                           output_height,
-                                                           output_channels,
-                                                           output_tile_x,
-                                                           output_tile_y,
-                                                           is_last);
+    GLImageVector<T>* output = ImageAllocator<T>::newImage(
+        num_images, output_width, output_height, output_channels, output_tile_x, output_tile_y, is_last);
 
     if (!_add) {
       _add.reset(new GLAdd());

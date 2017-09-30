@@ -1,4 +1,19 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #include "../core/GLFilter.h"
 #include "../core/GLImage.h"
@@ -18,8 +33,7 @@ class GLSub : public GLFilter {
       : GLFilter("GLSub",
                  vertex_shader,
                  fragment_shader,
-                 std::vector<binding*>(
-                     {BINDING(outputSize), BINDING(inputData[0]), BINDING(inputData[1])}),
+                 std::vector<binding*>({BINDING(outputSize), BINDING(inputData[0]), BINDING(inputData[1])}),
                  {/* no uniform blocks */},
                  {/* no attributes */},
                  {/* no replacements */}) {}
@@ -87,11 +101,9 @@ class OpenGLSubOp final : public Operator<CPUContext>, ImageAllocator<T> {
  public:
   OpenGLSubOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<CPUContext>(operator_def, ws) {
-    OPERATOR_NEEDS_FEATURE(OperatorBase::HasArgument("broadcast") == false,
-                           "OpenGLSub does not support broadcast");
+    OPERATOR_NEEDS_FEATURE(OperatorBase::HasArgument("broadcast") == false, "OpenGLSub does not support broadcast");
 
-    OPERATOR_NEEDS_FEATURE(OperatorBase::HasArgument("axis") == false,
-                           "OpenGLSub does not support axis");
+    OPERATOR_NEEDS_FEATURE(OperatorBase::HasArgument("axis") == false, "OpenGLSub does not support axis");
   }
 
   bool RunOnDevice() override {
