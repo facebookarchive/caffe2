@@ -7,12 +7,8 @@ namespace caffe2 {
 
 class PerfNetObserver;
 
-class PerfOperatorObserver : public ObserverBase<OperatorBase>  {
+class PerfOperatorObserver : public ObserverBase<OperatorBase> {
  public:
-
-  // We don't store pointer to detailedStat and instead use operator position
-  // to find it through netObserver_->detailedOpStats_. Saving an extra pointer
-  // this way.
   PerfOperatorObserver(OperatorBase* op, PerfNetObserver* netObserver);
   virtual ~PerfOperatorObserver();
 
@@ -41,6 +37,7 @@ class PerfNetObserver : public NetObserver {
   caffe2::Timer& getTimer() {
     return timer_;
   }
+
  private:
   bool Start() override;
   bool Stop() override;

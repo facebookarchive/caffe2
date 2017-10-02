@@ -54,7 +54,6 @@ CAFFE2_DEFINE_bool(
     "Whether to benchmark individual operators.");
 CAFFE2_DEFINE_int(warmup, 0, "The number of iterations to warm up.");
 
-
 using std::string;
 using std::unique_ptr;
 using std::vector;

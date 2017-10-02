@@ -72,8 +72,8 @@ bool PerfNetObserver::Stop() {
     for (int idx = 0; idx < operators.size(); ++idx) {
       const auto* op = operators[idx];
       auto name = getObserverName(op, idx);
-      double delay = static_cast<const PerfOperatorObserver *>(op->GetObserver())
-                          ->getMilliseconds();
+      double delay = static_cast<const PerfOperatorObserver*>(op->GetObserver())
+                         ->getMilliseconds();
       std::pair<std::string, double> name_delay_pair = {name, delay};
       operator_delays.push_back(name_delay_pair);
     }
@@ -88,14 +88,14 @@ bool PerfNetObserver::Stop() {
   return true;
 }
 
-caffe2::string PerfNetObserver::getObserverName(const OperatorBase *op, int idx)
+caffe2::string PerfNetObserver::getObserverName(const OperatorBase* op, int idx)
     const {
   string opType = op->has_debug_def() ? op->debug_def().type() : "NO_TYPE";
   string displayName =
       (op->has_debug_def() ? op->debug_def().name().size()
-              ? op->debug_def().name()
-              : (op->debug_def().output_size() ? op->debug_def().output(0)
-                                               : "NO_OUTPUT")
+               ? op->debug_def().name()
+               : (op->debug_def().output_size() ? op->debug_def().output(0)
+                                                : "NO_OUTPUT")
                            : "NO_DEF");
   caffe2::string name =
       "ID_" + caffe2::to_string(idx) + "_" + opType + "_" + displayName;
