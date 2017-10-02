@@ -27,4 +27,10 @@ cmake .. \
     -DPROTOBUF_PROTOC_EXECUTABLE=$CAFFE2_ROOT/build_host_protoc/bin/protoc \
     -DBUILD_SHARED_LIBS=OFF \
     || exit 1
-make
+    
+# Cross-platform parallel build
+if [ "$(uname)" = 'Darwin' ]; then
+    cmake --build . -- "-j$(sysctl -n hw.ncpu)"
+else
+    cmake --build . -- "-j$(nproc)"
+fi
