@@ -8,7 +8,7 @@ namespace caffe2 {
 class PerfNetObserver;
 
 class PerfOperatorObserver : public ObserverBase<OperatorBase>  {
-public:
+ public:
 
   // We don't store pointer to detailedStat and instead use operator position
   // to find it through netObserver_->detailedOpStats_. Saving an extra pointer
@@ -18,11 +18,11 @@ public:
 
   double getMilliseconds() const;
 
-private:
+ private:
   bool Start() override;
   bool Stop() override;
 
-private:
+ private:
   // Observer of a net that owns corresponding op. We make sure net is never
   // destructed while operator observer is still alive. First operator observer
   // gets destructed, then the op, then the net and its observer.
@@ -34,18 +34,20 @@ private:
 };
 
 class PerfNetObserver : public NetObserver {
-public:
+ public:
   explicit PerfNetObserver(NetBase* subject_);
   virtual ~PerfNetObserver();
 
-  caffe2::Timer& getTimer() { return timer_; }
-private:
+  caffe2::Timer& getTimer() {
+    return timer_;
+  }
+ private:
   bool Start() override;
   bool Stop() override;
 
-  caffe2::string getObserverName(const OperatorBase *op, int idx) const;
+  caffe2::string getObserverName(const OperatorBase* op, int idx) const;
 
-private:
+ private:
   enum LogType {
     NONE,
     OPERATOR_DELAY,

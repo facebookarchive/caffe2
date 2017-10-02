@@ -1,21 +1,21 @@
 #include "caffe2/share/contrib/observers/perf_observer.h"
 #include "caffe2/share/contrib/observers/observer_config.h"
 
+#include <random>
 #include "caffe2/core/common.h"
 #include "caffe2/core/init.h"
 #include "caffe2/core/operator.h"
-#include <random>
 
 namespace caffe2 {
 namespace {
 
 bool registerGlobalPerfNetObserverCreator(int* /*pargc*/, char*** /*pargv*/) {
   SetGlobalNetObserverCreator([](NetBase* subject) {
-      return caffe2::make_unique<PerfNetObserver>(subject);
-    });
-    return true;
+    return caffe2::make_unique<PerfNetObserver>(subject);
+  });
+  return true;
 }
-}
+} // namespace
 
 REGISTER_CAFFE2_EARLY_INIT_FUNCTION(
     registerGlobalPerfNetObserverCreator,
@@ -23,12 +23,9 @@ REGISTER_CAFFE2_EARLY_INIT_FUNCTION(
     "Caffe2 net global observer creator");
 
 PerfNetObserver::PerfNetObserver(NetBase* subject_)
-    : NetObserver(subject_),
-    numRuns_(0) {
-}
+    : NetObserver(subject_), numRuns_(0) {}
 
-PerfNetObserver::~PerfNetObserver() {
-}
+PerfNetObserver::~PerfNetObserver() {}
 
 bool PerfNetObserver::Start() {
   // Select whether to log the operator or the net.
@@ -36,11 +33,9 @@ bool PerfNetObserver::Start() {
   int netSampleRate = ObserverConfig::getNetSampleRate();
   int operatorNetSampleRatio = ObserverConfig::getOpoeratorNetSampleRatio();
   int skipIters = ObserverConfig::getSkipIters();
-  if (skipIters <= numRuns_ &&
-      netSampleRate > 0 &&
+  if (skipIters <= numRuns_ && netSampleRate > 0 &&
       rand() % netSampleRate == 0) {
-    if (operatorNetSampleRatio > 0 &&
-        rand() % operatorNetSampleRatio == 0) {
+    if (operatorNetSampleRatio > 0 && rand() % operatorNetSampleRatio == 0) {
       logType_ = PerfNetObserver::OPERATOR_DELAY;
     } else {
       logType_ = PerfNetObserver::NET_DELAY;
@@ -55,8 +50,7 @@ bool PerfNetObserver::Start() {
        whenever we measure operator delay */
     const auto& operators = subject_->GetOperators();
     for (auto* op : operators) {
-      op->SetObserver(
-        caffe2::make_unique<PerfOperatorObserver>(op, this));
+      op->SetObserver(caffe2::make_unique<PerfOperatorObserver>(op, this));
     }
   }
 
@@ -78,13 +72,13 @@ bool PerfNetObserver::Stop() {
     for (int idx = 0; idx < operators.size(); ++idx) {
       const auto* op = operators[idx];
       auto name = getObserverName(op, idx);
-      double delay = static_cast<const PerfOperatorObserver *>
-          (op->GetObserver())->getMilliseconds();
+      double delay = static_cast<const PerfOperatorObserver *>(op->GetObserver())
+                          ->getMilliseconds();
       std::pair<std::string, double> name_delay_pair = {name, delay};
       operator_delays.push_back(name_delay_pair);
     }
-    ObserverConfig::getReporter()->printNetWithOperators(subject_, current_run_time,
-        operator_delays);
+    ObserverConfig::getReporter()->printNetWithOperators(
+        subject_, current_run_time, operator_delays);
     /* clear all operator delay after use so that we don't spent time
        collecting the operator delay info in later runs */
     for (auto* op : operators) {
@@ -94,16 +88,17 @@ bool PerfNetObserver::Stop() {
   return true;
 }
 
-caffe2::string PerfNetObserver::getObserverName(
-    const OperatorBase *op, int idx) const {
+caffe2::string PerfNetObserver::getObserverName(const OperatorBase *op, int idx)
+    const {
   string opType = op->has_debug_def() ? op->debug_def().type() : "NO_TYPE";
   string displayName =
       (op->has_debug_def() ? op->debug_def().name().size()
-           ? op->debug_def().name()
-           : (op->debug_def().output_size() ? op->debug_def().output(0)
-                                            : "NO_OUTPUT") : "NO_DEF");
-  caffe2::string name = "ID_" + caffe2::to_string(idx) + "_" +
-      opType + "_" + displayName;
+              ? op->debug_def().name()
+              : (op->debug_def().output_size() ? op->debug_def().output(0)
+                                               : "NO_OUTPUT")
+                           : "NO_DEF");
+  caffe2::string name =
+      "ID_" + caffe2::to_string(idx) + "_" + opType + "_" + displayName;
   return name;
 }
 
@@ -113,8 +108,7 @@ PerfOperatorObserver::PerfOperatorObserver(
     : ObserverBase<OperatorBase>(op),
       netObserver_(netObserver),
       milliseconds_(0) {
-  CAFFE_ENFORCE(
-      netObserver_, "Observers can't operate outside of the net");
+  CAFFE_ENFORCE(netObserver_, "Observers can't operate outside of the net");
 }
 
 PerfOperatorObserver::~PerfOperatorObserver() {}

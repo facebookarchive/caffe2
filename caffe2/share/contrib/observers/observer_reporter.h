@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include <utility>
+#include <vector>
 #include "caffe2/core/net.h"
 
 namespace caffe2 {
