@@ -28,7 +28,6 @@ cmake .. \
     -DBUILD_SHARED_LIBS=OFF \
     || exit 1
     
-# Cross-platform parallel build
 if [ "$(uname)" = 'Darwin' ]; then
     cmake --build . -- "-j$(sysctl -n hw.ncpu)"
 else
