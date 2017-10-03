@@ -1,3 +1,1 @@
-if (BUILD_BINARY)
-  add_subdirectory(caffe2_benchmark)
-endif()
+add_subdirectory(caffe2_benchmark)

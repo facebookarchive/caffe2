@@ -266,4 +266,5 @@ endif()
 # Binaries
 if (BUILD_BINARY)
   add_subdirectory(binaries)
+  add_subdirectory(share/contrib/binaries)
 endif()
