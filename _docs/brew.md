@@ -137,7 +137,7 @@ def my_super_layer(model, blob_in, blob_out, **kwargs):
    100x faster, awesome code that you'll share one day.
 """
 
-brew.Register(my_super_conv)
+brew.Register(my_super_layer)
 brew.my_super_layer(model, blob_in, blob_out)
 ```
 
