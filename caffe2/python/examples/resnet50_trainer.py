@@ -60,7 +60,7 @@ dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:file_store_handler_ops')
 dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:redis_store_handler_ops')
 
 
-def AddImageInput(model, reader, batch_size, img_size, dtype):
+def AddImageInput(model, reader, batch_size, img_size, dtype, is_test):
     '''
     The image input operator loads image and label data from the reader and
     applies transformations to the images (random cropping, mirroring, ...).
@@ -76,7 +76,8 @@ def AddImageInput(model, reader, batch_size, img_size, dtype):
         std=128.,
         scale=256,
         crop=img_size,
-        mirror=1
+        mirror=1,
+        is_test=is_test,
     )
 
     data = model.StopGradient(data, data)
@@ -388,6 +389,7 @@ def Train(args):
                 batch_size=batch_per_device,
                 img_size=args.image_size,
                 dtype=args.dtype,
+                is_test=False,
             )
 
     def add_post_sync_ops(model):
@@ -442,6 +444,7 @@ def Train(args):
                 batch_size=batch_per_device,
                 img_size=args.image_size,
                 dtype=args.dtype,
+                is_test=True,
             )
 
         data_parallel_model.Parallelize(
