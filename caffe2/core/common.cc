@@ -21,7 +21,7 @@ bool g_caffe2_has_cuda_linked = false;
 
 const std::map<string, string>& GetBuildOptions() {
 #ifndef CAFFE2_BUILD_STRINGS
-#define CAFFE2_BUILD_STRINGS {{"BUILD_SETTINGS", "unavailable"}}
+#define CAFFE2_BUILD_STRINGS {}
 #endif
   static const std::map<string, string> kMap = CAFFE2_BUILD_STRINGS;
   return kMap;
