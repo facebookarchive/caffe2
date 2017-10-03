@@ -105,7 +105,7 @@ python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo
 
 ### Python Configuration
 
-You might need setup a PYTHONPATH environment variable. `echo $PYTHONPATH` and if it's not in there add `export PYTHONPATH=~/usr/local` to `.zshrc`, `.bash_profile` or whatever you're using.
+You might need setup a PYTHONPATH environment variable. `echo $PYTHONPATH` and if it's not in there add `export PYTHONPATH=/usr/local` to `.zshrc`, `.bash_profile` or whatever you're using.
 
 Change to a different folder and test Caffe2 again. If you are using Anaconda or had multiple versions of Python on your system the test may fail once out of the build folder. You will want to update the Python bindings:
 
