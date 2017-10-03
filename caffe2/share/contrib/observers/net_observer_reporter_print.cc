@@ -1,15 +1,15 @@
-#include "caffe2/share/contrib/observers/observer_reporter_print.h"
+#include "caffe2/share/contrib/observers/net_observer_reporter_print.h"
 
 namespace caffe2 {
 
-const std::string ObserverReporterPrint::IDENTIFIER = "Caffe2Observer : ";
+const std::string NetObserverReporterPrint::IDENTIFIER = "Caffe2Observer ";
 
-void ObserverReporterPrint::printNet(NetBase* net, double net_delay) {
+void NetObserverReporterPrint::printNet(NetBase* net, double net_delay) {
   LOG(INFO) << IDENTIFIER << "Net Name - " << net->Name() << " :  Net Delay - "
             << net_delay;
 }
 
-void ObserverReporterPrint::printNetWithOperators(
+void NetObserverReporterPrint::printNetWithOperators(
     NetBase* net,
     double net_delay,
     std::vector<std::pair<std::string, double>>& delays) {

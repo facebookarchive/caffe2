@@ -6,5 +6,5 @@ int ObserverConfig::netSampleRate_ = 1;
 int ObserverConfig::operatorNetSampleRatio_ = 0;
 int ObserverConfig::skipIters_ = 10;
 
-unique_ptr<ObserverReporter> ObserverConfig::reporter_ = nullptr;
+unique_ptr<NetObserverReporter> ObserverConfig::reporter_ = nullptr;
 }

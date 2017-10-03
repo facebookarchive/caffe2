@@ -11,9 +11,6 @@ set(Caffe2_GPU_SRCS)
 set(Caffe2_CPU_TEST_SRCS)
 set(Caffe2_GPU_TEST_SRCS)
 
-# Caffe2_CPU_OBSERVER_SRCS is the list of files used for benchmarking purpose
-set(Caffe2_CPU_OBSERVER_SRCS)
-
 # ---[ Add respective subdirectories
 # Note: the folders that are being commented out have not been properly
 # addressed yet.
@@ -265,10 +262,8 @@ if (BUILD_PYTHON)
           FILES_MATCHING PATTERN "*.py")
 endif()
 
-
 # ---[ Any builds that should happen after the main targets should be added here.
 # Binaries
 if (BUILD_BINARY)
   add_subdirectory(binaries)
-  add_subdirectory(share/contrib/binaries)
 endif()

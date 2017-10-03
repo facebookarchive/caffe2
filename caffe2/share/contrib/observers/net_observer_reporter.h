@@ -5,7 +5,7 @@
 
 namespace caffe2 {
 
-class ObserverReporter {
+class NetObserverReporter {
 public:
   virtual void printNet(NetBase *net, double net_delay) = 0;
   virtual void printNetWithOperators(NetBase *net, double net_delay,

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "caffe2/share/contrib/observers/observer_reporter.h"
+#include "caffe2/share/contrib/observers/net_observer_reporter.h"
 
 namespace caffe2 {
 
-class ObserverReporterPrint : public ObserverReporter {
+class NetObserverReporterPrint : public NetObserverReporter {
  public:
   static const std::string IDENTIFIER;
   void printNet(NetBase *net, double net_delay);

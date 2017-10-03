@@ -1,6 +1,6 @@
 #pragma once
 
-#include "caffe2/share/contrib/observers/observer_reporter.h"
+#include "caffe2/share/contrib/observers/net_observer_reporter.h"
 
 namespace caffe2 {
 
@@ -35,10 +35,10 @@ class ObserverConfig {
   static int getSkipIters() {
     return skipIters_;
   }
-  static void setReporter(unique_ptr<ObserverReporter> reporter) {
+  static void setReporter(unique_ptr<NetObserverReporter> reporter) {
     reporter_ = std::move(reporter);
   }
-  static ObserverReporter* getReporter() {
+  static NetObserverReporter* getReporter() {
     CAFFE_ENFORCE(reporter_);
     return reporter_.get();
   }
@@ -54,7 +54,7 @@ class ObserverConfig {
   /* skip the first few iterations */
   static int skipIters_;
 
-  static unique_ptr<ObserverReporter> reporter_;
+  static unique_ptr<NetObserverReporter> reporter_;
 };
 
 }
