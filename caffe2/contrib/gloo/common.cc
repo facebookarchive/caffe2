@@ -71,21 +71,37 @@ std::shared_ptr<::gloo::transport::Device> createDevice(
 #if defined(GLOO_USE_MPI) && GLOO_USE_MPI
 static std::mutex mpiMutex;
 static int mpiRefs = 0;
+static bool mpiInitialized = false;
+
+/**
+ * MPI errors out if you call MPI_Comm_free() after MPI_Finalize().
+ * By calling MPI_Finalize in the destructor of a static object, it is easier
+ * to guarantee that all calls to MPI_Comm_free() have already occurred.
+ * Otherwise you have to try to destroy some ops before others.
+ */
+class MPIFinalizer {
+ public:
+  ~MPIFinalizer() {
+    if (mpiInitialized) {
+      LOG_IF(WARNING, mpiRefs > 0) << "Expected a call to mpiFinalize()";
+      CAFFE_ENFORCE_EQ(MPI_Finalize(), 0, "MPI_Finalize() failed");
+    }
+  }
+};
+static MPIFinalizer mpiFinalizer;
 
 void mpiInitialize() {
   std::lock_guard<std::mutex> lock(mpiMutex);
   if (mpiRefs++ == 0) {
     auto rv = MPI_Init(nullptr, nullptr);
     CAFFE_ENFORCE_EQ(rv, 0, "MPI_Init() failed");
+    mpiInitialized = true;
   }
 }
 
 void mpiFinalize() {
   std::lock_guard<std::mutex> lock(mpiMutex);
-  if (--mpiRefs == 0) {
-    auto rv = MPI_Finalize();
-    CAFFE_ENFORCE_EQ(rv, 0, "MPI_Finalize() failed");
-  }
+  --mpiRefs;
 }
 #endif
 
