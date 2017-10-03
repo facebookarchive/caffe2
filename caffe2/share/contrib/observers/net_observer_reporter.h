@@ -7,8 +7,10 @@ namespace caffe2 {
 
 class NetObserverReporter {
 public:
-  virtual void printNet(NetBase *net, double net_delay) = 0;
-  virtual void printNetWithOperators(NetBase *net, double net_delay,
-      std::vector<std::pair<std::string, double> > & operator_delays) = 0;
+  virtual void printNet(NetBase* net, double net_delay) = 0;
+  virtual void printNetWithOperators(
+      NetBase* net,
+      double net_delay,
+      std::vector<std::pair<std::string, double>>& operator_delays) = 0;
 };
 }
