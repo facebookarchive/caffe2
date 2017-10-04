@@ -25,7 +25,7 @@ CMAKE_ARGS=('-DCMAKE_VERBOSE_MAKEFILE=ON')
 CMAKE_ARGS+=('-DCMAKE_INSTALL_PREFIX=../install')
 if [ "$BUILD_CUDA" = 'true' ]; then
     CMAKE_ARGS+=('-DUSE_CUDA=ON')
-    CMAKE_ARGS+=('-DCUDA_ARCH_NAME=Pascal')
+    CMAKE_ARGS+=('-DCUDA_ARCH_NAME=Volta')
     CMAKE_ARGS+=('-DCUDA_NVCC_EXECUTABLE=/usr/local/bin/nvcc')
     export PATH="/usr/local/cuda/bin:${PATH}"
     CMAKE_ARGS+=('-DUSE_NNPACK=OFF')
