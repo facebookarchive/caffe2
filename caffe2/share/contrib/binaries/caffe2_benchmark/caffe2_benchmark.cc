@@ -1,7 +1,6 @@
 #include <fstream>
 #include <iterator>
 #include <string>
-#include <vector>
 
 #include "caffe2/core/blob_serialization.h"
 #include "caffe2/core/init.h"
@@ -73,7 +72,8 @@ static void writeTextOutput(
   string output_name = output_prefix + "/" + name + ".txt";
   caffe2::TensorSerializer<caffe2::CPUContext> ser;
   caffe2::BlobProto blob_proto;
-  ser.Serialize(*tensor, output_name, blob_proto.mutable_tensor(), 0, tensor->size());
+  ser.Serialize(
+        *tensor, output_name, blob_proto.mutable_tensor(), 0, tensor->size());
   blob_proto.set_name(output_name);
   blob_proto.set_type("Tensor");
   CAFFE_ENFORCE(blob_proto.has_tensor());
@@ -82,16 +82,16 @@ static void writeTextOutput(
   switch (tensor_proto.data_type()) {
     case caffe2::TensorProto::FLOAT: {
       std::copy(
-        tensor_proto.float_data().begin(),
-        tensor_proto.float_data().end(),
-        std::back_inserter(data));
+          tensor_proto.float_data().begin(),
+          tensor_proto.float_data().end(),
+          std::back_inserter(data));
       break;
     }
     case caffe2::TensorProto::INT32: {
       std::copy(
-        tensor_proto.int32_data().begin(),
-        tensor_proto.int32_data().end(),
-        std::back_inserter(data));
+          tensor_proto.int32_data().begin(),
+          tensor_proto.int32_data().end(),
+          std::back_inserter(data));
       break;
     }
     default:
