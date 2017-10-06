@@ -24,6 +24,7 @@ option(BUILD_PYTHON "Build Python binaries" ON)
 option(BUILD_SHARED_LIBS "Build libcaffe2.so" ON)
 option(BUILD_TEST "Build C++ test binaries (need gtest and gbenchmark)" ON)
 option(USE_ATEN "Use ATen" OFF)
+option(USE_ASAN "Use Address Sanitizer" OFF)
 option(USE_CUDA "Use Cuda" ON)
 option(USE_FFMPEG "Use ffmpeg" OFF)
 option(USE_GFLAGS "Use GFLAGS" ON)
@@ -50,6 +51,7 @@ option(USE_ZMQ "Use ZMQ" OFF)
 
 # ---[ CMake scripts + modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_MACOSX_RPATH 1)
 
 enable_testing()

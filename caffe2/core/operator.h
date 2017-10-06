@@ -223,6 +223,14 @@ class OperatorBase {
     return operator_def_->type();
   }
 
+  void annotate_engine(const std::string& engine) {
+    engine_ = engine;
+  }
+
+  const std::string& engine() const {
+    return engine_;
+  }
+
  public:
   static constexpr int kNoNetPositionSet = -1;
 
@@ -238,6 +246,7 @@ class OperatorBase {
   Workspace* operator_ws_;
   std::shared_ptr<const OperatorDef> operator_def_;
   DeviceOption device_option_;
+  std::string engine_;
   vector<const Blob*> inputs_;
   vector<Blob*> outputs_;
 
@@ -671,6 +680,10 @@ unique_ptr<OperatorBase> CreateOperator(
     const OperatorDef& operator_def,
     Workspace* ws,
     int net_position = OperatorBase::kNoNetPositionSet);
+
+const std::string OpRegistryKey(
+    const std::string& op_type,
+    const std::string& engine = "");
 
 // User can set the preferred engines as a list of engine names, in
 // descending order of preference.

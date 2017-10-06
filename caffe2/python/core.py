@@ -86,11 +86,11 @@ def GetGlobalInitArgs():
 
 
 def IsOperator(op_type):
-    return (op_type in _REGISTERED_OPERATORS)
+    return IsOperatorWithEngine(op_type, engine='DEFAULT')
 
 
 def IsOperatorWithEngine(op_type, engine):
-    return (op_type + "_ENGINE_" + engine in _REGISTERED_OPERATORS)
+    return C.op_registry_key(op_type, engine) in _REGISTERED_OPERATORS
 
 
 def DeviceOption(device_type, cuda_gpu_id=0, random_seed=None, node_name=None):
@@ -818,10 +818,17 @@ StopGradient. Op:\n\n{}""".format(op.output[0], str(op)))
                     all_device_options.append(g.grad_op_values.device_option)
                     all_gradient_names.append(g.gradient.values)
 
+        def device_option_equal(opt1, opt2):
+            if not opt1 or not opt2:
+                return opt1 == opt2
+            return opt1.device_type == opt2.device_type and\
+                opt1.cuda_gpu_id == opt2.cuda_gpu_id
+
         # Check if all grad op device options are the same.
         if len(all_device_options) >= 2 and not all(
-                d == all_device_options[0] for d in all_device_options[1:]):
-            raise RuntimeError('Unexpected behavior: not all grad ops'
+                device_option_equal(d, all_device_options[0])
+                for d in all_device_options[1:]):
+            raise RuntimeError('Unexpected behavior: not all grad ops '
                                'have the same device option.')
         return True
 

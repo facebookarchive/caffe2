@@ -713,6 +713,7 @@ void addObjectMethods(py::module& m) {
 
 void addGlobalMethods(py::module& m) {
   m.attr("is_asan") = py::bool_(CAFFE2_ASAN_ENABLED);
+  m.def("get_build_options", []() { return GetBuildOptions(); });
 
   m.attr("has_mkldnn") = py::bool_(
 #ifdef CAFFE2_HAS_MKL_DNN
@@ -750,6 +751,12 @@ void addGlobalMethods(py::module& m) {
         caffe2::SetOpEnginePref(op_type, op_pref);
       });
 
+  m.def(
+      "op_registry_key",
+      [](const std::string& op_type,
+         const std::string& engine) -> const std::string {
+        return caffe2::OpRegistryKey(op_type, engine);
+      });
   m.def("global_init", [](std::vector<std::string> args) -> void {
     int argc = args.size();
     std::vector<char*> argv;
