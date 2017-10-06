@@ -73,7 +73,7 @@ static void writeTextOutput(
   caffe2::TensorSerializer<caffe2::CPUContext> ser;
   caffe2::BlobProto blob_proto;
   ser.Serialize(
-        *tensor, output_name, blob_proto.mutable_tensor(), 0, tensor->size());
+      *tensor, output_name, blob_proto.mutable_tensor(), 0, tensor->size());
   blob_proto.set_name(output_name);
   blob_proto.set_type("Tensor");
   CAFFE_ENFORCE(blob_proto.has_tensor());
