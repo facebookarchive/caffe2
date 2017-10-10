@@ -15,7 +15,7 @@ bool registerGlobalPerfNetObserverReporter(int* /*pargc*/, char*** /*pargv*/) {
 REGISTER_CAFFE2_EARLY_INIT_FUNCTION(
     registerGlobalPerfNetObserverReporter,
     &registerGlobalPerfNetObserverReporter,
-    "Caffe2 net observer reporter");
+    "Caffe2 print net observer reporter");
 
 const std::string NetObserverReporterPrint::IDENTIFIER = "Caffe2Observer ";
 
