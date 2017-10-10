@@ -7,7 +7,7 @@ are specific to a network.
 
 To bridge this gap, we provide an experimental operator in ONNX that allows you to directly access PyTorch's tensor functions using the ATen library.
 [ATen](https://github.com/zdevito/aten) is the underlying C++ library that PyTorch uses to do tensor operations. Caffe2 has an [ATen operator](https://github.com/caffe2/caffe2/tree/master/caffe2/contrib/aten)
-that can run these tensor functions embedded inside an ONNX network.
+that can run these tensor functions in a Caffe2 network after importing them through ONNX.
 
 This guide explains how to configure Caffe2 and modify your PyTorch program to use
 this functionality.
@@ -30,13 +30,14 @@ make install
 To export a model to ONNX, PyTorch first creates a trace of all the `torch.autograd.Function`s run
 in the forward pass of a network. For each function in the trace, it calls that function's
 `symbolic` method which describes how to construct the part of the ONNX graph
-that will compute this function (see [basic_ops.py](https://github.com/pytorch/pytorch/blob/5deacb5bce8bfb41662b57a61ea635c44d2a347f/torch/autograd/_functions/basic_ops.py#L59) for examples).
+that will compute this function (see [basic_ops.py](https://github.com/pytorch/pytorch/blob/master/torch/autograd/_functions/basic_ops.py#L59) for examples).
 
 When equivalent ONNX operators do not exist, you can instead call any ATen function.
-As an example let's assume we have an autograph function which computes `x*x+y`:
+As an example let's assume we have an autograd function which computes `x*x+y`:
 
 ```
   class MyFunction(Function):
+    @staticmethod
     def forward(ctx, x, y):
       return x*x + y
 ```
@@ -45,8 +46,10 @@ We can add a `symbolic` method to it like so:
 
 ```
   class MyFunction(Function):
+    @staticmethod
     def forward(ctx, x, y):
       return x*x + y
+    @staticmethod
     def symbolic(graph, x, y):
       x2 = graph.at("mul", x, x)
       r = graph.at("add", x2, y)
@@ -151,4 +154,4 @@ np.testing.assert_array_almost_equal(r, c2_out)
 
 ### Code
 
-For the full source code for this tutorial [sample.py](sample.py).
+For the full source code for this tutorial, see [sample.py](sample.py).
