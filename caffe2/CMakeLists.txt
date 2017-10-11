@@ -98,8 +98,8 @@ set(Caffe2_MAIN_LIBS)
 
 # Compile exposed libraries.
 add_library(caffe2 ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
-target_link_libraries(caffe2 ${Caffe2_DEPENDENCY_LIBS})
-install(TARGETS caffe2 DESTINATION lib)
+target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_LIBS})
+install(TARGETS caffe2 EXPORT Caffe2Targets DESTINATION lib)
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 caffe_add_linker_flag(caffe2 Caffe2_CPU_LINK)
 list(APPEND Caffe2_MAIN_LIBS_ORDER caffe2 Caffe2_PROTO)
@@ -128,10 +128,11 @@ if(USE_CUDA)
   caffe_add_linker_flag(caffe2_gpu Caffe2_GPU_LINK)
   list(APPEND Caffe2_MAIN_LIBS_ORDER caffe2_gpu)
   list(APPEND Caffe2_MAIN_LIBS ${Caffe2_GPU_LINK})
+  list(APPEND Caffe2_MAIN_LIBS_ORDER caffe2_gpu)
   if (Caffe2_EXTERNAL_DEPENDENCIES)
     add_dependencies(caffe2_gpu ${Caffe2_EXTERNAL_DEPENDENCIES})
   endif()
-  install(TARGETS caffe2_gpu DESTINATION lib)
+  install(TARGETS caffe2_gpu EXPORT Caffe2Targets DESTINATION lib)
 endif()
 
 # ---[ Test binaries.
