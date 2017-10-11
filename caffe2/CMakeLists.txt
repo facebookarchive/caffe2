@@ -110,18 +110,28 @@ endif()
 
 # ---[ CUDA library.
 if(USE_CUDA)
+  # A hack to deal with cuda library dependencies and modern CMake: the
+  # CUDA_ADD_LIBRARY includes a target_link_libraries, and as a result,
+  # one cannot use PUBLIC/PRIVATE/INTERFACE for the target anymore. This
+  # hack adds the PRIVATE keywords to CUDA_LIBRARIES so we can deal with
+  # it.
+  set(__tmp ${CUDA_LIBRARIES})
+  set(CUDA_LIBRARIES PRIVATE ${CUDA_LIBRARIES})
   CUDA_ADD_LIBRARY(caffe2_gpu ${Caffe2_GPU_SRCS})
+  set(CUDA_LIBRARIES ${__tmp})
   list(APPEND Caffe2_MAIN_LIBS_ORDER caffe2_gpu)
   add_dependencies(caffe2_gpu Caffe2_PROTO)
   if (BUILD_SHARED_LIBS)
     target_link_libraries(
         caffe2_gpu
+        PRIVATE
         caffe2
         ${Caffe2_DEPENDENCY_LIBS}
         ${Caffe2_CUDA_DEPENDENCY_LIBS})
   else()
     target_link_libraries(
         caffe2_gpu
+        PRIVATE
         ${Caffe2_DEPENDENCY_LIBS}
         ${Caffe2_CUDA_DEPENDENCY_LIBS})
   endif()
