@@ -231,7 +231,9 @@ class FlattenOp : public Operator<Context> {
     auto& input = Input(0);
     auto* output = Output(0);
     CAFFE_ENFORCE_GT(
-        input.dims().size(), axis_, "The rank of the tensor must be greater than axis.");
+        input.dims().size(),
+        axis_,
+        "The rank of the tensor must be greater than axis.");
     output->Resize(input.size_to_dim(axis_), input.size_from_dim(axis_));
     context_.template CopyItems<Context, Context>(
         input.meta(),
@@ -240,6 +242,7 @@ class FlattenOp : public Operator<Context> {
         output->raw_mutable_data(input.meta()));
     return true;
   }
+
  private:
   int axis_;
 };

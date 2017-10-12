@@ -137,20 +137,19 @@ OPERATOR_SCHEMA(Flatten)
     .NumOutputs(1)
     .TensorInferenceFunction([](const OperatorDef& def,
                                 const vector<TensorShape>& in) {
-    ArgumentHelper helper(def);
-    const int axis =
-        helper.GetSingleArgument<int>("axis", 1);
+      ArgumentHelper helper(def);
+      const int axis = helper.GetSingleArgument<int>("axis", 1);
       vector<TensorShape> out(1);
       int outer = 1;
       int inner = 1;
       std::size_t index = 0;
       for (auto d : in[0].dims()) {
-          if (index < axis) {
-              outer *= d;
-          } else {
-              inner *= d;
-          }
-          ++index;
+        if (index < axis) {
+          outer *= d;
+        } else {
+          inner *= d;
+        }
+        ++index;
       }
       out[0].set_data_type(in[0].data_type());
       out[0].add_dims(outer);
@@ -170,8 +169,10 @@ Flattens the input tensor into a 2D matrix. If input tensor has shape
         "with input dimensions up to axis flattened to the outer dimension "
         "of the output and remaining input dimensions flattened into the inner "
         "dimension of the output.")
-    .Arg("axis", "(Default to 1) Indicate up to which input dimensions "
-         "(exclusive) should be flattened to the outer dimension of the output");
+    .Arg(
+        "axis",
+        "(Default to 1) Indicate up to which input dimensions "
+        "(exclusive) should be flattened to the outer dimension of the output");
 
 OPERATOR_SCHEMA(FlattenToVec)
     .NumInputs(1)
