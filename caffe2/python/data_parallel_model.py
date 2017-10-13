@@ -33,7 +33,6 @@ dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/nccl:nccl_ops")
 dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/gloo:gloo_ops")
 dyndep.InitOpsLibrary("@/caffe2/caffe2/contrib/gloo:gloo_ops_gpu")
 
-logging.basicConfig()
 log = logging.getLogger("data_parallel_model")
 log.setLevel(logging.INFO)
 
@@ -835,7 +834,7 @@ def GetLearningRateBlobNames(model):
         if model._device_type == caffe2_pb2.CPU:
             return [model._optimizer.get_cpu_blob_name('lr')]
         elif model._device_type == caffe2_pb2.CUDA:
-            return [model._optimizer.get_gpu_blob_name('lr', gpu)
+            return [model._optimizer.get_gpu_blob_name('lr', gpu, '')
                     for gpu in model._devices]
         else:
             raise Exception(

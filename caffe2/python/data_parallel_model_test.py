@@ -95,6 +95,10 @@ class DataParallelModelTest(TestCase):
         )
         data_parallel_model.AddBlobSync(model, ["sync_num"])
 
+        # Light test for LR names
+        lr_names = data_parallel_model.GetLearningRateBlobNames(model)
+        self.assertGreater(len(lr_names), 0)
+
         np.random.seed(2603)
 
         # Each run has same input, independent of number of gpus
@@ -365,8 +369,6 @@ class DataParallelModelTest(TestCase):
                 data_parallel_model.Parallelize_GPU(None, None, None)
 
 
-@unittest.skipIf(not workspace.has_gpu_support, "No gpu support.")
-@unittest.skipIf(workspace.NumCudaDevices() < 2, "Need at least 2 GPUs.")
 class RecurrentNetworkParallelTest(TestCase):
 
     def run_model(self, devices, gpu):
