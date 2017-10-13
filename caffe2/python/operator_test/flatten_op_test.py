@@ -32,6 +32,7 @@ class TestFlatten(hu.HypothesisTestCase):
         # Check over multiple devices
         self.assertDeviceChecks(dc, op, [X], [0])
 
+
 if __name__ == "__main__":
     import unittest
     unittest.main()

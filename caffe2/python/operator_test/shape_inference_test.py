@@ -347,7 +347,6 @@ class TestShapeInference(test_util.TestCase):
 
         self.InferTensorRunAndCompare(model)
 
-
         # test Flatten with default axis (=1)
         model = model_helper.ModelHelper(name="test_model")
         model.Flatten("X", "Flat")
