@@ -2,6 +2,7 @@
 set(Caffe2_CPU_PYTHON_SRCS
     "/pybind_state.cc"
     "/pybind_state_mkl.cc"
+    "/../observers/time_observer.cc"
 )
 # ---[ GPU files
 set(Caffe2_GPU_PYTHON_SRCS

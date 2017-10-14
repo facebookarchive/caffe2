@@ -31,7 +31,7 @@ class PerfNetObserver : public NetObserver {
   };
   LogType logType_;
   unsigned int numRuns_;
-  std::unordered_map<const OperatorBase*, ObserverBase*> observerMap_;
+  std::unordered_map<const OperatorBase*, const ObserverBase<OperatorBase>*> observerMap_;
 
   caffe2::Timer timer_;
 };
