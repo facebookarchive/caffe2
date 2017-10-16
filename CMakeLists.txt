@@ -51,8 +51,6 @@ option(USE_ZMQ "Use ZMQ" OFF)
 
 # ---[ CMake scripts + modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-set(CMAKE_MACOSX_RPATH 1)
 
 enable_testing()
 
@@ -142,7 +140,24 @@ if(NOT TARGET uninstall)
       ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
 
-# CMake config file.
+# ---[ Make configuration files for cmake to allow dependent libraries
+# easier access to Caffe2.
+
+# Specific interface link libraries for caffe2
+if ((NOT USE_GLOG) OR (NOT USE_GFLAGS) OR CAFFE2_USE_CUSTOM_PROTOBUF)
+  message(WARNING
+      "Generated cmake files are only fully available if one builds "
+      "with system glog, gflags and protobuf.")
+else()
+  # Since one would use glog, gflags and protobuf functionalities, any
+  # dependent library will have to depend on glog, gflags and protobuf
+  # as well, so we mark them as INTERFACE transitive dependency.
+  target_link_libraries(caffe2 INTERFACE glog gflags protobuf)
+  if (USE_CUDA)
+    target_link_libraries(caffe2_gpu INTERFACE glog gflags protobuf)
+  endif()
+endif()
+
 configure_file(
     ${PROJECT_SOURCE_DIR}/cmake/Caffe2ConfigVersion.cmake.in
     ${PROJECT_BINARY_DIR}/Caffe2ConfigVersion.cmake
