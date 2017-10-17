@@ -158,19 +158,25 @@ else()
   endif()
 endif()
 
-configure_file(
-    ${PROJECT_SOURCE_DIR}/cmake/Caffe2ConfigVersion.cmake.in
-    ${PROJECT_BINARY_DIR}/Caffe2ConfigVersion.cmake
-    @ONLY)
-configure_file(
-    ${PROJECT_SOURCE_DIR}/cmake/Caffe2Config.cmake.in
-    ${PROJECT_BINARY_DIR}/Caffe2Config.cmake
-    @ONLY)
-install(FILES
-    ${PROJECT_BINARY_DIR}/Caffe2ConfigVersion.cmake
-    ${PROJECT_BINARY_DIR}/Caffe2Config.cmake
-    DESTINATION share/cmake/Caffe2
-    COMPONENT dev)
-install(EXPORT Caffe2Targets DESTINATION share/cmake/Caffe2
-    FILE Caffe2Targets.cmake
-    COMPONENT dev)
+# Note(jiayq): Android cmake has an unresolved issue right now
+# (install(EXPORT "Caffe2Targets" ...) includes target "caffe2" which
+#  requires target "cpufeatures" that is not in the export set.)
+# and as a result we disable it for now.
+if (NOT ANDROID)
+  configure_file(
+      ${PROJECT_SOURCE_DIR}/cmake/Caffe2ConfigVersion.cmake.in
+      ${PROJECT_BINARY_DIR}/Caffe2ConfigVersion.cmake
+      @ONLY)
+  configure_file(
+      ${PROJECT_SOURCE_DIR}/cmake/Caffe2Config.cmake.in
+      ${PROJECT_BINARY_DIR}/Caffe2Config.cmake
+      @ONLY)
+  install(FILES
+      ${PROJECT_BINARY_DIR}/Caffe2ConfigVersion.cmake
+      ${PROJECT_BINARY_DIR}/Caffe2Config.cmake
+      DESTINATION share/cmake/Caffe2
+      COMPONENT dev)
+  install(EXPORT Caffe2Targets DESTINATION share/cmake/Caffe2
+      FILE Caffe2Targets.cmake
+      COMPONENT dev)
+endif()
