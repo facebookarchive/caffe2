@@ -241,8 +241,6 @@ PythonOpBase::PythonOpBase(
   if (!pickled.empty()) {
     py::gil_scoped_acquire g;
     try {
-      //auto pickle =
-      //    py::object(PyImport_ImportModule("pickle"), /* borrowed */ false);
       auto pickle =
           py::reinterpret_steal<py::object>(PyImport_ImportModule("pickle"));
       CAFFE_ENFORCE(pickle);
