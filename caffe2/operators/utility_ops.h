@@ -600,16 +600,24 @@ class ScatterAssignOp : public Operator<Context> {
   USE_OPERATOR_CONTEXT_FUNCTIONS;
   virtual ~ScatterAssignOp() {}
 
-  ScatterAssignOp(const OperatorDef& operator_def, Workspace* ws)
+  ScatterAssignOp(const OperatorDef &operator_def, Workspace *ws)
       : Operator<Context>(operator_def, ws),
         runners_({{{TensorProto_DataType_INT32, TensorProto_DataType_FLOAT},
                    &ScatterAssignOp::DoRun<int32_t, float>},
                   {{TensorProto_DataType_INT32, TensorProto_DataType_FLOAT16},
                    &ScatterAssignOp::DoRun<int32_t, float16>},
+                  {{TensorProto_DataType_INT32, TensorProto_DataType_INT32},
+                   &ScatterAssignOp::DoRun<int32_t, int32_t>},
+                  {{TensorProto_DataType_INT32, TensorProto_DataType_INT64},
+                   &ScatterAssignOp::DoRun<int32_t, int64_t>},
                   {{TensorProto_DataType_INT64, TensorProto_DataType_FLOAT},
                    &ScatterAssignOp::DoRun<int64_t, float>},
                   {{TensorProto_DataType_INT64, TensorProto_DataType_FLOAT16},
-                   &ScatterAssignOp::DoRun<int64_t, float16>}}) {}
+                   &ScatterAssignOp::DoRun<int64_t, float16>},
+                  {{TensorProto_DataType_INT64, TensorProto_DataType_INT32},
+                   &ScatterAssignOp::DoRun<int64_t, int32_t>},
+                  {{TensorProto_DataType_INT64, TensorProto_DataType_INT64},
+                   &ScatterAssignOp::DoRun<int64_t, int64_t>}}) {}
 
   bool RunOnDevice() override {
     const auto& data = Input(DATA);
