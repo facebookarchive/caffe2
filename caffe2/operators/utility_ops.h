@@ -600,7 +600,7 @@ class ScatterAssignOp : public Operator<Context> {
   USE_OPERATOR_CONTEXT_FUNCTIONS;
   virtual ~ScatterAssignOp() {}
 
-  ScatterAssignOp(const OperatorDef &operator_def, Workspace *ws)
+  ScatterAssignOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws),
         runners_({{{TensorProto_DataType_INT32, TensorProto_DataType_FLOAT},
                    &ScatterAssignOp::DoRun<int32_t, float>},
