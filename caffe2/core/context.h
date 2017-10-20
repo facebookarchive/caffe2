@@ -27,7 +27,6 @@
 #include "caffe2/core/logging.h"
 #include "caffe2/core/typeid.h"
 #include "caffe2/proto/caffe2.pb.h"
-#include "caffe2/utils/math.h"
 
 CAFFE2_DECLARE_bool(caffe2_report_cpu_memory_usage);
 
