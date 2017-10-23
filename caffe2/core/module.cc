@@ -60,7 +60,7 @@ void LoadModule(const string& name, const string& filename) {
   void* handle = nullptr;
   if (filename.size()) {
     handle = dlopen(
-        filename.c_str(), RTLD_NOW | RTLD_GLOBAL | RTLD_NODELETE);
+        filename.c_str(), RTLD_NOW | RTLD_GLOBAL);
     CAFFE_ENFORCE(handle != nullptr,
       "Cannot load module ",
       name,
@@ -70,7 +70,7 @@ void LoadModule(const string& name, const string& filename) {
   } else {
     string inferred_name = string("lib") + name + ".so";
     handle = dlopen(
-        inferred_name.c_str(), RTLD_NOW | RTLD_GLOBAL | RTLD_NODELETE);
+        inferred_name.c_str(), RTLD_NOW | RTLD_GLOBAL);
 #ifdef __APPLE__
     // For apple, we will also try the dylib extension.
     if (!handle) {

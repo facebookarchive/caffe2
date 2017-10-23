@@ -15,7 +15,27 @@
  */
 
 #include "caffe2/core/module.h"
+#include "caffe2/core/operator.h"
 
 // An explicitly defined module, testing correctness when we dynamically link a
 // module
 CAFFE2_MODULE(caffe2_module_test_dynamic, "Dynamic module for testing.");
+
+namespace caffe2 {
+
+class Caffe2ModuleTestDynamicDummyOp : public OperatorBase {
+ public:
+  using OperatorBase::OperatorBase;
+  bool Run(int /* unused */ /*stream_id*/) override {
+    return true;
+  }
+  virtual string type() {
+    return "base";
+  }
+};
+
+REGISTER_CPU_OPERATOR(
+  Caffe2ModuleTestDynamicDummy, Caffe2ModuleTestDynamicDummyOp);
+OPERATOR_SCHEMA(Caffe2ModuleTestDynamicDummy);
+
+} // namespace caffe2
