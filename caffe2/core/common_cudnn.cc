@@ -15,6 +15,7 @@
  */
 
 #include "caffe2/core/common_cudnn.h"
+#include "caffe2/core/cudnn_wrappers.h"
 
 #include "caffe2/core/init.h"
 
