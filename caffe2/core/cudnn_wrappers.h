@@ -7,30 +7,6 @@
 namespace caffe2 {
 
 class CuDNNWrapper;
-/**
- * CuDNNHandles wraps around cudnnHandle_t so they can be
- * properly destructed when threads exit.
- */
-class CuDNNHandles {
-  friend class CuDNNWrapper;
-
- private:
-  CuDNNHandles() {
-    for (int i = 0; i < CAFFE2_COMPILE_TIME_MAX_GPUS; ++i) {
-      cudnn_handle_[i] = nullptr;
-    }
-  }
-
-  ~CuDNNHandles() noexcept {
-    for (int i = 0; i < CAFFE2_COMPILE_TIME_MAX_GPUS; ++i) {
-      if (cudnn_handle_[i]) {
-        CUDNN_CHECK(cudnnDestroy(cudnn_handle_[i]));
-      }
-    }
-  }
-
-  cudnnHandle_t cudnn_handle_[CAFFE2_COMPILE_TIME_MAX_GPUS];
-};
 
 /**
  * CuDNNWorkspace is a wrapper around a raw cuda pointer that holds the cudnn
@@ -135,15 +111,8 @@ class CuDNNWrapper {
    * Returns the inline cudnn handle that executes on the current
    * thread's cuda_stream.
    */
-  cudnnHandle_t& inline_cudnn_handle() {
-    int gpu_id = context_->cuda_gpu_id();
-    auto& cudnn_handle_ = tls_cudnn_handles_.cudnn_handle_[gpu_id];
-    if (!cudnn_handle_) {
-      context_->SwitchToDevice();
-      CUDNN_ENFORCE(cudnnCreate(&cudnn_handle_));
-    }
-    CUDNN_ENFORCE(cudnnSetStream(cudnn_handle_, context_->cuda_stream()));
-    return cudnn_handle_;
+  cudnnHandle_t inline_cudnn_handle() {
+    return context_->cudnn_handle();
   }
 
   // Executes the closure F on the CuDNNState associated with state_idx
@@ -169,7 +138,6 @@ class CuDNNWrapper {
  protected:
   // Pointer to an external cuda context that the cudnn wrapper will use.
   CUDAContext* context_;
-  static thread_local CuDNNHandles tls_cudnn_handles_;
 
   static constexpr size_t CAFFE2_COMPILE_TIME_MAX_CUDNN_STATES = 4;
 

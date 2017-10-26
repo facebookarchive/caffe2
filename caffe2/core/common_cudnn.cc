@@ -21,8 +21,6 @@
 
 namespace caffe2 {
 
-thread_local CuDNNHandles CuDNNWrapper::tls_cudnn_handles_;
-
 CuDNNWrapper::PerGPUCuDNNStates& CuDNNWrapper::cudnn_states() {
   // New it (never delete) to avoid calling the destructors on process
   // exit and racing against the CUDA shutdown sequence.
