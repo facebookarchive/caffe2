@@ -63,7 +63,7 @@ bias = model.param_init_net.ConstantFill(
 model.net.FC([blob_in, weights, bias], blob_out, **kwargs)
 ```
 
-Luckily Caffe2 helper functions are here to help. Helper functions are wrappers functions that create a complete layer for a model. The helper function will typically handle parameter initialization, operator definition, and engine selection. Caffe2 default helper functions are named in Python PEP8 function convention. For example, using [python/helpers/fc.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/helpers/fc.py), implementing an `FC` Op via the helper function `fc` is much simpler:
+Luckily Caffe2 helper functions are here to help. Helper functions are wrapper functions that create a complete layer for a model. The helper function will typically handle parameter initialization, operator definition, and engine selection. Caffe2 default helper functions are named in Python PEP8 function convention. For example, using [python/helpers/fc.py](https://github.com/caffe2/caffe2/blob/master/caffe2/python/helpers/fc.py), implementing an `FC` Op via the helper function `fc` is much simpler:
 
 **An easier way using a helper function:**
 
