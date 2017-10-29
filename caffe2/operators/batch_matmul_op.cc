@@ -35,22 +35,22 @@ size (C x K x N) where C is the batch size and i ranges from 0 to C-1.
     .Arg("trans_b", "Pass 1 to transpose B before multiplication")
     .TensorInferenceFunction([](const OperatorDef& def,
                                 const vector<TensorShape>& in) {
+      const auto ndim = in[0].dims_size();
       ArgumentHelper helper(def);
       int a_dim0;
       int b_dim1;
       if (helper.GetSingleArgument<int>("trans_a", 0)) {
-        a_dim0 = in[0].dims(2);
+        a_dim0 = in[0].dims(ndim - 1);
       } else {
-        a_dim0 = in[0].dims(1);
+        a_dim0 = in[0].dims(ndim - 2);
       }
 
       if (helper.GetSingleArgument<int>("trans_b", 0)) {
-        b_dim1 = in[1].dims(1);
+        b_dim1 = in[1].dims(ndim - 2);
       } else {
-        b_dim1 = in[1].dims(2);
+        b_dim1 = in[1].dims(ndim - 1);
       }
 
-      const auto ndim = in[0].dims_size();
       auto output_dims =
           vector<TIndex>{in[0].dims().begin(), in[0].dims().end()};
       output_dims[ndim - 2] = a_dim0;
