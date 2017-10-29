@@ -141,7 +141,7 @@ class TestMatMul(hu.HypothesisTestCase):
 class TestBatchMatMul(hu.HypothesisTestCase):
     @settings(max_examples=30)
     @given(
-        C=st.integers(min_value=1, max_value=3),  # number of batch dims
+        C=st.integers(min_value=0, max_value=3),  # number of batch dims
         M=st.integers(min_value=1, max_value=10),
         K=st.integers(min_value=1, max_value=10),
         N=st.integers(min_value=1, max_value=10),

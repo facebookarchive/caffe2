@@ -49,7 +49,7 @@ class BatchMatMulOp final : public Operator<Context> {
 
     CAFFE_ENFORCE_EQ(A.ndim(), B.ndim());
     auto ndim = A.ndim();
-    CAFFE_ENFORCE_GE(ndim, 3);
+    CAFFE_ENFORCE_GE(ndim, 2);
     for (int axis = 0; axis < (ndim - 2); ++axis) {
       CAFFE_ENFORCE_EQ(A.dim32(axis), B.dim32(axis));
     }
