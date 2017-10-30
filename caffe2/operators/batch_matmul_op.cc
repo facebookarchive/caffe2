@@ -30,10 +30,14 @@ Batch Matrix multiplication Yi = Ai * Bi, where A has shape (dim0, dim1, ... M, 
     .Input(0, "A", "tensor of shape (dim0, dim1 ... M, K)")
     .Input(1, "B", "tensor of shpae (dim0, dim2 ... K, N)")
     .Output(0, "Y", "tensor of shape (dim0, dim1 ... M, N)")
-    .Arg("trans_a", "Pass 1 to transpose the last two dimensions of A before "
-                    "doing multiplication")
-    .Arg("trans_b", "Pass 1 to transpose the last two dimensions of B before "
-                    "doing multiplication")
+    .Arg(
+         "trans_a",
+         "Pass 1 to transpose the last two dimensions of A before "
+         "doing multiplication")
+    .Arg(
+         "trans_b",
+         "Pass 1 to transpose the last two dimensions of B before "
+         "doing multiplication")
     .TensorInferenceFunction([](const OperatorDef &def,
                                 const vector<TensorShape> &in) {
       const auto ndim = in[0].dims_size();

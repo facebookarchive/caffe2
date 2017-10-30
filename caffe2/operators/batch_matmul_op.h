@@ -52,7 +52,8 @@ class BatchMatMulOp final : public Operator<Context> {
     CAFFE_ENFORCE_GE(ndim, 2);
     for (int axis = 0; axis < (ndim - 2); ++axis) {
       CAFFE_ENFORCE_EQ(
-          A.dim32(axis), B.dim32(axis),
+          A.dim32(axis),
+          B.dim32(axis),
           "Every axis of A and B should match except for the last two. Axis No",
           axis);
     }
