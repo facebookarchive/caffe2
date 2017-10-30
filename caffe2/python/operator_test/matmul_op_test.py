@@ -174,10 +174,10 @@ class TestBatchMatMul(hu.HypothesisTestCase):
             'BatchMatMul', ['X', 'Y'], 'out', trans_a=trans_a, trans_b=trans_b
         )
 
-        def matmul_ref(X, Y, trans_a, trans_b):
-            XX = X.swapaxes(-1, -2) if trans_a else X
-            YY = Y.swapaxes(-1, -2) if trans_b else Y
-            return (np.matmul(XX, YY),)
+        def matmul_ref(X, Y, trans_a, trans_b, dtype):
+            XX = (X.swapaxes(-1, -2) if trans_a else X).astype(np.float32)
+            YY = (Y.swapaxes(-1, -2) if trans_b else Y).astype(np.float32)
+            return (np.matmul(XX, YY).astype(dtype),)
 
         # relaxing the "threshold" for fp16 to 150x of the default
         def relax_fp16_check(check_func, *args, **kwargs):
