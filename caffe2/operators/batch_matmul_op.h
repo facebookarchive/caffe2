@@ -102,13 +102,20 @@ class BatchMatMulOp final : public Operator<Context> {
     // Y = A * B
     math::GemmBatched<T, Context, Engine>(
         trans_a_ ? CblasTrans : CblasNoTrans,
-        trans_b_ ? CblasTrans : CblasNoTrans, A.size(), batches, B.size(),
+        trans_b_ ? CblasTrans : CblasNoTrans,
+        A.size(),
+        batches,
+        B.size(),
         batches,
         a_dim0, // M
         b_dim1, // N
         a_dim1, // K
-        1, A.template data<T>(), B.template data<T>(), 0,
-        Y->template mutable_data<T>(), &context_,
+        1,
+        A.template data<T>(),
+        B.template data<T>(),
+        0,
+        Y->template mutable_data<T>(),
+        &context_,
         use_scratch_ ? scratch_.get() : nullptr);
     return true;
   }
