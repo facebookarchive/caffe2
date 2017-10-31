@@ -161,26 +161,38 @@ bool SumReduceLikeOp<CPUContext>::DoRunWithType() {
     auto count = A.size();
     SRLHelper::sum2one<T>(Adata, Cdata, count);
   } else {
-    CAFFE_ENFORCE_GT(
+    CAFFE_ENFORCE_GE(
         A.ndim(),
         B.ndim(),
         "If you are doing ReduceSumLike, input1 should have "
-        "a smaller number of dimensions.");
+        "a smaller or equal number of dimensions.");
     const int axis = (axis_ == -1 ? A.ndim() - B.ndim() : axis_);
-    CAFFE_ENFORCE(
-        axis >= 0 && axis < A.ndim(),
-        "ReduceSum axis should be in the range of the number "
-        "of dimensions of the first input.");
+    CAFFE_ENFORCE(axis >= 0 && axis_ <= A.ndim() - B.ndim(),
+        "Broadcast axis should be in the range of"
+        "[0, A.ndim() - B.ndim()], but axis = ", axis_);
+    int b_dim_start = 0;
+    while (b_dim_start < B.ndim() &&
+           B.dim(b_dim_start) == 1) {
+        ++b_dim_start;
+    }
+    int b_dim_end = B.ndim() - 1;
+    while (b_dim_end >= b_dim_start &&
+           B.dim(b_dim_end) == 1) {
+        --b_dim_end;
+    }
     size_t pre = 1, n = 1, post = 1;
-    for (int i = 0; i < axis; ++i) {
+    for (int i = 0; i < axis + b_dim_start; ++i) {
       pre *= A.dim(i);
     }
-    for (int i = 0; i < B.ndim(); ++i) {
+    for (int i = b_dim_start; i <= b_dim_end; ++i) {
       CAFFE_ENFORCE_EQ(
-          A.dim(i + axis), B.dim(i), "Broadcast dimension mismatch.");
+          A.dim(i + axis), B.dim(i),
+          "Broadcast dimension mismatch.",
+          " start=", b_dim_start, " end=", b_dim_end,
+          " i=", i, " axis=", axis);
       n *= B.dim(i);
     }
-    for (int i = axis + B.ndim(); i < A.ndim(); ++i) {
+    for (int i = axis + b_dim_end + 1; i < A.ndim(); ++i) {
       post *= A.dim(i);
     }
     if (post == 1) {
