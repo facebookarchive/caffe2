@@ -133,7 +133,7 @@ bool isSupportedRenderer() {
 
 bool isSupportedDevice() {
 #if CAFFE2_IOS
-  return iPhoneVersion() >= 7; // iPhone 6 and up
+  return iPhoneVersion() >= 7; // iPhone 7 and up
 #elif CAFFE2_ANDROID
   return isSupportedRenderer();
 #else
