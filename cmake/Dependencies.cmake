@@ -323,6 +323,16 @@ endif()
 
 # ---[ CUDA
 if(USE_CUDA)
+  # ---[ CuDNN: we include CuDNN before CUDA to allow overriding CuDNN headers located
+  # ---[ in the CUDA path.
+  if(HAVE_CUDA)
+    find_package(CuDNN REQUIRED)
+    if(CUDNN_FOUND)
+      caffe2_include_directories(${CUDNN_INCLUDE_DIRS})
+      list(APPEND Caffe2_CUDA_DEPENDENCY_LIBS ${CUDNN_LIBRARIES})
+    endif()
+  endif()
+
   include(cmake/Cuda.cmake)
   # CUDA 8.0 requires GCC 5
   if(HAVE_CUDA)
@@ -333,14 +343,6 @@ if(USE_CUDA)
         "CUDA 8.0 is not compatible with GCC version >= 6. "
         "Use the following option to use another version (for example): \n"
         "  -DCUDA_HOST_COMPILER=/usr/bin/gcc-5\n")
-    endif()
-  endif()
-  # ---[ CUDNN
-  if(HAVE_CUDA)
-    find_package(CuDNN REQUIRED)
-    if(CUDNN_FOUND)
-      caffe2_include_directories(${CUDNN_INCLUDE_DIRS})
-      list(APPEND Caffe2_CUDA_DEPENDENCY_LIBS ${CUDNN_LIBRARIES})
     endif()
   else()
     message(WARNING "Not compiling with CUDA. Suppress this warning with -DUSE_CUDA=OFF")
