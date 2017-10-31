@@ -327,7 +327,7 @@ class TestElementwiseBroadcast(hu.HypothesisTestCase):
         self.assertReferenceChecks(
             device_option=gc,
             op=op,
-            inputs=[X,Y],
+            inputs=[X, Y],
             reference=ref_op,
             threshold=1e-3)
 
@@ -345,7 +345,7 @@ class TestElementwiseBroadcast(hu.HypothesisTestCase):
         self.assertReferenceChecks(
             device_option=gc,
             op=op,
-            inputs=[X,Y],
+            inputs=[X, Y],
             reference=ref_op,
             threshold=1e-3)
 
@@ -355,7 +355,7 @@ class TestElementwiseBroadcast(hu.HypothesisTestCase):
         op = core.CreateOperator(
             "SumReduceLike", ["X", "Y"], "out", broadcast=1, axis=1)
 
-        def ref_op(X,Y):
+        def ref_op(X, Y):
             res = np.sum(X, axis=0)
             res = np.sum(res, axis=2)
             return [res]
@@ -363,7 +363,7 @@ class TestElementwiseBroadcast(hu.HypothesisTestCase):
         self.assertReferenceChecks(
             device_option=gc,
             op=op,
-            inputs=[X,Y],
+            inputs=[X, Y],
             reference=ref_op,
             threshold=1e-3)
 
@@ -373,7 +373,7 @@ class TestElementwiseBroadcast(hu.HypothesisTestCase):
         op = core.CreateOperator(
             "SumReduceLike", ["X", "Y"], "out", broadcast=1)
 
-        def ref_op(X,Y):
+        def ref_op(X, Y):
             res = np.sum(X, axis=0)
             res = np.sum(res, axis=2)
             return [res.reshape(Y.shape)]
@@ -381,7 +381,7 @@ class TestElementwiseBroadcast(hu.HypothesisTestCase):
         self.assertReferenceChecks(
             device_option=gc,
             op=op,
-            inputs=[X,Y],
+            inputs=[X, Y],
             reference=ref_op,
             threshold=1e-3)
 

@@ -292,9 +292,7 @@ bool SumReduceLikeOp<CUDAContext>::DoRunWithType() {
     for (int i = b_dim_start; i <= b_dim_end; ++i) {
       CAFFE_ENFORCE_EQ(
           A.dim(i + axis), B.dim(i),
-          "Broadcast dimension mismatch.",
-          " start=", b_dim_start, " end=", b_dim_end,
-          " i=", i, " axis=", axis);
+          "Broadcast dimension mismatch.");
       n *= B.dim(i);
     }
     for (int i = axis + b_dim_end + 1; i < A.ndim(); ++i) {
