@@ -33,6 +33,7 @@ std::unique_ptr<RecurrentNetworkExecutorBase> createRNNExecutor<CPUContext>(
     exec->setNumThreads(num_threads);
     LOG(INFO) << "Set num threads: " << num_threads;
   }
+  exec->debug_ = rnn_args.GetSingleArgument<int>("rnn_executor_debug", 0);
   return std::unique_ptr<RecurrentNetworkExecutorBase>(exec);
 }
 
@@ -200,6 +201,8 @@ void ThreadedRecurrentNetworkExecutor::_Exec() {
       return failed_ || countdown_ == 0;
     });
   }
+
+  CAFFE_ENFORCE_EQ(false, failed_);
 }
 
 } // namespace caffe2
