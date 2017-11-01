@@ -196,10 +196,10 @@ class BinaryElementwiseOp : public Operator<Context> {
           "a smaller or equal number of dimensions.");
       const int axis = (axis_ == -1 ? A.ndim() - B.ndim() : axis_);
       CAFFE_ENFORCE(
-          axis >= 0 && axis_ <= A.ndim() - B.ndim(),
+          axis >= 0 && axis <= A.ndim() - B.ndim(),
           "Broadcast axis should be in the range of"
           "[0, A.ndim() - B.ndim()], but axis = ",
-          axis_);
+          axis);
 
       int b_dim_start = 0;
       while (b_dim_start < B.ndim() && B.dim(b_dim_start) == 1) {
