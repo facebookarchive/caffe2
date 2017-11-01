@@ -266,38 +266,8 @@ bool SumReduceLikeOp<CUDAContext>::DoRunWithType() {
   if (B.size() == 1) {
     device_reduce<T>(Adata, Cdata, count, &sum_buffer_, &context_);
   } else {
-    CAFFE_ENFORCE_GE(
-        A.ndim(),
-        B.ndim(),
-        "If you are doing ReduceSumLike, input1 should have "
-        "a smaller or equal number of dimensions.");
-    const int axis = (axis_ == -1 ? A.ndim() - B.ndim() : axis_);
-    CAFFE_ENFORCE(
-        axis >= 0 && axis <= A.ndim() - B.ndim(),
-        "Broadcast axis should be in the range of"
-        "[0, A.ndim() - B.ndim()], but axis = ",
-        axis);
-    int b_dim_start = 0;
-    while (b_dim_start < B.ndim() && B.dim(b_dim_start) == 1) {
-      ++b_dim_start;
-    }
-    int b_dim_end = B.ndim() - 1;
-    while (b_dim_end >= b_dim_start && B.dim(b_dim_end) == 1) {
-      --b_dim_end;
-    }
-    size_t pre = 1, n = 1, post = 1;
-    for (int i = 0; i < axis + b_dim_start; ++i) {
-      pre *= A.dim(i);
-    }
-    for (int i = b_dim_start; i <= b_dim_end; ++i) {
-      CAFFE_ENFORCE_EQ(
-          A.dim(i + axis), B.dim(i), "Broadcast dimension mismatch.");
-      n *= B.dim(i);
-    }
-    for (int i = axis + b_dim_end + 1; i < A.ndim(); ++i) {
-      post *= A.dim(i);
-    }
-
+    size_t pre, n, post;
+    std::tie(pre, n, post) = calculate_broadcast_sizes(A, B, axis_);
     // because we check shape(B) \in shape(A) before,
     // post and pre cannot be 1 at same time
     if (post == 1) {
@@ -428,38 +398,8 @@ class CUDAAddOp final : public Operator<CUDAContext> {
           0,
           context_.cuda_stream()>>>(X0.size(), X0data, X1data, outputData);
     } else {
-      CAFFE_ENFORCE_GE(
-          X0.ndim(),
-          X1.ndim(),
-          "If you are doing broadcasting, input1 should have "
-          "a smaller or equal number of dimensions.");
-      const int axis = (axis_ == -1 ? X0.ndim() - X1.ndim() : axis_);
-      CAFFE_ENFORCE(
-          axis >= 0 && axis_ <= X0.ndim() - X1.ndim(),
-          "Broadcast axis should be in the range of"
-          "[0, X0.ndim() - X1.ndim()], but axis = ",
-          axis_);
-      int b_dim_start = 0;
-      while (b_dim_start < X1.ndim() && X1.dim(b_dim_start) == 1) {
-        ++b_dim_start;
-      }
-      int b_dim_end = X1.ndim() - 1;
-      while (b_dim_end >= b_dim_start && X1.dim(b_dim_end) == 1) {
-        --b_dim_end;
-      }
-      size_t pre = 1, n = 1, post = 1;
-      for (int i = 0; i < axis + b_dim_start; ++i) {
-        pre *= X0.dim(i);
-      }
-      for (int i = b_dim_start; i <= b_dim_end; ++i) {
-        CAFFE_ENFORCE_EQ(
-            X0.dim(i + axis), X1.dim(i), "Broadcast dimension mismatch.");
-        n *= X1.dim(i);
-      }
-      for (int i = axis + b_dim_end + 1; i < X0.ndim(); ++i) {
-        post *= X0.dim(i);
-      }
-
+      size_t pre, n, post;
+      std::tie(pre, n, post) = calculate_broadcast_sizes(X0, X1, axis_);
       if (post == 1) {
         binary_add_kernel_broadcast<true, T, M><<<
             CAFFE_GET_BLOCKS(pre * n),
