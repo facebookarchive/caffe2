@@ -18,6 +18,7 @@
 #include "caffe2/core/operator.h"
 #include "caffe2/core/tensor.h"
 #include "caffe2/utils/proto_utils.h"
+#include "caffe2/utils/math.h"
 
 #include "gtest/gtest.h"
 #include <cmath>
