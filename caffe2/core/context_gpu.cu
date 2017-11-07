@@ -256,7 +256,7 @@ struct Caffe2CudaInitializerHelper {
 
 CUDAContext::CUDAContext(const int gpu_id)
     : gpu_id_(gpu_id == -1 ? GetDefaultGPUID() : gpu_id)
-    , random_seed_(math::randomNumberSeed()) {
+    , random_seed_(RandomNumberSeed()) {
   static Caffe2CudaInitializerHelper g_cuda_initializer_;
 }
 
@@ -264,7 +264,7 @@ CUDAContext::CUDAContext(const DeviceOption& option)
     : gpu_id_(option.has_cuda_gpu_id() ?
               option.cuda_gpu_id() : GetDefaultGPUID()),
       random_seed_(option.has_random_seed() ?
-                   option.random_seed() : math::randomNumberSeed()) {
+                   option.random_seed() : RandomNumberSeed()) {
   static Caffe2CudaInitializerHelper g_cuda_initializer_;
   DCHECK_EQ(option.device_type(), CUDA);
 }
