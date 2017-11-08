@@ -6,8 +6,8 @@
 #include "caffe2/core/init.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/core/operator.h"
-#include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/mobile/contrib/opengl/core/rewrite_net.h"
+#include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/share/contrib/observers/observer_config.h"
 #include "caffe2/utils/proto_utils.h"
 #include "caffe2/utils/string_utils.h"
@@ -164,10 +164,12 @@ int main(int argc, char** argv) {
       net_def = opengl_net_def;
       if (caffe2::FLAGS_run_individual) {
         caffe2::FLAGS_run_individual = false;
-        LOG(INFO) << "OpenGL implementation does not support individual operator delay. Run net delay only";
+        LOG(INFO)
+            << "OpenGL implementation does not support individual operator delay. Run net delay only";
       }
     } else {
-      LOG(ERROR) << "Net cannot be converted to OpenGL format, use original model instead";
+      LOG(ERROR)
+          << "Net cannot be converted to OpenGL format, use original model instead";
     }
   } else if (caffe2::FLAGS_engine == "nnpack") {
     for (int i = 0; i < net_def.op_size(); i++) {
