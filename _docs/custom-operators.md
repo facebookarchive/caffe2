@@ -125,7 +125,7 @@ The key functions are:
 
 For a simple example:
 
-```cpp
+```py
 @given(X=hu.tensor(), **hu.gcs)
 def test_averaged_loss(self, X, gc, dc):
     op = core.CreateOperator("AveragedLoss", ["X"], ["loss"])
@@ -135,7 +135,7 @@ def test_averaged_loss(self, X, gc, dc):
 
 Another example that demonstrates the usage of `assertReferenceChecks`:
 
-```cpp
+```py
 @given(inputs=hu.tensors(n=3),
        in_place=st.booleans(),
        beta1=st.floats(min_value=0.1, max_value=0.9),
@@ -182,7 +182,7 @@ def test_adam(self, inputs, in_place, beta1, beta2, lr, iters, epsilon,
 
 For a fancier example that demonstrates drawing more sophisticated elements:
 
-```cpp
+```py
 @given(prediction=hu.arrays(dims=[10, 3],
                             elements=st.floats(allow_nan=False,
                                                allow_infinity=False,
