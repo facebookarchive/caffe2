@@ -13,10 +13,10 @@
 #include "caffe2/utils/string_utils.h"
 
 CAFFE2_DEFINE_string(
-    engine,
+    backend,
     "default",
-    "The backend engine to use when running the model. The allowed "
-    "engines choices are: default, nnpack, opengl");
+    "The backend to use when running the model. The allowed "
+    "backend choices are: default, nnpack, opengl");
 CAFFE2_DEFINE_string(
     init_net,
     "",
@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
   // Run main network.
   caffe2::NetDef net_def;
   CAFFE_ENFORCE(ReadProtoFromFile(caffe2::FLAGS_net, &net_def));
-  if (caffe2::FLAGS_engine == "opengl") {
+  if (caffe2::FLAGS_backend == "opengl") {
     caffe2::NetDef opengl_net_def;
     if (caffe2::tryConvertToOpenGL(init_net_def, net_def, &opengl_net_def)) {
       net_def = opengl_net_def;
@@ -171,13 +171,13 @@ int main(int argc, char** argv) {
       LOG(ERROR)
           << "Net cannot be converted to OpenGL format, use original model instead";
     }
-  } else if (caffe2::FLAGS_engine == "nnpack") {
+  } else if (caffe2::FLAGS_backend == "nnpack") {
     for (int i = 0; i < net_def.op_size(); i++) {
       caffe2::OperatorDef* op_def = net_def.mutable_op(i);
       op_def->set_engine("NNPACK");
     }
   } else {
-    CAFFE_ENFORCE(caffe2::FLAGS_engine == "default", "Engine is not supported");
+    CAFFE_ENFORCE(caffe2::FLAGS_backend == "default", "Backend is not supported");
   }
 
   caffe2::NetBase* net = workspace->CreateNet(net_def);
