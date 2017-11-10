@@ -6,11 +6,14 @@
 #include "caffe2/core/init.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/core/operator.h"
-#include "caffe2/mobile/contrib/opengl/core/rewrite_net.h"
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/share/contrib/observers/observer_config.h"
 #include "caffe2/utils/proto_utils.h"
 #include "caffe2/utils/string_utils.h"
+
+#if CAFFE2_MOBILE && (CAFFE2_ANDROID || CAFFE2_IOS)
+#include "caffe2/mobile/contrib/opengl/core/rewrite_net.h"
+#endif
 
 CAFFE2_DEFINE_string(
     backend,
@@ -159,6 +162,7 @@ int main(int argc, char** argv) {
   caffe2::NetDef net_def;
   CAFFE_ENFORCE(ReadProtoFromFile(caffe2::FLAGS_net, &net_def));
   if (caffe2::FLAGS_backend == "opengl") {
+#if CAFFE2_MOBILE && (CAFFE2_ANDROID || CAFFE2_IOS)
     caffe2::NetDef opengl_net_def;
     if (caffe2::tryConvertToOpenGL(init_net_def, net_def, &opengl_net_def)) {
       net_def = opengl_net_def;
@@ -171,13 +175,19 @@ int main(int argc, char** argv) {
       LOG(ERROR)
           << "Net cannot be converted to OpenGL format, use original model instead";
     }
+#else
+    LOG(ERROR)
+        << "OpenGL build can only be used in mobile platform";
+#endif
+
   } else if (caffe2::FLAGS_backend == "nnpack") {
     for (int i = 0; i < net_def.op_size(); i++) {
       caffe2::OperatorDef* op_def = net_def.mutable_op(i);
       op_def->set_engine("NNPACK");
     }
   } else {
-    CAFFE_ENFORCE(caffe2::FLAGS_backend == "default", "Backend is not supported");
+    CAFFE_ENFORCE(
+        caffe2::FLAGS_backend == "default", "Backend is not supported");
   }
 
   caffe2::NetBase* net = workspace->CreateNet(net_def);
