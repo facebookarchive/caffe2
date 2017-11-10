@@ -176,8 +176,7 @@ int main(int argc, char** argv) {
           << "Net cannot be converted to OpenGL format, use original model instead";
     }
 #else
-    LOG(ERROR)
-        << "OpenGL build can only be used in mobile platform";
+    LOG(ERROR) << "OpenGL build can only be used in mobile platform";
 #endif
 
   } else if (caffe2::FLAGS_backend == "nnpack") {
