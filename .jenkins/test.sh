@@ -28,9 +28,6 @@ for test in ./test/*; do
     net_test)
       continue
       ;;
-    mkl_utils_test)
-      continue
-      ;;
   esac
 
   "$test" --gtest_output=xml:"$TEST_DIR"/cpp/$(basename "$test").xml
