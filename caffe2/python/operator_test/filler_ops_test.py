@@ -98,6 +98,36 @@ class TestFillerOperator(hu.HypothesisTestCase):
             self.assertTrue((blob_out <= b).all())
 
     @given(
+        **hu.gcs
+    )
+    def test_uniform_fill_using_arg(self, gc, dc):
+        net = core.Net('test_net')
+        shape = [2**3, 5]
+        # uncomment this to test filling large blob
+        # shape = [2**30, 5]
+        min_v = -100
+        max_v = 100
+        output_blob = net.UniformIntFill(
+            [],
+            ['output_blob'],
+            shape=shape,
+            min=min_v,
+            max=max_v,
+        )
+
+        workspace.RunNetOnce(net)
+        output_data = workspace.FetchBlob(output_blob)
+
+        np.testing.assert_array_equal(shape, output_data.shape)
+        min_data = np.min(output_data)
+        max_data = np.max(output_data)
+
+        self.assertGreaterEqual(min_data, min_v)
+        self.assertLessEqual(max_data, max_v)
+
+        self.assertNotEqual(min_data, max_data)
+
+    @given(
         shape=st.sampled_from(
             [
                 [3, 3],
