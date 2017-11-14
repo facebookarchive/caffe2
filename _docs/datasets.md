@@ -36,3 +36,4 @@ You may also want to check out the pre-trained models at [Caffe2's Model Zoo](zo
 | [UCI Datasets](https://archive.ics.uci.edu/ml/datasets.html) | ![variety](../static/images/caffe2variety.png) | [![download](../static/images/download.png)](https://archive.ics.uci.edu/ml/datasets.html) |
 | [US Census](https://catalog.data.gov/dataset): demographic data | ![line graph](../static/images/linegraph.png)            | [![download](../static/images/download.png)](https://catalog.data.gov/dataset) |
 | [VGG-Face](http://www.robots.ox.ac.uk/~vgg/software/vgg_face/) millions of faces | ![faces](../static/images/faces.jpg) | [![download](../static/images/download.png)](http://www.robots.ox.ac.uk/~vgg/software/vgg_face/src/vgg_face_caffe.tar.gz)|
+| [LibriSpeech](http://www.openslr.org/12/) 1000 hours free speech recognition traning dataset| ![language](../static/images/landing-audio.png) | [![download](../static/images/download.png)](http://www.openslr.org/12/)|
