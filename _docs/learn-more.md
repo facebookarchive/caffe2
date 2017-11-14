@@ -35,7 +35,7 @@ Caffe is well known for its capability for image-based neural networks which can
 
 This portrait matching application is a fun example of the power of neural networks and how they're getting closer to mimicking human's capabilities with identifying look-a-like faces. It uses a database of celebrity images as its training set and uses [artwork][http://deviantart.com] made by a wide variety of artists and in many different styles as its test dataset.
 
-[![screenshot of the portrait matcher demo page](/static/images/portrait-matcher-demo.png)](http://zeus.robots.ox.ac.uk/facepainting/)
+[![screenshot of the portrait matcher demo page](/static/images/portrait-matcher-demo.png)](http://zeus.robots.ox.ac.uk/portraitmatcher/)
 
 
 ## Caffe2 Philosophy
