@@ -192,7 +192,7 @@ class TestBatchMatMul(hu.HypothesisTestCase):
             check_func(*args, threshold=threshold, **kwargs)
 
         # Check against numpy reference
-        relax_fp16_check(self.assertReferenceChecks, gc, op, [X, Y, trans_a, trans_b], matmul_ref)
+        relax_fp16_check(self.assertReferenceChecks, gc, op, [X, Y, trans_a, trans_b, dtype], matmul_ref)
         # Check over multiple devices
         relax_fp16_check(self.assertDeviceChecks, dc, op, [X, Y], [0])
         # Gradient check wrt X
