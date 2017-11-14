@@ -9,10 +9,10 @@ env:
     - BUILD_CCACHE_DIR=~/build/ccache
     - BUILD_NINJA_DIR=~/build/ninja
   matrix:
-    - BUILD=linux
-    - BUILD=linux-gcc5
-    - BUILD=linux-cuda
-    - BUILD=linux-mkl
+    #- BUILD=linux
+    #- BUILD=linux-gcc5
+    #- BUILD=linux-cuda
+    #- BUILD=linux-mkl
     - BUILD=linux-android
 
 matrix:
