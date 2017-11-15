@@ -29,6 +29,11 @@ if [ -z ${IOS_PLATFORM+x} ]; then
     IOS_PLATFORM=OS
 fi
 
+# Use ccache if available (this path is where Homebrew installs ccache symlinks)
+if [ -d /usr/local/opt/ccache/libexec ]; then
+  export PATH="/usr/local/opt/ccache/libexec:$PATH"
+fi
+
 cmake .. \
     -DCMAKE_TOOLCHAIN_FILE=$CAFFE2_ROOT/third_party/ios-cmake/toolchain/iOS.cmake\
     -DCMAKE_INSTALL_PREFIX=../install \
