@@ -20,7 +20,6 @@ from textwrap import dedent
 
 TOP_DIR = os.path.realpath(os.path.dirname(__file__))
 SRC_DIR = os.path.join(TOP_DIR, 'caffe2')
-PROTOC = find_executable('protoc')
 
 install_requires = set()
 setup_requires = set()
@@ -52,6 +51,7 @@ with open(os.path.join(TOP_DIR, 'VERSION_NUMBER')) as version_file:
 ################################################################################
 # Customized commands
 ################################################################################
+
 
 class Caffe2Command(setuptools.Command):
     user_options = []
@@ -89,45 +89,34 @@ class build_ext(setuptools.command.build_ext.build_ext):
         build_lib = os.path.realpath(self.build_lib)
 
         if 'CMAKE_INSTALL_DIR' not in os.environ:
-            install_dir = os.path.join(build_temp, 'cmake_install')
-            build_dir = os.environ.get('CMAKE_BUILD_DIR',
-                                       os.path.join(build_temp, 'cmake_build'))
-            if not os.path.exists(build_dir):
-                self.compiler.mkpath(build_dir)
+            cmake_install_dir = os.path.join(build_temp, 'cmake_install')
 
             py_exe = sys.executable
             py_inc = sysconfig.get_python_inc()
-            cmake_args = shlex.split(os.environ.get('CMAKE_ARGS', ''))
-            log.info('CMAKE_ARGS: {}'.format(cmake_args))
 
-            cwd = os.getcwd()
-            os.chdir(build_dir)
             self.compiler.spawn([
-                'cmake',
+                os.path.join(TOP_DIR, 'scripts', 'build_local.sh'),
                 '-DBUILD_SHARED_LIBS=OFF',
                 # TODO: Investigate why BUILD_SHARED_LIBS=OFF USE_GLOO=ON
                 # will cause error 'target "gloo" that is not in the
                 # export set' in cmake.
                 '-DUSE_GLOO=OFF',
-                '-DCMAKE_INSTALL_PREFIX:PATH={}'.format(install_dir),
+                '-DCMAKE_INSTALL_PREFIX:PATH={}'.format(cmake_install_dir),
                 '-DPYTHON_EXECUTABLE:FILEPATH={}'.format(py_exe),
                 '-DPYTHON_INCLUDE_DIR={}'.format(py_inc),
                 '-DBUILD_TEST=OFF',
                 '-BUILD_BENCHMARK=OFF',
                 '-DBUILD_BINARY=OFF',
                 TOP_DIR
-            ] + cmake_args)
-            self.compiler.spawn([
-                'make',
-                '-j{}'.format(multiprocessing.cpu_count() + 1)
             ])
-            self.compiler.spawn(['make', 'install'])
-            os.chdir(cwd)
+            # This is assuming build_local.sh will use TOP_DIR/build
+            # as the cmake build directory
+            self.compiler.spawn(['make', '-C', os.path.join(TOP_DIR, 'build'), 'install'])
         else:
-            install_dir = os.environ['CMAKE_INSTALL_DIR']
+            cmake_install_dir = os.environ['CMAKE_INSTALL_DIR']
 
         for d in ['caffe', 'caffe2']:
-            self.copy_tree(os.path.join(install_dir, d),
+            self.copy_tree(os.path.join(cmake_install_dir, d),
                            os.path.join(build_lib, d))
 
     def get_outputs(self):
@@ -139,7 +128,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
         self._build_with_cmake()
 
 
-cmdclass={
+cmdclass = {
     'create_version': create_version,
     'build_py': build_py,
     'develop': develop,
