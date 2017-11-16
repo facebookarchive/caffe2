@@ -93,12 +93,15 @@ if [ "$TRAVIS_OS_NAME" = 'linux' ]; then
         ################
         # Install CUDA #
         ################
-        CUDA_REPO_PKG='cuda-repo-ubuntu1404_8.0.44-1_amd64.deb'
-        CUDA_PKG_VERSION='8-0'
-        CUDA_VERSION='8.0'
-        wget "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/${CUDA_REPO_PKG}"
+        CUDA_REPO_URL='https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64'
+        CUDA_REPO_PKG='cuda-repo-ubuntu1604_9.0.176-1_amd64.deb'
+        CUDA_REPO_KEY='7fa2af80.pub'
+        CUDA_PKG_VERSION='9-0'
+        CUDA_VERSION='9.0'
+        wget "${CUDA_REPO_URL}/${CUDA_REPO_PKG}"
         sudo dpkg -i "$CUDA_REPO_PKG"
         rm -f "$CUDA_REPO_PKG"
+        wget -qO - "${CUDA_REPO_URL}/${CUDA_REPO_KEY}" | sudo apt-key add -
         sudo apt-get update
         $APT_INSTALL_CMD \
             "cuda-core-${CUDA_PKG_VERSION}" \
@@ -113,15 +116,14 @@ if [ "$TRAVIS_OS_NAME" = 'linux' ]; then
         #################
         # Install cuDNN #
         #################
-        CUDNN_REPO_PKG='nvidia-machine-learning-repo-ubuntu1404_4.0-2_amd64.deb'
-        CUDNN_PKG_VERSION='6.0.20-1+cuda8.0'
-        wget "https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1404/x86_64/${CUDNN_REPO_PKG}"
-        sudo dpkg -i "$CUDNN_REPO_PKG"
-        rm -f "$CUDNN_REPO_PKG"
+        CUDNN_REPO_URL='https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64'
+        CUDNN_PKG_VERSION='7.0.3.11-1+cuda9.0'
+        echo "deb ${CUDNN_REPO_URL} /" | sudo tee /etc/apt/sources.list.d/nvidia-ml.list
+        sudo apt-get update
         sudo apt-get update
         $APT_INSTALL_CMD \
-            "libcudnn6=${CUDNN_PKG_VERSION}" \
-            "libcudnn6-dev=${CUDNN_PKG_VERSION}"
+            "libcudnn7=${CUDNN_PKG_VERSION}" \
+            "libcudnn7-dev=${CUDNN_PKG_VERSION}"
     fi
 
     if [ "$BUILD_MKL" = 'true' ]; then
