@@ -38,7 +38,7 @@ assert find_executable('make'), 'Could not find "make" executable!'
 ################################################################################
 
 try:
-    git_version = subprocess.check_output(['git', 'rev-parse', 'HEAD'],
+    git_version = subprocess.check_output(['git', 'describe', '--tags', 'HEAD'],
                                           cwd=TOP_DIR).decode('ascii').strip()
 except subprocess.CalledProcessError:
     git_version = None
