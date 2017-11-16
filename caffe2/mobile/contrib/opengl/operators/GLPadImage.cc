@@ -21,6 +21,7 @@
 
 #include "caffe2/core/operator.h"
 #include "caffe2/core/timer.h"
+#include "caffe2/core/types.h"
 #include "caffe2/operators/conv_pool_op_base.h"
 
 class GLPadImage : public GLFilter {

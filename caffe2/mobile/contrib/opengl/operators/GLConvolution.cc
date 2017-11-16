@@ -21,6 +21,7 @@
 #include "caffe2/core/common.h"
 #include "caffe2/core/context.h"
 #include "caffe2/core/timer.h"
+#include "caffe2/core/types.h"
 #include "caffe2/operators/conv_pool_op_base.h"
 #include "caffe2/operators/conv_transpose_unpool_op_base.h"
 #include <iostream>
