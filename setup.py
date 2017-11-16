@@ -88,45 +88,47 @@ class build_ext(setuptools.command.build_ext.build_ext):
         build_temp = os.path.realpath(self.build_temp)
         build_lib = os.path.realpath(self.build_lib)
 
-        install_dir = os.environ.get('CMAKE_INSTALL_DIR',
-                                     os.path.join(build_temp, 'cmake_install'))
-        build_dir = os.environ.get('CMAKE_BUILD_DIR',
-                                   os.path.join(build_temp, 'cmake_build'))
-        if not os.path.exists(build_dir):
-            self.compiler.mkpath(build_dir)
+        if 'CMAKE_INSTALL_DIR' not in os.environ:
+            install_dir = os.path.join(build_temp, 'cmake_install')
+            build_dir = os.environ.get('CMAKE_BUILD_DIR',
+                                       os.path.join(build_temp, 'cmake_build'))
+            if not os.path.exists(build_dir):
+                self.compiler.mkpath(build_dir)
 
-        py_exe = sys.executable
-        py_inc = sysconfig.get_python_inc()
-        cmake_args = shlex.split(os.environ.get('CMAKE_ARGS', ''))
-        log.info('CMAKE_ARGS: {}'.format(cmake_args))
+            py_exe = sys.executable
+            py_inc = sysconfig.get_python_inc()
+            cmake_args = shlex.split(os.environ.get('CMAKE_ARGS', ''))
+            log.info('CMAKE_ARGS: {}'.format(cmake_args))
 
-        cwd = os.getcwd()
-        os.chdir(build_dir)
-        self.compiler.spawn([
-            'cmake',
-            '-DBUILD_SHARED_LIBS=OFF',
-            # TODO: Investigate why BUILD_SHARED_LIBS=OFF USE_GLOO=ON
-            # will cause error 'target "gloo" that is not in the
-            # export set' in cmake.
-            '-DUSE_GLOO=OFF',
-            '-DCMAKE_INSTALL_PREFIX:PATH={}'.format(install_dir),
-            '-DPYTHON_EXECUTABLE:FILEPATH={}'.format(py_exe),
-            '-DPYTHON_INCLUDE_DIR={}'.format(py_inc),
-            '-DBUILD_TEST=OFF',
-            '-BUILD_BENCHMARK=OFF',
-            '-DBUILD_BINARY=OFF',
-            TOP_DIR
-        ] + cmake_args)
-        self.compiler.spawn([
-            'make',
-            '-j{}'.format(multiprocessing.cpu_count() + 1)
-        ])
-        self.compiler.spawn(['make', 'install'])
-        os.chdir(cwd)
+            cwd = os.getcwd()
+            os.chdir(build_dir)
+            self.compiler.spawn([
+                'cmake',
+                '-DBUILD_SHARED_LIBS=OFF',
+                # TODO: Investigate why BUILD_SHARED_LIBS=OFF USE_GLOO=ON
+                # will cause error 'target "gloo" that is not in the
+                # export set' in cmake.
+                '-DUSE_GLOO=OFF',
+                '-DCMAKE_INSTALL_PREFIX:PATH={}'.format(install_dir),
+                '-DPYTHON_EXECUTABLE:FILEPATH={}'.format(py_exe),
+                '-DPYTHON_INCLUDE_DIR={}'.format(py_inc),
+                '-DBUILD_TEST=OFF',
+                '-BUILD_BENCHMARK=OFF',
+                '-DBUILD_BINARY=OFF',
+                TOP_DIR
+            ] + cmake_args)
+            self.compiler.spawn([
+                'make',
+                '-j{}'.format(multiprocessing.cpu_count() + 1)
+            ])
+            self.compiler.spawn(['make', 'install'])
+            os.chdir(cwd)
+        else:
+            install_dir = os.environ['CMAKE_INSTALL_DIR']
 
-        for py_dir in ['caffe', 'caffe2']:
-            self.copy_tree(os.path.join(install_dir, py_dir),
-                           os.path.join(build_lib, py_dir))
+        for d in ['caffe', 'caffe2']:
+            self.copy_tree(os.path.join(install_dir, d),
+                           os.path.join(build_lib, d))
 
     def get_outputs(self):
         return [os.path.join(self.build_lib, d)
@@ -197,5 +199,5 @@ setuptools.setup(
     tests_require=test_requires,
     author='jiayq',
     author_email='jiayq@fb.com',
-    url='https://github.com/caffe2/caffe2',
+    url='https://caffe2.ai',
 )
