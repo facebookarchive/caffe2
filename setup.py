@@ -4,16 +4,14 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from distutils.spawn import find_executable
-from distutils import sysconfig, log
+from distutils import sysconfig
 import setuptools
 import setuptools.command.build_py
 import setuptools.command.develop
 import setuptools.command.build_ext
 
 from collections import namedtuple
-import multiprocessing
 import os
-import shlex
 import subprocess
 import sys
 from textwrap import dedent
@@ -111,7 +109,11 @@ class build_ext(setuptools.command.build_ext.build_ext):
             ])
             # This is assuming build_local.sh will use TOP_DIR/build
             # as the cmake build directory
-            self.compiler.spawn(['make', '-C', os.path.join(TOP_DIR, 'build'), 'install'])
+            self.compiler.spawn([
+                'make',
+                '-C', os.path.join(TOP_DIR, 'build'),
+                'install'
+            ])
         else:
             cmake_install_dir = os.environ['CMAKE_INSTALL_DIR']
 
