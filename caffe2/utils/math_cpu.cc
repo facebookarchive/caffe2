@@ -43,9 +43,6 @@
 #include <mkl.h>
 #endif  // CAFFE2_USE_MKL
 
-#if defined(_MSC_VER)
-#include <process.h>
-#endif
 
 namespace caffe2 {
 namespace math {

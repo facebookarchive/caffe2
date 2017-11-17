@@ -17,6 +17,11 @@
 #include <atomic>
 #include "caffe2/core/context.h"
 
+#if defined(_MSC_VER)
+#include <process.h>
+#endif
+
+
 namespace caffe2 {
 
 uint32_t RandomNumberSeed() {
