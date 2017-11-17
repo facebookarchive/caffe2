@@ -33,6 +33,8 @@ if [ ! -d "$ANDROID_NDK" ]; then
   exit 1
 fi
 
+echo "Bash: $(/bin/bash --version | head -1)"
+echo "Caffe2 path: $CAFFE2_ROOT"
 echo "Using Android NDK at $ANDROID_NDK"
 
 # Build protobuf from third_party so we have a host protoc binary.
