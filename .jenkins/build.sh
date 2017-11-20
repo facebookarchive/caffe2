@@ -14,6 +14,10 @@ cd build
 
 CMAKE_ARGS=("-DCMAKE_INSTALL_PREFIX=/usr/local/caffe2")
 
+# Build with -werror for sanity
+CMAKE_ARGS+=("-DCMAKE_C_FLAGS=-Werror")
+CMAKE_ARGS+=("-DCMAKE_CXX_FLAGS=-Werror")
+
 case "${BUILD_ENVIRONMENT}" in
   *-mkl)
     CMAKE_ARGS+=("-DBLAS=MKL")
