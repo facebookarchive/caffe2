@@ -189,7 +189,7 @@ test_requires.update(['pytest-cov', 'hypothesis'])
 
 setuptools.setup(
     name='caffe2',
-    version=VersionInfo.version,
+    version=VersionInfo.git_version,
     description='Caffe2',
     ext_modules=ext_modules,
     cmdclass=cmdclass,
