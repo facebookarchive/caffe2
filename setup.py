@@ -36,15 +36,25 @@ assert find_executable('make'), 'Could not find "make" executable!'
 ################################################################################
 
 try:
-    git_version = subprocess.check_output(['git', 'describe', '--tags', 'HEAD'],
-                                          cwd=TOP_DIR).decode('ascii').strip()
+    git_describe = subprocess.check_output(
+        ['git', 'describe', '--tags', 'HEAD'],
+        cwd=TOP_DIR
+    ).decode('ascii').strip()
+    git_hash = subprocess.check_output(
+        ['git', 'rev-parse', '--short', 'HEAD'],
+        cwd=TOP_DIR
+    ).decode('ascii').strip()
 except subprocess.CalledProcessError:
-    git_version = None
+    git_describe = git_hash = None
 
 with open(os.path.join(TOP_DIR, 'VERSION_NUMBER')) as version_file:
+    version = version_file.read().strip()
+    if git_hash is not None:
+        version += '+git.{}'.format(git_hash)
+
     VersionInfo = namedtuple('VersionInfo', ['version', 'git_version'])(
-        version=version_file.read().strip(),
-        git_version=git_version
+        version=version,
+        git_version=git_describe
     )
 
 ################################################################################
@@ -189,7 +199,7 @@ test_requires.update(['pytest-cov', 'hypothesis'])
 
 setuptools.setup(
     name='caffe2',
-    version=VersionInfo.git_version,
+    version=VersionInfo.version,
     description='Caffe2',
     ext_modules=ext_modules,
     cmdclass=cmdclass,
