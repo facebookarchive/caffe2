@@ -5,6 +5,12 @@ set -e
 LOCAL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT_DIR=$(dirname "$LOCAL_DIR")
 
+# Skip tests in environments where they are not built/applicable
+if [[ "${BUILD_ENVIRONMENT}" == *android ]]; then
+  echo 'Skipping tests'
+  exit 0
+fi
+
 cd "$ROOT_DIR"
 
 export PYTHONPATH="${PYTHONPATH}:/usr/local/caffe2"
@@ -25,9 +31,6 @@ echo "Running C++ tests.."
 for test in ./test/*; do
   # Skip tests we know are hanging or bad
   case "$(basename "$test")" in
-    net_test)
-      continue
-      ;;
     mkl_utils_test)
       continue
       ;;
@@ -49,7 +52,6 @@ python \
   --ignore caffe2/python/test/executor_test.py \
   --ignore caffe2/python/operator_test/matmul_op_test.py \
   --ignore caffe2/python/operator_test/rnn_cell_test.py \
-  --ignore caffe2/python/mkl/mkl_sbn_op_test.py \
   --ignore caffe2/python/mkl/mkl_sbn_speed_test.py \
   caffe2/python/
 tmp_exit_code="$?"

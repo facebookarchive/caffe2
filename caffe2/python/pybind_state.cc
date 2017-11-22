@@ -26,6 +26,7 @@
 #include "caffe2/core/stats.h"
 #include "caffe2/core/transform.h"
 #include "caffe2/mkl/mkl_utils.h"
+#include "caffe2/observers/runcnt_observer.h"
 #include "caffe2/observers/time_observer.h"
 #include "caffe2/utils/cpuid.h"
 #include "caffe2/utils/string_utils.h"
@@ -189,52 +190,6 @@ py::object fetchBlob(Workspace* ws, const std::string& name) {
 }
 }
 
-void printPythonStackTrace() {
-  PyObject *type = nullptr, *value = nullptr, *trace = nullptr;
-  PyErr_Fetch(&type, &value, &trace);
-  PyTracebackObject* traceback = reinterpret_cast<PyTracebackObject*>(trace);
-  vector<PyTracebackObject*> trace_vec;
-  while (traceback) {
-    trace_vec.push_back(traceback);
-    traceback = traceback->tb_next;
-  }
-  for (int i = trace_vec.size() - 1; i >= 0; --i) {
-    int line = trace_vec[i]->tb_lineno;
-    const char* filename;
-    const char* funcname;
-    if (PyUnicode_Check(trace_vec[i]->tb_frame->f_code->co_filename)) {
-      auto encoded = PyUnicode_AsEncodedString(
-          trace_vec[i]->tb_frame->f_code->co_filename, "ASCII", "replace");
-      if (encoded != nullptr) {
-        filename = strdup(PyBytes_AS_STRING(encoded));
-        Py_DECREF(encoded);
-      } else {
-        filename = "<unknown>";
-      }
-    } else {
-      filename = PyBytes_AsString(trace_vec[i]->tb_frame->f_code->co_filename);
-    }
-    if (PyUnicode_Check(trace_vec[i]->tb_frame->f_code->co_name)) {
-      auto encoded = PyUnicode_AsEncodedString(
-          trace_vec[i]->tb_frame->f_code->co_name, "ASCII", "replace");
-      if (encoded != nullptr) {
-        funcname = strdup(PyBytes_AS_STRING(encoded));
-        Py_DECREF(encoded);
-      } else {
-        funcname = "<unknown>";
-      }
-    } else {
-      funcname = PyBytes_AsString(trace_vec[i]->tb_frame->f_code->co_name);
-    }
-
-    LOG(ERROR) << "    # " << trace_vec.size() - i - 1 << "  " << filename
-               << " (" << line << "): " << funcname;
-  }
-  Py_XDECREF(type);
-  Py_XDECREF(value);
-  Py_XDECREF(trace);
-}
-
 PythonOpBase::PythonOpBase(
     const OperatorDef& operator_def,
     Workspace* ws,
@@ -266,10 +221,11 @@ PythonOpBase::PythonOpBase(
       built_func_.reset(new Func{
           built_func, GetSingleArgument<bool>("pass_workspace", false)});
     } catch (const py::error_already_set& e) {
-      LOG(ERROR) << "Python exception encountered while creating PythonOp: "
-                 << e.what() << "\nTraceback: ";
-      printPythonStackTrace();
-      CAFFE_THROW("Python exception encountered while creating PythonOp.");
+      std::stringstream error;
+      error << "Python exception encountered while creating PythonOp: "
+            << e.what();
+      LOG(ERROR) << error.str();
+      CAFFE_THROW(error.str());
     }
   }
 }
@@ -305,10 +261,10 @@ bool PythonOpBase::RunOnDevice() {
         pyFunc->py_func(inputs, outputs);
       }
     } catch (const py::error_already_set& e) {
-      LOG(ERROR) << "Exception encountered running PythonOp function: "
-                 << e.what() << "\nTraceback: ";
-      printPythonStackTrace();
-      return false;
+      std::stringstream error;
+      error << "Exception encountered running PythonOp function: " << e.what();
+      LOG(ERROR) << error.str();
+      CAFFE_THROW(error.str());
     }
   }
   return true;
@@ -395,10 +351,16 @@ void addObjectMethods(py::module& m) {
                 cast_ob, "Observer does not implement this function.");
             return cast_ob->average_time();
           })
-      .def("average_time_children", [](ObserverBase<NetBase>* ob) {
-        auto* cast_ob = dynamic_cast_if_rtti<TimeObserver<NetBase>*>(ob);
-        CAFFE_ENFORCE(cast_ob, "Observer does not implement this function.");
-        return cast_ob->average_time_children();
+      .def(
+          "average_time_children",
+          [](ObserverBase<NetBase>* ob) {
+            auto* cast_ob = dynamic_cast_if_rtti<TimeObserver<NetBase>*>(ob);
+            CAFFE_ENFORCE(
+                cast_ob, "Observer does not implement this function.");
+            return cast_ob->average_time_children();
+          })
+      .def("debug_info", [](ObserverBase<NetBase>* ob) {
+        return ob->debugInfo();
       });
 
   py::class_<Blob>(m, "Blob")
@@ -955,8 +917,14 @@ void addGlobalMethods(py::module& m) {
   }
 
         REGISTER_PYTHON_EXPOSED_OBSERVER(TimeObserver);
-
 #undef REGISTER_PYTHON_EXPOSED_OBSERVER
+
+        if (observer_type.compare("RunCountObserver") == 0) {
+          unique_ptr<RunCountNetObserver> net_ob =
+              make_unique<RunCountNetObserver>(net);
+          observer = net->AttachObserver(std::move(net_ob));
+        }
+
         CAFFE_ENFORCE(observer != nullptr);
         return py::cast(observer);
       });
