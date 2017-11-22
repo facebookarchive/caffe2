@@ -157,8 +157,9 @@ int main(int argc, char** argv) {
         if (caffe2::FLAGS_input_type == "float") {
           tensor->mutable_data<float>();
         } else {
-          CAFFE_ENFORCE(caffe2::FLAGS_input_type == "uint8_t",
-            "Only supported input types are: float, uint8_t");
+          CAFFE_ENFORCE(
+              caffe2::FLAGS_input_type == "uint8_t",
+              "Only supported input types are: float, uint8_t");
           tensor->mutable_data<uint8_t>();
         }
       }
