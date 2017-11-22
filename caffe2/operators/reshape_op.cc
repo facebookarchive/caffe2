@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "caffe2/utils/math.h"
 #include "caffe2/operators/reshape_op.h"
 
 namespace caffe2 {

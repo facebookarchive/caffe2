@@ -20,6 +20,7 @@
 #include "../core/ImageAllocator.h"
 
 #include "caffe2/core/timer.h"
+#include "caffe2/core/types.h"
 #include "caffe2/operators/pool_op.h"
 
 class GLPool : public GLFilter {

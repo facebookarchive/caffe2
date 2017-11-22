@@ -19,6 +19,7 @@
 #include "caffe2/core/context.h"
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/core/flags.h"
+#include "caffe2/utils/math.h"
 #include "caffe2/operators/reshape_op.h"
 #include <gtest/gtest.h>
 
