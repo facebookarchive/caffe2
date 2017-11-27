@@ -1,8 +1,12 @@
 os: linux
 dist: trusty
 sudo: required
-language: cpp
+language: python
 compiler: gcc
+
+python:
+  - "2.7"
+  - "3.6"
 
 env:
   global:
