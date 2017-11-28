@@ -1,5 +1,21 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/relu_op.h"
-#include "caffe2/utils/mkl_utils.h"
+#include "caffe2/mkl/mkl_utils.h"
 
 #include "caffe2/utils/math.h"
 
@@ -18,17 +34,20 @@ class MKLReluOp : public MKLOperator<T> {
     auto* Y = Output(0);
 
     bool dims_changed;
-    CHECK_INPUT_DIMS(dims_changed);
+    CHECK_INPUT_DIMS(X, dims_changed);
     if (dims_changed) {
       // First run or changed input size, will need to recreate environment
       primitive_.Reset(dnnReLUCreateForward<T>, nullptr, X.layout(), 0.f);
-      Y->Reset(X.dims(), primitive_, dnnResourceDst);
+      if (&X != Y) {
+        Y->Reset(X.dims(), primitive_, dnnResourceDst);
+      }
       buffer_.Reset(X.dims(), primitive_, dnnResourceDst, true);
     }
     // Try to share from the output: this allows us to avoid unnecessary copy
     // operations, if the output is already allocated and is having the same
     // layout as the buffer has.
     buffer_.ShareFrom(*Y);
+    CAFFE_ENFORCE(dnnLayoutCompare_F32(X.layout(), buffer_.layout()));
     resources_[dnnResourceSrc] = X.buffer();
     resources_[dnnResourceDst] = buffer_.buffer();
     ExecutePrimitive();

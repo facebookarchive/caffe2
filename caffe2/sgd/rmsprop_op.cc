@@ -1,4 +1,22 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "rmsprop_op.h"
+
+#include "caffe2/utils/math.h"
 
 namespace caffe2 {
 
@@ -29,7 +47,6 @@ void rmsprop_update<CPUContext>(
   EigenVectorArrayMap<float>(ng, N) = nmomVec;
 }
 
-namespace {
 REGISTER_CPU_OPERATOR(RmsProp, RmsPropOp<float, CPUContext>);
 OPERATOR_SCHEMA(RmsProp)
     .NumInputs(4)
@@ -41,7 +58,7 @@ Computes the RMSProp update
 (http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf).
 Concretely, given inputs (grad, mean_squares, mom, lr), computes:
 
-    mean_squares_o = mean_squares + (1 - decay) * (squaare(grad) - mean_squares)
+    mean_squares_o = mean_squares + (1 - decay) * (square(grad) - mean_squares)
     mom_o = momentum * mom + lr * grad / sqrt(epsilon + mean_squares_o)
     grad_o = mom_o
 
@@ -49,6 +66,5 @@ returns (grad_o, mean_squares_o, mom_o).
 
 )DOC");
 SHOULD_NOT_DO_GRADIENT(RmsProp);
-}
 
 }

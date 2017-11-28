@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_CORE_BLOB_SERIALIZATION_H_
 #define CAFFE2_CORE_BLOB_SERIALIZATION_H_
 
@@ -27,7 +43,8 @@ constexpr auto kChunkIdSeparator = "#%";
 CAFFE_DECLARE_TYPED_REGISTRY(
     BlobSerializerRegistry,
     CaffeTypeId,
-    BlobSerializerBase);
+    BlobSerializerBase,
+    std::unique_ptr);
 #define REGISTER_BLOB_SERIALIZER(id, ...) \
   CAFFE_REGISTER_TYPED_CLASS(BlobSerializerRegistry, id, __VA_ARGS__)
 // Creates an operator with the given operator definition.
@@ -399,10 +416,16 @@ void TensorSerializer<Context>::Serialize(
         proto.mutable_double_data(),
         &this->context_);
     break;
-  case TensorProto_DataType_UNDEFINED:
-    LOG(FATAL) << "TensorSerializer does not have a serialization "
-                  "implementation for " << input.meta().name();
-    break;
+  case TensorProto_DataType_UNDEFINED: {
+    proto.mutable_string_data()->Reserve(chunkSize);
+    Blob temp_blob;
+    const char* raw_data = static_cast<const char*>(input.raw_data());
+    for (int i = chunkBegin; i < chunkBegin + chunkSize; ++i) {
+      temp_blob.ShareExternal(
+          const_cast<char*>(raw_data + i * input.itemsize()), input.meta());
+      proto.add_string_data(temp_blob.Serialize(""));
+    }
+  } break;
     // Note: we intentially do not provide "default:" so if any new data types
     // are added, the compiler should warn the user to add the case here.
   }
@@ -555,8 +578,21 @@ void TensorDeserializer<Context>::Deserialize(
           tensor->template mutable_data<double>() + chunkBegin,
           &context);
       break;
-    case TensorProto_DataType_UNDEFINED:
-      CAFFE_THROW("Cannot deserialize from a TensorProto UNDEFINED data type.");
+    case TensorProto_DataType_UNDEFINED: {
+      Blob temp_blob;
+      void* raw_ptr = nullptr;
+      for (int i = 0; i < chunkSize; ++i) {
+        temp_blob.Deserialize(proto.string_data(i));
+        if (i == 0) {
+          raw_ptr = tensor->raw_mutable_data(temp_blob.meta());
+        }
+        temp_blob.meta().copy()(
+            temp_blob.GetRaw(),
+            static_cast<char*>(raw_ptr) +
+                (i + chunkBegin) * temp_blob.meta().itemsize(),
+            1);
+      }
+    }
   }
   context.FinishDeviceComputation();
 }

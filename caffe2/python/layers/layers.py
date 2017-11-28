@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package layers
 # Module caffe2.python.layers.layers
 from __future__ import absolute_import
@@ -5,18 +20,22 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from caffe2.python import core, schema, scope
+import logging
+from caffe2.python import core, schema, scope, workspace
 from caffe2.python.layers.tags import TagContext
+from caffe2.proto import caffe2_pb2
 
 from collections import namedtuple
 import numpy as np
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Some types to simplify descriptions of things traveling between ops
 IdList = schema.List(np.int64)
 IdScoreList = schema.Map(np.int64, np.float32)
 
 
-def get_categorical_limit(record):
+def get_key(record):
     if schema.equal_schemas(record, IdList):
         key = 'values'
     elif schema.equal_schemas(record, IdScoreList, check_field_types=False):
@@ -25,7 +44,16 @@ def get_categorical_limit(record):
         raise NotImplementedError()
     assert record[key].metadata is not None, (
         "Blob {} doesn't have metadata".format(str(record[key]())))
-    return record[key].metadata.categorical_limit
+    return record[key]
+
+
+def get_categorical_limit(record):
+    key = get_key(record)
+    return key.metadata.categorical_limit
+
+
+def get_avg_length(record):
+    return record['lengths'].metadata.expected_value
 
 
 def set_request_only(field):
@@ -109,10 +137,56 @@ class LayerParameter(object):
                  ps_param=None):
         assert isinstance(parameter, core.BlobReference), \
             "expect {0} to be a blob reference".format(str(parameter))
+        # need to put the following line (shape) before initialier
+        # shape will be updated once initializer is (re)set
+        self._shape = None
         self.parameter = parameter
         self.optimizer = optimizer
         self.initializer = initializer
         self.ps_param = ps_param
+
+    @property
+    def initializer(self):
+        return self._initializer
+
+    @initializer.setter
+    def initializer(self, op):
+        assert op is None or core.IsOperator(getattr(op, 'type', None)), \
+            "initializer expects an operator, got type: {}".format(type(op))
+        self._initializer = op
+        if op is not None:
+            shape = self._infer_shape_from_initializer()
+            assert self.shape is None or self.shape == shape, \
+                "inconsistent shape for layer parameter:"\
+                " {}, expect: {}, but got {}".format(self, self.shape, shape)
+            self._shape = shape
+
+    @property
+    def shape(self):
+        return self._shape
+
+    def _infer_shape_from_initializer(self):
+        for arg in self.initializer.arg:
+            if arg.name == 'shape':
+                return list(arg.ints)
+        with workspace.WorkspaceGuard("model_init_by_loading_params"):
+            try:
+                net = core.Net("shape_checker")
+                net._net.op.extend([self.initializer])
+                shape_blob = net.NextScopedBlob(self.parameter + "_shape")
+                net.Shape([self.parameter], shape_blob)
+                workspace.RunNetOnce(net)
+                return workspace.FetchBlob(shape_blob).tolist()
+            except RuntimeError:
+                logger.warning(
+                    "Cannot infer the shape of blob {} from operator {}".format(
+                        self.parameter, self.initializer.type)
+                )
+                workspace.ResetWorkspace()
+                return None
+
+    def __str__(self):
+        return str(self.parameter)
 
 
 def is_request_only_scalar(scalar):
@@ -240,8 +314,34 @@ class ModelLayer(object):
             # internal.containers.RepeatedCompositeFieldContainer, but
             # the version of protobuf in fbcode does not support append
             # so extend is used
-            if param.initializer:
-                init_net._net.op.extend([param.initializer])
+            init_op = param.initializer
+            current_device_scope = scope.CurrentDeviceScope()
+            if init_op:
+                if not init_op.HasField('device_option') and\
+                        current_device_scope:
+                    init_op = caffe2_pb2.OperatorDef()
+                    init_op.CopyFrom(param.initializer)
+                    init_op.device_option.CopyFrom(current_device_scope)
+                init_net._net.op.extend([init_op])
+
+    def create_param(self, param_name, shape, initializer, optimizer,
+                     ps_param=None):
+        with scope.NameScope(self.name, reset=True):
+            param = self.model.create_param(param_name=param_name,
+                                            shape=shape,
+                                            initializer=initializer,
+                                            optimizer=optimizer,
+                                            ps_param=ps_param)
+
+            # make sure we don't share parameters in the same layer
+            assert all(param.parameter != p.parameter for p in self.params)
+
+            self.params.append(param)
+            return param.parameter
+
+    def get_next_blob_reference(self, name):
+        with scope.NameScope(self.name, reset=True):
+            return self.model.net.NextScopedBlob(name)
 
     def add_operators(self, net, init_net=None,
                       context=InstantiationContext.TRAINING):
@@ -269,16 +369,17 @@ class ModelLayer(object):
                 self.add_ops(net)
 
     def add_ops(self, net):
+        # Predict layer implementation.
         raise NotImplementedError
 
     def add_eval_ops(self, net):
-        # Default train layer implementation is completely matching predict
-        # layer implementation.
+        # Default eval layer implementation is completely matching
+        # predict layer implementation.
         self.add_ops(net)
 
     def add_train_ops(self, net):
-        # Default eval layer implementation is completely matching eval
-        # layer implementation.
+        # Default train layer implementation is completely matching
+        # eval layer implementation.
         self.add_eval_ops(net)
 
     def add_ops_to_accumulate_pred(self, net):

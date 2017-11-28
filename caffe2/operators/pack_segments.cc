@@ -1,15 +1,29 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/pack_segments.h"
 
 namespace caffe2 {
-
-namespace {
 
 REGISTER_CPU_OPERATOR(PackSegments, PackSegmentsOp<CPUContext>);
 REGISTER_CPU_OPERATOR(UnpackSegments, UnpackSegmentsOp<CPUContext>);
 
 OPERATOR_SCHEMA(PackSegments)
     .NumInputs(2)
-    .NumOutputs(1)
+    .NumOutputs(1, 2)
     .SetDoc(
         "Map N dim tensor to N+1 dim based on length blob. Sequences that \
     are shorter than the longest sequence are padded with zeros.")
@@ -21,12 +35,21 @@ OPERATOR_SCHEMA(PackSegments)
     .Output(
         0,
         "packed_tensor",
-        "N + 1 dim Tesor"
+        "N + 1 dim Tensor"
         "where dim(1) is the max length"
         ", dim(0) is the batch size.")
+    .Output(
+        1,
+        "presence_mask",
+        "2 dim boolean tensor"
+        ", false where packed_tensor is padded, true otherwise.")
     .Arg(
-        "pad_minf", "Padding number in the packed segments. Use true to pad \
-    -infinity, otherwise pad zeros");
+        "pad_minf",
+        "Padding number in the packed segments. Use true to pad \
+    -infinity, otherwise pad zeros")
+    .Arg(
+        "return_presence_mask",
+        "bool whether to return presence mask, false by default");
 OPERATOR_SCHEMA(UnpackSegments)
     .NumInputs(2)
     .NumOutputs(1)
@@ -36,7 +59,7 @@ OPERATOR_SCHEMA(UnpackSegments)
         "lengths",
         "1-d int/long tensor contains the length in each of the input.")
     .Input(1, "tensor", "N+1 dim Tensor.")
-    .Output(0, "packed_tensor", "N dim Tesor");
+    .Output(0, "packed_tensor", "N dim Tensor");
 
 class GetPackSegmentsGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
@@ -58,5 +81,4 @@ class GetUnpackSegmentsGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(UnpackSegments, GetUnpackSegmentsGradient);
-}
-} // namespace
+} // namespace caffe2

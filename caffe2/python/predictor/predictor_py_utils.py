@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package predictor_py_utils
 # Module caffe2.python.predictor.predictor_py_utils
 from __future__ import absolute_import
@@ -5,7 +20,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from caffe2.python import core
+from caffe2.python import core, scope
 
 
 def create_predict_net(predictor_export_meta):
@@ -20,6 +35,8 @@ def create_predict_net(predictor_export_meta):
     net.Proto().external_output.extend(predictor_export_meta.outputs)
     if predictor_export_meta.net_type is not None:
         net.Proto().type = predictor_export_meta.net_type
+    if predictor_export_meta.num_workers is not None:
+        net.Proto().num_workers = predictor_export_meta.num_workers
     return net.Proto()
 
 
@@ -40,7 +57,12 @@ def create_predict_init_net(ws, predictor_export_meta):
                         blob, ws.blobs))
 
             shape = ws.blobs[blob].fetch().shape
-        net.ConstantFill([], blob, shape=shape, value=0.0)
+
+        # Explicitly null-out the scope so users (e.g. PredictorGPU)
+        # can control (at a Net-global level) the DeviceOption of
+        # these filling operators.
+        with scope.EmptyDeviceScope():
+            net.ConstantFill([], blob, shape=shape, value=0.0)
 
     external_blobs = predictor_export_meta.inputs + \
         predictor_export_meta.outputs

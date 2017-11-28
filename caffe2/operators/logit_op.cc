@@ -1,7 +1,22 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "caffe2/operators/logit_op.h"
 #include "caffe2/operators/elementwise_op.h"
 
 namespace caffe2 {
-namespace {
 struct LogitCPUFunctor {
   explicit LogitCPUFunctor(OperatorBase& op)
       : eps_(op.GetSingleArgument<float>("eps", 1e-6)) {
@@ -24,12 +39,32 @@ struct LogitCPUFunctor {
   float eps_;
 };
 
+template <>
+bool LogitGradientOp<float, CPUContext>::RunOnDevice() {
+  const auto& X = Input(0);
+  const auto& dY = Input(1);
+  auto* dX = Output(0);
+  dX->ResizeLike(X);
+  int channels = X.dim32(X.ndim() - 1);
+  ConstEigenArrayMap<float> Xmat(
+      X.template data<float>(), channels, X.size() / channels);
+  ConstEigenArrayMap<float> dYmat(
+      dY.template data<float>(), channels, X.size() / channels);
+  EigenArrayMap<float> dXmat(
+      dX->template mutable_data<float>(), channels, X.size() / channels);
+  dXmat = (Xmat < eps_ || Xmat > 1.0 - eps_)
+              .select(0, dYmat * ((1 - Xmat) * Xmat).inverse());
+  return true;
+}
+
 REGISTER_CPU_OPERATOR(
     Logit,
     UnaryElementwiseWithArgsOp<
         TensorTypes<float>,
         CPUContext,
         LogitCPUFunctor>);
+
+REGISTER_CPU_OPERATOR(LogitGradient, LogitGradientOp<float, CPUContext>);
 
 OPERATOR_SCHEMA(Logit)
     .NumInputs(1)
@@ -42,9 +77,26 @@ input data clampped in (eps, 1-eps).
 )DOC")
     .Arg("eps (optional)", "small positive epsilon value, the default is 1e-6.")
     .Input(0, "X", "input float tensor")
-    .Input(1, "Y", "output float tensor");
+    .Output(0, "Y", "output float tensor");
 
-GRADIENT_NOT_IMPLEMENTED_YET(Logit);
+OPERATOR_SCHEMA(LogitGradient)
+    .NumInputs(2)
+    .NumOutputs(1)
+    .Input(0, "X", "input float tensor")
+    .Input(1, "dY", "input float tensor")
+    .Output(0, "dX", "output float tensor")
+    .Arg("eps", "small positive epsilon value, the default is 1e-6.");
 
-} // namespace
+class GetLogitGradient : public GradientMakerBase {
+  using GradientMakerBase::GradientMakerBase;
+  vector<OperatorDef> GetGradientDefs() override {
+    return vector<OperatorDef>{CreateOperatorDef(
+        "LogitGradient",
+        "",
+        std::vector<string>{I(0), GO(0)},
+        std::vector<string>{GI(0)})};
+  }
+};
+
+REGISTER_GRADIENT(Logit, GetLogitGradient);
 } // namespace caffe2

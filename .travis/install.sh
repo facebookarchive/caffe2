@@ -134,12 +134,14 @@ if [ "$TRAVIS_OS_NAME" = 'linux' ]; then
         rm -f "$_mkl_key"
         echo 'deb http://apt.repos.intel.com/mkl all main' | sudo tee /etc/apt/sources.list.d/intel-mkl.list
         sudo apt-get update
-        $APT_INSTALL_CMD intel-mkl-64bit-2017.3-056
+        $APT_INSTALL_CMD intel-mkl-64bit
     fi
 elif [ "$TRAVIS_OS_NAME" = 'osx' ]; then
     #####################
     # brew dependencies #
     #####################
+    brew update
+    brew install python
     pip uninstall -y numpy  # use brew version (opencv dependency)
     brew tap homebrew/science  # for OpenCV
     brew install \
@@ -147,7 +149,6 @@ elif [ "$TRAVIS_OS_NAME" = 'osx' ]; then
         glog \
         leveldb \
         lmdb \
-        opencv \
         protobuf
 
     # Install ccache symlink wrappers
@@ -163,7 +164,7 @@ fi
 ####################
 # pip dependencies #
 ####################
-pip install \
+sudo pip install \
     future \
     hypothesis \
     numpy \
@@ -217,6 +218,6 @@ if [ "$BUILD_NNPACK" = 'true' ]; then
         echo "OS \"$TRAVIS_OS_NAME\" is unknown"
         exit 1
     fi
-    pip install git+https://github.com/Maratyszcza/PeachPy
-    pip install git+https://github.com/Maratyszcza/confu
+    sudo pip install git+https://github.com/Maratyszcza/PeachPy
+    sudo pip install git+https://github.com/Maratyszcza/confu
 fi

@@ -1,0 +1,52 @@
+{% set version = "0.8.dev" %}
+
+package:
+  name: caffe2
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 1
+  skip: True  # [win]
+  script_env:
+    - CONDA_CMAKE_ARGS
+
+requirements:
+  build:
+    - future
+    - glog
+    - numpy
+    - six
+    - eigen
+    - python
+    - protobuf ==3.4.0
+    - cmake
+    - leveldb
+    - lmdb
+    - snappy
+    - mkl-include
+    - mkl
+  run:
+    - future
+    - glog
+    - numpy
+    - six
+    - eigen
+    - python
+    - protobuf ==3.4.0
+    - leveldb
+    - lmdb
+    - snappy
+    - future
+    - mkl
+
+about:
+  home: https://caffe2.ai/
+  license: BSD
+  summary: deep learning library
+
+extra:
+  recipe-maintainers:
+    - ezyang

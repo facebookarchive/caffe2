@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package train
 # Module caffe2.python.models.seq2seq.train
 from __future__ import absolute_import
@@ -13,9 +28,10 @@ import numpy as np
 import random
 import time
 import sys
+import os
 
 import caffe2.proto.caffe2_pb2 as caffe2_pb2
-from caffe2.python import core, workspace, rnn_cell, data_parallel_model
+from caffe2.python import core, workspace, data_parallel_model
 import caffe2.python.models.seq2seq.seq2seq_util as seq2seq_util
 from caffe2.python.models.seq2seq.seq2seq_model_helper import Seq2SeqModelHelper
 
@@ -32,6 +48,7 @@ Batch = collections.namedtuple('Batch', [
     'targets',
     'target_weights',
 ])
+
 
 def prepare_batch(batch):
     encoder_lengths = [len(entry[0]) for entry in batch]
@@ -148,7 +165,6 @@ class Seq2SeqModelCaffe2:
         self.model = model
         self.forward_net = forward_model.net
 
-
     def _build_shared(self, model):
         optimizer_params = self.model_params['optimizer_params']
         with core.DeviceScope(core.DeviceOption(caffe2_pb2.CPU)):
@@ -214,17 +230,18 @@ class Seq2SeqModelCaffe2:
             workspace.GetNameScope() + 'target_weights',
         )
         attention_type = self.model_params['attention']
-        assert attention_type in ['none', 'regular']
+        assert attention_type in ['none', 'regular', 'dot']
 
         (
             encoder_outputs,
             weighted_encoder_outputs,
-            final_encoder_hidden_state,
-            final_encoder_cell_state,
-            encoder_output_dim,
+            final_encoder_hidden_states,
+            final_encoder_cell_states,
+            encoder_units_per_layer,
         ) = seq2seq_util.build_embedding_encoder(
             model=model,
             encoder_params=self.encoder_params,
+            num_decoder_layers=len(self.model_params['decoder_layer_configs']),
             inputs=encoder_inputs,
             input_lengths=encoder_lengths,
             vocab_size=self.source_vocab_size,
@@ -234,90 +251,31 @@ class Seq2SeqModelCaffe2:
             num_gpus=self.num_gpus,
         )
 
-        assert len(self.model_params['decoder_layer_configs']) == 1
-        decoder_num_units = (
-            self.model_params['decoder_layer_configs'][0]['num_units']
-        )
-        initial_states = seq2seq_util.build_initial_rnn_decoder_states(
-            model=model,
-            encoder_num_units=encoder_output_dim,
-            decoder_num_units=decoder_num_units,
-            final_encoder_hidden_state=final_encoder_hidden_state,
-            final_encoder_cell_state=final_encoder_cell_state,
-            use_attention=(attention_type != 'none'),
+        (
+            decoder_outputs,
+            decoder_output_size,
+        ) = seq2seq_util.build_embedding_decoder(
+            model,
+            decoder_layer_configs=self.model_params['decoder_layer_configs'],
+            inputs=decoder_inputs,
+            input_lengths=decoder_lengths,
+            encoder_lengths=encoder_lengths,
+            encoder_outputs=encoder_outputs,
+            weighted_encoder_outputs=weighted_encoder_outputs,
+            final_encoder_hidden_states=final_encoder_hidden_states,
+            final_encoder_cell_states=final_encoder_cell_states,
+            encoder_units_per_layer=encoder_units_per_layer,
+            vocab_size=self.target_vocab_size,
+            embeddings=self.decoder_embeddings,
+            embedding_size=self.model_params['decoder_embedding_size'],
+            attention_type=attention_type,
+            forward_only=False,
+            num_gpus=self.num_gpus,
         )
 
-        if self.num_gpus == 0:
-            embedded_decoder_inputs = model.net.Gather(
-                [self.decoder_embeddings, decoder_inputs],
-                ['embedded_decoder_inputs'],
-            )
-        else:
-            with core.DeviceScope(core.DeviceOption(caffe2_pb2.CPU)):
-                embedded_decoder_inputs_cpu = model.net.Gather(
-                    [self.decoder_embeddings, decoder_inputs],
-                    ['embedded_decoder_inputs_cpu'],
-                )
-            embedded_decoder_inputs = model.CopyCPUToGPU(
-                embedded_decoder_inputs_cpu,
-                'embedded_decoder_inputs',
-            )
-
-        # seq_len x batch_size x decoder_embedding_size
-        if attention_type == 'none':
-            decoder_outputs, _, _, _ = rnn_cell.LSTM(
-                model=model,
-                input_blob=embedded_decoder_inputs,
-                seq_lengths=decoder_lengths,
-                initial_states=initial_states,
-                dim_in=self.model_params['decoder_embedding_size'],
-                dim_out=decoder_num_units,
-                scope='decoder',
-                outputs_with_grads=[0],
-            )
-            decoder_output_size = decoder_num_units
-        else:
-            (
-                decoder_outputs, _, _, _,
-                attention_weighted_encoder_contexts, _
-            ) = rnn_cell.LSTMWithAttention(
-                model=model,
-                decoder_inputs=embedded_decoder_inputs,
-                decoder_input_lengths=decoder_lengths,
-                initial_decoder_hidden_state=initial_states[0],
-                initial_decoder_cell_state=initial_states[1],
-                initial_attention_weighted_encoder_context=initial_states[2],
-                encoder_output_dim=encoder_output_dim,
-                encoder_outputs=encoder_outputs,
-                decoder_input_dim=self.model_params['decoder_embedding_size'],
-                decoder_state_dim=decoder_num_units,
-                scope='decoder',
-                outputs_with_grads=[0, 4],
-            )
-            decoder_outputs, _ = model.net.Concat(
-                [decoder_outputs, attention_weighted_encoder_contexts],
-                [
-                    'states_and_context_combination',
-                    '_states_and_context_combination_concat_dims',
-                ],
-                axis=2,
-            )
-            decoder_output_size = decoder_num_units + encoder_output_dim
-
-        # we do softmax over the whole sequence
-        # (max_length in the batch * batch_size) x decoder embedding size
-        # -1 because we don't know max_length yet
-        decoder_outputs_flattened, _ = model.net.Reshape(
-            [decoder_outputs],
-            [
-                'decoder_outputs_flattened',
-                'decoder_outputs_and_contexts_combination_old_shape',
-            ],
-            shape=[-1, decoder_output_size],
-        )
         output_logits = seq2seq_util.output_projection(
             model=model,
-            decoder_outputs=decoder_outputs_flattened,
+            decoder_outputs=decoder_outputs,
             decoder_output_size=decoder_output_size,
             target_vocab_size=self.target_vocab_size,
             decoder_softmax_size=self.model_params['decoder_softmax_size'],
@@ -332,21 +290,18 @@ class Seq2SeqModelCaffe2:
             ['target_weights', 'target_weights_old_shape'],
             shape=[-1],
         )
-        output_probs = model.net.Softmax(
-            [output_logits],
-            ['output_probs'],
-            engine=('CUDNN' if self.num_gpus > 0 else None),
+        _, loss_per_word = model.net.SoftmaxWithLoss(
+            [output_logits, targets, target_weights],
+            ['OutputProbs_INVALID', 'loss_per_word'],
+            only_loss=True,
         )
-        label_cross_entropy = model.net.LabelCrossEntropy(
-            [output_probs, targets],
-            ['label_cross_entropy'],
+
+        num_words = model.net.SumElements(
+            [target_weights],
+            'num_words',
         )
-        weighted_label_cross_entropy = model.net.Mul(
-            [label_cross_entropy, target_weights],
-            'weighted_label_cross_entropy',
-        )
-        total_loss_scalar = model.net.SumElements(
-            [weighted_label_cross_entropy],
+        total_loss_scalar = model.net.Mul(
+            [loss_per_word, num_words],
             'total_loss_scalar',
         )
         total_loss_scalar_weighted = model.net.Scale(
@@ -608,6 +563,33 @@ class Seq2SeqModelCaffe2:
 
         return self.total_loss_scalar()
 
+    def save(self, checkpoint_path_prefix, current_step):
+        checkpoint_path = '{0}-{1}'.format(
+            checkpoint_path_prefix,
+            current_step,
+        )
+
+        assert workspace.RunOperatorOnce(core.CreateOperator(
+            'Save',
+            self.model.GetAllParams(),
+            [],
+            absolute_path=True,
+            db=checkpoint_path,
+            db_type='minidb',
+        ))
+
+        checkpoint_config_path = os.path.join(
+            os.path.dirname(checkpoint_path_prefix),
+            'checkpoint',
+        )
+        with open(checkpoint_config_path, 'w') as checkpoint_config_file:
+            checkpoint_config_file.write(
+                'model_checkpoint_path: "' + checkpoint_path + '"\n'
+                'all_model_checkpoint_paths: "' + checkpoint_path + '"\n'
+            )
+            logger.info('Saved checkpoint file to ' + checkpoint_path)
+
+        return checkpoint_path
 
 def gen_batches(source_corpus, target_corpus, source_vocab, target_vocab,
                 batch_size, max_length):
@@ -696,20 +678,11 @@ def run_seq2seq_model(args, model_params=None):
             for batch in batches_eval:
                 total_loss += model_obj.step(
                     batch=batch,
-                    forward_only=False,
+                    forward_only=True,
                 )
             logger.info('\teval loss {}'.format(total_loss))
             if args.checkpoint is not None:
-                checkpoint_path = '{0}-{1}'.format(args.checkpoint, i)
-                assert workspace.RunOperatorOnce(core.CreateOperator(
-                    'Save',
-                    model_obj.model.GetAllParams(),
-                    [],
-                    absolute_path=True,
-                    db=checkpoint_path,
-                    db_type='minidb',
-                ))
-                logger.info('Model saved to ' + checkpoint_path)
+                model_obj.save(args.checkpoint, i)
 
 
 def main():
@@ -744,7 +717,7 @@ def main():
 
     parser.add_argument('--use-bidirectional-encoder', action='store_true',
                         help='Set flag to use bidirectional recurrent network '
-                        'in encoder')
+                        'for first layer of encoder')
     parser.add_argument('--use-attention', action='store_true',
                         help='Set flag to use seq2seq with attention model')
     parser.add_argument('--source-corpus-eval', type=str, default=None,
@@ -753,10 +726,14 @@ def main():
     parser.add_argument('--target-corpus-eval', type=str, default=None,
                         help='Path to target corpus for evaluation in a text '
                         'file format', required=True)
-    parser.add_argument('--encoder-cell-num-units', type=int, default=256,
-                        help='Number of cell units in the encoder layer')
+    parser.add_argument('--encoder-cell-num-units', type=int, default=512,
+                        help='Number of cell units per encoder layer')
+    parser.add_argument('--encoder-num-layers', type=int, default=2,
+                        help='Number encoder layers')
     parser.add_argument('--decoder-cell-num-units', type=int, default=512,
                         help='Number of cell units in the decoder layer')
+    parser.add_argument('--decoder-num-layers', type=int, default=2,
+                        help='Number decoder layers')
     parser.add_argument('--encoder-embedding-size', type=int, default=256,
                         help='Size of embedding in the encoder layer')
     parser.add_argument('--decoder-embedding-size', type=int, default=512,
@@ -769,19 +746,27 @@ def main():
 
     args = parser.parse_args()
 
+    encoder_layer_configs = [
+        dict(
+            num_units=args.encoder_cell_num_units,
+        ),
+    ] * args.encoder_num_layers
+
+    if args.use_bidirectional_encoder:
+        assert args.encoder_cell_num_units % 2 == 0
+        encoder_layer_configs[0]['num_units'] /= 2
+
+    decoder_layer_configs = [
+        dict(
+            num_units=args.decoder_cell_num_units,
+        ),
+    ] * args.decoder_num_layers
+
     run_seq2seq_model(args, model_params=dict(
         attention=('regular' if args.use_attention else 'none'),
-        decoder_layer_configs=[
-            dict(
-                num_units=args.decoder_cell_num_units,
-            ),
-        ],
+        decoder_layer_configs=decoder_layer_configs,
         encoder_type=dict(
-            encoder_layer_configs=[
-                dict(
-                    num_units=args.encoder_cell_num_units,
-                ),
-            ],
+            encoder_layer_configs=encoder_layer_configs,
             use_bidirectional_encoder=args.use_bidirectional_encoder,
         ),
         batch_size=args.batch_size,

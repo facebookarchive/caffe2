@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -6,7 +21,7 @@ from __future__ import unicode_literals
 import numpy as np
 
 from caffe2.python import core, schema
-from caffe2.python.layers.layers import LayerParameter, ModelLayer
+from caffe2.python.layers.layers import ModelLayer
 
 
 class MapToRange(ModelLayer):
@@ -29,23 +44,17 @@ class MapToRange(ModelLayer):
         assert isinstance(input_record, schema.Scalar)
 
         self.max_index = max_index
-        self.handler = model.net.NextScopedBlob(name + "_handler")
 
-        self.params.append(
-            LayerParameter(
-                parameter=self.handler,
-                initializer=core.CreateOperator("LongIndexCreate",
-                                                [],
-                                                self.handler,
-                                                max_elements=self.max_index,
-                                                ),
-                optimizer=model.NoOptim,
-            )
+        self.handler = self.create_param(
+            param_name='handler',
+            shape=None,
+            initializer=('LongIndexCreate', {'max_elements': self.max_index}),
+            optimizer=model.NoOptim
         )
 
         self.output_schema = schema.Struct(
             ('indices', schema.Scalar(
-                np.int64, model.net.NextScopedBlob(name + "_indices")
+                np.int64, self.get_next_blob_reference("indices")
             )),
             ('handler', schema.Scalar(
                 np.void, self.handler
@@ -56,7 +65,7 @@ class MapToRange(ModelLayer):
         if self.input_record.field_type().base != np.int64:
             keys = net.Cast(
                 self.input_record(),
-                net.NextScopedBlob("indices"),
+                net.NextScopedBlob("indices_before_mapping"),
                 to=core.DataType.INT64
             )
         else:

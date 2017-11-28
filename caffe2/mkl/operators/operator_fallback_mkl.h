@@ -1,11 +1,27 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_OPERATOR_FALLBACK_H_
 #define CAFFE2_OPERATORS_OPERATOR_FALLBACK_H_
 
 #include "caffe2/core/common.h"
 #include "caffe2/core/context.h"
 #include "caffe2/core/operator.h"
+#include "caffe2/mkl/mkl_utils.h"
 #include "caffe2/proto/caffe2.pb.h"
-#include "caffe2/utils/mkl_utils.h"
 
 #ifdef CAFFE2_HAS_MKL_DNN
 namespace caffe2 {
@@ -47,7 +63,8 @@ class MKLFallbackOp final : public Operator<MKLContext> {
     CAFFE_ENFORCE_EQ(def.device_option().device_type(), MKLDNN);
     OperatorDef base_def_(def);
     // base_def_ runs on CPU, so we will set its device option to CPU.
-    base_def_.clear_device_option();
+    // Copy to allow random_seed to be correctly propagated.
+    base_def_.mutable_device_option()->CopyFrom(def.device_option());
     base_def_.mutable_device_option()->set_device_type(CPU);
     // Set up the symbols for the local workspace.
     for (const string& name : def.input()) {

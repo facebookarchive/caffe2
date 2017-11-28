@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/operator_schema.h"
 
 #include "caffe2/core/logging.h"
@@ -69,6 +85,20 @@ bool OpSchema::Verify(const OperatorDef& def) const {
                    << def.type();
         return false;
       }
+    }
+  }
+
+  std::set<std::string> present_args{};
+  for (const auto& arg : def.arg()) {
+    present_args.insert(arg.name());
+  }
+
+  for (const auto& arg : args()) {
+    if (arg.is_required() &&
+        present_args.find(arg.name()) == present_args.end()) {
+      LOG(ERROR) << "Argument '" << arg.name() << "' is required for Operator '"
+                 << def.type() << "'.";
+      return false;
     }
   }
 
@@ -217,8 +247,10 @@ OpSchema& OpSchema::ScalarType(::caffe2::TensorProto_DataType dt) {
       });
 }
 
-OpSchema& OpSchema::CostInferenceFunction(CostInferenceFunctionType function) {
-  cost_inference_function_ = function;
+OpSchema& OpSchema::CostInferenceFunction(
+    CostInferenceFunctionType&& function) {
+  cost_inference_function_ =
+      caffe2::make_unique<CostInferenceFunctionType>(function);
   return *this;
 }
 
@@ -233,10 +265,21 @@ OpSchema& OpSchema::SetDoc(const string& doc) {
   return *this;
 }
 
-OpSchema& OpSchema::Arg(const char* name, const char* description) {
-  arg_desc_.emplace_back(name, description);
+OpSchema&
+OpSchema::Arg(const char* name, const char* description, bool required) {
+  args_.push_back(Argument(name, description, required));
   return *this;
 }
+
+#define DEFINE_STANDARG_ARG(name, str)                     \
+  const char* OpSchema::Arg_##name = #str;                 \
+  OpSchema& OpSchema::Arg##name(const char* description) { \
+    return Arg(#str, description, true);                   \
+  }
+
+DEFINE_STANDARG_ARG(IsTest, is_test)
+
+#undef DEFINE_STANDARG_ARG
 
 OpSchema& OpSchema::Input(const int n, const char* name, const char* description) {
   if (input_desc_.size() <= n) {
@@ -272,10 +315,10 @@ int OpSchema::CalculateOutput(int num_input) const {
 }
 
 std::ostream& operator<<(std::ostream& out, const OpSchema& schema) {
-  if (!schema.arg_desc_.empty()) {
+  if (!schema.args().empty()) {
     out << "Arguments:" << std::endl;
-    for (const auto& it : schema.arg_desc_) {
-      out << "  " << it.first << " : " << it.second << std::endl;
+    for (const auto& arg : schema.args()) {
+      out << "  " << arg.name() << " : " << arg.description() << std::endl;
     }
   }
   if (schema.max_input_ > 0) {

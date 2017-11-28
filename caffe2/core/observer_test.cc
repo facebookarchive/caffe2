@@ -1,7 +1,25 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <google/protobuf/text_format.h>
 #include <gtest/gtest.h>
 #include "caffe2/core/common.h"
 #include "caffe2/core/net.h"
+#include "caffe2/core/net_dag.h"
+#include "caffe2/core/net_simple.h"
 #include "caffe2/core/observer.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/core/registry.h"
@@ -27,7 +45,7 @@ template <>
 bool DummyObserver<NetBase>::Start() {
   vector<OperatorBase*> operators = subject_->GetOperators();
   for (auto& op : operators) {
-    op->SetObserver(caffe2::make_unique<DummyObserver<OperatorBase>>(op));
+    op->AttachObserver(caffe2::make_unique<DummyObserver<OperatorBase>>(op));
   }
   counter.fetch_add(1000);
   return true;
@@ -55,10 +73,8 @@ class ObsTestDummyOp final : public OperatorBase {
  public:
   using OperatorBase::OperatorBase;
   bool Run(int /* unused */) override {
-    if (observer_)
-      observer_->Start();
-    if (observer_)
-      observer_->Stop();
+    StartAllObservers();
+    StopAllObservers();
     return true;
   }
 };
@@ -104,8 +120,25 @@ TEST(ObserverTest, TestNotify) {
   EXPECT_EQ(caffe2::dynamic_cast_if_rtti<SimpleNet*>(net.get()), net.get());
   unique_ptr<DummyObserver<NetBase>> net_ob =
       make_unique<DummyObserver<NetBase>>(net.get());
-  net.get()->SetObserver(std::move(net_ob));
+  net.get()->AttachObserver(std::move(net_ob));
   net.get()->Run();
+  auto count_after = counter.load();
+  EXPECT_EQ(1212, count_after - count_before);
+}
+
+TEST(ObserverTest, TestUniqueMap) {
+  auto count_before = counter.load();
+  Workspace ws;
+  ws.CreateBlob("in");
+  NetDef net_def;
+  unique_ptr<NetBase> net(CreateNetTestHelper(&ws));
+  EXPECT_EQ(caffe2::dynamic_cast_if_rtti<SimpleNet*>(net.get()), net.get());
+  unique_ptr<DummyObserver<NetBase>> net_ob =
+      make_unique<DummyObserver<NetBase>>(net.get());
+  auto* ref = net.get()->AttachObserver(std::move(net_ob));
+  net.get()->Run();
+  unique_ptr<Observable<NetBase>::Observer> test =
+      net.get()->DetachObserver(ref);
   auto count_after = counter.load();
   EXPECT_EQ(1212, count_after - count_before);
 }
@@ -118,8 +151,8 @@ TEST(ObserverTest, TestNotifyAfterDetach) {
   unique_ptr<NetBase> net(CreateNetTestHelper(&ws));
   unique_ptr<DummyObserver<NetBase>> net_ob =
       make_unique<DummyObserver<NetBase>>(net.get());
-  net.get()->SetObserver(std::move(net_ob));
-  net.get()->RemoveObserver();
+  auto* ob = net.get()->AttachObserver(std::move(net_ob));
+  net.get()->DetachObserver(ob);
   net.get()->Run();
   auto count_after = counter.load();
   EXPECT_EQ(0, count_after - count_before);
@@ -134,9 +167,35 @@ TEST(ObserverTest, TestDAGNetBase) {
   EXPECT_EQ(caffe2::dynamic_cast_if_rtti<DAGNetBase*>(net.get()), net.get());
   unique_ptr<DummyObserver<NetBase>> net_ob =
       make_unique<DummyObserver<NetBase>>(net.get());
-  net.get()->SetObserver(std::move(net_ob));
+  net.get()->AttachObserver(std::move(net_ob));
   net.get()->Run();
   auto count_after = counter.load();
   EXPECT_EQ(1212, count_after - count_before);
 }
+
+TEST(ObserverTest, TestMultipleNetBase) {
+  Workspace ws;
+  ws.CreateBlob("in");
+  NetDef net_def;
+  unique_ptr<NetBase> net(CreateNetTestHelper(&ws, true));
+  EXPECT_EQ(caffe2::dynamic_cast_if_rtti<NetBase*>(net.get()), net.get());
+
+  // There may be some default observers
+  const size_t prev_num = net.get()->NumObservers();
+  const int num_tests = 100;
+  vector<const Observable<NetBase>::Observer*> observers;
+  for (int i = 0; i < num_tests; ++i) {
+    unique_ptr<DummyObserver<NetBase>> net_ob =
+        make_unique<DummyObserver<NetBase>>(net.get());
+    observers.emplace_back(net.get()->AttachObserver(std::move(net_ob)));
+  }
+
+  net.get()->Run();
+
+  for (const auto& observer : observers) {
+    net.get()->DetachObserver(observer);
+  }
+
+  EXPECT_EQ(net.get()->NumObservers(), prev_num);
 }
+} // namespace caffe2

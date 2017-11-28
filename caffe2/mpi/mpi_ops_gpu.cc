@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/mpi/mpi_ops.h"
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/operators/operator_fallback_gpu.h"
@@ -50,8 +66,6 @@ namespace caffe2 {
 #define CAFFE2_HAS_CUDA_MPI_ALLREDUCE 0
 #endif // CAFFE2_FORCE_FALLBACK_CUDA_MPI
 
-namespace {
-
 REGISTER_CUDA_OPERATOR(
     MPICreateCommonWorld,
     MPICreateCommonWorldOp<CUDAContext>);
@@ -84,6 +98,5 @@ REGISTER_CUDA_OPERATOR(
     MPIAllreduce,
     GPUFallbackOp<MPIAllreduceOp<float, CPUContext>>);
 #endif
-}  // namespace
 
 }  // namespace caffe2

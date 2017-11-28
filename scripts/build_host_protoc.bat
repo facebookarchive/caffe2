@@ -8,13 +8,17 @@
 :: After the execution of the file, one should be able to find the host protoc
 :: binary at build_host_protoc/bin/protoc.exe.
 
-@echo on
+@echo off
 
 SET ORIGINAL_DIR=%cd%
 SET CAFFE2_ROOT=%~dp0%..
+
+if NOT DEFINED CMAKE_BUILD_TYPE (
+  set CMAKE_BUILD_TYPE=Release
+)
+
 if not exist %CAFFE2_ROOT%\build_host_protoc mkdir %CAFFE2_ROOT%\build_host_protoc
 echo "Created %CAFFE2_ROOT%\build_host_protoc"
-
 cd %CAFFE2_ROOT%\build_host_protoc
 
 if NOT DEFINED CMAKE_GENERATOR (
@@ -34,14 +38,27 @@ if NOT DEFINED CMAKE_GENERATOR (
   )
 )
 
+echo CAFFE2_ROOT=%CAFFE2_ROOT%
+echo CMAKE_GENERATOR=%CMAKE_GENERATOR%
+echo CMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE%
+
+echo "Generating cmake"
 cmake ..\third_party\protobuf\cmake ^
   -G%CMAKE_GENERATOR% ^
   -DCMAKE_INSTALL_PREFIX=. ^
   -Dprotobuf_BUILD_TESTS=OFF ^
-  -DCMAKE_BUILD_TYPE=Debug ^
-  || exit /b
+  -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% ^
+  || goto :label_error
 
 :: Actually run the build
-msbuild INSTALL.vcxproj
+echo "Building protobuf"
+cmake --build . --config %CMAKE_BUILD_TYPE% --target INSTALL || goto :label_error
 
+echo "protobuf built successfully"
 cd %ORIGINAL_DIR%
+exit /b 0
+
+:label_error
+echo "protobuf building failed"
+cd %ORIGINAL_DIR%
+exit /b 1

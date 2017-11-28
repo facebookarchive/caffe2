@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package recurrent
 # Module caffe2.python.recurrent
 from __future__ import absolute_import
@@ -129,7 +144,7 @@ def recurrent_net(
         x[1] for x in initial_cell_inputs] + references
     all_outputs = []
 
-    cell_net.Proto().type = 'rnn'
+    cell_net.Proto().type = 'simple'
 
     # Internal arguments used by RecurrentNetwork operator
 
@@ -179,7 +194,8 @@ def recurrent_net(
                 backward_links.append(
                     (backward_mapping[cell_input], states_grad, 0))
             else:
-                backward_links.append((cell_input + "_grad", states_grad, 0))
+                backward_links.append((recurrent_input_grad, states_grad, 0))
+
 
     for input_t, input_blob in inputs:
         forward_links.append((str(input_t), str(input_blob), 0))
@@ -235,9 +251,13 @@ def recurrent_net(
                         [output_blob],
                     )
 
+    def map_to_dual_list(m):
+        return [str(x) for x in list(m.keys())] + \
+               [str(x) for x in list(m.values())]
+
     backward_args = {}
-    backward_mapping_keys = set(viewkeys(backward_mapping))
     if backward_cell_net is not None:
+        backward_mapping_keys = set(viewkeys(backward_mapping))
         backward_link_internal, backward_link_external, backward_link_offset = \
             unpack_triple(backward_links)
         params = [x for x in references if x in backward_mapping_keys]
@@ -253,13 +273,15 @@ def recurrent_net(
             'backward_link_internal': [str(l) for l in backward_link_internal],
             'backward_link_external': [str(l) for l in backward_link_external],
             'backward_link_offset': backward_link_offset,
-            'backward_step_net': str(backward_cell_net.Proto()),
             'outputs_with_grads': outputs_with_grads,
             'recompute_blobs_on_backward': [
                 str(b) for b in recompute_blobs_on_backward
             ],
             'param_grads': param_grads,
         }
+        if len(backward_cell_net.Proto().op) != 0:
+            backward_args['backward_step_net'] = backward_cell_net.Proto()
+
 
     results = net.RecurrentNetwork(
         all_inputs,
@@ -274,7 +296,8 @@ def recurrent_net(
         link_internal=[str(l) for l in link_internal],
         link_external=[str(l) for l in link_external],
         link_offset=link_offset,
-        step_net=str(cell_net.Proto()),
+        enable_rnn_executor=1,
+        step_net=cell_net.Proto(),
         timestep="timestep" if timestep is None else str(timestep),
         **backward_args
     )
@@ -285,6 +308,22 @@ def recurrent_net(
     # The last output is a list of step workspaces,
     # which is only needed internally for gradient propogation
     return results[:-1]
+
+
+def set_rnn_executor_config(rnn_op, num_threads=None, max_cuda_streams=None):
+    from caffe2.proto import caffe2_pb2
+    assert rnn_op.type in {'RecurrentNetwork', 'RecurrentNetworkGradient'}
+
+    def add_arg(s, v):
+        a = caffe2_pb2.Argument()
+        a.name = "rnn_executor." + s
+        a.i = v
+        rnn_op.arg.extend([a])
+
+    if num_threads is not None:
+        add_arg('num_threads', num_threads)
+    if max_cuda_streams is not None:
+        add_arg('max_cuda_streams', max_cuda_streams)
 
 
 def retrieve_step_blobs(net, prefix='rnn'):

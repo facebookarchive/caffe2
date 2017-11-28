@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "roi_pool_op.h"
 
 #include <cfloat>
@@ -113,8 +129,6 @@ bool RoIPoolOp<float, CPUContext>::RunOnDevice() {
   return true;
 }
 
-namespace {
-
 REGISTER_CPU_OPERATOR(RoIPool, RoIPoolOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(RoIPoolGradient, RoIPoolGradientOp<float, CPUContext>);
 
@@ -124,31 +138,31 @@ REGISTER_CPU_OPERATOR(RoIPoolGradient, RoIPoolGradientOp<float, CPUContext>);
 OPERATOR_SCHEMA(RoIPool)
     .NumInputs(2)
     .NumOutputs({1, 2})
-    .TensorInferenceFunction(
-      [](const OperatorDef& def, const vector<TensorShape>& in) {
-        ArgumentHelper helper(def);
-        const StorageOrder order = StringToStorageOrder(
-            helper.GetSingleArgument<string>("order", "NCHW"));
-        const TensorShape &X = in[0];
-        const int num_channels =
-            (order == StorageOrder::NCHW ? X.dims(1) : X.dims(3));
-        const TensorShape &R = in[1];
-        const int num_rois = R.dims(0);
-        const int pooled_height = helper.GetSingleArgument<int>("pooled_h", 1);
-        const int pooled_width = helper.GetSingleArgument<int>("pooled_w", 1);
-        TensorShape Y = CreateTensorShape(
-            vector<int>({num_rois, num_channels, pooled_height, pooled_width}),
-            X.data_type());
+    .TensorInferenceFunction([](const OperatorDef& def,
+                                const vector<TensorShape>& in) {
+      ArgumentHelper helper(def);
+      const StorageOrder order = StringToStorageOrder(
+          helper.GetSingleArgument<string>("order", "NCHW"));
+      const TensorShape& X = in[0];
+      const int num_channels =
+          (order == StorageOrder::NCHW ? X.dims(1) : X.dims(3));
+      const TensorShape& R = in[1];
+      const int num_rois = R.dims(0);
+      const int pooled_height = helper.GetSingleArgument<int>("pooled_h", 1);
+      const int pooled_width = helper.GetSingleArgument<int>("pooled_w", 1);
+      TensorShape Y = CreateTensorShape(
+          vector<int>({num_rois, num_channels, pooled_height, pooled_width}),
+          X.data_type());
 
-        bool is_test = helper.GetSingleArgument<int>("is_test", 0);
-        if (!is_test) {
-          TensorShape argmaxes = Y;
-          argmaxes.set_data_type(TensorProto_DataType_INT32);
-          return vector<TensorShape>({Y, argmaxes});
-        } else {
-          return vector<TensorShape>({Y});
-        }
-      })
+      bool is_test = helper.GetSingleArgument<int>(OpSchema::Arg_IsTest, 0);
+      if (!is_test) {
+        TensorShape argmaxes = Y;
+        argmaxes.set_data_type(TensorProto_DataType_INT32);
+        return vector<TensorShape>({Y, argmaxes});
+      } else {
+        return vector<TensorShape>({Y});
+      }
+    })
     .SetDoc(R"DOC(
 Carries out ROI Pooling for Faster-RCNN.
 Depending on the mode, there are multiple output cases:
@@ -205,5 +219,4 @@ class GetRoIPoolGradient : public GradientMakerBase {
 
 REGISTER_GRADIENT(RoIPool, GetRoIPoolGradient);
 
-} // namespace
 } // namespace caffe2

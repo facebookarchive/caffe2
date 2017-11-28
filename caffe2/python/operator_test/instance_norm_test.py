@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -226,7 +241,8 @@ class TestInstanceNorm(hu.HypothesisTestCase):
            order=st.sampled_from(['NCHW', 'NHWC']),
            epsilon=st.floats(1e-6, 1e-4),
            seed=st.integers(0, 1000))
-    def test_instance_norm_model_helper_helper(self, N, C, H, W, order, epsilon, seed, is_test):
+    def test_instance_norm_model_helper(
+            self, N, C, H, W, order, epsilon, seed, is_test):
         np.random.seed(seed)
         model = model_helper.ModelHelper(name="test_model")
         brew.instance_norm(
@@ -235,6 +251,7 @@ class TestInstanceNorm(hu.HypothesisTestCase):
             'output',
             C,
             epsilon=epsilon,
+            order=order,
             is_test=is_test)
 
         input_blob = np.random.rand(N, C, H, W).astype(np.float32)

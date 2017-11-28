@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_MAP_OPS_H_
 #define CAFFE2_OPERATORS_MAP_OPS_H_
 
@@ -43,6 +59,57 @@ using MapType64To64 = MapTypeTraits<int64_t, int64_t>::MapType;
 using MapType64To32 = MapTypeTraits<int64_t, int32_t>::MapType;
 using MapType32To32 = MapTypeTraits<int32_t, int32_t>::MapType;
 using MapType32To64 = MapTypeTraits<int32_t, int64_t>::MapType;
+
+template <class Context>
+class CreateMapOp final : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  CreateMapOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<Context>(operator_def, ws) {}
+  ~CreateMapOp() {}
+
+  bool RunOnDevice() override {
+    TensorProto::DataType key_dtype =
+        static_cast<TensorProto::DataType>(OperatorBase::GetSingleArgument<int>(
+            "key_dtype", TensorProto_DataType_INT32));
+
+    return DispatchHelper<TensorTypes<int32_t, int64_t>>::call(
+        this, DataTypeToTypeMeta(key_dtype));
+  }
+
+  template <typename KEY_T>
+  bool DoRunWithType() {
+    TensorProto::DataType value_dtype =
+        static_cast<TensorProto::DataType>(OperatorBase::GetSingleArgument<int>(
+            "value_dtype", TensorProto_DataType_INT32));
+
+    return DispatchHelper<
+        TensorTypes2<int32_t, int64_t, GenericTensorImplementation>,
+        KEY_T>::call(this, DataTypeToTypeMeta(value_dtype));
+  }
+
+  template <typename KEY_T, typename VALUE_T>
+  bool DoRunWithType2() {
+    // clear to make sure the map is empty
+    OperatorBase::Output<typename MapTypeTraits<KEY_T, VALUE_T>::MapType>(MAP)
+        ->clear();
+    return true;
+  }
+
+  template <typename KEY_T>
+  bool DoRunWithOtherType2() {
+    TensorProto::DataType value_dtype =
+        static_cast<TensorProto::DataType>(OperatorBase::GetSingleArgument<int>(
+            "value_dtype", TensorProto_DataType_INT32));
+
+    CAFFE_THROW(
+        "CreateMap is not implemented on value tensor of type ",
+        DataTypeToTypeMeta(value_dtype).name(),
+        "Consider adding it a type in the list DispatchHelper");
+  }
+
+  OUTPUT_TAGS(MAP);
+};
 
 template <class Context>
 class KeyValueToMapOp final : public Operator<Context> {

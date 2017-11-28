@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Implements the math functions for CPU.
 // The implementation in this file allows us to route the underlying numerical
 // computation library to different backends. Notably:
@@ -11,20 +27,21 @@
 //     platforms, it allows one to quickly port Caffe2 to different platforms
 //     where BLAS may not be present.
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <random>
 #include <unordered_set>
-
-#ifdef CAFFE2_USE_MKL
-#include <mkl.h>
-#endif  // CAFFE2_USE_MKL
 
 #include "caffe2/utils/math.h"
 #include "caffe2/utils/cpu_neon.h"
 #include "caffe2/core/context.h"
 #include "Eigen/Core"
 #include "Eigen/Dense"
+
+#ifdef CAFFE2_USE_MKL
+#include <mkl.h>
+#endif  // CAFFE2_USE_MKL
 
 #if defined(_MSC_VER)
 #include <process.h>
@@ -398,6 +415,45 @@ CAFFE2_SPECIALIZED_AXPBY(float, s)
 
 #endif  // CAFFE2_USE_EIGEN_FOR_BLAS
 
+template <>
+void GemmBatched<float, CPUContext>(
+    const CBLAS_TRANSPOSE TransA,
+    const CBLAS_TRANSPOSE TransB,
+    const int A_size,
+    const int A_batches,
+    const int B_size,
+    const int B_batches,
+    const int M,
+    const int N,
+    const int K,
+    const float alpha,
+    const float* A,
+    const float* B,
+    const float beta,
+    float* C,
+    CPUContext* context,
+    Tensor<CPUContext>*, /* scratch */
+    TensorProto::DataType /* math_type */) {
+
+  auto a_offset = A_size / A_batches;
+  auto b_offset = B_size / B_batches;
+  auto y_offset = M * N;
+  // loop over matrices in the batch
+  for (int i = 0; i < A_batches; ++i) {
+    math::Gemm<float, CPUContext>(
+        TransA,
+        TransB,
+        M,
+        N,
+        K,
+        1,
+        A + a_offset * i,
+        B + b_offset * i,
+        0,
+        C + y_offset * i,
+        context);
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // MKL VML alternatives.
@@ -432,6 +488,10 @@ DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sin, vsSin)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sin, vdSin)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Abs, vsAbs)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Abs, vdAbs)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqrt, vsSqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sqrt, vdSqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, InvSqrt, vsInvSqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(double, InvSqrt, vdInvSqrt)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqr, vsSqr)
 DELEGATE_SIMPLE_UNARY_FUNCTION(double, Sqr, vdSqr)
 #undef DELEGATE_SIMPLE_UNARY_FUNCTION
@@ -483,6 +543,8 @@ DELEGATE_SIMPLE_UNARY_FUNCTION(float, Log, log)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Cos, cos)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sin, sin)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Abs, abs)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqrt, sqrt)
+DELEGATE_SIMPLE_UNARY_FUNCTION(float, InvSqrt, rsqrt)
 DELEGATE_SIMPLE_UNARY_FUNCTION(float, Sqr, square)
 #undef DELEGATE_SIMPLE_UNARY_FUNCTION
 
@@ -548,6 +610,35 @@ DEFINE_SIMPLE_BINARY_FUNCTION(Div, /)
 // Eigen or via custom code.
 ////////////////////////////////////////////////////////////////////////////////
 
+#define CAFFE2_SPECIALIZED_REDUCEMIN(T)    \
+  template <>                              \
+  void ReduceMin<T, CPUContext>(           \
+      const int N,                         \
+      const T* x,                          \
+      T* y,                                \
+      Tensor<CPUContext>* /*scratch_ptr*/, \
+      CPUContext* /*context*/) {           \
+    *y = *std::min_element(x, x + N);      \
+  }
+CAFFE2_SPECIALIZED_REDUCEMIN(float)
+#undef CAFFE2_SPECIALIZED_REDUCEMIN
+
+#define CAFFE2_SPECIALIZED_REDUCEMAX(T)    \
+  template <>                              \
+  void ReduceMax<T, CPUContext>(           \
+      const int N,                         \
+      const T* x,                          \
+      T* y,                                \
+      Tensor<CPUContext>* /*scratch_ptr*/, \
+      CPUContext* /*context*/) {           \
+    *y = *std::max_element(x, x + N);      \
+  }
+CAFFE2_SPECIALIZED_REDUCEMAX(float)
+CAFFE2_SPECIALIZED_REDUCEMAX(int32_t)
+CAFFE2_SPECIALIZED_REDUCEMAX(int64_t)
+
+#undef CAFFE2_SPECIALIZED_REDUCEMAX
+
 #define CAFFE2_SPECIALIZED_ROWWISEMAX(T)                         \
   template <>                                                    \
   void RowwiseMax<T, CPUContext>(                                \
@@ -556,6 +647,7 @@ DEFINE_SIMPLE_BINARY_FUNCTION(Div, /)
         ConstEigenMatrixMap<T>(x, D, N).colwise().maxCoeff();    \
   }
 CAFFE2_SPECIALIZED_ROWWISEMAX(float)
+#undef CAFFE2_SPECIALIZED_ROWWISEMAX
 
 #define CAFFE2_SPECIALIZED_COLWISEMAX(T)                         \
   template <>                                                    \
@@ -565,6 +657,28 @@ CAFFE2_SPECIALIZED_ROWWISEMAX(float)
         ConstEigenMatrixMap<T>(x, D, N).rowwise().maxCoeff();    \
   }
 CAFFE2_SPECIALIZED_COLWISEMAX(float)
+#undef CAFFE2_SPECIALIZED_COLWISEMAX
+
+#define CAFFE2_SPECIALIZED_ELEMWISEMAX(T)                                   \
+  template <>                                                               \
+  void ElemwiseMax<T, CPUContext>(                                          \
+      const int N, const T* x, const T* y, T* z, CPUContext* /*context*/) { \
+    std::transform(x, x + N, y, z, [](const T& x_i, const T& y_i) {         \
+      return std::max(x_i, y_i);                                            \
+    });                                                                     \
+  }
+CAFFE2_SPECIALIZED_ELEMWISEMAX(float)
+#undef CAFFE2_SPECIALIZED_ELEMWISEMAX
+
+#define CAFFE2_SPECIALIZED_MAXIMUM(T)                                          \
+  template <>                                                                  \
+  void Maximum<T, CPUContext>(                                                 \
+      const int N, const float alpha, const T* x, T* y, CPUContext* context) { \
+    std::transform(                                                            \
+        x, x + N, y, [&alpha](const T& x_i) { return std::max(x_i, alpha); }); \
+  }
+CAFFE2_SPECIALIZED_MAXIMUM(float)
+#undef CAFFE2_SPECIALIZED_MAXIMUM
 
 // AddToRow and AddToCol adds the corresponding row/col vector b to the matrix a
 // of shape M x N. The actual implementation uses eigen which is column major,
@@ -605,7 +719,7 @@ DEFINE_BROADCAST_BINARY_FUNCTION(Div, /)
 
 #define CAFFE2_SPECIALIZED_SET(T)                                             \
   template <>                                                                 \
-  void Set<T, CPUContext>(const TIndex N, const T alpha, T* Y, CPUContext*) { \
+  void Set<T, CPUContext>(const size_t N, const T alpha, T* Y, CPUContext*) { \
     if (alpha == (T)0) {                                                      \
       memset(Y, 0, N * sizeof(T));                                            \
     } else {                                                                  \
@@ -693,20 +807,26 @@ CAFFE2_SPECIALIZED_CPU_ADD_STRIPED_BATCH(float);
 
 template <>
 void RandUniform<float, CPUContext>(
-    const int n, const float a, const float b, float* r,
+    const size_t n,
+    const float a,
+    const float b,
+    float* r,
     CPUContext* context) {
   std::uniform_real_distribution<float> distribution(a, b);
-  for (int i = 0; i < n; ++i) {
+  for (auto i = 0; i < n; ++i) {
     r[i] = distribution(context->RandGenerator());
   }
 }
 
 template <>
 void RandUniform<int, CPUContext>(
-    const int n, const int a, const int b, int* r,
+    const size_t n,
+    const int a,
+    const int b,
+    int* r,
     CPUContext* context) {
   std::uniform_int_distribution<int> distribution(a, b);
-  for (int i = 0; i < n; ++i) {
+  for (auto i = 0; i < n; ++i) {
     r[i] = distribution(context->RandGenerator());
   }
 }
@@ -745,10 +865,13 @@ CAFFE2_SPECIALIZED_RAND_UNIFORM_UNIQUE(int64_t);
 
 template <>
 void RandGaussian<float, CPUContext>(
-    const int n, const float mean, const float std, float* r,
+    const size_t n,
+    const float mean,
+    const float std,
+    float* r,
     CPUContext* context) {
   std::normal_distribution<float> distribution(mean, std);
-  for (int i = 0; i < n; ++i) {
+  for (auto i = 0; i < n; ++i) {
     r[i] = distribution(context->RandGenerator());
   }
 }
@@ -1316,37 +1439,44 @@ void CopyMatrix<CPUContext>(
     const int lda,
     void* B,
     const int ldb,
-    CPUContext* /*context*/) {
+    CPUContext* /*context*/,
+    TypeMeta::TypedCopy copy) {
   if (lda == N && ldb == N) {
     // can coalese to a single memcpy of size M * N
-    memcpy(
-        static_cast<char*>(B), static_cast<const char*>(A), itemsize * N * M);
+    if (copy) {
+      copy(static_cast<const char*>(A), static_cast<char*>(B), N * M);
+    } else {
+      memcpy(
+          static_cast<char*>(B), static_cast<const char*>(A), itemsize * N * M);
+    }
     return;
   }
 
   for (int i = 0; i < M; ++i) {
-    memcpy(static_cast<char*>(B) + ldb * i * itemsize,
-           static_cast<const char*>(A) + lda * i * itemsize,
-           itemsize * N);
+    if (copy) {
+      copy(
+          static_cast<const char*>(A) + lda * i * itemsize,
+          static_cast<char*>(B) + ldb * i * itemsize,
+          N);
+    } else {
+      memcpy(
+          static_cast<char*>(B) + ldb * i * itemsize,
+          static_cast<const char*>(A) + lda * i * itemsize,
+          itemsize * N);
+    }
   }
 }
 
-uint32_t randomNumberSeed() {
-  // Originally copied from folly::randomNumberSeed (at 418ad4)
-  // modified to use chrono instead of sys/time.h
-  static std::atomic<uint32_t> seedInput(0);
-  auto tv = std::chrono::system_clock::now().time_since_epoch();
-  uint64_t usec = static_cast<uint64_t>(
-      std::chrono::duration_cast<std::chrono::microseconds>(tv).count());
-  uint32_t tv_sec = usec / 1000000;
-  uint32_t tv_usec = usec % 1000000;
-  const uint32_t kPrime0 = 51551;
-  const uint32_t kPrime1 = 61631;
-  const uint32_t kPrime2 = 64997;
-  const uint32_t kPrime3 = 111857;
-  return kPrime0 * (seedInput++) + kPrime1 * static_cast<uint32_t>(getpid()) +
-      kPrime2 * tv_sec + kPrime3 * tv_usec;
-}
+#define CAFFE2_SPECIALIZED_COPYVECTOR(T)                            \
+  template <>                                                       \
+  void CopyVector<T, CPUContext>(                                   \
+      const int N, const T* src, T* dst, CPUContext* /*context*/) { \
+    if (src != dst && N > 0) {                                      \
+      memcpy(dst, src, sizeof(T) * N);                              \
+    }                                                               \
+  }
+CAFFE2_SPECIALIZED_COPYVECTOR(float)
+#undef CAFFE2_SPECIALIZED_COPYVECTOR
 
 }  // namespace math
 }  // namespace caffe2

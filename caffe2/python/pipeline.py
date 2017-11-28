@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package pipeline
 # Module caffe2.python.pipeline
 from __future__ import absolute_import
@@ -35,7 +50,13 @@ DEFAULT_QUEUE_CAPACITY = 100
 
 
 def _init_output(output, capacity, global_init_net, global_exit_net):
-    if isinstance(output, Writer):
+    if output is None:
+        out_queue = queue_util.Queue(
+            capacity=(
+                capacity if capacity is not None
+                else DEFAULT_QUEUE_CAPACITY))
+        writer = out_queue.writer()
+    elif isinstance(output, Writer):
         assert capacity is None, 'capacity would not be used.'
         out_queue = None
         writer = output
@@ -43,12 +64,6 @@ def _init_output(output, capacity, global_init_net, global_exit_net):
         assert capacity is None, 'capacity would not be used.'
         out_queue = output
         writer = output.writer()
-    elif output is None:
-        out_queue = queue_util.Queue(
-            capacity=(
-                capacity if capacity is not None
-                else DEFAULT_QUEUE_CAPACITY))
-        writer = out_queue.writer()
     else:
         raise ValueError('output must be a reader, queue or stream.')
     writer.setup_ex(global_init_net, global_exit_net)

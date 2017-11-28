@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/relu_op.h"
 
 #include "caffe2/utils/math.h"
@@ -32,7 +48,7 @@ bool ReluGradientOp<float, CPUContext>::RunOnDevice() {
   auto& Y = Input(0);
   auto& dY = Input(1);
   auto* dX = Output(0);
-  DCHECK_EQ(dY.size(), Y.size());
+  CAFFE_ENFORCE_EQ(dY.size(), Y.size());
   dX->ResizeLike(Y);
 
   const float* Ydata = Y.data<float>();
@@ -51,23 +67,23 @@ bool ReluGradientOp<float, CPUContext>::RunOnDevice() {
   return true;
 }
 
-namespace {
 REGISTER_CPU_OPERATOR(Relu, ReluOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(ReluGradient, ReluGradientOp<float, CPUContext>);
 
 // Input: X, output: Y
 OPERATOR_SCHEMA(Relu)
-  .NumInputs(1)
-  .NumOutputs(1)
-  .AllowInplace({{0, 0}})
-  .IdenticalTypeAndShape()
-  .SetDoc(R"DOC(
+    .NumInputs(1)
+    .NumOutputs(1)
+    .AllowInplace({{0, 0}})
+    .CostInferenceFunction(PointwiseCostInference<2>)
+    .IdenticalTypeAndShape()
+    .SetDoc(R"DOC(
 Relu takes one input data (Tensor<T>) and produces one output data
 (Tensor<T>) where the rectified linear function, y = max(0, x), is applied to
 the tensor elementwise.
 )DOC")
-  .Input(0, "X", "1D input tensor")
-  .Output(0, "Y", "1D input tensor");
+    .Input(0, "X", "1D input tensor")
+    .Output(0, "Y", "1D input tensor");
 
 // Input: Y, dY, output: dX
 OPERATOR_SCHEMA(ReluGradient)
@@ -92,5 +108,4 @@ class GetReluGradient : public GradientMakerBase {
 REGISTER_GRADIENT(Relu, GetReluGradient);
 REGISTER_GRADIENT(ReluFp16, GetReluGradient);
 
-}  // namespace
 }  // namespace caffe2

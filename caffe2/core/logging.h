@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_CORE_LOGGING_H_
 #define CAFFE2_CORE_LOGGING_H_
 
@@ -240,31 +256,34 @@ BINARY_COMP_HELPER(Less, <)
 BINARY_COMP_HELPER(LessEquals, <=)
 #undef BINARY_COMP_HELPER
 
-#define CAFFE_ENFORCE_THAT_IMPL(condition, expr, ...)                 \
-  do {                                                                \
-    using namespace ::caffe2::enforce_detail;                         \
-    const EnforceFailMessage& r = (condition);                        \
-    if (r.bad()) {                                                    \
-      throw ::caffe2::EnforceNotMet(                                  \
-          __FILE__,                                                   \
-          __LINE__,                                                   \
-          expr,                                                       \
-          r.get_message_and_free(::caffe2::MakeString(__VA_ARGS__))); \
-    }                                                                 \
+#define CAFFE_ENFORCE_THAT_IMPL(condition, expr, ...)                   \
+  do {                                                                  \
+    using namespace ::caffe2::enforce_detail;                           \
+    const EnforceFailMessage& CAFFE_ENFORCE_THAT_IMPL_r_ = (condition); \
+    if (CAFFE_ENFORCE_THAT_IMPL_r_.bad()) {                             \
+      throw ::caffe2::EnforceNotMet(                                    \
+          __FILE__,                                                     \
+          __LINE__,                                                     \
+          expr,                                                         \
+          CAFFE_ENFORCE_THAT_IMPL_r_.get_message_and_free(              \
+              ::caffe2::MakeString(__VA_ARGS__)));                      \
+    }                                                                   \
   } while (false)
 
-#define CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER(condition, expr, ...)                 \
-  do {                                                                \
-    using namespace ::caffe2::enforce_detail;                         \
-    const EnforceFailMessage& r = (condition);                        \
-    if (r.bad()) {                                                    \
-      throw ::caffe2::EnforceNotMet(                                  \
-          __FILE__,                                                   \
-          __LINE__,                                                   \
-          expr,                                                       \
-          r.get_message_and_free(::caffe2::MakeString(__VA_ARGS__)),  \
-          this);                                                      \
-    }                                                                 \
+#define CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER(condition, expr, ...)      \
+  do {                                                                 \
+    using namespace ::caffe2::enforce_detail;                          \
+    const EnforceFailMessage& CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER_r_ = \
+        (condition);                                                   \
+    if (CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER_r_.bad()) {                \
+      throw ::caffe2::EnforceNotMet(                                   \
+          __FILE__,                                                    \
+          __LINE__,                                                    \
+          expr,                                                        \
+          CAFFE_ENFORCE_THAT_IMPL_WITH_CALLER_r_.get_message_and_free( \
+              ::caffe2::MakeString(__VA_ARGS__)),                      \
+          this);                                                       \
+    }                                                                  \
   } while (false)
 }
 

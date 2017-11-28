@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // TODO(ataei): reduce the apparent redundancy of all the code below.
 #include <cfloat>
 
@@ -1726,12 +1742,41 @@ bool PoolGradientOp<float, CUDAContext, MaxPool>::RunOnDeviceWithOrderNHWC() {
   return true;
 }
 
-namespace {
 REGISTER_CUDA_OPERATOR(AveragePool, PoolOp<float, CUDAContext, AveragePool>);
 REGISTER_CUDA_OPERATOR(AveragePoolGradient,
                        PoolGradientOp<float, CUDAContext, AveragePool>);
+
+REGISTER_CUDA_OPERATOR(AveragePool1D, PoolOp<float, CUDAContext, AveragePool>);
+REGISTER_CUDA_OPERATOR(
+    AveragePool1DGradient,
+    PoolGradientOp<float, CUDAContext, AveragePool>);
+
+REGISTER_CUDA_OPERATOR(AveragePool2D, PoolOp<float, CUDAContext, AveragePool>);
+REGISTER_CUDA_OPERATOR(
+    AveragePool2DGradient,
+    PoolGradientOp<float, CUDAContext, AveragePool>);
+
+REGISTER_CUDA_OPERATOR(AveragePool3D, PoolOp<float, CUDAContext, AveragePool>);
+REGISTER_CUDA_OPERATOR(
+    AveragePool3DGradient,
+    PoolGradientOp<float, CUDAContext, AveragePool>);
+
 REGISTER_CUDA_OPERATOR(MaxPool, PoolOp<float, CUDAContext, MaxPool>);
 REGISTER_CUDA_OPERATOR(MaxPoolGradient,
                        PoolGradientOp<float, CUDAContext, MaxPool>);
-}  // namespace
+
+REGISTER_CUDA_OPERATOR(MaxPool1D, PoolOp<float, CUDAContext, MaxPool>);
+REGISTER_CUDA_OPERATOR(
+    MaxPool1DGradient,
+    PoolGradientOp<float, CUDAContext, MaxPool>);
+
+REGISTER_CUDA_OPERATOR(MaxPool2D, PoolOp<float, CUDAContext, MaxPool>);
+REGISTER_CUDA_OPERATOR(
+    MaxPool2DGradient,
+    PoolGradientOp<float, CUDAContext, MaxPool>);
+
+REGISTER_CUDA_OPERATOR(MaxPool3D, PoolOp<float, CUDAContext, MaxPool>);
+REGISTER_CUDA_OPERATOR(
+    MaxPool3DGradient,
+    PoolGradientOp<float, CUDAContext, MaxPool>);
 }  // namespace caffe2

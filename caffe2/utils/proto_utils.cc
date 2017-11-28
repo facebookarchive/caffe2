@@ -1,14 +1,30 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/utils/proto_utils.h"
 
 #include <fcntl.h>
 #include <cerrno>
 #include <fstream>
 
-#include "google/protobuf/io/coded_stream.h"
-#include "google/protobuf/io/zero_copy_stream_impl.h"
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
 
 #ifndef CAFFE2_USE_LITE_PROTO
-#include "google/protobuf/text_format.h"
+#include <google/protobuf/text_format.h>
 #endif  // !CAFFE2_USE_LITE_PROTO
 
 #include "caffe2/core/logging.h"
@@ -24,6 +40,8 @@ std::string DeviceTypeName(const int32_t& d) {
       return "CPU";
     case CUDA:
       return "CUDA";
+    case OPENGL:
+      return "OPENGL";
     case MKLDNN:
       return "MKLDNN";
     default:
@@ -38,6 +56,13 @@ std::string DeviceTypeName(const int32_t& d) {
       return "";
   }
 };
+
+bool IsSameDevice(const DeviceOption& lhs, const DeviceOption& rhs) {
+  return (
+      lhs.device_type() == rhs.device_type() &&
+      lhs.cuda_gpu_id() == rhs.cuda_gpu_id() &&
+      lhs.node_name() == rhs.node_name());
+}
 
 bool ReadStringFromFile(const char* filename, string* str) {
   std::ifstream ifs(filename, std::ios::in);
@@ -184,7 +209,8 @@ ArgumentHelper::ArgumentHelper(const OperatorDef& def) {
             "but with different contents.",
             ProtoDebugString(def));
       } else {
-        LOG(WARNING) << "Duplicated argument name found in operator def: "
+        LOG(WARNING) << "Duplicated argument name [" << arg.name()
+                     << "] found in operator def: "
                      << ProtoDebugString(def);
       }
     }
@@ -196,7 +222,7 @@ ArgumentHelper::ArgumentHelper(const NetDef& netdef) {
   for (auto& arg : netdef.arg()) {
     CAFFE_ENFORCE(
         arg_map_.count(arg.name()) == 0,
-        "Duplicated argument name found in net def: ",
+        "Duplicated argument name [", arg.name(), "] found in net def: ",
         ProtoDebugString(netdef));
     arg_map_[arg.name()] = arg;
   }
@@ -213,6 +239,15 @@ template <typename InputType, typename TargetType>
 bool SupportsLosslessConversion(const InputType& value) {
   return static_cast<InputType>(static_cast<TargetType>(value)) == value;
 }
+}
+
+bool operator==(const NetDef& l, const NetDef& r) {
+  return l.SerializeAsString() == r.SerializeAsString();
+}
+
+std::ostream& operator<<(std::ostream& output, const NetDef& n) {
+  output << n.SerializeAsString();
+  return output;
 }
 
 #define INSTANTIATE_GET_SINGLE_ARGUMENT(                                      \
@@ -263,6 +298,7 @@ INSTANTIATE_GET_SINGLE_ARGUMENT(uint8_t, i, true)
 INSTANTIATE_GET_SINGLE_ARGUMENT(uint16_t, i, true)
 INSTANTIATE_GET_SINGLE_ARGUMENT(size_t, i, true)
 INSTANTIATE_GET_SINGLE_ARGUMENT(string, s, false)
+INSTANTIATE_GET_SINGLE_ARGUMENT(NetDef, n, false)
 #undef INSTANTIATE_GET_SINGLE_ARGUMENT
 
 #define INSTANTIATE_GET_REPEATED_ARGUMENT(                             \
@@ -302,6 +338,7 @@ INSTANTIATE_GET_REPEATED_ARGUMENT(uint8_t, ints, true)
 INSTANTIATE_GET_REPEATED_ARGUMENT(uint16_t, ints, true)
 INSTANTIATE_GET_REPEATED_ARGUMENT(size_t, ints, true)
 INSTANTIATE_GET_REPEATED_ARGUMENT(string, strings, false)
+INSTANTIATE_GET_REPEATED_ARGUMENT(NetDef, nets, false)
 #undef INSTANTIATE_GET_REPEATED_ARGUMENT
 
 #define CAFFE2_MAKE_SINGULAR_ARGUMENT(T, fieldname)                            \
@@ -344,6 +381,24 @@ CAFFE2_MAKE_REPEATED_ARGUMENT(int, ints)
 CAFFE2_MAKE_REPEATED_ARGUMENT(int64_t, ints)
 CAFFE2_MAKE_REPEATED_ARGUMENT(string, strings)
 #undef CAFFE2_MAKE_REPEATED_ARGUMENT
+
+bool HasOutput(const OperatorDef& op, const std::string& output) {
+  for (const auto& outp : op.output()) {
+    if (outp == output) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool HasInput(const OperatorDef& op, const std::string& input) {
+  for (const auto& inp : op.input()) {
+    if (inp == input) {
+      return true;
+    }
+  }
+  return false;
+}
 
 const Argument& GetArgument(const OperatorDef& def, const string& name) {
   for (const Argument& arg : def.arg()) {

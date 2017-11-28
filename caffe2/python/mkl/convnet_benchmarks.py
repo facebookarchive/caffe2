@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package convnet_benchmarks
 # Module caffe2.python.convnet_benchmarks
 from __future__ import absolute_import
@@ -66,6 +81,8 @@ import argparse
 
 from caffe2.python import brew, cnn, workspace
 from caffe2.python.model_helper import ModelHelper
+
+from caffe2.python.models import resnet
 import numpy as np
 
 def MLP(order, cudnn_ws, mkl):
@@ -94,6 +111,15 @@ def MLP(order, cudnn_ws, mkl):
         model.AveragedLoss(xent, "loss")
     return model, d
 
+
+def ResNet50(order, cudnn_ws, mkl):
+    my_arg_scope = {'order': order, 'use_cudnn': True,
+                    'cudnn_exhaustive_search': True,
+                    'ws_nbytes_limit': str(cudnn_ws)}
+    model = ModelHelper(name="alexnet", arg_scope=my_arg_scope)
+    resnet.create_resnet50(model, "data", 3, 1000, is_test=True,
+                           final_avg_kernel=14)
+    return model, 448
 
 def AlexNet(order, cudnn_ws, mkl):
     my_arg_scope = {'order': order, 'use_cudnn': True,
@@ -695,14 +721,14 @@ def GetArgumentParser():
 
 
 if __name__ == '__main__':
-    args = GetArgumentParser().parse_args()
+    args, extra_args = GetArgumentParser().parse_known_args()
     if (
         not args.batch_size or not args.model or not args.order
     ):
         GetArgumentParser().print_help()
     else:
         workspace.GlobalInit(
-            ['caffe2', '--caffe2_log_level=0'] +
+            ['caffe2', '--caffe2_log_level=0'] + extra_args +
             (['--caffe2_use_nvtx'] if args.use_nvtx else []) +
             (['--caffe2_htrace_span_log_path=' + args.htrace_span_log_path]
                 if args.htrace_span_log_path else []))
@@ -712,6 +738,7 @@ if __name__ == '__main__':
             'OverFeat': OverFeat,
             'VGGA': VGGA,
             'Inception': Inception,
+            'ResNet50': ResNet50,
             'MLP': MLP,
         }
         Benchmark(model_map[args.model], args)

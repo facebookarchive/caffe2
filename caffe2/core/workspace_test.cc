@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <iostream>
 
 #include "caffe2/core/operator.h"
@@ -27,7 +43,7 @@ TEST(WorkspaceTest, BlobAccess) {
 
   // Check if the returned Blob is OK for all operations
   Blob* blob = ws.GetBlob("newblob");
-  int* int_unused UNUSED_VARIABLE = blob->GetMutable<int>();
+  int* int_unused CAFFE2_UNUSED = blob->GetMutable<int>();
   EXPECT_TRUE(blob->IsType<int>());
   EXPECT_FALSE(blob->IsType<WorkspaceTestFoo>());
   EXPECT_NE(&blob->Get<int>(), nullptr);
@@ -38,6 +54,12 @@ TEST(WorkspaceTest, BlobAccess) {
   EXPECT_TRUE(blob->IsType<int>());
   EXPECT_FALSE(blob->IsType<WorkspaceTestFoo>());
   // When not null, we should only call with the right type.
+  EXPECT_NE(&blob->Get<int>(), nullptr);
+
+  // Re-creating the blob through CreateLocalBlob does not change the content
+  // either.
+  EXPECT_NE(nullptr, ws.CreateLocalBlob("newblob"));
+  EXPECT_TRUE(blob->IsType<int>());
   EXPECT_NE(&blob->Get<int>(), nullptr);
 
   // test removing blob
@@ -76,6 +98,36 @@ TEST(WorkspaceTest, Sharing) {
     EXPECT_TRUE(parent.CreateBlob("b"));
     // But child has local overrides
     EXPECT_NE(child.GetBlob("b"), parent.GetBlob("b"));
+    // Child can create a blob that already exists in the parent
+    EXPECT_TRUE(child.CreateBlob("a"));
+    EXPECT_EQ(child.GetBlob("a"), parent.GetBlob("a"));
+    // Child can create a local blob for the blob already exists in the parent
+    EXPECT_TRUE(child.CreateLocalBlob("a"));
+    // But the local blob will be different from the one in parent workspace
+    EXPECT_NE(child.GetBlob("a"), parent.GetBlob("a"));
+  }
+}
+
+TEST(WorkspaceTest, BlobMapping) {
+  Workspace parent;
+  EXPECT_FALSE(parent.HasBlob("a"));
+  EXPECT_TRUE(parent.CreateBlob("a"));
+  EXPECT_TRUE(parent.GetBlob("a"));
+  {
+    std::unordered_map<string, string> forwarded_blobs;
+    forwarded_blobs["inner_a"] = "a";
+    Workspace child(&parent, forwarded_blobs);
+    EXPECT_FALSE(child.HasBlob("a"));
+    EXPECT_TRUE(child.HasBlob("inner_a"));
+    EXPECT_TRUE(child.GetBlob("inner_a"));
+    Workspace ws;
+    EXPECT_TRUE(ws.CreateBlob("b"));
+    forwarded_blobs.clear();
+    forwarded_blobs["inner_b"] = "b";
+    child.AddBlobMapping(&ws, forwarded_blobs);
+    EXPECT_FALSE(child.HasBlob("b"));
+    EXPECT_TRUE(child.HasBlob("inner_b"));
+    EXPECT_TRUE(child.GetBlob("inner_b"));
   }
 }
 

@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -97,7 +112,7 @@ class DataWorkersTest(unittest.TestCase):
         workspace.RunNetOnce(model.param_init_net)
         workspace.CreateNet(model.net)
 
-        while coordinator._coordinators[0]._inputs < 100:
+        while coordinator._coordinators[0]._state._inputs < 100:
             time.sleep(0.01)
 
         # Run a couple of rounds
@@ -166,7 +181,7 @@ class DataWorkersTest(unittest.TestCase):
         workspace.CreateNet(model.net)
         workspace.CreateNet(val_model.net)
 
-        while coordinator._coordinators[0]._inputs < 900:
+        while coordinator._coordinators[0]._state._inputs < 900:
             time.sleep(0.01)
 
         with timeout_guard.CompleteInTimeOrDie(5):

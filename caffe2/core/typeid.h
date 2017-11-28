@@ -1,11 +1,27 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_CORE_TYPEID_H_
 #define CAFFE2_CORE_TYPEID_H_
 
 #include <cassert>
 #include <cstdlib>
-
 #include <iostream>
 #include <map>
+#include <mutex>
 #include <type_traits>
 #ifdef __GXX_RTTI
 #include <set>
@@ -31,9 +47,12 @@ string Demangle(const char* name);
 // type before its what() content.
 string GetExceptionString(const std::exception& e);
 
+std::mutex& gCaffe2TypeRegistrationMutex();
+
 template <typename T>
 struct TypeNameRegisterer {
   explicit TypeNameRegisterer(CaffeTypeId id) {
+    std::lock_guard<std::mutex> guard(gCaffe2TypeRegistrationMutex());
 #ifdef __GXX_RTTI
     string name = Demangle(typeid(T).name());
     gTypeNames()[id] = name;
@@ -243,7 +262,9 @@ class TypeMeta {
    * Returns a TypeMeta object that corresponds to the typename T.
    */
   template <typename T>
-  static typename std::enable_if<std::is_fundamental<T>::value, TypeMeta>::type
+  static typename std::enable_if<
+      std::is_fundamental<T>::value || std::is_pointer<T>::value,
+      TypeMeta>::type
   Make() {
     return TypeMeta(Id<T>(), ItemSize<T>(), nullptr, nullptr, nullptr);
   }
@@ -251,7 +272,7 @@ class TypeMeta {
   template <
       typename T,
       typename std::enable_if<
-          !std::is_fundamental<T>::value &&
+          !(std::is_fundamental<T>::value || std::is_pointer<T>::value) &&
           std::is_copy_assignable<T>::value>::type* = nullptr>
   static TypeMeta Make() {
     return TypeMeta(Id<T>(), ItemSize<T>(), _Ctor<T>, _Copy<T>, _Dtor<T>);
@@ -260,7 +281,7 @@ class TypeMeta {
   template <typename T>
   static TypeMeta Make(
       typename std::enable_if<
-          !std::is_fundamental<T>::value &&
+          !(std::is_fundamental<T>::value || std::is_pointer<T>::value) &&
           !std::is_copy_assignable<T>::value>::type* = 0) {
     return TypeMeta(
         Id<T>(), ItemSize<T>(), _Ctor<T>, _CopyNotAllowed<T>, _Dtor<T>);

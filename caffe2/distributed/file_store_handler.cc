@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "file_store_handler_op.h"
 
 #include <errno.h>
@@ -5,18 +21,50 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include <array>
 #include <chrono>
 #include <iostream>
 #include <thread>
 
+#if defined(_MSC_VER)
+#include <direct.h> // for _mkdir
+#endif
+
 #include "caffe2/utils/murmur_hash3.h"
 
 namespace caffe2 {
 
-FileStoreHandler::FileStoreHandler(std::string& path) {
+static std::string encodeName(const std::string& name) {
+  std::array<uint64_t, 2> out;
+  MurmurHash3_x64_128(name.data(), name.size(), 0xcafef00d, out.data());
+
+  // Size is 33 to have space for final NUL
+  std::array<char, 33> buf;
+  for (int i = 0; i < 16; i++) {
+    snprintf(&buf[i * 2], buf.size() - (i * 2), "%02x", ((char*)out.data())[i]);
+  }
+
+  // Return everything but the final NUL
+  return std::string(buf.data(), buf.size() - 1);
+}
+
+FileStoreHandler::FileStoreHandler(
+    const std::string& path,
+    const std::string& prefix) {
   basePath_ = realPath(path);
+  if (!prefix.empty()) {
+    basePath_ = basePath_ + "/" + encodeName(prefix);
+  }
+#if defined(_MSC_VER)
+  auto ret = _mkdir(basePath_.c_str());
+#else
+  auto ret = mkdir(basePath_.c_str(), 0777);
+#endif // defined(_MSC_VER)
+  if (ret == -1) {
+    CHECK_EQ(errno, EEXIST) << "mkdir: " << strerror(errno);
+  }
 }
 
 FileStoreHandler::~FileStoreHandler() {}
@@ -31,16 +79,6 @@ std::string FileStoreHandler::realPath(const std::string& path) {
 #endif
   CHECK_EQ(buf.data(), ret) << "realpath: " << strerror(errno);
   return std::string(buf.data());
-}
-
-static std::string encodeName(const std::string& name) {
-  uint64_t out[2];
-  MurmurHash3_x64_128(name.data(), name.size(), 0xcafef00d, &out);
-  std::array<char, 32> buf;
-  for (int i = 0; i < 16; i++) {
-    snprintf(&buf[i * 2], buf.size() - (i * 2), "%02x", ((char*)out)[i]);
-  }
-  return std::string(buf.data(), buf.size());
 }
 
 std::string FileStoreHandler::tmpPath(const std::string& name) {

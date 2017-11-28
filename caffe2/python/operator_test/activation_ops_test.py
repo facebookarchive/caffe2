@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -43,9 +58,10 @@ class TestActivations(hu.HypothesisTestCase):
            inplace=st.booleans(),
            shared=st.booleans(),
            order=st.sampled_from(["NCHW", "NHWC"]),
+           seed=st.sampled_from([20, 100]),
            **hu.gcs)
-    def test_prelu(self, X, alpha, inplace, shared, order, gc, dc):
-        #np.random.seed(20)
+    def test_prelu(self, X, alpha, inplace, shared, order, seed, gc, dc):
+        np.random.seed(seed)
         W = np.random.randn(
             X.shape[1] if order == "NCHW" else X.shape[3]).astype(np.float32)
 
@@ -76,9 +92,9 @@ class TestActivations(hu.HypothesisTestCase):
 
         if not inplace:
             # Gradient check wrt X
-            self.assertGradientChecks(gc, op, [X, W], 0, [0])
+            self.assertGradientChecks(gc, op, [X, W], 0, [0], stepsize=1e-2)
             # Gradient check wrt W
-            self.assertGradientChecks(gc, op, [X, W], 1, [0])
+            self.assertGradientChecks(gc, op, [X, W], 1, [0], stepsize=1e-2)
 
     @given(X=hu.tensor(),
            alpha=st.floats(min_value=0.1, max_value=2.0),

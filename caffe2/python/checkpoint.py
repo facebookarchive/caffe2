@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package checkpoint
 # Module caffe2.python.checkpoint
 from __future__ import absolute_import
@@ -14,9 +29,6 @@ from caffe2.python.task import Node, Task, TaskGroup, TaskOutput, WorkspaceType
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-# The name of the special net that is used to store all the blob names in the
-# workspace.
-__BLOB_NAMES_NET__ = 'get_blob_list'
 
 @context.define_context()
 class Job(object):
@@ -104,21 +116,62 @@ class Job(object):
         self.stop_signals.append(output)
 
 
+def get_ckpt_filename(node_name, epoch):
+    """Returns the checkpoint filename.
+
+    Args:
+        node_name: A string. The name of the node.
+        epoch: An integer. The checkpoint epoch.
+
+    Returns:
+        ckpt_filename: A string. The filename of the checkpoint.
+    """
+    return node_name + '.' + str(epoch)
+
+
 class CheckpointManager(object):
     """
     Controls saving and loading of workspaces on every epoch boundary of a job.
     If a CheckpointManager instance is passed to JobRunner, then JobRunner will
     call `init`, `read` and `save` at different moments in between epoch runs.
+
+    Args:
+        db_prefix: The prefix used to construct full db name. Since `absolute_path`
+            is set to True, this will be used as db_name in SaveOp.
+        node_name: Name of the node where this checkpoint_manager is used.
+        db_type: Type of database to use for storing checkpoint.
+        metadata_handler: An optional object capable of reading/writing
+            checkpoint info in storage of choice.
     """
-    def __init__(self, db, db_type):
-        self._db = db
+    def __init__(self, db_prefix, node_name, db_type, metadata_handler=None):
+        self._db_prefix = db_prefix
+        self._node_name = node_name
         self._db_type = db_type
+        self._metadata_handler = metadata_handler
         # make sure these blobs are the first in the checkpoint file.
         self._net = core.Net('!!checkpoint_mngr')
         self._blob_names = self._net.AddExternalInput('blob_names')
         self._names_output = None
 
-    def init(self, nodes=None, retrieve_from_epoch=None):
+    """
+    Initialize the checkpoint manager. Determines all blobs that need to be saved
+    or loads from a checkpoint.
+
+    Args:
+        nodes: An array of nodes where this checkpoint manager is running. Should
+            only contain a single node.
+        retrieve_from_epoch: Set to a number to load blobs from this epoch.
+        path_prefix: Used to construct db name or path where checkpoint files are
+            stored.
+        path_type: Indicate the type of path where checkpoint files are stored.
+    """
+    def init(
+        self,
+        nodes=None,
+        retrieve_from_epoch=None,
+        path_prefix=None,
+        path_type=None
+    ):
         """
         Build a Task that will be run once after the job's `init_group` is run.
         This task will determine which blobs need to be checkpointed.
@@ -127,6 +180,10 @@ class CheckpointManager(object):
         """
         assert nodes is None or len(nodes) == 1, (
             'CheckpointManager only supports single node.')
+
+        self._path_prefix = path_prefix
+        self._path_type = path_type
+
         with Task(outputs=[self._blob_names]) as task:
             if retrieve_from_epoch is None:
                 ops.GetAllBlobNames(
@@ -134,10 +191,14 @@ class CheckpointManager(object):
                     self._blob_names,
                     include_shared=False)
             else:
+                full_db_name = self._db_name(retrieve_from_epoch, path_prefix)
+                db_type = path_type or self._db_type
+                logger.info("Initializing checkpoints from = %s"
+                            % full_db_name)
                 ops.Load(
                     [], self._blob_names,
-                    db=self._db_name(retrieve_from_epoch),
-                    db_type=self._db_type,
+                    db=full_db_name,
+                    db_type=db_type,
                     absolute_path=True)
         self._names_output = task.outputs()[0]
         return task
@@ -146,22 +207,29 @@ class CheckpointManager(object):
         assert self._names_output
         return self._names_output.fetch().tolist()
 
-    def _db_name(self, epoch):
-        return '%s.%06d' % (self._db, epoch)
+    def _db_name(self, epoch, path_prefix=None):
+        if path_prefix:
+            db_name = path_prefix + get_ckpt_filename(self._node_name, epoch)
+        else:
+            ckpt_filename = get_ckpt_filename(self._node_name, epoch)
+            db_name = os.path.join(self._db_prefix, ckpt_filename)
+        return db_name
 
-    def load(self, epoch):
+    def load(self, epoch, path_prefix=None, path_type=None):
         """
         Build a Task that will be run by JobRunner when the job is to be
         resumed from a given epoch. This task will run a Load op that will
         load and deserialize all relevant blobs from a persistent storage.
         """
-        logger.info('Load from %s' % self._db_name(epoch))
+        full_db_name = self._db_name(epoch, path_prefix)
+        db_type = path_type or self._db_type
+        logger.info("Loading checkpoints from = %s" % full_db_name)
         with Task() as task:
             ops.Load(
                 [],
                 self.blob_list(),
-                db=self._db_name(epoch),
-                db_type=self._db_type,
+                db=full_db_name,
+                db_type=db_type,
                 absolute_path=True)
         return task
 
@@ -210,12 +278,29 @@ class CheckpointManager(object):
         epoch is run. This will execute a Save ops to serialize and persist
         blobs present in the global workspaace.
         """
-        logger.info('Save to %s' % self._db_name(epoch))
+        logger.info('Saving to %s' % self._db_name(epoch))
         with Task() as task:
             ops.Save(
                 self.blob_list(), [], db=self._db_name(epoch),
                 db_type=self._db_type, absolute_path=True)
         return task
+
+    def write_checkpoint_metadata(self, epoch):
+        if self._metadata_handler is not None:
+            self._metadata_handler.write(
+                epoch=epoch,
+                db_type=self._db_type,
+                db_prefix=self._db_prefix,
+                path_type=self._path_type,
+                path_prefix=self._path_prefix,
+                node_names=[self._node_name],
+            )
+
+    def get_resume_from_epoch_id(self, user_epoch=None):
+        last_epoch = user_epoch
+        if self._metadata_handler is not None:
+            last_epoch = self._metadata_handler.last_epoch(user_epoch=user_epoch)
+        return last_epoch
 
 
 class MultiNodeCheckpointManager(object):
@@ -223,13 +308,19 @@ class MultiNodeCheckpointManager(object):
     Coordinates checkpointing and checkpointing across multiple nodes.
     Each of `init`, `load` and `save` will build TaskGroups which will
     trigger checkpointing on each of the nodes involved in a distributed job.
+
+    Args:
+        db_prefix: The prefix used to construct full db name. Since `absolute_path`
+            is set to True, this will be used as db_name in SaveOp.
+        db_type: Type of database to use for storing checkpoint.
+        metadata_handler: An optional object capable of reading/writing
+            checkpoint info in storage of choice.
     """
-    def __init__(
-            self, db_prefix, db_type, node_manager_class=CheckpointManager):
-        self._node_manager_class = node_manager_class
+    def __init__(self, db_prefix, db_type, metadata_handler=None):
         self._node_managers = None
         self._db_prefix = db_prefix
         self._db_type = db_type
+        self._metadata_handler = metadata_handler
 
     def _task_group(self, func, *args, **kw):
         assert self._node_managers is not None, 'init must be called first.'
@@ -239,24 +330,44 @@ class MultiNodeCheckpointManager(object):
                     func(manager, *args, **kw)
             return task_group
 
-    def init(self, nodes, retrieve_from_epoch=None):
+    """
+    Args:
+        nodes: An array of nodes where this checkpoint manager is running.
+        retrieve_from_epoch: Set to a number to load blobs from this epoch.
+        path_prefix: Used to construct db name or path where checkpoint files are
+            stored.
+        path_type: Indicate the type of path where checkpoint files are stored.
+    """
+    def init(
+        self, nodes, retrieve_from_epoch=None, path_prefix=None, path_type=None
+    ):
         if self._node_managers is not None:
             assert [node for node, _ in self._node_managers] == nodes
             return
         self._node_managers = []
+        self._path_prefix = path_prefix
+        self._path_type = path_type
+        self._node_names = [str(node) for node in nodes]
         for node in nodes:
             with Node(node):
-                manager = self._node_manager_class(
-                    db=os.path.join(self._db_prefix, node),
+                manager = CheckpointManager(
+                    db_prefix=self._db_prefix,
+                    node_name=str(node),
                     db_type=self._db_type)
                 self._node_managers.append((node, manager))
         return self._task_group(
-            self._node_manager_class.init,
+            CheckpointManager.init,
             nodes=[node],
-            retrieve_from_epoch=retrieve_from_epoch)
+            retrieve_from_epoch=retrieve_from_epoch,
+            path_prefix=path_prefix,
+            path_type=path_type)
 
-    def load(self, epoch):
-        return self._task_group(self._node_manager_class.load, epoch)
+    def load(self, epoch, path_prefix=None, path_type=None):
+        return self._task_group(
+            CheckpointManager.load,
+            epoch,
+            path_prefix=path_prefix,
+            path_type=path_type)
 
     def load_blobs_locally(self, nodes, blob_names, epoch, session):
         """Loads the necessary blobs from the checkpoints to the current node.
@@ -273,8 +384,9 @@ class MultiNodeCheckpointManager(object):
             self._node_managers = []
             for node in nodes:
                 with Node(node):
-                    manager = self._node_manager_class(
-                        db=os.path.join(self._db_prefix, node),
+                    manager = CheckpointManager(
+                        db_prefix=self._db_prefix,
+                        node_name=str(node),
                         db_type=self._db_type)
                     self._node_managers.append((node, manager))
         assert self._node_managers is not None, 'must initialize node managers'
@@ -290,16 +402,69 @@ class MultiNodeCheckpointManager(object):
         logger.info('Successfully loaded from checkpoints.')
         return True
 
+    def get_ckpt_db_name(self, node_name, epoch):
+        """Returns the DB name of the given node and the given epoch.
+
+        The DB name is effectively the checkpoint path of the given node and
+        the given epoch.
+
+        Args:
+            node_name: A string. The node name of interest.
+            epoch: An integer. The epoch of the checkpoint.
+
+        Returns:
+            checkpoint_db_name: A string. The checkpoint path of the given
+                node and the given epoch.
+        """
+        for node, manager in self._node_managers:
+            if str(node) == node_name:
+                return manager._db_name(epoch)
+
     def save(self, epoch):
-        return self._task_group(self._node_manager_class.save, epoch)
+        return self._task_group(CheckpointManager.save, epoch)
+
+    def write_checkpoint_metadata(self, epoch):
+        if self._metadata_handler is not None:
+            self._metadata_handler.write(
+                epoch=epoch,
+                db_type=self._db_type,
+                db_prefix=self._db_prefix,
+                path_type=self._path_type,
+                path_prefix=self._path_prefix,
+                node_names=self._node_names,
+            )
+
+    def get_resume_from_epoch_id(self, user_epoch=None):
+        last_epoch = user_epoch
+        if self._metadata_handler is not None:
+            last_epoch = self._metadata_handler.last_epoch(user_epoch=user_epoch)
+        return last_epoch
+
+
+class UploadTaskGroupBuilder(object):
+    """A simple class to upload checkpoints."""
+    def build(self, epoch, checkpoint_manager):
+        """Builds the task group to upload checkpoints.
+
+        Args:
+            epoch: An integer. The checkpoint epoch to be uploaded.
+            checkpoint_manager: Can be a CheckpointManager for single machine
+                or a MultiNodeCheckpointManager for multi-machine. The manager
+                that initializes/saves/loads checkpoints.
+
+        Raises:
+            NotImplementedError: This base class only has the interface,
+                the implementation will be in the subclasses.
+        """
+        raise NotImplementedError()
 
 
 class JobRunner(object):
     """
     Implement the runtime logic for jobs with checkpointing at the level of
     epoch. Can be used to run either single-host or distributed jobs. Job
-    runner is a callable to be called once from the client, passing a Session
-    as argument. This call will block until the Job execution is complete.
+    runner is a callable to be called once from the master, passing a session
+    as an argument. This call will block until the Job execution is complete.
 
     If a checkpoint_manager is passed, checkpoints will be taken after
     initialization and after each epoch execution. If, in addition,
@@ -309,48 +474,92 @@ class JobRunner(object):
 
     Refer to checkpoint_test.py for an example.
     """
-    def __init__(self, job, checkpoint_manager=None, resume_from_epoch=None):
-        self.resume_from_epoch = resume_from_epoch
-        self.checkpoint = checkpoint_manager
-        self.job = job
+    def __init__(self, job, checkpoint_manager=None, resume_from_epoch=None,
+                 upload_task_group_builder=None):
+        """Initializes the JobRunner.
 
-    def __call__(self, client):
+        Args:
+            job: A Job object. The job to be executed.
+            checkpoint_manager: Can be a CheckpointManager for single machine
+                or a MultiNodeCheckpointManager for multi-machine. The manager
+                that initializes/saves/loads checkpoints.
+            resume_from_epoch: An integer. The epoch to resume from.
+            upload_task_group_builder: A subclass of the
+                UploadTaskGroupBuilder. Creates a task group to upload
+                checkpoints.
+        """
+        self.resume_from_epoch = resume_from_epoch
+        self.checkpoint_manager = checkpoint_manager
+        self.job = job
+        self.upload_task_group_builder = upload_task_group_builder
+
+    def __call__(self, session):
+        """Runs the training flow.
+
+        Args:
+            session: A Session object. Valid choises are: LocalSession,
+                LocalHostScheduler, and DistributedSession. It is used to
+                execute one TaskGroup a time.
+        """
+        # identify the epoch we must resume from
+        if self.checkpoint_manager:
+            self.resume_from_epoch = self.checkpoint_manager.\
+                get_resume_from_epoch_id(self.resume_from_epoch)
+            if self.resume_from_epoch is not None:
+                logger.info('Resuming from epoch {}'.format(self.resume_from_epoch))
+
+        # Initialize all the nodes.
         from_scratch = self.resume_from_epoch is None
         if from_scratch:
-            client.run(self.job.init_group)
+            session.run(self.job.init_group)
 
-        if self.checkpoint:
-            logger.info('Preparing checkpoint ...')
-            client.run(self.checkpoint.init(
+        if self.checkpoint_manager:
+            logger.info('Preparing checkpoints ...')
+            session.run(self.checkpoint_manager.init(
                 self.job.nodes_to_checkpoint(),
                 retrieve_from_epoch=self.resume_from_epoch))
+            # Save the first checkpoint before training starts, or resume from
+            # a previously saved checkpoint.
             if from_scratch:
-                logger.info('Saving first checkpoint ...')
-                client.run(self.checkpoint.save(0))
-                logger.info('First checkpoint saved.')
+                logger.info('Saving first checkpoints ...')
+                session.run(self.checkpoint_manager.save(0))
+                self.checkpoint_manager.write_checkpoint_metadata(0)
+                logger.info('First checkpoints saved')
             else:
-                logger.info('Loading checkpoint for epoch {} ...'.format(
+                logger.info('Loading checkpoints for epoch {} ...'.format(
                     self.resume_from_epoch))
-                client.run(self.checkpoint.load(self.resume_from_epoch))
-                logger.info('Checkpoint loaded.')
+                session.run(
+                    self.checkpoint_manager.load(self.resume_from_epoch))
+                logger.info('Checkpoint loaded')
+        logger.info("Finished initializing")
 
+        # Start training.
         epoch = 1 if from_scratch else self.resume_from_epoch + 1
         while True:
-            logger.info('Starting epoch %d.' % epoch)
-            client.run(self.job.epoch_group)
-            logger.info('Ran epoch %d.' % epoch)
+            logger.info('Starting epoch %d' % epoch)
+            session.run(self.job.epoch_group)
+            logger.info('Finished epoch %d' % epoch)
             stop_signals = [o.fetch() for o in self.job.stop_signals]
 
-            if self.checkpoint:
-                logger.info('Saving checkpoint ...')
-                client.run(self.checkpoint.save(epoch))
-                logger.info('Checkpoint saved.')
+            if self.checkpoint_manager:
+                logger.info('Saving checkpoints for epoch {}'.format(epoch))
+                session.run(self.checkpoint_manager.save(epoch))
+                self.checkpoint_manager.write_checkpoint_metadata(epoch)
+                logger.info('Checkpoints saved')
 
             if any(stop_signals):
-                logger.info('Stopping.')
+                logger.info('Stopping')
                 break
             epoch += 1
-        client.run(self.job.exit_group)
+        logger.info('Finished training')
+        # Upload the checkpoints.
+        if (self.upload_task_group_builder):
+            upload_task_group = self.upload_task_group_builder.build(
+                epoch, self.checkpoint_manager)
+            session.run(upload_task_group)
+            logger.info('Finished uploading the checkpoints')
+        session.run(self.job.exit_group)
+        logger.info('Finished running the exit group')
         return epoch
 
     def load_blobs_from_checkpoints(self, blob_names, epoch, session):
@@ -359,10 +568,10 @@ class JobRunner(object):
         Checkpoints store the snapshots of the workspace in each node.
         Sometimes we only need to load a subset of the blobs from the
         checkpoints. One common scenario is to load only the model blobs from
-        the checkpoints for evaluation purpose. Given the names of the necessary
-        blobs, this function goes over all the checkpoints of all the nodes, but
-        only loads the blobs specified in the blob_names to the current
-        workspace.
+        the checkpoints for evaluation purpose. Given the names of the
+        necessary blobs, this function goes over all the checkpoints of all the
+        nodes, but only loads the blobs specified in the blob_names to the
+        current workspace.
 
         Args:
             blob_names: A list of strings. Each string is the name of a
@@ -373,11 +582,11 @@ class JobRunner(object):
         Raises:
             ValueError: When the checkpoint manager is invalid.
         """
-        if not self.checkpoint:
+        if not self.checkpoint_manager:
             raise ValueError('Checkpoint manager is None')
         logger.info('Loading checkpoint for epoch {} ...'.format(epoch))
-        return self.checkpoint.load_blobs_locally(self.job.nodes_to_checkpoint(),
-                                                  blob_names, epoch, session)
+        return self.checkpoint_manager.load_blobs_locally(
+            self.job.nodes_to_checkpoint(), blob_names, epoch, session)
 
 
 def epoch_limiter(num_epochs):

@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/plan_executor.h"
 
 #include <condition_variable>
@@ -109,6 +125,40 @@ inline const bool getShouldStop(const Blob* b) {
   return *(t.template data<bool>());
 }
 
+/**
+ * Injects a blob named 'GLOBAL_WORKSPACE_ID' for each workspace, only if
+ * another blob named 'NODE_ID' is present. 'NODE_ID' blob can be used in a
+ * distribued run and in this case 'GLOBAL_WORKSPACE_ID' can be used across
+ * machines for other purposes (e.g. to support model parallelism). Essentially,
+ * 'GLOBAL_WORKSPACE_ID' is an identifier for a workspace that is unique across
+ * all 'NODE_ID's.
+ */
+struct WorkspaceIdInjector {
+  static const string NODE_ID;
+  static const string GLOBAL_WORKSPACE_ID;
+
+  void InjectWorkspaceId(Workspace* workspace) {
+    if (workspace->HasBlob(NODE_ID)) {
+      Blob* node_id_blob = workspace->GetBlob(NODE_ID);
+      TensorCPU node_id_tensor = node_id_blob->template Get<TensorCPU>();
+      int node_id = node_id_tensor.template data<int32_t>()[0];
+      int64_t global_ws_id = (seq_++) + (static_cast<int64_t>(node_id) << 32);
+      Blob* global_ws_id_blob = workspace->CreateLocalBlob(GLOBAL_WORKSPACE_ID);
+      TensorCPU* global_ws_id_tensor =
+          global_ws_id_blob->template GetMutable<TensorCPU>();
+      global_ws_id_tensor->Resize();
+      global_ws_id_tensor->template mutable_data<int64_t>()[0] = global_ws_id;
+      VLOG(1) << "Adding " << GLOBAL_WORKSPACE_ID << " = " << global_ws_id;
+    }
+  }
+
+ private:
+  std::atomic<int> seq_{0};
+};
+
+const string WorkspaceIdInjector::NODE_ID = "NODE_ID";
+const string WorkspaceIdInjector::GLOBAL_WORKSPACE_ID = "GLOBAL_WORKSPACE_ID";
+
 struct CompiledExecutionStep;
 
 /**
@@ -135,11 +185,13 @@ struct ExecutionStepWrapper {
       const ExecutionStep* step,
       Workspace* externalWorkspace,
       ShouldContinue externalShouldContinue,
-      NetDefMap* netDefs)
+      NetDefMap* netDefs,
+      WorkspaceIdInjector* ws_id_injector)
       : step_(step),
         externalWorkspace_(externalWorkspace),
         externalShouldContinue_(externalShouldContinue),
-        netDefs_(netDefs) {
+        netDefs_(netDefs),
+        ws_id_injector_(ws_id_injector) {
     // If this execution step does not create a child workspace,
     // then just eagerly-compile it. This will trigger CreateNet on the
     // nets used by this execution step.
@@ -167,7 +219,7 @@ struct ExecutionStepWrapper {
     CompiledGuard() {}
     std::unique_ptr<CompiledExecutionStep> compiled_;
     CompiledExecutionStep* compiledRef_;
-    friend class ExecutionStepWrapper;
+    friend struct ExecutionStepWrapper;
   };
 
   const ExecutionStep& step() {
@@ -192,6 +244,7 @@ struct ExecutionStepWrapper {
   ShouldContinue externalShouldContinue_;
   NetDefMap* netDefs_;
   std::unique_ptr<CompiledExecutionStep> compiledStep_;
+  WorkspaceIdInjector* ws_id_injector_;
 };
 
 struct CompiledExecutionStep {
@@ -201,11 +254,13 @@ struct CompiledExecutionStep {
       const ExecutionStep* mainStep,
       Workspace* externalWorkspace,
       ShouldContinue externalShouldContinue,
-      NetDefMap* netDefs)
+      NetDefMap* netDefs,
+      WorkspaceIdInjector* ws_id_injector)
       : step(mainStep) {
     if (mainStep->create_workspace()) {
       localWorkspace_.reset(new Workspace(externalWorkspace));
       workspace = localWorkspace_.get();
+      ws_id_injector->InjectWorkspaceId(workspace);
     } else {
       workspace = externalWorkspace;
     }
@@ -245,7 +300,7 @@ struct CompiledExecutionStep {
 
       for (const auto& ss : step->substep()) {
         auto compiledSubstep = std::make_shared<ExecutionStepWrapper>(
-            &ss, workspace, substepShouldContinue, netDefs);
+            &ss, workspace, substepShouldContinue, netDefs, ws_id_injector);
         if (ss.has_run_every_ms()) {
           reportSubsteps.push_back(compiledSubstep);
         } else {
@@ -297,7 +352,11 @@ struct CompiledExecutionStep {
 
 std::unique_ptr<CompiledExecutionStep> ExecutionStepWrapper::doCompile() {
   return std::unique_ptr<CompiledExecutionStep>(new CompiledExecutionStep(
-      step_, externalWorkspace_, externalShouldContinue_, netDefs_));
+      step_,
+      externalWorkspace_,
+      externalShouldContinue_,
+      netDefs_,
+      ws_id_injector_));
 }
 
 #define CHECK_SHOULD_STOP(step, shouldStop)                       \
@@ -452,10 +511,12 @@ bool RunPlanOnWorkspace(
     auto netAlreadyExists = ws->GetNet(net_def.name()) != nullptr;
     net_defs[net_def.name()] = NetDefInfo{&net_def, netAlreadyExists};
   }
+  WorkspaceIdInjector ws_id_injector;
   Timer plan_timer;
   for (const ExecutionStep& step : plan.execution_step()) {
     Timer step_timer;
-    ExecutionStepWrapper stepWrapper(&step, ws, shouldContinue, &net_defs);
+    ExecutionStepWrapper stepWrapper(
+        &step, ws, shouldContinue, &net_defs, &ws_id_injector);
     if (!ExecuteStepRecursive(stepWrapper)) {
       LOG(ERROR) << "Failed initializing step " << step.name();
       return false;
@@ -463,7 +524,15 @@ bool RunPlanOnWorkspace(
     LOG(INFO) << "Step " << step.name() << " took " << step_timer.Seconds()
               << " seconds.";
   }
-  LOG(INFO) << "Total plan took " << plan_timer.Seconds() << " seconds.";
+  float exec_time = plan_timer.Seconds();
+
+#ifndef CAFFE2_MOBILE
+  PlanExecutionTime plan_stat(plan.name());
+  CAFFE_EVENT(
+      plan_stat, plan_execution_time_ns, (long)(exec_time * 1000000000));
+#endif // CAFFE2_MOBILE
+
+  LOG(INFO) << "Total plan took " << exec_time << " seconds.";
   LOG(INFO) << "Plan executed successfully.";
   return true;
 }

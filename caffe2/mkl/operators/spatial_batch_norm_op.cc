@@ -1,7 +1,23 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/spatial_batch_norm_op.h"
 #include <math.h>
 
-#include "caffe2/utils/mkl_utils.h"
+#include "caffe2/mkl/mkl_utils.h"
 
 #ifdef CAFFE2_HAS_MKL_DNN
 
@@ -15,13 +31,11 @@ class MKLBNOp final : public SpatialBNOp<MKLContext> {
       : SpatialBNOp<MKLContext>(operator_def, ws) {
     OPERATOR_NEEDS_FEATURE(
         order_ == StorageOrder::NCHW, "Only NCHW order supported.");
+    OPERATOR_NEEDS_FEATURE(
+        operator_def.input(0) != operator_def.output(0),
+        "Inplace BN not supported");
   }
-  ~MKLBNOp() {
-    if (scale_bias_buffer_ != NULL) {
-      dnnReleaseBuffer<T>(scale_bias_buffer_);
-      scale_bias_buffer_ = NULL;
-    }
-  }
+
   bool RunOnDevice() {
     auto& X = OperatorBase::Input<MKLMemory<float>>(INPUT);
     auto& scale = OperatorBase::Input<MKLMemory<float>>(SCALE);
@@ -51,7 +65,7 @@ class MKLBNOp final : public SpatialBNOp<MKLContext> {
     DCHECK_EQ(bias.dim32(0), C);
 
     bool dims_changed;
-    CHECK_INPUT_DIMS(dims_changed);
+    CHECK_INPUT_DIMS(X, dims_changed);
     if (dims_changed) {
       // Create main primitive.
       if (is_test_) {
@@ -78,20 +92,19 @@ class MKLBNOp final : public SpatialBNOp<MKLContext> {
         running_mean_buf = (T*)running_mean->buffer();
         running_var_buf = (T*)running_var->buffer();
       }
-
       Y->Reset(X.dims(), primitive_, dnnResourceDst);
       buffer_.Reset(X.dims(), primitive_, dnnResourceDst, true);
 
       scale_bias_layout_.Reset(primitive_, dnnResourceScaleShift);
-      MKLDNN_SAFE_CALL(mkl::dnnAllocateBuffer<float>(
-          (void**)(&scale_bias_buffer_), scale_bias_layout_));
+      scale_bias_buffer_ =
+          caffe2::make_unique<MKLWorkspace<float>>(scale_bias_layout_);
 
       // fill scale and bias into a single buffer
       scale_buf = (T*)scale.buffer();
       bias_buf = (T*)bias.buffer();
       for (int i = 0; i < C; i++) {
-        scale_bias_buffer_[i] = scale_buf[i];
-        scale_bias_buffer_[C + i] = bias_buf[i];
+        scale_bias_buffer_->buffer()[i] = scale_buf[i];
+        scale_bias_buffer_->buffer()[C + i] = bias_buf[i];
       }
     }
 
@@ -101,7 +114,7 @@ class MKLBNOp final : public SpatialBNOp<MKLContext> {
     buffer_.ShareFrom(*Y);
     resources_[dnnResourceSrc] = X.buffer();
     resources_[dnnResourceDst] = buffer_.buffer();
-    resources_[dnnResourceScaleShift] = scale_bias_buffer_;
+    resources_[dnnResourceScaleShift] = scale_bias_buffer_->buffer();
 
     if (is_test_) {
       auto& est_mean = OperatorBase::Input<MKLMemory<float>>(EST_MEAN);
@@ -140,7 +153,7 @@ class MKLBNOp final : public SpatialBNOp<MKLContext> {
   LayoutWrapper<T> saved_var_layout_;
   LayoutWrapper<T> running_mean_layout_;
   LayoutWrapper<T> running_var_layout_;
-  T* scale_bias_buffer_ = nullptr;
+  std::unique_ptr<MKLWorkspace<T>> scale_bias_buffer_;
   T* scale_buf = nullptr;
   T* bias_buf = nullptr;
   T* saved_mean_buf = nullptr;

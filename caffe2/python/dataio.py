@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package dataio
 # Module caffe2.python.dataio
 """
@@ -41,17 +56,14 @@ class Reader(object):
         self._schema = schema
 
     def setup_ex(self, init_net, finish_net):
-        """Nets to be executed once at startup and finish.
-           Experimental extension. Don't use yet"""
+        """Nets to be executed once at startup and finish."""
         pass
 
     def read_ex(self, local_init_net, local_finish_net):
-        """Experimental extension to the interface. Don't use yet"""
         read_net = core.Net('reader_body')
         return ([read_net], ) + self.read(read_net)
 
     def read_record_ex(self, local_init_net, local_finish_net):
-        """Experimental extension to the interface. Don't use yet"""
         nets, should_stop, fields = self.read_ex(
             local_init_net, local_finish_net)
         if self._schema:
@@ -223,7 +235,7 @@ class ReaderBuilder(object):
     def splits(self, net):
         raise NotImplementedError()
 
-    def new_reader(self, split_reader=None):
+    def new_reader(self, split_reader=None, **kwargs):
         raise NotImplementedError()
 
 
@@ -254,8 +266,8 @@ class PipedReaderBuilder(ReaderBuilder):
     def splits(self, net):
         return self._builder.splits(net)
 
-    def new_reader(self, split_reader=None):
-        output = self._piper(self._builder.new_reader(split_reader))
+    def new_reader(self, split_reader=None, **kwargs):
+        output = self._piper(self._builder.new_reader(split_reader), **kwargs)
         return output if isinstance(output, Reader) else output.reader()
 
 

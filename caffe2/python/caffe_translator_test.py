@@ -1,9 +1,23 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 # This a large test that goes through the translation of the bvlc caffenet
 # model, runs an example through the whole model, and verifies numerically
 # that all the results look right. In default, it is disabled unless you
 # explicitly want to run it.
 
-from caffe2.proto import caffe2_pb2
 from caffe.proto import caffe_pb2
 from google.protobuf import text_format
 import numpy as np
@@ -27,21 +41,23 @@ def setUpModule():
             'data/testdata/caffe_translator/bvlc_reference_caffenet.caffemodel')
         .read()
     )
-    net, pretrained_params = caffe_translator.TranslateModel(
-        caffenet, caffenet_pretrained, is_test=True
-    )
-    with open('data/testdata/caffe_translator/'
-              'bvlc_reference_caffenet.translatedmodel',
-              'w') as fid:
-        fid.write(str(net))
-    for param in pretrained_params.protos:
-        workspace.FeedBlob(param.name, utils.Caffe2TensorToNumpyArray(param))
-    # Let's also feed in the data from the Caffe test code.
-    data = np.load('data/testdata/caffe_translator/data_dump.npy').astype(
-        np.float32)
-    workspace.FeedBlob('data', data)
-    # Actually running the test.
-    workspace.RunNetOnce(net.SerializeToString())
+    for remove_legacy_pad in [True, False]:
+        net, pretrained_params = caffe_translator.TranslateModel(
+            caffenet, caffenet_pretrained, is_test=True,
+            remove_legacy_pad=remove_legacy_pad
+        )
+        with open('data/testdata/caffe_translator/'
+                  'bvlc_reference_caffenet.translatedmodel',
+                  'w') as fid:
+            fid.write(str(net))
+        for param in pretrained_params.protos:
+            workspace.FeedBlob(param.name, utils.Caffe2TensorToNumpyArray(param))
+        # Let's also feed in the data from the Caffe test code.
+        data = np.load('data/testdata/caffe_translator/data_dump.npy').astype(
+            np.float32)
+        workspace.FeedBlob('data', data)
+        # Actually running the test.
+        workspace.RunNetOnce(net.SerializeToString())
 
 
 class TestNumericalEquivalence(test_util.TestCase):

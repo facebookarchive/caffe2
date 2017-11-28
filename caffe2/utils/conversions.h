@@ -1,9 +1,27 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #pragma once
 
 #include <caffe2/core/types.h>
 
 #ifdef __CUDA_ARCH__
-#include <cuda_fp16.h>
+// Proxy for including cuda_fp16.h, because common_gpu.h
+// has necessary diagnostic guards.
+#include <caffe2/core/common_gpu.h>
 #endif
 
 #ifdef __CUDA_ARCH__
@@ -108,41 +126,78 @@ inline float cpu_half2float(float16 h) {
 }
 
 }; // anonymous
+
+#if __CUDACC__
+
+#if CUDA_VERSION >= 9000
+CONVERSIONS_DECL float16 halfToFloat16(half x) {
+#ifdef __GNUC__
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#pragma GCC diagnostic push
+#endif
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif // __GNUC__
+  float16 r = *reinterpret_cast<float16*>(&x);
+#ifdef __GNUC__
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#pragma GCC diagnostic pop
+#endif
+#endif // __GNUC__
+  return r;
+}
+
+inline half float16ToHalf(const float16 x) {
+  __half_raw hr;
+  hr.x = x.x;
+  half r(hr);
+  return r;
+}
+
+inline half floatToHalf(const float x) {
+  float16 xh = cpu_float2half_rn(x);
+  return float16ToHalf(xh);
+}
+
+#else
+inline float16 halfToFloat16(__half x) {
+  float16 r;
+  r.x = x.x;
+  return r;
+}
+
+inline __half float16ToHalf(const float16 x) {
+  __half r;
+  r.x = x.x;
+  return r;
+}
+
+inline half floatToHalf(const float x) {
+  float16 xh = cpu_float2half_rn(x);
+  return float16ToHalf(xh);
+}
+#endif // CUDA_VERSION
+
+#endif // __CUDACC__
+
 // general version: defer to static_cast
 template <typename IN, typename OUT>
 CONVERSIONS_DECL OUT To(const IN in) {
   return static_cast<OUT>(in);
 }
 
-#if __CUDA_ARCH__
-__device__ __inline__ __half inf_clip(__half h) {
-  int isi = __hisinf(h);
-  if (isi > 0) {
-    // Exponent all ones except LSB (0x1e), mantissa is all ones (0x3ff)
-    h.x = 0x7bffU;
-  } else if (isi < 0) {
-    // As above, negated
-    h.x = 0x7bffU ^ 0x8000;
-  }
-  return h;
-}
-#endif
-
 // explicit for fp16
 template <>
 CONVERSIONS_DECL float16 To(const float in) {
 #if __CUDA_ARCH__
   // hacky interface between C2 fp16 and CUDA
-  float16 ret;
-#if 0
-  // alternative truncation scheme
-  __half r;
-  r.x = __float2half_rn(in);
-  ret.x = inf_clip(r).x;
+#if CUDA_VERSION >= 9000
+  half rh = static_cast<half>(in);
+  return halfToFloat16(rh);
 #else
+  float16 ret;
   ret.x = __float2half(in).x;
-#endif
   return ret;
+#endif // CUDA_VERSION >= 9000
 #else
   return cpu_float2half_rn(in);
 #endif
@@ -151,7 +206,11 @@ CONVERSIONS_DECL float16 To(const float in) {
 template <>
 CONVERSIONS_DECL float To(const float16 in) {
 #if __CUDA_ARCH__
+#if CUDA_VERSION >= 9000
+  __half_raw tmp;
+#else
   __half tmp;
+#endif
   tmp.x = in.x;
   return __half2float(tmp);
 #else

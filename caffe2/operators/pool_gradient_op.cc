@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/pool_op.h"
 
 namespace caffe2 {
@@ -315,17 +331,45 @@ bool PoolGradientOp<T, Context, PoolType>::RunOnDeviceWithOrderNHWC() {
   return true;
 }
 
-namespace {
-
 REGISTER_CPU_OPERATOR(
     AveragePoolGradient,
     PoolGradientOp<float, CPUContext, AveragePool<float>>);
 OPERATOR_SCHEMA(AveragePoolGradient).NumInputs(3).NumOutputs(1);
 
 REGISTER_CPU_OPERATOR(
+    AveragePool1DGradient,
+    PoolGradientOp<float, CPUContext, AveragePool<float>>);
+OPERATOR_SCHEMA(AveragePool1DGradient).NumInputs(3).NumOutputs(1);
+
+REGISTER_CPU_OPERATOR(
+    AveragePool2DGradient,
+    PoolGradientOp<float, CPUContext, AveragePool<float>>);
+OPERATOR_SCHEMA(AveragePool2DGradient).NumInputs(3).NumOutputs(1);
+
+REGISTER_CPU_OPERATOR(
+    AveragePool3DGradient,
+    PoolGradientOp<float, CPUContext, AveragePool<float>>);
+OPERATOR_SCHEMA(AveragePool3DGradient).NumInputs(3).NumOutputs(1);
+
+REGISTER_CPU_OPERATOR(
     MaxPoolGradient,
     PoolGradientOp<float, CPUContext, MaxPool<float>>);
 OPERATOR_SCHEMA(MaxPoolGradient).NumInputs(3).NumOutputs(1);
+
+REGISTER_CPU_OPERATOR(
+    MaxPool1DGradient,
+    PoolGradientOp<float, CPUContext, MaxPool<float>>);
+OPERATOR_SCHEMA(MaxPool1DGradient).NumInputs(3).NumOutputs(1);
+
+REGISTER_CPU_OPERATOR(
+    MaxPool2DGradient,
+    PoolGradientOp<float, CPUContext, MaxPool<float>>);
+OPERATOR_SCHEMA(MaxPool2DGradient).NumInputs(3).NumOutputs(1);
+
+REGISTER_CPU_OPERATOR(
+    MaxPool3DGradient,
+    PoolGradientOp<float, CPUContext, MaxPool<float>>);
+OPERATOR_SCHEMA(MaxPool3DGradient).NumInputs(3).NumOutputs(1);
 
 class GetPoolGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
@@ -338,6 +382,11 @@ class GetPoolGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(AveragePool, GetPoolGradient);
+REGISTER_GRADIENT(AveragePool1D, GetPoolGradient);
+REGISTER_GRADIENT(AveragePool2D, GetPoolGradient);
+REGISTER_GRADIENT(AveragePool3D, GetPoolGradient);
 REGISTER_GRADIENT(MaxPool, GetPoolGradient);
-}
+REGISTER_GRADIENT(MaxPool1D, GetPoolGradient);
+REGISTER_GRADIENT(MaxPool2D, GetPoolGradient);
+REGISTER_GRADIENT(MaxPool3D, GetPoolGradient);
 }

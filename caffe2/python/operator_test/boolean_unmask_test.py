@@ -1,15 +1,28 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-import random
-
 from hypothesis import given
 import hypothesis.strategies as st
 
-from caffe2.python import core, workspace
+from caffe2.python import core
 import caffe2.python.hypothesis_test_util as hu
 
 
@@ -25,34 +38,39 @@ class TestUnmaskOp(hu.HypothesisTestCase):
                np.uint16,
                np.float16,
                np.float32,
-               np.float64]))
-    def test(self, N, dtype):
+               np.float64]),
+           **hu.gcs)
+    def test(self, N, dtype, gc, dc):
+        if dtype is np.bool_:
+            all_value = np.random.choice(a=[True, False], size=N)
+        else:
+            all_value = (np.random.rand(N) * N).astype(dtype)
+
         M = np.random.randint(1, N)
-        all_value = np.random.rand(N).astype(dtype)
-        split = sorted(np.random.randint(1, N, size=(M,)))
-        indices = np.array(list(range(N)))
-        random.shuffle(indices)
+        split = sorted(np.random.randint(1, N, size=M))
+        indices = np.random.permutation(N)
         pieces = np.split(indices, split)
-        masks_and_values_name = []
+
+        def ref(*args, **kwargs):
+            return (all_value,)
+
+        inputs = []
+        inputs_names = []
         for i, piece in enumerate(pieces):
+            piece.sort()
             mask = np.zeros(N, dtype=np.bool_)
             mask[piece] = True
             values = all_value[piece]
-            mask_name = "mask%d" % i
-            value_name = "value%d" % i
-            workspace.FeedBlob(mask_name, mask)
-            workspace.FeedBlob(value_name, values)
-            masks_and_values_name.append(mask_name)
-            masks_and_values_name.append(value_name)
-        net = core.Net('net')
-        net.BooleanUnmask(masks_and_values_name, ["output"])
-        workspace.RunNetOnce(net)
-        output = workspace.FetchBlob('output')
-        self.assertAlmostEqual(
-            output.all(),
-            all_value.all(),
-            delta=1e-4
-        )
+            inputs.extend([mask, values])
+            inputs_names.extend(["mask%d" % i, "value%d" % i])
+
+        op = core.CreateOperator(
+            'BooleanUnmask',
+            inputs_names,
+            'output')
+
+        self.assertReferenceChecks(gc, op, inputs, ref)
+        self.assertDeviceChecks(dc, op, inputs, [0])
 
 
 if __name__ == "__main__":

@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_SEGMENT_REDUCTION_OP_H_
 #define CAFFE2_OPERATORS_SEGMENT_REDUCTION_OP_H_
 
@@ -441,6 +457,16 @@ UnsortedSegment{op} but as if all input slices belong to a single segment.
   static void PopulateSchema(OpSchema& schema) {
     schema.Input(
         0, "DATA", "Input tensor to be reduced on the first dimension");
+    schema.TensorInferenceFunction([](const OperatorDef& def,
+                                      const vector<TensorShape>& in) {
+      CAFFE_ENFORCE_EQ(1, in.size());
+      ArgumentHelper helper(def);
+      int num_reduce_dims = helper.GetSingleArgument<int>("num_reduce_dim", 1);
+      typename ReducerDef::template Reducer<T, Context>::Meta ctx(true);
+      vector<TIndex> out_dims = ctx.getOutputShape(in[0], num_reduce_dims);
+      return vector<TensorShape>{
+          CreateTensorShape(out_dims, in[0].data_type())};
+    });
     ReducerDef::PopulateSchema(schema);
   }
   using ReducerGradient =
@@ -498,6 +524,16 @@ UnsortedSegment{op} but as if all input slices belong to a single segment.
   static void PopulateSchema(OpSchema& schema) {
     schema.Input(
         0, "DATA", "Input tensor to be reduced on the first dimension");
+    schema.TensorInferenceFunction([](const OperatorDef& def,
+                                      const vector<TensorShape>& in) {
+      CAFFE_ENFORCE_EQ(1, in.size());
+      ArgumentHelper helper(def);
+      int num_reduce_dims = helper.GetSingleArgument<int>("num_reduce_dim", 1);
+      typename ReducerDef::template Reducer<T, Context>::Meta ctx(false);
+      vector<TIndex> out_dims = ctx.getOutputShape(in[0], num_reduce_dims);
+      return vector<TensorShape>{
+          CreateTensorShape(out_dims, in[0].data_type())};
+    });
     ReducerDef::PopulateSchema(schema);
   }
   using ReducerGradient =
@@ -576,14 +612,25 @@ class AbstractSortedSegmentOp : public Operator<Context> {
   USE_SIMPLE_CTOR_DTOR(AbstractSortedSegmentOp);
 
   bool RunOnDevice() override {
+    if (SparseFused) {
+      return DispatchHelper<TensorTypes<int32_t, int64_t>>::call(
+          this, Input(INDICES));
+    } else {
+      // type doesn't matter
+      return DoRunWithType<TIndex>();
+    }
+  }
+
+  template <typename IndexType>
+  bool DoRunWithType() {
     // If more complicated fixed size logic becomes necessary, it can be moved
     // to the reducer class
     TIndex in_block_size = Input(0).size_from_dim(1);
-    return DispatchHelper<typename Reducer::FixedDispatch>::call(
+    return DispatchHelper<typename Reducer::FixedDispatch, IndexType>::call(
         this, in_block_size);
   }
 
-  template <int FixedSize>
+  template <typename IndexType, int FixedSize>
   bool DoRunWithValue() {
     auto& dataInput = Input(0);
     auto& segment_ids = Input(SEGMENT_IDS);
@@ -593,7 +640,7 @@ class AbstractSortedSegmentOp : public Operator<Context> {
     TIndex N = segment_ids.dim(0);
     const TIndex M = dataInput.dim(0);
 
-    const TIndex* idxs;
+    const IndexType* idxs;
     if (SparseFused) { // static if
       auto& indices = Input(INDICES);
       CAFFE_ENFORCE_EQ(1, indices.ndim(), "INDICES must be a vector");
@@ -601,7 +648,7 @@ class AbstractSortedSegmentOp : public Operator<Context> {
           N,
           indices.dim(0),
           "SEGMENT_IDS must have the same length as INDICES");
-      idxs = indices.template data<TIndex>();
+      idxs = indices.template data<IndexType>();
     } else {
       CAFFE_ENFORCE_EQ(
           N, M, "DATA must have the same first dimension as SEGMENT_IDS");
@@ -650,7 +697,7 @@ class AbstractSortedSegmentOp : public Operator<Context> {
 
       Reducer r(ctx, out + out_block_size * s_ids[start], &context_);
       for (; i < N && s_ids[start] == s_ids[i]; ++i) {
-        TIndex idx;
+        IndexType idx;
         if (SparseFused) { // static if
           CAFFE_ENFORCE(
               0 <= idxs[i] && idxs[i] < M,
@@ -969,14 +1016,25 @@ class AbstractUnsortedSegmentOp : public Operator<Context> {
         OP_SINGLE_ARG(int, "num_segments", num_segments_, -1) {}
 
   bool RunOnDevice() override {
+    if (SparseFused) {
+      return DispatchHelper<TensorTypes<int32_t, int64_t>>::call(
+          this, Input(INDICES));
+    } else {
+      // type doesn't matter
+      return DoRunWithType<TIndex>();
+    }
+  }
+
+  template <typename IndexType>
+  bool DoRunWithType() {
     // If more complicated fixed size logic becomes necessary, it can be moved
     // to the reducer class
     TIndex in_block_size = Input(0).size_from_dim(1);
-    return DispatchHelper<typename Reducer::FixedDispatch>::call(
+    return DispatchHelper<typename Reducer::FixedDispatch, IndexType>::call(
         this, in_block_size);
   }
 
-  template <int FixedSize>
+  template <typename IndexType, int FixedSize>
   bool DoRunWithValue() {
     auto& data = Input(0);
     auto& segment_ids = Input(SEGMENT_IDS);
@@ -986,7 +1044,7 @@ class AbstractUnsortedSegmentOp : public Operator<Context> {
     TIndex N = segment_ids.dim(0);
     const TIndex M = data.dim(0);
 
-    const TIndex* idxs;
+    const IndexType* idxs;
     if (SparseFused) { // static if
       auto& indices = Input(INDICES);
       CAFFE_ENFORCE_EQ(1, indices.ndim(), "INDICES must be a vector");
@@ -994,7 +1052,7 @@ class AbstractUnsortedSegmentOp : public Operator<Context> {
           N,
           indices.dim(0),
           "SEGMENT_IDS must have the same length as INDICES");
-      idxs = indices.template data<TIndex>();
+      idxs = indices.template data<IndexType>();
     } else {
       CAFFE_ENFORCE_EQ(
           N, M, "DATA must have the same first dimension as SEGMENT_IDS");
@@ -1056,7 +1114,7 @@ class AbstractUnsortedSegmentOp : public Operator<Context> {
           s_id,
           ", range 0 to ",
           K);
-      TIndex idx;
+      IndexType idx;
       if (SparseFused) { // static if
         CAFFE_ENFORCE(
             0 <= idxs[i] && idxs[i] < M,
@@ -1338,6 +1396,7 @@ tensor.
 // of fused sparse support. But using "lengths" representation actually implies
 // continuous segments and thus range reducers can be used for non-sparse
 // version.
+
 template <
     typename TData,
     typename TLengths,
@@ -1351,14 +1410,25 @@ class AbstractLengthsOp : public Operator<Context> {
   USE_SIMPLE_CTOR_DTOR(AbstractLengthsOp);
 
   bool RunOnDevice() override {
-    // If more complicated fixed size logic becomes necessary, it can be moved
-    // to the reducer class
-    TIndex dataBlockSize = Input(0).size_from_dim(1);
-    return DispatchHelper<typename Reducer::FixedDispatch>::call(
-        this, dataBlockSize);
+    if (SparseFused) {
+      return DispatchHelper<TensorTypes<int32_t, int64_t>>::call(
+          this, Input(INDICES));
+    } else {
+      // type doesn't matter
+      return DoRunWithType<TIndex>();
+    }
   }
 
-  template <int FixedSize>
+  template <typename IndexType>
+  bool DoRunWithType() {
+    // If more complicated fixed size logic becomes necessary, it can be moved
+    // to the reducer class
+    TIndex in_block_size = Input(0).size_from_dim(1);
+    return DispatchHelper<typename Reducer::FixedDispatch, IndexType>::call(
+        this, in_block_size);
+  }
+
+  template <typename IndexType, int FixedSize>
   bool DoRunWithValue() {
     auto& dataInput = Input(0);
     auto& lengthsInput = Input(LENGTHS);
@@ -1370,11 +1440,11 @@ class AbstractLengthsOp : public Operator<Context> {
     TIndex dataToReduceSize;
     const TIndex outputSize = lengthsInput.dim(0);
 
-    const TIndex* indices;
+    const IndexType* indices;
     if (SparseFused) { // static if
       auto& indicesInput = Input(INDICES);
       CAFFE_ENFORCE_EQ(1, indicesInput.ndim(), "INDICES must be a vector");
-      indices = indicesInput.template data<TIndex>();
+      indices = indicesInput.template data<IndexType>();
       dataToReduceSize = indicesInput.dim(0);
     } else {
       dataToReduceSize = dataSize;
@@ -1413,7 +1483,7 @@ class AbstractLengthsOp : public Operator<Context> {
       Reducer reducer(ctx, out + out_block_size * rangeIndex, &context_);
       for (TIndex start = dataIndex; dataIndex < start + lengths[rangeIndex];
            ++dataIndex) {
-        TIndex idx;
+        IndexType idx;
         if (SparseFused) { // static if
           idx = indices[dataIndex];
           CAFFE_ENFORCE(
@@ -1443,6 +1513,7 @@ class AbstractLengthsOp : public Operator<Context> {
     }
     CAFFE_ENFORCE(
         dataIndex == dataToReduceSize, dataIndex, " != ", dataToReduceSize);
+
     return true;
   }
 
@@ -1457,8 +1528,20 @@ class AbstractLengthsOp : public Operator<Context> {
   InputAccessor inputAccessor_;
 };
 
-// Gradient actually doesn't depend on whether sparse lookup is fused or not
-template <typename T, typename TLengths, class Context, class ReducerGradient>
+/*
+ * Some notice:
+ * 1. Gradient actually doesn't depend on whether sparse lookup is fused or not
+ * 2. INDICES are not used in CPU version, but they are needed in async CUDA
+ *    version. So we register 3 input version for CPU as gradient op for
+ *    GPU/CPU convert. We then register 2 input version for CPU for backward
+ *    compatibility with older nets.
+ */
+template <
+    typename T,
+    typename TLengths,
+    class Context,
+    class ReducerGradient,
+    bool GradientNeedIndices = false>
 class AbstractLengthsGradientOp : public Operator<Context> {
  public:
   USE_OPERATOR_CONTEXT_FUNCTIONS;
@@ -1535,11 +1618,12 @@ class AbstractLengthsGradientOp : public Operator<Context> {
   //   orig_arg1, orig_arg2, ..., orig_argN, SEGMENT_GRADS, SEGMENT_IDS
   // orig_argXs represent original op's inputs and will be passed to the reducer
   // directly
-  static constexpr int kNumInputs =
-      ReducerGradient::originalInputs().size() + 2;
+  static constexpr int kNumInputs = ReducerGradient::originalInputs().size() +
+      2 + (GradientNeedIndices ? 1 : 0);
   enum _InputTags {
     SEGMENT_GRADS = ReducerGradient::originalInputs().size(),
-    LENGTHS
+    LENGTHS,
+    INDICES
   };
 };
 
@@ -1550,21 +1634,33 @@ template <
     typename TLengths,
     class Context,
     class ReducerGradient,
-    bool SparseFused = true>
+    bool SparseFused = true,
+    bool GradientNeedIndices = false>
 class AbstractLengthsWithMainInputGradientOp : public Operator<Context> {
  public:
   USE_OPERATOR_CONTEXT_FUNCTIONS;
   USE_SIMPLE_CTOR_DTOR(AbstractLengthsWithMainInputGradientOp);
 
   bool RunOnDevice() override {
-    // If more complicated fixed size logic becomes necessary, it can be moved
-    // to the reducer class
-    TIndex gradBlockSize = Input(SEGMENT_GRADS).size_from_dim(1);
-    return DispatchHelper<typename ReducerGradient::FixedDispatch>::call(
-        this, gradBlockSize);
+    if (SparseFused) {
+      return DispatchHelper<TensorTypes<int32_t, int64_t>>::call(
+          this, Input(INDICES));
+    } else {
+      // type doesn't matter
+      return DoRunWithType<TIndex>();
+    }
   }
 
-  template <int FixedSize>
+  template <typename IndexType>
+  bool DoRunWithType() {
+    // If more complicated fixed size logic becomes necessary, it can be moved
+    // to the reducer class
+    TIndex in_block_size = Input(SEGMENT_GRADS).size_from_dim(1);
+    return DispatchHelper<typename ReducerGradient::FixedDispatch, IndexType>::
+        call(this, in_block_size);
+  }
+
+  template <typename IndexType, int FixedSize>
   bool DoRunWithValue() {
     auto& dataInput = Input(DATA_INPUT);
     auto& segmentGradsInput = Input(SEGMENT_GRADS);
@@ -1587,10 +1683,10 @@ class AbstractLengthsWithMainInputGradientOp : public Operator<Context> {
 
     // Either first dim the data or how much we pull in indexies from it
     TIndex dataToReduceSize;
-    const TIndex* indices = nullptr;
+    const IndexType* indices = nullptr;
     if (SparseFused) { // static if
       auto& indicesInput = Input(INDICES);
-      indices = indicesInput.template data<TIndex>();
+      indices = indicesInput.template data<IndexType>();
       dataToReduceSize = indicesInput.dim(0);
     } else {
       dataToReduceSize = dataInput.dim(0);
@@ -1615,7 +1711,7 @@ class AbstractLengthsWithMainInputGradientOp : public Operator<Context> {
           ctx, segmentGrads + segmentBlockSize * rangeIndex, &context_);
       for (TIndex start = dataIndex; dataIndex < start + lengths[rangeIndex];
            ++dataIndex) {
-        TIndex data_pos;
+        IndexType data_pos;
         // No range checking, should've been verified in forward pass
         if (SparseFused) { // static if
           data_pos = indices[dataIndex];
@@ -1639,8 +1735,8 @@ class AbstractLengthsWithMainInputGradientOp : public Operator<Context> {
   //      SEGMENT_LEGNTHS, [INDICES]
   // orig_argXs represent original op's inputs and will be passed to the reducer
   // directly
-  static constexpr int kNumInputs =
-      ReducerGradient::originalInputs().size() + 3 + (SparseFused ? 1 : 0);
+  static constexpr int kNumInputs = ReducerGradient::originalInputs().size() +
+      3 + (SparseFused ? 1 : 0) + (GradientNeedIndices ? 1 : 0);
   enum _InputTags {
     SEGMENT_GRADS = ReducerGradient::originalInputs().size(),
     LENGTHS,
@@ -1649,28 +1745,141 @@ class AbstractLengthsWithMainInputGradientOp : public Operator<Context> {
   };
 };
 
+// Version of gradient that requires the main input as well as the output of the
+// forward op.
+template <typename T, typename TLengths, class Context, class ReducerGradient>
+class AbstractLengthsWithMainInputAndForwardOutputGradientOp
+    : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  USE_SIMPLE_CTOR_DTOR(AbstractLengthsWithMainInputAndForwardOutputGradientOp);
+
+  bool RunOnDevice() override {
+    // If more complicated fixed size logic becomes necessary, it can be moved
+    // to the reducer class.
+    TIndex in_block_size = Input(SEGMENT_GRADS).size_from_dim(1);
+    return DispatchHelper<typename ReducerGradient::FixedDispatch>::call(
+        this, in_block_size);
+  }
+
+  template <int FixedSize>
+  bool DoRunWithValue() {
+    auto& dataInput = Input(DATA_INPUT);
+    auto& segmentGradsInput = Input(SEGMENT_GRADS);
+    auto& lengthsInput = Input(LENGTHS);
+    auto& forwardOutputInput = Input(FORWARD_OUTPUT);
+    auto* dataGradsOutput = Output(0);
+
+    CAFFE_ENFORCE(lengthsInput.ndim() == 1, "LENGTHS must be a vector");
+    TIndex numSegments = lengthsInput.dim(0);
+    CAFFE_ENFORCE(segmentGradsInput.ndim() > 0);
+    CAFFE_ENFORCE(numSegments == segmentGradsInput.dim(0));
+    const TLengths* lengths = lengthsInput.template data<TLengths>();
+
+    typename ReducerGradient::Meta ctx(segmentGradsInput, 1);
+    for (int i = 0; i < ReducerGradient::originalInputs().size(); ++i) {
+      int aux_num = ReducerGradient::originalInputs()[i];
+      auto& aux_in = Input(i);
+      auto* aux_grad = aux_num < OutputSize() ? Output(aux_num) : nullptr;
+      ctx.observeOriginalInput(aux_num, aux_in, aux_grad, 1);
+    }
+
+    CAFFE_ENFORCE(forwardOutputInput.ndim() > 0);
+    CAFFE_ENFORCE(numSegments == forwardOutputInput.dim(0));
+    const T* forwardOutput = forwardOutputInput.template data<T>();
+
+    TIndex dataToReduceSize = dataInput.dim(0);
+
+    const T* segmentGrads = segmentGradsInput.template data<T>();
+
+    vector<TIndex> shape;
+    shape.push_back(dataToReduceSize);
+    ctx.appendGradShape(&shape);
+    dataGradsOutput->Resize(shape);
+
+    TIndex dataGradsBlockSize = dataGradsOutput->size_from_dim(1);
+    TIndex segmentBlockSize = segmentGradsInput.size_from_dim(1);
+    T* dataGrads = dataGradsOutput->template mutable_data<T>();
+
+    const T* data = dataInput.template data<T>();
+
+    TIndex dataIndex = 0;
+    for (TIndex rangeIndex = 0; rangeIndex < numSegments; ++rangeIndex) {
+      ReducerGradient reducer(
+          ctx, segmentGrads + segmentBlockSize * rangeIndex, &context_);
+      for (TIndex start = dataIndex; dataIndex < start + lengths[rangeIndex];
+           ++dataIndex) {
+        // No range checking, should've been verified in forward pass
+        reducer.template fillGradWithMainInputAndForwardOutput<FixedSize>(
+            ctx,
+            data + dataGradsBlockSize * dataIndex,
+            dataGrads + dataGradsBlockSize * dataIndex,
+            forwardOutput + segmentBlockSize * rangeIndex,
+            dataIndex,
+            &context_,
+            lengths[rangeIndex]);
+      }
+    }
+    return true;
+  }
+
+  // Input layout:
+  //   orig_arg1, orig_arg2, ..., orig_argN, FORWARD_OUTPUT, DATA_INPUT,
+  //      SEGMENT_GRADS, SEGMENT_LEGNTHS
+  // orig_argXs represent original op's inputs and will be passed to the reducer
+  // directly
+  static constexpr int kNumInputs =
+      ReducerGradient::originalInputs().size() + 4;
+  enum _InputTags {
+    FORWARD_OUTPUT = ReducerGradient::originalInputs().size(),
+    SEGMENT_GRADS,
+    LENGTHS,
+    DATA_INPUT,
+  };
+};
+
 // base implementation of sparse/non-sparse gradient computation
 template <
     typename ForwardOp,
     typename ReducerDef,
     typename ReducerGradient,
-    bool SparseFused>
+    bool SparseFused,
+    bool GradientNeedIndices = false>
 struct LengthsOpGetGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   vector<OperatorDef> GetGradientDefs() override {
     vector<string> grad_ins;
+    string suffix = "Gradient";
     for (const int i : ReducerGradient::originalInputs()) {
       grad_ins.push_back(I(i));
     }
+    if (ReducerGradient::requiresForwardOutput()) {
+      grad_ins.push_back(O(0));
+      CAFFE_ENFORCE(
+          !SparseFused,
+          "Forward pass output not yet supported as input for backward pass "
+          "for SparseLengthsXXX operators");
+      suffix = "AndForwardOutput" + suffix;
+    }
     grad_ins.push_back(GO(0));
     grad_ins.push_back(I(ForwardOp::LENGTHS));
-    string suffix = "Gradient";
+    bool indices_pushed = false;
     if (ReducerGradient::requiresDataInput(Def())) {
       grad_ins.push_back(I(0));
       if (SparseFused) {
         grad_ins.push_back(I(ForwardOp::INDICES));
+        indices_pushed = true;
       }
       suffix = "WithMainInput" + suffix;
+    }
+    if (GradientNeedIndices && !indices_pushed) {
+      if (SparseFused) {
+        grad_ins.push_back(I(ForwardOp::INDICES));
+      } else {
+        // Hacky: using Input as Indices, remove this after we have specialized
+        // cuda LengthsIndicesInGradientSumGradient
+        grad_ins.push_back(I(0));
+      }
     }
     vector<string> grad_outs;
     grad_outs.push_back({SparseFused ? GI_V(0) : GI(0)});
@@ -1679,8 +1888,9 @@ struct LengthsOpGetGradient : public GradientMakerBase {
       grad_outs.push_back(GI(i));
     }
     vector<OperatorDef> r{CreateOperatorDef(
-        string(SparseFused ? "SparseLengths" : "Lengths") + ReducerDef::name +
-            suffix,
+        string(SparseFused ? "SparseLengths" : "Lengths") +
+            string(GradientNeedIndices ? "IndicesInGradient" : "") +
+            ReducerDef::name + suffix,
         "",
         grad_ins,
         grad_outs)};
@@ -1691,7 +1901,12 @@ struct LengthsOpGetGradient : public GradientMakerBase {
   }
 };
 
-template <typename T, typename SIndex, typename Context, typename ReducerDef>
+template <
+    typename T,
+    typename SIndex,
+    typename Context,
+    typename ReducerDef,
+    bool GradientNeedIndices = false>
 struct AbstractLengthsDef {
   using OpDef = ReducerDef;
   static constexpr const char* basename = "Lengths";
@@ -1720,6 +1935,20 @@ i.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.
         0,
         "OUTPUT",
         "Aggregated output tensor. Has the first dimension of len(LENGTHS) ");
+    schema.TensorInferenceFunction(
+        [](const OperatorDef& def, const vector<TensorShape>& in) {
+          vector<TensorShape> out(0);
+          TensorShape output;
+          for (int d : in[Reducer::kInputCount].dims()) {
+            output.add_dims(d);
+          }
+          for (int j = 1; j < in[0].dims_size(); j++) {
+            output.add_dims(in[0].dims(j));
+          }
+          output.set_data_type(in[0].data_type());
+          out.push_back(output);
+          return out;
+        });
     ReducerDef::PopulateSchema(schema);
   }
   using Reducer = typename ReducerDef::template Reducer<T, Context>;
@@ -1734,14 +1963,26 @@ i.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.
       Context,
       ReducerGradient,
       false>;
+  using WithMainInputAndForwardOutputBackwardOp =
+      AbstractLengthsWithMainInputAndForwardOutputGradientOp<
+          T,
+          SIndex,
+          Context,
+          ReducerGradient>;
   using GetGradient = LengthsOpGetGradient<
       ForwardOp,
       ReducerDef,
       ReducerGradient,
-      false /*SparseFused*/>;
+      false /*SparseFused*/,
+      GradientNeedIndices>;
 };
 
-template <typename T, typename SIndex, typename Context, typename ReducerDef>
+template <
+    typename T,
+    typename SIndex,
+    typename Context,
+    typename ReducerDef,
+    bool GradientNeedIndices = false>
 struct AbstractSparseLengthsDef {
   using OpDef = ReducerDef;
   static constexpr const char* basename = "SparseLengths";
@@ -1787,20 +2028,32 @@ i.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.
   using ForwardOp = AbstractLengthsOp<T, SIndex, Context, Reducer>;
   // TODO(dzhulgakov): we're registering the same class twice here,
   // consider avoiding op duplication here
-  using BackwardOp =
-      AbstractLengthsGradientOp<T, SIndex, Context, ReducerGradient>;
+  // Note: registering 2 input version for now because of naming in the macro,
+  // will register 3 input version alone
+  /* INDICES are not used in CPU version, but they are needed in async CUDA
+   *    version. So we register 3 input version for CPU as gradient op for
+   *    GPU/CPU convert. We then register 2 input version for CPU for backward
+   *    compatibility with older nets.
+   */
+  using BackwardOp = AbstractLengthsGradientOp<
+      T,
+      SIndex,
+      Context,
+      ReducerGradient,
+      false /*GradientNeedIndices*/>;
   using WithMainInputBackwardOp = AbstractLengthsWithMainInputGradientOp<
       T,
       SIndex,
       Context,
       ReducerGradient>;
+  // Will return 3 input version. This is aliging new CPU/GPU nets.
   using GetGradient = LengthsOpGetGradient<
       ForwardOp,
       ReducerDef,
       ReducerGradient,
-      true /*SparseFused*/>;
+      true /*SparseFused*/,
+      GradientNeedIndices>;
 };
-
 } // namespace caffe2
 
 #endif // CAFFE2_OPERATORS_SEGMENT_REDUCTION_OP_H_

@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -125,10 +140,30 @@ class NCCLOpsTest(hu.HypothesisTestCase):
             self.assertEqual(outputs[0].tobytes(), output.tobytes())
 
     @given(n=st.integers(min_value=2, max_value=workspace.NumCudaDevices()),
+           m=st.integers(min_value=1, max_value=1000))
+    def test_nccl_reduce_scatter(self, n, m):
+        xs = [np.random.randn(n, m).astype(np.float32) for i in range(n)]
+        inputs = [str("x_{}".format(i)) for i in range(n)]
+        outputs = [str("o_{}".format(i)) for i in range(n)]
+        op = core.CreateOperator("NCCLReduceScatter", inputs, outputs)
+        input_device_options = {n: gpu_device(i) for i, n in enumerate(inputs)}
+
+        def reduce_scatter(*args):
+            assert len(args) == n
+            reduced = sum(args)
+            assert len(reduced.shape) > 1
+            ref = [reduced[i, :] for i in range(n)]
+            return ref
+
+        self.assertReferenceChecks(
+            hu.gpu_do, op, [xs[i] for i, _ in enumerate(inputs)],
+            reduce_scatter, input_device_options)
+
+    @given(n=st.integers(min_value=2, max_value=workspace.NumCudaDevices()),
            m=st.integers(min_value=100000, max_value=100000),
            iters=st.integers(min_value=1, max_value=100),
            net_type=st.sampled_from(["dag", "async_dag", "simple"]))
-    def test_nccl_sync(self, n, m, iters, net_type):
+    def _test_nccl_sync(self, n, m, iters, net_type):
         inputs = [str("x_{}".format(i)) for i in range(n)]
         extra_inputs = [str("xe_{}".format(i)) for i in range(n)]
         net = core.Net("asdf")

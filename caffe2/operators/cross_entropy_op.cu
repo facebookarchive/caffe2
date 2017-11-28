@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <assert.h>
 #include <cub/block/block_reduce.cuh>
 
@@ -31,11 +47,17 @@ bool LabelCrossEntropyOp<float, CUDAContext>::RunOnDevice() {
   auto& X = Input(0);
   auto& label = Input(1);
   auto* Y = Output(0);
-  DCHECK_EQ(X.ndim(), 2);
-  int N = X.dim32(0);
-  int D = X.dim32(1);
-  DCHECK((label.ndim() == 1) || (label.ndim() == 2 && label.dim32(1) == 1));
-  DCHECK_EQ(label.dim32(0), N);
+  int N, D;
+  if (X.ndim() > 1) {
+    N = X.dim32(0);
+    D = X.size_from_dim(1);
+  } else {
+    N = 1;
+    D = X.dim32(0);
+  }
+  CAFFE_ENFORCE(
+      (label.ndim() == 1) || (label.ndim() == 2 && label.dim32(1) == 1));
+  CAFFE_ENFORCE_EQ(label.dim32(0), N);
   Y->Resize(vector<TIndex>(size_t(1), N));
   LabelCrossEntropyKernel<<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS,
                             0, context_.cuda_stream()>>>(
@@ -50,13 +72,19 @@ bool LabelCrossEntropyGradientOp<float, CUDAContext>::RunOnDevice() {
   auto& label = Input(1);
   auto& dY = Input(2);
   auto* dX = Output(0);
-  DCHECK_EQ(X.ndim(), 2);
-  int N = X.dim32(0);
-  int D = X.dim32(1);
-  DCHECK((label.ndim() == 1) || (label.ndim() == 2 && label.dim32(1) == 1));
-  DCHECK_EQ(label.dim32(0), N);
-  DCHECK_EQ(dY.ndim(), 1);
-  DCHECK_EQ(dY.dim32(0), N);
+  int N, D;
+  if (X.ndim() > 1) {
+    N = X.dim32(0);
+    D = X.size_from_dim(1);
+  } else {
+    N = 1;
+    D = X.dim32(0);
+  }
+  CAFFE_ENFORCE(
+      (label.ndim() == 1) || (label.ndim() == 2 && label.dim32(1) == 1));
+  CAFFE_ENFORCE_EQ(label.dim32(0), N);
+  CAFFE_ENFORCE_EQ(dY.ndim(), 1);
+  CAFFE_ENFORCE_EQ(dY.dim32(0), N);
   dX->ResizeLike(X);
   math::Set<float, CUDAContext>(
       dX->size(), 0.f, dX->mutable_data<float>(), &context_);
@@ -221,6 +249,119 @@ bool SigmoidCrossEntropyWithLogitsGradientOp<float, CUDAContext>::
 }
 
 namespace {
+
+__global__ void WeightedSigmoidCrossEntropyWithLogitsKernel(
+    const int outer_size,
+    const int inner_size,
+    const float* logits_ptr,
+    const float* targets_ptr,
+    const float* weights_ptr,
+    float* out_ptr) {
+  int i = blockIdx.x;
+  int last_idx = (i + 1) * inner_size;
+  float value = 0;
+  for (int in_idx = i * inner_size + threadIdx.x; in_idx < last_idx;
+       in_idx += blockDim.x) {
+    value += sigmoid_xent_forward(logits_ptr[in_idx], targets_ptr[in_idx]) *
+        weights_ptr[in_idx];
+  }
+
+  typedef cub::BlockReduce<float, CAFFE_CUDA_NUM_THREADS> BlockReduce;
+  __shared__ typename BlockReduce::TempStorage temp_storage;
+  float sum = BlockReduce(temp_storage).Sum(value);
+  if (threadIdx.x == 0) {
+    out_ptr[i] = -sum / inner_size;
+  }
+}
+
+__global__ void WeightedSigmoidCrossEntropyGradientWithLogitsKernel(
+    const int outer_size,
+    const int inner_size,
+    const float* g_ptr,
+    const float* logits_ptr,
+    const float* targets_ptr,
+    const float* weights_ptr,
+    float* out_ptr) {
+  CUDA_1D_KERNEL_LOOP(in_idx, outer_size * inner_size) {
+    int i = in_idx / inner_size;
+    auto g_factor = -g_ptr[i] / inner_size;
+    out_ptr[in_idx] = g_factor *
+        sigmoid_xent_backward(logits_ptr[in_idx], targets_ptr[in_idx]) *
+        weights_ptr[in_idx];
+  }
+}
+} // namespace
+
+template <>
+bool WeightedSigmoidCrossEntropyWithLogitsOp<float, CUDAContext>::
+    RunOnDevice() {
+  auto& logits = Input(0);
+  auto& targets = Input(1);
+  auto& weights = Input(2);
+  CAFFE_ENFORCE(logits.dims() == targets.dims());
+  CAFFE_ENFORCE(weights.dims() == targets.dims());
+  const auto inner_size = logits.ndim() > 0 ? logits.dims().back() : 1;
+  const auto outer_size = logits.size() / inner_size;
+
+  auto* out = Output(0);
+  if (logits.ndim() == 0) {
+    out->Resize(std::vector<TIndex>{});
+  } else {
+    std::vector<TIndex> dims(logits.dims().begin(), logits.dims().end() - 1);
+    out->Resize(dims);
+  }
+  auto* out_ptr = out->mutable_data<float>();
+
+  auto* logits_ptr = logits.data<float>();
+  auto* targets_ptr = targets.data<float>();
+  auto* weights_ptr = weights.data<float>();
+
+  WeightedSigmoidCrossEntropyWithLogitsKernel<<<
+      outer_size,
+      CAFFE_CUDA_NUM_THREADS,
+      0,
+      context_.cuda_stream()>>>(
+      outer_size, inner_size, logits_ptr, targets_ptr, weights_ptr, out_ptr);
+  return true;
+}
+
+template <>
+bool WeightedSigmoidCrossEntropyWithLogitsGradientOp<float, CUDAContext>::
+    RunOnDevice() {
+  auto& g = Input(0);
+  auto& logits = Input(1);
+  auto& targets = Input(2);
+  auto& weights = Input(3);
+  CAFFE_ENFORCE(logits.dims() == targets.dims());
+  CAFFE_ENFORCE(weights.dims() == targets.dims());
+  const auto inner_size = logits.ndim() > 0 ? logits.dims().back() : 1;
+  const auto outer_size = logits.size() / inner_size;
+  CAFFE_ENFORCE(g.size() == outer_size);
+
+  auto* out = Output(0);
+  out->ResizeLike(logits);
+  auto* out_ptr = out->mutable_data<float>();
+
+  auto* logits_ptr = logits.data<float>();
+  auto* targets_ptr = targets.data<float>();
+  auto* weights_ptr = weights.data<float>();
+  auto* g_ptr = g.data<float>();
+
+  WeightedSigmoidCrossEntropyGradientWithLogitsKernel<<<
+      CAFFE_GET_BLOCKS(outer_size * inner_size),
+      CAFFE_CUDA_NUM_THREADS,
+      0,
+      context_.cuda_stream()>>>(
+      outer_size,
+      inner_size,
+      g_ptr,
+      logits_ptr,
+      targets_ptr,
+      weights_ptr,
+      out_ptr);
+  return true;
+}
+
 REGISTER_CUDA_OPERATOR(LabelCrossEntropy,
                        LabelCrossEntropyOp<float, CUDAContext>);
 REGISTER_CUDA_OPERATOR(LabelCrossEntropyGradient,
@@ -233,6 +374,13 @@ REGISTER_CUDA_OPERATOR(
     SigmoidCrossEntropyWithLogitsGradient,
     SigmoidCrossEntropyWithLogitsGradientOp<float, CUDAContext>);
 
+REGISTER_CUDA_OPERATOR(
+    WeightedSigmoidCrossEntropyWithLogits,
+    WeightedSigmoidCrossEntropyWithLogitsOp<float, CUDAContext>);
+REGISTER_CUDA_OPERATOR(
+    WeightedSigmoidCrossEntropyWithLogitsGradient,
+    WeightedSigmoidCrossEntropyWithLogitsGradientOp<float, CUDAContext>);
+
 REGISTER_CUDA_OPERATOR(MakeTwoClass,
                        MakeTwoClassOp<float, CUDAContext>);
 REGISTER_CUDA_OPERATOR(MakeTwoClassGradient,
@@ -244,5 +392,4 @@ REGISTER_CUDA_OPERATOR(CrossEntropy,
 REGISTER_CUDA_OPERATOR(CrossEntropyGradient,
                        GPUFallbackOp<CrossEntropyGradientOp<float, CPUContext>>);
 
-}  // namespace
 }  // namespace caffe2

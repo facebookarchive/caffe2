@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/common_gpu.h"
 #ifdef CAFFE_HAS_CUDA_FP16
 
@@ -47,7 +63,7 @@ template <>
 bool ReluOp<float16, CUDAContext>::RunOnDevice() {
   auto& X = Input(0);
   auto* Y = Output(0);
-  DCHECK_GT(X.size(), 0);
+  CAFFE_ENFORCE_GT(X.size(), 0);
   Y->ResizeLike(X);
   if (X.size() % 2 == 0) {
     ReluKernelHalf2<<<CAFFE_GET_BLOCKS(X.size() / 2), CAFFE_CUDA_NUM_THREADS,
@@ -69,8 +85,8 @@ bool ReluGradientOp<float16, CUDAContext>::RunOnDevice() {
   auto& Y = Input(0);
   auto& dY = Input(1);
   auto* dX = Output(0);
-  DCHECK_GT(Y.size(), 0);
-  DCHECK_EQ(dY.size(), Y.size());
+  CAFFE_ENFORCE_GT(Y.size(), 0);
+  CAFFE_ENFORCE_EQ(dY.size(), Y.size());
   dX->ResizeLike(Y);
   ReluGradientKernelHalf<<<CAFFE_GET_BLOCKS(Y.size()), CAFFE_CUDA_NUM_THREADS,
                            0, context_.cuda_stream()>>>(
@@ -80,10 +96,11 @@ bool ReluGradientOp<float16, CUDAContext>::RunOnDevice() {
   return true;
 }
 
-namespace {
+OPERATOR_SCHEMA(ReluFp16);
+OPERATOR_SCHEMA(ReluFp16Gradient);
+
 REGISTER_CUDA_OPERATOR(ReluFp16, ReluOp<float16, CUDAContext>);
 REGISTER_CUDA_OPERATOR(ReluFp16Gradient, ReluGradientOp<float16, CUDAContext>);
-}  // namespace
 }  // namespace caffe2
 
 #endif  // CAFFE_HAS_CUDA_FP16

@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/operators/local_response_normalization_op.h"
 
@@ -179,7 +195,6 @@ template<>
 bool LRNOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
   auto& X = Input(0);
   auto* Y = Output(0);
-  auto* scale = Output(1);
   DCHECK_EQ(X.ndim(), 4);
   const int N = X.dim32(0);
   const int C = X.dim32(1);
@@ -187,9 +202,16 @@ bool LRNOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
   const int W = X.dim32(3);
   const float* Xdata = X.data<float>();
   Y->ResizeLike(X);
-  scale->ResizeLike(X);
   float* Ydata = Y->mutable_data<float>();
-  float* scale_data = scale->mutable_data<float>();
+  if (OutputSize() > 1) {
+    scale_ = Output(1);
+  } else {
+    if (!scale_) {
+      scale_ = &local_scale_tensor_;
+    }
+  }
+  scale_->ResizeLike(X);
+  float* scale_data = scale_->mutable_data<float>();
 
   int n_threads = N * H * W;
   LRNFillScaleNCHW<float><<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS,
@@ -206,7 +228,6 @@ template<>
 bool LRNOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
   auto& X = Input(0);
   auto* Y = Output(0);
-  auto* scale = Output(1);
   DCHECK_EQ(X.ndim(), 4);
   const int N = X.dim32(0);
   const int H = X.dim32(1);
@@ -214,9 +235,16 @@ bool LRNOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
   const int C = X.dim32(3);
   const float* Xdata = X.data<float>();
   Y->ResizeLike(X);
-  scale->ResizeLike(X);
   float* Ydata = Y->mutable_data<float>();
-  float* scale_data = scale->mutable_data<float>();
+  if (OutputSize() > 1) {
+    scale_ = Output(1);
+  } else {
+    if (!scale_) {
+      scale_ = &local_scale_tensor_;
+    }
+  }
+  scale_->ResizeLike(X);
+  float* scale_data = scale_->mutable_data<float>();
 
   int n_threads = X.size();
   LRNFillScaleNHWC<float><<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS,
@@ -232,8 +260,7 @@ template <>
 bool LRNGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
   auto& X = Input(0);
   auto& Y = Input(1);
-  auto& scale = Input(2);
-  auto& dY = Input(3);
+  auto& dY = Input(2);
   auto* dX = Output(0);
   DCHECK_EQ(X.ndim(), 4);
   const int N = X.dim32(0);
@@ -243,17 +270,23 @@ bool LRNGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
   // Loosely checking the size, assuming that the shapes will be the same as
   // long as the sizes check out.
   DCHECK_EQ(X.size(), Y.size());
-  DCHECK_EQ(X.size(), scale.size());
   DCHECK_EQ(X.size(), dY.size());
   dX->ResizeLike(X);
 
   const float* Xdata = X.data<float>();
   const float* Ydata = Y.data<float>();
-  const float* scale_data = scale.data<float>();
+  if (!scale_) {
+    scale_ = &local_scale_tensor_;
+  }
+  scale_->ResizeLike(X);
+  float* scale_data = scale_->mutable_data<float>();
+  int n_threads = N * H * W;
+  LRNFillScaleNCHW<float><<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS,
+                        0, context_.cuda_stream()>>>(
+      n_threads, Xdata, N, C, H, W, size_, alpha_ / size_, bias_, scale_data);
   const float* dYdata = dY.data<float>();
   float* dXdata = dX->mutable_data<float>();
 
-  int n_threads = N * H * W;
   LRNComputeDiffNCHW<float><<<CAFFE_GET_BLOCKS(n_threads),
                               CAFFE_CUDA_NUM_THREADS,
                               0, context_.cuda_stream()>>>(
@@ -266,21 +299,34 @@ template <>
 bool LRNGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
   auto& X = Input(0);
   auto& Y = Input(1);
-  auto& scale = Input(2);
-  auto& dY = Input(3);
+  auto& dY = Input(2);
   auto* dX = Output(0);
   DCHECK_EQ(X.ndim(), 4);
+  const int N = X.dim32(0);
+  const int H = X.dim32(1);
+  const int W = X.dim32(2);
+  const int C = X.dim32(3);
+  const float* Xdata = X.data<float>();
   // Loosely checking the size, assuming that the shapes will be the same as
   // long as the sizes check out.
   DCHECK_EQ(X.size(), Y.size());
-  DCHECK_EQ(X.size(), scale.size());
   DCHECK_EQ(X.size(), dY.size());
   dX->ResizeLike(X);
+  if (!scale_) {
+    scale_ = &local_scale_tensor_;
+  }
+  scale_->ResizeLike(X);
+
+  float* scale_data = scale_->mutable_data<float>();
+  int n_threads = X.size();
+  LRNFillScaleNHWC<float><<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS,
+                        0, context_.cuda_stream()>>>(
+      n_threads, Xdata, N, H, W, C, size_, alpha_ / size_, bias_, scale_data);
 
   LRNComputeDiffNHWC<float><<<CAFFE_GET_BLOCKS(X.size()),
                               CAFFE_CUDA_NUM_THREADS, 0,
                               context_.cuda_stream()>>>(
-      X.size(), X.data<float>(), Y.data<float>(), scale.data<float>(),
+      X.size(), X.data<float>(), Y.data<float>(), scale_data,
       dY.data<float>(),
       X.dim32(0), X.dim32(1), X.dim32(2), X.dim32(3), size_, -beta_,
       2.f * alpha_ * beta_ / size_, dX->mutable_data<float>());
@@ -288,9 +334,7 @@ bool LRNGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
 }
 
 
-namespace {
 REGISTER_CUDA_OPERATOR(LRN, LRNOp<float, CUDAContext>);
 REGISTER_CUDA_OPERATOR(LRNGradient, LRNGradientOp<float, CUDAContext>);
-}
 
 }  // namespace caffe2

@@ -1,9 +1,45 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/im2col_op.h"
 
 namespace caffe2 {
-namespace {
 REGISTER_CPU_OPERATOR(Im2Col, Im2ColOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(Col2Im, Col2ImOp<float, CPUContext>);
+
+class GetIm2ColGradient : public GradientMakerBase {
+  using GradientMakerBase::GradientMakerBase;
+  vector<OperatorDef> GetGradientDefs() override {
+    return SingleGradientDef(
+        "Col2Im",
+        "",
+        std::vector<string>{O(0), I(0)},
+        std::vector<string>{GI(0)});
+  }
+};
+REGISTER_GRADIENT(Im2Col, GetIm2ColGradient);
+
+class GetCol2ImGradient : public GradientMakerBase {
+  using GradientMakerBase::GradientMakerBase;
+  vector<OperatorDef> GetGradientDefs() override {
+    return SingleGradientDef(
+        "Im2Col", "", std::vector<string>{O(0)}, std::vector<string>{GI(0)});
+  }
+};
+REGISTER_GRADIENT(Col2Im, GetCol2ImGradient);
 
 OPERATOR_SCHEMA(Im2Col)
     .NumInputs(1)
@@ -81,5 +117,4 @@ OPERATOR_SCHEMA(Im2Col)
 
 OPERATOR_SCHEMA(Col2Im).NumInputs(2).NumOutputs(1);
 
-} // namespace
 } // namespace caffe2

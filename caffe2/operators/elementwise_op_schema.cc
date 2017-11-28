@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/operator_gradient.h"
 #include "caffe2/operators/elementwise_op.h"
 #include "caffe2/utils/proto_utils.h"
@@ -52,24 +68,28 @@ OPERATOR_SCHEMA(Add)
     .NumInputs(2)
     .NumOutputs(1)
     .AllowInplace({{0, 0}, {1, 0}})
+    .CostInferenceFunction(PointwiseCostInference<1>)
     .IdenticalTypeAndShapeOfInput(0)
     .FillUsing(MathDocGenerator("addition"));
 OPERATOR_SCHEMA(Sub)
     .NumInputs(2)
     .NumOutputs(1)
     .AllowInplace({{0, 0}, {1, 0}})
+    .CostInferenceFunction(PointwiseCostInference<1>)
     .IdenticalTypeAndShapeOfInput(0)
     .FillUsing(MathDocGenerator("subtraction"));
 OPERATOR_SCHEMA(Mul)
     .NumInputs(2)
     .NumOutputs(1)
     .AllowInplace({{0, 0}, {1, 0}})
+    .CostInferenceFunction(PointwiseCostInference<1>)
     .IdenticalTypeAndShapeOfInput(0)
     .FillUsing(MathDocGenerator("multiplication"));
 OPERATOR_SCHEMA(Div)
     .NumInputs(2)
     .NumOutputs(1)
     .AllowInplace({{0, 0}})
+    .CostInferenceFunction(PointwiseCostInference<1>)
     .IdenticalTypeAndShapeOfInput(0)
     .FillUsing(MathDocGenerator("division"));
 OPERATOR_SCHEMA(DivGradient).NumInputs(3).NumOutputs(2).AllowInplace({{0, 0}});

@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/cast_op.h"
 
 namespace caffe2 {
@@ -129,15 +145,22 @@ class GetCastGradient : public GradientMakerBase {
     // now modify the arguments in defs[0]
     ArgumentHelper argsHelper(def_);
 
-    auto to_name = argsHelper.GetSingleArgument<string>("to", "");
-    auto from_name = argsHelper.GetSingleArgument<string>("from_type", "");
+    auto to_name = cast::GetCastDataType(argsHelper, "to");
+
+    CAFFE_ENFORCE(
+        argsHelper.HasSingleArgumentOfType<string>("from_type") ||
+            argsHelper.HasSingleArgumentOfType<int>("from_type"),
+        "Argument 'from_type' of type int or string"
+        " is required to get the gradient of CastOp");
+
+    auto from_name = cast::GetCastDataType(argsHelper, "from_type");
     Argument *to = defs[0].add_arg();
     to->set_name("to");
-    to->set_s(from_name);
+    to->set_i(from_name);
 
     Argument *from = defs[0].add_arg();
     from->set_name("from_type");
-    from->set_s(to_name);
+    from->set_i(to_name);
 
     return defs;
   }

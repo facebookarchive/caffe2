@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_CORE_WORKSPACE_H_
 #define CAFFE2_CORE_WORKSPACE_H_
 
@@ -44,7 +60,6 @@ struct StopOnSignal {
   std::shared_ptr<SignalHandler> handler_;
 };
 
-
 /**
  * Workspace is a class that holds all the related objects created during
  * runtime: (1) all blobs, and (2) all instantiated networks. It is the owner of
@@ -58,8 +73,8 @@ class Workspace {
   /**
    * Initializes an empty workspace.
    */
-  Workspace() {
-  }
+  Workspace() : root_folder_("."), shared_(nullptr) {}
+
   /**
    * Initializes an empty workspace with the given root folder.
    *
@@ -68,7 +83,8 @@ class Workspace {
    * by the workspace.
    */
   explicit Workspace(const string& root_folder)
-      : root_folder_(root_folder) {}
+      : root_folder_(root_folder), shared_(nullptr) {}
+
   /**
    * Initializes a workspace with a shared workspace.
    *
@@ -78,13 +94,33 @@ class Workspace {
    * and is responsible for making sure that its lifetime is longer than the
    * created workspace.
    */
-  explicit Workspace(Workspace* const shared)
-      : shared_(shared) {}
+  explicit Workspace(const Workspace* shared)
+      : root_folder_("."), shared_(shared) {}
+
+  /**
+   * Initializes workspace with parent workspace, blob name remapping
+   * (new name -> parent blob name), no other blobs are inherited from
+   * parent workspace
+   */
+  Workspace(
+      const Workspace* shared,
+      const std::unordered_map<string, string>& forwarded_blobs)
+      : root_folder_("."), shared_(nullptr) {
+    CAFFE_ENFORCE(shared, "Parent workspace must be specified");
+    for (const auto& forwarded : forwarded_blobs) {
+      CAFFE_ENFORCE(
+          shared->HasBlob(forwarded.second), "Invalid parent workspace blob");
+      forwarded_blobs_[forwarded.first] =
+          std::make_pair(shared, forwarded.second);
+    }
+  }
+
   /**
    * Initializes a workspace with a root folder and a shared workspace.
    */
   Workspace(const string& root_folder, Workspace* shared)
       : root_folder_(root_folder), shared_(shared) {}
+
   ~Workspace() {
     if (FLAGS_caffe2_print_blob_sizes_at_exit) {
       PrintBlobSizes();
@@ -92,12 +128,11 @@ class Workspace {
   }
 
   /**
-   * Allows to add a parent workspace post factum after the object
-   * was already constructed.
+   * Add blob mappings from another workspace
    */
-  void SetParentWorkspace(Workspace* shared) {
-    shared_ = shared;
-  }
+  void AddBlobMapping(
+      const Workspace* parent,
+      const std::unordered_map<string, string>& forwarded_blobs);
 
   /**
    * Return list of blobs owned by this Workspace, not including blobs
@@ -120,7 +155,18 @@ class Workspace {
    * Checks if a blob with the given name is present in the current workspace.
    */
   inline bool HasBlob(const string& name) const {
-    return (blob_map_.count(name) || (shared_ && shared_->HasBlob(name)));
+    // First, check the local workspace,
+    // Then, check the forwarding map, then the parent workspace
+    if (blob_map_.count(name)) {
+      return true;
+    } else if (forwarded_blobs_.count(name)) {
+      const auto parent_ws = forwarded_blobs_.at(name).first;
+      const auto& parent_name = forwarded_blobs_.at(name).second;
+      return parent_ws->HasBlob(parent_name);
+    } else if (shared_) {
+      return shared_->HasBlob(name);
+    }
+    return false;
   }
 
   void PrintBlobSizes();
@@ -131,6 +177,14 @@ class Workspace {
    * already exists, the creation is skipped and the existing blob is returned.
    */
   Blob* CreateBlob(const string& name);
+  /**
+   * Similar to CreateBlob(), but it creates a blob in the local workspace even
+   * if another blob with the same name already exists in the parent workspace
+   * -- in such case the new blob hides the blob in parent workspace. If a blob
+   * of the given name already exists in the local workspace, the creation is
+   * skipped and the existing blob is returned.
+   */
+  Blob* CreateLocalBlob(const string& name);
   /**
    * Remove the blob of the given name. Return true if removed and false if
    * not exist.
@@ -147,6 +201,13 @@ class Workspace {
    * not exist, a nullptr is returned.
    */
   Blob* GetBlob(const string& name);
+
+  /**
+   * Renames a local workspace blob. If blob is not found in the local blob list
+   * or if the target name is already present in local or any parent blob list
+   * the function will through.
+   */
+  Blob* RenameBlob(const string& old_name, const string& new_name);
 
   /**
    * Creates a network with the given NetDef, and returns the pointer to the
@@ -217,8 +278,10 @@ class Workspace {
  private:
   BlobMap blob_map_;
   NetMap net_map_;
-  string root_folder_ = ".";
-  Workspace* shared_ = nullptr;
+  const string root_folder_;
+  const Workspace* shared_;
+  std::unordered_map<string, std::pair<const Workspace*, string>>
+      forwarded_blobs_;
 #if CAFFE2_MOBILE
   std::unique_ptr<ThreadPool> thread_pool_;
   std::mutex thread_pool_creation_mutex_;

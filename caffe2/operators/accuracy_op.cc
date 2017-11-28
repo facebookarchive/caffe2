@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/accuracy_op.h"
 
 namespace caffe2 {
@@ -7,11 +23,11 @@ bool AccuracyOp<float, CPUContext>::RunOnDevice() {
   auto& X = Input(PREDICTION);
   auto& label = Input(LABEL);
   auto* Y = Output(0);
-  DCHECK_EQ(X.ndim(), 2);
+  CAFFE_ENFORCE_EQ(X.ndim(), 2);
   int N = X.dim32(0);
   int D = X.dim32(1);
-  DCHECK_EQ(label.ndim(), 1);
-  DCHECK_EQ(label.dim32(0), N);
+  CAFFE_ENFORCE_EQ(label.ndim(), 1);
+  CAFFE_ENFORCE_EQ(label.dim32(0), N);
   Y->Resize(vector<TIndex>());
   const auto* Xdata = X.data<float>();
   const auto* labelData = label.data<int>();
@@ -37,13 +53,12 @@ bool AccuracyOp<float, CPUContext>::RunOnDevice() {
       ++correct;
     }
   }
-  DCHECK_LE(correct, N);
+  CAFFE_ENFORCE_LE(correct, N);
   *(Y->mutable_data<float>()) = static_cast<float>(correct) / N;
 
   return true;
 }
 
-namespace {
 REGISTER_CPU_OPERATOR(Accuracy, AccuracyOp<float, CPUContext>);
 
 OPERATOR_SCHEMA(Accuracy)
@@ -58,6 +73,10 @@ containing a batch of scores for various classes, and labels are expected in the
 the score for the label index in the predictions is the highest among all
 classes, it is considered a correct prediction.
 )DOC")
+  .Arg(
+      "top_k",
+      "Count as correct by comparing the true label to the top k scoring "
+      "classes (default 1: only compare to the top scoring class i.e. argmax)")
   .Input(0, "predictions", "2-D tensor (Tensor<float>) of size "
          "(num_batches x num_classes) containing scores")
   .Input(1, "labels", "1-D tensor (Tensor<int>) of size (num_batches) having "
@@ -66,5 +85,4 @@ classes, it is considered a correct prediction.
           "accuracy");
 
 SHOULD_NOT_DO_GRADIENT(Accuracy);
-}  // namespace
 }  // namespace caffe2

@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/operators/accuracy_op.h"
 #include "caffe2/utils/math.h"
@@ -48,11 +64,11 @@ bool AccuracyOp<float, CUDAContext>::RunOnDevice() {
   auto& X = Input(PREDICTION);
   auto& label = Input(LABEL);
   auto* Y = Output(0);
-  DCHECK_EQ(X.ndim(), 2);
+  CAFFE_ENFORCE_EQ(X.ndim(), 2);
   int N = X.dim32(0);
   int D = X.dim32(1);
-  DCHECK_EQ(label.ndim(), 1);
-  DCHECK_EQ(label.dim32(0), N);
+  CAFFE_ENFORCE_EQ(label.ndim(), 1);
+  CAFFE_ENFORCE_EQ(label.dim32(0), N);
   Y->Resize(vector<TIndex>());
   float* Ydata = Y->mutable_data<float>();
   math::Set<float, CUDAContext>(1, 0, Ydata, &context_);
@@ -69,7 +85,5 @@ bool AccuracyOp<float, CUDAContext>::RunOnDevice() {
   return true;
 }
 
-namespace {
 REGISTER_CUDA_OPERATOR(Accuracy, AccuracyOp<float, CUDAContext>);
-}  // namespace
 }  // namespace caffe2

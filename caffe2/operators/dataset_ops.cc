@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/dataset_ops.h"
 
 #include <memory>
@@ -133,6 +149,7 @@ void TreeIterator::advance(
 
 TreeWalker::TreeWalker(const vector<const Blob*>& inputs, TreeCursor& cursor)
     : inputs_(inputs), cursor_(cursor), sizes_(cursor.it.numOffsetFields()) {
+  CAFFE_ENFORCE_EQ(inputs.size(), cursor.it.fields().size());
   if (cursor.offsets.empty()) {
     cursor.offsets.assign(cursor.it.numOffsetFields(), 0);
   }
@@ -384,7 +401,7 @@ class UnPackRecordsOp : public Operator<CPUContext> {
             input.size(),
             input.raw_data() /* src */,
             destinations[j] /* dst */
-            );
+        );
 
         destinations[j] =
             (char*)destinations[j] + input.size() * input.itemsize();
@@ -436,7 +453,10 @@ class ReadNextBatchOp : public Operator<CPUContext> {
  public:
   ReadNextBatchOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator(operator_def, ws),
-        batchSize_(OperatorBase::GetSingleArgument<int>("batch_size", 1)) {}
+        batchSize_(OperatorBase::GetSingleArgument<int>("batch_size", 1)),
+        enforceBatchSize_(OperatorBase::GetSingleArgument<bool>(
+            "enforce_batch_size",
+            false)) {}
 
   bool RunOnDevice() override {
     auto& cursor = OperatorBase::Input<std::unique_ptr<TreeCursor>>(0);
@@ -472,6 +492,12 @@ class ReadNextBatchOp : public Operator<CPUContext> {
       }
       offsets = cursor->offsets;
       cursor->it.advance(lengths, cursor->offsets, sizes, limits, batchSize_);
+      if (enforceBatchSize_ && sizes[0] < batchSize_) {
+        // if we enforce batch_size but don't have enough rows left to
+        // complete a full batch, return empty for all columns.
+        // This signals end of dataset to the caller.
+        sizes.assign(sizes.size(), 0);
+      }
     }
     // gather data
     std::vector<TIndex> outDim;
@@ -497,6 +523,7 @@ class ReadNextBatchOp : public Operator<CPUContext> {
     return true;
   }
   int batchSize_;
+  bool enforceBatchSize_;
 };
 
 class ComputeOffsetOp : public Operator<CPUContext> {
@@ -638,6 +665,8 @@ class ReadRandomBatchOp : public Operator<CPUContext> {
   ReadRandomBatchOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator(operator_def, ws),
         batchSize_(OperatorBase::GetSingleArgument<int>("batch_size", 1)),
+        enforceBatchSize_(
+            OperatorBase::GetSingleArgument<bool>("enforce_batch_size", false)),
         loopOver_(OperatorBase::GetSingleArgument<bool>("loop_over", false)) {}
   bool RunOnDevice() override {
     auto& cursor = OperatorBase::Input<std::unique_ptr<TreeCursor>>(0);
@@ -653,6 +682,11 @@ class ReadRandomBatchOp : public Operator<CPUContext> {
       std::lock_guard<std::mutex> lock(cursor->mutex_);
       cursor->offsets.resize(1);
       idx = cursor->offsets.at(0);
+      // if we want to enforce batch size but we dont have a complete
+      // batch, skip the last rows.
+      if (enforceBatchSize_ && idx + batchSize_ > idxblob.size()) {
+        idx = idxblob.size();
+      }
       if (loopOver_ && idx >= idxblob.size()) {
         cursor->offsets.at(0) = 0;
         idx = 0;
@@ -714,6 +748,7 @@ class ReadRandomBatchOp : public Operator<CPUContext> {
     return true;
   }
   int batchSize_;
+  bool enforceBatchSize_;
   bool loopOver_;
 };
 
@@ -951,6 +986,41 @@ class CollectTensorOp final : public Operator<Context> {
   int numVisited_;
 };
 
+class TrimDatasetOp : public Operator<CPUContext> {
+ public:
+  TrimDatasetOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator(operator_def, ws),
+        iterator_(OperatorBase::GetRepeatedArgument<std::string>("fields")),
+        multiple_of_(OperatorBase::GetSingleArgument<int>("multiple_of", 1)) {
+    CAFFE_ENFORCE_GE(multiple_of_, 1);
+  }
+
+  bool RunOnDevice() override {
+    TreeCursor cursor(iterator_);
+    TreeWalker walker(Inputs(), cursor);
+
+    int trimmedSize = (walker.size() / multiple_of_) * multiple_of_;
+    if (trimmedSize == walker.size()) {
+      // we already satisfy the condition
+      return true;
+    }
+    // advance desired number of records
+    for (int i = 0; i < trimmedSize; ++i) {
+      walker.advance();
+    }
+    // trim each column to the offset
+    for (int col = 0; col < walker.fields().size(); ++col) {
+      auto newOuterSize = walker.fields().at(col).offset();
+      Output(col)->Shrink(newOuterSize);
+    }
+    return true;
+  }
+
+ private:
+  TreeIterator iterator_;
+  int multiple_of_;
+};
+
 REGISTER_CPU_OPERATOR(CreateTreeCursor, CreateTreeCursorOp);
 REGISTER_CPU_OPERATOR(ResetCursor, ResetCursorOp);
 REGISTER_CPU_OPERATOR(ReadNextBatch, ReadNextBatchOp);
@@ -966,6 +1036,7 @@ REGISTER_CPU_OPERATOR(ConcatTensorVector, ConcatTensorVectorOp<CPUContext>);
 REGISTER_CPU_OPERATOR(CollectTensor, CollectTensorOp<CPUContext>);
 REGISTER_CPU_OPERATOR(PackRecords, PackRecordsOp);
 REGISTER_CPU_OPERATOR(UnPackRecords, UnPackRecordsOp);
+REGISTER_CPU_OPERATOR(TrimDataset, TrimDatasetOp);
 
 OPERATOR_SCHEMA(CreateTreeCursor)
     .NumInputs(0)
@@ -1024,7 +1095,7 @@ The values of the fields will be:
   }
 
 In general, every field name in the format "{prefix}:lengths" defines a domain
-"{prefix}", and every subsequent field in the format "{prefx}:{field}" will
+"{prefix}", and every subsequent field in the format "{prefix}:{field}" will
 be in that domain, and the length of the domain is provided for each entry of
 the parent domain. In the example, "b:lengths" defines a domain of length 4, so
 every field under domain "b" will have 4 entries.
@@ -1142,7 +1213,7 @@ OPERATOR_SCHEMA(CheckDatasetConsistency)
     .NumInputs(1, INT_MAX)
     .NumOutputs(0)
     .SetDoc(R"DOC(
-Checks that the given data fields represents a consistent dataset unther
+Checks that the given data fields represents a consistent dataset under
 the schema specified by the `fields` argument. Operator fails if the fields
 are not consistent. If data is consistent, each field's data can be safely
 appended to an existing dataset, keeping it consistent.
@@ -1204,7 +1275,7 @@ OPERATOR_SCHEMA(CollectTensor)
     .SetDoc(R"DOC(
 Collect tensor into tensor vector by reservoir sampling,
 argument num_to_collect indicates the max number of tensors that will be
-collcted. The first half of the inputs are tensor vectors, which are also the
+collected. The first half of the inputs are tensor vectors, which are also the
 outputs. The second half of the inputs are the tensors to be collected into each
 vector (in the same order). The input tensors are collected in all-or-none
 manner. If they are collected, they will be placed at the same index in the
@@ -1232,6 +1303,20 @@ operators.
         " In order to reverse it back to the original input it has to be "
         "inserted into UnPackRecordsOp.");
 
+OPERATOR_SCHEMA(TrimDataset)
+    .NumInputs(1, INT_MAX)
+    .NumOutputs(1, INT_MAX)
+    .SetDoc(R"DOC(
+Trim the given dataset inplace, given the dataset blobs and the field specs.
+Trimming happens such that the dataset will contain the largest possible number
+of records that is a multiple of the 'multiple_of' argument.
+)DOC")
+    .EnforceInplace([](int input, int output) { return input == output; })
+    .Arg(
+        "fields",
+        "List of strings representing the string names in the format"
+        "specified in the doc for CreateTreeCursor.");
+
 OPERATOR_SCHEMA(UnPackRecords)
     .NumInputs(1, INT_MAX)
     .NumOutputs(1, INT_MAX)
@@ -1242,7 +1327,7 @@ returned tensors is equal to the number of fields in the `fields` argument.
 
 The first input is the packed tensor to be unpacked. Optionally, you can provide
 prototype tensors to give the expected shapes of the output tensors. This is
-helpful when you expected to unpack empty tensor, e.g., output of a sapmling
+helpful when you expected to unpack empty tensor, e.g., output of a sampling
 process.
 )DOC")
     .Arg(
@@ -1341,5 +1426,39 @@ REGISTER_BLOB_DESERIALIZER(std::unique_ptr<TreeCursor>, TreeCursorDeserializer);
 
 } // namespace
 
-} // dataset_ops
-} // caffe2
+void SharedTensorVectorPtrSerializer::Serialize(
+    const Blob& blob,
+    const string& name,
+    BlobSerializerBase::SerializationAcceptor acceptor) {
+  /* This is dummy serialize that doesn't save anything. If saving the content
+  is desired in future use case, you can change this serializer. Note: special
+  care need to be taken for the parameter initialization of
+  LastNWindowCollectorOp and ReservoirSamplingOp if this serializer actually
+  saves the content.
+  */
+  CAFFE_ENFORCE(blob.IsType<std::shared_ptr<std::vector<TensorCPU>>>());
+  BlobProto blob_proto;
+  blob_proto.set_name(name);
+  blob_proto.set_type("std::shared_ptr<std::vector<TensorCPU>>");
+  blob_proto.set_content("");
+  acceptor(name, blob_proto.SerializeAsString());
+};
+
+void SharedTensorVectorPtrDeserializer::Deserialize(
+    const BlobProto& /* unused */,
+    Blob* blob) {
+  /* This is dummy deserialize which creates a nullptr
+   */
+  blob->GetMutable<std::shared_ptr<std::vector<TensorCPU>>>();
+}
+
+REGISTER_BLOB_SERIALIZER(
+    (TypeMeta::Id<std::shared_ptr<std::vector<TensorCPU>>>()),
+    SharedTensorVectorPtrSerializer);
+
+REGISTER_BLOB_DESERIALIZER(
+    std::shared_ptr<std::vector<TensorCPU>>,
+    SharedTensorVectorPtrDeserializer);
+
+} // namespace dataset_ops
+} // namespace caffe2

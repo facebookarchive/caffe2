@@ -1,48 +1,102 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <iostream>
 #include <memory>
 #include <mutex>
 
+#include <gtest/gtest.h>
 #include "caffe2/core/blob.h"
+#include "caffe2/core/blob_serialization.h"
 #include "caffe2/core/common.h"
 #include "caffe2/core/context.h"
 #include "caffe2/core/db.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/core/qtensor.h"
 #include "caffe2/core/qtensor_serialization.h"
+#include "caffe2/core/registry.h"
 #include "caffe2/core/tensor.h"
 #include "caffe2/core/types.h"
 #include "caffe2/core/workspace.h"
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/utils/proto_utils.h"
-#include <gtest/gtest.h>
 
 CAFFE2_DEFINE_int64(caffe2_test_big_tensor_size, 100000000, "");
 CAFFE2_DECLARE_int(caffe2_tensor_chunk_size);
 CAFFE2_DECLARE_bool(caffe2_serialize_fp16_as_bytes);
 
 namespace caffe2 {
-
 using namespace ::caffe2::db;
-
 namespace {
-
-class BlobTestFoo {};
+class BlobTestFoo {
+ public:
+  int32_t val;
+};
 class BlobTestBar {};
 }
 
 CAFFE_KNOWN_TYPE(BlobTestFoo);
 CAFFE_KNOWN_TYPE(BlobTestBar);
 
+class BlobTestFooSerializer : public BlobSerializerBase {
+ public:
+  BlobTestFooSerializer() {}
+  ~BlobTestFooSerializer() {}
+  /**
+   * Serializes a Blob. Note that this blob has to contain Tensor<Context>,
+   * otherwise this function produces a fatal error.
+   */
+  void Serialize(
+      const Blob& blob,
+      const string& name,
+      SerializationAcceptor acceptor) override {
+    CAFFE_ENFORCE(blob.IsType<BlobTestFoo>());
+
+    BlobProto blob_proto;
+    blob_proto.set_name(name);
+    blob_proto.set_type("BlobTestFoo");
+    // For simplicity we will just serialize the 4-byte content as a string.
+    blob_proto.set_content(std::string(
+        reinterpret_cast<const char*>(&(blob.Get<BlobTestFoo>().val)),
+        sizeof(int32_t)));
+    acceptor(name, blob_proto.SerializeAsString());
+  }
+};
+
+class BlobTestFooDeserializer : public BlobDeserializerBase {
+ public:
+  void Deserialize(const BlobProto& proto, Blob* blob) override {
+    blob->GetMutable<BlobTestFoo>()->val =
+        reinterpret_cast<const int32_t*>(proto.content().c_str())[0];
+  }
+};
+
+REGISTER_BLOB_SERIALIZER((TypeMeta::Id<BlobTestFoo>()), BlobTestFooSerializer);
+REGISTER_BLOB_DESERIALIZER(BlobTestFoo, BlobTestFooDeserializer);
+
 namespace {
 
 TEST(BlobTest, Blob) {
   Blob blob;
 
-  int* int_unused UNUSED_VARIABLE = blob.GetMutable<int>();
+  int* int_unused CAFFE2_UNUSED = blob.GetMutable<int>();
   EXPECT_TRUE(blob.IsType<int>());
   EXPECT_FALSE(blob.IsType<BlobTestFoo>());
 
-  BlobTestFoo* foo_unused UNUSED_VARIABLE = blob.GetMutable<BlobTestFoo>();
+  BlobTestFoo* foo_unused CAFFE2_UNUSED = blob.GetMutable<BlobTestFoo>();
   EXPECT_TRUE(blob.IsType<BlobTestFoo>());
   EXPECT_FALSE(blob.IsType<int>());
 }
@@ -70,7 +124,7 @@ TEST(BlobTest, BlobUninitialized) {
 
 TEST(BlobTest, BlobWrongType) {
   Blob blob;
-  BlobTestFoo* foo_unused UNUSED_VARIABLE = blob.GetMutable<BlobTestFoo>();
+  BlobTestFoo* foo_unused CAFFE2_UNUSED = blob.GetMutable<BlobTestFoo>();
   EXPECT_TRUE(blob.IsType<BlobTestFoo>());
   EXPECT_FALSE(blob.IsType<int>());
   // When not null, we should only call with the right type.
@@ -137,13 +191,32 @@ TEST(TensorNonTypedTest, TensorChangeType) {
   dims[1] = 3;
   dims[2] = 5;
   TensorCPU tensor(dims);
-  EXPECT_TRUE(tensor.mutable_data<int>() != nullptr);
+
+  auto* ptr = tensor.mutable_data<int>();
+  EXPECT_TRUE(ptr != nullptr);
   EXPECT_TRUE(tensor.data<int>() != nullptr);
   EXPECT_TRUE(tensor.meta().Match<int>());
 
-  EXPECT_TRUE(tensor.mutable_data<float>() != nullptr);
-  EXPECT_TRUE(tensor.data<float>() != nullptr);
+  // int and float are same size, so should retain the pointer
+  EXPECT_TRUE(tensor.mutable_data<float>() == (float*)ptr);
+  EXPECT_TRUE(tensor.data<float>() == (const float*)ptr);
   EXPECT_TRUE(tensor.meta().Match<float>());
+
+  // float16 is smaller, so still should share buffer
+  EXPECT_TRUE(tensor.mutable_data<float16>() == (float16*)ptr);
+  EXPECT_TRUE(tensor.data<float16>() == (const float16*)ptr);
+  EXPECT_TRUE(tensor.meta().Match<float16>());
+
+  // share the data with other tensor so that the pointer won't be reused
+  // when we reallocate
+  TensorCPU other_tensor(dims);
+  other_tensor.ShareData(tensor);
+  // but double is bigger, so it should allocate a new one
+  auto* doubleptr = tensor.mutable_data<double>();
+  EXPECT_TRUE(doubleptr != (double*)ptr);
+  EXPECT_TRUE(doubleptr != nullptr);
+  EXPECT_TRUE(tensor.data<double>() != nullptr);
+  EXPECT_TRUE(tensor.meta().Match<double>());
 }
 
 template <typename T> class TensorCPUTest : public ::testing::Test {};
@@ -556,6 +629,32 @@ TEST_SERIALIZATION_WITH_TYPE(uint8_t, int32_data)
 TEST_SERIALIZATION_WITH_TYPE(uint16_t, int32_data)
 TEST_SERIALIZATION_WITH_TYPE(int64_t, int64_data)
 
+TEST(TensorTest, TensorSerialization_CustomType) {
+  Blob blob;
+  TensorCPU* tensor = blob.GetMutable<TensorCPU>();
+  tensor->Resize(2, 3);
+  for (int i = 0; i < 6; ++i) {
+    tensor->mutable_data<BlobTestFoo>()[i].val = i;
+  }
+  string serialized = blob.Serialize("test");
+  BlobProto proto;
+  CHECK(proto.ParseFromString(serialized));
+  EXPECT_EQ(proto.name(), "test");
+  EXPECT_EQ(proto.type(), "Tensor");
+  Blob new_blob;
+  EXPECT_NO_THROW(new_blob.Deserialize(serialized));
+  EXPECT_TRUE(new_blob.IsType<TensorCPU>());
+  const TensorCPU& new_tensor = blob.Get<TensorCPU>();
+  EXPECT_EQ(new_tensor.ndim(), 2);
+  EXPECT_EQ(new_tensor.dim(0), 2);
+  EXPECT_EQ(new_tensor.dim(1), 3);
+  for (int i = 0; i < 6; ++i) {
+    EXPECT_EQ(
+        new_tensor.data<BlobTestFoo>()[i].val,
+        tensor->data<BlobTestFoo>()[i].val);
+  }
+}
+
 TEST(TensorTest, float16) {
   const TIndex kSize = 3000000;
   Blob blob;
@@ -639,9 +738,7 @@ TEST(QTensorTest, QTensorSerialization) {
   }
 }
 
-typedef double my_type;
-
-typedef std::vector<std::pair<string, string>> StringMap;
+using StringMap = std::vector<std::pair<string, string>>;
 
 class VectorCursor : public db::Cursor {
  public:
@@ -649,7 +746,7 @@ class VectorCursor : public db::Cursor {
     pos_ = 0;
   }
   ~VectorCursor() {}
-  void Seek(const string& /*key*/) override {}
+  void Seek(const string& /* unused */) override {}
   void SeekToFirst() override {}
   void Next() override {
     ++pos_;
@@ -663,6 +760,7 @@ class VectorCursor : public db::Cursor {
   bool Valid() override {
     return pos_ < data_->size();
   }
+
  private:
   StringMap* data_ = nullptr;
   size_t pos_ = 0;
@@ -686,12 +784,14 @@ class VectorDB : public db::DB {
     std::lock_guard<std::mutex> guard(dataRegistryMutex_);
     data_[name] = std::move(data);
   }
+
  private:
   StringMap* getData() {
     auto it = data_.find(name_);
     CAFFE_ENFORCE(it != data_.end(), "Can't find ", name_);
     return &(it->second);
   }
+
  private:
   string name_;
   static std::mutex dataRegistryMutex_;
@@ -717,16 +817,16 @@ TYPED_TEST(TypedTensorTest, BigTensorSerialization) {
       : static_cast<int64_t>(std::numeric_limits<int>::max()) + 1;
   int64_t size = d1 * d2;
   string db_source = (string)std::tmpnam(nullptr);
-  LOG(INFO) << "db_source: " << db_source;
+  VLOG(1) << "db_source: " << db_source;
 
   {
-    LOG(INFO) << "Test begin";
+    VLOG(1) << "Test begin";
     Blob blob;
     TensorCPU* tensor = blob.GetMutable<TensorCPU>();
-    LOG(INFO) << "Allocating blob";
+    VLOG(1) << "Allocating blob";
     tensor->Resize(d1, d2);
     auto mutableData = tensor->mutable_data<TypeParam>();
-    LOG(INFO) << "Filling out the blob";
+    VLOG(1) << "Filling out the blob";
     for (int64_t i = 0; i < size; ++i) {
       mutableData[i] = static_cast<TypeParam>(i);
     }
@@ -740,7 +840,7 @@ TYPED_TEST(TypedTensorTest, BigTensorSerialization) {
     };
     blob.Serialize("test", acceptor);
     VectorDB::registerData(db_source, std::move(data));
-    LOG(INFO) << "finished writing to DB";
+    VLOG(1) << "finished writing to DB";
   }
 
   {
@@ -760,10 +860,10 @@ TYPED_TEST(TypedTensorTest, BigTensorSerialization) {
     Workspace ws;
     auto load_op = CreateOperator(op_def, &ws);
     EXPECT_TRUE(load_op != nullptr);
-    LOG(INFO) << "Running operator";
+    VLOG(1) << "Running operator";
 
     load_op->Run();
-    LOG(INFO) << "Reading blob from workspace";
+    VLOG(1) << "Reading blob from workspace";
     auto new_blob = ws.GetBlob("test");
     EXPECT_TRUE(new_blob->IsType<TensorCPU>());
     const auto& new_tensor = new_blob->Get<TensorCPU>();
@@ -774,6 +874,113 @@ TYPED_TEST(TypedTensorTest, BigTensorSerialization) {
     for (int64_t i = 0; i < size; ++i) {
       EXPECT_EQ(static_cast<TypeParam>(i), new_tensor.data<TypeParam>()[i]);
     }
+  }
+}
+
+struct DummyType {
+  /* This struct is used to test serialization and deserialization of huge
+   * blobs, that are not tensors.
+   */
+
+  /* implicit */ DummyType(int n_chunks_init = 0) : n_chunks(n_chunks_init) {}
+  std::string serialize(const std::string& name, const int32_t chunk_id) const {
+    BlobProto blobProto;
+    blobProto.set_name(name);
+    blobProto.set_type("DummyType");
+    std::string content("");
+    blobProto.set_content(content);
+    blobProto.set_content_num_chunks(n_chunks);
+    blobProto.set_content_chunk_id(chunk_id);
+    return blobProto.SerializeAsString();
+  }
+  void deserialize(const BlobProto& /* unused */) {
+    ++n_chunks;
+  }
+  int n_chunks;
+};
+
+class DummyTypeSerializer : public BlobSerializerBase {
+ public:
+  DummyTypeSerializer() {}
+  ~DummyTypeSerializer() {}
+  void Serialize(
+      const Blob& blob,
+      const string& name,
+      SerializationAcceptor acceptor) override {
+    CAFFE_ENFORCE(blob.IsType<DummyType>());
+    const auto& container = blob.template Get<DummyType>();
+    for (int k = 0; k < container.n_chunks; ++k) {
+      std::string serialized_chunk = container.serialize(name, k);
+      acceptor(MakeString(name, kChunkIdSeparator, k), serialized_chunk);
+    }
+  }
+};
+
+class DummyTypeDeserializer : public BlobDeserializerBase {
+ public:
+  void Deserialize(const BlobProto& proto, Blob* blob) override {
+    auto* container = blob->GetMutable<DummyType>();
+    container->deserialize(proto);
+  }
+};
+}
+
+CAFFE_KNOWN_TYPE(DummyType);
+
+namespace {
+REGISTER_BLOB_SERIALIZER((TypeMeta::Id<DummyType>()), DummyTypeSerializer);
+CAFFE_REGISTER_TYPED_CLASS(
+    BlobDeserializerRegistry,
+    "DummyType",
+    DummyTypeDeserializer);
+
+TEST(ContentChunks, Serialization) {
+  string db_source = (string)std::tmpnam(nullptr);
+  VLOG(1) << "db_source: " << db_source;
+
+  {
+    VLOG(1) << "Test begin";
+    Blob blob;
+    DummyType* container = blob.GetMutable<DummyType>();
+    VLOG(1) << "Allocating blob";
+    container->n_chunks = 10;
+    VLOG(1) << "Filling out the blob";
+    StringMap data;
+    std::mutex mutex;
+    auto acceptor = [&](const std::string& key, const std::string& value) {
+      std::lock_guard<std::mutex> guard(mutex);
+      data.emplace_back(key, value);
+    };
+    blob.Serialize("test", acceptor);
+    VectorDB::registerData(db_source, std::move(data));
+    VLOG(1) << "finished writing to DB";
+  }
+
+  {
+    DeviceOption option;
+    option.set_device_type(CPU);
+    Argument db_type_arg = MakeArgument<string>("db_type", "vector_db");
+    Argument absolute_path_arg = MakeArgument<bool>("absolute_path", true);
+    Argument db_source_arg = MakeArgument<string>("db", db_source);
+    auto op_def = CreateOperatorDef(
+        "Load",
+        "",
+        std::vector<string>{},
+        std::vector<string>({"test"}),
+        std::vector<Argument>{db_type_arg, db_source_arg, absolute_path_arg},
+        option,
+        "DUMMY_ENGINE");
+    Workspace ws;
+    auto load_op = CreateOperator(op_def, &ws);
+    EXPECT_TRUE(load_op != nullptr);
+    VLOG(1) << "Running operator";
+
+    load_op->Run();
+    VLOG(1) << "Reading blob from workspace";
+    auto new_blob = ws.GetBlob("test");
+    EXPECT_TRUE(new_blob->IsType<DummyType>());
+    const auto& container = new_blob->Get<DummyType>();
+    EXPECT_EQ(container.n_chunks, 10);
   }
 }
 

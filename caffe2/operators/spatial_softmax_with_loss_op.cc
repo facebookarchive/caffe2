@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "spatial_softmax_with_loss_op.h"
 #include "softmax_shared.h"
 
@@ -24,8 +40,8 @@ OPERATOR_SCHEMA(SpatialSoftmaxWithLoss)
           auto batch_size = logits.dims().Get(0);
           auto num_classes = logits.dims().Get(1);
 
-          DCHECK_EQ(logits.dims_size(), 4);
-          DCHECK_EQ(labels.dims_size(), 3);
+          CAFFE_ENFORCE_EQ(logits.dims_size(), 4);
+          CAFFE_ENFORCE_EQ(labels.dims_size(), 3);
           out[0].set_data_type(logits.data_type());
           out[0].add_dims(batch_size);
           out[0].add_dims(num_classes);
@@ -80,9 +96,9 @@ bool SpatialSoftmaxWithLossOp<float, CPUContext>::RunOnDevice() {
 
   float* Pdata = P->mutable_data<float>();
   const float* weights = (InputSize() > 2 ? Input(2).data<float>() : nullptr);
-  DCHECK_EQ(X.ndim(), 4);
-  DCHECK_EQ(T.ndim(), 3);
-  DCHECK_EQ(T.dim32(0), N);
+  CAFFE_ENFORCE_EQ(X.ndim(), 4);
+  CAFFE_ENFORCE_EQ(T.ndim(), 3);
+  CAFFE_ENFORCE_EQ(T.dim32(0), N);
 
   int H = X.dim32(2);
   int W = X.dim32(3);
@@ -167,9 +183,9 @@ bool SpatialSoftmaxWithLossGradientOp<float, CPUContext>::RunOnDevice() {
   N = X.dim32(0);
   D = X.dim32(1);
   dX->ResizeLike(X);
-  DCHECK_EQ(T.dim32(0), N);
-  DCHECK_EQ(X.ndim(), 4);
-  DCHECK_EQ(T.ndim(), 3);
+  CAFFE_ENFORCE_EQ(T.dim32(0), N);
+  CAFFE_ENFORCE_EQ(X.ndim(), 4);
+  CAFFE_ENFORCE_EQ(T.ndim(), 3);
 
   int H = X.dim32(2);
   int W = X.dim32(3);

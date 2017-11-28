@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_SQUARE_ROOT_DIVIDE_OP_H_
 #define CAFFE2_OPERATORS_SQUARE_ROOT_DIVIDE_OP_H_
 
@@ -7,7 +23,7 @@
 
 namespace caffe2 {
 
-template <typename TScale, class Context>
+template <class Context>
 class SquareRootDivideOp final : public Operator<Context> {
  public:
   USE_OPERATOR_CONTEXT_FUNCTIONS;
@@ -23,6 +39,12 @@ class SquareRootDivideOp final : public Operator<Context> {
  private:
   template <typename TData>
   bool DoRunWithType() {
+    return DispatchHelper<TensorTypes2<float, int32_t, int64_t>, TData>::call(
+        this, Input(SCALE));
+  }
+
+  template <typename TData, typename TScale>
+  bool DoRunWithType2() {
     auto& data = Input(DATA);
     auto& scale = Input(SCALE);
     auto* Y = Output(0);
@@ -33,7 +55,7 @@ class SquareRootDivideOp final : public Operator<Context> {
     auto* scalePtr = scale.template data<TScale>();
     auto* dataPtr = data.template data<TData>();
     auto* yPtr = Y->template mutable_data<TData>();
-    for (int i = 0; i < batchSize; ++i) {
+    for (auto i = 0; i < batchSize; ++i) {
       auto scale = scalePtr[i];
       CAFFE_ENFORCE(scale >= 0, scale, " < 0");
       auto multiplier = scale == 0 ? 1.0 : 1 / std::sqrt(scale);

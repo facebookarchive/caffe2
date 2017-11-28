@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_PREFETCH_OP_H_
 #define CAFFE2_OPERATORS_PREFETCH_OP_H_
 
@@ -81,9 +97,9 @@ class PrefetchOperator : public OperatorBase {
       return false;
     }
     prefetched_ = false;
-    bool success = context_.FinishDeviceComputation();
+    context_.FinishDeviceComputation();
     producer_.notify_one();
-    return success;
+    return true;
   }
 
   void PrefetchWorker() {
@@ -95,7 +111,14 @@ class PrefetchOperator : public OperatorBase {
       // We will need to run a FinishDeviceComputation() call because the
       // prefetcher thread and the main thread are potentially using different
       // streams (like on GPU).
-      prefetch_success_ = Prefetch() && context_.FinishDeviceComputation();
+      try {
+        prefetch_success_ = Prefetch();
+        context_.FinishDeviceComputation();
+      } catch (const std::exception& e) {
+        // TODO: propagate exception_ptr to the caller side
+        LOG(ERROR) << "Prefetching error " << e.what();
+        prefetch_success_ = false;
+      }
       prefetched_ = true;
       consumer_.notify_one();
       while (prefetched_)

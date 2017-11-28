@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package hypothesis_test_util
 # Module caffe2.python.hypothesis_test_util
 """
@@ -60,6 +75,10 @@ def is_sandcastle():
     return False
 
 
+def is_travis():
+    return 'TRAVIS' in os.environ
+
+
 hypothesis.settings.register_profile(
     "sandcastle",
     hypothesis.settings(
@@ -120,6 +139,10 @@ def arrays(dims, dtype=np.float32, elements=None):
 def tensor(min_dim=1, max_dim=4, dtype=np.float32, elements=None, **kwargs):
     dims_ = st.lists(dims(**kwargs), min_size=min_dim, max_size=max_dim)
     return dims_.flatmap(lambda dims: arrays(dims, dtype, elements))
+
+
+def tensor1d(min_len=1, max_len=64, dtype=np.float32, elements=None):
+    return tensor(1, 1, dtype, elements, min_value=min_len, max_value=max_len)
 
 
 def segment_ids(size, is_sorted):
@@ -195,7 +218,8 @@ def lengths_tensor(min_segments=None, max_segments=None, *args, **kwargs):
 
 def sparse_segmented_tensor(min_dim=1, max_dim=4, dtype=np.float32,
                             is_sorted=True, elements=None, allow_empty=False,
-                            segment_generator=segment_ids, **kwargs):
+                            segment_generator=segment_ids, itype=np.int64,
+                            **kwargs):
     gen_empty = st.booleans() if allow_empty else st.just(False)
     data_dims_ = st.lists(dims(**kwargs), min_size=min_dim, max_size=max_dim)
     all_dims_ = st.tuples(gen_empty, data_dims_).flatmap(
@@ -206,7 +230,7 @@ def sparse_segmented_tensor(min_dim=1, max_dim=4, dtype=np.float32,
         ))
     return all_dims_.flatmap(lambda dims: st.tuples(
         arrays(dims[0], dtype, elements),
-        arrays(dims[1], dtype=np.int64, elements=st.integers(
+        arrays(dims[1], dtype=itype, elements=st.integers(
             min_value=0, max_value=dims[0][0] - 1)),
         segment_generator(dims[1], is_sorted=is_sorted),
     ))
@@ -221,6 +245,12 @@ def tensors(n, min_dim=1, max_dim=4, dtype=np.float32, elements=None, **kwargs):
     return dims_.flatmap(
         lambda dims: st.lists(arrays(dims, dtype, elements),
                               min_size=n, max_size=n))
+
+
+def tensors1d(n, min_len=1, max_len=64, dtype=np.float32, elements=None):
+    return tensors(
+        n, 1, 1, dtype, elements, min_value=min_len, max_value=max_len
+    )
 
 
 cpu_do = caffe2_pb2.DeviceOption()
@@ -408,9 +438,8 @@ class HypothesisTestCase(test_util.TestCase):
                     ref_vals,
                     atol=threshold,
                     rtol=threshold,
-                    err_msg='Gradient {0} is not matching the reference'.format(
-                        val_name,
-                    ),
+                    err_msg='Gradient {0} (x) is not matching the reference (y)'
+                    .format(val_name),
                 )
                 if ref_indices is not None:
                     indices = workspace.FetchBlob(str(grad_names.indices))
@@ -501,13 +530,16 @@ class HypothesisTestCase(test_util.TestCase):
         op.device_option.CopyFrom(device_option)
 
         with temp_workspace():
+            if (len(op.input) > len(inputs)):
+                raise ValueError(
+                    'must supply an input for each input on the op: %s vs %s' %
+                    (op.input, inputs))
             for (n, b) in zip(op.input, inputs):
                 workspace.FeedBlob(
                     n,
                     b,
                     device_option=input_device_options.get(n, device_option)
                 )
-                print("Input", n, input_device_options.get(n, device_option))
             net = core.Net("opnet")
             net.Proto().op.extend([op])
             test_shape_inference = False
@@ -597,3 +629,31 @@ class HypothesisTestCase(test_util.TestCase):
                     list(op.input) + list(op.output), inputs + outputs)))
             else:
                 validator(inputs=inputs, outputs=outputs)
+
+    def assertRunOpRaises(
+        self,
+        device_option,
+        op,
+        inputs,
+        input_device_options=None,
+        exception=(Exception,),
+        regexp=None,
+    ):
+        if input_device_options is None:
+            input_device_options = {}
+
+        op = copy.deepcopy(op)
+        op.device_option.CopyFrom(device_option)
+
+        with temp_workspace():
+            for (n, b) in zip(op.input, inputs):
+                workspace.FeedBlob(
+                    n,
+                    b,
+                    device_option=input_device_options.get(n, device_option)
+                )
+            if regexp is None:
+                self.assertRaises(exception, workspace.RunOperatorOnce, op)
+            else:
+                self.assertRaisesRegexp(
+                    exception, regexp, workspace.RunOperatorOnce, op)

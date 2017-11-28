@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/order_switch_ops.h"
 
 namespace caffe2 {
@@ -45,7 +61,6 @@ bool NCHW2NHWCOp<float, CPUContext>::RunOnDevice() {
 }
 
 
-namespace {
 REGISTER_CPU_OPERATOR(NHWC2NCHW, NHWC2NCHWOp<float, CPUContext>);
 REGISTER_CPU_OPERATOR(NCHW2NHWC, NCHW2NHWCOp<float, CPUContext>);
 
@@ -54,6 +69,8 @@ OPERATOR_SCHEMA(NHWC2NCHW)
     .NumOutputs(1)
     .TensorInferenceFunction([](const OperatorDef& /*unused*/ /*def*/,
                                 const vector<TensorShape>& in) {
+      CAFFE_ENFORCE_EQ(
+          in[0].dims_size(), 4, "Input for NHWC2NCHW must be 4 dimensional");
       vector<TensorShape> out(1);
       out[0].add_dims(in[0].dims(0));
       out[0].add_dims(in[0].dims(3));
@@ -101,5 +118,4 @@ class GetNCHW2NHWCGradient : public GradientMakerBase {
   }
 };
 REGISTER_GRADIENT(NCHW2NHWC, GetNCHW2NHWCGradient);
-}  // namespace
 }  // namespace caffe2

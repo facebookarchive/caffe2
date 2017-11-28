@@ -1,4 +1,22 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/predictor.h"
+
+#include <unordered_set>
 
 namespace caffe2 {
 
@@ -29,6 +47,40 @@ TensorCPU* extractOutputTensor(Workspace* ws, const std::string& name) {
   CAFFE_ENFORCE(blob, "Blob: ", name, " does not exist");
   return blob->template GetMutable<TensorCPU>();
 }
+
+const NetDef& getNet(const MetaNetDef& def, const std::string& name) {
+  for (const auto& n : def.nets()) {
+    if (n.key() == name) {
+      return n.value();
+    }
+  }
+  CAFFE_THROW("Net not found: ", name);
+}
+
+const ::google::protobuf::RepeatedPtrField<::std::string>& getBlobs(
+    const MetaNetDef& def,
+    const std::string& name) {
+  for (const auto& b : def.blobs()) {
+    if (b.key() == name) {
+      return b.value();
+    }
+  }
+  CAFFE_THROW("Blob not found: ", name);
+}
+} // namespace
+
+Predictor::Predictor(const MetaNetDef& def, Workspace* parent)
+    : Predictor(
+          getNet(
+              def,
+              PredictorConsts::default_instance().global_init_net_type()),
+          getNet(def, PredictorConsts::default_instance().predict_net_type()),
+          parent) {
+  const auto& inputs =
+      getBlobs(def, PredictorConsts::default_instance().inputs_blob_type());
+  for (const auto& input : inputs) {
+    inputNames_.insert(input);
+  }
 }
 
 Predictor::Predictor(
@@ -37,6 +89,17 @@ Predictor::Predictor(
     Workspace* parent)
     : run_net_(run_net), ws_(parent) {
   CAFFE_ENFORCE(ws_.RunNetOnce(init_net));
+
+  // real model inputs can be fed later in run* functions
+  const auto& initialized_vec = ws_.Blobs();
+  const std::unordered_set<std::string> initialized{initialized_vec.begin(),
+                                                    initialized_vec.end()};
+  for (const auto& name : run_net.external_input()) {
+    if (!initialized.count(name)) {
+      auto* blob = ws_.CreateBlob(name);
+      blob->template GetMutable<TensorCPU>();
+    }
+  }
   CAFFE_ENFORCE(ws_.CreateNet(run_net));
 }
 
@@ -58,4 +121,26 @@ bool Predictor::run(const TensorVector& inputs, TensorVector* outputs) {
   }
   return true;
 }
+
+bool Predictor::run_map(const TensorMap& inputs, TensorVector* outputs) {
+  if (!inputNames_.empty()) {
+    CAFFE_ENFORCE_EQ(inputs.size(), inputNames_.size());
+  }
+  for (auto input : inputs) {
+    if (!inputNames_.empty()) {
+      CAFFE_ENFORCE_GT(inputNames_.count(input.first), 0);
+    }
+    shareInputTensor(&ws_, input.first, input.second);
+  }
+
+  if (!ws_.RunNet(run_net_.name())) {
+    return false;
+  }
+
+  outputs->resize(run_net_.external_output_size());
+  for (auto i = 0; i < outputs->size(); ++i) {
+    (*outputs)[i] = extractOutputTensor(&ws_, run_net_.external_output(i));
+  }
+  return true;
 }
+} // namespace caffe2

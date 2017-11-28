@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -119,8 +134,9 @@ def caffe2_img(img):
 
 
 # Bounding box is ymin, xmin, height, width
-def create_test(output_dir, width, height, default_bound,
-                minsize, crop, means, stds, count, multiple_label, num_labels):
+def create_test(output_dir, width, height, default_bound, minsize, crop, means,
+                stds, count, label_type, num_labels, output1=None,
+                output2_size=None):
     print("Creating a temporary lmdb database of %d pictures..." % (count))
 
     if default_bound is None:
@@ -179,17 +195,48 @@ def create_test(output_dir, width, height, default_bound,
 
             label_tensor = tensor_protos.protos.add()
             label_tensor.data_type = 2  # int32 data
-            if multiple_label == 0:
+            assert (label_type >= 0 and label_type <= 3)
+            if label_type == 0:
                 label_tensor.int32_data.append(index)
                 expected_label = index
-            else:
+            elif label_type == 1:
                 binary_labels = np.random.randint(2, size=num_labels)
                 for idx, val in enumerate(binary_labels.tolist()):
                     if val == 1:
                         label_tensor.int32_data.append(idx)
                 expected_label = binary_labels
+            elif label_type == 2:
+                embedding_label = np.random.randint(100, size=num_labels)
+                for _idx, val in enumerate(embedding_label.tolist()):
+                    label_tensor.int32_data.append(val)
+                expected_label = embedding_label
+            elif label_type == 3:
+                weight_tensor = tensor_protos.protos.add()
+                weight_tensor.data_type = 1  # float weights
+                binary_labels = np.random.randint(2, size=num_labels)
+                expected_label = np.zeros(num_labels).astype(np.float32)
+                for idx, val in enumerate(binary_labels.tolist()):
+                    expected_label[idx] = val * idx
+                    if val == 1:
+                        label_tensor.int32_data.append(idx)
+                        weight_tensor.float_data.append(idx)
 
-            expected_results.append([caffe2_img(img_expected), expected_label])
+            if output1:
+                output1_tensor = tensor_protos.protos.add()
+                output1_tensor.data_type = 1  # float data
+                output1_tensor.float_data.append(output1)
+
+            output2 = []
+            if output2_size:
+                output2_tensor = tensor_protos.protos.add()
+                output2_tensor.data_type = 2  # int32 data
+                values = np.random.randint(1024, size=output2_size)
+                for val in values.tolist():
+                    output2.append(val)
+                    output2_tensor.int32_data.append(val)
+
+            expected_results.append(
+                [caffe2_img(img_expected), expected_label, output1, output2])
 
             if not do_default_bound:
                 bounding_tensor = tensor_protos.protos.add()
@@ -206,9 +253,118 @@ def create_test(output_dir, width, height, default_bound,
     return expected_results
 
 
+def run_test(
+        size_tuple, means, stds, label_type, num_labels, is_test, scale_jitter_type,
+        color_jitter, color_lighting, dc, validator, output1=None, output2_size=None):
+    # TODO: Does not test on GPU and does not test use_gpu_transform
+    # WARNING: Using ModelHelper automatically does NHWC to NCHW
+    # transformation if needed.
+    width, height, minsize, crop = size_tuple
+    means = [float(m) for m in means]
+    stds = [float(s) for s in stds]
+    out_dir = tempfile.mkdtemp()
+    count_images = 2  # One with bounding box and one without
+    expected_images = create_test(
+        out_dir,
+        width=width,
+        height=height,
+        default_bound=(3, 5, height - 3, width - 5),
+        minsize=minsize,
+        crop=crop,
+        means=means,
+        stds=stds,
+        count=count_images,
+        label_type=label_type,
+        num_labels=num_labels,
+        output1=output1,
+        output2_size=output2_size
+    )
+    for device_option in dc:
+        with hu.temp_workspace():
+            reader_net = core.Net('reader')
+            reader_net.CreateDB(
+                [],
+                'DB',
+                db=out_dir,
+                db_type="lmdb"
+            )
+            workspace.RunNetOnce(reader_net)
+            outputs = ['data', 'label']
+            output_sizes = []
+            if output1:
+                outputs.append('output1')
+                output_sizes.append(1)
+            if output2_size:
+                outputs.append('output2')
+                output_sizes.append(output2_size)
+            imageop = core.CreateOperator(
+                'ImageInput',
+                ['DB'],
+                outputs,
+                batch_size=count_images,
+                color=3,
+                minsize=minsize,
+                crop=crop,
+                is_test=is_test,
+                bounding_ymin=3,
+                bounding_xmin=5,
+                bounding_height=height - 3,
+                bounding_width=width - 5,
+                mean_per_channel=means,
+                std_per_channel=stds,
+                use_gpu_transform=(device_option.device_type == 1),
+                label_type=label_type,
+                num_labels=num_labels,
+                output_sizes=output_sizes,
+                scale_jitter_type=scale_jitter_type,
+                color_jitter=color_jitter,
+                color_lighting=color_lighting
+            )
+
+            imageop.device_option.CopyFrom(device_option)
+            main_net = core.Net('main')
+            main_net.Proto().op.extend([imageop])
+            workspace.RunNetOnce(main_net)
+            validator(expected_images, device_option, count_images)
+            # End for
+        # End with
+    # End for
+    shutil.rmtree(out_dir)
+# end run_test
+
+
 @unittest.skipIf('cv2' not in sys.modules, 'python-opencv is not installed')
 @unittest.skipIf('lmdb' not in sys.modules, 'python-lmdb is not installed')
 class TestImport(hu.HypothesisTestCase):
+    def validate_image_and_label(
+            self, expected_images, device_option, count_images, label_type,
+            is_test, scale_jitter_type, color_jitter, color_lighting):
+        l = workspace.FetchBlob('label')
+        result = workspace.FetchBlob('data').astype(np.int32)
+        # If we don't use_gpu_transform, the output is in NHWC
+        # Our reference output is CHW so we swap
+        if device_option.device_type != 1:
+            expected = [img.swapaxes(0, 1).swapaxes(1, 2) for
+                        (img, _, _, _) in expected_images]
+        else:
+            expected = [img for (img, _, _, _) in expected_images]
+        for i in range(count_images):
+            if label_type == 0:
+                self.assertEqual(l[i], expected_images[i][1])
+            else:
+                self.assertEqual(
+                    (l[i] - expected_images[i][1] > 0).sum(), 0)
+            if is_test == 0:
+                # when traing data preparation is randomized (e.g. random cropping,
+                # Inception-style random sized cropping, color jittering,
+                # color lightin), we only compare blob shape
+                for (s1, s2) in zip(expected[i].shape, result[i].shape):
+                    self.assertEqual(s1, s2)
+            else:
+                self.assertEqual((expected[i] - result[i] > 1).sum(), 0)
+        # End for
+    # end validate_image_and_label
+
     @given(size_tuple=st.tuples(
         st.integers(min_value=8, max_value=4096),
         st.integers(min_value=8, max_value=4096)).flatmap(lambda t: st.tuples(
@@ -221,88 +377,72 @@ class TestImport(hu.HypothesisTestCase):
         stds=st.tuples(st.floats(min_value=1, max_value=10),
                        st.floats(min_value=1, max_value=10),
                        st.floats(min_value=1, max_value=10)),
-        multiple_label=st.integers(0, 1),
+        label_type=st.integers(0, 3),
         num_labels=st.integers(min_value=8, max_value=4096),
+        is_test=st.integers(min_value=0, max_value=1),
+        scale_jitter_type=st.integers(min_value=0, max_value=1),
+        color_jitter=st.integers(min_value=0, max_value=1),
+        color_lighting=st.integers(min_value=0, max_value=1),
         **hu.gcs)
     @settings(verbosity=Verbosity.verbose)
     def test_imageinput(
-            self, size_tuple, means, stds, multiple_label,
-            num_labels, gc, dc):
-        # TODO: Does not test on GPU and does not test use_gpu_transform
-        # WARNING: Using ModelHelper automatically does NHWC to NCHW
-        # transformation if needed.
-        width, height, minsize, crop = size_tuple
-        means = [float(m) for m in means]
-        stds = [float(s) for s in stds]
-        out_dir = tempfile.mkdtemp()
-        count_images = 2  # One with bounding box and one without
-        expected_images = create_test(
-            out_dir,
-            width=width,
-            height=height,
-            default_bound=(3, 5, height - 3, width - 5),
-            minsize=minsize,
-            crop=crop,
-            means=means,
-            stds=stds,
-            count=count_images,
-            multiple_label=multiple_label,
-            num_labels=num_labels,
-        )
-        for device_option in dc:
-            with hu.temp_workspace():
-                reader_net = core.Net('reader')
-                reader_net.CreateDB(
-                    [],
-                    'DB',
-                    db=out_dir,
-                    db_type="lmdb"
-                )
-                workspace.RunNetOnce(reader_net)
-                imageop = core.CreateOperator(
-                    'ImageInput',
-                    ['DB'],
-                    ["data", "label"],
-                    batch_size=count_images,
-                    color=3,
-                    minsize=minsize,
-                    crop=crop,
-                    is_test=True,
-                    bounding_ymin=3,
-                    bounding_xmin=5,
-                    bounding_height=height - 3,
-                    bounding_width=width - 5,
-                    mean_per_channel=means,
-                    std_per_channel=stds,
-                    use_gpu_transform=(device_option.device_type == 1),
-                    multiple_label=multiple_label,
-                    num_labels=num_labels,
-                )
+            self, size_tuple, means, stds, label_type,
+            num_labels, is_test, scale_jitter_type, color_jitter, color_lighting,
+            gc, dc):
+        def validator(expected_images, device_option, count_images):
+            self.validate_image_and_label(
+                expected_images, device_option, count_images, label_type,
+                is_test, scale_jitter_type, color_jitter, color_lighting)
+        # End validator
+        run_test(
+            size_tuple, means, stds, label_type, num_labels, is_test,
+            scale_jitter_type, color_jitter, color_lighting, dc, validator)
+    # End test_imageinput
 
-                imageop.device_option.CopyFrom(device_option)
-                main_net = core.Net('main')
-                main_net.Proto().op.extend([imageop])
-                workspace.RunNetOnce(main_net)
-                l = workspace.FetchBlob('label')
-                result = workspace.FetchBlob('data').astype(np.int32)
-                # If we don't use_gpu_transform, the output is in NHWC
-                # Our reference output is CHW so we swap
-                if device_option.device_type != 1:
-                    expected = [img.swapaxes(0, 1).swapaxes(1, 2) for
-                                (img, _) in expected_images]
-                else:
-                    expected = [img for (img, _) in expected_images]
-                for i in range(count_images):
-                    if multiple_label == 0:
-                        self.assertEqual(l[i], expected_images[i][1])
-                    else:
-                        self.assertEqual(
-                            (l[i] - expected_images[i][1] > 0).sum(), 0)
-                    self.assertEqual((expected[i] - result[i] > 1).sum(), 0)
-                # End for
-            # End with
-        # End for
-        shutil.rmtree(out_dir)
+    @given(size_tuple=st.tuples(
+        st.integers(min_value=8, max_value=4096),
+        st.integers(min_value=8, max_value=4096)).flatmap(lambda t: st.tuples(
+            st.just(t[0]), st.just(t[1]),
+            st.just(min(t[0] - 6, t[1] - 4)),
+            st.integers(min_value=1, max_value=min(t[0] - 6, t[1] - 4)))),
+        means=st.tuples(st.integers(min_value=0, max_value=255),
+                        st.integers(min_value=0, max_value=255),
+                        st.integers(min_value=0, max_value=255)),
+        stds=st.tuples(st.floats(min_value=1, max_value=10),
+                       st.floats(min_value=1, max_value=10),
+                       st.floats(min_value=1, max_value=10)),
+        label_type=st.integers(0, 3),
+        num_labels=st.integers(min_value=8, max_value=4096),
+        is_test=st.integers(min_value=0, max_value=1),
+        scale_jitter_type=st.integers(min_value=0, max_value=1),
+        color_jitter=st.integers(min_value=0, max_value=1),
+        color_lighting=st.integers(min_value=0, max_value=1),
+        output1=st.floats(min_value=1, max_value=10),
+        output2_size=st.integers(min_value=2, max_value=10),
+        **hu.gcs)
+    @settings(verbosity=Verbosity.verbose)
+    def test_imageinput_with_additional_outputs(
+            self, size_tuple, means, stds, label_type,
+            num_labels, is_test, scale_jitter_type, color_jitter, color_lighting,
+            output1, output2_size, gc, dc):
+        def validator(expected_images, device_option, count_images):
+            self.validate_image_and_label(
+                expected_images, device_option, count_images, label_type,
+                is_test, scale_jitter_type, color_jitter, color_lighting)
+
+            output1_result = workspace.FetchBlob('output1')
+            output2_result = workspace.FetchBlob('output2')
+
+            for i in range(count_images):
+                self.assertEqual(output1_result[i], expected_images[i][2])
+                self.assertEqual(
+                    (output2_result[i] - expected_images[i][3] > 0).sum(), 0)
+            # End for
+        # End validator
+        run_test(
+            size_tuple, means, stds, label_type, num_labels, is_test,
+            scale_jitter_type, color_jitter, color_lighting, dc,
+            validator, output1, output2_size)
     # End test_imageinput
 
 

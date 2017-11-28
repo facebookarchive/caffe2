@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package predictor_exporter
 # Module caffe2.python.predictor.predictor_exporter
 from __future__ import absolute_import
@@ -35,7 +50,7 @@ def get_predictor_exporter_helper(submodelNetName):
 class PredictorExportMeta(collections.namedtuple(
     'PredictorExportMeta',
         'predict_net, parameters, inputs, outputs, shapes, name, \
-        extra_init_net, net_type')):
+        extra_init_net, net_type, num_workers')):
     """
     Metadata to be used for serializaing a net.
 
@@ -47,6 +62,8 @@ class PredictorExportMeta(collections.namedtuple(
     name will be used to identify multiple prediction nets.
 
     net_type is the type field in caffe2 NetDef - can be 'simple', 'dag', etc.
+
+    num_workers specifies for net type 'dag' how many threads should run ops
     """
     def __new__(
         cls,
@@ -58,6 +75,7 @@ class PredictorExportMeta(collections.namedtuple(
         name="",
         extra_init_net=None,
         net_type=None,
+        num_workers=None,
     ):
         inputs = [str(i) for i in inputs]
         outputs = [str(o) for o in outputs]
@@ -72,7 +90,7 @@ class PredictorExportMeta(collections.namedtuple(
         assert isinstance(predict_net, (caffe2_pb2.NetDef, caffe2_pb2.PlanDef))
         return super(PredictorExportMeta, cls).__new__(
             cls, predict_net, parameters, inputs, outputs, shapes, name,
-            extra_init_net, net_type)
+            extra_init_net, net_type, num_workers)
 
     def inputs_name(self):
         return utils.get_comp_name(predictor_constants.INPUTS_BLOB_TYPE,

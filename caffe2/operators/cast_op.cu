@@ -1,10 +1,25 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/operators/cast_op.h"
 #include "caffe2/utils/conversions.h"
 
 namespace caffe2 {
 
-namespace {
 template <typename DstType, typename SrcType>
 __global__ void CastKernel(const int N, const SrcType* X, DstType* Y) {
   CUDA_1D_KERNEL_LOOP(i, N) {
@@ -12,7 +27,6 @@ __global__ void CastKernel(const int N, const SrcType* X, DstType* Y) {
     Y[i] = convert::To<SrcType, DstType>(X[i]);
   }
 }
-}  // namespace
 
 template <>
 template <typename DstType, typename SrcType>
@@ -24,9 +38,15 @@ bool CastOp<CUDAContext>::DoRunWithType() {
   auto* out = output->template mutable_data<DstType>();
   DCHECK(input.size() < INT_MAX);
   int N = input.size();
-  CastKernel<DstType, SrcType><<<
-      CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS,
-      0, context_.cuda_stream()>>>(N, data, out);
+  if (N == 0) {
+    // skip the rest of the computation if input is empty
+    return true;
+  }
+  CastKernel<DstType, SrcType>
+      <<<CAFFE_GET_BLOCKS(N),
+         CAFFE_CUDA_NUM_THREADS,
+         0,
+         context_.cuda_stream()>>>(N, data, out);
   return true;
 }
 

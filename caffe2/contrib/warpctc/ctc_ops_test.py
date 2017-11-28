@@ -1,8 +1,22 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import unittest
 import numpy as np
 from caffe2.proto import caffe2_pb2
 
@@ -38,8 +52,9 @@ class CTCOpsTest(test_util.TestCase):
 
         net = core.Net("test-net")
         net.CTC(["inputs", "labels", "label_lengths", "input_lengths"],
-                ["inputs_grad", "costs", "workspace"],
+                ["inputs_grad_to_be_copied", "costs", "workspace"],
                 device_option=device_option)
+        net.AddGradientOperators(["costs"])
         self.ws.create_blob("inputs").feed(inputs, device_option=device_option)
         self.ws.create_blob("labels").feed(labels)
         self.ws.create_blob("label_lengths").feed(label_lengths)
@@ -52,6 +67,12 @@ class CTCOpsTest(test_util.TestCase):
         cost = self.ws.blobs["costs"].fetch()[0]
         print(cost)
         self.assertAlmostEqual(np.exp(-cost), expected)
+        # Make sure inputs_grad was added by AddGradientOperators and
+        # it is equal to the inputs_grad_to_be_copied blob returned by CTCop
+        assert np.array_equal(
+            self.ws.blobs["inputs_grad"].fetch(),
+            self.ws.blobs["inputs_grad_to_be_copied"].fetch()
+        )
 
     def test_ctc_cost_cpu(self):
         self.verify_cost(
