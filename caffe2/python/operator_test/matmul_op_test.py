@@ -212,11 +212,11 @@ class TestBatchMatMul(hu.HypothesisTestCase):
     ):
         if trans_a is not None and trans_b is not None:
             op = core.CreateOperator(
-                'BatchMatMul', ['X', 'Y'], 'out', trans_a=trans_a, trans_b=trans_b
+                'BatchMatMul', ['X', 'Y'], 'out', trans_a=trans_a, trans_b=trans_b, broadcast=1
             )
         else:
             op = core.CreateOperator(
-                'BatchMatMul', ['X', 'Y'], 'out',
+                'BatchMatMul', ['X', 'Y'], 'out', broadcast=1
             )
 
         def matmul_ref(X, Y, trans_a, trans_b, dtype):

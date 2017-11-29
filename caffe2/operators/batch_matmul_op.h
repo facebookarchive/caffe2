@@ -18,6 +18,7 @@ class BatchMatMulOp final : public Operator<Context> {
       : Operator<Context>(operator_def, ws),
         trans_a_(OperatorBase::GetSingleArgument<int>("trans_a", 0)),
         trans_b_(OperatorBase::GetSingleArgument<int>("trans_b", 0)),
+        broadcast_(OperatorBase::GetSingleArgument<int>("broadcast", 0)),
         use_scratch_(OperatorBase::GetSingleArgument<int>("use_scratch", 0)) {
     if (use_scratch_) {
       scratch_ = std::make_shared<Tensor<Context>>();
@@ -40,6 +41,22 @@ class BatchMatMulOp final : public Operator<Context> {
     auto dims_A = A.dims();
     auto ndims_B = B.ndim();
     auto dims_B = B.dims();
+
+    auto noBroadcastErrorMsg = [](size_t dim1, size_t dim2) {
+      std::stringstream ss;
+      ss << "Inputs with dimensions A = ";
+      ss << dim1;
+      ss << " and B = ";
+      ss << dim2;
+      ss << " is not supported with broadcast=0. Did you forget to set the "
+            "broadcast flag?";
+      return ss.str();
+    };
+
+    // These should all be false if we're not broadcasting.
+    bool dimMismatch = ndims_A != ndims_B;
+    bool dimsLessThan1D = ndims_A < 2;
+    CAFFE_ENFORCE(broadcast_ || (!dimMismatch && !dimsLessThan1D), noBroadcastErrorMsg(ndims_A, ndims_B));
 
     auto* data_A = A.template data<T>();
     auto* data_B = B.template data<T>();
@@ -256,6 +273,7 @@ class BatchMatMulOp final : public Operator<Context> {
  protected:
   bool trans_a_;
   bool trans_b_;
+  bool broadcast_;
 
   bool use_scratch_;
   std::shared_ptr<Tensor<Context>> scratch_;
