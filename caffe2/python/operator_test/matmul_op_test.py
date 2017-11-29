@@ -200,9 +200,7 @@ class TestBatchMatMul(hu.HypothesisTestCase):
         # Gradient check wrt Y
         relax_fp16_check(self.assertGradientChecks, gc, op, [X, Y], 1, [0])
 
-
-class TestNumpyBatchMatMul(hu.HypothesisTestCase):
-    def _test_numpy_batch_matmul_common(
+    def _test_batch_matmul_with_broadcast_common(
         self,
         X,
         Y,
@@ -214,11 +212,11 @@ class TestNumpyBatchMatMul(hu.HypothesisTestCase):
     ):
         if trans_a is not None and trans_b is not None:
             op = core.CreateOperator(
-                'NumpyBatchMatMul', ['X', 'Y'], 'out', trans_a=trans_a, trans_b=trans_b
+                'BatchMatMul', ['X', 'Y'], 'out', trans_a=trans_a, trans_b=trans_b
             )
         else:
             op = core.CreateOperator(
-                'NumpyBatchMatMul', ['X', 'Y'], 'out',
+                'BatchMatMul', ['X', 'Y'], 'out',
             )
 
         def matmul_ref(X, Y, trans_a, trans_b, dtype):
@@ -257,7 +255,7 @@ class TestNumpyBatchMatMul(hu.HypothesisTestCase):
         if trans_b:
             Y = Y.swapaxes(-1, -2)
 
-        self._test_numpy_batch_matmul_common(X, Y, dtype, gc, dc, trans_a, trans_b)
+        self._test_batch_matmul_with_broadcast_common(X, Y, dtype, gc, dc, trans_a, trans_b)
 
     @settings(max_examples=30)
     @given(
@@ -271,7 +269,7 @@ class TestNumpyBatchMatMul(hu.HypothesisTestCase):
         # TODO: test trans_a and trans_b
         Y = np.random.rand(K).astype(dtype) - 0.5
 
-        self._test_numpy_batch_matmul_common(X, Y, dtype, gc, dc)
+        self._test_batch_matmul_with_broadcast_common(X, Y, dtype, gc, dc)
 
     @settings(max_examples=30)
     @given(
@@ -286,7 +284,7 @@ class TestNumpyBatchMatMul(hu.HypothesisTestCase):
         # TODO: test trans_a and trans_b
         Y = np.random.rand(*[K, N]).astype(dtype) - 0.5
 
-        self._test_numpy_batch_matmul_common(X, Y, dtype, gc, dc)
+        self._test_batch_matmul_with_broadcast_common(X, Y, dtype, gc, dc)
 
     @settings(max_examples=30)
     @given(
@@ -301,7 +299,7 @@ class TestNumpyBatchMatMul(hu.HypothesisTestCase):
         # TODO: test trans_a and trans_b
         Y = np.random.rand(K).astype(dtype) - 0.5
 
-        self._test_numpy_batch_matmul_common(X, Y, dtype, gc, dc)
+        self._test_batch_matmul_with_broadcast_common(X, Y, dtype, gc, dc)
 
 
 if __name__ == "__main__":
