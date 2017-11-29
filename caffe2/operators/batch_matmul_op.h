@@ -1,6 +1,20 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
-#ifndef CAFFE2_OPERATORS_NUMPY_BATCH_MATMUL_OP_H
-#define CAFFE2_OPERATORS_NUMPY_BATCH_MATMUL_OP_H
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef CAFFE2_OPERATORS_MATMUL_OP_H_
+#define CAFFE2_OPERATORS_MATMUL_OP_H_
 
 #include <sstream>
 
@@ -10,7 +24,7 @@
 
 namespace caffe2 {
 
-template <class Context>
+template <class Context, class Engine = DefaultEngine>
 class BatchMatMulOp final : public Operator<Context> {
  public:
   USE_OPERATOR_CONTEXT_FUNCTIONS;
@@ -56,7 +70,9 @@ class BatchMatMulOp final : public Operator<Context> {
     // These should all be false if we're not broadcasting.
     bool dimMismatch = ndims_A != ndims_B;
     bool dimsLessThan1D = ndims_A < 2;
-    CAFFE_ENFORCE(broadcast_ || (!dimMismatch && !dimsLessThan1D), noBroadcastErrorMsg(ndims_A, ndims_B));
+    CAFFE_ENFORCE(
+        broadcast_ || (!dimMismatch && !dimsLessThan1D),
+        noBroadcastErrorMsg(ndims_A, ndims_B));
 
     auto* data_A = A.template data<T>();
     auto* data_B = B.template data<T>();
@@ -248,7 +264,7 @@ class BatchMatMulOp final : public Operator<Context> {
 
       // TODO(T23893772): doing this in a loop is likely going to be slow on GPU
       for (size_t p = 0; p < num_outer_batches; ++p) {
-        math::GemmBatched<T, Context>(
+        math::GemmBatched<T, Context, Engine>(
             trans_a_ ? CblasTrans : CblasNoTrans,
             trans_b_ ? CblasTrans : CblasNoTrans,
             A_slice_size,
@@ -281,4 +297,4 @@ class BatchMatMulOp final : public Operator<Context> {
 
 } // namespace caffe2
 
-#endif /* CAFFE2_OPERATORS_NUMPY_BATCH_MATMUL_OP_H */
+#endif /* CAFFE2_OPERATORS_MATMUL_OP_H_ */
