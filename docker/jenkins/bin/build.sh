@@ -5,8 +5,6 @@ set -ex
 LOCAL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT_DIR=$(cd "$LOCAL_DIR"/../../.. && pwd)
 
-cd "$ROOT_DIR"
-
 # Setup ccache symlinks
 if which ccache > /dev/null; then
   mkdir -p ./ccache
@@ -56,7 +54,7 @@ case "${BUILD_ENVIRONMENT}" in
 esac
 
 # Configure
-cmake .. ${CMAKE_ARGS[*]} "$@"
+cmake "${ROOT_DIR}" ${CMAKE_ARGS[*]} "$@"
 
 # Build
 if [ "$(uname)" == "Linux" ]; then
