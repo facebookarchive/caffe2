@@ -20,6 +20,7 @@ from __future__ import print_function
 import numpy as np
 from hypothesis import given, assume
 import hypothesis.strategies as st
+import unittest
 
 from caffe2.python import core, model_helper, brew
 import caffe2.python.hypothesis_test_util as hu

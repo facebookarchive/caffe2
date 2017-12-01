@@ -32,6 +32,8 @@ try:
     import StringIO
 except ImportError:
     from io import StringIO
+import io
+import six
 import sys
 import tempfile
 
@@ -152,7 +154,8 @@ def create_test(output_dir, width, height, default_bound, minsize, crop, means,
             img_array = np.random.random_integers(
                 0, 255, [height, width, 3]).astype(np.uint8)
             img_obj = Image.fromarray(img_array)
-            img_str = StringIO.StringIO()
+            img_str = six.BytesIO()
+
             img_obj.save(img_str, 'PNG')
 
             # Create a random bounding box for every other image
