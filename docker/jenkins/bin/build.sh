@@ -43,7 +43,7 @@ case "${BUILD_ENVIRONMENT}" in
       ln -sf "$(which ccache)" "${ROOT_DIR}/ccache/nvcc"
 
       # Explicitly set path to NVCC such that the symlink to ccache is used
-      CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=/tmp/ccache/nvcc")
+      CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=${ROOT_DIR}/ccache/nvcc")
     fi
 
     # The CMake code that finds the CUDA distribution looks for nvcc in $PATH.
