@@ -16,7 +16,7 @@ ADD ./install_python.sh install_python.sh
 RUN bash ./install_python.sh && rm install_python.sh
 
 # (optional) Install Intel MKL
-ARG ANDROID
+ARG MKL
 ADD ./install_mkl.sh install_mkl.sh
 RUN if [ -n "${MKL}" ]; then bash ./install_mkl.sh; fi
 RUN rm install_mkl.sh
