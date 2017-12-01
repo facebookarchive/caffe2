@@ -69,7 +69,7 @@ void ReadImage(std::ifstream* file, int* label, char* buffer) {
   file->read(channel_first_storage.data(), kCIFARImageNBytes);
   for (int c = 0; c < 3; ++c) {
     for (int i = 0; i < kCIFARSize * kCIFARSize; ++i) {
-      buffer[i * 3 + c] =
+      buffer[c * kCIFARSize * kCIFARSize + i] =
           channel_first_storage[c * kCIFARSize * kCIFARSize + i];
     }
   }
@@ -82,9 +82,9 @@ void WriteToDB(const string& filename, const int num_items,
   TensorProto* data = protos.add_protos();
   TensorProto* label = protos.add_protos();
   data->set_data_type(TensorProto::BYTE);
-  data->add_dims(kCIFARSize);
-  data->add_dims(kCIFARSize);
   data->add_dims(3);
+  data->add_dims(kCIFARSize);
+  data->add_dims(kCIFARSize);
   label->set_data_type(TensorProto::INT32);
   label->add_dims(1);
   label->add_int32_data(0);
