@@ -51,7 +51,7 @@ if [[ "$image" == *-android-* ]]; then
 fi
 
 if [[ "$image" == *-gcc* ]]; then
-  GCC_VERSION="$(echo "${image}" | perl -n -e'/gcc(\d+)/ && print $1')"
+  GCC_VERSION="$(echo "${image}" | perl -n -e'/gcc(\d+(\.\d+)?)/ && print $1')"
 fi
 
 if [[ "$image" == *-clang* ]]; then
