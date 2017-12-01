@@ -39,8 +39,8 @@ case "${BUILD_ENVIRONMENT}" in
     CMAKE_ARGS+=("-DCUDA_ARCH_NAME=Maxwell")
     CMAKE_ARGS+=("-DUSE_NNPACK=OFF")
 
-    if [ -d /tmp/ccache ]; then
-      ln -sf "$(which ccache)" /tmp/ccache/nvcc
+    if [ -d "${ROOT_DIR}/ccache" ]; then
+      ln -sf "$(which ccache)" "${ROOT_DIR}/ccache/nvcc"
 
       # Explicitly set path to NVCC such that the symlink to ccache is used
       CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=/tmp/ccache/nvcc")
