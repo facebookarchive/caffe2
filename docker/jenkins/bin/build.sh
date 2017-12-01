@@ -6,7 +6,7 @@ LOCAL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT_DIR=$(cd "$LOCAL_DIR"/../../.. && pwd)
 
 # Run build script from scripts if applicable
-if [[ "${BUILD_ENVIRONMENT}" == *android ]]; then
+if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   export ANDROID_NDK=/opt/ndk
   ./scripts/build_android.sh "$@"
   exit 0
