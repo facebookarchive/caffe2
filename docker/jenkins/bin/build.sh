@@ -8,13 +8,11 @@ ROOT_DIR=$(cd "$LOCAL_DIR"/../../.. && pwd)
 # Setup ccache symlinks
 if which ccache > /dev/null; then
   mkdir -p /tmp/ccache
-  pushd /tmp/ccache
-  ln -sf "$(which ccache)" cc
-  ln -sf "$(which ccache)" c++
-  ln -sf "$(which ccache)" gcc
-  ln -sf "$(which ccache)" g++
+  ln -sf "$(which ccache)" /tmp/ccache/cc
+  ln -sf "$(which ccache)" /tmp/ccache/c++
+  ln -sf "$(which ccache)" /tmp/ccache/gcc
+  ln -sf "$(which ccache)" /tmp/ccache/g++
   export PATH=$PWD:$PATH
-  popd
 fi
 
 # Run build script from scripts if applicable
