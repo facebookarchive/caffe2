@@ -73,4 +73,5 @@ docker build \
        --build-arg ANDROID=${ANDROID} \
        --build-arg GCC_VERSION=${GCC_VERSION} \
        --build-arg CLANG_VERSION=${CLANG_VERSION} \
+       "$@" \
        "$(dirname ${DOCKERFILE})"
