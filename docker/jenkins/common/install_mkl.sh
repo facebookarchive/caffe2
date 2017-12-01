@@ -2,6 +2,10 @@
 
 set -ex
 
+# Needs https transport for apt
+apt-get update
+apt-get install -y --no-install-recommends apt-transport-https
+
 # Add Intel MKL repository
 key="https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
 curl "${key}" | apt-key add -
