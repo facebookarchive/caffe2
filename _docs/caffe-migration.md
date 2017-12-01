@@ -27,7 +27,7 @@ Caffe2 improves Caffe 1.0 in a series of directions:
 
 ## What's New in Caffe2?
 
-One of basic units of computation in Caffe2 are the `Operators`. You can think of these as a more flexible version of the layers from Caffe. Caffe2 comes with over 400 different operators and provides guidance for the community to create and contribute to this growing resource. For more information, check out [operators information](operators.html) and run through the [intro tutorial](intro-tutorial.html).
+One of the basic units of computation in Caffe2 are the `Operators`. You can think of these as a more flexible version of the layers from Caffe. Caffe2 comes with over 400 different operators and provides guidance for the community to create and contribute to this growing resource. For more information, check out [operators information](operators.html) and run through the [intro tutorial](intro-tutorial.html).
 
 ## Caffe to Caffe2
 
