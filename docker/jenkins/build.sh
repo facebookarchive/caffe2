@@ -16,8 +16,8 @@ valid_images=(
   py2-gcc5-ubuntu16.04
   py2-gcc6-ubuntu16.04
   py2-gcc7-ubuntu16.04
-  py2-clang38-ubuntu16.04
-  py2-clang39-ubuntu16.04
+  py2-clang3.8-ubuntu16.04
+  py2-clang3.9-ubuntu16.04
 
   # Build for Android
   py2-android-ubuntu16.04
@@ -55,7 +55,7 @@ if [[ "$image" == *-gcc* ]]; then
 fi
 
 if [[ "$image" == *-clang* ]]; then
-  CLANG_VERSION="$(echo "${image}" | perl -n -e'/clang(\d+)/ && print $1')"
+  CLANG_VERSION="$(echo "${image}" | perl -n -e'/clang(\d+(\.\d+)?)/ && print $1')"
 fi
 
 # Copy over common scripts to directory containing the Dockerfile to build
