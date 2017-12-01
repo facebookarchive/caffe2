@@ -5,17 +5,6 @@ set -ex
 LOCAL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT_DIR=$(cd "$LOCAL_DIR"/../../.. && pwd)
 
-# Run build script from scripts if applicable
-if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
-  export ANDROID_NDK=/opt/ndk
-  ./scripts/build_android.sh "$@"
-  exit 0
-fi
-
-# Run cmake from ./build directory
-mkdir -p ./build
-cd ./build
-
 # Setup ccache symlinks
 if which ccache > /dev/null; then
   mkdir -p /tmp/ccache
@@ -27,6 +16,17 @@ if which ccache > /dev/null; then
   export PATH=$PWD:$PATH
   popd
 fi
+
+# Run build script from scripts if applicable
+if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
+  export ANDROID_NDK=/opt/ndk
+  ./scripts/build_android.sh "$@"
+  exit 0
+fi
+
+# Run cmake from ./build directory
+mkdir -p ./build
+cd ./build
 
 CMAKE_ARGS=("-DCMAKE_INSTALL_PREFIX=/usr/local/caffe2")
 
