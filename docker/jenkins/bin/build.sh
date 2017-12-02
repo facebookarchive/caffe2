@@ -38,6 +38,9 @@ case "${BUILD_ENVIRONMENT}" in
     CMAKE_ARGS+=("-DCUDA_ARCH_NAME=Maxwell")
     CMAKE_ARGS+=("-DUSE_NNPACK=OFF")
 
+    # Add ccache symlink for nvcc
+    ln -sf "$(which ccache)" "${CCACHE_WRAPPER_DIR}/nvcc"
+
     # Explicitly set path to NVCC such that the symlink to ccache is used
     CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=${CCACHE_WRAPPER_DIR}/nvcc")
 
