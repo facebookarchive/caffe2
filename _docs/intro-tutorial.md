@@ -45,7 +45,7 @@ Composing nets directly is quite tedious, so it is better to use *model helpers*
 
 ```py
 # Create the input data
-data = np.random.rand(16, 100)
+data = np.random.rand(16, 100).astype(np.float32)
 
 # Create labels for the data as integers [0, 9].
 label = (np.random.rand(16) * 10).astype(np.int32)
