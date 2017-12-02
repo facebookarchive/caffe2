@@ -13,7 +13,7 @@ if which ccache > /dev/null; then
   ln -sf "$(which ccache)" ./ccache/gcc
   ln -sf "$(which ccache)" ./ccache/g++
   export CCACHE_DIR="$PWD/ccache"
-  export PATH="$CCACHE_DIR/ccache:$PATH"
+  export PATH="$CCACHE_DIR:$PATH"
 fi
 
 # Run build script from scripts if applicable
