@@ -38,19 +38,14 @@ case "${BUILD_ENVIRONMENT}" in
     CMAKE_ARGS+=("-DCUDA_ARCH_NAME=Maxwell")
     CMAKE_ARGS+=("-DUSE_NNPACK=OFF")
 
-    if [ -n "${CCACHE_DIR}" ]; then
-      ln -sf "$(which ccache)" "${CCACHE_DIR}/nvcc"
+    # Explicitly set path to NVCC such that the symlink to ccache is used
+    CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=${CCACHE_DIR}/nvcc")
 
-      # Explicitly set path to NVCC such that the symlink to ccache is used
-      CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=${CCACHE_DIR}/nvcc")
-    fi
-
-    # The CMake code that finds the CUDA distribution looks for nvcc in $PATH.
-    # This doesn't work here, as that would yield /tmp/ccache, which doesn't
-    # contain a CUDA distribution. We need it to resolve to /usr/local/cuda/bin,
-    # so we add it to $PATH here. We can make CMake still use ccache by
-    # specifying CUDA_NVCC_EXECUTABLE above.
-    export PATH=/usr/local/cuda/bin:$PATH
+    # FindCUDA.cmake uses the location of NVCC for autodetection of
+    # the toolkit root directory. NVCC is a symlink to ccache in our
+    # case and can't be used to derive the location of CUDA, so we
+    # have set CUDA_TOOLKIT_ROOT_DIR manually.
+    CMAKE_ARGS+=("-DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda")
     ;;
 esac
 
