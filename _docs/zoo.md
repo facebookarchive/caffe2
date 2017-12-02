@@ -66,10 +66,17 @@ Then you can use python to import the model directly as a module. If you have tr
 ```python
 from caffe2.python import workspace
 from caffe2.python.models import squeezenet as mynet
+import numpy as np
+
 init_net = mynet.init_net
 predict_net = mynet.predict_net
 # you must name it something
 predict_net.name = "squeezenet_predict"
+
+# Dummy batch
+data = np.random.rand(1, 3, 227, 227)
+workspace.FeedBlob("data", data)
+
 workspace.RunNetOnce(init_net)
 workspace.CreateNet(predict_net)
 p = workspace.Predictor(init_net.SerializeToString(), predict_net.SerializeToString())
