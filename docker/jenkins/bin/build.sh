@@ -12,7 +12,8 @@ if which ccache > /dev/null; then
   ln -sf "$(which ccache)" ./ccache/c++
   ln -sf "$(which ccache)" ./ccache/gcc
   ln -sf "$(which ccache)" ./ccache/g++
-  export PATH=$PWD/ccache:$PATH
+  export CCACHE_DIR="$PWD/ccache"
+  export PATH="$CCACHE_DIR/ccache:$PATH"
 fi
 
 # Run build script from scripts if applicable
@@ -37,11 +38,11 @@ case "${BUILD_ENVIRONMENT}" in
     CMAKE_ARGS+=("-DCUDA_ARCH_NAME=Maxwell")
     CMAKE_ARGS+=("-DUSE_NNPACK=OFF")
 
-    if [ -d "${ROOT_DIR}/ccache" ]; then
-      ln -sf "$(which ccache)" "${ROOT_DIR}/ccache/nvcc"
+    if [ -n "${CCACHE_DIR}" ]; then
+      ln -sf "$(which ccache)" "${CCACHE_DIR}/nvcc"
 
       # Explicitly set path to NVCC such that the symlink to ccache is used
-      CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=${ROOT_DIR}/ccache/nvcc")
+      CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=${CCACHE_DIR}/nvcc")
     fi
 
     # The CMake code that finds the CUDA distribution looks for nvcc in $PATH.
