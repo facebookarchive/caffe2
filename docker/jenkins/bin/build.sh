@@ -12,8 +12,8 @@ if which ccache > /dev/null; then
   ln -sf "$(which ccache)" ./ccache/c++
   ln -sf "$(which ccache)" ./ccache/gcc
   ln -sf "$(which ccache)" ./ccache/g++
-  export CCACHE_DIR="$PWD/ccache"
-  export PATH="$CCACHE_DIR:$PATH"
+  export CCACHE_WRAPPER_DIR="$PWD/ccache"
+  export PATH="$CCACHE_WRAPPER_DIR:$PATH"
 fi
 
 # Run build script from scripts if applicable
@@ -39,7 +39,7 @@ case "${BUILD_ENVIRONMENT}" in
     CMAKE_ARGS+=("-DUSE_NNPACK=OFF")
 
     # Explicitly set path to NVCC such that the symlink to ccache is used
-    CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=${CCACHE_DIR}/nvcc")
+    CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=${CCACHE_WRAPPER_DIR}/nvcc")
 
     # FindCUDA.cmake uses the location of NVCC for autodetection of
     # the toolkit root directory. NVCC is a symlink to ccache in our
