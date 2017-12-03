@@ -46,9 +46,12 @@ case "${BUILD_ENVIRONMENT}" in
 
     # FindCUDA.cmake uses the location of NVCC for autodetection of
     # the toolkit root directory. NVCC is a symlink to ccache in our
-    # case and can't be used to derive the location of CUDA, so we
-    # have set CUDA_TOOLKIT_ROOT_DIR manually.
-    CMAKE_ARGS+=("-DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda")
+    # case and can't be used to derive the location of CUDA.
+    # We can't set CUDA_TOOLKIT_ROOT_DIR directly because it forces
+    # CUDA_NVCC_EXECUTABLE to be unset. To still rely on autodetection
+    # but NOT on the path of nvcc, we can set the CUDA_PATH environment
+    # variable instead. See /usr/share/cmake-3.5/Modules/FindCUDA.cmake.
+    export CUDA_PATH=/usr/local/cuda
     ;;
 esac
 
