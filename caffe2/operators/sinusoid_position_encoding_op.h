@@ -1,7 +1,30 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_SINUSOID_POSITION_ENCODING_OP_H_
 #define CAFFE2_OPERATORS_SINUSOID_POSITION_ENCODING_OP_H_
 
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif // _MSC_VER
+#include <cmath>
+
 #include "caffe2/core/operator.h"
+
+#include "Eigen/Core"
 
 namespace caffe2 {
 
@@ -13,8 +36,9 @@ class SinusoidPositionEncodingOp : public Operator<Context> {
         embedding_size_(OperatorBase::template GetSingleArgument<int>(
             "embedding_size",
             100)),
-        alpha_(
-            OperatorBase::template GetSingleArgument<float>("alpha", 10000)) {}
+        alpha_(OperatorBase::template GetSingleArgument<float>("alpha", 10000)),
+        amplitude_(
+            OperatorBase::template GetSingleArgument<float>("amplitude", 1)) {}
   USE_OPERATOR_CONTEXT_FUNCTIONS;
 
   bool RunOnDevice() override {
@@ -33,23 +57,42 @@ class SinusoidPositionEncodingOp : public Operator<Context> {
     shape.push_back(embedding_size_);
     output->Resize(shape);
 
-    int N = positions.size();
+    int M = shape[0];
+    int K = shape[1];
     const Index* idxs = positions.template data<Index>();
     float* out = output->template mutable_data<float>();
 
-    for (int i = 0; i < N; ++i) {
-      float pos = (float)idxs[i];
+    float log_alpha = std::log(alpha_);
+    float max_alpha_pow =
+        ((float)embedding_size_ - 1.0f) / (float)embedding_size_;
 
-      for (int j = 0; j < embedding_size_; ++j) {
-        float exponent = (float)j / ((float)embedding_size_);
-        float dim_scale = std::pow(alpha_, exponent);
+    for (int i = 0; i < M; ++i) {
+      float pos = (float)idxs[i * K];
 
-        int loc = i * embedding_size_ + j;
-        if (j % 2 == 0) {
-          out[loc] = std::sin(pos / dim_scale);
-        } else {
-          out[loc] = std::cos(pos / dim_scale);
-        }
+      // Compute the embedding for position i, example 0 first
+      float* row = &out[i * K * embedding_size_];
+      Eigen::Map<Eigen::VectorXf> row_map(row, embedding_size_, 1);
+      auto row_array = row_map.array();
+
+      float log_pos = std::log(pos);
+      row_array.setLinSpaced(
+          embedding_size_, log_pos, log_pos - log_alpha * max_alpha_pow);
+      row_array = row_array.exp().eval();
+      // row_array[k] == pos / alpha^(k / embedding_size)
+
+      // Phase shift so that alternating elements are cosines
+      for (int k = 1; k < embedding_size_; k += 2) {
+        row[k] += (float)M_PI_2;
+      }
+      row_array = amplitude_ * row_array.sin().eval();
+
+      // Copy the embedding to position i in the other examples
+      for (int j = 1; j < K; ++j) {
+        int base = i * K * embedding_size_;
+        std::copy(
+            &out[base],
+            &out[base + embedding_size_],
+            &out[base + j * embedding_size_]);
       }
     }
     return true;
@@ -58,6 +101,7 @@ class SinusoidPositionEncodingOp : public Operator<Context> {
  protected:
   int embedding_size_;
   float alpha_;
+  float amplitude_;
 };
 
 } // namespace caffe2

@@ -1,5 +1,22 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "queue_ops.h"
 #include <memory>
+#include "caffe2/utils/math.h"
 
 namespace caffe2 {
 
@@ -60,6 +77,11 @@ step.
 The 1st input is the queue and the last output is the status. The rest are
 data blobs.
 )DOC")
+    .Arg(
+        "num_records",
+        "(default 1) If > 1, multiple records will be dequeued and tensors "
+        "for each column will be concatenated. This requires all tensors in "
+        "the records to be at least 1D, and to have the same inner dimensions.")
     .Input(0, "queue", "The shared pointer for the BlobsQueue")
     .Output(0, "blob", "The blob to store the dequeued data")
     .Output(1, "status", "Is set to 0/1 depending on the success of dequeue");

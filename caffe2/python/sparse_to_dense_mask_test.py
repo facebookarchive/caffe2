@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -29,6 +44,30 @@ class TestSparseToDenseMask(TestCase):
         expected = np.array([[-1, 1, 3], [6, 7, -1]], dtype=np.float)
         self.assertEqual(output.shape, expected.shape)
         np.testing.assert_array_equal(output, expected)
+
+    def test_sparse_to_dense_mask_invalid_inputs(self):
+        op = core.CreateOperator(
+            'SparseToDenseMask',
+            ['indices', 'values', 'default', 'lengths'],
+            ['output'],
+            mask=[999999999, 2])
+        workspace.FeedBlob(
+            'indices',
+            np.array([2000000000000, 999999999, 2, 3, 4, 5], dtype=np.int32))
+        workspace.FeedBlob(
+            'values',
+            np.array([1, 2, 3, 4, 5, 6], dtype=np.float))
+        workspace.FeedBlob('default', np.array(-1, dtype=np.float))
+        workspace.FeedBlob('lengths', np.array([6], dtype=np.int32))
+        try:
+            workspace.RunOperatorOnce(op)
+        except RuntimeError:
+            self.fail("Exception raised with only one negative index")
+        workspace.FeedBlob(
+            'indices',
+            np.array([2000000000000, 999999999, -2, -3, -4, -5], dtype=np.int32))
+        with self.assertRaises(RuntimeError):
+            workspace.RunOperatorOnce(op)
 
     def test_sparse_to_dense_mask_subtensor(self):
         op = core.CreateOperator(

@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -15,29 +30,43 @@ MAX_TEST_SEQUENCE_LENGTH = 10
 MAX_TEST_BATCH_SIZE = 5
 MIN_TEST_ALPHA = 5000.0
 MAX_TEST_ALPHA = 20000.0
+MIN_TEST_AMPLITUDE = 0.1
+MAX_TEST_AMPLITUDE = 10.0
 
 
 class TestSinusoidPositionEncodingOp(hu.HypothesisTestCase):
     @given(
-        positions=hu.arrays(
-            dims=[MAX_TEST_SEQUENCE_LENGTH, MAX_TEST_BATCH_SIZE],
+        positions_vec=hu.arrays(
+            dims=[MAX_TEST_SEQUENCE_LENGTH],
             dtype=np.int32,
             elements=st.integers(1, MAX_TEST_SEQUENCE_LENGTH)
         ),
         embedding_size=st.integers(1, MAX_TEST_EMBEDDING_SIZE),
+        batch_size=st.integers(1, MAX_TEST_BATCH_SIZE),
         alpha=st.floats(MIN_TEST_ALPHA, MAX_TEST_ALPHA),
+        amplitude=st.floats(MIN_TEST_AMPLITUDE, MAX_TEST_AMPLITUDE),
         **hu.gcs_cpu_only
     )
-    def test_sinusoid_embedding(self, positions, embedding_size, alpha, gc, dc):
+    def test_sinusoid_embedding(
+        self, positions_vec, embedding_size, batch_size, alpha, amplitude, gc, dc
+    ):
+        positions = np.tile(positions_vec, [batch_size, 1]).transpose()
+
         op = core.CreateOperator(
-            "SinusoidPositionEncoding", ["positions"], ["output"],
+            "SinusoidPositionEncoding",
+            ["positions"],
+            ["output"],
             embedding_size=embedding_size,
-            alpha=alpha
+            alpha=alpha,
+            amplitude=amplitude,
         )
 
         def sinusoid_encoding(dim, position):
             x = 1. * position / math.pow(alpha, 1. * dim / embedding_size)
-            return math.sin(x) if dim % 2 == 0 else math.cos(x)
+            if dim % 2 == 0:
+                return amplitude * math.sin(x)
+            else:
+                return amplitude * math.cos(x)
 
         def sinusoid_embedding_op(positions):
             output_shape = (len(positions), len(positions[0]), embedding_size)

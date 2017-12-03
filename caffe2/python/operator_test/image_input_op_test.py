@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -180,7 +195,7 @@ def create_test(output_dir, width, height, default_bound, minsize, crop, means,
 
             label_tensor = tensor_protos.protos.add()
             label_tensor.data_type = 2  # int32 data
-            assert (label_type >= 0 and label_type <= 2)
+            assert (label_type >= 0 and label_type <= 3)
             if label_type == 0:
                 label_tensor.int32_data.append(index)
                 expected_label = index
@@ -195,6 +210,16 @@ def create_test(output_dir, width, height, default_bound, minsize, crop, means,
                 for _idx, val in enumerate(embedding_label.tolist()):
                     label_tensor.int32_data.append(val)
                 expected_label = embedding_label
+            elif label_type == 3:
+                weight_tensor = tensor_protos.protos.add()
+                weight_tensor.data_type = 1  # float weights
+                binary_labels = np.random.randint(2, size=num_labels)
+                expected_label = np.zeros(num_labels).astype(np.float32)
+                for idx, val in enumerate(binary_labels.tolist()):
+                    expected_label[idx] = val * idx
+                    if val == 1:
+                        label_tensor.int32_data.append(idx)
+                        weight_tensor.float_data.append(idx)
 
             if output1:
                 output1_tensor = tensor_protos.protos.add()
@@ -229,8 +254,8 @@ def create_test(output_dir, width, height, default_bound, minsize, crop, means,
 
 
 def run_test(
-        size_tuple, means, stds, label_type, num_labels, dc, validator,
-        output1=None, output2_size=None):
+        size_tuple, means, stds, label_type, num_labels, is_test, scale_jitter_type,
+        color_jitter, color_lighting, dc, validator, output1=None, output2_size=None):
     # TODO: Does not test on GPU and does not test use_gpu_transform
     # WARNING: Using ModelHelper automatically does NHWC to NCHW
     # transformation if needed.
@@ -280,7 +305,7 @@ def run_test(
                 color=3,
                 minsize=minsize,
                 crop=crop,
-                is_test=True,
+                is_test=is_test,
                 bounding_ymin=3,
                 bounding_xmin=5,
                 bounding_height=height - 3,
@@ -290,7 +315,10 @@ def run_test(
                 use_gpu_transform=(device_option.device_type == 1),
                 label_type=label_type,
                 num_labels=num_labels,
-                output_sizes=output_sizes
+                output_sizes=output_sizes,
+                scale_jitter_type=scale_jitter_type,
+                color_jitter=color_jitter,
+                color_lighting=color_lighting
             )
 
             imageop.device_option.CopyFrom(device_option)
@@ -309,7 +337,8 @@ def run_test(
 @unittest.skipIf('lmdb' not in sys.modules, 'python-lmdb is not installed')
 class TestImport(hu.HypothesisTestCase):
     def validate_image_and_label(
-            self, expected_images, device_option, count_images, label_type):
+            self, expected_images, device_option, count_images, label_type,
+            is_test, scale_jitter_type, color_jitter, color_lighting):
         l = workspace.FetchBlob('label')
         result = workspace.FetchBlob('data').astype(np.int32)
         # If we don't use_gpu_transform, the output is in NHWC
@@ -325,7 +354,14 @@ class TestImport(hu.HypothesisTestCase):
             else:
                 self.assertEqual(
                     (l[i] - expected_images[i][1] > 0).sum(), 0)
-            self.assertEqual((expected[i] - result[i] > 1).sum(), 0)
+            if is_test == 0:
+                # when traing data preparation is randomized (e.g. random cropping,
+                # Inception-style random sized cropping, color jittering,
+                # color lightin), we only compare blob shape
+                for (s1, s2) in zip(expected[i].shape, result[i].shape):
+                    self.assertEqual(s1, s2)
+            else:
+                self.assertEqual((expected[i] - result[i] > 1).sum(), 0)
         # End for
     # end validate_image_and_label
 
@@ -341,20 +377,26 @@ class TestImport(hu.HypothesisTestCase):
         stds=st.tuples(st.floats(min_value=1, max_value=10),
                        st.floats(min_value=1, max_value=10),
                        st.floats(min_value=1, max_value=10)),
-        label_type=st.integers(0, 2),
+        label_type=st.integers(0, 3),
         num_labels=st.integers(min_value=8, max_value=4096),
+        is_test=st.integers(min_value=0, max_value=1),
+        scale_jitter_type=st.integers(min_value=0, max_value=1),
+        color_jitter=st.integers(min_value=0, max_value=1),
+        color_lighting=st.integers(min_value=0, max_value=1),
         **hu.gcs)
     @settings(verbosity=Verbosity.verbose)
     def test_imageinput(
             self, size_tuple, means, stds, label_type,
-            num_labels, gc, dc):
+            num_labels, is_test, scale_jitter_type, color_jitter, color_lighting,
+            gc, dc):
         def validator(expected_images, device_option, count_images):
             self.validate_image_and_label(
-                expected_images, device_option, count_images, label_type)
+                expected_images, device_option, count_images, label_type,
+                is_test, scale_jitter_type, color_jitter, color_lighting)
         # End validator
         run_test(
-            size_tuple, means, stds, label_type, num_labels, dc,
-            validator)
+            size_tuple, means, stds, label_type, num_labels, is_test,
+            scale_jitter_type, color_jitter, color_lighting, dc, validator)
     # End test_imageinput
 
     @given(size_tuple=st.tuples(
@@ -369,18 +411,24 @@ class TestImport(hu.HypothesisTestCase):
         stds=st.tuples(st.floats(min_value=1, max_value=10),
                        st.floats(min_value=1, max_value=10),
                        st.floats(min_value=1, max_value=10)),
-        label_type=st.integers(0, 2),
+        label_type=st.integers(0, 3),
         num_labels=st.integers(min_value=8, max_value=4096),
+        is_test=st.integers(min_value=0, max_value=1),
+        scale_jitter_type=st.integers(min_value=0, max_value=1),
+        color_jitter=st.integers(min_value=0, max_value=1),
+        color_lighting=st.integers(min_value=0, max_value=1),
         output1=st.floats(min_value=1, max_value=10),
         output2_size=st.integers(min_value=2, max_value=10),
         **hu.gcs)
     @settings(verbosity=Verbosity.verbose)
     def test_imageinput_with_additional_outputs(
             self, size_tuple, means, stds, label_type,
-            num_labels, output1, output2_size, gc, dc):
+            num_labels, is_test, scale_jitter_type, color_jitter, color_lighting,
+            output1, output2_size, gc, dc):
         def validator(expected_images, device_option, count_images):
             self.validate_image_and_label(
-                expected_images, device_option, count_images, label_type)
+                expected_images, device_option, count_images, label_type,
+                is_test, scale_jitter_type, color_jitter, color_lighting)
 
             output1_result = workspace.FetchBlob('output1')
             output2_result = workspace.FetchBlob('output2')
@@ -392,7 +440,8 @@ class TestImport(hu.HypothesisTestCase):
             # End for
         # End validator
         run_test(
-            size_tuple, means, stds, label_type, num_labels, dc,
+            size_tuple, means, stds, label_type, num_labels, is_test,
+            scale_jitter_type, color_jitter, color_lighting, dc,
             validator, output1, output2_size)
     # End test_imageinput
 

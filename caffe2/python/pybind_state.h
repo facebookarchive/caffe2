@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #pragma once
 
 #include <unordered_map>
@@ -56,14 +72,22 @@ class BlobFeederBase {
   Feed(const DeviceOption& option, PyArrayObject* array, Blob* blob) = 0;
 };
 
-CAFFE_DECLARE_TYPED_REGISTRY(BlobFetcherRegistry, CaffeTypeId, BlobFetcherBase);
+CAFFE_DECLARE_TYPED_REGISTRY(
+    BlobFetcherRegistry,
+    CaffeTypeId,
+    BlobFetcherBase,
+    std::unique_ptr);
 #define REGISTER_BLOB_FETCHER(id, ...) \
   CAFFE_REGISTER_TYPED_CLASS(BlobFetcherRegistry, id, __VA_ARGS__)
 inline unique_ptr<BlobFetcherBase> CreateFetcher(CaffeTypeId id) {
   return BlobFetcherRegistry()->Create(id);
 }
 
-CAFFE_DECLARE_TYPED_REGISTRY(BlobFeederRegistry, int, BlobFeederBase);
+CAFFE_DECLARE_TYPED_REGISTRY(
+    BlobFeederRegistry,
+    int,
+    BlobFeederBase,
+    std::unique_ptr);
 #define REGISTER_BLOB_FEEDER(device_type, ...) \
   CAFFE_REGISTER_TYPED_CLASS(BlobFeederRegistry, device_type, __VA_ARGS__)
 inline unique_ptr<BlobFeederBase> CreateFeeder(int device_type) {
@@ -106,17 +130,14 @@ class TensorFetcher : public BlobFetcherBase {
     result.copied = force_copy || NeedsCopy(tensor.meta());
     void* outPtr;
     if (result.copied) {
-      result.obj = pybind11::object(
-          PyArray_SimpleNew(tensor.ndim(), npy_dims.data(), numpy_type),
-          /* borrowed */ false);
+      result.obj = py::reinterpret_steal<py::object>(
+          PyArray_SimpleNew(tensor.ndim(), npy_dims.data(), numpy_type));
       outPtr = static_cast<void*>(
           PyArray_DATA(reinterpret_cast<PyArrayObject*>(result.obj.ptr())));
     } else {
       outPtr = const_cast<Tensor<Context>&>(tensor).raw_mutable_data();
-      result.obj = pybind11::object(
-          PyArray_SimpleNewFromData(
-              tensor.ndim(), npy_dims.data(), numpy_type, outPtr),
-          /* borrowed */ false);
+      result.obj = py::reinterpret_steal<py::object>(PyArray_SimpleNewFromData(
+          tensor.ndim(), npy_dims.data(), numpy_type, outPtr));
     }
 
     if (numpy_type == NPY_OBJECT) {

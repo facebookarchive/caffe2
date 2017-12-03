@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <iostream>
 
 #include "caffe2/core/net.h"
@@ -90,9 +106,14 @@ TEST(OperatorTest, RegistryWorks) {
   op_def.set_type("JustTest");
   unique_ptr<OperatorBase> op = CreateOperator(op_def, &ws);
   EXPECT_NE(nullptr, op.get());
-  op_def.mutable_device_option()->set_device_type(CUDA);
-  op = CreateOperator(op_def, &ws);
-  EXPECT_NE(nullptr, op.get());
+  // After introducing events, CUDA operator creation has to have CUDA compiled
+  // as it needs to instantiate an Event object with CUDAContext. Thus we will
+  // guard this test below.
+  if (HasCudaRuntime()) {
+    op_def.mutable_device_option()->set_device_type(CUDA);
+    op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+  }
 }
 
 TEST(OperatorTest, RegistryWrongDevice) {
@@ -251,14 +272,18 @@ TEST(OperatorTest, TestSetUpInputOutputCount) {
   op_def.add_output("output");
   EXPECT_NE(nullptr, ws.CreateBlob("input"));
   EXPECT_NE(nullptr, ws.CreateBlob("input2"));
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
   // JustTest will only accept one single input.
   ASSERT_ANY_THROW(CreateOperator(op_def, &ws));
+#endif
 
   op_def.clear_input();
   op_def.add_input("input");
   op_def.add_output("output2");
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
   // JustTest will only produce one single output.
   ASSERT_ANY_THROW(CreateOperator(op_def, &ws));
+#endif
 }
 
 TEST(OperatorTest, TestOutputValues) {
@@ -464,6 +489,138 @@ TEST(EnginePrefTest, SetOpEnginePref) {
   // clear
   SetPerOpEnginePref({});
   SetGlobalEnginePref({});
+}
+
+TEST(EnginePrefTest, SetDefaultEngine) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTest");
+
+  SetPerOpEnginePref({{DeviceType::CPU, {{"JustTest", {"DEFAULT"}}}}});
+  SetGlobalEnginePref({{DeviceType::CPU, {"BAR"}}});
+  {
+    const auto op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+    // operator_def takes precedence
+    EXPECT_EQ(static_cast<JustTest*>(op.get())->type(), "base");
+  }
+  // clear
+  SetPerOpEnginePref({});
+  SetGlobalEnginePref({});
+}
+
+class JustTestWithRequiredArg : public JustTest {
+ public:
+  using JustTest::JustTest;
+  bool Run(int /* unused */ /*stream_id*/) override {
+    return true;
+  }
+  string type() override {
+    return "JustTestWithRequiredArg";
+  }
+};
+
+REGISTER_CPU_OPERATOR(JustTestWithRequiredArg, JustTestWithRequiredArg);
+OPERATOR_SCHEMA(JustTestWithRequiredArg)
+    .NumInputs(0, 1)
+    .NumOutputs(0, 1)
+    .Arg("test_arg", "this arg is required", true);
+
+TEST(RequiredArg, Basic) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTestWithRequiredArg");
+
+  {
+    try {
+      CreateOperator(op_def, &ws);
+      LOG(FATAL) << "No exception was thrown";
+    } catch (const std::exception& e) {
+      LOG(INFO) << "Exception thrown (expected): " << e.what();
+    }
+  }
+
+  {
+    op_def.add_arg()->CopyFrom(MakeArgument("test_arg", 1));
+    const auto op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+    EXPECT_EQ(
+        static_cast<JustTest*>(op.get())->type(), "JustTestWithRequiredArg");
+  }
+}
+
+class JustTestWithStandardIsTestArg : public JustTest {
+ public:
+  using JustTest::JustTest;
+  bool Run(int /* unused */ /*stream_id*/) override {
+    return true;
+  }
+  string type() override {
+    return "JustTestWithStandardIsTestArg";
+  }
+};
+
+REGISTER_CPU_OPERATOR(
+    JustTestWithStandardIsTestArg,
+    JustTestWithStandardIsTestArg);
+OPERATOR_SCHEMA(JustTestWithStandardIsTestArg)
+    .NumInputs(0, 1)
+    .NumOutputs(0, 1)
+    .ArgIsTest("this is_test arg is required");
+
+TEST(IsTestArg, standard) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTestWithStandardIsTestArg");
+
+  {
+    try {
+      CreateOperator(op_def, &ws);
+      LOG(FATAL) << "No exception was thrown";
+    } catch (const std::exception& e) {
+      LOG(INFO) << "Exception thrown (expected): " << e.what();
+    }
+  }
+
+  {
+    op_def.add_arg()->CopyFrom(MakeArgument(OpSchema::Arg_IsTest, 1));
+    const auto op = CreateOperator(op_def, &ws);
+    EXPECT_NE(nullptr, op.get());
+    EXPECT_EQ(
+        static_cast<JustTest*>(op.get())->type(),
+        "JustTestWithStandardIsTestArg");
+  }
+}
+
+class JustTestWithNonStandardIsTestArg : public JustTest {
+ public:
+  using JustTest::JustTest;
+  bool Run(int /* unused */ /*stream_id*/) override {
+    return true;
+  }
+  string type() override {
+    return "JustTestWithNonStandardIsTestArg";
+  }
+};
+
+REGISTER_CPU_OPERATOR(
+    JustTestWithNonStandardIsTestArg,
+    JustTestWithNonStandardIsTestArg);
+OPERATOR_SCHEMA(JustTestWithNonStandardIsTestArg)
+    .NumInputs(0, 1)
+    .NumOutputs(0, 1)
+    .Arg(OpSchema::Arg_IsTest, "this is_test arg is not required");
+
+TEST(IsTestArg, non_standard) {
+  OperatorDef op_def;
+  Workspace ws;
+  op_def.set_type("JustTestWithNonStandardIsTestArg");
+
+  const auto op = CreateOperator(op_def, &ws);
+  EXPECT_NE(nullptr, op.get());
+  EXPECT_EQ(
+      static_cast<JustTest*>(op.get())->type(),
+      "JustTestWithNonStandardIsTestArg");
 }
 
 }  // namespace caffe2

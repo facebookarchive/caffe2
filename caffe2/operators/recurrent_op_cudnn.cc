@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/recurrent_op_cudnn.h"
 #include "caffe2/utils/math.h"
 
@@ -248,7 +264,7 @@ bool RecurrentOp<T>::RunOnDevice() {
     return this->Output(i)->template mutable_data<T>();
   };
 
-  if (OperatorBase::GetSingleArgument<int>("is_test", 0)) {
+  if (OperatorBase::GetSingleArgument<int>(OpSchema::Arg_IsTest, 0)) {
     cudnn_wrapper_.with_cudnn_state(0, [&](CuDNNState* state) {
       CUDNN_ENFORCE(cudnnRNNForwardInference(
           state->cudnn_handle(),
@@ -544,7 +560,7 @@ OPERATOR_SCHEMA(RecurrentParamSet)
                   )DOC")
     .Arg("input_type", "'recurrent' or 'input'")
     .Arg("layer", "layer index (starting from 0)")
-    .Input(0, "input", R"DOC(Input blob. Needed for infering the shapes.
+    .Input(0, "input", R"DOC(Input blob. Needed for inferring the shapes.
                         A dummy tensor matching the input shape is ok.)DOC")
     .Input(1, "all_params", "Blob holding all the parameters")
     .Input(2, "param", "Values for the specified parameter")
@@ -566,7 +582,7 @@ OPERATOR_SCHEMA(RecurrentParamGet)
                   )DOC")
     .Arg("input_type", "'recurrent' or 'input'")
     .Arg("layer", "layer index (starting from 0)")
-    .Input(0, "input", R"DOC(Input blob. Needed for infering the shapes.
+    .Input(0, "input", R"DOC(Input blob. Needed for inferring the shapes.
                         A dummy tensor matching the input shape is ok.)DOC")
     .Input(1, "all_params", "Blob holding all the parameters")
     .Output(0, "param", "Blob holding the requested values");

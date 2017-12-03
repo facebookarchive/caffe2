@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/accuracy_op.h"
 
 namespace caffe2 {
@@ -57,6 +73,10 @@ containing a batch of scores for various classes, and labels are expected in the
 the score for the label index in the predictions is the highest among all
 classes, it is considered a correct prediction.
 )DOC")
+  .Arg(
+      "top_k",
+      "Count as correct by comparing the true label to the top k scoring "
+      "classes (default 1: only compare to the top scoring class i.e. argmax)")
   .Input(0, "predictions", "2-D tensor (Tensor<float>) of size "
          "(num_batches x num_classes) containing scores")
   .Input(1, "labels", "1-D tensor (Tensor<int>) of size (num_batches) having "

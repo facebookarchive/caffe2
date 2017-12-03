@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_SEGMENT_REDUCTION_OP_H_
 #define CAFFE2_OPERATORS_SEGMENT_REDUCTION_OP_H_
 
@@ -441,6 +457,16 @@ UnsortedSegment{op} but as if all input slices belong to a single segment.
   static void PopulateSchema(OpSchema& schema) {
     schema.Input(
         0, "DATA", "Input tensor to be reduced on the first dimension");
+    schema.TensorInferenceFunction([](const OperatorDef& def,
+                                      const vector<TensorShape>& in) {
+      CAFFE_ENFORCE_EQ(1, in.size());
+      ArgumentHelper helper(def);
+      int num_reduce_dims = helper.GetSingleArgument<int>("num_reduce_dim", 1);
+      typename ReducerDef::template Reducer<T, Context>::Meta ctx(true);
+      vector<TIndex> out_dims = ctx.getOutputShape(in[0], num_reduce_dims);
+      return vector<TensorShape>{
+          CreateTensorShape(out_dims, in[0].data_type())};
+    });
     ReducerDef::PopulateSchema(schema);
   }
   using ReducerGradient =
@@ -498,6 +524,16 @@ UnsortedSegment{op} but as if all input slices belong to a single segment.
   static void PopulateSchema(OpSchema& schema) {
     schema.Input(
         0, "DATA", "Input tensor to be reduced on the first dimension");
+    schema.TensorInferenceFunction([](const OperatorDef& def,
+                                      const vector<TensorShape>& in) {
+      CAFFE_ENFORCE_EQ(1, in.size());
+      ArgumentHelper helper(def);
+      int num_reduce_dims = helper.GetSingleArgument<int>("num_reduce_dim", 1);
+      typename ReducerDef::template Reducer<T, Context>::Meta ctx(false);
+      vector<TIndex> out_dims = ctx.getOutputShape(in[0], num_reduce_dims);
+      return vector<TensorShape>{
+          CreateTensorShape(out_dims, in[0].data_type())};
+    });
     ReducerDef::PopulateSchema(schema);
   }
   using ReducerGradient =
@@ -1598,7 +1634,8 @@ template <
     typename TLengths,
     class Context,
     class ReducerGradient,
-    bool SparseFused = true>
+    bool SparseFused = true,
+    bool GradientNeedIndices = false>
 class AbstractLengthsWithMainInputGradientOp : public Operator<Context> {
  public:
   USE_OPERATOR_CONTEXT_FUNCTIONS;
@@ -1698,13 +1735,106 @@ class AbstractLengthsWithMainInputGradientOp : public Operator<Context> {
   //      SEGMENT_LEGNTHS, [INDICES]
   // orig_argXs represent original op's inputs and will be passed to the reducer
   // directly
-  static constexpr int kNumInputs =
-      ReducerGradient::originalInputs().size() + 3 + (SparseFused ? 1 : 0);
+  static constexpr int kNumInputs = ReducerGradient::originalInputs().size() +
+      3 + (SparseFused ? 1 : 0) + (GradientNeedIndices ? 1 : 0);
   enum _InputTags {
     SEGMENT_GRADS = ReducerGradient::originalInputs().size(),
     LENGTHS,
     DATA_INPUT,
     INDICES,
+  };
+};
+
+// Version of gradient that requires the main input as well as the output of the
+// forward op.
+template <typename T, typename TLengths, class Context, class ReducerGradient>
+class AbstractLengthsWithMainInputAndForwardOutputGradientOp
+    : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  USE_SIMPLE_CTOR_DTOR(AbstractLengthsWithMainInputAndForwardOutputGradientOp);
+
+  bool RunOnDevice() override {
+    // If more complicated fixed size logic becomes necessary, it can be moved
+    // to the reducer class.
+    TIndex in_block_size = Input(SEGMENT_GRADS).size_from_dim(1);
+    return DispatchHelper<typename ReducerGradient::FixedDispatch>::call(
+        this, in_block_size);
+  }
+
+  template <int FixedSize>
+  bool DoRunWithValue() {
+    auto& dataInput = Input(DATA_INPUT);
+    auto& segmentGradsInput = Input(SEGMENT_GRADS);
+    auto& lengthsInput = Input(LENGTHS);
+    auto& forwardOutputInput = Input(FORWARD_OUTPUT);
+    auto* dataGradsOutput = Output(0);
+
+    CAFFE_ENFORCE(lengthsInput.ndim() == 1, "LENGTHS must be a vector");
+    TIndex numSegments = lengthsInput.dim(0);
+    CAFFE_ENFORCE(segmentGradsInput.ndim() > 0);
+    CAFFE_ENFORCE(numSegments == segmentGradsInput.dim(0));
+    const TLengths* lengths = lengthsInput.template data<TLengths>();
+
+    typename ReducerGradient::Meta ctx(segmentGradsInput, 1);
+    for (int i = 0; i < ReducerGradient::originalInputs().size(); ++i) {
+      int aux_num = ReducerGradient::originalInputs()[i];
+      auto& aux_in = Input(i);
+      auto* aux_grad = aux_num < OutputSize() ? Output(aux_num) : nullptr;
+      ctx.observeOriginalInput(aux_num, aux_in, aux_grad, 1);
+    }
+
+    CAFFE_ENFORCE(forwardOutputInput.ndim() > 0);
+    CAFFE_ENFORCE(numSegments == forwardOutputInput.dim(0));
+    const T* forwardOutput = forwardOutputInput.template data<T>();
+
+    TIndex dataToReduceSize = dataInput.dim(0);
+
+    const T* segmentGrads = segmentGradsInput.template data<T>();
+
+    vector<TIndex> shape;
+    shape.push_back(dataToReduceSize);
+    ctx.appendGradShape(&shape);
+    dataGradsOutput->Resize(shape);
+
+    TIndex dataGradsBlockSize = dataGradsOutput->size_from_dim(1);
+    TIndex segmentBlockSize = segmentGradsInput.size_from_dim(1);
+    T* dataGrads = dataGradsOutput->template mutable_data<T>();
+
+    const T* data = dataInput.template data<T>();
+
+    TIndex dataIndex = 0;
+    for (TIndex rangeIndex = 0; rangeIndex < numSegments; ++rangeIndex) {
+      ReducerGradient reducer(
+          ctx, segmentGrads + segmentBlockSize * rangeIndex, &context_);
+      for (TIndex start = dataIndex; dataIndex < start + lengths[rangeIndex];
+           ++dataIndex) {
+        // No range checking, should've been verified in forward pass
+        reducer.template fillGradWithMainInputAndForwardOutput<FixedSize>(
+            ctx,
+            data + dataGradsBlockSize * dataIndex,
+            dataGrads + dataGradsBlockSize * dataIndex,
+            forwardOutput + segmentBlockSize * rangeIndex,
+            dataIndex,
+            &context_,
+            lengths[rangeIndex]);
+      }
+    }
+    return true;
+  }
+
+  // Input layout:
+  //   orig_arg1, orig_arg2, ..., orig_argN, FORWARD_OUTPUT, DATA_INPUT,
+  //      SEGMENT_GRADS, SEGMENT_LEGNTHS
+  // orig_argXs represent original op's inputs and will be passed to the reducer
+  // directly
+  static constexpr int kNumInputs =
+      ReducerGradient::originalInputs().size() + 4;
+  enum _InputTags {
+    FORWARD_OUTPUT = ReducerGradient::originalInputs().size(),
+    SEGMENT_GRADS,
+    LENGTHS,
+    DATA_INPUT,
   };
 };
 
@@ -1719,12 +1849,20 @@ struct LengthsOpGetGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   vector<OperatorDef> GetGradientDefs() override {
     vector<string> grad_ins;
+    string suffix = "Gradient";
     for (const int i : ReducerGradient::originalInputs()) {
       grad_ins.push_back(I(i));
     }
+    if (ReducerGradient::requiresForwardOutput()) {
+      grad_ins.push_back(O(0));
+      CAFFE_ENFORCE(
+          !SparseFused,
+          "Forward pass output not yet supported as input for backward pass "
+          "for SparseLengthsXXX operators");
+      suffix = "AndForwardOutput" + suffix;
+    }
     grad_ins.push_back(GO(0));
     grad_ins.push_back(I(ForwardOp::LENGTHS));
-    string suffix = "Gradient";
     bool indices_pushed = false;
     if (ReducerGradient::requiresDataInput(Def())) {
       grad_ins.push_back(I(0));
@@ -1797,6 +1935,20 @@ i.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.
         0,
         "OUTPUT",
         "Aggregated output tensor. Has the first dimension of len(LENGTHS) ");
+    schema.TensorInferenceFunction(
+        [](const OperatorDef& def, const vector<TensorShape>& in) {
+          vector<TensorShape> out(0);
+          TensorShape output;
+          for (int d : in[Reducer::kInputCount].dims()) {
+            output.add_dims(d);
+          }
+          for (int j = 1; j < in[0].dims_size(); j++) {
+            output.add_dims(in[0].dims(j));
+          }
+          output.set_data_type(in[0].data_type());
+          out.push_back(output);
+          return out;
+        });
     ReducerDef::PopulateSchema(schema);
   }
   using Reducer = typename ReducerDef::template Reducer<T, Context>;
@@ -1811,6 +1963,12 @@ i.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.
       Context,
       ReducerGradient,
       false>;
+  using WithMainInputAndForwardOutputBackwardOp =
+      AbstractLengthsWithMainInputAndForwardOutputGradientOp<
+          T,
+          SIndex,
+          Context,
+          ReducerGradient>;
   using GetGradient = LengthsOpGetGradient<
       ForwardOp,
       ReducerDef,

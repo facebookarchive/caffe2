@@ -17,7 +17,7 @@ if (CAFFE2_LONG_IS_INT32_OR_64)
   message(STATUS "Does not need to define long separately.")
 else()
   message(STATUS "Need to define long as a separate typeid.")
-  add_definitions(-DCAFFE2_UNIQUE_LONG_TYPEMETA)
+  set(CAFFE2_UNIQUE_LONG_TYPEMETA 1)
 endif()
 
 
@@ -62,8 +62,8 @@ if (CAFFE2_COMPILER_SUPPORTS_AVX2_EXTENSIONS)
   # in msvc.
   # Also see CMakeLists.txt under caffe2/perfkernels.
   if (NOT MSVC)
-    add_definitions(-DCAFFE2_PERF_WITH_AVX)
-    add_definitions(-DCAFFE2_PERF_WITH_AVX2)
+    set(CAFFE2_PERF_WITH_AVX 1)
+    set(CAFFE2_PERF_WITH_AVX2 1)
   endif()
 endif()
 
@@ -84,6 +84,9 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
       /wd4800 # (3): Forcing non-boolean value to true or false.
       /wd4996 # (3): Use of a deprecated member
   )
+  # Exception handing for compiler warining C4530, see
+  # https://msdn.microsoft.com/en-us/library/2axwkyt4.aspx
+  add_definitions("/EHsc")
 endif()
 
 # ---[ If we are building on ios, or building with opengl support, we will
@@ -91,6 +94,25 @@ endif()
 # is going to be done with android-cmake by setting
 #     -DANDROID_ABI="armeabi-v7a with NEON FP16"
 # in the build command.
+# Also, we will turn off deprecated-declarations
+# due to protobuf.
+
 if (IOS)
   add_definitions("-mfpu=neon-fp16")
+  add_definitions("-Wno-deprecated-declarations")
 endif()
+
+# ---[ If we use asan, turn on the flags.
+# TODO: This only works with new style gcc and clang (not the old -faddress-sanitizer).
+# Change if necessary on old platforms.
+if (USE_ASAN)
+  set(CAFFE2_ASAN_FLAG "-fsanitize=address -fPIE -pie")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CAFFE2_ASAN_FLAG}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAFFE2_ASAN_FLAG}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CAFFE2_ASAN_FLAG}")
+  set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${CAFFE2_ASAN_FLAG}")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${CAFFE2_ASAN_FLAG}")
+endif()
+
+# ---[ Create CAFFE2_BUILD_SHARED_LIBS for macros.h.in usage.
+set(CAFFE2_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})

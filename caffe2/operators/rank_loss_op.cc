@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/rank_loss_op.h"
 
 namespace caffe2 {
@@ -180,7 +196,7 @@ Operator computes the pair wise loss between all pairs within a batch
         2,
         "lengths",
         "Optional input blob that contains the lengths"
-        "of multiple sessions. The sumamation of this blob must be equal"
+        "of multiple sessions. The summation of this blob must be equal"
         "to the size of blob X. If lengths blob is provided, the output"
         "blob has the same size as lengths blob, and the cross entropy"
         "is computed within each session.")

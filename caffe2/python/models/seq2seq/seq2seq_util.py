@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package seq2seq_util
 # Module caffe2.python.examples.seq2seq_util
 """ A bunch of util functions to build Seq2Seq models with Caffe2."""
@@ -100,6 +115,7 @@ def rnn_unidirectional_layer(
             dropout_ratio=dropout_ratio,
             name=(scope + '/' if scope else '') + 'dropout',
             forward_only=forward_only,
+            is_test=False,
         )
 
     outputs_with_grads = []
@@ -578,6 +594,7 @@ def build_embedding_decoder(
                 internal_cell=cell,
                 dropout_ratio=dropout_ratio,
                 forward_only=forward_only,
+                is_test=False,
                 name=get_layer_scope(scope, 'decoder_dropout', i),
             )
 

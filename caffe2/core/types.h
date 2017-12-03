@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_CORE_TYPES_H_
 #define CAFFE2_CORE_TYPES_H_
 
@@ -51,6 +67,13 @@ static_assert(sizeof(unsigned short) == 2,
               "Short on this platform is not 16 bit.");
 namespace caffe2 {
 typedef struct CAFFE2_ALIGNED(2) __f16 { uint16_t x; } float16;
+
+// Helpers to avoid using typeinfo with -rtti
+template <typename T>
+bool fp16_type() {
+  return false;
+}
+
 }  // namespace caffe2
 
 // Make __f16 a fundamental type.

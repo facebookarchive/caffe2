@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package batch_distill_lr_loss
 # Module caffe2.python.layers.batch_distill_lr_loss
 from __future__ import absolute_import
@@ -5,7 +20,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from caffe2.python import schema
+from caffe2.python import core, schema
 from caffe2.python.layers.layers import (
     ModelLayer,
 )
@@ -32,7 +47,7 @@ class BatchDistillLRLoss(ModelLayer):
             schema.Struct(
                 ('teacher_label', schema.Scalar()),
                 ('label', schema.Scalar()),
-                ('prediction', schema.Scalar())
+                ('logit', schema.Scalar()),
             ),
             input_record
         )
@@ -43,24 +58,37 @@ class BatchDistillLRLoss(ModelLayer):
             self.get_next_blob_reference('output')
         )
 
-    def add_train_ops(self, net):
+    def add_ops(self, net):
         label = self.input_record.label()
-        if self.input_record.label.field_type() != np.int32:
-            label = net.Cast(label, net.NextScopedBlob('int32_label'), to='int32')
+        if self.input_record.label.field_type() != np.float32:
+            label = net.Cast(
+                label,
+                net.NextScopedBlob('float_label'),
+                to=core.DataType.FLOAT,
+            )
+
+        # Assuming 1-D input
+        label = net.ExpandDims(label, net.NextScopedBlob('expanded_label'),
+                               dims=[1])
 
         teacher_label = self.input_record.teacher_label()
+        if self.input_record.teacher_label.field_type() != np.float32:
+            teacher_label = net.Cast(
+                teacher_label,
+                net.NextScopedBlob('float_teacher_label'),
+                to=core.DataType.FLOAT,
+            )
+        teacher_label = net.ExpandDims(
+            teacher_label, net.NextScopedBlob('expanded_teacher_label'),
+            dims=[1])
 
-        class_probabilities = net.MakeTwoClass(
-            self.input_record.prediction(),
-            net.NextScopedBlob('two_class_predictions')
-        )
-
-        true_xent = net.LabelCrossEntropy(
-            [class_probabilities, label],
+        true_xent = net.SigmoidCrossEntropyWithLogits(
+            [self.input_record.logit(), label],
             net.NextScopedBlob('cross_entropy')
         )
-        teacher_xent = net.CrossEntropy(
-            [self.input_record.prediction(), teacher_label],
+
+        teacher_xent = net.SigmoidCrossEntropyWithLogits(
+            [self.input_record.logit(), teacher_label],
             net.NextScopedBlob('teacher_cross_entropy')
         )
 

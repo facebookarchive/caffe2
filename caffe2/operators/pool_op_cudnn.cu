@@ -1,5 +1,21 @@
-#include "caffe2/core/common_cudnn.h"
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/context_gpu.h"
+#include "caffe2/core/cudnn_wrappers.h"
 #include "caffe2/operators/conv_pool_op_base.h"
 
 #include <cub/cub.cuh>
@@ -8,6 +24,8 @@ namespace caffe2 {
 
 namespace {
 
+// Explicit fast paths for avg and max global pooling due to CuDNN global
+// pooling performance bug which makes pooling extremely slow.
 template <typename T>
 __global__ void
 global_avgpool_kernel_NCHW(const int NC, const int sz, const T* data, T* out) {
@@ -31,6 +49,41 @@ __global__ void
 global_avgpool_backward_NCHW(const int NC, const int sz, const T* dx, T* out) {
   CUDA_1D_KERNEL_LOOP(i, NC * sz) {
     out[i] = dx[i / sz] / sz;
+  }
+}
+
+template <typename T>
+__global__ void
+global_maxpool_kernel_NCHW(const int NC, const int sz, const T* data, T* out) {
+  typedef cub::BlockReduce<T, CAFFE_CUDA_NUM_THREADS> BlockReduce;
+  __shared__ typename BlockReduce::TempStorage temp_storage;
+  for (int j = blockIdx.x; j < NC; j += gridDim.x) {
+    T max(data[blockIdx.x * sz + threadIdx.x]);
+    for (int k = threadIdx.x; k < sz; k += blockDim.x) {
+      max = data[j * sz + k] > max ? data[j * sz + k] : max;
+    }
+    float totalmax = BlockReduce(temp_storage).Reduce(max, cub::Max());
+    if (threadIdx.x == 0) {
+      out[j] = totalmax;
+    }
+    __syncthreads();
+  }
+}
+
+template <typename T>
+__global__ void global_maxpool_backward_NCHW(
+    const int NC,
+    const int sz,
+    const T* dx,
+    T* out,
+    const T* x,
+    const T* in) {
+  CUDA_1D_KERNEL_LOOP(i, NC * sz) {
+    if (in[i] == x[i / sz]) {
+      out[i] = dx[i / sz];
+    } else {
+      out[i] = 0.0;
+    }
   }
 }
 
@@ -149,6 +202,15 @@ class CuDNNPoolOp : public ConvPoolOpBase<CUDAContext> {
                   N * C, H * W * D, X.data<float>(), Y->mutable_data<float>());
           return true;
         }
+        if (mode_ == CUDNN_POOLING_MAX) {
+          global_maxpool_kernel_NCHW<float>
+              <<<std::min(N * C, CAFFE_MAXIMUM_NUM_BLOCKS),
+                 CAFFE_CUDA_NUM_THREADS,
+                 0,
+                 context_.cuda_stream()>>>(
+                  N * C, H * W * D, X.data<float>(), Y->mutable_data<float>());
+          return true;
+        }
       }
     }
 
@@ -237,9 +299,23 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
     CUDNN_ENFORCE(cudnnCreateTensorDescriptor(&top_desc_));
     CUDNN_ENFORCE(cudnnCreatePoolingDescriptor(&pooling_desc_));
     // Figure out the pooling descriptor.
-    if (operator_def.type() == "MaxPoolGradient") {
+    if (operator_def.type() == "MaxPoolGradient" ||
+        operator_def.type() == "MaxPool1DGradient" ||
+        operator_def.type() == "MaxPool2DGradient" ||
+        operator_def.type() == "MaxPool3DGradient") {
+      bool deterministic =
+          OperatorBase::GetSingleArgument<bool>("deterministic", false);
+#if CUDNN_VERSION_MIN(6, 0, 0)
+      mode_ =
+          deterministic ? CUDNN_POOLING_MAX_DETERMINISTIC : CUDNN_POOLING_MAX;
+#else
       mode_ = CUDNN_POOLING_MAX;
-    } else if (operator_def.type() == "AveragePoolGradient") {
+#endif
+    } else if (
+        operator_def.type() == "AveragePoolGradient" ||
+        operator_def.type() == "AveragePool1DGradient" ||
+        operator_def.type() == "AveragePool2DGradient" ||
+        operator_def.type() == "AveragePool3DGradient") {
       mode_ = CUDNN_POOLING_AVERAGE_COUNT_EXCLUDE_PADDING;
     } else {
       LOG(FATAL) << "Unsupported pooling method: " << operator_def.type();
@@ -304,6 +380,21 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
                   H * W * D,
                   dY.data<float>(),
                   dX->mutable_data<float>());
+          return true;
+        }
+        if (mode_ == CUDNN_POOLING_MAX ||
+            mode_ == CUDNN_POOLING_MAX_DETERMINISTIC) {
+          global_maxpool_backward_NCHW<float>
+              <<<CAFFE_GET_BLOCKS(dX->size()),
+                 CAFFE_CUDA_NUM_THREADS,
+                 0,
+                 context_.cuda_stream()>>>(
+                  N * C,
+                  H * W * D,
+                  dY.data<float>(),
+                  dX->mutable_data<float>(),
+                  Y.data<float>(),
+                  X.data<float>());
           return true;
         }
       }
@@ -408,8 +499,26 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
 namespace {
 REGISTER_CUDNN_OPERATOR(AveragePool, CuDNNPoolOp);
 REGISTER_CUDNN_OPERATOR(AveragePoolGradient, CuDNNPoolGradientOp);
+
+REGISTER_CUDNN_OPERATOR(AveragePool1D, CuDNNPoolOp);
+REGISTER_CUDNN_OPERATOR(AveragePool1DGradient, CuDNNPoolGradientOp);
+
+REGISTER_CUDNN_OPERATOR(AveragePool2D, CuDNNPoolOp);
+REGISTER_CUDNN_OPERATOR(AveragePool2DGradient, CuDNNPoolGradientOp);
+
+REGISTER_CUDNN_OPERATOR(AveragePool3D, CuDNNPoolOp);
+REGISTER_CUDNN_OPERATOR(AveragePool3DGradient, CuDNNPoolGradientOp);
+
 REGISTER_CUDNN_OPERATOR(MaxPool, CuDNNPoolOp);
 REGISTER_CUDNN_OPERATOR(MaxPoolGradient, CuDNNPoolGradientOp);
 
+REGISTER_CUDNN_OPERATOR(MaxPool1D, CuDNNPoolOp);
+REGISTER_CUDNN_OPERATOR(MaxPool1DGradient, CuDNNPoolGradientOp);
+
+REGISTER_CUDNN_OPERATOR(MaxPool2D, CuDNNPoolOp);
+REGISTER_CUDNN_OPERATOR(MaxPool2DGradient, CuDNNPoolGradientOp);
+
+REGISTER_CUDNN_OPERATOR(MaxPool3D, CuDNNPoolOp);
+REGISTER_CUDNN_OPERATOR(MaxPool3DGradient, CuDNNPoolGradientOp);
 }  // namespace
 }  // namespace caffe2

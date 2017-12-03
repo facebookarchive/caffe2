@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/perfkernels/typed_axpy.h"
 #include "caffe2/core/types.h"
 #include "caffe2/perfkernels/common.h"
@@ -45,6 +61,26 @@ void TypedAxpy<float16, float>(
   AVX2_FMA_DO(TypedAxpy_float16_float, N, a, x, y);
   AVX_F16C_DO(TypedAxpy_float16_float, N, a, x, y);
   BASE_DO(TypedAxpy_float16_float, N, a, x, y);
+}
+
+void TypedAxpy_uint8_float__base(
+    int N,
+    const float a,
+    const std::uint8_t* x,
+    float* y) {
+  for (int i = 0; i < N; ++i) {
+    y[i] += (float)(x[i]) * a;
+  }
+}
+
+template <>
+void TypedAxpy<std::uint8_t, float>(
+    int N,
+    const float a,
+    const std::uint8_t* x,
+    float* y) {
+  AVX2_FMA_DO(TypedAxpy_uint8_float, N, a, x, y);
+  BASE_DO(TypedAxpy_uint8_float, N, a, x, y);
 }
 
 } // namespace caffe2

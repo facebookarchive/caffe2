@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -7,7 +22,7 @@ import copy
 import time
 from functools import partial, reduce
 from future.utils import viewitems, viewkeys
-from hypothesis import assume, given, settings
+from hypothesis import assume, given, settings, HealthCheck
 import hypothesis.strategies as st
 import unittest
 
@@ -436,7 +451,7 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertReferenceChecks(gc, op, inputs, depth_concat_with_order)
 
     @given(X=hu.arrays(dims=[5, 2],
-                       elements=st.floats(min_value=0.0, max_value=10.0)),
+                       elements=st.floats(min_value=1.0, max_value=10.0)),
            **hu.gcs_cpu_only)
     def test_last_n_windows(self, X, gc, dc):
         workspace.FeedBlob('input', X)
@@ -1714,15 +1729,28 @@ class TestOperators(hu.HypothesisTestCase):
 
     @given(a=hu.tensor(),
            eps=st.floats(min_value=1e-4, max_value=1e-2),
-           **hu.gcs_cpu_only)
-    def test_logit(self, a, eps, gc, dc):
+           a_grad=hu.tensor(elements=st.floats(min_value=0.01, max_value=0.99)),
+           eps_grad=st.floats(min_value=1e-4, max_value=1e-3),
+           **hu.gcs)
+    def test_logit(self, a, eps, a_grad, eps_grad, gc, dc):
         def ref(data):
             data = np.clip(data, eps, 1.0 - eps)
             return (np.log(data / (1 - data)), )
-
+        # forward testing carried out in the full range of input
+        # to ensure original test coverage.
+        # gradient test carried out with reduced input range
+        # because the sharp increase of the logit curve at 0 and 1
+        # error increases dramtically when input is close to 0 or 1
+        # and it will fail the test.
+        # So we only run gradient test in the range of (0.01, 0.99)
+        # very occationally, test may fail due to random accumulated error
+        # reduce test range to (0.02, 0.98) will improve test stability
         op = core.CreateOperator('Logit', ["X"], ["Y"], eps=eps)
         self.assertDeviceChecks(dc, op, [a], [0])
         self.assertReferenceChecks(gc, op, [a], ref)
+        op_grad = core.CreateOperator('Logit', ["X"], ["Y"], eps=eps_grad)
+        self.assertGradientChecks(gc, op_grad, [a_grad], 0, [0],
+                                  threshold=0.04, stepsize=2e-3)
 
     @given(a=hu.tensor(elements=st.floats(allow_nan=True)),
            value=st.floats(min_value=-10, max_value=10),
@@ -1852,8 +1880,8 @@ class TestOperators(hu.HypothesisTestCase):
             backward_link_external=backward_link_external,
             backward_link_offset=backward_link_offset,
             param=[inputs.index(p) for p in step_net.params],
-            step_net=str(step_net.Proto()),
-            backward_step_net=str(backward_step_net.Proto()),
+            step_net=step_net.Proto(),
+            backward_step_net=backward_step_net.Proto(),
             outputs_with_grads=[0],
         )
         workspace.FeedBlob(
@@ -1900,6 +1928,7 @@ class TestOperators(hu.HypothesisTestCase):
                 param,
                 [0])
 
+    @settings(suppress_health_check=[HealthCheck.filter_too_much])
     @given(n=st.integers(1, 5),
            c=st.integers(1, 5),
            h=st.integers(1, 5),
@@ -1916,6 +1945,7 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertDeviceChecks(dc, op, [X], [0])
         self.assertGradientChecks(gc, op, [X], 0, [0])
 
+    @settings(suppress_health_check=[HealthCheck.filter_too_much])
     @given(n=st.integers(1, 5),
            c=st.integers(1, 5),
            h=st.integers(1, 5),
@@ -2128,11 +2158,19 @@ class TestOperators(hu.HypothesisTestCase):
 
     @given(inp=_dtypes().flatmap(lambda dt: _tensor_and_indices(
         elements=st.floats(min_value=0, max_value=1), dtype=dt)),
-        **hu.gcs_cpu_only)
+        **hu.gcs)
     def test_sparse_to_dense(self, inp, gc, dc):
         first_dim, X, I = inp
+        if X.dtype != np.dtype('float32') and gc.device_type == 1:
+            # Cuda only support 32 bit float
+            print("Bailout {}".format(X.dtype))
+            return
+        if gc.device_type == 1:
+            # Cuda version only support int32
+            I = I.astype(np.int32)
+
         # values don't matter
-        D = np.zeros((first_dim,) + X.shape[1:])
+        D = np.zeros((first_dim,) + X.shape[1:]).astype(X.dtype)
 
         op = core.CreateOperator("SparseToDense", ["I", "X", "D"], ["Y"])
 
@@ -2143,8 +2181,6 @@ class TestOperators(hu.HypothesisTestCase):
             return [O]
 
         self.assertReferenceChecks(gc, op, [I, X, D], sparse_to_dense)
-        self.assertDeviceChecks(dc, op, [I, X, D], [0])
-
         X = X.astype(np.float32)
         self.assertGradientChecks(gc, op, [I, X, D], 1, [0])
 

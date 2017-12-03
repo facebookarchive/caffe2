@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "cuda_nccl_gpu.h"
 
 namespace caffe2 {
@@ -78,6 +94,9 @@ std::unordered_map<std::string, std::unique_ptr<NCCLContext>>& gContexts() {
 
 std::string ncclKey(const NCCLExecution& ex) {
   std::string result;
+  int curr_device;
+  CUDA_CHECK(cudaGetDevice(&curr_device));
+  result += to_string(curr_device) + ":";
   for (const auto& el : ex.elements) {
     result += to_string(el.device) + ",";
   }
@@ -111,8 +130,13 @@ class ncclTypeWrapper<float16> {
 };
 #endif
 
-template <typename T, typename F>
-void runNCCL(const NCCLExecution& ex, F&& f) {
+template <typename T, typename InitF, typename F>
+void runNCCL(const NCCLExecution& ex, InitF&& init_f, F&& f) {
+  // do initialization
+  for (auto i = 0; i < ex.elements.size(); ++i) {
+    init_f(ex.elements[i]);
+  }
+
   std::lock_guard<std::mutex> g(gContextsMutex());
   auto* context = getNCCLContext(ex);
   auto& comms = context->comms_;
@@ -175,9 +199,12 @@ void runNCCL(const NCCLExecution& ex, F&& f) {
 template <typename T>
 void NCCL<T>::AllReduce(const NCCLExecution& ex) {
   return runNCCL<T>(
-      ex, [](const NCCLElement& ctx, ncclComm_t comm, cudaStream_t stream) {
+      ex,
+      [](const NCCLElement& ctx) {
         ctx.dst->Resize(ctx.src->dims());
         ctx.dst->template mutable_data<T>();
+      },
+      [](const NCCLElement& ctx, ncclComm_t comm, cudaStream_t stream) {
         CAFFE_NCCL_CHECK(ncclAllReduce(
             ctx.src->raw_data(),
             ctx.dst->raw_mutable_data(),
@@ -192,9 +219,12 @@ void NCCL<T>::AllReduce(const NCCLExecution& ex) {
 template <typename T>
 void NCCL<T>::Broadcast(const NCCLExecution& ex) {
   return runNCCL<T>(
-      ex, [&ex](const NCCLElement& ctx, ncclComm_t comm, cudaStream_t stream) {
+      ex,
+      [](const NCCLElement& ctx) {
         ctx.dst->Resize(ctx.src->dims());
         ctx.dst->template mutable_data<T>();
+      },
+      [&ex](const NCCLElement& ctx, ncclComm_t comm, cudaStream_t stream) {
         CAFFE_NCCL_CHECK(ncclBcast(
             ctx.dst->raw_mutable_data(),
             ctx.dst->size(),
@@ -208,11 +238,14 @@ void NCCL<T>::Broadcast(const NCCLExecution& ex) {
 template <typename T>
 void NCCL<T>::Reduce(const NCCLExecution& ex) {
   return runNCCL<T>(
-      ex, [&ex](const NCCLElement& ctx, ncclComm_t comm, cudaStream_t stream) {
+      ex,
+      [](const NCCLElement& ctx) {
         if (ctx.dst) {
           ctx.dst->Resize(ctx.src->dims());
           ctx.dst->template mutable_data<T>();
         }
+      },
+      [&ex](const NCCLElement& ctx, ncclComm_t comm, cudaStream_t stream) {
         CAFFE_NCCL_CHECK(ncclReduce(
             ctx.src->raw_data(),
             ctx.dst ? ctx.dst->raw_mutable_data() : nullptr,
@@ -229,7 +262,8 @@ template <typename T>
 void NCCL<T>::AllGather(const NCCLExecution& ex) {
   const auto n = ex.elements.size();
   return runNCCL<T>(
-      ex, [n](const NCCLElement& ctx, ncclComm_t comm, cudaStream_t stream) {
+      ex,
+      [n](const NCCLElement& ctx) {
         CAFFE_ENFORCE_NE(ctx.src, ctx.dst);
         std::vector<TIndex> dims;
         dims.reserve(ctx.src->ndim() + 1);
@@ -239,6 +273,8 @@ void NCCL<T>::AllGather(const NCCLExecution& ex) {
         }
         ctx.dst->Resize(dims);
         ctx.dst->template mutable_data<T>();
+      },
+      [n](const NCCLElement& ctx, ncclComm_t comm, cudaStream_t stream) {
 #if NCCL_VERSION_MIN(2, 0, 0)
         CAFFE_NCCL_CHECK(ncclAllGather(
             ctx.src->raw_data(),
@@ -256,6 +292,30 @@ void NCCL<T>::AllGather(const NCCLExecution& ex) {
             comm,
             stream));
 #endif
+      });
+}
+
+template <typename T>
+void NCCL<T>::ReduceScatter(const NCCLExecution& ex) {
+  const auto n = ex.elements.size();
+  return runNCCL<T>(
+      ex,
+      [](const NCCLElement& ctx) {
+        CAFFE_ENFORCE_NE(ctx.src, ctx.dst);
+        const auto& srcDims = ctx.src->dims();
+        std::vector<TIndex> dstDims(srcDims.begin() + 1, srcDims.end());
+        ctx.dst->Resize(dstDims);
+        ctx.dst->template mutable_data<T>();
+      },
+      [n](const NCCLElement& ctx, ncclComm_t comm, cudaStream_t stream) {
+        CAFFE_NCCL_CHECK(ncclReduceScatter(
+            ctx.src->raw_data(),
+            ctx.dst->raw_mutable_data(),
+            ctx.dst->size(),
+            ncclTypeWrapper<T>::type,
+            ncclSum,
+            comm,
+            stream));
       });
 }
 

@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_CORE_OPERATOR_SCHEMA_H_
 #define CAFFE2_CORE_OPERATOR_SCHEMA_H_
 
@@ -37,18 +53,21 @@ constexpr int kCannotComputeNumOutputs = -1;
 class OpSchema {
  public:
   OpSchema() : file_("unknown"), line_(0) {}
-  OpSchema(const string& file, const int line)
-      : file_(file), line_(line) {}
+  OpSchema(const string& file, const int line) : file_(file), line_(line) {}
 
   /**
    * @brief Returns the file that the op schema is registered from.
    */
-  inline const string& file() const { return file_; }
+  inline const string& file() const {
+    return file_;
+  }
 
   /**
    * @brief Returns the line in file that the op schema is registered from.
    */
-  inline int line() const { return line_; }
+  inline int line() const {
+    return line_;
+  }
 
   /**
    * @brief Returns the docstring of the op schema.
@@ -142,7 +161,7 @@ class OpSchema {
    */
   OpSchema& TensorInferenceFunction(TensorInferenceFunctionType function);
   /**
-   * @brief Seets the tensor inference function to produce the same output as
+   * @brief Sets the tensor inference function to produce the same output as
    * the input.
    */
   OpSchema& IdenticalTypeAndShape();
@@ -165,8 +184,8 @@ class OpSchema {
    * an operator such as FLOPs and total memory use.
    */
   struct Cost {
-    size_t flops; // Floating point operations.
-    size_t bytes_moved; // Total memory used.
+    uint64_t flops; // Floating point operations.
+    uint64_t bytes_moved; // Total memory used.
   };
   /**
    * @brief Registers a function that takes in an OperatorDef
@@ -180,16 +199,68 @@ class OpSchema {
   /**
    * @brief Register the Cost inference function.
    */
-  OpSchema& CostInferenceFunction(CostInferenceFunctionType function);
+  OpSchema& CostInferenceFunction(CostInferenceFunctionType&& function);
+
+#ifdef _MSC_VER
+  /**
+   * @brief Register the Cost inference function via a pointer.
+   */
+  inline OpSchema& CostInferenceFunction(
+      struct Cost(*func)(const OperatorDef&, const vector<TensorShape>&)) {
+    // Note: This is here in order to resolve an MSVC compiler issue: it
+    // does not automatically convert a function pointer to a std::function,
+    // and needs an explicit conversion.
+    return CostInferenceFunction(CostInferenceFunctionType(func));
+  }
+#endif // _MSC_VER
+
+  bool HasCostInferenceFunction() const {
+    return !!cost_inference_function_;
+  }
   inline struct Cost InferCost(
       const OperatorDef& def,
       const vector<TensorShape>& input_tensor_shape) const {
-    return cost_inference_function_(def, input_tensor_shape);
+    CAFFE_ENFORCE(
+        cost_inference_function_, "Cost inference function not defined.");
+    return (*cost_inference_function_)(def, input_tensor_shape);
   }
 
   // Functions to do documentation for the operator schema.
   OpSchema& SetDoc(const string& doc);
-  OpSchema& Arg(const char* name, const char* description);
+
+  struct Argument {
+    Argument(const char* name, const char* description, bool required)
+        : name_{name}, description_{description}, required_{required} {}
+
+    const char* name() const {
+      return name_;
+    }
+
+    const char* description() const {
+      return description_;
+    }
+
+    bool is_required() const {
+      return required_;
+    }
+
+   private:
+    const char* name_;
+    const char* description_;
+    const bool required_;
+  };
+
+  OpSchema&
+  Arg(const char* name, const char* description, bool required = false);
+
+#define DECLARE_STANDARD_ARG(name, str) \
+  static const char* Arg_##name;        \
+  OpSchema& Arg##name(const char* description);
+
+  DECLARE_STANDARD_ARG(IsTest, is_test)
+
+#undef DECLARE_STANDARD_ARG
+
   OpSchema& Input(const int n, const char* name, const char* description);
   OpSchema& Output(const int n, const char* name, const char* description);
   // Calls the passed function with `this` as an argument. Useful for
@@ -208,15 +279,48 @@ class OpSchema {
    */
   int CalculateOutput(int num_input) const;
 
+  int min_input() const {
+    return min_input_;
+  }
+
+  int max_input() const {
+    return max_input_;
+  }
+
+  int min_output() const {
+    return min_output_;
+  }
+
+  int max_output() const {
+    return max_output_;
+  }
+
+  bool num_inputs_allowed(int x) const {
+    return num_inputs_allowed_(x);
+  }
+
+  bool num_outputs_allowed(int x) const {
+    return num_outputs_allowed_(x);
+  }
+
+  bool num_inputs_outputs_allowed(int x, int y) const {
+    return num_inputs_outputs_allowed_(x, y);
+  }
+
+  int inf() const {
+    return std::numeric_limits<int>::max();
+  }
+
   friend std::ostream& operator<<(std::ostream& out, const OpSchema& schema);
 
-  const std::vector<std::pair<const char*, const char*>>& arg_desc() {
-    return arg_desc_;
+  const std::vector<Argument>& args() const {
+    return args_;
   }
-  const std::vector<std::pair<const char*, const char*>>& input_desc() {
+
+  const std::vector<std::pair<const char*, const char*>>& input_desc() const {
     return input_desc_;
   }
-  const std::vector<std::pair<const char*, const char*>>& output_desc() {
+  const std::vector<std::pair<const char*, const char*>>& output_desc() const {
     return output_desc_;
   }
   bool private_op() {
@@ -244,16 +348,9 @@ class OpSchema {
   }
 
  private:
-  [[noreturn]] Cost DefaultConstInferenceFunction(
-      const OperatorDef&,
-      const vector<TensorShape>&) {
-    CAFFE_THROW("No cost inference function registered.");
-  }
-
- private:
   string file_;
   string doc_;
-  std::vector<std::pair<const char*, const char*>> arg_desc_{};
+  std::vector<Argument> args_{};
   std::vector<std::pair<const char*, const char*>> input_desc_{};
   std::vector<std::pair<const char*, const char*>> output_desc_{};
   int line_ = 0;
@@ -263,18 +360,19 @@ class OpSchema {
   int max_output_ = std::numeric_limits<int>::max();
   bool private_ = false;
   bool inputs_can_cross_devices_ = false;
-  std::function<bool(int)> num_inputs_allowed_
-      = [](int) { return true; };
-  std::function<bool(int)> num_outputs_allowed_
-      = [](int) { return true; };
-  std::function<bool(int, int)> num_inputs_outputs_allowed_
-      = [](int, int) { return true; };
+  std::function<bool(int)> num_inputs_allowed_ = [](int) { return true; };
+  std::function<bool(int)> num_outputs_allowed_ = [](int) { return true; };
+  std::function<bool(int, int)> num_inputs_outputs_allowed_ = [](int, int) {
+    return true;
+  };
   std::function<int(int)> calculate_output_;
   // In default, any in-place operation is neither allowed nor enforced.
-  std::function<bool(int, int)> inplace_allowed_
-      = [](int, int) { return false; };
-  std::function<bool(int, int)> inplace_enforced_
-      = [](int, int) { return false; };
+  std::function<bool(int, int)> inplace_allowed_ = [](int, int) {
+    return false;
+  };
+  std::function<bool(int, int)> inplace_enforced_ = [](int, int) {
+    return false;
+  };
   TensorInferenceFunctionType tensor_inference_function_ =
       [](const OperatorDef& def, const vector<TensorShape>&) {
         vector<TensorShape> out;
@@ -285,11 +383,7 @@ class OpSchema {
         }
         return out;
       };
-  CostInferenceFunctionType cost_inference_function_ = std::bind(
-      &OpSchema::DefaultConstInferenceFunction,
-      this,
-      std::placeholders::_1,
-      std::placeholders::_2);
+  std::unique_ptr<CostInferenceFunctionType> cost_inference_function_ = nullptr;
   DeviceInferenceFunctionType device_inference_function_ =
       [](const OperatorDef& def) {
         auto op_device =
@@ -305,16 +399,16 @@ class OpSchema {
  */
 class OpSchemaRegistry {
  public:
-  static OpSchema& NewSchema(
-      const string& key, const string& file, const int line) {
+  static OpSchema&
+  NewSchema(const string& key, const string& file, const int line) {
     auto& m = map();
     if (m.count(key)) {
       const auto& schema = m[key];
       std::ios_base::Init init;
-      std::cerr << "Trying to register schema with name "
-                << key << " from file " << file << " line " << line
-                << ", but it is already registered from file "
-                << schema.file() << " line " << schema.line();
+      std::cerr << "Trying to register schema with name " << key
+                << " from file " << file << " line " << line
+                << ", but it is already registered from file " << schema.file()
+                << " line " << schema.line();
       abort();
     }
     m.emplace(std::make_pair(key, OpSchema(file, line)));
@@ -348,8 +442,9 @@ class OpSchemaRegistry {
 };
 
 // Helper function for creating simple tensorproto with dimension and type
+template <typename T_I = int>
 inline TensorShape CreateTensorShape(
-    vector<int> dims,
+    vector<T_I> dims,
     ::caffe2::TensorProto_DataType dt) {
   TensorShape ts;
   for (int d : dims) {
@@ -378,14 +473,44 @@ InferOpInputOutputDevice(const OperatorDef& op) {
   return op_schema->InferDevice(op);
 }
 
-}  // namespace caffe2
+template <uint64_t OpsPerPoint>
+OpSchema::Cost PointwiseCostInference(
+    const OperatorDef& /* unused */,
+    const vector<TensorShape>& inputs) {
+  struct OpSchema::Cost c;
+  const TensorShape X = inputs[0];
+  uint64_t size = 1;
+
+  for (auto i = 0; i < X.dims().size(); ++i) {
+    size *= X.dims(i);
+  }
+
+  c.flops = size * OpsPerPoint;
+  return c;
+}
+
+} // namespace caffe2
+
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
 
 #define OPERATOR_SCHEMA(name)                            \
   void CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name(){}; \
-  static OpSchema& CAFFE_ANONYMOUS_VARIABLE(name) =      \
-      OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(name) =      \
+      &OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
 #define OPERATOR_SCHEMA_STR(name)                                  \
-  static OpSchema& CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
-      OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
+      &OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)
 
-#endif  // CAFFE2_CORE_OPERATOR_SCHEMA_H_
+#else // CAFFE2_NO_OPERATOR_SCHEMA
+
+#define OPERATOR_SCHEMA(name)                            \
+  void CAFFE2_PLEASE_ADD_OPERATOR_SCHEMA_FOR_##name(){}; \
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(name) =      \
+      1 ? nullptr : &OpSchemaRegistry::NewSchema(#name, __FILE__, __LINE__)
+#define OPERATOR_SCHEMA_STR(name)                                  \
+  static OpSchema* CAFFE_ANONYMOUS_VARIABLE(schema_registration) = \
+      1 ? nullptr : &OpSchemaRegistry::NewSchema(name, __FILE__, __LINE__)
+
+#endif // CAFFE2_NO_OPERATOR_SCHEMA
+
+#endif // CAFFE2_CORE_OPERATOR_SCHEMA_H_

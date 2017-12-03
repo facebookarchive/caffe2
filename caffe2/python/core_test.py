@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -10,6 +25,7 @@ import numpy as np
 
 from caffe2.proto import caffe2_pb2
 from caffe2.python import core, workspace, test_util
+from caffe2.python.task import Node, Task
 
 
 class TestScopes(test_util.TestCase):
@@ -336,6 +352,7 @@ class TestExtractPredictorNet(test_util.TestCase):
         [data, label] = brew.image_input(
             model,
             "reader", ["xx/data", "label"],
+            is_test=1,
         )
         cnv = brew.conv(model, data, 'cnv', 32, 32, 4)
         a = brew.fc(model, cnv, 'a', 100, 200)
@@ -427,6 +444,74 @@ class TestOperatorTraceback(test_util.TestCase):
         with self.assertRaises(Exception):
             ws.run(net)
         self.op_name_check(net, cf, line)
+
+
+class TestCreatePlan(test_util.TestCase):
+
+    def test_create_plan_from_proto_correctly(self):
+        from caffe2.python.net_builder import ops
+        with Node('trainer'), Task(name='my_task', num_instances=2) as task:
+            with ops.task_init():
+                globl = ops.Const(0)
+            with ops.task_instance_init():
+                local = ops.Const(0)
+            with ops.loop(100):
+                ops.Copy(globl, local)
+            with ops.task_instance_exit():
+                ops.Add([globl, local], [globl])
+            with ops.task_exit():
+                ops.Mul([globl, globl], [globl])
+
+        plan = core.Plan(task.get_step())
+        test_plan = core.Plan.create_from_proto(plan.Proto())
+
+        self.assertEqual(len(plan.Steps()), 1)
+        self.assertEqual(len(test_plan.Steps()), 1)
+        self.assertEqual(plan.Steps()[0].Name(), test_plan.Steps()[0].Name())
+
+        self.assertEqual(len(plan.Nets()), len(test_plan.Nets()))
+        for idx in range(0, len(plan.Nets())):
+            # When we create Net for test_plan, we will end up with new Net
+            # name with postfix.
+            net_1 = plan.Nets()[idx]
+            net_2 = test_plan.Nets()[idx]
+            trim_size = len(net_1.Name())
+            self.assertEqual(net_1.Name(), net_2.Name()[:trim_size])
+
+
+class TestOpRegistryKey(test_util.TestCase):
+    def test_is_operator(self):
+        self.assertTrue(core.IsOperator('Relu'))
+        self.assertFalse(core.IsOperator('NOEXIST'))
+
+    def test_is_operator_with_engine(self):
+        self.assertTrue(core.IsOperatorWithEngine('Relu', 'DEFAULT'))
+        self.assertFalse(core.IsOperatorWithEngine('Relu', 'NOEXIST'))
+
+
+class TestDeviceOption(test_util.TestCase):
+    def test_check_equal_node_name(self):
+        opt1 = core.DeviceOption(0)
+        opt2 = core.DeviceOption(0)
+        self.assertTrue(core.device_option_equal(opt1, opt2))
+        opt2.node_name = 'test'
+        self.assertTrue(core.device_option_equal(opt1, opt2))
+        self.assertFalse(core.device_option_equal(opt1, opt2, ignore_node_name=False))
+        opt1.node_name = 'test'
+        self.assertTrue(core.device_option_equal(opt1, opt2, ignore_node_name=False))
+
+    def test_check_equal_default_value(self):
+        opt1 = caffe2_pb2.DeviceOption()
+        opt2 = caffe2_pb2.DeviceOption()
+        opt1.device_type = 0
+        self.assertTrue(core.device_option_equal(opt1, opt2))
+        opt1.cuda_gpu_id = 5
+        # opt1 still is on CPU, so the options should be equal
+        self.assertTrue(core.device_option_equal(opt1, opt2))
+        opt2.device_type = 0
+        self.assertTrue(core.device_option_equal(opt1, opt2))
+        opt1.device_type = 1
+        self.assertFalse(core.device_option_equal(opt1, opt2))
 
 
 @unittest.skipIf(not workspace.has_gpu_support, 'No GPU support')
@@ -522,9 +607,11 @@ class TestInferDevice(test_util.TestCase):
         device_option.cuda_gpu_id = 1
         weight = init_net.XavierFill([], 'fc_w', shape=[10, 100])
         bias = init_net.ConstantFill([], 'fc_b', shape=[10, ])
-
+        const = init_net.ConstantFill([], 'const', shape=[], value=1.)
         with core.DeviceScope(device_option):
-            net.FC(["data", weight, bias], "fc1")
+            const = init_net.Add([const, const], [const])
+            fc_out = net.FC(["data", weight, bias], "fc1")
+            net.Add([fc_out, const], [fc_out])
 
         data_remap = {'data': device_option}
         nets, _ = core.InjectDeviceCopiesAmongNets(
@@ -547,6 +634,13 @@ class TestInferDevice(test_util.TestCase):
         self.assertEqual(op.input[2], "fc_b_cuda_1")
         self.assertEqual(op.device_option.device_type, 1)
         self.assertEqual(op.device_option.cuda_gpu_id, 1)
+        op = nets[1]._net.op[3]
+        self.assertEqual(op.type, "Add")
+        self.assertEqual(op.input[0], "fc1")
+        self.assertEqual(op.input[1], "const_cuda_1")
+        # check that moved blob is in input to the new net
+        for c in ["data", "fc_w", "fc_b", "const_cuda_1"]:
+            self.assertTrue(c in nets[1]._net.external_input)
         """
 For reference, net.Proto() should be like:
 name: ""
@@ -582,9 +676,22 @@ op {
     cuda_gpu_id: 1
   }
 }
+op {
+  input: "fc1"
+  input: "const_cuda_1"
+  output: "fc1"
+  name: ""
+  type: "Add"
+  device_option {
+    device_type: 1
+    cuda_gpu_id: 1
+  }
+}
 external_input: "data"
 external_input: "fc_w"
 external_input: "fc_b"
+external_input: "const"
+external_input: "const_cuda_1"
 """
 
     def test_cross_nets_no_change(self):

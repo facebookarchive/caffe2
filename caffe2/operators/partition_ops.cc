@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/partition_ops.h"
 
 namespace caffe2 {
@@ -5,6 +21,28 @@ namespace {
 
 REGISTER_CPU_OPERATOR(Partition, PartitionOp);
 REGISTER_CPU_OPERATOR(LengthsPartition, LengthsPartitionOp);
+REGISTER_CPU_OPERATOR(GatherByKey, GatherByKeyOp);
+
+OPERATOR_SCHEMA(GatherByKey)
+    .NumInputs(2, INT_MAX)
+    .NumOutputs(1)
+    .SetDoc(R"DOC(
+Inverse operation of Partition.
+
+Takes the original, full 'keys' tensor followed by sharded value tensors,
+and returns the full value tensor, combined using the same hash used in
+Partition.
+)DOC")
+    .Input(
+        0,
+        "keys",
+        "The first input is the full keys tensor"
+        " (same as the first input of Partition).")
+    .Input(
+        1,
+        "sharded_values",
+        "Subsequented inputs are sharded values tensors.")
+    .Output(0, "values", "Reconstructed values tensor.");
 
 OPERATOR_SCHEMA(Partition)
     .NumInputsOutputs([](int in, int out) {

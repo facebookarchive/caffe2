@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package data_workers
 # Module caffe2.python.data_workers
 from __future__ import absolute_import
@@ -117,7 +132,8 @@ def init_data_input_workers(
         global_coordinator.get_queue(input_source_name, max_buffered_batches),
         metrics,
         dont_rebatch,
-        batch_columns
+        batch_columns,
+        timeout=timeout
     )
 
     # Create coordinator object
@@ -209,7 +225,7 @@ class BatchFeeder(State):
 
     def _validate_chunk(self, chunk):
         if chunk is None:
-            print("Fetcher function returned None")
+            log.warning("Fetcher function returned None")
             return False
 
         assert len(chunk) == len(self._input_blob_names), \
@@ -226,7 +242,7 @@ class BatchFeeder(State):
                 j += 1
 
         if len(chunk) == 0:
-            print("Worker provided zero length input")
+            log.warning("Worker provided zero length input")
             return False
 
         return True
@@ -239,8 +255,8 @@ class BatchFeeder(State):
             try:
                 qsize = self._internal_queue.qsize()
                 if qsize < 2 and (time.time() - self._last_warning) > LOG_INT_SECS:
-                    print("Warning, data loading lagging behind: " +
-                             "name={}".format(qsize, self._input_source_name))
+                    log.warning("Warning, data loading lagging behind: " +
+                                "name={}".format(qsize, self._input_source_name))
                     self._last_warning = time.time()
                 self._counter += 1
                 self._internal_queue.put(chunk, block=True, timeout=0.5)
@@ -393,12 +409,12 @@ class BatchFeeder(State):
         if delta_seconds >= LOG_INT_SECS or force:
             inputs_per_sec = int(self._inputs / delta_seconds)
             qsize = self._internal_queue.qsize()
-            print("{}/{}: {} inputs/sec".format(
+            log.info("{}/{}: {} inputs/sec".format(
                 self._input_source_name,
                 self._namescope,
                 inputs_per_sec,
             ))
-            print("-- queue: {} batches".format(qsize))
+            log.info("-- queue: {} batches".format(qsize))
             # log and reset perf metrics
             self._metrics.put_metric(
                 'inputs_per_sec', inputs_per_sec, False)

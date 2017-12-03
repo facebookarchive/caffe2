@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package mobile_exporter
 # Module caffe2.python.mobile_exporter
 
@@ -12,8 +27,9 @@ from caffe2.proto import caffe2_pb2
 def Export(workspace, net, params):
     """Returns init_net and predict_net suitable for writing to disk
        and loading into a Predictor"""
+    proto = net if isinstance(net, caffe2_pb2.NetDef) else net.Proto()
     predict_net = caffe2_pb2.NetDef()
-    predict_net.CopyFrom(net.Proto())
+    predict_net.CopyFrom(proto)
     init_net = caffe2_pb2.NetDef()
     # Populate the init_net.
     ssa, blob_versions = core.get_ssa(net)
@@ -64,7 +80,7 @@ def Export(workspace, net, params):
     del predict_net.external_input[:]
     predict_net.external_input.extend(input_blobs)
     # For populating weights
-    predict_net.external_input.extend(net.Proto().external_input)
+    predict_net.external_input.extend(proto.external_input)
     # Ensure the output is also consistent with what we want
     del predict_net.external_output[:]
     predict_net.external_output.extend(output_blobs)

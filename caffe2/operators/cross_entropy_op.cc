@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/cross_entropy_op.h"
 
 namespace caffe2 {
@@ -50,7 +66,7 @@ template <>
 bool SigmoidCrossEntropyWithLogitsOp<float, CPUContext>::RunOnDevice() {
   auto& logits = Input(0);
   auto& targets = Input(1);
-  CAFFE_ENFORCE(logits.dims() == targets.dims());
+  CAFFE_ENFORCE_EQ(logits.dims(), targets.dims());
   const auto inner_size = logits.ndim() > 0 ? logits.dims().back() : 1;
   const auto outer_size = logits.size() / inner_size;
 
@@ -102,6 +118,77 @@ bool SigmoidCrossEntropyWithLogitsGradientOp<float, CPUContext>::RunOnDevice() {
     for (int j = 0; j < inner_size; ++j) {
       out_ptr[in_idx] = g_factor *
           sigmoid_xent_backward(logits_ptr[in_idx], targets_ptr[in_idx]);
+      ++in_idx;
+    }
+  }
+  return true;
+}
+
+template <>
+bool WeightedSigmoidCrossEntropyWithLogitsOp<float, CPUContext>::RunOnDevice() {
+  auto& logits = Input(0);
+  auto& targets = Input(1);
+  auto& weights = Input(2);
+  CAFFE_ENFORCE(logits.dims() == targets.dims());
+  CAFFE_ENFORCE(weights.dims() == targets.dims());
+  const auto inner_size = logits.ndim() > 0 ? logits.dims().back() : 1;
+  const auto outer_size = logits.size() / inner_size;
+
+  auto* out = Output(0);
+  if (logits.ndim() == 0) {
+    out->Resize(std::vector<TIndex>{});
+  } else {
+    std::vector<TIndex> dims(logits.dims().begin(), logits.dims().end() - 1);
+    out->Resize(dims);
+  }
+  auto* out_ptr = out->mutable_data<float>();
+
+  auto* logits_ptr = logits.data<float>();
+  auto* targets_ptr = targets.data<float>();
+  auto* weights_ptr = weights.data<float>();
+
+  auto in_idx = 0;
+  for (int i = 0; i < outer_size; ++i) {
+    float value = 0;
+    for (int j = 0; j < inner_size; ++j) {
+      value += sigmoid_xent_forward(logits_ptr[in_idx], targets_ptr[in_idx]) *
+          weights_ptr[in_idx];
+      ++in_idx;
+    }
+    out_ptr[i] = -value / inner_size;
+  }
+  return true;
+}
+
+template <>
+bool WeightedSigmoidCrossEntropyWithLogitsGradientOp<float, CPUContext>::
+    RunOnDevice() {
+  auto& g = Input(0);
+  auto& logits = Input(1);
+  auto& targets = Input(2);
+  auto& weights = Input(3);
+  CAFFE_ENFORCE(logits.dims() == targets.dims());
+  CAFFE_ENFORCE(weights.dims() == targets.dims());
+  const auto inner_size = logits.ndim() > 0 ? logits.dims().back() : 1;
+  const auto outer_size = logits.size() / inner_size;
+  CAFFE_ENFORCE(g.size() == outer_size);
+
+  auto* out = Output(0);
+  out->ResizeLike(logits);
+  auto* out_ptr = out->mutable_data<float>();
+
+  auto* logits_ptr = logits.data<float>();
+  auto* targets_ptr = targets.data<float>();
+  auto* weights_ptr = weights.data<float>();
+  auto* g_ptr = g.data<float>();
+
+  auto in_idx = 0;
+  for (int i = 0; i < outer_size; ++i) {
+    auto g_factor = -g_ptr[i] / inner_size;
+    for (int j = 0; j < inner_size; ++j) {
+      out_ptr[in_idx] = g_factor *
+          sigmoid_xent_backward(logits_ptr[in_idx], targets_ptr[in_idx]) *
+          weights_ptr[in_idx];
       ++in_idx;
     }
   }
@@ -308,6 +395,13 @@ REGISTER_CPU_OPERATOR(
     SigmoidCrossEntropyWithLogitsGradient,
     SigmoidCrossEntropyWithLogitsGradientOp<float, CPUContext>);
 
+REGISTER_CPU_OPERATOR(
+    WeightedSigmoidCrossEntropyWithLogits,
+    WeightedSigmoidCrossEntropyWithLogitsOp<float, CPUContext>);
+REGISTER_CPU_OPERATOR(
+    WeightedSigmoidCrossEntropyWithLogitsGradient,
+    WeightedSigmoidCrossEntropyWithLogitsGradientOp<float, CPUContext>);
+
 OPERATOR_SCHEMA(MakeTwoClass)
     .NumInputs(1)
     .NumOutputs(1)
@@ -351,6 +445,27 @@ OPERATOR_SCHEMA(SigmoidCrossEntropyWithLogitsGradient)
     .NumInputs(3)
     .NumOutputs(1);
 
+OPERATOR_SCHEMA(WeightedSigmoidCrossEntropyWithLogits)
+    .NumInputs(3)
+    .NumOutputs(1)
+    .IdenticalTypeAndShapeOfInputDim(0, 0)
+    .SetDoc(R"DOC(
+Given three matrices: logits, targets, weights, all of the same shape,
+(batch_size, num_classes), computes the weighted sigmoid cross entropy between
+logits and targets. Specifically, at each position r,c, this computes
+weights[r, c] * crossentropy(sigmoid(logits[r, c]), targets[r, c]), and then
+averages over each row.
+Returns a tensor of shape (batch_size,) of losses for each example.
+)DOC")
+    .Input(0, "logits", "matrix of logits for each example and class.")
+    .Input(1, "targets", "matrix of targets, same shape as logits.")
+    .Input(2, "weights", "matrix of weights, same shape as logits.")
+    .Output(0, "xentropy", "Vector with the total xentropy for each example.");
+
+OPERATOR_SCHEMA(WeightedSigmoidCrossEntropyWithLogitsGradient)
+    .NumInputs(4)
+    .NumOutputs(1);
+
 struct GetMakeTwoClassGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   vector<OperatorDef> GetGradientDefs() override {
@@ -376,6 +491,21 @@ struct GetSigmoidCrossEntropyWithLogitsGradient : public GradientMakerBase {
 REGISTER_GRADIENT(
     SigmoidCrossEntropyWithLogits,
     GetSigmoidCrossEntropyWithLogitsGradient);
+
+struct GetWeightedSigmoidCrossEntropyWithLogitsGradient
+    : public GradientMakerBase {
+  using GradientMakerBase::GradientMakerBase;
+  vector<OperatorDef> GetGradientDefs() override {
+    return SingleGradientDef(
+        "WeightedSigmoidCrossEntropyWithLogitsGradient",
+        "",
+        vector<string>{GO(0), I(0), I(1), I(2)},
+        vector<string>{GI(0)});
+  }
+};
+REGISTER_GRADIENT(
+    WeightedSigmoidCrossEntropyWithLogits,
+    GetWeightedSigmoidCrossEntropyWithLogitsGradient);
 
 REGISTER_CPU_OPERATOR(CrossEntropy,
                       CrossEntropyOp<float, CPUContext>);

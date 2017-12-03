@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/sgd/learning_rate_op.h"
 
 namespace caffe2 {
@@ -9,7 +25,7 @@ OPERATOR_SCHEMA(LearningRate)
     .SetDoc(R"DOC(
 Learning rate is a decreasing function of time. With low learning rates the
 improvements will be linear. With high learning rates they will start to look
-more exponential. Learning rate is controled by the following arguments:
+more exponential. Learning rate is controlled by the following arguments:
 
 #### Required
 
@@ -20,11 +36,17 @@ more exponential. Learning rate is controled by the following arguments:
   * `step`: uses `stepsize`, `gamma`
   * `exp`: uses `gamma`
   * `inv`: uses `gamma`, `power`
+  # `linearWarmup`: uses `start_multiplier`, `num_iter`
+  # `constantWarmup`: uses `multiplier`, `num_iter`
 
 #### Optional:
 * `stepsize`: defaults to 0
 * `gamma`: defaults to 0
 * `power`: defaults to 0
+* `num_iter`: defaults to 0
+* `start_multiplier`: defaults to 0
+* `multiplier`: defaults to 0.5
+
 
 Usage:
 train_net.LearningRate(*iterations*, "*label*", base_lr=*float*,
@@ -41,6 +63,15 @@ train_net.LearningRate(200, "LR", base_lr=-0.1,
     .Arg(
         "max_iter",
         "(int, default -1) maximum iterations in this training run")
+    .Arg(
+        "num_iter",
+        "(int, default 0) number of iterations over which to warmup lr")
+    .Arg(
+        "start_multiplier",
+        "(float, default 0) starting multiplier for learning rate")
+    .Arg(
+        "multiplier",
+        "(float, default 0.5) constant multiplier for learning rate")
     .Input(0, "input", "description needed")
     .Output(0, "output", "description needed")
     .DeviceInferenceFunction([](const OperatorDef& def) {

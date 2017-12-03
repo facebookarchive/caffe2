@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -82,6 +97,54 @@ class TestElementwiseOps(hu.HypothesisTestCase):
 
         self.assertGradientChecks(
             gc, op, [X], 0, [0], stepsize=1e-4, threshold=1e-2)
+
+    @given(n=st.integers(5, 6), m=st.integers(4, 6), **hu.gcs_cpu_only)
+    def test_swish(self, n, m, gc, dc):
+        X = np.random.rand(n, m).astype(np.float32)
+
+        def swish(X):
+            return [np.divide(X, (1. + np.exp(-X)))]
+
+        op = core.CreateOperator(
+            "Swish",
+            ["X"],
+            ["Z"]
+        )
+
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=[X],
+            reference=swish,
+        )
+
+        self.assertGradientChecks(
+            gc, op, [X], 0, [0], stepsize=1e-4, threshold=1e-2)
+
+    @given(n=st.integers(5, 6), m=st.integers(4, 6), **hu.gcs_cpu_only)
+    def test_swish_gradient_inplace(self, n, m, gc, dc):
+
+        def swish(X):
+            return [np.divide(X, (1. + np.exp(-X)))]
+
+        def swish_gradient(X, Y, dY):
+            return [dY * (Y + np.divide(1. - Y, 1. + np.exp(-X)))]
+
+        X = np.random.rand(n, m).astype(np.float32)
+        Y = swish(X)[0]
+        dY = np.random.rand(n, m).astype(np.float32)
+        op = core.CreateOperator(
+            "SwishGradient",
+            ["X", "Y", "grad"],
+            "grad"
+        )
+
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=[X, Y, dY],
+            reference=swish_gradient,
+        )
 
     @given(n=st.integers(5, 6), m=st.integers(4, 6), **hu.gcs)
     def test_sigmoid(self, n, m, gc, dc):

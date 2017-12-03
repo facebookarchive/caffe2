@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -66,7 +81,7 @@ class TestTopK(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [X], bind_ref)
 
-    @given(bs=st.integers(1, 10), n=st.integers(1, 1), k=st.integers(1, 1),
+    @given(bs=st.integers(1, 3), n=st.integers(1, 1), k=st.integers(1, 1),
             flatten_indices=st.booleans(), **hu.gcs)
     def test_top_k_1(self, bs, n, k, flatten_indices, gc, dc):
         X = np.random.rand(bs, n).astype(dtype=np.float32)
@@ -81,7 +96,7 @@ class TestTopK(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [X], bind_ref)
 
-    @given(bs=st.integers(1, 10), n=st.integers(1, 100000), k=st.integers(1, 1),
+    @given(bs=st.integers(1, 3), n=st.integers(1, 10000), k=st.integers(1, 1),
             flatten_indices=st.booleans(), **hu.gcs)
     def test_top_k_2(self, bs, n, k, flatten_indices, gc, dc):
         X = np.random.rand(bs, n).astype(dtype=np.float32)
@@ -97,7 +112,7 @@ class TestTopK(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [X], bind_ref)
 
-    @given(bs=st.integers(1, 10), n=st.integers(1, 100000),
+    @given(bs=st.integers(1, 3), n=st.integers(1, 10000),
             k=st.integers(1, 1024), flatten_indices=st.booleans(), **hu.gcs)
     def test_top_k_3(self, bs, n, k, flatten_indices, gc, dc):
         X = np.random.rand(bs, n).astype(dtype=np.float32)
@@ -114,7 +129,7 @@ class TestTopK(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [X], bind_ref)
 
-    @given(bs=st.integers(1, 10), n=st.integers(100, 100000),
+    @given(bs=st.integers(1, 3), n=st.integers(100, 10000),
             flatten_indices=st.booleans(), **hu.gcs)
     def test_top_k_4(self, bs, n, flatten_indices, gc, dc):
         k = np.random.randint(n // 3, 3 * n // 4)
@@ -131,7 +146,7 @@ class TestTopK(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [X], bind_ref)
 
-    @given(bs=st.integers(1, 10), n=st.integers(1, 1024),
+    @given(bs=st.integers(1, 3), n=st.integers(1, 1024),
             flatten_indices=st.booleans(), **hu.gcs)
     def test_top_k_5(self, bs, n, flatten_indices, gc, dc):
         k = n
@@ -148,7 +163,7 @@ class TestTopK(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [X], bind_ref)
 
-    @given(bs=st.integers(1, 10), n=st.integers(1, 100000),
+    @given(bs=st.integers(1, 3), n=st.integers(1, 5000),
             flatten_indices=st.booleans(), **hu.gcs)
     def test_top_k_6(self, bs, n, flatten_indices, gc, dc):
         k = n
@@ -165,7 +180,7 @@ class TestTopK(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [X], bind_ref)
 
-    @given(X=hu.tensor(min_dim=2), **hu.gcs_cpu_only)
+    @given(X=hu.tensor(min_dim=2), **hu.gcs)
     def test_top_k_grad(self, X, gc, dc):
         X = X.astype(np.float32)
         k = random.randint(1, X.shape[-1])

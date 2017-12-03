@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -42,6 +57,25 @@ class TestWorkspace(unittest.TestCase):
         blobs = workspace.Blobs()
         self.assertEqual(len(blobs), 1)
         self.assertEqual(blobs[0], "testblob")
+
+    def testGetOperatorCost(self):
+        op = core.CreateOperator(
+            "Conv2D",
+            ["X", "W"], ["Y"],
+            stride_h=1,
+            stride_w=1,
+            pad_t=1,
+            pad_l=1,
+            pad_b=1,
+            pad_r=1,
+            kernel=3,
+        )
+        X = np.zeros((1, 8, 8, 8))
+        W = np.zeros((1, 1, 3, 3))
+        workspace.FeedBlob("X", X)
+        workspace.FeedBlob("W", W)
+        flops, _ = workspace.GetOperatorCost(op.SerializeToString(), ["X", "W"])
+        self.assertEqual(flops, 648)
 
     def testRunNetOnce(self):
         self.assertEqual(
@@ -548,6 +582,48 @@ class TestTransform(htu.HypothesisTestCase):
             workspace.ApplyTransform(
                 "definitely_not_a_real_transform",
                 m.net.Proto())
+
+    @given(value=st.floats(min_value=-1, max_value=1))
+    def test_apply_transform_if_faster(self, value):
+
+        init_net = core.Net("init_net")
+        init_net.ConstantFill([], ["data"], shape=[5, 5, 5, 5], value=value)
+        init_net.ConstantFill([], ["conv_w"], shape=[5, 5, 3, 3], value=value)
+        init_net.ConstantFill([], ["conv_b"], shape=[5], value=value)
+
+        self.assertEqual(
+            workspace.RunNetOnce(init_net.Proto().SerializeToString()), True)
+
+        m = model_helper.ModelHelper()
+        conv = brew.conv(m, "data", "conv",
+                            dim_in=5,
+                            dim_out=5,
+                            kernel=3,
+                            use_cudnn=True,
+                            engine="CUDNN")
+
+        conv.Relu([], conv)\
+           .Softmax([], "pred") \
+           .AveragedLoss([], "loss")
+
+        self.assertEqual(
+            workspace.RunNetOnce(m.net.Proto().SerializeToString()), True)
+
+        proto = workspace.ApplyTransformIfFaster(
+            "ConvToNNPack",
+            m.net.Proto(),
+            init_net.Proto())
+        self.assertEqual(
+            workspace.RunNetOnce(proto.SerializeToString()), True)
+        proto = workspace.ApplyTransformIfFaster(
+            "ConvToNNPack",
+            m.net.Proto(),
+            init_net.Proto(),
+            warmup_runs=10,
+            main_runs=100,
+            improvement_threshold=2.0)
+        self.assertEqual(
+            workspace.RunNetOnce(proto.SerializeToString()), True)
 
 
 if __name__ == '__main__':

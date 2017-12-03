@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -25,12 +41,51 @@ CAFFE2_DECLARE_bool(caffe2_serialize_fp16_as_bytes);
 namespace caffe2 {
 using namespace ::caffe2::db;
 namespace {
-class BlobTestFoo {};
+class BlobTestFoo {
+ public:
+  int32_t val;
+};
 class BlobTestBar {};
 }
 
 CAFFE_KNOWN_TYPE(BlobTestFoo);
 CAFFE_KNOWN_TYPE(BlobTestBar);
+
+class BlobTestFooSerializer : public BlobSerializerBase {
+ public:
+  BlobTestFooSerializer() {}
+  ~BlobTestFooSerializer() {}
+  /**
+   * Serializes a Blob. Note that this blob has to contain Tensor<Context>,
+   * otherwise this function produces a fatal error.
+   */
+  void Serialize(
+      const Blob& blob,
+      const string& name,
+      SerializationAcceptor acceptor) override {
+    CAFFE_ENFORCE(blob.IsType<BlobTestFoo>());
+
+    BlobProto blob_proto;
+    blob_proto.set_name(name);
+    blob_proto.set_type("BlobTestFoo");
+    // For simplicity we will just serialize the 4-byte content as a string.
+    blob_proto.set_content(std::string(
+        reinterpret_cast<const char*>(&(blob.Get<BlobTestFoo>().val)),
+        sizeof(int32_t)));
+    acceptor(name, blob_proto.SerializeAsString());
+  }
+};
+
+class BlobTestFooDeserializer : public BlobDeserializerBase {
+ public:
+  void Deserialize(const BlobProto& proto, Blob* blob) override {
+    blob->GetMutable<BlobTestFoo>()->val =
+        reinterpret_cast<const int32_t*>(proto.content().c_str())[0];
+  }
+};
+
+REGISTER_BLOB_SERIALIZER((TypeMeta::Id<BlobTestFoo>()), BlobTestFooSerializer);
+REGISTER_BLOB_DESERIALIZER(BlobTestFoo, BlobTestFooDeserializer);
 
 namespace {
 
@@ -136,13 +191,32 @@ TEST(TensorNonTypedTest, TensorChangeType) {
   dims[1] = 3;
   dims[2] = 5;
   TensorCPU tensor(dims);
-  EXPECT_TRUE(tensor.mutable_data<int>() != nullptr);
+
+  auto* ptr = tensor.mutable_data<int>();
+  EXPECT_TRUE(ptr != nullptr);
   EXPECT_TRUE(tensor.data<int>() != nullptr);
   EXPECT_TRUE(tensor.meta().Match<int>());
 
-  EXPECT_TRUE(tensor.mutable_data<float>() != nullptr);
-  EXPECT_TRUE(tensor.data<float>() != nullptr);
+  // int and float are same size, so should retain the pointer
+  EXPECT_TRUE(tensor.mutable_data<float>() == (float*)ptr);
+  EXPECT_TRUE(tensor.data<float>() == (const float*)ptr);
   EXPECT_TRUE(tensor.meta().Match<float>());
+
+  // float16 is smaller, so still should share buffer
+  EXPECT_TRUE(tensor.mutable_data<float16>() == (float16*)ptr);
+  EXPECT_TRUE(tensor.data<float16>() == (const float16*)ptr);
+  EXPECT_TRUE(tensor.meta().Match<float16>());
+
+  // share the data with other tensor so that the pointer won't be reused
+  // when we reallocate
+  TensorCPU other_tensor(dims);
+  other_tensor.ShareData(tensor);
+  // but double is bigger, so it should allocate a new one
+  auto* doubleptr = tensor.mutable_data<double>();
+  EXPECT_TRUE(doubleptr != (double*)ptr);
+  EXPECT_TRUE(doubleptr != nullptr);
+  EXPECT_TRUE(tensor.data<double>() != nullptr);
+  EXPECT_TRUE(tensor.meta().Match<double>());
 }
 
 template <typename T> class TensorCPUTest : public ::testing::Test {};
@@ -555,6 +629,32 @@ TEST_SERIALIZATION_WITH_TYPE(uint8_t, int32_data)
 TEST_SERIALIZATION_WITH_TYPE(uint16_t, int32_data)
 TEST_SERIALIZATION_WITH_TYPE(int64_t, int64_data)
 
+TEST(TensorTest, TensorSerialization_CustomType) {
+  Blob blob;
+  TensorCPU* tensor = blob.GetMutable<TensorCPU>();
+  tensor->Resize(2, 3);
+  for (int i = 0; i < 6; ++i) {
+    tensor->mutable_data<BlobTestFoo>()[i].val = i;
+  }
+  string serialized = blob.Serialize("test");
+  BlobProto proto;
+  CHECK(proto.ParseFromString(serialized));
+  EXPECT_EQ(proto.name(), "test");
+  EXPECT_EQ(proto.type(), "Tensor");
+  Blob new_blob;
+  EXPECT_NO_THROW(new_blob.Deserialize(serialized));
+  EXPECT_TRUE(new_blob.IsType<TensorCPU>());
+  const TensorCPU& new_tensor = blob.Get<TensorCPU>();
+  EXPECT_EQ(new_tensor.ndim(), 2);
+  EXPECT_EQ(new_tensor.dim(0), 2);
+  EXPECT_EQ(new_tensor.dim(1), 3);
+  for (int i = 0; i < 6; ++i) {
+    EXPECT_EQ(
+        new_tensor.data<BlobTestFoo>()[i].val,
+        tensor->data<BlobTestFoo>()[i].val);
+  }
+}
+
 TEST(TensorTest, float16) {
   const TIndex kSize = 3000000;
   Blob blob;
@@ -717,16 +817,16 @@ TYPED_TEST(TypedTensorTest, BigTensorSerialization) {
       : static_cast<int64_t>(std::numeric_limits<int>::max()) + 1;
   int64_t size = d1 * d2;
   string db_source = (string)std::tmpnam(nullptr);
-  LOG(INFO) << "db_source: " << db_source;
+  VLOG(1) << "db_source: " << db_source;
 
   {
-    LOG(INFO) << "Test begin";
+    VLOG(1) << "Test begin";
     Blob blob;
     TensorCPU* tensor = blob.GetMutable<TensorCPU>();
-    LOG(INFO) << "Allocating blob";
+    VLOG(1) << "Allocating blob";
     tensor->Resize(d1, d2);
     auto mutableData = tensor->mutable_data<TypeParam>();
-    LOG(INFO) << "Filling out the blob";
+    VLOG(1) << "Filling out the blob";
     for (int64_t i = 0; i < size; ++i) {
       mutableData[i] = static_cast<TypeParam>(i);
     }
@@ -740,7 +840,7 @@ TYPED_TEST(TypedTensorTest, BigTensorSerialization) {
     };
     blob.Serialize("test", acceptor);
     VectorDB::registerData(db_source, std::move(data));
-    LOG(INFO) << "finished writing to DB";
+    VLOG(1) << "finished writing to DB";
   }
 
   {
@@ -760,10 +860,10 @@ TYPED_TEST(TypedTensorTest, BigTensorSerialization) {
     Workspace ws;
     auto load_op = CreateOperator(op_def, &ws);
     EXPECT_TRUE(load_op != nullptr);
-    LOG(INFO) << "Running operator";
+    VLOG(1) << "Running operator";
 
     load_op->Run();
-    LOG(INFO) << "Reading blob from workspace";
+    VLOG(1) << "Reading blob from workspace";
     auto new_blob = ws.GetBlob("test");
     EXPECT_TRUE(new_blob->IsType<TensorCPU>());
     const auto& new_tensor = new_blob->Get<TensorCPU>();
@@ -776,6 +876,7 @@ TYPED_TEST(TypedTensorTest, BigTensorSerialization) {
     }
   }
 }
+
 struct DummyType {
   /* This struct is used to test serialization and deserialization of huge
    * blobs, that are not tensors.
@@ -835,15 +936,15 @@ CAFFE_REGISTER_TYPED_CLASS(
 
 TEST(ContentChunks, Serialization) {
   string db_source = (string)std::tmpnam(nullptr);
-  LOG(INFO) << "db_source: " << db_source;
+  VLOG(1) << "db_source: " << db_source;
 
   {
-    LOG(INFO) << "Test begin";
+    VLOG(1) << "Test begin";
     Blob blob;
     DummyType* container = blob.GetMutable<DummyType>();
-    LOG(INFO) << "Allocating blob";
+    VLOG(1) << "Allocating blob";
     container->n_chunks = 10;
-    LOG(INFO) << "Filling out the blob";
+    VLOG(1) << "Filling out the blob";
     StringMap data;
     std::mutex mutex;
     auto acceptor = [&](const std::string& key, const std::string& value) {
@@ -852,7 +953,7 @@ TEST(ContentChunks, Serialization) {
     };
     blob.Serialize("test", acceptor);
     VectorDB::registerData(db_source, std::move(data));
-    LOG(INFO) << "finished writing to DB";
+    VLOG(1) << "finished writing to DB";
   }
 
   {
@@ -872,10 +973,10 @@ TEST(ContentChunks, Serialization) {
     Workspace ws;
     auto load_op = CreateOperator(op_def, &ws);
     EXPECT_TRUE(load_op != nullptr);
-    LOG(INFO) << "Running operator";
+    VLOG(1) << "Running operator";
 
     load_op->Run();
-    LOG(INFO) << "Reading blob from workspace";
+    VLOG(1) << "Reading blob from workspace";
     auto new_blob = ws.GetBlob("test");
     EXPECT_TRUE(new_blob->IsType<DummyType>());
     const auto& container = new_blob->Get<DummyType>();

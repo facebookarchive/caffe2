@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -7,6 +22,9 @@ from caffe2.python import scope
 
 import contextlib
 import itertools
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ParameterSharingContext(object):
@@ -52,7 +70,12 @@ class ParameterSharingContext(object):
                         sub_scopes[best_scope_idx + 1:]))
 
     def get_parameter_name(self, name):
-        best_scope = self._resolve_scope_overrides(scope.CurrentNameScope())
+        candidate_scope = scope.CurrentNameScope()
+        best_scope = self._resolve_scope_overrides(candidate_scope)
+        if best_scope != candidate_scope:
+            logger.info("Overwiting scope {0} with scope {1}".format(
+                candidate_scope, best_scope))
+
         return best_scope + name
 
     def add_scope_overrides(self, shared_scopes):

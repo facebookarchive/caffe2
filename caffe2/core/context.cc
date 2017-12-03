@@ -1,42 +1,43 @@
-#include "caffe2/core/context.h"
-#include "caffe2/core/logging.h"
-#include "caffe2/core/tensor.h"
-#include "caffe2/core/typeid.h"
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-CAFFE2_DEFINE_bool(
-    caffe2_report_cpu_memory_usage,
-    false,
-    "If set, print out detailed memory usage");
+#include "caffe2/core/context.h"
+
+#include <atomic>
+#if defined(_MSC_VER)
+#include <process.h>
+#endif
 
 namespace caffe2 {
 
-static std::unique_ptr<CPUAllocator> g_cpu_allocator(new DefaultCPUAllocator());
-CPUAllocator* GetCPUAllocator() {
-  return g_cpu_allocator.get();
+uint32_t RandomNumberSeed() {
+  // Originally copied from folly::randomNumberSeed (at 418ad4)
+  // modified to use chrono instead of sys/time.h
+  static std::atomic<uint32_t> seedInput(0);
+  auto tv = std::chrono::system_clock::now().time_since_epoch();
+  uint64_t usec = static_cast<uint64_t>(
+      std::chrono::duration_cast<std::chrono::microseconds>(tv).count());
+  uint32_t tv_sec = usec / 1000000;
+  uint32_t tv_usec = usec % 1000000;
+  const uint32_t kPrime0 = 51551;
+  const uint32_t kPrime1 = 61631;
+  const uint32_t kPrime2 = 64997;
+  const uint32_t kPrime3 = 111857;
+  return kPrime0 * (seedInput++) + kPrime1 * static_cast<uint32_t>(getpid()) +
+      kPrime2 * tv_sec + kPrime3 * tv_usec;
 }
 
-void SetCPUAllocator(CPUAllocator* alloc) {
-  g_cpu_allocator.reset(alloc);
-}
-
-MemoryAllocationReporter CPUContext::reporter_;
-
-void MemoryAllocationReporter::New(void* ptr, size_t nbytes) {
-  std::lock_guard<std::mutex> guard(mutex_);
-  size_table_[ptr] = nbytes;
-  allocated_ += nbytes;
-  LOG(INFO) << "Caffe2 alloc " << nbytes << " bytes, total alloc " << allocated_
-            << " bytes.";
-}
-
-void MemoryAllocationReporter::Delete(void* ptr) {
-  std::lock_guard<std::mutex> guard(mutex_);
-  auto it = size_table_.find(ptr);
-  CHECK(it != size_table_.end());
-  allocated_ -= it->second;
-  LOG(INFO) << "Caffe2 deleted " << it->second << " bytes, total alloc "
-            << allocated_ << " bytes.";
-  size_table_.erase(it);
-}
-
-}  // namespace caffe2
+} // namespace caffe2

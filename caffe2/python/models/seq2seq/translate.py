@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package translate
 # Module caffe2.python.models.seq2seq.translate
 from __future__ import absolute_import
@@ -388,6 +403,7 @@ class Seq2SeqModelCaffe2EnsembleDecoder(object):
             log_probs=output_log_probs_average,
             attentions=attention_weights_average,
             state_configs=state_configs,
+            data_dependencies=[],
             word_rewards=word_rewards,
         )
 
@@ -460,7 +476,7 @@ class Seq2SeqModelCaffe2EnsembleDecoder(object):
             np.array([max_output_seq_len]).astype(dtype=np.int64),
         )
 
-        workspace.RunNetOnce(self.model.net)
+        workspace.RunNet(self.model.net)
 
         num_steps = max_output_seq_len
         score_beam_list = workspace.FetchBlob(self.output_score_beam_list)
@@ -570,10 +586,14 @@ def main():
                         'in encoder')
     parser.add_argument('--use-attention', action='store_true',
                         help='Set flag to use seq2seq with attention model')
-    parser.add_argument('--encoder-cell-num-units', type=int, default=256,
-                        help='Number of cell units in the encoder layer')
+    parser.add_argument('--encoder-cell-num-units', type=int, default=512,
+                        help='Number of cell units per encoder layer')
+    parser.add_argument('--encoder-num-layers', type=int, default=2,
+                        help='Number encoder layers')
     parser.add_argument('--decoder-cell-num-units', type=int, default=512,
                         help='Number of cell units in the decoder layer')
+    parser.add_argument('--decoder-num-layers', type=int, default=2,
+                        help='Number decoder layers')
     parser.add_argument('--encoder-embedding-size', type=int, default=256,
                         help='Size of embedding in the encoder layer')
     parser.add_argument('--decoder-embedding-size', type=int, default=512,
@@ -594,21 +614,29 @@ def main():
 
     args = parser.parse_args()
 
+    encoder_layer_configs = [
+        dict(
+            num_units=args.encoder_cell_num_units,
+        ),
+    ] * args.encoder_num_layers
+
+    if args.use_bidirectional_encoder:
+        assert args.encoder_cell_num_units % 2 == 0
+        encoder_layer_configs[0]['num_units'] /= 2
+
+    decoder_layer_configs = [
+        dict(
+            num_units=args.decoder_cell_num_units,
+        ),
+    ] * args.decoder_num_layers
+
     run_seq2seq_beam_decoder(
         args,
         model_params=dict(
             attention=('regular' if args.use_attention else 'none'),
-            decoder_layer_configs=[
-                dict(
-                    num_units=args.decoder_cell_num_units,
-                ),
-            ],
+            decoder_layer_configs=decoder_layer_configs,
             encoder_type=dict(
-                encoder_layer_configs=[
-                    dict(
-                        num_units=args.encoder_cell_num_units,
-                    ),
-                ],
+                encoder_layer_configs=encoder_layer_configs,
                 use_bidirectional_encoder=args.use_bidirectional_encoder,
             ),
             encoder_embedding_size=args.encoder_embedding_size,

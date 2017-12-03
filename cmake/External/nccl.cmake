@@ -23,14 +23,16 @@ if (NOT __NCCL_INCLUDED)
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ""
       BUILD_COMMAND
-          make "CXX=${CMAKE_CXX_COMPILER}" "CUDA_HOME=${CUDA_TOOLKIT_ROOT_DIR}"
+        make
+        "CXX=${CMAKE_CXX_COMPILER}"
+        "CUDA_HOME=${CUDA_TOOLKIT_ROOT_DIR}"
+        "NVCC=${CUDA_NVCC_EXECUTABLE}"
       INSTALL_COMMAND ""
       )
 
     set(NCCL_FOUND TRUE)
     set(NCCL_INCLUDE_DIRS ${nccl_PREFIX}/build/include)
     set(NCCL_LIBRARIES ${nccl_PREFIX}/build/lib/libnccl_static.a)
-    set(NCCL_LIBRARY_DIRS ${nccl_PREFIX}/build/lib)
     set(NCCL_EXTERNAL TRUE)
 
     list(APPEND Caffe2_EXTERNAL_DEPENDENCIES nccl_external)

@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -83,6 +98,30 @@ class pFP16Initializer(Initializer):
             blob_copy={DataType.FLOAT: param_fp32}
         )
 
+
+class ReversepFP16Initializer(Initializer):
+
+    def update(self, operator_name, kwargs):
+        if self.operator_name is not None:
+            raise Exception("Operator name overwrites are not allowed")
+        self.operator_name = operator_name
+        self.operator_kwargs = kwargs
+
+    def create_param(self, param_name, init_net, shape):
+        # create master fp32 copy
+        param_fp32 = init_net.__getattr__(self.operator_name)(
+            [], param_name, shape=shape,
+            **self.operator_kwargs)
+        # cast to fp16 copy
+        param_fp16 = init_net.FloatToHalf(
+            param_fp32, param_name + "_fp16")
+
+        return ParameterInfo(
+            param_id=None,
+            param=param_fp32,
+            shape=shape,
+            blob_copy={DataType.FLOAT16: param_fp16}
+        )
 
 def update_initializer(initializer_class,
                        operator_name_and_kwargs,

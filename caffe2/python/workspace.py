@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package workspace
 # Module caffe2.python.workspace
 from __future__ import absolute_import
@@ -35,7 +50,7 @@ SwitchWorkspace = C.switch_workspace
 RootFolder = C.root_folder
 Workspaces = C.workspaces
 BenchmarkNet = C.benchmark_net
-Predictor = C.Predictor
+GetStats = C.get_stats
 
 operator_tracebacks = defaultdict(dict)
 
@@ -45,16 +60,21 @@ if has_gpu_support:
     NumCudaDevices = C.num_cuda_devices
     SetDefaultGPUID = C.set_default_gpu_id
     GetDefaultGPUID = C.get_default_gpu_id
+    GetCUDAVersion = C.get_cuda_version
     GetCuDNNVersion = C.get_cudnn_version
 
     def GetCudaPeerAccessPattern():
         return np.asarray(C.get_cuda_peer_access_pattern())
+
+    GetDeviceProperties = C.get_device_properties
 else:
     NumCudaDevices = lambda: 0 # noqa
     SetDefaultGPUID = lambda x: None # noqa
     GetDefaultGPUID = lambda: 0 # noqa
     GetCuDNNVersion = lambda: 0 # noqa
+    GetCuDNNVersion = lambda: 0 # noqa
     GetCudaPeerAccessPattern = lambda: np.array([]) # noqa
+    GetDeviceProperties = lambda x: None # noqa
 
 
 def _GetFreeFlaskPort():
@@ -147,6 +167,13 @@ def CreateNet(net, overwrite=False, input_blobs=None):
         StringifyProto(net), overwrite,
     )
 
+
+def Predictor(init_net, predict_net):
+    return C.Predictor(StringifyProto(init_net), StringifyProto(predict_net))
+
+
+def GetOperatorCost(operator, blobs):
+    return C.get_operator_cost(StringifyProto(operator), blobs)
 
 
 def RunOperatorOnce(operator):
@@ -337,6 +364,49 @@ def ApplyTransform(transform_key, net):
     transformed_str = C.apply_transform(
         str(transform_key).encode('utf-8'),
         net.SerializeToString(),
+    )
+    transformed_net.ParseFromString(transformed_str)
+    return transformed_net
+
+
+def ApplyTransformIfFaster(transform_key, net, init_net, **kwargs):
+    """Apply a Transform to a NetDef protobuf object, and returns the new
+    transformed NetDef, only if it runs faster than the original.
+
+    The runs are performed on the current active workspace (gWorkspace).
+    You should initialize that workspace before making a call to this function.
+
+    Inputs:
+      transform_key: the name of the transform, as it is stored in the registry
+      net: a NetDef protobuf object
+      init_net: The net to initialize the workspace.
+      warmup_runs (optional):
+        Determines how many times the net is run before testing.
+        Will be 5 by default.
+      main_runs (optional):
+        Determines how many times the net is run during testing.
+        Will be 10 by default.
+      improvement_threshold (optional):
+        Determines the factor which the new net needs to be faster
+        in order to replace the old. Will be 1.01 by default.
+
+    Returns:
+      Either a Transformed NetDef protobuf object, or the original netdef.
+    """
+
+    warmup_runs = kwargs['warmup_runs'] if 'warmup_runs' in kwargs else 5
+    main_runs = kwargs['main_runs'] if 'main_runs' in kwargs else 10
+    improvement_threshold = kwargs['improvement_threshold'] \
+        if 'improvement_threshold' in kwargs else 1.01
+
+    transformed_net = caffe2_pb2.NetDef()
+    transformed_str = C.apply_transform_if_faster(
+        str(transform_key).encode('utf-8'),
+        net.SerializeToString(),
+        init_net.SerializeToString(),
+        warmup_runs,
+        main_runs,
+        float(improvement_threshold),
     )
     transformed_net.ParseFromString(transformed_str)
     return transformed_net

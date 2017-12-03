@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/common_gpu.h"
 #include "caffe2/core/asan.h"
 
@@ -7,6 +23,18 @@
 
 #include "caffe2/core/init.h"
 #include "caffe2/core/logging.h"
+
+CAFFE2_DEFINE_bool(
+    caffe2_cuda_full_device_control,
+    false,
+    "If true, assume all the cudaSetDevice and cudaGetDevice calls will be "
+    "controlled by Caffe2, and non-Caffe2 code will ensure that the entry and "
+    "exit point has the same cuda device. Under the hood, Caffe2 will use "
+    "thread local variables to cache the device, in order to speed up set and "
+    "get device calls. This is an experimental feature that may have non "
+    "trivial side effects, so use it with care and only enable it if you are "
+    "absolutely sure. Also, this flag should not be changed after the program "
+    "initializes.");
 
 namespace caffe2 {
 
@@ -75,6 +103,8 @@ int NumCudaDevices() {
 
 namespace {
 int gDefaultGPUID = 0;
+// Only used when FLAGS_caffe2_cuda_full_device_control is set true.
+thread_local int gCurrentDevice = -1;
 }  // namespace
 
 void SetDefaultGPUID(const int deviceid) {
@@ -88,12 +118,31 @@ void SetDefaultGPUID(const int deviceid) {
       NumCudaDevices());
   gDefaultGPUID = deviceid;
 }
+
 int GetDefaultGPUID() { return gDefaultGPUID; }
 
-int GetCurrentGPUID() {
-  int gpu_id = 0;
-  CUDA_ENFORCE(cudaGetDevice(&gpu_id));
-  return gpu_id;
+int CaffeCudaGetDevice() {
+  if (FLAGS_caffe2_cuda_full_device_control) {
+    if (gCurrentDevice < 0) {
+      CUDA_ENFORCE(cudaGetDevice(&gCurrentDevice));
+    }
+    return gCurrentDevice;
+  } else {
+    int gpu_id = 0;
+    CUDA_ENFORCE(cudaGetDevice(&gpu_id));
+    return gpu_id;
+  }
+}
+
+void CaffeCudaSetDevice(const int id) {
+  if (FLAGS_caffe2_cuda_full_device_control) {
+    if (gCurrentDevice != id) {
+      CUDA_ENFORCE(cudaSetDevice(id));
+    }
+    gCurrentDevice = id;
+  } else {
+    CUDA_ENFORCE(cudaSetDevice(id));
+  }
 }
 
 int GetGPUIDForPointer(const void* ptr) {
@@ -119,8 +168,22 @@ int GetGPUIDForPointer(const void* ptr) {
   return attr.device;
 }
 
+struct CudaDevicePropWrapper {
+  CudaDevicePropWrapper() : props(NumCudaDevices()) {
+    for (int i = 0; i < NumCudaDevices(); ++i) {
+      CUDA_ENFORCE(cudaGetDeviceProperties(&props[i], i));
+    }
+  }
+
+  vector<cudaDeviceProp> props;
+};
+
 const cudaDeviceProp& GetDeviceProperty(const int deviceid) {
-  static vector<cudaDeviceProp> props;
+  // According to C++11 standard section 6.7, static local variable init is
+  // thread safe. See
+  //   https://stackoverflow.com/questions/8102125/is-local-static-variable-initialization-thread-safe-in-c11
+  // for details.
+  static CudaDevicePropWrapper props;
   CAFFE_ENFORCE_LT(
       deviceid,
       NumCudaDevices(),
@@ -129,13 +192,7 @@ const cudaDeviceProp& GetDeviceProperty(const int deviceid) {
       deviceid,
       " vs ",
       NumCudaDevices());
-  if (props.size() == 0) {
-    props.resize(NumCudaDevices());
-    for (int i = 0; i < NumCudaDevices(); ++i) {
-      CUDA_ENFORCE(cudaGetDeviceProperties(&props[i], i));
-    }
-  }
-  return props[deviceid];
+  return props.props[deviceid];
 }
 
 void DeviceQuery(const int device) {
@@ -191,6 +248,18 @@ bool GetCudaPeerAccessPattern(vector<vector<bool> >* pattern) {
     }
   }
   return true;
+}
+
+bool TensorCoreAvailable() {
+  // requires CUDA 9.0 and above
+#if CUDA_VERSION < 9000
+  return false;
+#else
+  int device = CaffeCudaGetDevice();
+  auto& prop = GetDeviceProperty(device);
+
+  return prop.major >= 7;
+#endif
 }
 
 const char* cublasGetErrorString(cublasStatus_t error) {
@@ -256,4 +325,18 @@ const char* curandGetErrorString(curandStatus_t error) {
   // To suppress compiler warning.
   return "Unrecognized curand error string";
 }
+
+// Turn on the flag g_caffe2_has_cuda_linked to true for HasCudaRuntime()
+// function.
+extern bool g_caffe2_has_cuda_linked;
+namespace {
+class CudaRuntimeFlagFlipper {
+ public:
+  CudaRuntimeFlagFlipper() {
+    g_caffe2_has_cuda_linked = true;
+  }
+};
+static CudaRuntimeFlagFlipper g_flipper;
+} // namespace
+
 }  // namespace caffe2

@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -25,6 +40,7 @@ from caffe2.python.layer_test_util import (
     OpSpec,
 )
 from caffe2.python.layers.layers import (
+    IdList,
     set_request_only,
     is_request_only_scalar,
 )
@@ -257,6 +273,22 @@ class TestLayers(LayersTestCase):
         loss = self.model.BatchLRLoss(input_record)
         self.assertEqual(schema.Scalar((np.float32, tuple())), loss)
 
+    def testMarginRankLoss(self):
+        input_record = self.new_record(schema.Struct(
+            ('pos_prediction', schema.Scalar((np.float32, (1,)))),
+            ('neg_prediction', schema.List(np.float32)),
+        ))
+        pos_items = np.array([0.1, 0.2, 0.3], dtype=np.float32)
+        neg_lengths = np.array([1, 2, 3], dtype=np.int32)
+        neg_items = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6], dtype=np.float32)
+        schema.FeedRecord(
+            input_record,
+            [pos_items, neg_lengths, neg_items]
+        )
+        loss = self.model.MarginRankLoss(input_record)
+        self.run_train_net_forward_only()
+        self.assertEqual(schema.Scalar((np.float32, tuple())), loss)
+
     def testBatchMSELoss(self):
         input_record = self.new_record(schema.Struct(
             ('label', schema.Scalar((np.float64, (1,)))),
@@ -386,9 +418,11 @@ class TestLayers(LayersTestCase):
         schema.FeedRecord(input_record, [X])
         last_n = self.model.LastNWindowCollector(input_record, num_to_collect)
         self.run_train_net_forward_only()
-        output_record = schema.FetchRecord(last_n)
+        output_record = schema.FetchRecord(last_n.last_n)
         start = max(0, 5 - num_to_collect)
         npt.assert_array_equal(X[start:], output_record())
+        num_visited = schema.FetchRecord(last_n.num_visited)
+        npt.assert_array_equal([5], num_visited())
 
     def testUniformSampling(self):
         input_record = self.new_record(schema.Scalar(np.int32))
@@ -410,6 +444,13 @@ class TestLayers(LayersTestCase):
                      dtype=np.float32),
             sampling_prob
         )
+
+    def testUniformSamplingWithIncorrectSampleSize(self):
+        input_record = self.new_record(schema.Scalar(np.int32))
+        num_samples = 200
+        num_elements = 100
+        with self.assertRaises(AssertionError):
+            self.model.UniformSampling(input_record, num_samples, num_elements)
 
     def testGatherRecord(self):
         indices = np.array([1, 3, 4], dtype=np.int32)
@@ -700,6 +741,11 @@ class TestLayers(LayersTestCase):
         self.assertEqual((k,), topk.field_types()[1].shape)
         self.assertEqual(['TopK/values', 'TopK/indices'], topk.field_blobs())
 
+    def testFunctionalLayerSameOperatorOutputNames(self):
+        Con1 = self.model.ConstantFill([], 1, value=1)
+        Con2 = self.model.ConstantFill([], 1, value=2)
+        self.assertNotEqual(str(Con1), str(Con2))
+
     def testFunctionalLayerWithOutputDtypes(self):
         loss = self.model.AveragedLoss(
             self.model.input_feature_schema,
@@ -809,6 +855,32 @@ class TestLayers(LayersTestCase):
         workspace.RunNetOnce(predict_net)
 
     @given(
+        num_inputs=st.integers(1, 3),
+        batch_size=st.integers(5, 10)
+    )
+    def testMergeIdListsLayer(self, num_inputs, batch_size):
+        inputs = []
+        for _ in range(num_inputs):
+            lengths = np.random.randint(5, size=batch_size).astype(np.int32)
+            size = lengths.sum()
+            values = np.random.randint(1, 10, size=size).astype(np.int64)
+            inputs.append(lengths)
+            inputs.append(values)
+        input_schema = schema.Tuple(
+            *[schema.List(
+                schema.Scalar(dtype=np.int64, metadata=schema.Metadata(
+                    categorical_limit=20
+                ))) for _ in range(num_inputs)]
+        )
+
+        input_record = schema.NewRecord(self.model.net, input_schema)
+        schema.FeedRecord(input_record, inputs)
+        output_schema = self.model.MergeIdLists(input_record)
+        assert schema.equal_schemas(
+            output_schema, IdList,
+            check_field_names=False)
+
+    @given(
         batch_size=st.integers(min_value=2, max_value=10),
         input_dims=st.integers(min_value=5, max_value=10),
         output_dims=st.integers(min_value=5, max_value=10),
@@ -829,7 +901,7 @@ class TestLayers(LayersTestCase):
             """
             output = workspace.FetchBlob(rff_output)
             output_ref = scale * np.cos(np.dot(X, np.transpose(W)) + b)
-            npt.assert_allclose(output, output_ref, rtol=1e-4)
+            npt.assert_allclose(output, output_ref, rtol=1e-3, atol=1e-3)
 
         X = np.random.random((batch_size, input_dims)).astype(np.float32)
         scale = np.sqrt(2.0 / output_dims)
@@ -922,7 +994,7 @@ class TestLayers(LayersTestCase):
             output_ref = np.multiply(x_pow, h_rand_features)
 
             # Comparing net output and computed output
-            npt.assert_allclose(net_output, output_ref, rtol=1e-4)
+            npt.assert_allclose(net_output, output_ref, rtol=1e-3, atol=1e-3)
 
         X = np.random.normal(size=(batch_size, input_dims)).astype(np.float32)
         input_record = self.new_record(schema.Scalar((np.float32, (input_dims,))))
@@ -1048,7 +1120,7 @@ class TestLayers(LayersTestCase):
             output_ref = np.multiply(np.multiply(x_pow, h_rand_features), x_learn)
 
             # Comparing net output and computed output
-            npt.assert_allclose(net_output, output_ref, rtol=1e-4)
+            npt.assert_allclose(net_output, output_ref, rtol=1e-3, atol=1e-3)
 
         X_full = np.random.normal(size=(batch_size, input_dims)).astype(np.float32)
         if use_struct_input:

@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -53,6 +68,7 @@ class TesterBase:
                 op = core.CreateOperator(
                     prefix + op_name, inputs, ['output'], **operator_args
                 )
+                print('Operator %s' % op.type)
 
                 def seg_reduce(data, *args):
                     indices, segments = (
@@ -219,6 +235,8 @@ def max_grad(grad_out, outputs, inputs):
     flat_grad_in = np.zeros(flat_inputs.shape)
     flat_grad_out = np.array(grad_out).flatten()
     blocks = inputs[0].shape[0]
+    if blocks == 0:
+        return np.zeros(inputs[0].shape)
     block_size = flat_inputs.shape[0] // blocks
 
     for i in range(block_size):
@@ -226,9 +244,9 @@ def max_grad(grad_out, outputs, inputs):
         out = flat_outputs[i]
         for j in range(blocks):
             idx = j * block_size + i
+            # we can produce multiple outputs for max
             if out == flat_inputs[idx]:
                 flat_grad_in[idx] = out_grad
-                break
 
     return np.resize(flat_grad_in, inputs[0].shape)
 
@@ -246,6 +264,35 @@ REFERENCES_SORTED = [
     ('RangeMean', mean, mean_grad),
     ('RangeMax', max_fwd, max_grad),
 ]
+
+REFERENCES_LENGTHS_ONLY = [
+    ('Max', partial(np.amax, axis=0), max_grad),
+]
+
+def sparse_lengths_weighted_sum_ref(D, W, I, L):
+    R = np.zeros(shape=(len(L), ) + D.shape[1:], dtype=D.dtype)
+    line = 0
+    for g in range(len(L)):
+        for _ in range(L[g]):
+            R[g, :] += W[line] * D[I[line], :]
+            line += 1
+    return [R]
+
+
+def sparse_lengths_weighted_sum_grad_ref(
+        GO, fwd_out, fwd_in, grad_on_weights=False):
+    D, W, I, L = fwd_in
+    GI = np.zeros(shape=(len(I), ) + D.shape[1:], dtype=D.dtype)
+    GW = np.zeros(shape=W.shape, dtype=W.dtype) if grad_on_weights else None
+    line = 0
+    for g in range(len(L)):
+        for _ in range(L[g]):
+            GI[line, :] = W[line] * GO[g, :]
+            if GW is not None:
+                GW[line] = np.dot(GO[g].flatten(), D[I[line], :].flatten())
+            line += 1
+    print(GW)
+    return [(GI, I), GW, None, None]
 
 
 class TestSegmentOps(hu.HypothesisTestCase):
@@ -280,7 +327,7 @@ class TestSegmentOps(hu.HypothesisTestCase):
                 allow_empty=True,
             ),
             REFERENCES_ALL,
-            gpu=True,
+            gpu=workspace.has_gpu_support,
             grad_check=False,
         )(self)
 
@@ -315,7 +362,7 @@ class TestSegmentOps(hu.HypothesisTestCase):
                 max_value=5,
                 allow_empty=True
             ),
-            REFERENCES_ALL
+            REFERENCES_ALL + REFERENCES_LENGTHS_ONLY
         )(self)
 
     def test_sparse_lengths_ops(self):
@@ -366,6 +413,32 @@ class TestSegmentOps(hu.HypothesisTestCase):
         self.assertGradientChecks(gc, op, [X, Y, Z], 0, [0])
 
     @given(**hu.gcs)
+    def test_sparse_lengths_weighted_sum_gpu(self, gc, dc):
+        for grad_on_weights in (False, True):
+            D = np.random.rand(50, 3, 4, 5).astype(np.float32)
+            W = np.random.rand(10).astype(np.float32)
+            I = np.random.randint(0, 50, size=10).astype(np.int64)
+            L = np.asarray([4, 4, 2]).astype(np.int32)
+            op = core.CreateOperator(
+                "SparseLengthsWeightedSum",
+                ["D", "W", "I", "L"],
+                "out",
+                grad_on_weights=grad_on_weights)
+            self.assertDeviceChecks(dc, op, [D, W, I, L], [0])
+            self.assertReferenceChecks(
+                device_option=gc,
+                op=op,
+                inputs=[D, W, I, L],
+                reference=sparse_lengths_weighted_sum_ref,
+                threshold=1e-4,
+                output_to_grad='out',
+                grad_reference=partial(
+                    sparse_lengths_weighted_sum_grad_ref,
+                    grad_on_weights=grad_on_weights),
+            )
+            self.assertGradientChecks(gc, op, [D, W, I, L], 0, [0])
+
+    @given(**hu.gcs)
     def test_sparse_lengths_indices_in_gradient_sum_gpu(self, gc, dc):
         X = np.random.rand(3, 3, 4, 5).astype(np.float32)
         Y = np.asarray([3, 3, 2]).astype(np.int32)
@@ -388,6 +461,21 @@ class TestSegmentOps(hu.HypothesisTestCase):
         out1 = workspace.FetchBlob("out1")
         out2 = workspace.FetchBlob("out2")
         self.assertTrue((out1 == out2).all())
+
+    @given(**hu.gcs)
+    def test_sparse_lengths_sum_invalid_index(self, gc, dc):
+        D = np.random.rand(50, 3, 4, 5).astype(np.float32)
+        I = (np.random.randint(0, 10000, size=10) + 10000).astype(np.int64)
+        L = np.asarray([4, 4, 2]).astype(np.int32)
+        op = core.CreateOperator(
+            "SparseLengthsSum",
+            ["D", "I", "L"],
+            "out")
+        workspace.FeedBlob('D', D)
+        workspace.FeedBlob('I', I)
+        workspace.FeedBlob('L', L)
+        with self.assertRaises(RuntimeError):
+            workspace.RunOperatorOnce(op)
 
 
 if __name__ == "__main__":

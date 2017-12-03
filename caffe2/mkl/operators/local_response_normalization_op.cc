@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/local_response_normalization_op.h"
 #include "caffe2/core/context.h"
 #include "caffe2/core/operator.h"
@@ -15,20 +31,13 @@ class MKLLRNOp final : public LRNOpBase<T, MKLContext> {
   MKLLRNOp(const OperatorDef& operator_def, Workspace* ws)
       : LRNOpBase<T, MKLContext>(operator_def, ws) {}
 
-  ~MKLLRNOp() {
-    if (workspace_buffer_ != NULL) {
-      dnnReleaseBuffer<T>(workspace_buffer_);
-      workspace_buffer_ = NULL;
-    }
-  }
-
   bool RunOnDeviceWithOrderNCHW() override;
   bool RunOnDeviceWithOrderNHWC() override;
 
  private:
   vector<TIndex> cached_input_dims_;
   LayoutWrapper<T> workspace_layout_;
-  T* workspace_buffer_ = nullptr;
+  std::unique_ptr<MKLWorkspace<T>> workspace_buffer_;
   PrimitiveWrapper<T> primitive_;
   MKLMemory<T> buffer_;
   void* resources_[dnnResourceNumber] = {0};
@@ -59,8 +68,8 @@ bool MKLLRNOp<float>::RunOnDeviceWithOrderNCHW() {
     buffer_.Reset(X.dims(), primitive_, dnnResourceDst, true);
 
     workspace_layout_.Reset(primitive_, dnnResourceWorkspace);
-    MKLDNN_SAFE_CALL(mkl::dnnAllocateBuffer<float>(
-        (void**)(&workspace_buffer_), workspace_layout_));
+    workspace_buffer_ =
+        caffe2::make_unique<MKLWorkspace<float>>(workspace_layout_);
   }
 
   // Try to share from the output: this allows us to avoid unnecessary copy
@@ -69,7 +78,7 @@ bool MKLLRNOp<float>::RunOnDeviceWithOrderNCHW() {
   buffer_.ShareFrom(*Y);
   resources_[dnnResourceSrc] = X.buffer();
   resources_[dnnResourceDst] = buffer_.buffer();
-  resources_[dnnResourceWorkspace] = workspace_buffer_;
+  resources_[dnnResourceWorkspace] = workspace_buffer_->buffer();
   MKLDNN_SAFE_CALL(mkl::dnnExecute<float>(primitive_, resources_));
   buffer_.CopyTo(Y, primitive_, dnnResourceDst);
   return true;

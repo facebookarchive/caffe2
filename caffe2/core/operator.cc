@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/operator.h"
 
 #include <algorithm>
@@ -6,11 +22,17 @@
 #include "caffe2/core/net.h"
 #include "caffe2/core/operator_gradient.h"
 #include "caffe2/core/tensor.h"
+#include "caffe2/core/types.h"
 #include "caffe2/core/workspace.h"
 
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/utils/proto_utils.h"
 #include "caffe2/utils/string_utils.h"
+
+CAFFE2_DEFINE_int(
+    caffe2_operator_max_engine_name_length,
+    10,
+    "Maximum engine name length to be stored");
 
 namespace caffe2 {
 
@@ -19,7 +41,8 @@ OperatorBase::OperatorBase(const OperatorDef& operator_def, Workspace* ws)
       operator_def_(std::make_shared<OperatorDef>(operator_def)),
       device_option_(
           operator_def.has_device_option() ? operator_def.device_option()
-                                           : DeviceOption()) {
+                                           : DeviceOption()),
+      event_(caffe2::make_unique<Event>(device_option_)) {
   for (const string& input_str : operator_def.input()) {
     auto* blob = ws->GetBlob(input_str);
     CAFFE_ENFORCE(
@@ -38,9 +61,26 @@ OperatorBase::OperatorBase(const OperatorDef& operator_def, Workspace* ws)
   }
 }
 
+vector<TensorShape> OperatorBase::InputTensorShapes() {
+  vector<TensorShape> tps;
+  for (const auto& blob : inputs_) {
+    tps.push_back(GetTensorShapeOfBlob(blob));
+  }
+  return tps;
+}
+
 namespace {
-static PerOpEnginePrefType g_per_op_engine_pref{};
-static GlobalEnginePrefType g_global_engine_pref{};
+
+PerOpEnginePrefType& g_per_op_engine_pref() {
+  static auto* g_per_op_engine_pref_ = new PerOpEnginePrefType();
+  return *g_per_op_engine_pref_;
+}
+
+GlobalEnginePrefType& g_global_engine_pref() {
+  static auto* g_global_engine_pref_ =
+      new GlobalEnginePrefType{{DeviceType::CUDA, {"CUDNN"}}};
+  return *g_global_engine_pref_;
+}
 
 unique_ptr<OperatorBase> TryCreateOperator(
     const string& key, const OperatorDef& operator_def, Workspace* ws) {
@@ -70,6 +110,7 @@ unique_ptr<OperatorBase> _CreateOperator(
   const auto op_type = operator_def.type();
   const auto device_type = operator_def.device_option().device_type();
 
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
   // first, check with OpSchema if the operator is legal.
   auto* schema = OpSchemaRegistry::Schema(op_type);
   if (schema) {
@@ -84,6 +125,7 @@ unique_ptr<OperatorBase> _CreateOperator(
     LOG(ERROR) << "Cannot find operator schema for " << op_type
                << ". Will skip schema checking.";
   }
+#endif
 
   // second try engines specified in the operator_def and preferred engines
   std::vector<std::string> engines{};
@@ -91,23 +133,30 @@ unique_ptr<OperatorBase> _CreateOperator(
     const auto op_def_engines = split(',', operator_def.engine());
     engines.insert(engines.end(), op_def_engines.begin(), op_def_engines.end());
   }
-  if (g_per_op_engine_pref.count(device_type) &&
-      g_per_op_engine_pref[device_type].count(op_type)) {
-    const auto& preferred_engines = g_per_op_engine_pref[device_type][op_type];
+  if (g_per_op_engine_pref().count(device_type) &&
+      g_per_op_engine_pref()[device_type].count(op_type)) {
+    const auto& preferred_engines =
+        g_per_op_engine_pref()[device_type][op_type];
     engines.insert(
         engines.end(), preferred_engines.begin(), preferred_engines.end());
   }
-  if (g_global_engine_pref.count(device_type)) {
-    const auto& preferred_engines = g_global_engine_pref[device_type];
+  if (g_global_engine_pref().count(device_type)) {
+    const auto& preferred_engines = g_global_engine_pref()[device_type];
     engines.insert(
         engines.end(), preferred_engines.begin(), preferred_engines.end());
   }
   for (const auto& engine : engines) {
-    const std::string key = op_type + "_ENGINE_" + engine;
+    const std::string key = OpRegistryKey(op_type, engine);
     VLOG(1) << "Trying to create operator " << op_type << " with engine "
             << engine;
     auto op = TryCreateOperator(key, operator_def, ws);
     if (op) {
+      if (engine.size() <= FLAGS_caffe2_operator_max_engine_name_length) {
+        op->annotate_engine(engine);
+      } else {
+        op->annotate_engine(
+            engine.substr(0, FLAGS_caffe2_operator_max_engine_name_length));
+      }
       return op;
     } else {
       // If the above fails, we will just return the normal case with the
@@ -135,6 +184,16 @@ unique_ptr<OperatorBase> _CreateOperator(
 
 } // namespace
 
+const std::string OpRegistryKey(
+    const std::string& op_type,
+    const std::string& engine) {
+  if (engine == "" || engine == "DEFAULT") {
+    return op_type;
+  } else {
+    return op_type + "_ENGINE_" + engine;
+  }
+}
+
 void SetPerOpEnginePref(const PerOpEnginePrefType& per_op_engine_pref) {
   for (const auto& device_pref_pair : per_op_engine_pref) {
     const auto& device_type = device_pref_pair.first;
@@ -156,7 +215,7 @@ void SetPerOpEnginePref(const PerOpEnginePrefType& per_op_engine_pref) {
           " registry.");
     }
   }
-  g_per_op_engine_pref = per_op_engine_pref;
+  g_per_op_engine_pref() = per_op_engine_pref;
 }
 
 void SetGlobalEnginePref(const GlobalEnginePrefType& global_engine_pref) {
@@ -168,7 +227,7 @@ void SetGlobalEnginePref(const GlobalEnginePrefType& global_engine_pref) {
         device_type,
         " not registered.");
   }
-  g_global_engine_pref = global_engine_pref;
+  g_global_engine_pref() = global_engine_pref;
 }
 
 void SetEnginePref(
@@ -195,7 +254,7 @@ void SetOpEnginePref(
         " not registered in ",
         device_type,
         " registry.");
-    g_per_op_engine_pref[device_type][op_type] = device_pref_pair.second;
+    g_per_op_engine_pref()[device_type][op_type] = device_pref_pair.second;
   }
 }
 
@@ -303,6 +362,7 @@ static TensorShapes InferBlobShapesAndTypes(
   for (auto& defptr : nets) {
     // Hack to work with auto split gradients
     CaffeMap<string, string> unmatched_sum_blobs;
+    CaffeMap<string, TensorShape> reshape_cache;
 
     for (const OperatorDef& op : defptr.get()->op()) {
       // Hack to ignore queues
@@ -358,6 +418,13 @@ static TensorShapes InferBlobShapesAndTypes(
         }
       }
 
+      if (op.type() == "Reshape" && op.is_gradient_op()) {
+        CAFFE_ENFORCE(reshape_cache.find(op.input(1)) != reshape_cache.end());
+        TensorShape cached = reshape_cache[op.input(1)];
+        blob_desc[op.output(0)] = cached;
+        continue;
+      }
+
       std::vector<TensorShape> out;
       try {
         out = op_schema->InferTensor(op, input_desc);
@@ -383,22 +450,37 @@ static TensorShapes InferBlobShapesAndTypes(
             }
           }
         }
+
+        if (op.type() == "Reshape") {
+          // Reshape stores the original input shape to its second output
+          // blob. We need this for gradient reshape.
+          reshape_cache[op.output(1)] = input_desc[0];
+        }
+
       } catch (::caffe2::EnforceNotMet& enf) {
         LOG(ERROR) << "Shape inference error: " << enf.msg();
         LOG(ERROR) << "Operator: " << ProtoDebugString(op) << std::endl;
         LOG(ERROR) << "Returning empty results.";
+
         TensorShapes tps;
         return tps;
       }
 
       if (out.size() != op.output_size()) {
-        CAFFE_THROW(
-            "Invalid shape inference for operator ",
-            op.type(),
-            " Expected ",
-            op.output_size(),
-            " outputs, but got ",
-            out.size());
+        if (op.type() == "Slice") {
+          CAFFE_ENFORCE(
+              out.size() == 0,
+              "For Slice operator, either shape of all output blobs are "
+              "inferred or shape of none can be inferred.");
+        } else {
+          CAFFE_THROW(
+              "Invalid shape inference for operator ",
+              op.type(),
+              " Expected ",
+              op.output_size(),
+              " outputs, but got ",
+              out.size());
+        }
       } else {
         for (int i = 0; i < out.size(); i++) {
           blob_desc[op.output(i)] = out[i];
@@ -423,6 +505,29 @@ static TensorShapes InferBlobShapesAndTypes(
   return tps;
 }
 
+TensorShape GetTensorShapeOfBlob(const Blob* b) {
+  TypeCall type_fun = GetTypeCallFunction(b->meta().id());
+  TensorInfoCall tensor_info_fun = GetTensorInfoFunction(b->meta().id());
+  TensorShape tp;
+
+  if (type_fun) {
+    tp.set_data_type(TypeMetaToDataType(type_fun(b->GetRaw())));
+  }
+  if (tensor_info_fun) {
+    bool _shares_data;
+    size_t _capacity;
+    DeviceOption _device;
+    auto shape =
+        tensor_info_fun(b->GetRaw(), &_shares_data, &_capacity, &_device);
+    for (auto d : shape) {
+      tp.add_dims(d);
+    }
+  } else {
+    tp.set_unknown_shape(true);
+  }
+  return tp;
+}
+
 TensorShapes InferBlobShapesAndTypesFromWorkspace(
     Workspace* ws,
     const vector<std::unique_ptr<NetDef>>& nets) {
@@ -431,25 +536,7 @@ TensorShapes InferBlobShapesAndTypesFromWorkspace(
   const std::vector<string>& ws_blobs = ws->Blobs();
   for (const auto& s : ws_blobs) {
     Blob* b = ws->GetBlob(s);
-    TypeCall type_fun = GetTypeCallFunction(b->meta().id());
-    TensorInfoCall tensor_info_fun = GetTensorInfoFunction(b->meta().id());
-    TensorShape tp;
-
-    if (type_fun) {
-        tp.set_data_type(TypeMetaToDataType(type_fun(b->GetRaw())));
-    }
-    if (tensor_info_fun) {
-      bool _shares_data;
-      size_t _capacity;
-      DeviceOption _device;
-      auto shape =
-          tensor_info_fun(b->GetRaw(), &_shares_data, &_capacity, &_device);
-      for (auto d : shape) {
-        tp.add_dims(d);
-      }
-    } else {
-      tp.set_unknown_shape(true);
-    }
+    TensorShape tp = GetTensorShapeOfBlob(b);
     blob_desc[s] = tp;
   }
   return InferBlobShapesAndTypes(blob_desc, nets);
@@ -477,6 +564,7 @@ std::map<string, std::pair<DeviceOption, DeviceOption>> ValidateTensorDevices(
   std::map<string, std::pair<DeviceOption, DeviceOption>> mismatches;
   DeviceOption op_device = op_def.device_option();
 
+#ifndef CAFFE2_NO_OPERATOR_SCHEMA
   // Check from op schema if this op is used for crossing devices
   auto op_schema = OpSchemaRegistry::Schema(op_def.type());
   if (op_schema != nullptr) {
@@ -484,6 +572,7 @@ std::map<string, std::pair<DeviceOption, DeviceOption>> ValidateTensorDevices(
       return mismatches;
     }
   }
+#endif // CAFFE2_NO_OPERATOR_SCHEMA
 
   auto Check = [&](const Blob& blob, std::string blob_name) {
     TensorInfoCall tensor_info_fun = GetTensorInfoFunction(blob.meta().id());

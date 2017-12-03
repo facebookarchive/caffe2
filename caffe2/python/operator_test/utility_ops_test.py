@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -5,11 +20,12 @@ from __future__ import unicode_literals
 
 from caffe2.python import core, workspace
 from hypothesis import given
+from caffe2.proto import caffe2_pb2
 import caffe2.python.hypothesis_test_util as hu
 import hypothesis.strategies as st
 import numpy as np
 import random
-
+import unittest
 
 class TestUtilityOps(hu.HypothesisTestCase):
 
@@ -55,7 +71,7 @@ class TestUtilityOps(hu.HypothesisTestCase):
             outputs_with_grads=[0],
         )
 
-    @given(dtype=st.sampled_from([np.float32, np.int32, np.int64]),
+    @given(dtype=st.sampled_from([np.float32, np.int32]),
            ndims=st.integers(min_value=1, max_value=5),
            seed=st.integers(min_value=0, max_value=65536),
            null_axes=st.booleans(),
@@ -85,6 +101,31 @@ class TestUtilityOps(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [X, axes],
                                    transpose_ref)
+
+    @unittest.skipIf(not workspace.has_gpu_support, "No gpu support")
+    def test_gpu_transpose_minusones(self):
+        '''
+        Repro a problem with earlier version of CuDNN Transpose Op that
+        casted ints to floats.
+        '''
+        X = -np.ones((2, 10)).astype(np.int32)
+        with core.DeviceScope(core.DeviceOption(caffe2_pb2.CUDA, 0)):
+            workspace.FeedBlob("X", X)
+            print("X:\n{}\n".format(workspace.FetchBlob("X")))
+            op = core.CreateOperator(
+                "Transpose",
+                ["X"],
+                ["Y"],
+                engine='CUDNN'
+            )
+            workspace.RunOperatorOnce(op)
+            Y = workspace.FetchBlob("Y")
+            print("Y:\n{}\n".format(Y))
+
+            for j in list(Y.flatten()):
+                self.assertEqual(-1, j)
+
+
 
     @given(m=st.integers(5, 10), n=st.integers(5, 10),
            o=st.integers(5, 10), nans=st.booleans(), **hu.gcs)
@@ -263,3 +304,51 @@ class TestUtilityOps(hu.HypothesisTestCase):
             workspace.RunOperatorOnce(op)
             Y = workspace.FetchBlob('Y')
             np.testing.assert_array_equal(X, Y)
+
+    @given(**hu.gcs)
+    def test_range(self, gc, dc):
+        names = [
+            ('stop_',),
+            ('start_', 'stop_'),
+            ('start_', 'stop_', 'step_'),
+        ]
+        # Most random values aren't great here, so use a fixed set instead of
+        # hypothesis.
+        for inputs in (
+            (10,),
+            (np.float32(10.0),),
+            (0,),
+            (0, 0),
+            (10., 5.0, -1.),
+            (2, 10000),
+            (2, 10000, 20000),
+            (2, 10000, -1),
+        ):
+            inputs = [np.array(v) for v in inputs]
+            op = core.CreateOperator(
+                "Range",
+                names[len(inputs) - 1],
+                ["Y"]
+            )
+
+            self.assertReferenceChecks(
+                device_option=gc,
+                op=op,
+                inputs=inputs,
+                reference=lambda *x: [np.arange(*x)],
+            )
+            self.assertDeviceChecks(dc, op, inputs, [0])
+
+        with self.assertRaisesRegexp(RuntimeError, 'Step size cannot be 0'):
+            inputs = (np.array(0), np.array(10), np.array(0))
+            op = core.CreateOperator(
+                "Range",
+                names[len(inputs) - 1],
+                ["Y"]
+            )
+            self.assertReferenceChecks(
+                device_option=gc,
+                op=op,
+                inputs=inputs,
+                reference=lambda *x: [np.arange(*x)],
+            )

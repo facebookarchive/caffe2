@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #pragma once
 
 #include <atomic>
@@ -200,6 +216,40 @@ class AvgExportedStat : public ExportedStat {
   }
 };
 
+class StdDevExportedStat : public ExportedStat {
+  // Uses an offset (first_) to remove issue of cancellation
+  // Variance is then (sumsqoffset_ - (sumoffset_^2) / count_) / (count_ - 1)
+ private:
+  ExportedStat count_;
+  ExportedStat sumsqoffset_;
+  ExportedStat sumoffset_;
+  std::atomic<int64_t> first_{std::numeric_limits<int64_t>::min()};
+  int64_t const_min_{std::numeric_limits<int64_t>::min()};
+
+ public:
+  StdDevExportedStat(const std::string& gn, const std::string& n)
+      : ExportedStat(gn, n + "/sum"),
+        count_(gn, n + "/count"),
+        sumsqoffset_(gn, n + "/sumsqoffset"),
+        sumoffset_(gn, n + "/sumoffset") {}
+
+  int64_t increment(int64_t value = 1) {
+    first_.compare_exchange_strong(const_min_, value);
+    int64_t offset_value = first_.load();
+    int64_t orig_value = value;
+    value -= offset_value;
+    count_.increment();
+    sumsqoffset_.increment(value * value);
+    sumoffset_.increment(value);
+    return ExportedStat::increment(orig_value);
+  }
+
+  template <typename T, typename Unused1, typename... Unused>
+  int64_t increment(T value, Unused1, Unused...) {
+    return increment(value);
+  }
+};
+
 class DetailedExportedStat : public ExportedStat {
  private:
   std::vector<ExportedStat> details_;
@@ -265,6 +315,11 @@ _ScopeGuard<T> ScopeGuard(T f) {
 #define CAFFE_AVG_EXPORTED_STAT(name) \
   AvgExportedStat name {              \
     groupName, #name                  \
+  }
+
+#define CAFFE_STDDEV_EXPORTED_STAT(name) \
+  StdDevExportedStat name {              \
+    groupName, #name                     \
   }
 
 #define CAFFE_DETAILED_EXPORTED_STAT(name) \

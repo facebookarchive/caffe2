@@ -1,17 +1,55 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
 import unittest
+import numpy as np
 
 import caffe2.proto.caffe2_pb2 as caffe2_pb2
 from caffe2.python import core, workspace, timeout_guard
 
 
 class BlobsQueueDBTest(unittest.TestCase):
-    def test_create_blobs_queue_db(self):
-        num_samples = 1000
+    def test_create_blobs_queue_db_string(self):
+        def add_blobs(queue, num_samples):
+            blob = core.BlobReference("blob")
+            status = core.BlobReference("blob_status")
+            for i in range(num_samples):
+                self._add_blob_to_queue(
+                    queue, self._create_test_tensor_protos(i), blob, status
+                )
+        self._test_create_blobs_queue_db(add_blobs)
+
+    def test_create_blobs_queue_db_tensor(self):
+        def add_blobs(queue, num_samples):
+            blob = core.BlobReference("blob")
+            status = core.BlobReference("blob_status")
+            for i in range(num_samples):
+                data = self._create_test_tensor_protos(i)
+                data = np.array([data], dtype=str)
+                self._add_blob_to_queue(
+                    queue, data, blob, status
+                )
+        self._test_create_blobs_queue_db(add_blobs)
+
+    def _test_create_blobs_queue_db(self, add_blobs_fun):
+        num_samples = 10000
         batch_size = 10
         init_net = core.Net('init_net')
         net = core.Net('test_create_blobs_queue_db')
@@ -24,12 +62,8 @@ class BlobsQueueDBTest(unittest.TestCase):
         )
         workspace.RunNetOnce(init_net)
 
-        blob = core.BlobReference("blob")
-        status = core.BlobReference("blob_status")
-        for i in range(num_samples):
-            self._add_blob_to_queue(
-                queue, self._create_test_tensor_protos(i), blob, status
-            )
+        add_blobs_fun(queue, num_samples)
+
         net.TensorProtosDBInput(
             [reader], ['image', 'label'], batch_size=batch_size)
         workspace.CreateNet(net)
@@ -51,7 +85,7 @@ class BlobsQueueDBTest(unittest.TestCase):
                     "foo{}".format(i * batch_size + idx).encode('utf-8'), item
                 )
             for item in labels:
-                self.assertEqual(0, item)
+                self.assertEqual(1, item)
         workspace.RunNetOnce(close_net)
 
     def _add_blob_to_queue(self, queue, data, blob, status):
@@ -70,6 +104,6 @@ class BlobsQueueDBTest(unittest.TestCase):
         data.string_data.append("foo{}".format(idx).encode('utf-8'))
         label = item.protos.add()
         label.data_type = core.DataType.INT32
-        label.int32_data.append(0)
+        label.int32_data.append(1)
 
         return item.SerializeToString()

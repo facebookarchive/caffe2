@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 # @package sparse_to_dense
 # Module caffe2.python.layers.sparse_to_dense
 from __future__ import absolute_import
@@ -13,7 +28,6 @@ import numpy as np
 
 
 class FeatureSparseToDense(ModelLayer):
-    _known_types = ['FLOAT', 'ID_LIST']
 
     def __init__(self, model, input_record, input_specs,
                  name='feature_sparse_to_dense', **kwargs):
@@ -85,6 +99,31 @@ class FeatureSparseToDense(ModelLayer):
                          schema.Scalar(np.float32,
                                        self.get_next_blob_reference(
                                            field + '_scores')
+                                       ),
+                         )
+                    )
+                ))
+            elif feature_specs.feature_type == 'EMBEDDING':
+                # We don't know dimensions of embeddings in input data.
+                # Even though they should match dimensions from feature config,
+                # we keep ranges blob to check input data later.
+                outputs.append((
+                    field,
+                    schema.Struct(
+                        ('ranges',
+                            schema.Scalar(
+                                (
+                                    np.int32,
+                                    (len(feature_specs.feature_ids), 2)
+                                ),
+                                self.get_next_blob_reference(
+                                    field + '_ranges')
+                            ),
+                         ),
+                        ('values',
+                         schema.Scalar(np.float32,
+                                       self.get_next_blob_reference(
+                                           field + '_values')
                                        ),
                          )
                     )
@@ -176,6 +215,28 @@ class FeatureSparseToDense(ModelLayer):
                           self.output_schema[field].ids())
                 net.Alias(record[field].values.values(),
                           self.output_schema[field].scores())
+            elif feature_specs.feature_type == 'EMBEDDING':
+                ranges = net.LengthsToRanges(
+                    record[field].values.lengths(),
+                    net.NextScopedBlob('embeddings_ranges')
+                )
+                net.SparseToDenseMask(
+                    [
+                        record[field].keys(),
+                        ranges,
+                        self.zero_range,
+                        record[field].lengths()
+                    ],
+                    self.output_schema[field].ranges(),
+                    mask=feature_specs.feature_ids,
+                )
+                # Alias helps to enforce the fact that all SparseToDense calls
+                # produce new blobs.
+                # Reusing blob names might result in some weird consequences
+                # during the delivery time, when content of the blobs is
+                # generated based on the inputSpecs.
+                net.Alias(record[field].values.items(),
+                          self.output_schema[field].values())
 
     def get_metadata(self):
         metadata = []

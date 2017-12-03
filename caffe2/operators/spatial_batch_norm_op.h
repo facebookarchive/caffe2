@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_SPATIAL_BATCH_NORM_OP_H_
 #define CAFFE2_OPERATORS_SPATIAL_BATCH_NORM_OP_H_
 
@@ -13,7 +29,7 @@ class SpatialBNOp : public Operator<Context> {
   USE_OPERATOR_CONTEXT_FUNCTIONS;
   SpatialBNOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws),
-        is_test_(OperatorBase::GetSingleArgument<int>("is_test", 0)),
+        is_test_(OperatorBase::GetSingleArgument<int>(OpSchema::Arg_IsTest, 0)),
         epsilon_(OperatorBase::GetSingleArgument<float>("epsilon", 1e-5)),
         momentum_(OperatorBase::GetSingleArgument<float>("momentum", 0.9)),
         order_(StringToStorageOrder(
@@ -46,7 +62,7 @@ class SpatialBNGradientOp : public Operator<Context> {
   USE_OPERATOR_CONTEXT_FUNCTIONS;
   SpatialBNGradientOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws),
-        is_test_(OperatorBase::GetSingleArgument<int>("is_test", 0)),
+        is_test_(OperatorBase::GetSingleArgument<int>(OpSchema::Arg_IsTest, 0)),
         epsilon_(OperatorBase::GetSingleArgument<float>("epsilon", 1e-5)),
         order_(StringToStorageOrder(
             OperatorBase::GetSingleArgument<string>("order", "NCHW"))) {

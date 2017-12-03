@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_CONV_POOL_OP_BASE_H_
 #define CAFFE2_OPERATORS_CONV_POOL_OP_BASE_H_
 
@@ -119,6 +135,7 @@ class ConvPoolOpBase : public Operator<Context> {
     if (pads_.size() == 0) {
       pads_.resize(kernel_.size() * 2, 0);
     }
+
     if (dilation_.size() == 0) {
       dilation_.resize(kernel_.size(), 1);
     }
@@ -267,9 +284,9 @@ class ConvPoolOpBase : public Operator<Context> {
       int /*N*/,
       vector<int>& kernel,
       vector<int>& output_dims,
-      vector<int> dilation,
-      vector<int> stride,
-      vector<int> pads,
+      const vector<int>& dilation,
+      const vector<int>& stride,
+      vector<int>& pads,
       bool& channel_first) {
     channel_first = false; // initialized to suppress compiler warning.
     vector<TIndex> dims;
@@ -356,6 +373,43 @@ class ConvPoolOpBase : public Operator<Context> {
     CAFFE_NOT_IMPLEMENTED;
   }
 
+  static struct OpSchema::Cost CostInferenceForConv(
+      const OperatorDef& def,
+      const vector<TensorShape>& inputs) {
+    struct OpSchema::Cost c;
+    const TensorShape X = inputs[0];
+    const TensorShape W = inputs[1];
+
+    ArgumentHelper helper(def);
+    const auto order =
+        StringToStorageOrder(helper.GetSingleArgument<string>("order", "NCHW"));
+
+    unsigned long long X_h;
+    unsigned long long X_w;
+    unsigned long long kernel_h;
+    unsigned long long kernel_w;
+    unsigned long long in_channels;
+    unsigned long long out_channels;
+    if (order == StorageOrder::NHWC) {
+      X_h = X.dims(1);
+      X_w = X.dims(2);
+      kernel_h = W.dims(1);
+      kernel_w = W.dims(2);
+      in_channels = W.dims(3);
+      out_channels = W.dims(0);
+    } else {
+      X_h = X.dims(2);
+      X_w = X.dims(3);
+      kernel_h = W.dims(2);
+      kernel_w = W.dims(3);
+      in_channels = W.dims(1);
+      out_channels = W.dims(0);
+    }
+    c.flops = (X_h - kernel_h + 1) * (X_w - kernel_w + 1) * kernel_w *
+        kernel_h * in_channels * out_channels * 2;
+    return c;
+  }
+
   static vector<TensorShape> TensorInferenceForSchema(
       const OperatorDef& def,
       const vector<TensorShape>& in,
@@ -385,7 +439,7 @@ class ConvPoolOpBase : public Operator<Context> {
     if (helper.HasArgument("kernel")) {
       kernel.resize(2, helper.GetSingleArgument<int>("kernel", 1));
     } else if (
-        helper.HasArgument("kernel_h") && helper.HasArgument("helper_w")) {
+        helper.HasArgument("kernel_h") && helper.HasArgument("kernel_w")) {
       kernel.push_back(helper.GetSingleArgument<int>("kernel_h", 1));
       kernel.push_back(helper.GetSingleArgument<int>("kernel_w", 1));
     }

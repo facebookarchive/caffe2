@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/h_softmax_op.h"
 
 #include <queue>
@@ -462,7 +478,7 @@ bool HuffmanTreeHierarchyOp<T, Context>::RunOnDevice() {
   };
 
   // Merge two nodes and insert the results in the queue.
-  auto merge_nodes = [&nodes, &current_node_index](
+  auto merge_nodes = [&nodes](
       const std::pair<int, Node>& node_l, const std::pair<int, Node>& node_r) {
     Node node(-1, node_l.second.count + node_r.second.count);
     node.left_ch_index = node_l.first;

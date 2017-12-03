@@ -1,4 +1,20 @@
-#include "common_world_ops.h"
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "caffe2/contrib/gloo/common_world_ops.h"
 
 #include "caffe2/core/context_gpu.h"
 
@@ -8,29 +24,14 @@
 namespace caffe2 {
 namespace gloo {
 
-template <typename T>
-std::shared_ptr<::gloo::transport::Device>
-CreateCommonWorld<T>::createDevice() {
-  // Share single device between all common worlds. This should be
-  // made configurable, for varying transports, and transport options
-  // (e.g. tcp socket options, ibverbs device).
-  //
-  // All pairs are switched to synchronous mode after having
-  // connected, so they don't need to synchronize with the device
-  // thread when they are used from an algorithm.
-  //
+template <>
+void CreateCommonWorld<CUDAContext>::initializeForContext() {
   static std::once_flag once;
-  static std::shared_ptr<::gloo::transport::Device> device;
   std::call_once(once, [&]() {
-    ::gloo::transport::tcp::attr attr;
-    device = ::gloo::transport::tcp::CreateDevice(attr);
-
-    // This operator is the first time any Gloo code is executed
-    // for a CUDAContext. Share Caffe2 CUDA mutex with Gloo.
-    ::gloo::CudaShared::setMutex(&CUDAContext::mutex());
-  });
-
-  return device;
+      // This is the first time we call Gloo code for a CUDAContext.
+      // Share Caffe2 CUDA mutex with Gloo.
+      ::gloo::CudaShared::setMutex(&CUDAContext::mutex());
+    });
 }
 
 namespace {
@@ -39,6 +40,11 @@ REGISTER_CUDA_OPERATOR_WITH_ENGINE(
     CreateCommonWorld,
     GLOO,
     CreateCommonWorld<CUDAContext>);
+
+REGISTER_CUDA_OPERATOR_WITH_ENGINE(
+    CloneCommonWorld,
+    GLOO,
+    CloneCommonWorld<CUDAContext>);
 
 } // namespace
 } // namespace gloo

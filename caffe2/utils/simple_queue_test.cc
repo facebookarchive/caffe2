@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <thread>  // NOLINT
 
 #include "caffe2/utils/simple_queue.h"
@@ -11,13 +27,13 @@ static void ConsumerFunction(int thread_idx) {
   int value;
   while (true) {
     if (!gQueue->Pop(&value)) return;
-    LOG(INFO) << "Emitting " << value << " from thread " << thread_idx;
+    VLOG(1) << "Emitting " << value << " from thread " << thread_idx;
   }
 }
 
 static void ProducerFunction(int thread_idx, int start, int count) {
   for (int i = 0; i < count; ++i) {
-    LOG(INFO) << "Pushing " << i + start << " from thread " << thread_idx;
+    VLOG(1) << "Pushing " << i + start << " from thread " << thread_idx;
     gQueue->Push(i + start);
   }
 }

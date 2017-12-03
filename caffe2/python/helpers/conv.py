@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package conv
 # Module caffe2.python.helpers.conv
 from __future__ import absolute_import
@@ -36,7 +51,11 @@ def _ConvBase(
         else:
             kernels = kernel
     else:
-        kernels = [kernel] * 2
+        if isinstance(kernel, list):
+            assert len(kernel) == 2, "Conv support only a 2D kernel."
+            kernels = kernel
+        else:
+            kernels = [kernel] * 2
 
     requested_engine = kwargs.get('engine')
     if requested_engine is not None:
@@ -113,12 +132,22 @@ def _ConvBase(
             order=order,
             **kwargs)
     else:
-        return model.net.Conv(
-            inputs,
-            blob_out,
-            kernel=kernel,
-            order=order,
-            **kwargs)
+        if isinstance(kernel, list):
+            return model.net.Conv(
+                inputs,
+                blob_out,
+                kernel_h=kernel[0],
+                kernel_w=kernel[1],
+                order=order,
+                **kwargs)
+        else:
+            return model.net.Conv(
+                inputs,
+                blob_out,
+                kernel=kernel,
+                order=order,
+                **kwargs)
+
 
 
 def conv_nd(

@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <chrono>
 #include <future>
 #include <random>
@@ -8,6 +24,8 @@
 #include "caffe2/core/context_gpu.h"
 #include <gtest/gtest.h>
 
+CAFFE2_DECLARE_bool(caffe2_cuda_full_device_control);
+
 namespace caffe2 {
 
 namespace {
@@ -16,12 +34,42 @@ std::shared_ptr<void> shared_from_new(std::pair<void*, MemoryDeleter>&& p) {
 }
 }
 
+TEST(CUDATest, HasCudaRuntime) {
+  EXPECT_TRUE(HasCudaRuntime());
+}
+
 TEST(CUDAContextTest, TestAllocDealloc) {
   if (!HasCudaGPU()) return;
   CUDAContext context(0);
   context.SwitchToDevice();
   auto data = shared_from_new(CUDAContext::New(10 * sizeof(float)));
   EXPECT_NE(data.get(), nullptr);
+}
+
+TEST(CUDAContextTest, TestSetGetDeviceWithoutCaffeMode) {
+  // For a while, set full device control to be true.
+  for (int i = 0; i < NumCudaDevices(); ++i) {
+    CaffeCudaSetDevice(i);
+    EXPECT_EQ(CaffeCudaGetDevice(), i);
+  }
+  for (int i = NumCudaDevices() - 1; i >= 0; --i) {
+    CaffeCudaSetDevice(i);
+    EXPECT_EQ(CaffeCudaGetDevice(), i);
+  }
+}
+
+TEST(CUDAContextTest, TestSetGetDeviceWithCaffeMode) {
+  // For a while, set full device control to be true.
+  FLAGS_caffe2_cuda_full_device_control = true;
+  for (int i = 0; i < NumCudaDevices(); ++i) {
+    CaffeCudaSetDevice(i);
+    EXPECT_EQ(CaffeCudaGetDevice(), i);
+  }
+  for (int i = NumCudaDevices() - 1; i >= 0; --i) {
+    CaffeCudaSetDevice(i);
+    EXPECT_EQ(CaffeCudaGetDevice(), i);
+  }
+  FLAGS_caffe2_cuda_full_device_control = false;
 }
 
 TEST(CUDAContextTest, MemoryPoolAllocateDealloc) {

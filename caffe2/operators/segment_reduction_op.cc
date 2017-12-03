@@ -1,6 +1,49 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/segment_reduction_op.h"
 
 namespace caffe2 {
+
+// registering 4 input gradient with main output
+OPERATOR_SCHEMA(SparseLengthsIndicesInGradientWeightedSumWithMainInputGradient)
+    .NumInputs(5)
+    .NumOutputs(2);
+REGISTER_CPU_OPERATOR(
+    SparseLengthsIndicesInGradientWeightedSumWithMainInputGradient,
+    AbstractLengthsWithMainInputGradientOp<
+        float,
+        int,
+        CPUContext,
+        WeightedSumReducerDef::template ReducerGradient<float, CPUContext>,
+        true /*SparseFused*/,
+        true /*GradientNeedIndices*/>);
+
+// registering 4 input version
+OPERATOR_SCHEMA(SparseLengthsIndicesInGradientWeightedSumGradient)
+    .NumInputs(4)
+    .NumOutputs(1);
+REGISTER_CPU_OPERATOR(
+    SparseLengthsIndicesInGradientWeightedSumGradient,
+    AbstractLengthsGradientOp<
+        float,
+        int,
+        CPUContext,
+        WeightedSumReducerDef::template ReducerGradient<float, CPUContext>,
+        true /*GradientNeedIndices*/>);
 
 // registering 3 input version
 OPERATOR_SCHEMA(SparseLengthsIndicesInGradientSumGradient)
@@ -115,8 +158,13 @@ REGISTER_SEGMENT_DEF_SCHEMA_GRADIENT_ONLY(AbstractSparseLengthsDef<
                                           CPUContext,
                                           SumReducerDef,
                                           true /*GradientNeedIndices*/>)
-REGISTER_SEGMENT_DEF_SCHEMA_GRADIENT_ONLY(
-    AbstractSparseLengthsDef<float, int, CPUContext, WeightedSumReducerDef>)
+REGISTER_SEGMENT_DEF_SCHEMA_GRADIENT_ONLY(AbstractSparseLengthsDef<
+                                          float,
+                                          int,
+                                          CPUContext,
+                                          WeightedSumReducerDef,
+                                          true /*GradientNeedIndices*/>)
+
 REGISTER_SEGMENT_DEF_SCHEMA_GRADIENT_ONLY(
     AbstractSparseLengthsDef<float, int, CPUContext, MeanReducerDef>)
 
@@ -138,5 +186,41 @@ REGISTER_GRADIENT_WITH_MAIN_INPUT(
     AbstractLengthsDef<float, int, CPUContext, WeightedSumReducerDef>);
 REGISTER_GRADIENT_WITH_MAIN_INPUT(
     AbstractSparseLengthsDef<float, int, CPUContext, WeightedSumReducerDef>);
+
+#define REGISTER_GRADIENT_WITH_MAIN_INPUT_AND_FORWARD_OUTPUT(...)           \
+  REGISTER_CPU_OPERATOR_STR(                                                \
+      string(__VA_ARGS__::basename) + (__VA_ARGS__::OpDef::name) +          \
+          "WithMainInputAndForwardOutputGradient",                          \
+      __VA_ARGS__::WithMainInputAndForwardOutputBackwardOp);                \
+  OPERATOR_SCHEMA_STR(                                                      \
+      string(__VA_ARGS__::basename) + (__VA_ARGS__::OpDef::name) +          \
+      "WithMainInputAndForwardOutputGradient")                              \
+      .NumInputs(                                                           \
+          __VA_ARGS__::WithMainInputAndForwardOutputBackwardOp::kNumInputs) \
+      .NumOutputs(1, INT_MAX)
+
+#define REGISTER_SEGMENT_DEF_MAIN_INPUT_AND_FORWARD_OUTPUT_GRADIENT(...) \
+  OPERATOR_SCHEMA_STR(                                                   \
+      string(__VA_ARGS__::basename) + (__VA_ARGS__::OpDef::name))        \
+      .NumInputs(__VA_ARGS__::ForwardOp::kNumInputs)                     \
+      .NumOutputs(1)                                                     \
+      .SetDoc(FormatDoc<__VA_ARGS__>())                                  \
+      .Output(0, "OUTPUT", "Aggregated tensor")                          \
+      .FillUsing(__VA_ARGS__::PopulateSchema);                           \
+  REGISTER_GRADIENT_WITH_MAIN_INPUT_AND_FORWARD_OUTPUT(__VA_ARGS__);     \
+  REGISTER_GRADIENT_STR(                                                 \
+      string(__VA_ARGS__::basename) + (__VA_ARGS__::OpDef::name),        \
+      __VA_ARGS__::GetGradient)
+
+// This implements and registers a length op with a gradient which requires
+// the main input as well as the output of the forward output.
+#define REGISTER_LENGTHS_OPS_MAIN_INPUT_AND_FORWARD_OUTPUT_GRADIENT(...) \
+  REGISTER_CPU_OPERATOR_STR(                                             \
+      string(__VA_ARGS__::basename) + (__VA_ARGS__::OpDef::name),        \
+      __VA_ARGS__::ForwardOp);                                           \
+  REGISTER_SEGMENT_DEF_MAIN_INPUT_AND_FORWARD_OUTPUT_GRADIENT(__VA_ARGS__)
+
+REGISTER_LENGTHS_OPS_MAIN_INPUT_AND_FORWARD_OUTPUT_GRADIENT(
+    AbstractLengthsDef<float, int, CPUContext, MaxReducerDef>);
 }
 }

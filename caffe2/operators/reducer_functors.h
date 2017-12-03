@@ -1,4 +1,19 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #ifndef CAFFE2_OPERATORS_RECUDER_FUNCTORS_H_
 #define CAFFE2_OPERATORS_RECUDER_FUNCTORS_H_
@@ -6,6 +21,7 @@
 #include <array>
 
 #include "caffe2/core/context.h"
+#include "caffe2/core/tensor.h"
 #include "caffe2/utils/math.h"
 #include "caffe2/utils/proto_utils.h"
 
@@ -295,7 +311,6 @@ class MaxRangeReducerGradient {
         auto idx = i * block_size + j;
         if (out == data_in[idx]) {
           data_grad[idx] = out_grad;
-          break;
         }
       }
     }
@@ -335,19 +350,29 @@ class BaseReducer {
 
     explicit Meta(bool first = true) : first_dim(first) {}
 
+    void computeMeta(const std::vector<TIndex>& dims, int skip_dims) {
+      first_dim ? block_shape.assign(dims.begin() + skip_dims, dims.end())
+                : block_shape.assign(dims.begin(), dims.end() - skip_dims);
+      block_size = first_dim ? size_from_dim_(skip_dims, dims)
+                             : size_from_dim_(dims.size() - skip_dims, dims);
+    }
+
     void
     observeInput(int input, const Tensor<CPUContext>& value, int skip_dims) {
       DCHECK_EQ(0, input);
       auto& dims = value.dims();
-      first_dim ? block_shape.assign(dims.begin() + skip_dims, dims.end())
-                : block_shape.assign(dims.begin(), dims.end() - skip_dims);
-      block_size = first_dim ? value.size_from_dim(skip_dims)
-                             : value.size_from_dim(value.ndim() - skip_dims);
+      computeMeta(dims, skip_dims);
     }
 
     void appendOutputShape(vector<TIndex>* output_shape) {
       output_shape->insert(
           output_shape->end(), block_shape.begin(), block_shape.end());
+    }
+
+    vector<TIndex> getOutputShape(const TensorShape& in, int skip_dims) {
+      vector<TIndex> dims(in.dims().begin(), in.dims().end());
+      computeMeta(dims, skip_dims);
+      return block_shape;
     }
   };
 
@@ -371,6 +396,11 @@ class BaseReducerGradient {
   }
 
   static bool requiresDataInput(const OperatorDef& /*def*/) {
+    return false;
+  }
+
+  // True if the backward op requires the output of the forward op.
+  static bool requiresForwardOutput() {
     return false;
   }
 
@@ -544,7 +574,7 @@ class WeightedSumReducerGradient : public BaseReducerGradient {
  public:
   // which of the original inputs are required for gradient computation
   static constexpr std::array<int, 1> originalInputs() {
-    return {1};
+    return {{1}};
   }
 
   static int numAuxInputsWithGrads(const OperatorDef& def) {
@@ -733,23 +763,93 @@ struct MeanReducerDef {
   static constexpr const char* doc =
       "Mean computes the element-wise mean of the input slices. "
       "Operation doesn't change the shape of the individual blocks.";
-  static void PopulateSchema(OpSchema& schema) {
-    schema.TensorInferenceFunction(
-        [](const OperatorDef& def, const vector<TensorShape>& in) {
-          CAFFE_ENFORCE_EQ(1, in.size());
-          const auto& input_shape = in[0];
+  static void PopulateSchema(OpSchema& /*schema*/) {}
+};
 
-          ArgumentHelper helper(def);
-          auto num_reduce_dims =
-              helper.GetSingleArgument<int32_t>("num_reduce_dim", 1);
-          TensorShape output_shape;
+template <typename T, class Context>
+class MaxReducer;
+template <typename T, class Context>
+class MaxReducerGradient;
 
-          for (auto i = num_reduce_dims; i < input_shape.dims().size(); ++i) {
-            output_shape.add_dims(input_shape.dims(i));
-          }
-          return std::vector<TensorShape>{output_shape};
-        });
+template <typename T>
+class MaxReducer<T, CPUContext> : public BaseReducer {
+ public:
+  using FixedDispatch = FixedValues<1>;
+
+  MaxReducer(const Meta& meta, T* out, CPUContext* /*context*/)
+      : out_(out), current_size_(0) {}
+
+  template <int FixedSize>
+  void process(
+      const Meta& meta,
+      const T* in,
+      TIndex /*offset*/,
+      CPUContext* context) {
+    CAFFE_ENFORCE(
+        meta.first_dim,
+        "MaxReducer implemented only for front dimensions reduction");
+    if (current_size_ > 0) {
+      EigenVectorMap<T> output_vec(out_, meta.block_size);
+      output_vec =
+          output_vec.cwiseMax(ConstEigenVectorMap<T>(in, meta.block_size));
+    } else {
+      memcpy(out_, in, sizeof(T) * meta.block_size);
+    }
+    ++current_size_;
   }
+
+ private:
+  T* out_;
+  int current_size_;
+};
+
+template <typename T, class Context>
+class MaxReducerGradient : public BaseReducerGradient {
+ public:
+  static bool requiresDataInput(const OperatorDef& /*def*/) {
+    return true;
+  }
+
+  static bool requiresForwardOutput() {
+    return true;
+  }
+
+  using FixedDispatch = FixedValues<1>;
+
+  MaxReducerGradient(
+      const Meta& /*meta*/,
+      const T* s_grad,
+      CPUContext* /*context*/)
+      : s_grad_(s_grad) {}
+
+  template <int FixedSize>
+  void fillGradWithMainInputAndForwardOutput(
+      const Meta& meta,
+      const T* data,
+      T* data_grad,
+      const T* forward_output,
+      TIndex /*offset*/,
+      Context* /*context*/,
+      const int /*length*/) {
+    for (TIndex i = 0; i < meta.block_size; ++i) {
+      data_grad[i] = data[i] == forward_output[i] ? s_grad_[i] : 0;
+    }
+  }
+
+ private:
+  const T* s_grad_;
+};
+
+struct MaxReducerDef {
+  template <typename T, class Context>
+  using Reducer = MaxReducer<T, Context>;
+  template <typename T, class Context>
+  using ReducerGradient = MaxReducerGradient<T, Context>;
+  static constexpr const char* name = "Max";
+  static constexpr const char* doc =
+      "Max computes the element-wise max of the input slices. "
+      "Operation doesn't change the shape of the individual blocks.";
+  static void PopulateSchema(OpSchema& /*schema*/) {}
 };
 
 } // namespace caffe2

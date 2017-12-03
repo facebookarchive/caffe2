@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -115,7 +130,6 @@ class RecurrentNetworkTest(hu.HypothesisTestCase):
             links={output_t_prev: output_t},
             scope="test_rnn_sum_mull",
         )
-
         workspace.blobs[input_blob] = input
         workspace.blobs[initial_input_blob] = initial_input
 
@@ -357,8 +371,7 @@ class RecurrentNetworkTest(hu.HypothesisTestCase):
             backward_link_internal=[],
             backward_link_external=[],
             backward_link_offset=[],
-            step_net=str(step_model.net.Proto()),
-            backward_step_net='',
+            step_net=step_model.net.Proto(),
             timestep='timestep' if timestep is None else str(timestep),
             outputs_with_grads=[],
         )

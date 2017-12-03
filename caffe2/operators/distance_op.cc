@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/distance_op.h"
 
 namespace caffe2 {
@@ -109,7 +125,7 @@ bool CosineSimilarityOp<float, CPUContext>::RunOnDevice() {
     CAFFE_ENFORCE_EQ(X.dim32(i), Y.dim32(i));
   }
   const int N = X.ndim() > 0 ? X.dim32(0) : 1;
-  const int D = X.size() / N;
+  const int D = X.size_from_dim(1);
   result->Resize(N);
   float* result_data = result->mutable_data<float>();
   const float* X_data = X.data<float>();
@@ -137,7 +153,7 @@ bool CosineSimilarityGradientOp<float, CPUContext>::RunOnDevice() {
   auto* dX = Output(DER_X_OUT);
   auto* dY = Output(DER_Y_OUT);
   const int N = X.ndim() > 0 ? X.dim32(0) : 1;
-  const int D = X.size() / N;
+  const int D = X.size_from_dim(1);
   CAFFE_ENFORCE(X.ndim() == Y.ndim());
   for (int i = 0; i < X.ndim(); ++i) {
     CAFFE_ENFORCE(X.dim32(i) == Y.dim32(i));
@@ -341,13 +357,13 @@ REGISTER_CPU_OPERATOR(SquaredL2DistanceGradient,
 OPERATOR_SCHEMA(SquaredL2Distance)
     .NumInputs(2)
     .NumOutputs(1)
-    .IdenticalTypeAndShapeOfInput(0)
+    .IdenticalTypeAndShapeOfInputDim(0, 0)
     .SetDoc(R"DOC(
   Given two input float tensors X, Y, and produces one output float tensor
   of the L2 difference between X and Y that is computed as ||(X - Y)^2 / 2||.
   )DOC")
-    .Input(0, "X", "1D input tensor")
-    .Input(1, "Y", "1D input tensor")
+    .Input(0, "X", "1D or 2D input tensor")
+    .Input(1, "Y", "1D or 2D input tensor (must have the same shape as X)")
     .Output(0, "Z", "1D output tensor");
 
 OPERATOR_SCHEMA(SquaredL2DistanceGradient).NumInputs(3).NumOutputs(2);
@@ -372,13 +388,13 @@ REGISTER_CPU_OPERATOR(
 OPERATOR_SCHEMA(L1Distance)
     .NumInputs(2)
     .NumOutputs(1)
-    .IdenticalTypeAndShapeOfInput(0)
+    .IdenticalTypeAndShapeOfInputDim(0, 0)
     .SetDoc(R"DOC(
   Given two input float tensors X, Y, and produces one output float tensor
   of the L1 difference between X and Y, computed as L1(x,y) = sum over |x-y|
   )DOC")
-    .Input(0, "X", "1D input tensor")
-    .Input(1, "Y", "1D input tensor")
+    .Input(0, "X", "1D or 2D input tensor")
+    .Input(1, "Y", "1D or 2D input tensor (must have the same shape as X)")
     .Output(0, "Z", "1D output tensor");
 
 OPERATOR_SCHEMA(L1DistanceGradient).NumInputs(3).NumOutputs(2);
@@ -405,13 +421,13 @@ REGISTER_CPU_OPERATOR(
 OPERATOR_SCHEMA(DotProduct)
     .NumInputs(2)
     .NumOutputs(1)
-    .IdenticalTypeAndShapeOfInput(0)
+    .IdenticalTypeAndShapeOfInputDim(0, 0)
     .SetDoc(R"DOC(
   Given two input float tensors X, Y, and produces one output float tensor
   of the dot product between X and Y.
   )DOC")
-    .Input(0, "X", "1D input tensor")
-    .Input(1, "Y", "1D input tensor")
+    .Input(0, "X", "1D or 2D input tensor")
+    .Input(1, "Y", "1D or 2D input tensor (must have the same shape as X)")
     .Output(0, "Z", "1D output tensor");
 
 OPERATOR_SCHEMA(DotProductGradient).NumInputs(3).NumOutputs(2);
@@ -437,13 +453,13 @@ REGISTER_CPU_OPERATOR(
 OPERATOR_SCHEMA(CosineSimilarity)
     .NumInputs(2)
     .NumOutputs(1)
-    .IdenticalTypeAndShapeOfInput(0)
+    .IdenticalTypeAndShapeOfInputDim(0, 0)
     .SetDoc(R"DOC(
   Given two input float tensors X, Y, and produces one output float tensor
   of the cosine similarity between X and Y.
   )DOC")
-    .Input(0, "X", "1D input tensor")
-    .Input(1, "Y", "1D input tensor")
+    .Input(0, "X", "1D or 2D input tensor")
+    .Input(1, "Y", "1D or 2D input tensor (must have the same shape as X)")
     .Output(0, "Z", "1D output tensor");
 
 OPERATOR_SCHEMA(CosineSimilarityGradient).NumInputs(3).NumOutputs(2);
@@ -476,13 +492,16 @@ OPERATOR_SCHEMA(DotProductWithPadding)
   output float tensor of the dot product between X and Y. We currently support
   two kinds of strategies to achieve this. Before doing normal dot_product 1)
   pad the smaller tensor (using pad_value) to the same shape as the other one.
-  2) replicate the smaller tensor to the same shape as the other one.
+  2) replicate the smaller tensor to the same shape as the other one. Note the
+  first dimension of X, Y must be equal. Only the second dimension of X or Y
+  can be padded.
   )DOC")
-    .Input(0, "X", "1D input tensor")
-    .Input(1, "Y", "1D input tensor")
+    .Input(0, "X", "1D or 2D input tensor")
+    .Input(1, "Y", "1D or 2D input tensor")
     .Output(0, "Z", "1D output tensor")
+    .IdenticalTypeAndShapeOfInputDim(0, 0)
     .Arg("pad_value", "the padding value for tensors with smaller dimension")
-    .Arg("replicate", "wehther to replicate the smaller tensor or not");
+    .Arg("replicate", "whether to replicate the smaller tensor or not");
 
 OPERATOR_SCHEMA(DotProductWithPaddingGradient).NumInputs(3).NumOutputs(2);
 

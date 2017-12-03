@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/pack_rnn_sequence_op.h"
 
 namespace caffe2 {
@@ -44,7 +60,7 @@ OPERATOR_SCHEMA(UnpackRNNSequence)
     .SetDoc(R"DOC(
   This is the reverse operator for PackRNNSequence. It maps the packed values
   back to sequence values based on the length blob. Each number from length blob
-  represents the corresponding values that has been goruped. The dimension
+  represents the corresponding values that has been grouped. The dimension
   for each pack is the same as the maximum number from the length blob (padding
   with zero was implemented for smaller length value). The overall output
   dimension is: M * D, where M is the sum of lengths, and D is the dimension of

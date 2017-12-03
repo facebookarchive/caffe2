@@ -1,4 +1,19 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 #pragma once
 
@@ -12,6 +27,18 @@
 
 namespace caffe2 {
 namespace db {
+
+namespace {
+const std::string& GetStringFromBlob(Blob* blob) {
+  if (blob->template IsType<string>()) {
+    return blob->template Get<string>();
+  } else if (blob->template IsType<Tensor<CPUContext>>()) {
+    return *blob->template Get<Tensor<CPUContext>>().template data<string>();
+  } else {
+    CAFFE_THROW("Unsupported Blob type");
+  }
+}
+}
 
 class BlobsQueueDBCursor : public Cursor {
  public:
@@ -56,9 +83,9 @@ class BlobsQueueDBCursor : public Cursor {
     }
 
     if (key_blob_index_ >= 0) {
-      key_ = (blob_vector[key_blob_index_])->Get<string>();
+      key_ = GetStringFromBlob(blob_vector[key_blob_index_]);
     }
-    value_ = (blob_vector[value_blob_index_])->Get<string>();
+    value_ = GetStringFromBlob(blob_vector[value_blob_index_]);
     valid_ = true;
   }
 

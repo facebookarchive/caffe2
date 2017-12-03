@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -88,3 +103,23 @@ class ParallelWorkersTest(unittest.TestCase):
             )
 
         self.assertTrue(worker_coordinator.stop())
+
+    def testParallelWorkersShutdownFun(self):
+        workspace.ResetWorkspace()
+
+        queue = create_queue()
+        dummy_worker = create_worker(queue, lambda worker_id: str(worker_id))
+        workspace.FeedBlob('data', 'not shutdown')
+
+        def shutdown_fun():
+            workspace.FeedBlob('data', 'shutdown')
+
+        worker_coordinator = parallel_workers.init_workers(
+            dummy_worker, shutdown_fun=shutdown_fun
+        )
+        worker_coordinator.start()
+
+        self.assertTrue(worker_coordinator.stop())
+
+        data = workspace.FetchBlob('data')
+        self.assertEqual(data, b'shutdown', 'Got unexpected value ' + str(data))

@@ -1,9 +1,25 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/reduction_ops.h"
 
 namespace caffe2 {
 
 REGISTER_CPU_OPERATOR(SumElements, SumElementsOp<float, CPUContext>);
-REGISTER_CPU_OPERATOR(SumSqrElements, SumSqrElementsOp<float, CPUContext>);
+REGISTER_CPU_OPERATOR(SumSqrElements, SumSqrElementsOp<CPUContext>);
 
 REGISTER_CPU_OPERATOR(
     SumElementsGradient,
@@ -99,7 +115,14 @@ class GetColwiseMaxGradient : public GradientMakerBase {
 REGISTER_GRADIENT(ColwiseMax, GetColwiseMaxGradient);
 
 template <typename T, class Context>
-bool SumElementsGradientOp<T, Context>::RunOnDevice() {
+bool SumElementsGradientOp<T, Context>::RunOnDevice()
+// TODO: T21635077 fix float-divide-by-zero undefined behavior
+#if defined(__has_feature)
+#if __has_feature(__address_sanitizer__)
+    __attribute__((__no_sanitize__("float-divide-by-zero")))
+#endif
+#endif
+{
   auto& X = Input(0);
   TensorCPU sum_grad = TensorCPU(Input(1));
   auto* dX = Output(0);

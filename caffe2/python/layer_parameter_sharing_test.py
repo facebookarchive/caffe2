@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -102,3 +117,20 @@ class ParameterSharingTest(LayersTestCase):
                 )
                 self.assertEquals(self.model.layers[-1].w,
                                   'global_scope/shared_fc/w')
+
+    def test_layer_shared_parameter_name_different_shapes(self):
+        output_dims = 2
+        with scope.NameScope('global_scope'):
+            with ParameterSharing({'fc_auto_0': 'fc'}):
+                self.model.FC(
+                    self.model.input_feature_schema.float_features,
+                    output_dims
+                )
+                self.assertEquals(self.model.layers[-1].w,
+                                  'global_scope/fc/w')
+
+                with self.assertRaisesRegexp(ValueError, 'Got inconsistent shapes .*'):
+                    self.model.FC(
+                        self.model.input_feature_schema.float_features,
+                        output_dims + 1
+                    )

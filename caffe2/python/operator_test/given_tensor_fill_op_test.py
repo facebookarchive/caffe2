@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -15,11 +30,16 @@ import unittest
 class TestGivenTensorFillOps(hu.HypothesisTestCase):
     @given(X=hu.tensor(min_dim=1, max_dim=4, dtype=np.int32),
            t=st.sampled_from([
+               (core.DataType.BOOL, np.bool_, "GivenTensorFill"),
+               (core.DataType.INT32, np.int32, "GivenTensorFill"),
                (core.DataType.FLOAT, np.float32, "GivenTensorFill"),
                (core.DataType.INT32, np.int32, "GivenTensorIntFill"),
+               (core.DataType.INT64, np.int64, "GivenTensorInt64Fill"),
                (core.DataType.BOOL, np.bool_, "GivenTensorBoolFill"),
+               (core.DataType.DOUBLE, np.double, "GivenTensorDoubleFill"),
+               (core.DataType.INT32, np.double, "GivenTensorDoubleFill"),
            ]),
-           **hu.gcs_cpu_only)
+           **hu.gcs)
     def test_given_tensor_fill(self, X, t, gc, dc):
         X = X.astype(t[1])
         print('X: ', str(X))

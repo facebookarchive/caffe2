@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_CONV_TRANSPOSE_MOBILE_OP_H_
 #define CAFFE2_OPERATORS_CONV_TRANSPOSE_MOBILE_OP_H_
 
@@ -22,9 +38,11 @@ class ConvTransposeMobileOp final : public ConvTransposeUnpoolBase<Context> {
   ConvTransposeMobileOp(const OperatorDef& operator_def, Workspace* ws)
       : ConvTransposeUnpoolBase<Context>(operator_def, ws) {
     OPERATOR_NEEDS_FEATURE(order_ == StorageOrder::NCHW, "Only NCHW order is supported right now.");
-    OPERATOR_NEEDS_FEATURE(pad_l_ == 0, "operator does not handle row width padding");
-    OPERATOR_NEEDS_FEATURE(pad_r_ == 0, "operator does not handle row width padding");
-    OPERATOR_NEEDS_FEATURE(stride_w_ <= 4, "stride width must be <= 4");
+    OPERATOR_NEEDS_FEATURE(
+        this->pad_l() == 0, "operator does not handle row width padding");
+    OPERATOR_NEEDS_FEATURE(
+        this->pad_r() == 0, "operator does not handle row width padding");
+    OPERATOR_NEEDS_FEATURE(this->stride_w() <= 4, "stride width must be <= 4");
   }
 
   bool RunOnDeviceWithOrderNCHW() override;

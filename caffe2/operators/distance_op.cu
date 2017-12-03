@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <cub/block/block_reduce.cuh>
 
 #include "caffe2/core/context_gpu.h"
@@ -298,7 +314,7 @@ bool CosineSimilarityOp<float, CUDAContext>::RunOnDevice() {
     CAFFE_ENFORCE_EQ(X.dim32(i), Y.dim32(i));
   }
   const int N = X.ndim() > 0 ? X.dim32(0) : 1;
-  const int D = X.size() / N;
+  const int D = X.size_from_dim(1);
   result->Resize(N);
   float* result_data = result->mutable_data<float>();
   const float* X_data = X.data<float>();
@@ -342,7 +358,7 @@ bool CosineSimilarityGradientOp<float, CUDAContext>::RunOnDevice() {
   auto* dX = Output(DER_X_OUT);
   auto* dY = Output(DER_Y_OUT);
   const int N = X.ndim() > 0 ? X.dim32(0) : 1;
-  const int D = X.size() / N;
+  const int D = X.size_from_dim(1);
   CAFFE_ENFORCE(X.ndim() == Y.ndim());
   for (int i = 0; i < X.ndim(); ++i) {
     CAFFE_ENFORCE(X.dim32(i) == Y.dim32(i));

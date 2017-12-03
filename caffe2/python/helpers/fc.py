@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package fc
 # Module caffe2.python.helpers.fc
 from __future__ import absolute_import
@@ -13,7 +28,7 @@ from caffe2.python.modeling.parameter_info import ParameterTags
 def _FC_or_packed_FC(
     model, op_call, blob_in, blob_out, dim_in, dim_out, weight_init=None,
         bias_init=None, WeightInitializer=None, BiasInitializer=None,
-        **kwargs
+        enable_tensor_core=False, float16_compute=False, **kwargs
 ):
     WeightInitializer = initializers.update_initializer(
         WeightInitializer, weight_init, ("XavierFill", {})
@@ -42,6 +57,14 @@ def _FC_or_packed_FC(
         initializer=BiasInitializer,
         tags=bias_tags
     )
+
+    # enable TensorCore by setting appropriate engine
+    if enable_tensor_core:
+        kwargs['engine'] = 'TENSORCORE'
+
+    # Enable float 16 compute kernel (relevant for CUDA)
+    if float16_compute:
+        kwargs['float16_compute'] = True
 
     return op_call([blob_in, weight, bias], blob_out, **kwargs)
 

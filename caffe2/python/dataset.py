@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package dataset
 # Module caffe2.python.dataset
 """
@@ -209,6 +224,17 @@ class Dataset(object):
         self.field_types = fields.field_types()
         self.name = name or 'dataset'
         self.field_blobs = fields.field_blobs() if fields.has_blobs() else None
+
+    def trim(self, net, multiple_of):
+        """
+        Trims the contents of this dataset so that the number of records is
+        multiple of the given argument.
+        """
+        net.TrimDataset(
+            self.field_blobs,
+            self.field_blobs,
+            fields=self.fields,
+            multiple_of=multiple_of)
 
     def init_empty(self, init_net):
         """Initialize the blobs for this dataset with empty values.

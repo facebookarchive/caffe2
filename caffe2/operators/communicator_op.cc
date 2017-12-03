@@ -1,22 +1,50 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/operator.h"
 #include "caffe2/operators/no_default_engine_op.h"
 
 namespace caffe2 {
 
 OPERATOR_SCHEMA(CreateCommonWorld)
-    .NumInputs(0, 2)
+    .NumInputs(0, 1)
     .NumOutputs(1)
     .SetDoc(R"DOC(
 Creates a common world for communication operators.
 )DOC")
     .Input(0, "kv_handler", "Key/value handler for rendezvous (optional).")
-    .Input(
-        1,
-        "existing_common_world",
-        "existing c-w that can be used to fork new one faster (optional).")
     .Output(0, "comm_world", "A common world for collective operations.")
     .Arg("size", "(int) size of the common world.")
     .Arg("rank", "(int) rank of this node in the common world.");
+
+OPERATOR_SCHEMA(CloneCommonWorld)
+    .NumInputs(1)
+    .NumOutputs(1)
+    .SetDoc(R"DOC(
+Clones existing common world.
+)DOC")
+    .Input(0, "existing_comm_world", "Existing common world to clone.")
+    .Output(0, "comm_world", "A common world for collective operations.");
+
+OPERATOR_SCHEMA(DestroyCommonWorld)
+    .NumInputs(1)
+    .NumOutputs(1)
+    .EnforceInplace({{0, 0}})
+    .SetDoc("Closes all connections managed by a common world.")
+    .Input(0, "common_world", "The common world to be destroyed.");
 
 OPERATOR_SCHEMA(Broadcast)
     .NumInputsOutputs([](int in, int out) {
@@ -150,6 +178,8 @@ Receives the tensor from another node.
         "has already known the tensor's shape and information.");
 
 SHOULD_NOT_DO_GRADIENT(CreateCommonWorld);
+SHOULD_NOT_DO_GRADIENT(CloneCommonWorld);
+SHOULD_NOT_DO_GRADIENT(DestroyCommonWorld);
 SHOULD_NOT_DO_GRADIENT(Broadcast);
 SHOULD_NOT_DO_GRADIENT(Reduce);
 SHOULD_NOT_DO_GRADIENT(Allgather);
@@ -160,6 +190,8 @@ SHOULD_NOT_DO_GRADIENT(ReceiveTensor);
 
 // Communication operators do not have default engines.
 REGISTER_CPU_OPERATOR(CreateCommonWorld, NoDefaultEngineOp<CPUContext>);
+REGISTER_CPU_OPERATOR(CloneCommonWorld, NoDefaultEngineOp<CPUContext>);
+REGISTER_CPU_OPERATOR(DestroyCommonWorld, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Broadcast, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Reduce, NoDefaultEngineOp<CPUContext>);
 REGISTER_CPU_OPERATOR(Allgather, NoDefaultEngineOp<CPUContext>);

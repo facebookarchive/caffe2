@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_OPERATORS_SPARSE_TO_DENSE_OP_H_
 #define CAFFE2_OPERATORS_SPARSE_TO_DENSE_OP_H_
 
@@ -40,9 +56,15 @@ class SparseToDenseOp final : public Operator<Context> {
     if (sparse_indices_len <= 0) {
       return 0;
     }
-    return 1 +
-        *std::max_element(
-               sparse_indices_vec, sparse_indices_vec + sparse_indices_len);
+
+    // Awkward way to get the max element to make it work with both CUDA
+    // and CPU.
+    max_element_.Resize(1);
+    TInd* max_element_ptr = max_element_.template mutable_data<TInd>();
+    math::ReduceMax<TInd>(sparse_indices_len, sparse_indices_vec, max_element_ptr,
+          &scratch_, &context_);
+    max_element_host_.CopyFrom(max_element_);
+    return 1 + max_element_host_.template data<TInd>()[0];
   }
 
   template <typename TInd>
@@ -104,6 +126,9 @@ class SparseToDenseOp final : public Operator<Context> {
 
  private:
   int output_first_dim_;
+  Tensor<Context> scratch_;
+  Tensor<CPUContext> max_element_host_;
+  Tensor<Context> max_element_;
 
   INPUT_TAGS(INDICES, VALUES, DATA_TO_INFER_DIM);
 };

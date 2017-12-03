@@ -1,3 +1,18 @@
+# Copyright (c) 2016-present, Facebook, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
 ## @package scope
 # Module caffe2.python.scope
 from __future__ import absolute_import
@@ -53,15 +68,47 @@ def NameScope(prefix, reset=False):
 
 
 @contextlib.contextmanager
-def DeviceScope(scope):
-    assert isinstance(scope, caffe2_pb2.DeviceOption), \
-        "DeviceScope takes in a caffe2_pb2.DeviceOption as its argument."
+def DeviceScope(scope, node_name=None):
+    new_scope = caffe2_pb2.DeviceOption()
+    if scope:
+        assert isinstance(scope, caffe2_pb2.DeviceOption), \
+            "DeviceScope takes in a caffe2_pb2.DeviceOption as its argument."
+        new_scope.CopyFrom(scope)
+    else:
+        assert node_name, "At least one argument should be non-null in DeviceScope"
+
+    # rewrite node_name if it is explicitly given
+    if node_name:
+        new_scope.node_name = node_name
     global _threadlocal_scope
     old_scope = CurrentDeviceScope()
-    _threadlocal_scope.devicescope = scope
+    # nested scope should inherit the node_name if it is not explicitly set
+    if old_scope and old_scope.HasField('node_name') and \
+            not new_scope.HasField('node_name'):
+        new_scope.node_name = old_scope.node_name
+    _threadlocal_scope.devicescope = new_scope
     try:
         yield
     finally:
-        assert _threadlocal_scope.devicescope == scope, \
+        assert _threadlocal_scope.devicescope == new_scope, \
             "The device scope is changed from outside DeviceScope() calls."
         _threadlocal_scope.devicescope = old_scope
+
+
+@contextlib.contextmanager
+def EmptyDeviceScope():
+    """
+    Allow users to 'disable' the device scope behaviour (so it can be
+    controlled at a NetDef::DeviceOption level, not overridden at
+    OperatorDef::DeviceOption level).
+
+    This sets the CurrentDeviceScope() to None, so that the field is
+    not set in CreateOperator(...), etc.
+    """
+    old_scope = CurrentDeviceScope()
+    try:
+        _threadlocal_scope.devicescope = None
+        yield
+    finally:
+        _threadlocal_scope.devicescope = old_scope
+        return

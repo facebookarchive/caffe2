@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/operators/instance_norm_op.h"
 
 namespace caffe2 {
@@ -19,6 +35,10 @@ bool InstanceNormOp<T, Context>::RunOnDeviceWithOrderNHWC() {
   const int W = X.dim32(2);
   const int C = X.dim32(3);
   const size_t offset = H * W * C;
+
+  CAFFE_ENFORCE_EQ(Input(SCALE).size(), C);
+  CAFFE_ENFORCE_EQ(Input(BIAS).size(), C);
+
   Y->ResizeLike(X);
   mean->Resize(N, C);
   inv_stdev->Resize(N, C);
@@ -65,6 +85,10 @@ bool InstanceNormOp<T, Context>::RunOnDeviceWithOrderNCHW() {
   const int C = X.dim32(1);
   const int H = X.dim32(2);
   const int W = X.dim32(3);
+
+  CAFFE_ENFORCE_EQ(scale.size(), C);
+  CAFFE_ENFORCE_EQ(bias.size(), C);
+
   Y->ResizeLike(X);
   mean->Resize(N, C);
   inv_stdev->Resize(N, C);
@@ -76,22 +100,18 @@ bool InstanceNormOp<T, Context>::RunOnDeviceWithOrderNCHW() {
   auto* mean_data = mean->template mutable_data<T>();
   auto* inv_stdev_data = inv_stdev->template mutable_data<T>();
 
-  auto f = [&](size_t i) {
+  // TODO: benchmark parallelization strategies.
+  for (auto i = 0; i < N * C; ++i) {
     ConstEigenVectorArrayMap<T> Xi(Xdata + H * W * i, H * W);
-    const T mean = Xi.mean();
-    const T squared_norm = (Xi - mean).matrix().squaredNorm();
+    const T Xi_mean = Xi.mean();
+    const T squared_norm = (Xi - Xi_mean).matrix().squaredNorm();
     const T inv_stdev = 1.0 / std::sqrt(squared_norm / (H * W) + epsilon_);
-    mean_data[i] = mean;
+    mean_data[i] = Xi_mean;
     inv_stdev_data[i] = inv_stdev;
     EigenVectorArrayMap<T> Yi(Ydata + H * W * i, H * W);
     const T channel_scale = inv_stdev * scale_data[i % C];
-    const T channel_shift = bias_data[i % C] - mean * channel_scale;
+    const T channel_shift = bias_data[i % C] - Xi_mean * channel_scale;
     Yi = Xi * channel_scale + channel_shift;
-  };
-
-  // TODO: benchmark parallelization strategies.
-  for (auto i = 0; i < N * C; ++i) {
-    f(i);
   }
 
   return true;

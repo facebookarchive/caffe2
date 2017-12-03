@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "caffe2/core/types.h"
 #include "caffe2/core/typeid.h"
 
@@ -26,6 +42,7 @@ CAFFE_KNOWN_TYPE(std::vector<int64_t>);
 CAFFE_KNOWN_TYPE(std::vector<unsigned long>);
 CAFFE_KNOWN_TYPE(bool*);
 CAFFE_KNOWN_TYPE(char*);
+CAFFE_KNOWN_TYPE(int*);
 
 #ifdef CAFFE2_UNIQUE_LONG_TYPEMETA
 CAFFE_KNOWN_TYPE(long);
@@ -76,6 +93,12 @@ const TypeMeta& DataTypeToTypeMeta(const TensorProto::DataType& dt) {
     throw std::runtime_error("Unknown data type.");
   }
   return it->second;
+}
+
+// Helpers to avoid using typeinfo with -rtti
+template <>
+bool fp16_type<float16>() {
+  return true;
 }
 
 }  // namespace caffe2

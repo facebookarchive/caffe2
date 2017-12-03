@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef CAFFE2_CORE_LOGGING_IS_NOT_GOOGLE_GLOG_H_
 #define CAFFE2_CORE_LOGGING_IS_NOT_GOOGLE_GLOG_H_
 
@@ -97,6 +113,8 @@ static_assert(CAFFE2_LOG_THRESHOLD <= FATAL,
   if (n >= CAFFE2_LOG_THRESHOLD && (condition)) \
   ::caffe2::MessageLogger((char*)__FILE__, __LINE__, n).stream()
 #define VLOG_IF(n, condition) LOG_IF((-n), (condition))
+
+#define VLOG_IS_ON(verboselevel) (CAFFE2_LOG_THRESHOLD <= -(verboselevel))
 
 // Log only if condition is met.  Otherwise evaluates to void.
 #define FATAL_IF(condition) \
