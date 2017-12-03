@@ -44,6 +44,11 @@ case "${BUILD_ENVIRONMENT}" in
     # Explicitly set path to NVCC such that the symlink to ccache is used
     CMAKE_ARGS+=("-DCUDA_NVCC_EXECUTABLE=${CCACHE_WRAPPER_DIR}/nvcc")
 
+    # Ensure FindCUDA.cmake can infer the right path to the CUDA toolkit.
+    # Setting PATH to resolve to the right nvcc alone isn't enough.
+    # See /usr/share/cmake-3.5/Modules/FindCUDA.cmake, block at line 589.
+    export CUDA_PATH="/usr/local/cuda"
+
     # Ensure the ccache symlink can still find the real nvcc binary.
     export PATH="/usr/local/cuda/bin:$PATH"
     ;;
