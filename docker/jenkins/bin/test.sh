@@ -3,7 +3,7 @@
 set -e
 
 LOCAL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-ROOT_DIR=$(dirname "$LOCAL_DIR")
+ROOT_DIR=$(cd "$LOCAL_DIR"/../../.. && pwd)
 
 # Skip tests in environments where they are not built/applicable
 if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
