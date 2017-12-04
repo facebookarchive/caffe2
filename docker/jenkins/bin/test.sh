@@ -43,9 +43,19 @@ for test in ./test/*; do
   fi
 done
 
+# Figure out which Python to use
+PYTHON="python"
+if [ -n "$BUILD_ENVIRONMENT" ]; then
+  if [[ "$BUILD_ENVIRONMENT" == py2* ]]; then
+    PYTHON="python2"
+  elif [[ "$BUILD_ENVIRONMENT" == py3* ]]; then
+    PYTHON="python3"
+  fi
+fi
+
 # Python tests
 echo "Running Python tests.."
-python \
+"$PYTHON" \
   -m pytest \
   -v \
   --junit-xml="$TEST_DIR"/python/result.xml \
