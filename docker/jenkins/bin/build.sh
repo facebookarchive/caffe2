@@ -19,7 +19,7 @@ fi
 # Run build script from scripts if applicable
 if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   export ANDROID_NDK=/opt/ndk
-  ./scripts/build_android.sh "$@"
+  "${ROOT_DIR}/scripts/build_android.sh" "$@"
   exit 0
 fi
 
