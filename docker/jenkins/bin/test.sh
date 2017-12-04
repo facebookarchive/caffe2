@@ -11,14 +11,16 @@ if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   exit 0
 fi
 
-cd "$ROOT_DIR"
-
 export PYTHONPATH="${PYTHONPATH}:/usr/local/caffe2"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/caffe2/lib"
 
-rm -rf test
-mkdir -p test/{cpp,python}
-TEST_DIR="$ROOT_DIR/test"
+if [ -d ./test ]; then
+  echo "Directory ./test already exists; please remove it..."
+  exit 1
+fi
+
+mkdir -p ./test/{cpp,python}
+TEST_DIR="$PWD/test"
 
 cd /usr/local/caffe2
 
