@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "caffe2/core/common.h"
+
 namespace caffe2 {
 namespace script {
 
