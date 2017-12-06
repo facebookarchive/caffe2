@@ -24,6 +24,12 @@ struct DefCompiler {
     }
     emitStatements(def.statements());
   }
+  void emitExpressionStatement(TreeRef stmt) {
+    // expression with no used outputs
+    auto r = emit(stmt);
+    // remove the implicit single output
+    r->clear_output();
+  }
   void emitStatements(const ListView<TreeRef>& statements) {
     for (auto stmt : statements) {
       switch (stmt->kind()) {
@@ -37,7 +43,8 @@ struct DefCompiler {
           emitAssignment(Assign(stmt));
           break;
         default:
-          throw ErrorReport(stmt) << "NYI: " << stmt;
+          emitExpressionStatement(stmt);
+          break;
       }
     }
   }

@@ -189,14 +189,17 @@ struct Parser {
     auto ident = parseIdent();
     return Param::create(typ->range(), ident, typ);
   }
+  void parseEndOfLine() {
+    // TODO: make sure parser always generates newline before dedent
+    if (L.cur().kind != TK_DEDENT)
+      L.expect(TK_NEWLINE);
+  }
   TreeRef parseAssign() {
     TreeRef list = parseOneOrMoreIdent();
     auto red = parseOptionalReduction();
     L.expect('=');
     auto rhs = parseExp();
-    // TODO: make sure parser always generates newline before dedent
-    if (L.cur().kind != TK_DEDENT)
-      L.expect(TK_NEWLINE);
+    parseEndOfLine();
     return Assign::create(list->range(), list, red, rhs);
   }
   TreeRef parseStmt() {
@@ -205,8 +208,21 @@ struct Parser {
         return parseIf();
       case TK_WHILE:
         return parseWhile();
-      default:
-        return parseAssign();
+      default: {
+        // TODO: when we have type-checking/semantic analysis,
+        // we should just parse <exp>, <exp> = <exp>, <exp>
+        // rather than use lookahead here. But since only identifiers
+        // can be on the left-hand-side we can use lookahead to figure out
+        // if we have a assignment or just a statement.
+        int lookahead = L.lookahead().kind;
+        if (lookahead == ',' || lookahead == '=') {
+          return parseAssign();
+        } else {
+          auto r = parseExp();
+          parseEndOfLine();
+          return r;
+        }
+      }
     }
   }
   TreeRef parseScalarType() {

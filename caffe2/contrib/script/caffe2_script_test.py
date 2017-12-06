@@ -102,6 +102,17 @@ class TestCaffe2Script(hu.HypothesisTestCase):
         assert(True == workspace.FetchBlob('d'))
         assert(True == workspace.FetchBlob('e'))
 
+    def test_print(self):
+        CU = core.C.CompilationUnit()
+        CU.define("""
+            def foo() -> ():
+                a = 1
+                Print(a)
+                Print(a+1)
+        """)
+        net = CU.create_net('foo')
+        net.run()
+
     @given(seed=st.integers(min_value=0, max_value=65536), **hu.gcs)
     def test_if(self, seed, gc, dc):
         np.random.seed(int(seed))
