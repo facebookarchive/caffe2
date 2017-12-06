@@ -62,7 +62,9 @@ namespace script {
   _(TK_EQ, "eq", "==")                           \
   _(TK_LE, "le", "<=")                           \
   _(TK_GE, "ge", ">=")                           \
-  _(TK_IF_EXPR, "if", "")                           \
+  _(TK_IF_EXPR, "if", "")                        \
+  _(TK_TRUE, "True", "True")                     \
+  _(TK_FALSE, "False", "False")                  \
   _(TK_BUILT_IN, "built-in", "")
 static const char* valid_single_char_tokens = "+-*/()[]:,={}><";
 

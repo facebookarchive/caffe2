@@ -254,6 +254,9 @@ struct DefCompiler {
     } else if (type_ident == "LL") {
       dtype->set_i(TensorProto_DataType_INT64);
       value->set_i(v);
+    } else if (type_ident == "b") {
+      dtype->set_i(TensorProto_DataType_BOOL);
+      value->set_i(v != 0);
     } else {
       dtype->set_i(TensorProto_DataType_INT32);
       value->set_i(v);

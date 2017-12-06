@@ -21,24 +21,29 @@ struct Parser {
   // and have higher precedence than all of them
   TreeRef parseBaseExp() {
     TreeRef prefix;
-    if (L.cur().kind == TK_NUMBER) {
-      prefix = parseConst();
-    } else if (L.cur().kind == '(') {
-      L.next();
-      prefix = parseExp();
-      L.expect(')');
-    } else {
-      prefix = parseIdent();
-      auto range = L.cur().range;
-      if (L.cur().kind == '(') {
-        auto r = parseOperatorArguments();
-        prefix = Apply::create(range, prefix, r.first, r.second);
-      } else if (L.nextIf('.')) {
-        auto t = L.expect(TK_NUMBER);
-        prefix = Select::create(range, prefix, d(t.doubleValue()));
-      }
+    switch(L.cur().kind) {
+      case TK_NUMBER:
+      case TK_TRUE:
+      case TK_FALSE: {
+        prefix = parseConst();
+      } break;
+      case '(': {
+        L.next();
+        prefix = parseExp();
+        L.expect(')');
+      } break;
+      default: {
+        prefix = parseIdent();
+        auto range = L.cur().range;
+        if (L.cur().kind == '(') {
+          auto r = parseOperatorArguments();
+          prefix = Apply::create(range, prefix, r.first, r.second);
+        } else if (L.nextIf('.')) {
+          auto t = L.expect(TK_NUMBER);
+          prefix = Select::create(range, prefix, d(t.doubleValue()));
+        }
+      } break;
     }
-
     return prefix;
   }
   TreeRef parseOptionalReduction() {
@@ -122,6 +127,12 @@ struct Parser {
     return parseList('(', ',', ')', [&](int i) { return parseExp(); });
   }
   TreeRef parseConst() {
+    auto range = L.cur().range;
+    if(L.nextIf(TK_TRUE)) {
+      return c(TK_CONST, range, {d(1), s("b")});
+    } else if(L.nextIf(TK_FALSE)) {
+      return c(TK_CONST, range, {d(0), s("b")});
+    }
     float mult = 1.0f;
     while (L.nextIf('-')) {
       mult *= -1.0f;
