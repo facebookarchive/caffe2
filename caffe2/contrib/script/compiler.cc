@@ -62,8 +62,14 @@ struct DefCompiler {
       op->add_output();
     int i = 0;
     for (auto ident : stmt.idents()) {
-      op->set_output(i++, ident.name());
-      map(ident.name(), ident.name());
+      std::string name = ident.name();
+      // use of "_" gets renamed in Caffe2 graphs so that two uses
+      // don't unintentionally interfere with each other
+      if(name == "_") {
+        name = fresh();
+      }
+      op->set_output(i++, name);
+      map(ident.name(), name);
     }
   }
   void emitIf(const If& stmt) {

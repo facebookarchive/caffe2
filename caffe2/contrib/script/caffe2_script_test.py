@@ -109,6 +109,8 @@ class TestCaffe2Script(hu.HypothesisTestCase):
                 a = 1
                 Print(a)
                 Print(a+1)
+                _ = 4
+                Print(_) # verify in print this isn't _ but some temorary
         """)
         net = CU.create_net('foo')
         net.run()
