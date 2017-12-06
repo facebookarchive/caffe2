@@ -22,7 +22,7 @@ class TestCaffe2Script(hu.HypothesisTestCase):
                   r = t
               else:
                   r = f
-              r = Add(r,3f,broadcast=1i)
+              r = Add(r,3f,broadcast=1)
           def testWhile(r) -> (r):
               m = 0
               while m < 4:
@@ -111,6 +111,9 @@ class TestCaffe2Script(hu.HypothesisTestCase):
                 Print(a+1)
                 _ = 4
                 Print(_) # verify in print this isn't _ but some temorary
+                Print(1)
+                Print(1.f)
+                Print(3.0)
         """)
         net = CU.create_net('foo')
         net.run()

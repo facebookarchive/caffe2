@@ -138,6 +138,11 @@ struct Parser {
     return parseList('(', ',', ')', [&](int i) { return parseExp(); });
   }
   TreeRef parseConst() {
+    // 'b' - boolean
+    // 'LL' 64-bit integer
+    // 'f' single-precision float
+    // 'i' 32-bit integer
+    // 'f' is default if '.' appears in the number
     auto range = L.cur().range;
     if(L.nextIf(TK_TRUE)) {
       return c(TK_CONST, range, {d(1), s("b")});
@@ -149,11 +154,14 @@ struct Parser {
       mult *= -1.0f;
     }
     auto t = L.expect(TK_NUMBER);
-    std::string type_ident;
-
+    std::string type_ident = (t.text().find('.') == std::string::npos) ? "i" : "f";
     if (L.cur().kind == TK_IDENT) {
       Token type_ident_tok = L.expect(TK_IDENT);
       type_ident = type_ident_tok.text();
+      if(type_ident != "LL" && type_ident != "f") {
+        throw ErrorReport(type_ident_tok) << "expected 'f' or 'LL' " <<
+          "as numeric type identifier but found '" << type_ident << "'";
+      }
     }
     return c(TK_CONST, t.range, {d(mult * t.doubleValue()), s(type_ident)});
   }

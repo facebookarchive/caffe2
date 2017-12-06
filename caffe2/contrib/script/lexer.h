@@ -159,11 +159,11 @@ struct SharedParserData {
   //
   bool isNumber(const std::string& str, size_t start, size_t* len) {
     char first = str[start];
-    // strtod allows numbers to start with + or -
+    // strtod allows numbers to start with + or - or nan or inf
     // http://en.cppreference.com/w/cpp/string/byte/strtof
     // but we want only the number part, otherwise 1+3 will turn into two
     // adjacent numbers in the lexer
-    if (first == '-' || first == '+')
+    if (first == '-' || first == '+' || isalpha(first))
       return false;
     const char* startptr = str.c_str() + start;
     char* endptr;

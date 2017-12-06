@@ -106,7 +106,7 @@ struct DefCompiler {
   }
   void emitWhile(const While& stmt) {
     std::string loop_var = fresh();
-    emitConst(0, loop_var, ""); // it needs a definition before loop
+    emitConst(0, loop_var, "i"); // it needs a definition before loop
     auto op = cur().add_op();
     op->set_type("While");
     auto cond = op->add_arg();
@@ -291,9 +291,11 @@ struct DefCompiler {
     } else if (type_ident == "b") {
       dtype->set_i(TensorProto_DataType_BOOL);
       value->set_i(v != 0);
-    } else {
+    } else if (type_ident == "i") {
       dtype->set_i(TensorProto_DataType_INT32);
       value->set_i(v);
+    } else {
+      throw std::runtime_error("unknown type_ident " + type_ident);
     }
     auto shape = op->add_arg();
     shape->set_name("shape");
