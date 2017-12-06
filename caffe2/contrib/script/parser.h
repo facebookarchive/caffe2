@@ -36,13 +36,23 @@ struct Parser {
         prefix = parseIdent();
         auto range = L.cur().range;
         if (L.cur().kind == '(') {
-          auto r = parseOperatorArguments();
-          prefix = Apply::create(range, prefix, r.first, r.second);
-        } else if (L.nextIf('.')) {
-          auto t = L.expect(TK_NUMBER);
-          prefix = Select::create(range, prefix, d(t.doubleValue()));
+          TreeList inputs, attributes;
+          parseOperatorArguments(inputs, attributes);
+          prefix = Apply::create(range, prefix,
+                                 List(range, std::move(inputs)),
+                                 List(range, std::move(attributes)));
         }
       } break;
+    }
+    while(L.nextIf('.')) {
+      auto name = parseIdent();
+      TreeList inputs = { prefix };
+      TreeList attributes;
+      auto range = L.cur().range;
+      parseOperatorArguments(inputs, attributes);
+      prefix = Apply::create(range, name,
+                             List(range, std::move(inputs)),
+                             List(range, std::move(attributes)));
     }
     return prefix;
   }
@@ -155,10 +165,7 @@ struct Parser {
         return parseConst();
     }
   }
-  std::pair<TreeRef, TreeRef> parseOperatorArguments() {
-    TreeList inputs;
-    TreeList attributes;
-    auto r = L.cur().range;
+  void parseOperatorArguments(TreeList & inputs, TreeList & attributes) {
     L.expect('(');
     if (L.cur().kind != ')') {
       do {
@@ -173,8 +180,6 @@ struct Parser {
       } while (L.nextIf(','));
     }
     L.expect(')');
-    return std::make_pair(
-        List(r, std::move(inputs)), List(r, std::move(attributes)));
   }
   TreeRef parseIdentList() {
     return parseList('(', ',', ')', [&](int i) { return parseIdent(); });
