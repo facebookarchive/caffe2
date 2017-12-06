@@ -53,11 +53,11 @@ struct Parser {
     }
   }
   TreeRef
-  parseTrinary(TreeRef cond, const SourceRange& range, int binary_prec) {
-    auto true_branch = parseExp();
-    L.expect(':');
+  parseTrinary(TreeRef true_branch, const SourceRange& range, int binary_prec) {
+    auto cond = parseExp();
+    L.expect(TK_ELSE);
     auto false_branch = parseExp(binary_prec);
-    return c('?', range, {cond, true_branch, false_branch});
+    return c(TK_IF_EXPR, range, {cond, true_branch, false_branch});
   }
   // parse the longest expression whose binary operators have
   // precedence strictly greater than 'precedence'
@@ -87,7 +87,7 @@ struct Parser {
         binary_prec--;
 
       // special case for trinary operator
-      if (kind == '?') {
+      if (kind == TK_IF) {
         prefix = parseTrinary(prefix, pos, binary_prec);
         continue;
       }

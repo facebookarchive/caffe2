@@ -139,6 +139,8 @@ struct DefCompiler {
         return "LE";
       case TK_GE:
         return "GE";
+      case TK_IF_EXPR:
+        return "Conditional";
       default:
         throw std::runtime_error("unknown kind " + caffe2::to_string(kind));
     }
@@ -195,7 +197,8 @@ struct DefCompiler {
       case '-':
       case '*':
       case '/':
-      case '+': {
+      case '+':
+      case TK_IF_EXPR: {
         // must be before add_op
         auto values = getValues(tree->trees());
         auto op = cur().add_op();

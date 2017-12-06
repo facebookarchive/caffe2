@@ -58,6 +58,20 @@ class TestCaffe2Script(hu.HypothesisTestCase):
 
         np.testing.assert_allclose(actual_c, ref_c)
 
+    def test_trinary(self):
+        CU = core.C.CompilationUnit()
+        CU.define("""
+            def foo(c) -> (d):
+                d = 1 + (2 if c else 4)
+        """)
+        workspace.FeedBlob('c', np.ones((1), dtype=bool))
+        net = CU.create_net('foo')
+        net.run()
+        assert(3 == workspace.FetchBlob('d'))
+        workspace.FeedBlob('c', np.zeros((1), dtype=bool))
+        net.run()
+        assert(5 == workspace.FetchBlob('d'))
+
     @given(seed=st.integers(min_value=0, max_value=65536), **hu.gcs)
     def test_if(self, seed, gc, dc):
         np.random.seed(int(seed))

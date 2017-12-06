@@ -62,8 +62,9 @@ namespace script {
   _(TK_EQ, "eq", "==")                           \
   _(TK_LE, "le", "<=")                           \
   _(TK_GE, "ge", ">=")                           \
+  _(TK_IF_EXPR, "if", "")                           \
   _(TK_BUILT_IN, "built-in", "")
-static const char* valid_single_char_tokens = "+-*/()[]?:,={}><";
+static const char* valid_single_char_tokens = "+-*/()[]:,={}><";
 
 enum TokenKind {
   // we use characters to represent themselves so skip all valid characters
@@ -104,7 +105,7 @@ struct SharedParserData {
   SharedParserData() : head(new TokenTrie()) {
     // listed in increasing order of precedence
     std::vector<std::vector<int>> binary_ops = {
-        {'?'},
+        {TK_IF},
         {'<', '>', TK_EQ, TK_LE, TK_GE, TK_NE},
         {'+', '-'},
         {'*', '/'},
