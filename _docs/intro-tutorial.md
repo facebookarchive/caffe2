@@ -9,9 +9,10 @@ permalink: /docs/intro-tutorial.html
 Below you can learn more about the main concepts of Caffe2 that are crucial for understanding and developing Caffe2 models.
 
 ### Blobs and Workspace, Tensors
-Data in Caffe2 is organized as blobs. Blob is just a named chunk of data in memory. Most blobs contain a tensor (think multidimensional array), and in python they are translated to numpy arrays (numpy is a popular numerical library for python and is already installed as a prerequisite with Caffe2).
 
-[Workspace](workspace.html) stores all the blobs. Following example shows how to feed blobs into `workspace` and fetch them. Workspaces initialize themselves the moment you start using them.
+Data in Caffe2 is organized as *blobs*. A *blob* is just a named chunk of data in memory. Most blobs contain a tensor (think multidimensional array), and in Python they are translated to numpy arrays (numpy is a popular numerical library for Python and is already installed as a prerequisite with Caffe2).
+
+A [Workspace](workspace.html) stores all the blobs. The following example shows how to feed blobs into a `workspace` and fetch them again. Workspaces initialize themselves the moment you start using them.
 
 ```py
 from caffe2.python import workspace, model_helper
@@ -28,15 +29,16 @@ print(x2)
 ```
 
 ### Nets and Operators
-The fundamental object of Caffe2 is a net (short for network). Net is a graph of operators, and each operator takes a set of input blobs and produces one or more output blobs.
+
+The fundamental model abstraction in Caffe2 is a *net* (short for network). A net is a graph of operators and each operator takes a set of input blobs and produces one or more output blobs.
 
 In the code block below we will create a super simple model. It will have these components:
 
 * One fully-connected layer (FC)
-  * a Sigmoid activation with a Softmax
-  * a CrossEntropy loss
+* a Sigmoid activation with a Softmax
+* a CrossEntropy loss
 
-Composing nets directly is quite tedious, so it is better to use *model helpers* that are python classes that aid in creating the nets. Even though we call it and pass in a single name "my first net", `ModelHelper` will create two interrelated nets:
+Composing nets directly is quite tedious, so it is better to use *model helpers* that are Python classes that aid in creating the nets. Even though we call it and pass in a single name "my first net", `ModelHelper` will create two interrelated nets:
 
 1. one that initializes the parameters (ref. init_net)
 2. one that runs the actual training (ref. exec_net)
@@ -60,33 +62,33 @@ We created some random data and random labels and then fed those as blobs into t
 m = model_helper.ModelHelper(name="my first net")
 ```
 
-You've now used the `model_helper` to created the two nets we mentioned earlier (init_net, exec_net). We plan to add a fully-connected layer using the FC operator in this model next, but first we need to do some prep work by creating some random fills that the FC Op expects. Next we can add the Ops and use the weights and bias blobs we created, calling them by name when we invoke the FC Op.
+You've now used the `model_helper` to create the two nets we mentioned earlier (`init_net` and `exec_net`). We plan to add a fully connected layer using the `FC` operator in this model next, but first we need to do some prep work by creating some random fills that the `FC` op expects. Next we can add the ops and use the weights and bias blobs we created, calling them by name when we invoke the `FC` op.
 
 ```py
 weight = m.param_init_net.XavierFill([], 'fc_w', shape=[10, 100])
 bias = m.param_init_net.ConstantFill([], 'fc_b', shape=[10, ])
 ```
 
-In Caffe2 the FC Op takes in an input blob (our data), weights, and bias. Weights and bias using either `XavierFill` or `ConstantFill` will both take an empty array, name, and shape (as `shape=[output, input]`).
+In Caffe2 the FC `op` takes in an input blob (our data), weights, and bias. Weights and bias using either `XavierFill` or `ConstantFill` will both take an empty array, name, and shape (as `shape=[output, input]`).
 
 ```py
 fc_1 = m.net.FC(["data", "fc_w", "fc_b"], "fc1")
 pred = m.net.Sigmoid(fc_1, "pred")
-[softmax, loss] = m.net.SoftmaxWithLoss([pred, "label"], ["softmax", "loss"])
+softmax, loss = m.net.SoftmaxWithLoss([pred, "label"], ["softmax", "loss"])
 ```
 
 Reviewing the code blocks above:
 
-First, we created the input data and label blobs in memory (in practice, you would be loading data from a input data source such as database -- more about that later). Note that the data and label blobs have first dimension '16'; this is because the input to the model is a mini-batch of 16 samples at a time. Many Caffe2 operators can be accessed directly through `ModelHelper` and can handle a mini-batch of input a time. Check [ModelHelper's Operator List](workspace.html#cnnmodelhelper) for more details.
+First, we created the input data and label blobs in memory (in practice, you would be loading data from a input data source such as database). Note that the data and label blobs have first dimension '16'; this is because the input to the model is a mini batch of 16 samples at a time. Many Caffe2 operators can be accessed directly through `ModelHelper` and can handle a mini batch of input a time. Check [ModelHelper's Operator List](workspace.html#cnnmodelhelper) for more details.
 
-Second, we create a model by defining a bunch of operators: [FC](operators-catalogue.html#fc), [Sigmoid](operators-catalogue.html#sigmoidgradient) and [SoftmaxWithLoss](operators-catalogue.html#softmaxwithloss). *Note:* at this point, the operators are not executed, you are just creating the definition of the model.
+Second, we create a model by defining a bunch of operators: [`FC`](operators-catalogue.html#fc), [`Sigmoid`](operators-catalogue.html#sigmoidgradient) and [`SoftmaxWithLoss`](operators-catalogue.html#softmaxwithloss). *Note:* at this point, the operators are not executed, you are just creating the definition of the model.
 
-Model helper will create two nets: `m.param_init_net` which is a net you run only once. It will initialize all the parameter blobs such as weights for the FC layer. The actual training is done by executing `m.net`. This is transparent to you and happens automatically.
+Model helper will create two nets: `m.param_init_net` which is a net you run only once. It will initialize all the parameter blobs such as weights for the `FC` layer. The actual training is done by executing `m.net`. This is transparent to you and happens automatically.
 
-The net definition is stored in a protobuf structure (see Google's Protobuffer documentation to learn more; protobuffers are equivalent to Thrift structs). You can easily inspect it by calling `net.Proto()`:
+The net definition is stored in a protobuf structure (see [Google's Protocol Buffer documentation](https://developers.google.com/protocol-buffers/) to learn more). You can easily inspect it by calling `net.Proto()`:
 
 ```python
-print(str(m.net.Proto()))
+print(m.net.Proto())
 ```
 
 The output should look like:
@@ -124,7 +126,7 @@ external_input: "label"
 You also should have a look at the param initialization net:
 
 ```python
-print(str(m.param_init_net.Proto()))
+print(m.param_init_net.Proto())
 ```
 
 You can see how there are two operators that create random fill for the weight and bias blobs of the FC operator.
@@ -152,7 +154,7 @@ We create it once and then we can efficiently run it multiple times:
 
 ```python
 # Run 100 x 10 iterations
-for j in range(0, 100):
+for _ in range(100):
     data = np.random.rand(16, 100).astype(np.float32)
     label = (np.random.rand(16) * 10).astype(np.int32)
 
@@ -185,7 +187,7 @@ m.AddGradientOperators([loss])
 Examine the protobuf output:
 
 ```python
-print(str(m.net.Proto()))
+print(m.net.Proto())
 ```
 
 This concludes the overview, but there's a lot more to be found in the [tutorials](tutorials.html).
