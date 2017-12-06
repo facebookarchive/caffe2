@@ -57,14 +57,15 @@ struct Parser {
     return prefix;
   }
   TreeRef parseOptionalReduction() {
+    auto r = L.cur().range;
     switch (L.cur().kind) {
       case '+':
       case '*':
       case TK_MIN:
       case TK_MAX:
-        return s(kindToString(L.next().kind));
+        return c(L.next().kind, r, {});
       default:
-        return s("="); // no reduction
+        return c('=', r, {}); // no reduction
     }
   }
   TreeRef
@@ -216,16 +217,16 @@ struct Parser {
       default: {
         // TODO: when we have type-checking/semantic analysis,
         // we should just parse <exp>, <exp> = <exp>, <exp>
-        // rather than use lookahead here. But since only identifiers
-        // can be on the left-hand-side we can use lookahead to figure out
-        // if we have a assignment or just a statement.
+        // rather than use lookahead here.
+        // but for now allow statements of the form foo(...)
+        // and a.foo(...) to appear on lines of their own.
         int lookahead = L.lookahead().kind;
-        if (lookahead == ',' || lookahead == '=') {
-          return parseAssign();
-        } else {
+        if (lookahead == '(' || lookahead == '.') {
           auto r = parseExp();
           parseEndOfLine();
           return r;
+        } else {
+          return parseAssign();
         }
       }
     }

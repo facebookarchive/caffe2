@@ -57,7 +57,19 @@ struct DefCompiler {
     return env[ident.name()];
   }
   void emitAssignment(const Assign& stmt) {
-    auto op = emit(stmt.rhs());
+    OperatorDef* op;
+    if(stmt.reduction() != '=') {
+      if(stmt.idents().size() != 1) {
+        throw ErrorReport(stmt)
+          << "reductions are only allow when there is a single variable "
+          << "on the left-hand side.";
+      }
+      auto lhs = stmt.idents()[0];
+      auto expr = Compound::create(stmt.reduction(), stmt.range(), { lhs, stmt.rhs() });
+      op = emit(expr);
+    } else {
+      op = emit(stmt.rhs());
+    }
     while (op->output_size() < stmt.idents().size())
       op->add_output();
     int i = 0;

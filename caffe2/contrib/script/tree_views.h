@@ -234,8 +234,8 @@ struct Assign : public TreeView {
   ListView<Ident> idents() const {
     return ListView<Ident>(idents_);
   }
-  const std::string& reduction() const {
-    return reduction_->stringValue();
+  int reduction() const {
+    return reduction_->kind();
   }
   TreeRef rhs() const {
     return rhs_;
