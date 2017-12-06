@@ -56,7 +56,7 @@ class TestCaffe2Script(hu.HypothesisTestCase):
         ref_c = np.matmul(X, W.transpose()) + ref_t
         actual_c = workspace.FetchBlob('c')
 
-        np.testing.assert_allclose(actual_c, ref_c)
+        np.testing.assert_allclose(actual_c, ref_c, rtol=1e-05)
 
     def test_trinary(self):
         CU = core.C.CompilationUnit()
