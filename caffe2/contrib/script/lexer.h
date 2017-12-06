@@ -65,6 +65,9 @@ namespace script {
   _(TK_IF_EXPR, "if", "")                        \
   _(TK_TRUE, "True", "True")                     \
   _(TK_FALSE, "False", "False")                  \
+  _(TK_AND, "and", "and")                        \
+  _(TK_OR, "or", "or")                           \
+  _(TK_NOT, "not", "not")                        \
   _(TK_BUILT_IN, "built-in", "")
 static const char* valid_single_char_tokens = "+-*/()[]:,={}><";
 
@@ -108,6 +111,8 @@ struct SharedParserData {
     // listed in increasing order of precedence
     std::vector<std::vector<int>> binary_ops = {
         {TK_IF},
+        {TK_AND, TK_OR},
+        {}, // reserve a level for unary not
         {'<', '>', TK_EQ, TK_LE, TK_GE, TK_NE},
         {'+', '-'},
         {'*', '/'},
@@ -145,6 +150,9 @@ struct SharedParserData {
       }
       prec++;
     }
+    // add unary not separately because it slots into the precedence of
+    // binary operators
+    unary_prec[TK_NOT] = binary_prec[TK_AND] + 1;
   }
   // 1. skip whitespace
   // 2. handle comment or newline
