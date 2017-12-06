@@ -210,6 +210,7 @@ struct DefCompiler {
     }
     return result;
   }
+
   OperatorDef* emit(const TreeRef& tree) {
     switch (tree->kind()) {
       case TK_IDENT: {
@@ -262,6 +263,19 @@ struct DefCompiler {
         }
         return op;
       } break;
+      case TK_CAST: {
+        auto cast = Cast(tree);
+        auto c2type = getType(cast.type());
+        auto input = getValue(cast.input());
+        auto op = cur().add_op();
+        op->set_type("Cast");
+        op->add_input(input);
+        op->add_output(fresh());
+        auto arg = op->add_arg();
+        arg->set_name("to");
+        arg->set_i(c2type);
+        return op;
+      } break;
       case TK_CONST: {
         return emitConst(
             tree->tree(0)->doubleValue(),
@@ -270,8 +284,25 @@ struct DefCompiler {
       } break;
       default:
         throw ErrorReport(tree) << "NYI: " << tree;
+        break;
     }
   }
+
+  TensorProto_DataType getType(int type) {
+    switch(type) {
+      case TK_INT:
+        return TensorProto_DataType_INT32;
+      case TK_FLOAT:
+        return TensorProto_DataType_FLOAT;
+      case TK_LONG:
+        return TensorProto_DataType_INT64;
+      case TK_BOOL:
+        return TensorProto_DataType_BOOL;
+      default:
+        throw std::runtime_error("expected type token: " + std::to_string(type));
+    }
+  }
+
   OperatorDef* emitConst(
       double v,
       const std::string& output,

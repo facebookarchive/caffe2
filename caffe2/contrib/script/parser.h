@@ -17,6 +17,14 @@ struct Parser {
     // of the Compound tree are in the same place.
     return Ident::create(t.range, t.text());
   }
+  TreeRef createApply(TreeRef ident, TreeList & inputs) {
+    TreeList attributes;
+    auto range = L.cur().range;
+    parseOperatorArguments(inputs, attributes);
+    return Apply::create(range, ident,
+                           List(range, std::move(inputs)),
+                           List(range, std::move(attributes)));
+  }
   // things like a 1.0 or a(4) that are not unary/binary expressions
   // and have higher precedence than all of them
   TreeRef parseBaseExp() {
@@ -32,27 +40,28 @@ struct Parser {
         prefix = parseExp();
         L.expect(')');
       } break;
+      case TK_FLOAT:
+      case TK_INT:
+      case TK_LONG: {
+        auto r = L.cur().range;
+        auto type = c(L.next().kind, r, {});
+        L.expect('(');
+        auto exp = parseExp();
+        L.expect(')');
+        prefix = Cast::create(r, type, exp);
+      } break;
       default: {
         prefix = parseIdent();
-        auto range = L.cur().range;
         if (L.cur().kind == '(') {
-          TreeList inputs, attributes;
-          parseOperatorArguments(inputs, attributes);
-          prefix = Apply::create(range, prefix,
-                                 List(range, std::move(inputs)),
-                                 List(range, std::move(attributes)));
+          TreeList inputs;
+          prefix = createApply(prefix, inputs);
         }
       } break;
     }
     while(L.nextIf('.')) {
       auto name = parseIdent();
       TreeList inputs = { prefix };
-      TreeList attributes;
-      auto range = L.cur().range;
-      parseOperatorArguments(inputs, attributes);
-      prefix = Apply::create(range, name,
-                             List(range, std::move(inputs)),
-                             List(range, std::move(attributes)));
+      prefix = createApply(name, inputs);
     }
     return prefix;
   }

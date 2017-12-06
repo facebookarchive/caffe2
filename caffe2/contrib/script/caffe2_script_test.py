@@ -125,9 +125,9 @@ class TestCaffe2Script(hu.HypothesisTestCase):
                 a = (3+1).Add(4).Add(1)
         """)
         net = CU.create_net('foo')
-        print(net)
         net.run()
         assert(9 == workspace.FetchBlob('a'))
+
     def test_plus_eq(self):
         CU = core.C.CompilationUnit()
         CU.define("""
@@ -136,10 +136,18 @@ class TestCaffe2Script(hu.HypothesisTestCase):
                 a += 1
         """)
         net = CU.create_net('foo')
-        print(net)
         net.run()
         assert(5 == workspace.FetchBlob('a'))
 
+    def test_cast(self):
+        CU = core.C.CompilationUnit()
+        CU.define("""
+            def foo() -> (a):
+                a = int(4.5f)
+        """)
+        net = CU.create_net('foo')
+        net.run()
+        assert(4 == workspace.FetchBlob('a'))
 
     @given(seed=st.integers(min_value=0, max_value=65536), **hu.gcs)
     def test_if(self, seed, gc, dc):

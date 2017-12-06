@@ -68,6 +68,7 @@ namespace script {
   _(TK_AND, "and", "and")                        \
   _(TK_OR, "or", "or")                           \
   _(TK_NOT, "not", "not")                        \
+  _(TK_CAST, "cast", "")                        \
   _(TK_BUILT_IN, "built-in", "")
 static const char* valid_single_char_tokens = "+-*/()[]:,={}><.";
 
