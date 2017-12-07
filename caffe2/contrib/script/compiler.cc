@@ -354,30 +354,30 @@ struct DefCompiler {
     auto builtin_type = apply.name().name();
     auto values = getValues(apply.inputs());
     if (values.size() > 1) {
-      throw std::runtime_error(
-          "Built-in " + builtin_type + " accepts 0 or 1 inputs.");
+      throw ErrorReport(apply)
+          << "Built-in " << builtin_type << " accepts 0 or 1 inputs.";
     }
     bool has_shape = false;
     for (const auto& attribute : apply.attributes()) {
       if (attribute.name().name() == "shape") {
         has_shape = true;
       } else {
-        throw std::runtime_error(
-            "Unrecognized attribute " + attribute.name().name() +
-            " for built-in " + builtin_type);
+        throw ErrorReport(apply)
+            << "Unrecognized attribute " << attribute.name().name()
+            << " for built-in " << builtin_type;
       }
     }
     if (builtin_type == "zeros" || builtin_type == "ones") {
       if ((values.size() != 1) && !has_shape) {
-        throw std::runtime_error(
-            "Built-in " + builtin_type +
-            " requires either 1 input or 1 shape attribute");
+        throw ErrorReport(apply)
+            << "Built-in " << builtin_type
+            << " requires either 1 input or 1 shape attribute";
       }
     } else {
       // zeros_like or ones_like
       if (values.size() != 1) {
-        throw std::runtime_error(
-            "Built-in " + builtin_type + " requires 1 input");
+        throw ErrorReport(apply)
+            << "Built-in " << builtin_type << " requires 1 input";
       }
     }
 

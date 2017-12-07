@@ -1,4 +1,4 @@
-[["log_probs", [6, 1, 44463], "float32"], ["attentions", [6, 1, 20], "float32"], ["inputs", [21], "float32"]]
+[["log_probs", [6, 1, 44463], "float32"], ["attentions", [6, 1, 21], "float32"], ["inputs", [21], "float32"]]
 beam_search
 ["scores_t"]
 
@@ -65,3 +65,12 @@ def beam_search(inputs, log_probs, attentions) -> ():
 
         timestep += 1
         not_finished = timestep < length_32
+
+        output_token_beam_list = output_token_beam_list\
+            .ScatterAssign(timestep, tokens_t)
+        output_prev_index_beam_list = output_prev_index_beam_list\
+            .ScatterAssign(timestep, hypo_t)
+        output_score_beam_list = output_score_beam_list\
+            .ScatterAssign(timestep, scores_t)
+        output_attention_weights_beam_list = output_attention_weights_beam_list\
+            .ScatterAssign(timestep, attention_t)
