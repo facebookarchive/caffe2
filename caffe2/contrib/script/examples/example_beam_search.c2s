@@ -6,27 +6,22 @@ def beam_search(inputs, log_probs, attentions) -> ():
     beam_size = 6LL
     length = 20LL
     beam_output_shape, _ = Concat(length + 1LL, beam_size, axis=0)
-    output_token_beam_list = ConstantFill(
-        beam_output_shape, value=0, dtype=2, input_as_shape=1)
-    output_prev_index_beam_list = ConstantFill(
-        beam_output_shape, value=0, dtype=2, input_as_shape=1)
-    output_score_beam_list = ConstantFill(
-        beam_output_shape, value=0f, dtype=1, input_as_shape=1)
+    output_token_beam_list = int(zeros(beam_output_shape))
+    output_prev_index_beam_list = int(zeros(beam_output_shape))
+    output_score_beam_list = zeros(beam_output_shape)
 
     input_length = inputs.Size().ExpandDims(dims=[0])
 
     attention_beam_output_shape, _ = Concat(
         input_length, beam_output_shape, axis=0)
-    output_attention_weights_beam_list = ConstantFill(
-        attention_beam_output_shape, value=0f, dtype=1, input_as_shape=1)
+    output_attention_weights_beam_list = zeros(attention_beam_output_shape)
 
     attention_step_output_shape, _ = Concat(beam_size, input_length, axis=0)
-    attention_t = ConstantFill(
-        attention_step_output_shape, value=0f, dtype=1, input_as_shape=1)
+    attention_t = zeros(attention_step_output_shape)
 
-    scores_t = ConstantFill(shape=[1, 6], value=0f, dtype=1)
-    tokens_t = ConstantFill(shape=[6], value=99, dtype=2)
-    hypo_t = ConstantFill(shape=[6], value=0, dtype=2)
+    scores_t = zeros(shape=[1, 6])
+    hypo_t = int(zeros(shape=[6]))
+    tokens_t = int(ones(shape=[6])) * 99
 
     output_token_beam_list = output_token_beam_list.ScatterAssign(0, tokens_t)
     output_token_beam_list = output_token_beam_list.ExpandDims(dims=[2])
