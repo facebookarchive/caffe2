@@ -113,7 +113,7 @@ struct Ident : public TreeView {
 
 struct Attribute : public TreeView {
   explicit Attribute(const TreeRef& tree) : TreeView(tree) {
-    tree_->match(TK_ATTRIBUTE, name_, value_, format_);
+    tree_->match(TK_ATTRIBUTE, name_, value_);
   }
   Ident name() const {
     return Ident(name_);
@@ -121,21 +121,13 @@ struct Attribute : public TreeView {
   TreeRef value() const {
     return value_;
   }
-  const std::string& format() const {
-    return format_->stringValue();
-  }
-  static TreeRef create(
-      const SourceRange& range,
-      TreeRef name,
-      TreeRef value,
-      TreeRef format) {
-    return Compound::create(TK_ATTRIBUTE, range, {name, value, format});
+  static TreeRef create(const SourceRange& range, TreeRef name, TreeRef value) {
+    return Compound::create(TK_ATTRIBUTE, range, {name, value});
   }
 
  private:
   TreeRef name_;
   TreeRef value_;
-  TreeRef format_;
 };
 
 struct Apply : public TreeView {
@@ -165,6 +157,27 @@ struct Apply : public TreeView {
   TreeRef name_;
   TreeRef inputs_;
   TreeRef attributes_;
+};
+
+struct Cast : public TreeView {
+  explicit Cast(const TreeRef& tree) : TreeView(tree) {
+    tree_->match(TK_CAST, type_, input_);
+  }
+
+  int type() const {
+    return type_->kind();
+  }
+  TreeRef input() const {
+    return input_;
+  }
+
+  static TreeRef create(const SourceRange& range, TreeRef type, TreeRef input) {
+    return Compound::create(TK_CAST, range, {type, input});
+  }
+
+ private:
+  TreeRef type_;
+  TreeRef input_;
 };
 
 struct TensorType : public TreeView {
@@ -242,8 +255,8 @@ struct Assign : public TreeView {
   ListView<Ident> idents() const {
     return ListView<Ident>(idents_);
   }
-  const std::string& reduction() const {
-    return reduction_->stringValue();
+  int reduction() const {
+    return reduction_->kind();
   }
   TreeRef rhs() const {
     return rhs_;

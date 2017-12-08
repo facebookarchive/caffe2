@@ -30,8 +30,8 @@ cd ./build
 CMAKE_ARGS=("-DCMAKE_INSTALL_PREFIX=/usr/local/caffe2")
 
 # Explicitly set Python executable.
-# On Ubuntu 16.04 the default Python is still 2.7.
 if [[ "${BUILD_ENVIRONMENT}" == py3* ]]; then
+  # On Ubuntu 16.04 the default Python is still 2.7.
   CMAKE_ARGS+=("-DPYTHON_EXECUTABLE=/usr/bin/python3")
 fi
 

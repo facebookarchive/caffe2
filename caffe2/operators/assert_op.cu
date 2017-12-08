@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "caffe2/core/context_gpu.h"
-#include "caffe2/operators/operator_fallback_gpu.h"
-#include "caffe2/operators/pack_segments.h"
+#include "caffe2/operators/assert_op.h"
 
 namespace caffe2 {
-REGISTER_CUDA_OPERATOR(
-    UnpackSegments,
-    GPUFallbackOp<UnpackSegmentsOp<CPUContext>>);
-}
+
+REGISTER_CUDA_OPERATOR(Assert, AssertOp<CUDAContext>);
+
+} // namespace caffe2

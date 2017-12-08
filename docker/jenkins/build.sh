@@ -21,6 +21,11 @@ valid_images=(
 
   # Build for Android
   py2-android-ubuntu16.04
+
+  # Builds for Anaconda
+  py2-conda2-ubuntu16.04
+  py2-conda2-cuda9.0-cudnn7-ubuntu16.04
+  py3-conda3-ubuntu16.04
 )
 
 image="$1"
@@ -42,6 +47,13 @@ if [[ "$image" == *cuda* ]]; then
   DOCKERFILE="ubuntu-cuda/Dockerfile"
 fi
 
+if [[ "$image" == *conda* ]]; then
+  ANACONDA_VERSION="$(echo "${image}" | perl -n -e'/conda(\d+)/ && print $1')"
+  DOCKERFILE="anaconda/Dockerfile"
+  # Anaconda installation has special scripts
+  cp -a bin anaconda/scripts/* "$(dirname ${DOCKERFILE})"
+fi
+
 if [[ "$image" == *-mkl-* ]]; then
   MKL=yes
 fi
@@ -61,12 +73,21 @@ fi
 # Copy over common scripts to directory containing the Dockerfile to build
 cp -a bin common/* "$(dirname ${DOCKERFILE})"
 
+# Set Jenkins UID and GID if running Jenkins
+if [ -n "${JENKINS:-}" ]; then
+  JENKINS_UID=$(id -u jenkins)
+  JENKINS_GID=$(id -g jenkins)
+fi
+
 # Build image
 docker build \
        --build-arg EC2=${EC2:-} \
        --build-arg JENKINS=${JENKINS:-} \
+       --build-arg JENKINS_UID=${JENKINS_UID:-} \
+       --build-arg JENKINS_GID=${JENKINS_GID:-} \
        --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
        --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+       --build-arg ANACONDA_VERSION=${ANACONDA_VERSION} \
        --build-arg CUDA_VERSION=${CUDA_VERSION} \
        --build-arg CUDNN_VERSION=${CUDNN_VERSION} \
        --build-arg MKL=${MKL} \
