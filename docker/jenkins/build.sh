@@ -23,9 +23,10 @@ valid_images=(
   py2-android-ubuntu16.04
 
   # Builds for Anaconda
-  py2-conda2-ubuntu16.04
-  py2-conda2-cuda9.0-cudnn7-ubuntu16.04
-  py3-conda3-ubuntu16.04
+  py2-conda-ubuntu16.04
+  py2-conda-cuda9.0-cudnn7-ubuntu16.04
+  py3-conda-ubuntu16.04
+  py3-conda-cuda9.0-cudnn7-ubuntu16.04
 )
 
 image="$1"
@@ -59,10 +60,7 @@ if [[ "$image" == *cuda* ]]; then
 fi
 
 if [[ "$image" == *conda* ]]; then
-  ANACONDA_VERSION="$(echo "${image}" | perl -n -e'/conda(\d+)/ && print $1')"
-  DOCKERFILE="anaconda/Dockerfile"
-  # Anaconda installation has special scripts
-  cp -a bin anaconda/scripts/* "$(dirname ${DOCKERFILE})"
+  ANACONDA_VERSION=$PYTHON_VERSION
 fi
 
 if [[ "$image" == *-mkl-* ]]; then
