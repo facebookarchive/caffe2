@@ -32,6 +32,7 @@
 #include "caffe2/core/operator_schema.h"
 #include "caffe2/core/registry.h"
 #include "caffe2/core/tensor.h"
+#include "caffe2/core/types.h"
 #include "caffe2/core/workspace.h"
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/utils/proto_utils.h"
@@ -223,7 +224,7 @@ class OperatorBase : public Observable<OperatorBase> {
     net_position_ = idx;
   }
 
-  const DeviceOption& device_option() {
+  const DeviceOption& device_option() const {
     return device_option_;
   }
 
@@ -249,6 +250,13 @@ class OperatorBase : public Observable<OperatorBase> {
 
   bool IsEventDisabled() const {
     return !event_;
+  }
+
+  // Checks whether stream is ready to execute new computation,
+  // used in stream allocation optimization to skip stream that is currently
+  // busy. Depends on context and operator's device, returns true by default
+  virtual bool IsStreamFree(int /* unused */) const {
+    return true;
   }
 
   const std::string& type() {
@@ -417,6 +425,10 @@ class Operator : public OperatorBase {
       this->RecordLastFailedOpNetPosition();
       throw;
     }
+  }
+
+  bool IsStreamFree(int stream_id) const override {
+    return context_.IsStreamFree(device_option(), stream_id);
   }
 
   virtual bool RunOnDevice() = 0;

@@ -23,6 +23,7 @@
 #include "caffe2/core/tensor.h"
 #include "caffe2/operators/recurrent_network_executor.h"
 #include "caffe2/utils/conversions.h"
+#include "caffe2/utils/math.h"
 
 CAFFE2_DECLARE_bool(caffe2_rnn_executor);
 
@@ -228,7 +229,7 @@ class RecurrentNetworkOp final : public Operator<Context> {
   }
 
   size_t NumObservers() override {
-    size_t num = this->observers_.size();
+    size_t num = this->observers_list_.size();
     if (rnnExecutor_) {
       num += rnnExecutor_->NumObserversStepNet();
     }
@@ -369,7 +370,7 @@ class RecurrentNetworkOp final : public Operator<Context> {
           rnnExecutor_->SetMaxParallelTimesteps(num_workspaces_on_fwd_only);
         }
         rnnExecutor_->EnsureTimestepInitialized(
-            t, currentStepWorkspace.get(), this->observers_);
+            t, currentStepWorkspace.get(), this->observers_list_);
       } else {
         // Use plain Caffe2 nets
         detail::UpdateTimestepBlob(currentStepWorkspace.get(), timestep_, t);
@@ -762,7 +763,7 @@ class RecurrentNetworkGradientOp final : public Operator<Context> {
     for (int32_t t = seqLen - 1; t >= 0; --t) {
       if (rnnExecutor_) {
         rnnExecutor_->EnsureTimestepInitialized(
-            t, stepWorkspaces[t].get(), this->observers_);
+            t, stepWorkspaces[t].get(), this->observers_list_);
       } else {
         auto* stepNet = stepWorkspaces[t].get()->GetNet(stepNetDef_.name());
         if (stepNet == nullptr) {
@@ -856,8 +857,8 @@ class AccumulateInputGradientOp : public Operator<Context> {
 
   template<typename T>
   bool DoRunWithType() {
-    const auto t =
-        OperatorBase::Input<Tensor<CPUContext>>(0).template data<int32_t>()[0];
+    const auto& t0 = OperatorBase::Input<Tensor<CPUContext>>(0);
+    const auto t = t0.template data<int32_t>()[0];
     auto& og = Input(1);
     auto* g = Output(0);
 
@@ -905,8 +906,8 @@ class RNNApplyLinkOp : public Operator<Context> {
   bool DoRunWithType() {
     // Both internal and external appear as both input and output to enforce
     // correct dependency computation.
-    const auto t =
-        OperatorBase::Input<Tensor<CPUContext>>(0).template data<int32_t>()[0];
+    const auto& t0 = OperatorBase::Input<Tensor<CPUContext>>(0);
+    const auto t = t0.template data<int32_t>()[0];
     auto& external = Input(1);
 
     auto* internal_out = Output(0);
