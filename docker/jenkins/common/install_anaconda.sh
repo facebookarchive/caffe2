@@ -52,11 +52,7 @@ apt-get install -y --no-install-recommends \
       cmake \
       git \
       libgoogle-glog-dev \
-      libprotobuf-dev \
-      protobuf-compiler \
-      python-dev \
-      python-pip
-pip install numpy protobuf
+      libprotobuf-dev
 
 # Optional dependencies
 apt-get install -y --no-install-recommends libgflags-dev
@@ -66,11 +62,7 @@ apt-get install -y --no-install-recommends \
       libleveldb-dev \
       liblmdb-dev \
       libopencv-dev \
-      libopenmpi-dev \
-      libsnappy-dev \
-      openmpi-bin \
-      openmpi-doc \
-      python-pydot
+      libopenmpi-dev
 pip install \
       flask \
       future \
