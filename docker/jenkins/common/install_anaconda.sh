@@ -8,16 +8,7 @@ export LC_ALL=C.UTF-8
 
 # Install needed packages
 apt-get update --fix-missing
-apt-get install -y wget \
-        bzip2 \
-        ca-certificates \
-        libglib2.0-0 \
-        libxext6 \
-        libsm6 \
-        libxrender1 \
-        git \
-        mercurial \
-        subversion
+apt-get install -y wget
 
 # Install anaconda
 echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
@@ -45,36 +36,12 @@ echo 'export PATH=/opt/conda/bin:$PATH' > ~/.bashrc
 # as closely as possible to install and build. Anaconda should already be
 # installed.
 
-# Required dependencies
-apt-get update
-apt-get install -y --no-install-recommends \
-      build-essential \
-      cmake \
-      git \
-      libgoogle-glog-dev \
-      libprotobuf-dev
+# Required dependencies are already installed in install_base.sh
 
-# Optional dependencies
-apt-get install -y --no-install-recommends libgflags-dev
+# Optional dependencies not yet installed by install_base.sh
 apt-get install -y --no-install-recommends \
+      libgflags-dev \
       libgtest-dev \
-      libiomp-dev \
-      libleveldb-dev \
-      liblmdb-dev \
-      libopencv-dev \
       libopenmpi-dev
-pip install \
-      flask \
-      future \
-      graphviz \
-      hypothesis \
-      jupyter \
-      matplotlib \
-      pydot python-nvd3 \
-      pyyaml \
-      requests \
-      scikit-image \
-      scipy \
-      setuptools \
-      six \
-      tornado
+
+# Optional dependencies installed by pip are not important here
