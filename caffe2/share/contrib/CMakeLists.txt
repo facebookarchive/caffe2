@@ -1,7 +1,9 @@
 set(Caffe2_CPU_OBSERVER_SRCS)
 
 add_subdirectory(observers)
-add_subdirectory(zstd)
+if (USE_ZSTD)
+  add_subdirectory(zstd)
+endif()
 
 add_library(Caffe2_CPU_OBSERVER STATIC ${Caffe2_CPU_OBSERVER_SRCS})
 
