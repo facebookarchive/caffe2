@@ -473,7 +473,7 @@ if (USE_ATEN)
 endif()
 
 if (USE_ZSTD)
-  list(APPEND Caffe2_DEPENDENCY_LIBS libzstd_shared)
+  list(APPEND Caffe2_DEPENDENCY_LIBS libzstd_static)
   caffe2_include_directories(${PROJECT_SOURCE_DIR}/third_party/zstd/lib)
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/zstd/build/cmake)
 endif()
