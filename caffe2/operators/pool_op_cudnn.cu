@@ -504,10 +504,6 @@ class CuDNNPoolGradientOp : public ConvPoolOpBase<CUDAContext> {
   cudnnTensorDescriptor_t top_desc_;
   cudnnPoolingDescriptor_t pooling_desc_;
   cudnnPoolingMode_t mode_;
-
-  // Input: X, Y, dY
-  // Output: dX
-  // INPUT_TAGS(IN, OUT, OUT_GRAD);
 };
 
 namespace {
