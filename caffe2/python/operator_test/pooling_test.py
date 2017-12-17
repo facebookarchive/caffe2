@@ -64,6 +64,7 @@ class TestPooling(hu.HypothesisTestCase):
             pad_r=pad_r,
             kernel=kernel,
             order=order,
+            deterministic=1,
         )
         X = np.random.rand(
             batch_size, size, size, input_channels).astype(np.float32)
@@ -89,6 +90,7 @@ class TestPooling(hu.HypothesisTestCase):
             pad=0,
             order="NHWC",
             engine="CUDNN",
+            deterministic=1,
         )
         X = np.random.rand(70000, 7, 7, 81).astype(np.float32)
 
@@ -116,6 +118,7 @@ class TestPooling(hu.HypothesisTestCase):
             pads=[pad, pad],
             order=order,
             engine="",
+            deterministic=1,
         )
         X = np.random.rand(
             batch_size, size, input_channels).astype(np.float32)
@@ -149,6 +152,7 @@ class TestPooling(hu.HypothesisTestCase):
             pads=[pad] * 6,
             order=order,
             engine=engine,
+            deterministic=1,
         )
         X = np.random.rand(
             batch_size, size, size, size, input_channels).astype(np.float32)
@@ -178,6 +182,7 @@ class TestPooling(hu.HypothesisTestCase):
             kernel=kernel,
             pad=pad,
             order="NCHW",
+            deterministic=1,
         )
         X = np.random.rand(
             batch_size, size, size, input_channels).astype(np.float32)
@@ -204,6 +209,7 @@ class TestPooling(hu.HypothesisTestCase):
             pad=0,
             order="NCHW",
             engine=engine,
+            deterministic=1,
         )
         X = np.random.rand(
             batch_size, 3, sz, sz).astype(np.float32)
@@ -229,6 +235,7 @@ class TestPooling(hu.HypothesisTestCase):
             pad=0,
             order="NCHW",
             engine=engine,
+            deterministic=1,
         )
 
         np.random.seed(1234)
@@ -262,6 +269,7 @@ class TestPooling(hu.HypothesisTestCase):
             pad=pad,
             order=order,
             engine=engine,
+            deterministic=1,
         )
         X = np.random.rand(
             batch_size, size, size, input_channels).astype(np.float32)
@@ -288,6 +296,7 @@ class TestPooling(hu.HypothesisTestCase):
             order=order,
             engine=engine,
             global_pooling=True,
+            deterministic=1,
         )
         X = np.random.rand(
             batch_size, size, size, input_channels).astype(np.float32)

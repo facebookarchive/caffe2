@@ -78,6 +78,10 @@ class TestUtilityOps(hu.HypothesisTestCase):
            engine=st.sampled_from(['CUDNN', None]),
            **hu.gcs)
     def test_transpose(self, dtype, ndims, seed, null_axes, engine, gc, dc):
+        if (gc.device_type == caffe2_pb2.CUDA and engine == "CUDNN"):
+            # cudnn 5.1 does not support int.
+            assume(workspace.GetCuDNNVersion() >= 6000 or dtype != np.int32) 
+
         dims = (np.random.rand(ndims) * 16 + 1).astype(np.int32)
         X = (np.random.rand(*dims) * 16).astype(dtype)
 
