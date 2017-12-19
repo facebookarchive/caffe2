@@ -43,7 +43,8 @@ function(custom_protobuf_find)
 endfunction()
 
 if (WIN32)
-  find_package(Protobuf NO_MODULE)
+  custom_protobuf_find()
+  #find_package(Protobuf NO_MODULE)
 elseif (ANDROID OR IOS)
   custom_protobuf_find()
   # Unfortunately, new protobuf does not support libprotoc and protoc
