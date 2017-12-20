@@ -200,6 +200,7 @@ if (BUILD_PYTHON)
     set_target_properties(caffe2_pybind11_state PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
   elseif (MSVC)
     set_target_properties(caffe2_pybind11_state PROPERTIES SUFFIX ".pyd")
+    target_link_libraries(caffe2_pybind11_state ${PYTHON_LIBRARIES})
   endif()
   set_target_properties(
       caffe2_pybind11_state PROPERTIES LIBRARY_OUTPUT_DIRECTORY
