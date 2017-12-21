@@ -264,7 +264,7 @@ endfunction()
 #
 function(caffe2_include_directories)
   foreach(path IN LISTS ARGN)
-    if (${path} MATCHES "/anaconda")
+    if (${path} MATCHES "/anaconda" OR ${path} MATCHES "/miniconda" ) 
       include_directories(AFTER SYSTEM ${path})
     else()
       include_directories(BEFORE SYSTEM ${path})
