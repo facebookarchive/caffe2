@@ -19,7 +19,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from caffe2.python import core, workspace
-from hypothesis import given
+from hypothesis import assume, given
 from caffe2.proto import caffe2_pb2
 import caffe2.python.hypothesis_test_util as hu
 import hypothesis.strategies as st
