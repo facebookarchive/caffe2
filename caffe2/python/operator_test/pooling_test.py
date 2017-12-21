@@ -226,6 +226,8 @@ class TestPooling(hu.HypothesisTestCase):
     def test_global_max_pool_nchw(self, op_type, sz,
                                   batch_size, engine, gc, dc):
         ''' Special test to stress the fast path of NCHW max pool '''
+        # CuDNN 5 does not support deterministic max pooling.
+        assume(workspace.GetCuDNNVersion() >= 6000)
         op = core.CreateOperator(
             op_type,
             ["X"],
@@ -289,6 +291,8 @@ class TestPooling(hu.HypothesisTestCase):
            **hu.gcs)
     def test_global_pooling(self, size, input_channels, batch_size,
                             order, op_type, engine, gc, dc):
+        # CuDNN 5 does not support deterministic max pooling.
+        assume(workspace.GetCuDNNVersion() >= 6000 or op_type != "MaxPool")
         op = core.CreateOperator(
             op_type,
             ["X"],
