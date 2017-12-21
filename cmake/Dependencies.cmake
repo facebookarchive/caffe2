@@ -238,14 +238,14 @@ endif()
 # ---[ EIGEN
 # Due to license considerations, we will only use the MPL2 parts of Eigen.
 set(EIGEN_MPL2_ONLY 1)
-find_package(Eigen3)
-if(EIGEN3_FOUND)
-  message(STATUS "Found system Eigen at " ${EIGEN3_INCLUDE_DIR})
-  caffe2_include_directories(${EIGEN3_INCLUDE_DIR})
-else()
+#find_package(Eigen3)
+#if(EIGEN3_FOUND)
+#  message(STATUS "Found system Eigen at " ${EIGEN3_INCLUDE_DIR})
+#  caffe2_include_directories(${EIGEN3_INCLUDE_DIR})
+#else()
   message(STATUS "Did not find system Eigen. Using third party subdirectory.")
   caffe2_include_directories(${PROJECT_SOURCE_DIR}/third_party/eigen)
-endif()
+#endif()
 
 # ---[ Python + Numpy
 if(BUILD_PYTHON)

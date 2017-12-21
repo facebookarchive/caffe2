@@ -39,10 +39,17 @@ __device__ inline void bitonicSort(K* keys,
   // Assume the sort is taking place in shared memory
   // static_assert(Power2SortSize * (sizeof(K) + sizeof(V)) < 32768,
   //               "sort data too large (>32768 bytes)");
+#ifdef _MSC_VER
+  static_assert(integerIsPowerOf2(Power2SortSize),
+                "sort size must be power of 2");
+  static_assert(integerIsPowerOf2(ThreadsPerBlock),
+                "threads in block must be power of 2");
+#else // _MSC_VER
   static_assert(math::integerIsPowerOf2(Power2SortSize),
                 "sort size must be power of 2");
   static_assert(math::integerIsPowerOf2(ThreadsPerBlock),
                 "threads in block must be power of 2");
+#endif // _MSC_VER
 
   // If what we are sorting is too small, then not all threads
   // participate
@@ -107,8 +114,13 @@ __device__ inline void warpBitonicSort(K* keys,
   // Smaller sorts should use a warp shuffle sort
   static_assert(Power2SortSize > kWarpSize,
                 "sort not large enough");
+#ifdef _MSC_VER
+  static_assert(integerIsPowerOf2(Power2SortSize),
+                "sort size must be power of 2");
+#else // _MSC_VER
   static_assert(math::integerIsPowerOf2(Power2SortSize),
                 "sort size must be power of 2");
+#endif // _MSC_VER                
   static_assert(Power2SortSize <= kMaxBitonicSortSize,
                 "sort size <= 4096 only supported");
 

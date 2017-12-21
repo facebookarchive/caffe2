@@ -60,7 +60,7 @@ cmake .. ^
   -DUSE_ROCKSDB=OFF ^
   -DUSE_OPENCV=OFF ^
   -DBUILD_SHARED_LIBS=OFF ^
-  -DBUILD_PYTHON=OFF^
+  -DBUILD_PYTHON=ON ^
   -DCAFFE2_CUSTOM_PROTOC_EXECUTABLE=%CAFFE2_ROOT%\build_host_protoc\bin\protoc.exe ^
   || goto :label_error
 
