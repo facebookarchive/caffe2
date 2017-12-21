@@ -220,6 +220,8 @@ if (BUILD_PYTHON)
       set_target_properties(caffe2_pybind11_state_gpu PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
     elseif (MSVC)
       set_target_properties(caffe2_pybind11_state_gpu PROPERTIES SUFFIX ".pyd")
+      target_link_libraries(caffe2_pybind11_state_gpu ${PYTHON_LIBRARIES})
+      set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /FORCE:MULTIPLE")
     endif()
     set_target_properties(
         caffe2_pybind11_state_gpu PROPERTIES LIBRARY_OUTPUT_DIRECTORY

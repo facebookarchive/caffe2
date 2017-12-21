@@ -1,3 +1,7 @@
+if(MSVC)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
+ENDIF()
+
 caffe2_binary_target("convert_caffe_image_db.cc")
 caffe2_binary_target("convert_db.cc")
 caffe2_binary_target("db_throughput.cc")
@@ -11,7 +15,7 @@ caffe2_binary_target("split_db.cc")
 
 if (USE_CUDA)
   caffe2_binary_target("inspect_gpus.cc")
-  target_link_libraries(inspect_gpus ${CUDA_LIBRARIES})
+  target_link_libraries(inspect_gpus ${Caffe2_CUDA_DEPENDENCY_LIBS})
   target_link_libraries(convert_caffe_image_db ${Caffe2_CUDA_DEPENDENCY_LIBS})
   target_link_libraries(convert_db ${Caffe2_CUDA_DEPENDENCY_LIBS})
   target_link_libraries(db_throughput ${Caffe2_CUDA_DEPENDENCY_LIBS})
@@ -23,6 +27,7 @@ if (USE_CUDA)
   target_link_libraries(speed_benchmark ${Caffe2_CUDA_DEPENDENCY_LIBS})
   target_link_libraries(split_db ${Caffe2_CUDA_DEPENDENCY_LIBS})
   caffe2_binary_target("print_core_object_sizes.cc")
+  target_link_libraries(print_core_object_sizes ${Caffe2_CUDA_DEPENDENCY_LIBS})
 
   if (BUILD_TEST)
     # Core overhead benchmark
@@ -49,3 +54,4 @@ endif()
 
 # ---[ tutorials
 caffe2_binary_target("tutorial_blob.cc")
+target_link_libraries(tutorial_blob ${Caffe2_CUDA_DEPENDENCY_LIBS})
