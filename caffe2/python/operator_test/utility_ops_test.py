@@ -106,30 +106,6 @@ class TestUtilityOps(hu.HypothesisTestCase):
         self.assertReferenceChecks(gc, op, [X, axes],
                                    transpose_ref)
 
-    @unittest.skipIf(not workspace.has_gpu_support, "No gpu support")
-    def test_gpu_transpose_minusones(self):
-        '''
-        Repro a problem with earlier version of CuDNN Transpose Op that
-        casted ints to floats.
-        '''
-        X = -np.ones((2, 10)).astype(np.int32)
-        with core.DeviceScope(core.DeviceOption(caffe2_pb2.CUDA, 0)):
-            workspace.FeedBlob("X", X)
-            print("X:\n{}\n".format(workspace.FetchBlob("X")))
-            op = core.CreateOperator(
-                "Transpose",
-                ["X"],
-                ["Y"],
-                engine='CUDNN'
-            )
-            workspace.RunOperatorOnce(op)
-            Y = workspace.FetchBlob("Y")
-            print("Y:\n{}\n".format(Y))
-
-            for j in list(Y.flatten()):
-                self.assertEqual(-1, j)
-
-
 
     @given(m=st.integers(5, 10), n=st.integers(5, 10),
            o=st.integers(5, 10), nans=st.booleans(), **hu.gcs)
