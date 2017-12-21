@@ -14,257 +14,15 @@
  * limitations under the License.
  */
 
+#include <cub/block/block_reduce.cuh>
 #include <cub/device/device_reduce.cuh>
 #include <cub/device/device_scan.cuh>
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/utils/math.h"
 
-#include <cub/block/block_reduce.cuh>
 
 namespace caffe2 {
-
-namespace {
-__global__ void rowwise_sum_kernel(
-    const int rows,
-    const int cols,
-    const float alpha,
-    const float* data,
-    float* out) {
-  typedef cub::BlockReduce<float, CAFFE_CUDA_NUM_THREADS> BlockReduce;
-  __shared__ typename BlockReduce::TempStorage temp_storage;
-  for (int rowIndex = blockIdx.x; rowIndex < rows; rowIndex += gridDim.x) {
-    float sum = 0;
-    const int rowOffset = rowIndex * cols;
-    for (int colIndex = threadIdx.x; colIndex < cols; colIndex += blockDim.x) {
-      sum += data[rowOffset + colIndex];
-    }
-    sum = BlockReduce(temp_storage).Reduce(sum, cub::Sum());
-    if (threadIdx.x == 0) {
-      out[rowIndex] = alpha * sum;
-    }
-    __syncthreads();
-  }
-}
-
-__global__ void columnwise_sum_kernel(
-    const int rows,
-    const int cols,
-    const float alpha,
-    const float* data,
-    float* out) {
-  typedef cub::BlockReduce<float, CAFFE_CUDA_NUM_THREADS> BlockReduce;
-  __shared__ typename BlockReduce::TempStorage temp_storage;
-  for (int colIndex = blockIdx.x; colIndex < cols; colIndex += gridDim.x) {
-    float sum = 0;
-    for (int rowIndex = threadIdx.x; rowIndex < rows; rowIndex += blockDim.x) {
-      sum += data[rowIndex * cols + colIndex];
-    }
-    sum = BlockReduce(temp_storage).Reduce(sum, cub::Sum());
-    if (threadIdx.x == 0) {
-      out[colIndex] = alpha * sum;
-    }
-    __syncthreads();
-  }
-}
-}
-
-template <
-    typename T,
-    class Context = CUDAContext,
-    bool FIRSTDIMS = true,
-    bool NORMALIZE = false>
-class ReduceDimsOp : public Operator<CUDAContext> {
- public:
-  USE_OPERATOR_CONTEXT_FUNCTIONS;
-  ReduceDimsOp(const OperatorDef& operator_def, Workspace* ws)
-      : Operator<CUDAContext>(operator_def, ws),
-        num_reduce_dims_(
-            OperatorBase::GetSingleArgument<int32_t>("num_reduce_dim", 1)) {}
-
-  ~ReduceDimsOp() {}
-
-  bool RunOnDevice() override {
-    const auto& input = Input(0);
-    const auto* input_data = input.template data<T>();
-    auto* Y = Output(0);
-
-    CHECK_LE(num_reduce_dims_, input.dims().size());
-    const int M = FIRSTDIMS
-        ? input.size_to_dim(num_reduce_dims_)
-        : input.size_to_dim(input.ndim() - num_reduce_dims_);
-    const int N = FIRSTDIMS
-        ? input.size_from_dim(num_reduce_dims_)
-        : input.size_from_dim(input.ndim() - num_reduce_dims_);
-
-    vector<TIndex> output_shape;
-    int start_index = FIRSTDIMS ? num_reduce_dims_ : 0;
-    int end_index = FIRSTDIMS ? input.dims().size()
-                              : input.dims().size() - num_reduce_dims_;
-    for (int i = start_index; i < end_index; ++i) {
-      output_shape.push_back(input.dims()[i]);
-    }
-
-    Y->Resize(output_shape);
-
-    int in_dim = FIRSTDIMS ? M : N;
-
-    T alpha = 1.0;
-    if (NORMALIZE) { // Static if
-      alpha = 1.0 / in_dim;
-    }
-
-    if (FIRSTDIMS) {
-      columnwise_sum_kernel<<<
-          std::min(N, CAFFE_MAXIMUM_NUM_BLOCKS),
-          CAFFE_CUDA_NUM_THREADS,
-          0,
-          context_.cuda_stream()>>>(
-          M, N, alpha, input_data, Y->template mutable_data<T>());
-    } else {
-      rowwise_sum_kernel<<<
-          std::min(M, CAFFE_MAXIMUM_NUM_BLOCKS),
-          CAFFE_CUDA_NUM_THREADS,
-          0,
-          context_.cuda_stream()>>>(
-          M, N, alpha, input_data, Y->template mutable_data<T>());
-    }
-    return true;
-  }
-
- private:
-  int num_reduce_dims_;
-};
-
-namespace {
-template <typename T>
-__global__ void
-StripedScaleKernel(const int N, const int M, const T* alpha, const T* x, T* y) {
-  CUDA_1D_KERNEL_LOOP(i, M * N) {
-    int k = i / N;
-    y[i] = x[i] * alpha[k];
-  }
-}
-
-template <typename T>
-__global__ void StripedAxpbyKernel(
-    const int N,
-    const int M,
-    const T a,
-    const T* x,
-    const T b,
-    T* y) {
-  CUDA_1D_KERNEL_LOOP(index, N * M) {
-    y[index] = x[index % N] * a + y[index] * b;
-  }
-}
-} // namespace
-
-template <
-    typename T,
-    class Context = CUDAContext,
-    bool FIRSTDIMS = true,
-    bool NORMALIZE = false>
-class ReduceDimsGradientOp : public Operator<CUDAContext> {
- public:
-  USE_OPERATOR_CONTEXT_FUNCTIONS;
-  ReduceDimsGradientOp(const OperatorDef& operator_def, Workspace* ws)
-      : Operator<CUDAContext>(operator_def, ws),
-        num_reduce_dims_(
-            OperatorBase::GetSingleArgument<int32_t>("num_reduce_dim", 1)) {}
-
-  ~ReduceDimsGradientOp() {}
-
-  bool RunOnDevice() override {
-    const auto& grad_in = Input(0);
-    const auto& in_shape = Input(1);
-
-    shape_.CopyFrom(in_shape);
-    // Copy first dims
-    vector<TIndex> output_shape(
-        shape_.template data<TIndex>(),
-        shape_.template data<TIndex>() + shape_.size());
-
-    auto* out_grad = Output(0);
-    out_grad->Resize(output_shape);
-
-    const int M = FIRSTDIMS
-        ? out_grad->size_to_dim(num_reduce_dims_)
-        : out_grad->size_to_dim(out_grad->ndim() - num_reduce_dims_);
-    const int N = FIRSTDIMS
-        ? out_grad->size_from_dim(num_reduce_dims_)
-        : out_grad->size_from_dim(out_grad->ndim() - num_reduce_dims_);
-
-    int in_dim = FIRSTDIMS ? M : N;
-
-    T alpha = 1.0;
-    if (NORMALIZE) { // Static if
-      alpha = 1.0 / in_dim;
-    }
-
-    math::Set<T, CUDAContext>(
-        out_grad->size(),
-        FIRSTDIMS ? static_cast<T>(0) : static_cast<T>(alpha),
-        out_grad->template mutable_data<T>(),
-        &context_);
-
-    if (FIRSTDIMS) {
-      StripedAxpbyKernel<T>
-          <<<CAFFE_GET_BLOCKS(N * M),
-             CAFFE_CUDA_NUM_THREADS,
-             0,
-             context_.cuda_stream()>>>(
-              N,
-              M,
-              alpha,
-              grad_in.template data<T>(),
-              static_cast<T>(0),
-              out_grad->template mutable_data<T>());
-    } else {
-      StripedScaleKernel<T>
-          <<<CAFFE_GET_BLOCKS(N * M),
-             CAFFE_CUDA_NUM_THREADS,
-             0,
-             context_.cuda_stream()>>>(
-              N,
-              M,
-              grad_in.template data<T>(),
-              out_grad->template data<T>(),
-              out_grad->template mutable_data<T>());
-    }
-
-    return true;
-  }
-
- private:
-  int num_reduce_dims_;
-  Tensor<CPUContext> shape_;
-};
-
-REGISTER_CUDA_OPERATOR_STR("ReduceFrontSum", ReduceDimsOp<float, CUDAContext>);
-REGISTER_CUDA_OPERATOR_STR(
-    "ReduceFrontSumGradient",
-    ReduceDimsGradientOp<float, CUDAContext>);
-REGISTER_CUDA_OPERATOR_STR(
-    "ReduceFrontMean",
-    ReduceDimsOp<float, CUDAContext, true, true>);
-REGISTER_CUDA_OPERATOR_STR(
-    "ReduceFrontMeanGradient",
-    ReduceDimsGradientOp<float, CUDAContext, true, true>);
-
-REGISTER_CUDA_OPERATOR_STR(
-    "ReduceBackSum",
-    ReduceDimsOp<float, CUDAContext, false>);
-REGISTER_CUDA_OPERATOR_STR(
-    "ReduceBackSumGradient",
-    ReduceDimsGradientOp<float, CUDAContext, false, false>);
-
-REGISTER_CUDA_OPERATOR_STR(
-    "ReduceBackMean",
-    ReduceDimsOp<float, CUDAContext, false, true>);
-REGISTER_CUDA_OPERATOR_STR(
-    "ReduceBackMeanGradient",
-    ReduceDimsGradientOp<float, CUDAContext, false, true>);
 
 namespace {
 
@@ -919,6 +677,199 @@ class CUDAUnsortedSegmentSumOp : public Operator<CUDAContext> {
   Tensor<CUDAContext> scaling_factors_; // for mean
 };
 
+template <typename SIndex>
+__global__ void segment_lengths_kernel(int N, const SIndex* X, SIndex* Y) {
+  CUDA_1D_KERNEL_LOOP(i, N) {
+    atomicAdd(&Y[X[i]], 1);
+  }
+}
+
+template <typename T, typename SIndex, bool LOGEXP = false>
+__global__ void sorted_segment_mean_kernel(
+    const SIndex K,
+    const int N,
+    const SIndex* S,
+    const SIndex* I,
+    const T* X,
+    T* Y) {
+  for (int sId = blockIdx.x; sId < K; sId += gridDim.x) {
+    const int start_index = sId > 0 ? S[sId] * N : 0;
+    const int y_start_index = sId * N;
+    for (int i = threadIdx.x; i < N; i += blockDim.x) {
+      T sum = 0.0;
+      for (int j = 0; j < I[sId]; ++j) {
+        const T x_i_j = X[start_index + j * N + i];
+        sum += LOGEXP ? exp(x_i_j) : x_i_j;
+      }
+      const T norm_sum = sum / I[sId];
+      Y[y_start_index + i] = LOGEXP ? log(norm_sum) : norm_sum;
+    }
+  }
+}
+
+template <typename T, typename SIndex, bool LOGEXP, class Context = CUDAContext>
+class SortedSegmentRangeMeanOp : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  SortedSegmentRangeMeanOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<CUDAContext>(operator_def, ws) {}
+  ~SortedSegmentRangeMeanOp() {}
+
+  bool RunOnDevice() override {
+    const auto& input = Input(0);
+    const auto& indices = Input(1);
+    int M = input.dim32(0);
+    int N = input.size_from_dim(1);
+    auto* output = Output(0);
+    auto dims = input.dims();
+    SIndex K = 0;
+    context_.template CopyBytes<Context, CPUContext>(
+        sizeof(SIndex),
+        indices.template data<SIndex>() + indices.size() - 1,
+        &K);
+    context_.FinishDeviceComputation();
+    K += 1;
+    dims[0] = K;
+    if (segment_len_.size() != K) {
+      segment_len_.Resize(K);
+      segment_len_prefix_sum_.Resize(K);
+    }
+    output->Resize(dims);
+    math::Set<SIndex, CUDAContext>(
+        segment_len_.size(),
+        0,
+        segment_len_.template mutable_data<SIndex>(),
+        &context_);
+    segment_lengths_kernel<<<
+        CAFFE_GET_BLOCKS(indices.size()),
+        CAFFE_CUDA_NUM_THREADS,
+        0,
+        context_.cuda_stream()>>>(
+        indices.size(),
+        indices.template data<SIndex>(),
+        segment_len_.template mutable_data<SIndex>());
+    size_t temp_storage_bytes = 0;
+    cub::DeviceScan::ExclusiveSum(
+        nullptr,
+        temp_storage_bytes,
+        segment_len_.template data<SIndex>(),
+        segment_len_prefix_sum_.template mutable_data<SIndex>(),
+        K,
+        context_.cuda_stream());
+    auto buffer_size = (temp_storage_bytes + sizeof(T)) / sizeof(T);
+    prefix_buffer_.Resize(buffer_size);
+    void* dev_temp_storage =
+        static_cast<void*>(prefix_buffer_.mutable_data<T>());
+    cub::DeviceScan::ExclusiveSum(
+        dev_temp_storage,
+        temp_storage_bytes,
+        segment_len_.template data<SIndex>(),
+        segment_len_prefix_sum_.template mutable_data<SIndex>(),
+        K,
+        context_.cuda_stream());
+    sorted_segment_mean_kernel<T, SIndex, LOGEXP>
+        <<<min(K, CAFFE_MAXIMUM_NUM_BLOCKS),
+           CAFFE_CUDA_NUM_THREADS,
+           0,
+           context_.cuda_stream()>>>(
+            K,
+            N,
+            segment_len_prefix_sum_.template data<SIndex>(),
+            segment_len_.template data<SIndex>(),
+            input.template data<T>(),
+            output->template mutable_data<T>());
+    return true;
+  }
+
+ private:
+  Tensor<CUDAContext> segment_len_; // for mean
+  Tensor<CUDAContext> segment_len_prefix_sum_;
+  Tensor<CUDAContext> prefix_buffer_;
+};
+
+template <typename T, typename SIndex, bool LOGEXP = false>
+__global__ void sorted_segment_mean_gradient_kernel(
+    const int M,
+    const int N,
+    const T* X,
+    const T* Y,
+    const T* dY,
+    const SIndex* I,
+    const SIndex* S,
+    T* dX) {
+  CUDA_1D_KERNEL_LOOP(i, M * N) {
+    const int sId = I[i / N];
+    const int sSize = S[sId];
+    const int yId = N * sId + i % N;
+    dX[i] = LOGEXP ? dY[yId] * exp(X[i] - Y[yId]) / sSize : dY[yId] / sSize;
+  }
+}
+
+template <typename T, typename SIndex, bool LOGEXP, class Context = CUDAContext>
+class SortedSegmentRangeMeanGradientOp : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  SortedSegmentRangeMeanGradientOp(
+      const OperatorDef& operator_def,
+      Workspace* ws)
+      : Operator<CUDAContext>(operator_def, ws) {}
+  ~SortedSegmentRangeMeanGradientOp() {}
+
+  bool RunOnDevice() override {
+    const auto& X = Input(0);
+    const auto& Y = Input(1);
+    const auto& dY = Input(2);
+    const auto& I = Input(3);
+    auto* dX = Output(0);
+    dX->ResizeLike(X);
+
+    const int M = X.dim32(0);
+    const int N = X.size_from_dim(1);
+
+    SIndex K = 0;
+    context_.template CopyBytes<Context, CPUContext>(
+        sizeof(SIndex), I.template data<SIndex>() + I.size() - 1, &K);
+
+    K += 1;
+
+    if (segment_len_.size() != K) {
+      segment_len_.Resize(K);
+    }
+
+    math::Set<SIndex, CUDAContext>(
+        segment_len_.size(),
+        0,
+        segment_len_.template mutable_data<SIndex>(),
+        &context_);
+    segment_lengths_kernel<<<
+        CAFFE_GET_BLOCKS(I.size()),
+        CAFFE_CUDA_NUM_THREADS,
+        0,
+        context_.cuda_stream()>>>(
+        I.size(),
+        I.template data<SIndex>(),
+        segment_len_.template mutable_data<SIndex>());
+    sorted_segment_mean_gradient_kernel<T, SIndex, LOGEXP>
+        <<<CAFFE_GET_BLOCKS(dX->size()),
+           CAFFE_CUDA_NUM_THREADS,
+           0,
+           context_.cuda_stream()>>>(
+            M,
+            N,
+            X.template data<T>(),
+            Y.template data<T>(),
+            dY.template data<T>(),
+            I.template data<SIndex>(),
+            segment_len_.template data<SIndex>(),
+            dX->template mutable_data<T>());
+
+    return true;
+  }
+
+ private:
+  Tensor<CUDAContext> segment_len_; // for mean
+};
+
 REGISTER_CUDA_OPERATOR_STR(
     "LengthsSum",
     CUDASparseLengthsSumOp<float, CUDAContext, false>);
@@ -934,6 +885,18 @@ REGISTER_CUDA_OPERATOR_STR(
 REGISTER_CUDA_OPERATOR_STR(
     "UnsortedSegmentMean",
     CUDAUnsortedSegmentSumOp<float, int, true>);
+REGISTER_CUDA_OPERATOR_STR(
+    "SortedSegmentRangeMean",
+    SortedSegmentRangeMeanOp<float, int, false>);
+REGISTER_CUDA_OPERATOR_STR(
+    "SortedSegmentRangeLogMeanExp",
+    SortedSegmentRangeMeanOp<float, int, true>);
+REGISTER_CUDA_OPERATOR_STR(
+    "SortedSegmentRangeMeanGradient",
+    SortedSegmentRangeMeanGradientOp<float, int, false>);
+REGISTER_CUDA_OPERATOR_STR(
+    "SortedSegmentRangeLogMeanExpGradient",
+    SortedSegmentRangeMeanGradientOp<float, int, true>);
 
 template <typename T, class Context = CUDAContext>
 class CUDASparseLengthsSumGradientWithIndicesOp : public Operator<CUDAContext> {

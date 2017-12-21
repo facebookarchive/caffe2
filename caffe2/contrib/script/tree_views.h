@@ -159,6 +159,72 @@ struct Apply : public TreeView {
   TreeRef attributes_;
 };
 
+struct Slice : public TreeView {
+  explicit Slice(const TreeRef& tree) : TreeView(tree) {
+    tree_->match(TK_SLICE, value_, start_, end_);
+  }
+
+  TreeRef value() const {
+    return value_;
+  }
+
+  OptionView<TreeRef> start() const {
+    return OptionView<TreeRef>(start_);
+  }
+
+  OptionView<TreeRef> end() const {
+    return OptionView<TreeRef>(end_);
+  }
+
+  TreeRef startOr(int alternative) const {
+    const auto startOption = start();
+    return startOption.present() ? startOption.get() : createInt(alternative);
+  }
+
+  TreeRef endOr(int alternative) const {
+    const auto endOption = end();
+    return endOption.present() ? endOption.get() : createInt(alternative);
+  }
+
+  static TreeRef
+  create(const SourceRange& range, TreeRef value, TreeRef start, TreeRef end) {
+    return Compound::create(TK_SLICE, range, {value, start, end});
+  }
+
+ private:
+  TreeRef createInt(int value) const {
+    return Compound::create(
+        TK_CONST, range(), {Number::create(value), String::create("i")});
+  }
+
+  TreeRef value_;
+  TreeRef start_;
+  TreeRef end_;
+};
+
+struct Gather : public TreeView {
+  explicit Gather(const TreeRef& tree) : TreeView(tree) {
+    tree_->match(TK_GATHER, value_, indices_);
+  }
+
+  TreeRef value() const {
+    return value_;
+  }
+
+  TreeRef indices() const {
+    return indices_;
+  }
+
+  static TreeRef
+  create(const SourceRange& range, TreeRef value, TreeRef indices) {
+    return Compound::create(TK_GATHER, range, {value, indices});
+  }
+
+ private:
+  TreeRef value_;
+  TreeRef indices_;
+};
+
 struct Cast : public TreeView {
   explicit Cast(const TreeRef& tree) : TreeView(tree) {
     tree_->match(TK_CAST, type_, input_);
@@ -238,22 +304,22 @@ struct Param : public TreeView {
 
 struct Assign : public TreeView {
   explicit Assign(const TreeRef& tree) : TreeView(tree) {
-    tree_->match(TK_ASSIGN, idents_, reduction_, rhs_);
+    tree_->match(TK_ASSIGN, lhs_, reduction_, rhs_);
   }
   static TreeRef create(
       const SourceRange& range,
-      TreeRef idents,
+      TreeRef lhs,
       TreeRef reduction,
       TreeRef rhs) {
-    return Compound::create(TK_ASSIGN, range, {idents, reduction, rhs});
+    return Compound::create(TK_ASSIGN, range, {lhs, reduction, rhs});
   }
   // when the type of a field is statically know the accessors return
   // the wrapped type. for instance here we know ident_ is an identifier
   // so the accessor returns an Ident
   // this means that clients can do p.ident().name() to get the name of the
   // parameter.
-  ListView<Ident> idents() const {
-    return ListView<Ident>(idents_);
+  ListView<TreeRef> lhs() const {
+    return ListView<TreeRef>(lhs_);
   }
   int reduction() const {
     return reduction_->kind();
@@ -263,7 +329,7 @@ struct Assign : public TreeView {
   }
 
  private:
-  TreeRef idents_;
+  TreeRef lhs_;
   TreeRef reduction_;
   TreeRef rhs_;
 };
@@ -305,21 +371,22 @@ struct Def : public TreeView {
 
 struct Select : public TreeView {
   explicit Select(const TreeRef& tree) : TreeView(tree) {
-    tree_->match('.', name_, index_);
+    tree_->match('.', value_, selector_);
   }
-  Ident name() const {
-    return Ident(name_);
+  TreeRef value() const {
+    return value_;
   }
-  int index() const {
-    return index_->doubleValue();
+  Ident selector() const {
+    return Ident(selector_);
   }
-  static TreeRef create(const SourceRange& range, TreeRef name, TreeRef index) {
-    return Compound::create('.', range, {name, index});
+  static TreeRef
+  create(const SourceRange& range, TreeRef value, TreeRef selector) {
+    return Compound::create('.', range, {value, selector});
   }
 
  private:
-  TreeRef name_;
-  TreeRef index_;
+  TreeRef value_;
+  TreeRef selector_;
 };
 
 struct If : public TreeView {
