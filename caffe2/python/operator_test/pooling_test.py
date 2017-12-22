@@ -227,7 +227,7 @@ class TestPooling(hu.HypothesisTestCase):
                                   batch_size, engine, gc, dc):
         ''' Special test to stress the fast path of NCHW max pool '''
         # CuDNN 5 does not support deterministic max pooling.
-        assume(workspace.GetCuDNNVersion() >= 6000)
+        assume(workspace.GetCuDNNVersion() >= 6000 or engine != "CUDNN")
         op = core.CreateOperator(
             op_type,
             ["X"],
