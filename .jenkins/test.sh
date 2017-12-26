@@ -14,8 +14,8 @@ fi
 export PYTHONPATH="${PYTHONPATH}:/usr/local/caffe2"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/caffe2/lib"
 
-if [ -d ./test ]; then
-  echo "Directory ./test already exists; please remove it..."
+if [ -d ./test ] && ! [ -z "$(ls -A ./test)" ]; then
+  echo "Directory ./test already exists and contains files; please remove it..."
   exit 1
 fi
 
