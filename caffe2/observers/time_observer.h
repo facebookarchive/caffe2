@@ -36,8 +36,8 @@ class TimeObserverBase : public ObserverBase<T> {
   }
   ~TimeObserverBase() {}
 
-  bool Start() override;
-  bool Stop() override;
+  void Start() override;
+  void Stop() override;
 
  protected:
   Timer timer_;
@@ -58,9 +58,10 @@ class TimeObserver<OperatorBase> final : public TimeObserverBase<OperatorBase> {
   explicit TimeObserver<OperatorBase>(OperatorBase* subject)
       : TimeObserverBase<OperatorBase>(subject) {}
 
-  std::unique_ptr<ObserverBase<OperatorBase>> clone() override {
+  std::unique_ptr<ObserverBase<OperatorBase>> copy(
+      OperatorBase* subject) override {
     return std::unique_ptr<ObserverBase<OperatorBase>>(
-        new TimeObserver<OperatorBase>(this->subject_));
+        new TimeObserver<OperatorBase>(subject));
   }
 };
 
@@ -77,7 +78,7 @@ class TimeObserver<NetBase> final : public TimeObserverBase<NetBase> {
     return sum / subject_->GetOperators().size();
   }
 
-  bool Start() override {
+  void Start() override {
     for (auto* op : subject_->GetOperators()) {
       const auto* observer = op->AttachObserver(
           caffe2::make_unique<TimeObserver<OperatorBase>>(op));
@@ -87,7 +88,6 @@ class TimeObserver<NetBase> final : public TimeObserverBase<NetBase> {
     }
     start_time_ = timer_.MilliSeconds();
     ++iterations_;
-    return true;
   }
 
  private:

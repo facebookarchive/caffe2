@@ -22,7 +22,6 @@ from __future__ import unicode_literals
 
 import argparse
 from future.utils import viewitems
-from itertools import izip
 import logging
 import numpy as np
 import sys
@@ -334,7 +333,7 @@ class Seq2SeqModelCaffe2EnsembleDecoder(object):
         state_configs = []
         output_log_probs = []
         attention_weights = []
-        for model, scope_name in izip(
+        for model, scope_name in zip(
             self.models,
             self.decoder_scope_names,
         ):
@@ -390,7 +389,8 @@ class Seq2SeqModelCaffe2EnsembleDecoder(object):
             [],
             'word_rewards',
             shape=[self.target_vocab_size],
-            value=0,
+            value=0.0,
+            dtype=core.DataType.FLOAT,
         )
         (
             self.output_token_beam_list,
@@ -432,7 +432,7 @@ class Seq2SeqModelCaffe2EnsembleDecoder(object):
 
     def load_models(self):
         db_reader = 'reader'
-        for model, scope_name in izip(
+        for model, scope_name in zip(
             self.models,
             self.decoder_scope_names,
         ):

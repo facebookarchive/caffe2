@@ -1,6 +1,35 @@
-INCLUDE(CheckCXXSourceCompiles)
+include(CheckCXXSourceCompiles)
+include(CMakePushCheckState)
 
-# ---[ Check if the data type long and int32_t/int64_t overlap. 
+# ---[ If running on Ubuntu, check system version and compiler version.
+if(EXISTS "/etc/os-release")
+  execute_process(COMMAND
+    "sed" "-ne" "s/^ID=\\([a-z]\\+\\)$/\\1/p" "/etc/os-release"
+    OUTPUT_VARIABLE OS_RELEASE_ID
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+  execute_process(COMMAND
+    "sed" "-ne" "s/^VERSION_ID=\"\\([0-9\\.]\\+\\)\"$/\\1/p" "/etc/os-release"
+    OUTPUT_VARIABLE OS_RELEASE_VERSION_ID
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+  if(OS_RELEASE_ID STREQUAL "ubuntu")
+    if(OS_RELEASE_VERSION_ID VERSION_GREATER "17.04")
+      if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "6.0.0")
+          message(FATAL_ERROR
+            "Please use GCC 6 or higher on Ubuntu 17.04 and higher. "
+            "For more information, see: "
+            "https://github.com/caffe2/caffe2/issues/1633"
+            )
+        endif()
+      endif()
+    endif()
+  endif()
+endif()
+
+# ---[ Check if the data type long and int32_t/int64_t overlap.
+cmake_push_check_state(RESET)
 set(CMAKE_REQUIRED_FLAGS "-std=c++11")
 CHECK_CXX_SOURCE_COMPILES(
     "#include <cstdint>
@@ -19,13 +48,14 @@ else()
   message(STATUS "Need to define long as a separate typeid.")
   set(CAFFE2_UNIQUE_LONG_TYPEMETA 1)
 endif()
-
+cmake_pop_check_state()
 
 # ---[ Check if we want to turn off deprecated warning due to glog.
 # Note(jiayq): on ubuntu 14.04, the default glog install uses ext/hash_set that
 # is being deprecated. As a result, we will test if this is the environment we
 # are building under. If yes, we will turn off deprecation warning for a
 # cleaner build output.
+cmake_push_check_state(RESET)
 set(CMAKE_REQUIRED_FLAGS "-std=c++11")
 CHECK_CXX_SOURCE_COMPILES(
     "#include <glog/stl_logging.h>
@@ -38,9 +68,10 @@ if(NOT CAFFE2_NEED_TO_TURN_OFF_DEPRECATION_WARNING AND NOT MSVC)
   message(STATUS "Turning off deprecation warning due to glog.")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
 endif()
+cmake_pop_check_state()
 
-# ---[ Check if the compiler has avx/avx2 support. We will only check avx2.
-
+# ---[ Check if the compiler has AVX/AVX2 support. We only check AVX2.
+cmake_push_check_state(RESET)
 if (MSVC)
   set(CMAKE_REQUIRED_FLAGS "/arch:AVX2")
 else()
@@ -66,6 +97,7 @@ if (CAFFE2_COMPILER_SUPPORTS_AVX2_EXTENSIONS)
     set(CAFFE2_PERF_WITH_AVX2 1)
   endif()
 endif()
+cmake_pop_check_state()
 
 # ---[ If we are using msvc, set no warning flags
 # Note(jiayq): if you are going to add a warning flag, check if this is
@@ -74,16 +106,27 @@ endif()
 # "THIRD_PARTY_NAME related"
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
   add_compile_options(
-      /wd4018 # (3): Signed/unsigned mismatch
+      ##########################################
+      # Third party related. Cannot remove.
+      ##########################################
       /wd4065 # (3): switch with default but no case. Protobuf related.
-      /wd4244 # (2/3/4): Possible loss of precision
-      /wd4267 # (3): Conversion of size_t to smaller type. Possible loss of data.
-      /wd4503 # (1): decorated name length exceeded, name was truncated. Eigen related.
+      /wd4503 # (1): decorated name length exceeded, name was truncated.
+              #      Eigen related.
       /wd4506 # (1): no definition for inline function. Protobuf related.
-      /wd4554 # (3)： check operator precedence for possible error. Eigen related.
-      /wd4800 # (3): Forcing non-boolean value to true or false.
-      /wd4996 # (3): Use of a deprecated member
+      /wd4554 # (3)： check operator precedence for possible error.
+              # Eigen related.
+      ##########################################
+      # These are directly Caffe2 related.
+      ##########################################
+      /wd4018 # (3): Signed/unsigned mismatch. We've used it in many places of
+              #      the code and it would be hard to correct all.
+      /wd4244 # (2/3/4): Possible loss of precision. Various cases where we
+              #      implicitly cast TIndex to int etc. Need further cleaning.
+      /wd4267 # (3): Conversion of size_t to smaller type. Same reason as 4244.
+      /wd4996 # (3): Use of deprecated POSIX functions. Since we develop
+              #      mainly on Linux, this is ignored.
   )
+  
   # Exception handing for compiler warining C4530, see
   # https://msdn.microsoft.com/en-us/library/2axwkyt4.aspx
   add_definitions("/EHsc")

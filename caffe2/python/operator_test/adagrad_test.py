@@ -21,9 +21,8 @@ from __future__ import unicode_literals
 import functools
 
 import hypothesis
-from hypothesis import given, assume, strategies as st
-from caffe2.proto import caffe2_pb2
-from caffe2.python import workspace
+from hypothesis import given, settings, HealthCheck
+import hypothesis.strategies as st
 import numpy as np
 
 from caffe2.python import core
@@ -79,6 +78,9 @@ class TestAdagrad(hu.HypothesisTestCase):
             [param, momentum, grad, lr],
             functools.partial(self.ref_adagrad, epsilon=epsilon))
 
+    # Suppress filter_too_much health check.
+    # Likely caused by `assume` call falling through too often.
+    @settings(suppress_health_check=[HealthCheck.filter_too_much])
     @given(inputs=hu.tensors(n=3),
            lr=st.floats(min_value=0.01, max_value=0.99,
                         allow_nan=False, allow_infinity=False),
@@ -129,14 +131,12 @@ class TestAdagrad(hu.HypothesisTestCase):
             return (param_out, momentum_out)
 
         ref_using_fp16_values = [False]
-        if workspace.has_gpu_support:
+        if dc == hu.gpu_do:
             ref_using_fp16_values.append(True)
 
         for ref_using_fp16 in ref_using_fp16_values:
             if(ref_using_fp16):
                 print('test_sparse_adagrad with half precision embedding')
-                assume(gc.device_type == caffe2_pb2.CUDA)
-                dc = [do for do in dc if do.device_type == caffe2_pb2.CUDA]
                 momentum_i = momentum.astype(np.float16)
                 param_i = param.astype(np.float16)
             else:
@@ -144,10 +144,10 @@ class TestAdagrad(hu.HypothesisTestCase):
                 momentum_i = momentum.astype(np.float32)
                 param_i = param.astype(np.float32)
 
-        self.assertReferenceChecks(
-            gc, op, [param_i, momentum_i, indices, grad, lr, ref_using_fp16],
-            ref_sparse
-        )
+            self.assertReferenceChecks(
+                gc, op, [param_i, momentum_i, indices, grad, lr, ref_using_fp16],
+                ref_sparse
+            )
 
     @given(inputs=hu.tensors(n=2),
            lr=st.floats(min_value=0.01, max_value=0.99,
@@ -180,14 +180,12 @@ class TestAdagrad(hu.HypothesisTestCase):
             return (param_out, momentum_out)
 
         ref_using_fp16_values = [False]
-        if workspace.has_gpu_support:
+        if dc == hu.gpu_do:
             ref_using_fp16_values.append(True)
 
         for ref_using_fp16 in ref_using_fp16_values:
             if(ref_using_fp16):
                 print('test_sparse_adagrad_empty with half precision embedding')
-                assume(gc.device_type == caffe2_pb2.CUDA)
-                dc = [do for do in dc if do.device_type == caffe2_pb2.CUDA]
                 momentum_i = momentum.astype(np.float16)
                 param_i = param.astype(np.float16)
             else:
@@ -195,10 +193,13 @@ class TestAdagrad(hu.HypothesisTestCase):
                 momentum_i = momentum.astype(np.float32)
                 param_i = param.astype(np.float32)
 
-        self.assertReferenceChecks(
-            gc, op, [param_i, momentum_i, indices, grad, lr], ref_sparse
-        )
+            self.assertReferenceChecks(
+                gc, op, [param_i, momentum_i, indices, grad, lr], ref_sparse
+            )
 
+    # Suppress filter_too_much health check.
+    # Likely caused by `assume` call falling through too often.
+    @settings(suppress_health_check=[HealthCheck.filter_too_much])
     @given(inputs=hu.tensors(n=2),
            lr=st.floats(min_value=0.01, max_value=0.99,
                         allow_nan=False, allow_infinity=False),

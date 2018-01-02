@@ -22,7 +22,7 @@ import copy
 import time
 from functools import partial, reduce
 from future.utils import viewitems, viewkeys
-from hypothesis import assume, given, settings
+from hypothesis import assume, given, settings, HealthCheck
 import hypothesis.strategies as st
 import unittest
 
@@ -1754,7 +1754,7 @@ class TestOperators(hu.HypothesisTestCase):
 
     @given(a=hu.tensor(elements=st.floats(allow_nan=True)),
            value=st.floats(min_value=-10, max_value=10),
-           **hu.gcs_cpu_only)
+           **hu.gcs)
     def test_replace_nan(self, a, value, gc, dc):
         def ref(data):
             out = np.copy(data)
@@ -1928,6 +1928,7 @@ class TestOperators(hu.HypothesisTestCase):
                 param,
                 [0])
 
+    @settings(suppress_health_check=[HealthCheck.filter_too_much])
     @given(n=st.integers(1, 5),
            c=st.integers(1, 5),
            h=st.integers(1, 5),
@@ -1944,6 +1945,7 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertDeviceChecks(dc, op, [X], [0])
         self.assertGradientChecks(gc, op, [X], 0, [0])
 
+    @settings(suppress_health_check=[HealthCheck.filter_too_much])
     @given(n=st.integers(1, 5),
            c=st.integers(1, 5),
            h=st.integers(1, 5),

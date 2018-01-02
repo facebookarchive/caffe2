@@ -32,6 +32,7 @@
 #include "caffe2/core/operator_schema.h"
 #include "caffe2/core/registry.h"
 #include "caffe2/core/tensor.h"
+#include "caffe2/core/types.h"
 #include "caffe2/core/workspace.h"
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/utils/proto_utils.h"
@@ -223,7 +224,7 @@ class OperatorBase : public Observable<OperatorBase> {
     net_position_ = idx;
   }
 
-  const DeviceOption& device_option() {
+  const DeviceOption& device_option() const {
     return device_option_;
   }
 
@@ -249,6 +250,13 @@ class OperatorBase : public Observable<OperatorBase> {
 
   bool IsEventDisabled() const {
     return !event_;
+  }
+
+  // Checks whether stream is ready to execute new computation,
+  // used in stream allocation optimization to skip stream that is currently
+  // busy. Depends on context and operator's device, returns true by default
+  virtual bool IsStreamFree(int /* unused */) const {
+    return true;
   }
 
   const std::string& type() {
@@ -419,6 +427,10 @@ class Operator : public OperatorBase {
     }
   }
 
+  bool IsStreamFree(int stream_id) const override {
+    return context_.IsStreamFree(device_option(), stream_id);
+  }
+
   virtual bool RunOnDevice() = 0;
 
   // Returns whether operator has async on device part.
@@ -476,11 +488,13 @@ class Operator : public OperatorBase {
   /* using override */ using OperatorBase::InputSize;               \
   /* using override */ using OperatorBase::OutputSize
 
-#define USE_OPERATOR_FUNCTIONS(context)                   \
-  USE_OPERATOR_BASE_FUNCTIONS;                            \
-  /* using override */ using Operator<context>::context_; \
-  /* using override */ using Operator<context>::Input;    \
-  /* using override */ using Operator<context>::Output
+#define USE_OPERATOR_FUNCTIONS(context)                    \
+  USE_OPERATOR_BASE_FUNCTIONS;                             \
+  /* using override */ using Operator<context>::context_;  \
+  /* using override */ using Operator<context>::Input;     \
+  /* using override */ using Operator<context>::InputBlob; \
+  /* using override */ using Operator<context>::Output;    \
+  /* using override */ using Operator<context>::OutputBlob
 
 #define USE_OPERATOR_CONTEXT_FUNCTIONS USE_OPERATOR_FUNCTIONS(Context)
 

@@ -18,8 +18,8 @@ class PerfNetObserver : public NetObserver {
   }
 
  private:
-  bool Start() override;
-  bool Stop() override;
+  void Start() override;
+  void Stop() override;
 
   caffe2::string getObserverName(const OperatorBase* op, int idx) const;
 
@@ -42,12 +42,13 @@ class PerfOperatorObserver : public ObserverBase<OperatorBase> {
   PerfOperatorObserver(OperatorBase* op, PerfNetObserver* netObserver);
   virtual ~PerfOperatorObserver();
 
-  std::unique_ptr<ObserverBase<OperatorBase>> clone() override;
+  std::unique_ptr<ObserverBase<OperatorBase>> copy(
+      OperatorBase* subject) override;
   double getMilliseconds() const;
 
  private:
-  bool Start() override;
-  bool Stop() override;
+  void Start() override;
+  void Stop() override;
 
  private:
   // Observer of a net that owns corresponding op. We make sure net is never

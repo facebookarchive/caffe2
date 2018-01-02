@@ -130,7 +130,7 @@ if(BUILD_TEST)
 
   # We will not need to test benchmark lib itself.
   set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Disable benchmark testing as we don't need it.")
-  # We will not need to install benchmark since we link it statically. 
+  # We will not need to install benchmark since we link it statically.
   set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Disable benchmark install to avoid overwriting vendor install.")
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/benchmark)
   caffe2_include_directories(${PROJECT_SOURCE_DIR}/third_party/benchmark/include)
@@ -257,7 +257,6 @@ if(BUILD_PYTHON)
   set(USE_OBSERVERS ON)
   if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND NUMPY_FOUND)
     caffe2_include_directories(${PYTHON_INCLUDE_DIRS} ${NUMPY_INCLUDE_DIR})
-    list(APPEND Caffe2_PYTHON_DEPENDENCY_LIBS ${PYTHON_LIBRARIES})
   else()
     message(WARNING "Python dependencies not met. Not compiling with python. Suppress this warning with -DBUILD_PYTHON=OFF")
     set(BUILD_PYTHON OFF)
@@ -474,5 +473,7 @@ if (USE_ATEN)
 endif()
 
 if (USE_ZSTD)
+  list(APPEND Caffe2_DEPENDENCY_LIBS libzstd_static)
+  caffe2_include_directories(${PROJECT_SOURCE_DIR}/third_party/zstd/lib)
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/zstd/build/cmake)
 endif()

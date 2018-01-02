@@ -331,7 +331,7 @@ kernel void copy_nchw_to_metal(constant float* in[[buffer(0)]],
   CHW_TO_CHWP4(3, n, c * 4 + 3, gid.y, gid.x);
 #undef CHW_TO_CHWP4
 
-  out.write(trns, ushort2(gid.x, gid.y), gid.z);
+  out.write(trns, gid.xy, gid.z);
 }
 
 kernel void copy_nchw_to_metal_nonarray(constant float* in[[buffer(0)]],
@@ -362,7 +362,7 @@ kernel void copy_nchw_to_metal_nonarray(constant float* in[[buffer(0)]],
   CHW_TO_CHWP4(3, 3, gid.y, gid.x);
 #undef CHW_TO_CHWP4
 
-  out.write(trns, ushort2(gid.x, gid.y));
+  out.write(trns, gid.xy);
 }
 
 kernel void copy_metal_to_nchw(texture2d_array<half, access::read> in[[texture(0)]],
@@ -378,7 +378,7 @@ kernel void copy_metal_to_nchw(texture2d_array<half, access::read> in[[texture(0
   const ushort n = gid.z / divRoundUp(C, 4);
   const ushort c = gid.z - n * divRoundUp(C, 4);
 
-  half4 cs = in.read(ushort2(gid.x, gid.y), gid.z);
+  half4 cs = in.read(gid.xy, gid.z);
 
 #define CHWP4_TO_CHW(idx, n, c_, h, w)                                    \
   if ((c_) < C) {                                                         \
@@ -403,7 +403,7 @@ kernel void copy_metal_to_nchw_nonarray(texture2d<half, access::read> in[[textur
     return;
   }
 
-  half4 cs = in.read(ushort2(gid.x, gid.y));
+  half4 cs = in.read(gid.xy);
 
 #define CHWP4_TO_CHW(idx, c, h, w)                       \
   if ((c) < C) {                                         \
@@ -431,7 +431,7 @@ kernel void convtranspose_upscale(texture2d_array<half, access::read> in[[textur
   if (gid.x >= out.get_width() || gid.y >= out.get_height()) {
     return;
   }
-  const ushort2 gid_ = ushort2(gid.x, gid.y);
+  const ushort2 gid_ = gid.xy;
   if (gid.x < kernel_ - 1 - pad || gid.y < kernel_ - 1 - pad) {
     out.write(zero, gid_, gid.z);
     return;
@@ -464,6 +464,15 @@ kernel void col2im(
     texture2d<half, access::write> out[[ texture(1), function_constant(has_out_tex) ]],
     constant half4* bias[[buffer(0)]],
     ushort3 gid[[thread_position_in_grid]]) {
+  if (has_out_tex) {
+    if (gid.x >= out.get_width() || gid.y >= out.get_height()) {
+      return;
+    }
+  } else {
+    if (gid.x >= outa.get_width() || gid.y >= outa.get_height()) {
+      return;
+    }
+  }
   const ushort kernel_h = ushort_arg_0;
   const ushort kernel_w = ushort_arg_1;
   const ushort stride_h = ushort_arg_2;
@@ -527,10 +536,10 @@ kernel void col2im(
     }
   }
   if (has_out_arr) {
-    outa.write(static_cast<half4>(val), ushort2(gid.x, gid.y), gid.z);
+    outa.write(static_cast<half4>(val), gid.xy, gid.z);
   }
   if (has_out_tex) {
-    out.write(static_cast<half4>(val), ushort2(gid.x, gid.y));
+    out.write(static_cast<half4>(val), gid.xy);
   }
 }
 
@@ -630,7 +639,7 @@ kernel void reflection_padding(texture2d_array<half, access::read> in[[texture(0
 
   ushort2 inid(w, h);
 
-  out.write(in.read(inid, gid.z), ushort2(gid.x, gid.y), gid.z);
+  out.write(in.read(inid, gid.z), gid.xy, gid.z);
 }
 
 kernel void bilinear_upsample(texture2d<half, access::sample> in[[texture(0)]],
@@ -667,7 +676,7 @@ kernel void elementwise_mul(texture2d<half, access::read> in0[[texture(0), funct
     }
     idx = gid.y * outa.get_width() + gid.x;
   }
-  ushort2 gid_ = ushort2(gid.x, gid.y);
+  ushort2 gid_ = gid.xy;
   if (in0_is_tex) {
     out.write(in0.read(gid_) * in1[idx % last_dim], gid_);
   } else {
@@ -694,7 +703,7 @@ kernel void elementwise_sub(texture2d<half, access::read> in0[[texture(0), funct
     }
     idx = gid.y * outa.get_width() + gid.x;
   }
-  ushort2 gid_ = ushort2(gid.x, gid.y);
+  ushort2 gid_ = gid.xy;
   if (in0_is_tex) {
     out.write(in0.read(gid_) - in1[idx % last_dim], gid_);
   } else {
@@ -720,7 +729,7 @@ kernel void elementwise_add(texture2d_array<half, access::read> in0[[texture(0)]
   if (gid.x >= out.get_width() || gid.y >= out.get_height()) {
     return;
   }
-  ushort2 gid_ = ushort2(gid.x, gid.y);
+  ushort2 gid_ = gid.xy;
   out.write(in0.read(gid_, gid.z) + in1.read(gid_, gid.z), gid_, gid.z);
 }
 
@@ -739,31 +748,34 @@ constant bool has_in1_array = (has_in1_arg && !has_in1_tex);
 constant bool has_in2_array = (has_in2_arg && !has_in2_tex);
 constant bool has_in3_array = (has_in3_arg && !has_in3_tex);
 
+constant bool concat_has_out_tex = (ushort_arg_4 <= 4 && ushort_arg_5 <= 1);
+constant bool concat_has_out_array = !concat_has_out_tex;
+
 inline ushort idx_3(ushort z, ushort C0, ushort C1, ushort C2, ushort C3) {
-  if (z < C0 / 4) {
+  if (z < C0) {
     return 0;
   }
-  if (z < (C0 + C1) / 4) {
+  if (z < (C0 + C1)) {
     return 1;
   }
-  if (z < (C0 + C1 + C2) / 4) {
+  if (z < (C0 + C1 + C2)) {
     return 2;
   }
   return 3;
 }
 
 inline ushort idx_2(ushort z, ushort C0, ushort C1, ushort C2) {
-  if (z < C0 / 4) {
+  if (z < C0) {
     return 0;
   }
-  if (z < (C0 + C1) / 4) {
+  if (z < (C0 + C1)) {
     return 1;
   }
   return 2;
 }
 
 inline ushort idx_1(ushort z, ushort C0, ushort C1) {
-  if (z < C0 / 4) {
+  if (z < C0) {
     return 0;
   } else {
     return 1;
@@ -773,23 +785,32 @@ inline ushort idx_1(ushort z, ushort C0, ushort C1) {
 inline ushort idx_0(ushort z, ushort C0) { return 0; }
 
 // in a texture_array with size C, find the offset for image N at plane c.
-inline constexpr ushort z_off(ushort n, ushort c, ushort C) { return n * divRoundUp(C, 4) + c; }
+inline constexpr ushort z_off(ushort n, ushort c, ushort C) { return n * divRoundUp(C, 4) + c / 4; }
 
 kernel void concat(
-    texture2d<half, access::read> in0[[ texture(0), function_constant(has_in0_tex) ]],
-    texture2d<half, access::read> in1[[ texture(1), function_constant(has_in1_tex) ]],
-    texture2d<half, access::read> in2[[ texture(2), function_constant(has_in2_tex) ]],
-    texture2d<half, access::read> in3[[ texture(3), function_constant(has_in3_tex) ]],
-    texture2d_array<half, access::read> ina0[[ texture(0), function_constant(has_in0_array) ]],
-    texture2d_array<half, access::read> ina1[[ texture(1), function_constant(has_in1_array) ]],
-    texture2d_array<half, access::read> ina2[[ texture(2), function_constant(has_in2_array) ]],
-    texture2d_array<half, access::read> ina3[[ texture(3), function_constant(has_in3_array) ]],
-    texture2d_array<half, access::write> out[[texture(5)]],
-    ushort3 gid[[thread_position_in_grid]]) {
-  if (gid.x >= out.get_width() || gid.y >= out.get_height()) {
-    return;
+                   texture2d<half, access::read> in0[[ texture(0), function_constant(has_in0_tex) ]],
+                   texture2d<half, access::read> in1[[ texture(1), function_constant(has_in1_tex) ]],
+                   texture2d<half, access::read> in2[[ texture(2), function_constant(has_in2_tex) ]],
+                   texture2d<half, access::read> in3[[ texture(3), function_constant(has_in3_tex) ]],
+                   texture2d_array<half, access::read> ina0[[ texture(0), function_constant(has_in0_array) ]],
+                   texture2d_array<half, access::read> ina1[[ texture(1), function_constant(has_in1_array) ]],
+                   texture2d_array<half, access::read> ina2[[ texture(2), function_constant(has_in2_array) ]],
+                   texture2d_array<half, access::read> ina3[[ texture(3), function_constant(has_in3_array) ]],
+                   texture2d<half, access::write> out[[texture(5),
+                                                       function_constant(concat_has_out_tex) ]],
+                   texture2d_array<half, access::write> outa[[texture(5),
+                                                              function_constant(concat_has_out_array) ]],
+                   ushort3 gid[[thread_position_in_grid]]) {
+  if (concat_has_out_tex) {
+    if (gid.x >= out.get_width() || gid.y >= out.get_height()) {
+      return;
+    }
+  } else {
+    if (gid.x >= outa.get_width() || gid.y >= outa.get_height()) {
+      return;
+    }
   }
-
+  
   const ushort C0 = ushort_arg_0;
   const ushort C1 = ushort_arg_1;
   const ushort C2 = ushort_arg_2;
@@ -797,72 +818,170 @@ kernel void concat(
   const ushort C = C0 + C1 + C2 + C3;
   const ushort n = gid.z / divRoundUp(C, 4);
   const ushort c = gid.z - n * divRoundUp(C, 4);
-
-  ushort idx = 0;
-  if (has_in3_arg) {
-    idx = idx_3(c, C0, C1, C2, C3);
-  } else if (has_in2_arg) {
-    idx = idx_2(c, C0, C1, C2);
-  } else if (has_in1_arg) {
-    idx = idx_1(c, C0, C1);
-  } else if (has_in0_arg) {
-    idx = idx_0(c, C0);
-  } else {
-    // never reached.
-    idx = 0;
-  }
-
-  ushort2 gid_ = ushort2(gid.x, gid.y);
+  // Fill channel 4*c to 4*(c+1) of nth image of output
+  
+  ushort2 gid_ = gid.xy;
   half4 value;
-  switch (idx) {
-  case 0: {
-    if (has_in0_tex) {
-      value = in0.read(gid_);
+  
+  for (int off = 0; off < 4; ++off) {
+    ushort cur_channel = c * 4 + off;
+    ushort cur_idx = 0;
+    if (cur_channel >= C) {
+      break;
     }
-    if (has_in0_array) {
-      value = ina0.read(gid_, z_off(n, c, C0));
+    if (has_in3_arg) {
+      cur_idx = idx_3(cur_channel, C0, C1, C2, C3);
+    } else if (has_in2_arg) {
+      cur_idx = idx_2(cur_channel, C0, C1, C2);
+    } else if (has_in1_arg) {
+      cur_idx = idx_1(cur_channel, C0, C1);
+    } else if (has_in0_arg) {
+      cur_idx = idx_0(cur_channel, C0);
+    } else {
+      // never reached.
+      cur_idx = 0;
     }
-    break;
+    ushort src_off = 0;
+    switch (cur_idx) {
+      case 0:
+        src_off = cur_channel % 4;
+        break;
+      case 1:
+        src_off = (cur_channel - C0) % 4;
+        break;
+      case 2:
+        src_off = (cur_channel - (C0 + C1)) % 4;
+        break;
+      case 3:
+        src_off = (cur_channel - (C0 + C1 + C2)) % 4;
+        break;
+    }
+    // try to see if we can only issue one read op for the 4 values
+    bool fast_path = false;
+    if (off == 0 && src_off == 0 && (cur_channel + 3) < C) {
+      ushort last_idx = 0;
+      if (has_in3_arg) {
+        last_idx = idx_3(cur_channel + 3, C0, C1, C2, C3);
+      } else if (has_in2_arg) {
+        last_idx = idx_2(cur_channel + 3, C0, C1, C2);
+      } else if (has_in1_arg) {
+        last_idx = idx_1(cur_channel + 3, C0, C1);
+      } else if (has_in0_arg) {
+        last_idx = idx_0(cur_channel + 3, C0);
+      } else {
+        // never reached.
+        last_idx = 0;
+      }
+      if (cur_idx == last_idx) {
+        fast_path = true;
+      }
+    }
+    switch (cur_idx) {
+      case 0: {
+        if (has_in0_tex) {
+          if (fast_path) {
+            value = in0.read(gid_);
+          } else {
+            value[off] = in0.read(gid_)[src_off];
+          }
+        }
+        if (has_in0_array) {
+          if (fast_path) {
+            value = ina0.read(gid_, z_off(n, cur_channel, C0));
+          } else {
+            value[off] = ina0.read(gid_, z_off(n, cur_channel, C0))[src_off];
+          }
+        }
+        break;
+      }
+      case 1: {
+        if (has_in1_tex) {
+          if (fast_path) {
+            value = in1.read(gid_);
+          } else {
+            value[off] = in1.read(gid_)[src_off];
+          }
+        }
+        if (has_in1_array) {
+          if (fast_path) {
+            value = ina1.read(gid_, z_off(n, cur_channel - C0, C1));
+          } else {
+            value[off] = ina1.read(gid_, z_off(n, cur_channel - C0, C1))[src_off];
+          }
+        }
+        break;
+      }
+      case 2: {
+        if (has_in2_tex) {
+          if (fast_path) {
+            value = in2.read(gid_);
+          } else {
+            value[off] = in2.read(gid_)[src_off];
+          }
+        }
+        if (has_in2_array) {
+          if (fast_path) {
+            value = ina2.read(gid_, z_off(n, cur_channel - (C0 + C1), C2));
+          } else {
+            value[off] = ina2.read(gid_, z_off(n, cur_channel - (C0 + C1), C2))[src_off];
+          }
+        }
+        break;
+      }
+      case 3: {
+        if (has_in3_tex) {
+          if (fast_path) {
+            value = in3.read(gid_);
+          } else {
+            value[off] = in3.read(gid_)[src_off];
+          }
+        }
+        if (has_in3_array) {
+          if (fast_path) {
+            value = ina3.read(gid_, z_off(n, cur_channel - (C0 + C1 + C2), C3));
+          } else {
+            value[off] = ina3.read(gid_, z_off(n, cur_channel - (C0 + C1 + C2), C3))[src_off];
+          }
+        }
+        break;
+      }
+    }
+    if (fast_path) {
+      break;
+    }
   }
-  case 1: {
-    if (has_in1_tex) {
-      value = in1.read(gid_);
-    }
-    if (has_in1_array) {
-      value = ina1.read(gid_, z_off(n, c - (C0) / 4, C1));
-    }
-    break;
+  if (concat_has_out_tex) {
+    out.write(value, gid_, gid.z);
+  } else {
+    outa.write(value, gid_, gid.z);
   }
-  case 2: {
-    if (has_in2_tex) {
-      value = in2.read(gid_);
-    }
-    if (has_in2_array) {
-      value = ina2.read(gid_, z_off(n, c - (C0 + C1) / 4, C2));
-    }
-    break;
-  }
-  case 3: {
-    if (has_in3_tex) {
-      value = in3.read(gid_);
-    }
-    if (has_in3_array) {
-      value = ina3.read(gid_, z_off(n, c - (C0 + C1 + C2) / 4, C3));
-    }
-    break;
-  }
-  }
-  out.write(value, gid_, gid.z);
 }
 
 using RoIT = half;
 using RoIT4 = half4;
-kernel void roi_warp(texture2d_array<half, access::sample> in[[texture(0)]],
-                     texture2d_array<half, access::write> out[[texture(1)]],
+constant bool rw_has_in_arr = (ushort_arg_3 > 1 ||  ushort_arg_2 > 4);
+constant bool rw_has_out_arr = (ushort_arg_4 > 1 || ushort_arg_2 > 4);
+constant bool rw_has_in_tex = (!rw_has_in_arr);
+constant bool rw_has_out_tex = (!rw_has_out_arr);
+kernel void roi_warp(texture2d_array<half, access::sample> ina[[texture(0), function_constant(rw_has_in_arr)]],
+                     texture2d<half, access::sample> in[[texture(0), function_constant(rw_has_in_tex)]],
+                     texture2d_array<half, access::write> outa[[texture(1), function_constant(rw_has_out_arr)]],
+                     texture2d<half, access::write> out[[texture(1), function_constant(rw_has_out_tex)]],
                      constant half4* rois[[buffer(0)]],
                      ushort3 gid[[thread_position_in_grid]]) {
+  ushort out_width, out_height;
+  if (rw_has_out_arr) {
+    out_width = outa.get_width();
+    out_height = outa.get_height();
+  } else {
+    out_width = out.get_width();
+    out_height = out.get_height();
+  }
+  if (gid.x >= out_width || gid.y >= out_height) {
+    return;
+  }
   constexpr sampler s2(coord::pixel, address::clamp_to_edge, filter::linear);
-
+  
   const half spatial_scale = half(ushort_arg_0) / 10000;
   const ushort sampling_ratio = ushort_arg_1;
   const ushort C = ushort_arg_2;
@@ -870,38 +989,46 @@ kernel void roi_warp(texture2d_array<half, access::sample> in[[texture(0)]],
   const ushort ph = gid.y;
   const ushort n = gid.z / divRoundUp(C, 4);
   const ushort c = gid.z % divRoundUp(C, 4);
-
+  
   const RoIT4 roi_scaled = rois[n] * spatial_scale;
   const RoIT roi_start_w = roi_scaled[0];
   const RoIT roi_start_h = roi_scaled[1];
   const RoIT roi_end_w = roi_scaled[2];
   const RoIT roi_end_h = roi_scaled[3];
-
+  
   // Force malformed ROIs to be 1x1
   const RoIT roi_width = max(roi_end_w - roi_start_w, (RoIT)1.);
   const RoIT roi_height = max(roi_end_h - roi_start_h, (RoIT)1.);
-
-  const RoIT bin_size_h = static_cast<RoIT>(roi_height) / static_cast<RoIT>(out.get_height());
-  const RoIT bin_size_w = static_cast<RoIT>(roi_width) / static_cast<RoIT>(out.get_width());
-  const ushort roi_bin_grid_h = sampling_ratio;
-  const ushort roi_bin_grid_w = sampling_ratio;
-  const ushort iy_upper = sampling_ratio;
-  const ushort ix_upper = sampling_ratio;
-
+  
+  const RoIT bin_size_h = static_cast<RoIT>(roi_height) / static_cast<RoIT>(out_height);
+  const RoIT bin_size_w = static_cast<RoIT>(roi_width) / static_cast<RoIT>(out_width);
+  const ushort roi_bin_grid_h = sampling_ratio > 0 ? sampling_ratio : ceil(roi_height / static_cast<RoIT>(out_height));
+  const ushort roi_bin_grid_w = sampling_ratio > 0 ? sampling_ratio : ceil(roi_width / static_cast<RoIT>(out_width));
+  const ushort iy_upper = (sampling_ratio > 0) ? roi_bin_grid_h : (roi_bin_grid_h + 1);
+  const ushort ix_upper = (sampling_ratio > 0) ? roi_bin_grid_w : (roi_bin_grid_w + 1);
+  
   const RoIT count = iy_upper * ix_upper;
-
+  
   RoIT4 output_val = 0.0;
   for (int iy = 0; iy < iy_upper; iy++) {
     for (int ix = 0; ix < ix_upper; ix++) {
       const RoIT y =
-          roi_start_h + ph * bin_size_h + iy * bin_size_h / static_cast<RoIT>(roi_bin_grid_h);
+      roi_start_h + ph * bin_size_h + iy * bin_size_h / static_cast<RoIT>(roi_bin_grid_h);
       const RoIT x =
-          roi_start_w + pw * bin_size_w + ix * bin_size_w / static_cast<RoIT>(roi_bin_grid_w);
-      output_val += in.sample(s2, float2(x + 0.5, y + 0.5), c);
+      roi_start_w + pw * bin_size_w + ix * bin_size_w / static_cast<RoIT>(roi_bin_grid_w);
+      if (rw_has_in_arr) {
+        output_val += ina.sample(s2, float2(x + 0.5, y + 0.5), c);
+      } else {
+        output_val += in.sample(s2, float2(x + 0.5, y + 0.5));
+      }
     }
   }
   output_val /= count;
-  out.write(static_cast<half4>(output_val), ushort2(gid.x, gid.y), gid.z);
+  if (rw_has_out_arr) {
+    outa.write(static_cast<half4>(output_val), gid.xy, gid.z);
+  } else {
+    out.write(static_cast<half4>(output_val), gid.xy);
+  }
 }
 
 kernel void nms(device uint* mask[[buffer(0)]],
@@ -968,7 +1095,7 @@ kernel void resize_nearest(texture2d_array<half, access::sample> in[[texture(0)]
   constexpr sampler s(coord::pixel, address::clamp_to_edge, filter::nearest);
   const int in_y = (int)(gid.y / height_scale);
   const int in_x = (int)(gid.x / width_scale);
-  out.write(in.sample(s, float2(in_x, in_y), gid.z), ushort2(gid.x, gid.y), gid.z);
+  out.write(in.sample(s, float2(in_x, in_y), gid.z), gid.xy, gid.z);
 }
 
 kernel void resize_nearest_nonarray(texture2d<half, access::sample> in[[texture(0)]],
@@ -984,5 +1111,5 @@ kernel void resize_nearest_nonarray(texture2d<half, access::sample> in[[texture(
   constexpr sampler s(coord::pixel, address::clamp_to_edge, filter::nearest);
   const int in_y = (int)(gid.y / height_scale);
   const int in_x = (int)(gid.x / width_scale);
-  out.write(in.sample(s, float2(in_x, in_y)), ushort2(gid.x, gid.y));
+  out.write(in.sample(s, float2(in_x, in_y)), gid.xy);
 }

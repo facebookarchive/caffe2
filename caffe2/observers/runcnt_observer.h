@@ -13,11 +13,12 @@ class RunCountOperatorObserver final : public ObserverBase<OperatorBase> {
   RunCountOperatorObserver(OperatorBase* op, RunCountNetObserver* netObserver);
   ~RunCountOperatorObserver() {}
 
-  std::unique_ptr<ObserverBase<OperatorBase>> clone() override;
+  std::unique_ptr<ObserverBase<OperatorBase>> copy(
+      OperatorBase* subject) override;
 
  private:
-  bool Start() override;
-  bool Stop() override;
+  void Start() override;
+  void Stop() override;
 
  private:
   RunCountNetObserver* netObserver_;
@@ -34,8 +35,8 @@ class RunCountNetObserver final : public ObserverBase<NetBase> {
   friend class RunCountOperatorObserver;
 
  private:
-  bool Start() override;
-  bool Stop() override;
+  void Start() override;
+  void Stop() override;
 
  protected:
   std::atomic<int> cnt_;
