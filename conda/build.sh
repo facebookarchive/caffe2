@@ -28,8 +28,9 @@ echo "Installing caffe2 to ${PREFIX}"
 # Don't let this pollute the build!
 rm -rf build || true
 
-# Default leveldb from conda-forge doesn't work
-pip install leveldb==0.18
+# Default leveldb from conda-forge doesn't work. If you want to use leveldb,
+# use this old pip version
+# pip install leveldb==0.18
 
 PYTHON_ARGS="$(python ./scripts/get_python_cmake_flags.py)"
 CMAKE_ARGS=()
