@@ -4,15 +4,13 @@
 
 [![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
-## Anaconda Install Path
-
 The Mac build works easiest with Anaconda. Always pull the latest from github, so you get any build fixes. See the Troubleshooting section below for tips.
 
-### Required Dependencies
+## Anaconda Install Path
 
 [Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended. Skip this section to find brew/pip install directions if you are not using Anaconda.
 
-This will install caffe2 in your home directory
+The following will install caffe2 in your home directory
 
 ```bash
 git clone https://github.com/caffe2/caffe2.git
