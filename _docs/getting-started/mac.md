@@ -12,9 +12,12 @@ The Mac build works easiest with Anaconda. Always pull the latest from github, s
 
 [Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended. Skip this section to find brew/pip install directions if you are not using Anaconda.
 
-From your caffe2 root, run
+This will install caffe2 in your home directory
 
 ```bash
+git clone https://github.com/caffe2/caffe2.git
+cd ~/caffe2
+git submodule update --init
 conda build conda
 ```
 
