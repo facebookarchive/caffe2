@@ -111,7 +111,8 @@ sudo install_name_tool -change libpython2.7.dylib ~/anaconda/lib/libpython2.7.dy
 ```
 
 ### Protobuf errors
-Protobuf version mismatch is a common problem.
+Protobuf version mismatch is a common problem. Having different protobuf
+versions often leads to incompatible headers and libraries.
 
 Run these commands to see which protbuf is your default (if you are using conda environments, then the current conda environment affects the output of these commands).
 
@@ -136,6 +137,65 @@ pip uninstall protobuf
 conda uninstall -y protobuf
 conda install -y -c conda-forge protobuf
 ```
+
+### General debugging tips
+
+Find things with `find`. On Mac's the conventional name of a library for a package `mypackage` is `libmypackage.a` or `libmypackage.dylib`. `find` accepts wildcards `*` are wildcards that match any string of any length. For example
+
+```bash
+# Find everything associated with protobuf anywhere
+find / -name *protobuf* 2>/dev/null
+
+# Find all protobuf libraries everywhere
+find / -name libprotobuf* 2>/dev/null
+```
+
+Use `which` in combination with the `--version` flag to find out more about executables on your system. For example
+
+```bash
+which python
+python --version
+
+which protoc
+protoc --version
+```
+
+Use `otool -l` on libraries (usually .a or .dylib) to find out what other libraries it needs and where it expects to find them. Libraries are usually installed under `/usr/lib`, or `/usr/local/lib` (for Homebrew), or in various places under your anaconda root directory. You can find where libraries are with the `find` command above. otool example:
+
+```bash
+otool -l <path to libcaffe2.dylib>
+```
+
+This command can output a lot. To diagnose dynamic linking issues, look for `LC_LOAD_DYLIB` commands, they should look something like:
+
+```
+          cmd LC_LOAD_DYLIB
+      cmdsize 80
+         name /usr/local/opt/protobuf@3.1/lib/libprotobuf.11.dylib (offset 24)
+   time stamp 2 Wed Dec 31 16:00:02 1969
+      current version 12.0.0
+compatibility version 12.0.0
+Load command 11
+```
+
+In the example above, this library will look for protobuf in `/usr/local/opt` when it is loaded. In the example below, it will look for `libprotobuf` relative to the `@rpath`, which is set to `@loader_path` (see [dyld](https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/dyld.1.html)).
+
+```
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name @rpath/libprotobuf.14.dylib (offset 24)
+   time stamp 2 Wed Dec 31 16:00:02 1969
+      current version 15.0.0
+compatibility version 15.0.0
+Load command 11
+
+... <output omitted> ...
+
+          cmd LC_RPATH
+      cmdsize 32
+         path @loader_path/ (offset 12)
+```
+
 
 ### Common errors
 
