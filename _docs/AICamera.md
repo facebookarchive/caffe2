@@ -5,7 +5,7 @@ layout: docs
 permalink: /docs/AI-Camera-demo-android.html
 ---
 
-Caffe2 is powering some of the coolest advances in mobile applications, especially for the camera. In this recent announcement of Messenger's updated camera features, many of the effects, including the style transfer can be attributed to Caffe2.
+Caffe2 is powering some of the coolest advances in mobile applications, especially for the camera. In this recent announcement of Facebook's updated camera features, many of the effects, including style transfer can be attributed to Caffe2.
 
 [![Facebook Camera new features video](http://img.youtube.com/vi/SnqzXaXnIDw/0.jpg)](https://youtu.be/SnqzXaXnIDw "Facebook's New Camera")
 
@@ -19,7 +19,7 @@ In this example we are going show very fast object detection that can be used af
 
 ## Image Size
 
-Keep in mind that as part of the processing for Caffe2, images should be square, so that even if the camera takes a 16:9 or other non-square image and passes that into the detection flow, it will need to be cropped to be square. In this example we also resize the image to 224 x 224. You will may notice that it is referred to 224x224x3, the first two being height and width, and the last part (3 for RGB) referring to the colorspace, which brings us to our next very important topic.
+Keep in mind that as part of the processing for Caffe2, images should be square, so that even if the camera takes a 16:9 or other non-square image and passes that into the detection flow, it will need to be resized to be square. In this example we also resize the image to 224 x 224. You will may notice that it is referred to 224x224x3, the first two being height and width, and the last part (3 for RGB) referring to the colorspace, which brings us to our next very important topic.
 
 ## Colorspace
 
@@ -78,9 +78,6 @@ https://github.com/bwasti/AICamera
 
 ```
 git clone https://github.com/bwasti/AICamera.git
-git submodule init && git submodule update
-cd app/libs/caffe2
-git submodule init && git submodule update
 ```
 
 Click the green play button in Android Studio 2.2 and everything should build :)
