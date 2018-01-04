@@ -125,11 +125,8 @@ bool SliceImplGpu(
   // for now only supports slicing in 1 dimension
   int dim = -1;
   for (int i = 0; i < data.ndim(); ++i) {
-    if (starts_idx[i] > 0 || ends_idx[i] < data.dims()[i]) {
-/*      CAFFE_ENFORCE_EQ(
-          dim, -1, "Currently only possible to slice in 1 dimension.");*/
+    if (starts_idx[i] > 0 || ends_idx[i] < data.dims()[i])
       dim = i;
-    }
   }
   if (dim == -1) {
     if (!backward) {
