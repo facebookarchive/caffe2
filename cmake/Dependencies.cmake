@@ -326,13 +326,14 @@ endif()
 if(USE_CUDA)
   include(cmake/Cuda.cmake)
   if(HAVE_CUDA)
-    # CUDA 9.0 requires GCC version <= 6
-    if (CUDA_VERSION VERSION_EQUAL 9.0)
+    # CUDA 9.x requires GCC version <= 6
+    if ((CUDA_VERSION VERSION_EQUAL   9.0) OR
+        (CUDA_VERSION VERSION_GREATER 9.0  AND CUDA_VERSION VERSION_LESS 10.0))
       if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
           NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0 AND
           CUDA_HOST_COMPILER STREQUAL CMAKE_C_COMPILER)
         message(FATAL_ERROR
-          "CUDA 9.0 is not compatible with GCC version >= 7. "
+          "CUDA ${CUDA_VERSION} is not compatible with GCC version >= 7. "
           "Use the following option to use another version (for example): \n"
           "  -DCUDA_HOST_COMPILER=/usr/bin/gcc-6\n")
       endif()
@@ -430,6 +431,16 @@ if(USE_GLOO)
     if(USE_CUDA)
       list(APPEND Caffe2_CUDA_DEPENDENCY_LIBS gloo_cuda)
     endif()
+  endif()
+endif()
+
+# ---[ profiling
+if(USE_PROF)
+  find_package(htrace)
+  if(htrace_FOUND)
+    set(USE_PROF_HTRACE ON)
+  else()
+    message(WARNING "htrace not found. Caffe2 will build without htrace prof")
   endif()
 endif()
 

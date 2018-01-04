@@ -38,6 +38,7 @@ option(USE_NNPACK "Use NNPACK" ON)
 option(USE_OBSERVERS "Use Observer Library" OFF)
 option(USE_OPENCV "Use openCV" ON)
 option(USE_OPENMP "Use OpenMP for parallel code" OFF)
+option(USE_PROF "Use profiling" OFF)
 option(USE_REDIS "Use Redis" OFF)
 option(USE_ROCKSDB "Use RocksDB" ON)
 option(USE_SNPE "Use Qualcomm's SNPE library" OFF)
@@ -144,15 +145,18 @@ endif()
 # Since one would use glog, gflags, and protobuf functionalities, any
 # dependent library will have to depend on glog, gflags, and protobuf
 # as well, so we mark them as INTERFACE transitive dependency.
+# To fix the conda builds, these have been set as dependencies on the full
+# paths to glog, gflags, and protobuf. This may make libcaffe2 no longer
+# relocatable.
 set(CAFFE2_INTERFACE_LIBS)
 if (USE_GLOG)
-  list(APPEND CAFFE2_INTERFACE_LIBS glog)
+  list(APPEND CAFFE2_INTERFACE_LIBS ${GLOG_LIBRARIES})
 endif()
 if (USE_GFLAGS)
-  list(APPEND CAFFE2_INTERFACE_LIBS gflags)
+  list(APPEND CAFFE2_INTERFACE_LIBS ${GFLAGS_LIBRARIES})
 endif()
 if (NOT CAFFE2_USE_CUSTOM_PROTOBUF)
-  list(APPEND CAFFE2_INTERFACE_LIBS protobuf)
+  list(APPEND CAFFE2_INTERFACE_LIBS ${PROTOBUF_LIBRARIES})
 endif()
 
 if ((NOT USE_GLOG) OR (NOT USE_GFLAGS) OR CAFFE2_USE_CUSTOM_PROTOBUF)
@@ -195,4 +199,4 @@ else()
 endif()
 
 # ---[ Modules
-add_subdirectory(modules/module_test)
+add_subdirectory(modules)
