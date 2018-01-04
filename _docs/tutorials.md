@@ -144,7 +144,7 @@ Fantastic idea! Write custom operators and share them with the community! Refer 
 
 To run the tutorials you'll need Python 2.7, [ipython-notebooks](http://jupyter.org/install.html) and [matplotlib](http://matplotlib.org/users/installing.html), which can be installed on with:
 
-#### MacOSx via Brew & pip
+#### Mac OS X via brew & pip
 
 ```bash
 brew install matplotlib
