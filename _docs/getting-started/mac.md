@@ -4,41 +4,33 @@
 
 [![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
 
+## Anaconda Install Path
+
 The Mac build works easiest with Anaconda. Always pull the latest from github, so you get any build fixes. See the Troubleshooting section below for tips.
 
 ### Required Dependencies
 
-[Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended. See below for a brew/pip install path instead of Anaconda.
+[Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended. Skip this section to find brew/pip install directions if you are not using Anaconda.
 
-If your default Anaconda Python is not 2.7, you can install a different version of Python using `conda create --name python2 python=2` (`python2` can be any name you like.)  Subsequently, if you `source activate python2`, your path will be adjusted so that you get `python2`.
-
-[Homebrew](https://brew.sh/). Install Homebrew or use your favorite package manager to install the following dependencies:
+From your caffe2 root, run
 
 ```bash
-brew install \
-automake \
-cmake \
-git \
-glog
+conda build conda
 ```
 
-```
-conda install -y --channel https://conda.anaconda.org/conda-forge  \
-future \
-gflags \
-glog  \
-numpy \
-protobuf=3.1.0 \
-six
-```
+This will build caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/build.sh` and the packages specified in `conda/meta.yaml`. To build caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/build.sh` and run the above command again. 
+
+If your default Anaconda Python is not 2.7, you can install a different version of Python using `conda create --name python2 python=2` (`python2` can be any name you like.)  Subsequently, if you `source activate python2`, your path will be adjusted so that you get `python2`. See [this page](https://conda.io/docs/user-guide/tasks/manage-environments.html) on managing conda environments for more info.
 
 ### Optional GPU Support
 
-In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries.
+In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries. You will have to remove `-DUSE_CUDA=OFF` and `-DUSE_NCCL=OFF` flags from `conda/build.sh`.
 
 ### Optional Dependencies
 
-```
+The following optional dependencies can be installed with the following command, or by adding the libraries to `conda/meta.yaml`.
+
+```bash
 conda install -y \
 --channel https://conda.anaconda.org/conda-forge \
 graphviz \
@@ -50,9 +42,9 @@ unzip \
 zeromq
 ```
 
-### Brew and Pip Install Path
+## Brew and Pip Install Path
 
-Follow these instructions if you want to build Caffe2 without Anaconda. Make sure when you use pip that you're pointing to a specific version of Python or that you're using environments.
+Follow these instructions if you want to build Caffe2 without Anaconda. Make sure when you use pip that you're pointing to a specific version of Python or that you're using environments. You can check which version of pip that you are using with `which pip` and `pip --version`.
 
 ```bash
 brew install \
@@ -97,11 +89,16 @@ cmake -DUSE_CUDA=OFF ..
 sudo make install
 ```
 
-Now test Caffe2:
+## Test the Caffe2 Installation
+Now test Caffe2 by running (in the `caffe2/build` directory)
 
 ```
 python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 ```
+
+If this fails, then get a better error message by running a Python interpreter in the `caffe2/build` directory and then trying `from caffe2.python import core`.
+
+## Troubleshooting
 
 ### Python Configuration
 
@@ -113,7 +110,34 @@ Change to a different folder and test Caffe2 again. If you are using Anaconda or
 sudo install_name_tool -change libpython2.7.dylib ~/anaconda/lib/libpython2.7.dylib /usr/local/caffe2/python/caffe2_pybind11_state.so
 ```
 
-### Troubleshooting
+### Protobuf errors
+Protobuf version mismatch is a common problem.
+
+Run these commands to see which protbuf is your default (if you are using conda environments, then the current conda environment affects the output of these commands).
+
+```bash
+which protoc
+protoc --version
+```
+
+Run these commands to find other protobuf installations that may be causing problems.
+
+```bash
+find /usr -name libprotobuf* 2>/dev/null
+find ~ -name libprotobuf* 2>/dev/null
+```
+Brew installs protobuf into `/usr/local` by default. Anaconda installs protobuf somehwere under the `anaconda` root folder (the command above assumes that you installed Anaconda into your home directory, as is recommended by the Anaconda). 
+
+The easiest way to fix protobuf problems is to uninstall all protobuf versions and then reinstall the one that you want to use. For example, if you want to use the protobuf in Anaconda's conda-forge, you could try
+
+```bash
+brew uninstall protobuf
+pip uninstall protobuf
+conda uninstall -y protobuf
+conda install -y -c conda-forge protobuf
+```
+
+### Common errors
 
 |Python errors
 ----|-----
