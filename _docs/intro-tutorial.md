@@ -62,7 +62,7 @@ We created some random data and random labels and then fed those as blobs into t
 m = model_helper.ModelHelper(name="my first net")
 ```
 
-You've now used the `model_helper` to create the two nets we mentioned earlier (`init_net` and `exec_net`). We plan to add a fully connected layer using the `FC` operator in this model next, but first we need to do some prep work by creating some random fills that the `FC` op expects. Next we can add the ops and use the weights and bias blobs we created, calling them by name when we invoke the `FC` op.
+You've now used the `model_helper` to create the two nets we mentioned earlier (`init_net` and `exec_net`). We plan to add a fully connected layer using the `FC` operator in this model next, but first we need to do prep work by creating randomly filled blobs for weight and bias that the `FC` op expects. We will reference the weights and bias blobs by name as inputs when we add the `FC` op.
 
 ```py
 weight = m.param_init_net.XavierFill([], 'fc_w', shape=[10, 100])
@@ -79,7 +79,7 @@ softmax, loss = m.net.SoftmaxWithLoss([pred, "label"], ["softmax", "loss"])
 
 Reviewing the code blocks above:
 
-First, we created the input data and label blobs in memory (in practice, you would be loading data from a input data source such as database). Note that the data and label blobs have first dimension '16'; this is because the input to the model is a mini batch of 16 samples at a time. Many Caffe2 operators can be accessed directly through `ModelHelper` and can handle a mini batch of input a time. Check [ModelHelper's Operator List](workspace.html#cnnmodelhelper) for more details.
+First, we created the input data and label blobs in memory (in practice, you would be loading data from a input data source such as database). Note that the data and label blobs have first dimension '16'; this is because the input to the model is a mini batch of 16 samples at a time. Many Caffe2 operators can be accessed directly through `ModelHelper` and can handle a mini batch of input at a time.
 
 Second, we create a model by defining a bunch of operators: [`FC`](operators-catalogue.html#fc), [`Sigmoid`](operators-catalogue.html#sigmoidgradient) and [`SoftmaxWithLoss`](operators-catalogue.html#softmaxwithloss). *Note:* at this point, the operators are not executed, you are just creating the definition of the model.
 
@@ -164,7 +164,7 @@ for _ in range(100):
     workspace.RunNet(m.name, 10)   # run for 10 times
 ```
 
-Note how we refer to the network name in `RunNet()`. Since the net was created inside workspace, we don't need to pass the net definition again.
+Note how we just pass `m.name` and not the net definition itself to `RunNet()`. Since the net was created inside workspace, we don't need to pass the definition again.
 
 After execution, you can inspect the results stored in the output blobs (that contain tensors i.e numpy arrays):
 
@@ -174,11 +174,11 @@ print(workspace.FetchBlob("loss"))
 ```
 
 ### Backward pass
-This net only contains the forward pass, thus is not learning anything. The backward pass is created by creating the gradient operators for each operator in the forward pass.
+This net only contains the forward pass, thus it is not learning anything. The backward pass is created by adding the gradient operators for each operator in the forward pass.
 
-If you care to follow this example yourself, then try the following steps an examine the results!
+If you want to try this, add the following steps and examine the results!
 
-Insert following before you call `RunNetOnce()`:
+Insert before you call `RunNetOnce()`:
 
 ```python
 m.AddGradientOperators([loss])
