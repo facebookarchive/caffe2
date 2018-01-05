@@ -2,7 +2,7 @@
 
 ## Install Caffe2 for your development platform
 
-If you want to build Caffe2 for use on Android, first follow the instructions to setup Caffe2 on your Mac platform using the toggler above, and then:
+If you want to build Caffe2 for use on iOS, first follow the instructions to setup Caffe2 on your Mac platform using the toggler above, and then:
 
 > Note Caffe2 for iOS can only be built on a Mac
 
