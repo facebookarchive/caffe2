@@ -8,8 +8,6 @@ You can easily try out Caffe2 by using the Cloud services. Caffe2 is available a
 
 <block class="ubuntu compile" />
 
-[![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
-
 This build is confirmed for:
 
 * Ubuntu 14.04

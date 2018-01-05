@@ -2,8 +2,6 @@
 
 <block class="mac compile" />
 
-[![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
-
 The Mac build works easiest with Anaconda. Always pull the latest from github, so you get any build fixes. See the Troubleshooting section below for tips.
 
 ### Required Dependencies

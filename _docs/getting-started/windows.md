@@ -10,8 +10,6 @@ No binaries available.
 
 <block class="windows compile" />
 
-[![Build Status](https://travis-ci.org/caffe2/caffe2.svg?branch=master)](https://travis-ci.org/caffe2/caffe2)
-
 Windows build is in testing and beta mode. For the easiest route, use the docker images for now in CPU-only mode.
 
 ## Required Dependencies
