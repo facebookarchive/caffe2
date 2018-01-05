@@ -115,7 +115,7 @@ sudo install_name_tool -change libpython2.7.dylib ~/anaconda/lib/libpython2.7.dy
 Protobuf version mismatch is a common problem. Having different protobuf
 versions often leads to incompatible headers and libraries.
 
-Run these commands to see which protbuf is your default (if you are using conda environments, then the current conda environment affects the output of these commands).
+Run these commands to see which protobuf is your default (if you are using conda environments, then the current conda environment affects the output of these commands).
 
 ```bash
 which protoc
@@ -128,7 +128,7 @@ Run these commands to find other protobuf installations that may be causing prob
 find /usr -name libprotobuf* 2>/dev/null
 find ~ -name libprotobuf* 2>/dev/null
 ```
-Brew installs protobuf into `/usr/local` by default. Anaconda installs protobuf somehwere under the `anaconda` root folder (the command above assumes that you installed Anaconda into your home directory, as is recommended by the Anaconda). 
+Brew installs protobuf into `/usr/local` by default. Anaconda installs protobuf somewhere under the `anaconda` root folder (the command above assumes that you installed Anaconda into your home directory, as is recommended by Anaconda). 
 
 The easiest way to fix protobuf problems is to uninstall all protobuf versions and then reinstall the one that you want to use. For example, if you want to use the protobuf in Anaconda's conda-forge, you could try
 
