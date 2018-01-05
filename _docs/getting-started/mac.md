@@ -6,39 +6,32 @@
 
 The Mac build works easiest with Anaconda. Always pull the latest from github, so you get any build fixes. See the Troubleshooting section below for tips.
 
-### Required Dependencies
+## Anaconda Install Path
 
-[Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended. See below for a brew/pip install path instead of Anaconda.
+[Anaconda](https://www.continuum.io/downloads). Python 2.7 version is needed for Caffe2, and Anaconda is recommended. Skip this section to find brew/pip install directions if you are not using Anaconda.
 
-If your default Anaconda Python is not 2.7, you can install a different version of Python using `conda create --name python2 python=2` (`python2` can be any name you like.)  Subsequently, if you `source activate python2`, your path will be adjusted so that you get `python2`.
-
-[Homebrew](https://brew.sh/). Install Homebrew or use your favorite package manager to install the following dependencies:
+The following will install caffe2 in your home directory
 
 ```bash
-brew install \
-automake \
-cmake \
-git \
-glog
+git clone https://github.com/caffe2/caffe2.git
+cd ~/caffe2
+git submodule update --init
+conda build conda
 ```
 
-```
-conda install -y --channel https://conda.anaconda.org/conda-forge  \
-future \
-gflags \
-glog  \
-numpy \
-protobuf=3.1.0 \
-six
-```
+This will build caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/build.sh` and the packages specified in `conda/meta.yaml`. To build caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/build.sh` and run the above command again. 
+
+If your default Anaconda Python is not 2.7, you can install a different version of Python using `conda create --name python2 python=2` (`python2` can be any name you like.)  Subsequently, if you `source activate python2`, your path will be adjusted so that you get `python2`. See [this page](https://conda.io/docs/user-guide/tasks/manage-environments.html) on managing conda environments for more info.
 
 ### Optional GPU Support
 
-In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries.
+In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries. You will have to remove `-DUSE_CUDA=OFF` and `-DUSE_NCCL=OFF` flags from `conda/build.sh`.
 
 ### Optional Dependencies
 
-```
+The following optional dependencies can be installed with the following command, or by adding the libraries to `conda/meta.yaml`.
+
+```bash
 conda install -y \
 --channel https://conda.anaconda.org/conda-forge \
 graphviz \
@@ -50,9 +43,9 @@ unzip \
 zeromq
 ```
 
-### Brew and Pip Install Path
+## Brew and Pip Install Path
 
-Follow these instructions if you want to build Caffe2 without Anaconda. Make sure when you use pip that you're pointing to a specific version of Python or that you're using environments.
+Follow these instructions if you want to build Caffe2 without Anaconda. Make sure when you use pip that you're pointing to a specific version of Python or that you're using environments. You can check which version of pip that you are using with `which pip` and `pip --version`.
 
 ```bash
 brew install \
@@ -97,11 +90,16 @@ cmake -DUSE_CUDA=OFF ..
 sudo make install
 ```
 
-Now test Caffe2:
+## Test the Caffe2 Installation
+Now test Caffe2 by running (in the `caffe2/build` directory)
 
 ```
 python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 ```
+
+If this fails, then get a better error message by running a Python interpreter in the `caffe2/build` directory and then trying `from caffe2.python import core`.
+
+## Troubleshooting
 
 ### Python Configuration
 
@@ -113,7 +111,94 @@ Change to a different folder and test Caffe2 again. If you are using Anaconda or
 sudo install_name_tool -change libpython2.7.dylib ~/anaconda/lib/libpython2.7.dylib /usr/local/caffe2/python/caffe2_pybind11_state.so
 ```
 
-### Troubleshooting
+### Protobuf errors
+Protobuf version mismatch is a common problem. Having different protobuf
+versions often leads to incompatible headers and libraries.
+
+Run these commands to see which protobuf is your default (if you are using conda environments, then the current conda environment affects the output of these commands).
+
+```bash
+which protoc
+protoc --version
+```
+
+Run these commands to find other protobuf installations that may be causing problems.
+
+```bash
+find /usr -name libprotobuf* 2>/dev/null
+find ~ -name libprotobuf* 2>/dev/null
+```
+Brew installs protobuf into `/usr/local` by default. Anaconda installs protobuf somewhere under the `anaconda` root folder (the command above assumes that you installed Anaconda into your home directory, as is recommended by Anaconda). 
+
+The easiest way to fix protobuf problems is to uninstall all protobuf versions and then reinstall the one that you want to use. For example, if you want to use the protobuf in Anaconda's conda-forge, you could try
+
+```bash
+brew uninstall protobuf
+pip uninstall protobuf
+conda uninstall -y protobuf
+conda install -y -c conda-forge protobuf
+```
+
+### General debugging tips
+
+Find things with `find`. On Mac's the conventional name of a library for a package `mypackage` is `libmypackage.a` or `libmypackage.dylib`. `find` accepts wildcards `*` are wildcards that match any string of any length. For example
+
+```bash
+# Find everything associated with protobuf anywhere
+find / -name *protobuf* 2>/dev/null
+
+# Find all protobuf libraries everywhere
+find / -name libprotobuf* 2>/dev/null
+```
+
+Use `which` in combination with the `--version` flag to find out more about executables on your system. For example
+
+```bash
+which python
+python --version
+
+which protoc
+protoc --version
+```
+
+Use `otool -l` on libraries (usually .a or .dylib) to find out what other libraries it needs and where it expects to find them. Libraries are usually installed under `/usr/lib`, or `/usr/local/lib` (for Homebrew), or in various places under your anaconda root directory. You can find where libraries are with the `find` command above. otool example:
+
+```bash
+otool -l <path to libcaffe2.dylib>
+```
+
+This command can output a lot. To diagnose dynamic linking issues, look for `LC_LOAD_DYLIB` commands, they should look something like:
+
+```
+          cmd LC_LOAD_DYLIB
+      cmdsize 80
+         name /usr/local/opt/protobuf@3.1/lib/libprotobuf.11.dylib (offset 24)
+   time stamp 2 Wed Dec 31 16:00:02 1969
+      current version 12.0.0
+compatibility version 12.0.0
+Load command 11
+```
+
+In the example above, this library will look for protobuf in `/usr/local/opt` when it is loaded. In the example below, it will look for `libprotobuf` relative to the `@rpath`, which is set to `@loader_path` (see [dyld](https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/dyld.1.html)).
+
+```
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name @rpath/libprotobuf.14.dylib (offset 24)
+   time stamp 2 Wed Dec 31 16:00:02 1969
+      current version 15.0.0
+compatibility version 15.0.0
+Load command 11
+
+... <output omitted> ...
+
+          cmd LC_RPATH
+      cmdsize 32
+         path @loader_path/ (offset 12)
+```
+
+
+### Common errors
 
 |Python errors
 ----|-----
