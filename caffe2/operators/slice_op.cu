@@ -175,7 +175,7 @@ bool SliceImplGpu(
 	std::vector<int> it(dim);
 	for(int i = 0 ; i < dim ; i++) it[i] = starts_idx[i];
 	while(it[0] < ends_idx[0]) {
-		//计算当前frame的起始位置
+		//get the start postion of current frame
 		size_t src_frame_idx = 0;
 		size_t dst_frame_idx = 0;
 		size_t src_basis = 1;
@@ -186,7 +186,7 @@ bool SliceImplGpu(
 			src_basis *= data.dims()[d];
 			dst_basis *= dst_sizes[d];
 		}
-		//复制当前frame的数据到目标位置
+		//copy the block in current src frame to dst frame
 		char * local_src_offset_bytes = src_bytes + src_frame_idx * src_frame_size_bytes + itemsize * src_offset;
 		char * local_dst_offset_bytes = dst_bytes + dst_frame_idx * dst_frame_size_bytes;
 		SliceCopyKernel<<<
@@ -199,7 +199,7 @@ bool SliceImplGpu(
 				local_dst_offset_bytes,
 				dst_frame_size_bytes,
 				dst_frame_size_bytes);
-		//计算下一个位置
+		//get the index of next frame
 		it[dim - 1]++;
 		for(int i = dim - 1 ; i > 0 && (it[i] >= ends_idx[i]) ; --i) {
 			it[i] = starts_idx[i];
@@ -240,7 +240,7 @@ bool SliceImplGpu(
     std::vector<int> it(dim);
 	for(int i = 0 ; i < dim ; i++) it[i] = starts_idx[i];
 	while(it[0] < ends_idx[0]) {
-		//计算当前frame的起始位置
+		//get the start postion of current frame
 		size_t src_frame_idx = 0;
 		size_t dst_frame_idx = 0;
 		size_t src_basis = 1;
@@ -251,7 +251,7 @@ bool SliceImplGpu(
 			src_basis *= dst_sizes[d];
 			dst_basis *= data.dims()[d];
 		}
-		//复制当前frame的数据到目标位置
+		//copy current srd frame to the block in dst frame
 		char * local_src_offset_bytes = src_bytes + src_frame_idx * src_frame_size_bytes;
 		char * local_dst_offset_bytes = dst_bytes + dst_frame_idx * dst_frame_size_bytes + itemsize * dst_offset;
 		SliceCopyKernel<<<
@@ -264,7 +264,7 @@ bool SliceImplGpu(
 				local_dst_offset_bytes,
 				dst_frame_size_bytes,
 				src_frame_size_bytes);
-		//计算下一个位置
+		//get the index of next frame
 		it[dim - 1]++;
 		for(int i = dim - 1 ; i > 0 && (it[i] >= ends_idx[i]) ; --i) {
 			it[i] = starts_idx[i];
