@@ -15,9 +15,10 @@ git clone https://github.com/caffe2/caffe2.git
 cd ~/caffe2
 git submodule update --init
 conda build conda
+conda install caffe2 --use-local
 ```
 
-This will build caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/build.sh` and the packages specified in `conda/meta.yaml`. To build caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/build.sh` and run the above command again. 
+This will build caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/build.sh` and the packages specified in `conda/meta.yaml`. `conda build` will create a conda package (tarball) on your machine, which `conda install` then installs. To build caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/build.sh` and run the above command again. 
 
 If your default Anaconda Python is not 2.7, you can install a different version of Python using `conda create --name python2 python=2` (`python2` can be any name you like.)  Subsequently, if you `source activate python2`, your path will be adjusted so that you get `python2`. See [this page](https://conda.io/docs/user-guide/tasks/manage-environments.html) on managing conda environments for more info.
 
