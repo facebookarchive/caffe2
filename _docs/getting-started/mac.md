@@ -138,6 +138,8 @@ conda uninstall -y protobuf
 conda install -y -c conda-forge protobuf
 ```
 
+The trickiest part is during the linking of caffe2. Once caffe2 is built and installed, libcaffe2.dylib should point to the protobuf installed by conda (via a @rpath relative to @loader_path), and so should be unaffected by other protobuf versions on your machine. If it's not possible to permanently uninstall other protobuf versions, try temporarily uninstalling other protobuf versions while you make caffe2, and then reinstall them afterwards.
+
 ### General debugging tips
 
 Find things with `find`. On Mac's the conventional name of a library for a package `mypackage` is `libmypackage.a` or `libmypackage.dylib`. `find` accepts wildcards `*` are wildcards that match any string of any length. For example
