@@ -11,7 +11,7 @@ permalink: /docs/tutorials.html
 
 1. [Use a pre-trained neural network off the shelf!](tutorials.html#null__new-to-deep-learning) (Easy)
 2. [Make my own neural network!](tutorials.html#null__intermediate-tutorials) (Intermediate)
-3. [Mobile First! I want to make an app that uses deep learning!](AI-Camera-demo-android) (Advanced)
+3. [Mobile first! I want to make an app that uses deep learning!](AI-Camera-demo-android) (Advanced)
 
 If you chose 1, click the link to where several examples are using pre-trained models and we will show you how to get a demo project up and running in minutes.
 
@@ -43,7 +43,7 @@ These recent academic tutorials cover deep learning for researchers in machine l
 
 ## Tutorials and Example Scripts
 
-The IPython notebook tutorials and example scripts we have provided below will guide you through the Caffe2 Python interface. Some tutorials have been generously provided by the Caffe community and we welcome more contributions of this kind to help others get ramped up more quickly and to try out the many different uses of Caffe2. The iPython notebook tutorials can be browsed or downloaded using the links below each tutorial's title. You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself. However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. [Installation instructions below](http://caffe2.ai/docs/tutorials.html#null__tutorials-installation) will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
+The IPython notebook tutorials and example scripts we have provided below will guide you through the Caffe2 Python interface. Some tutorials have been generously provided by the Caffe community and we welcome more contributions of this kind to help others get ramped up more quickly and to try out the many different uses of Caffe2. The iPython notebook tutorials can be browsed or downloaded using the links below each tutorial's title. You may browse these ipynb files on Github directly and this is the preferred route if you just want to look at the code and try it out for yourself. However, it is recommended to run them in Jupyter Notebook and take advantage of their interactivity. [Installation instructions below](http://caffe2.ai/docs/tutorials.html#tutorials-installation) will show you how to do this. Skip this part if you want to jump right into the tutorial descriptions below.
 
 ### Example Scripts
 
