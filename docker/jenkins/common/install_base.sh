@@ -27,6 +27,7 @@ install_ubuntu() {
           libprotobuf-dev \
           libpthread-stubs0-dev \
           libsnappy-dev \
+          parallel \
           protobuf-compiler \
           sudo
 
@@ -62,6 +63,7 @@ install_centos() {
       lmdb-devel \
       make \
       opencv-devel \
+      parallel \
       protobuf-c-compiler \
       protobuf-c-devel \
       snappy-devel \
