@@ -17,7 +17,7 @@ Get latest source from GitHub.
 #### Ubuntu
 
     sudo apt-get install libprotobuf-dev protobuf-compiler libatlas-base-dev libgoogle-glog-dev libgtest-dev liblmdb-dev libleveldb-dev libsnappy-dev python-dev python-pip libiomp-dev libopencv-dev libpthread-stubs0-dev cmake
-    sudo pip install numpy
+    sudo pip install numpy pybind11
     wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
     sudo dpkg -i cuda-repo-ubuntu1404_8.0.44-1_amd64.deb
     sudo apt-get update
