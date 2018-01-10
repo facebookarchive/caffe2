@@ -19,7 +19,6 @@ requirements:
     - glog
     - numpy
     - six
-    - eigen
     - python
     - protobuf {{ protobuf }}
     - cmake
@@ -32,7 +31,6 @@ requirements:
     - glog
     - numpy
     - six
-    - eigen
     - python
     - protobuf
     - lmdb
