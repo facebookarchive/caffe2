@@ -19,6 +19,12 @@
 
 set -ex
 
+if [ -z "$CONDA_PREFIX" ]; then
+  echo 'When not using `conda build` the variable CONDA_PREFIX must be specified'
+  echo 'i.e. $> CONDA_PREFIX=~/anaconda ./conda/build.sh'
+  exit 1
+fi
+
 if [ -z "$PREFIX" ]; then
   PREFIX="$CONDA_PREFIX"
 fi
@@ -66,5 +72,7 @@ make install/fast
 
 # Python libraries got installed to wrong place, so move them
 # to the right place. See https://github.com/caffe2/caffe2/issues/1015
-echo "Installing Python to $SP_DIR"
-mv $PREFIX/caffe2 $SP_DIR
+if [ -n "$SP_DIR" ]; then
+  echo "Installing Python to $SP_DIR"
+  mv $PREFIX/caffe2 $SP_DIR
+fi
