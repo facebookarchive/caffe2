@@ -265,21 +265,21 @@ endfunction()
 #
 function(caffe2_include_directories)
   foreach(path IN LISTS ARGN)
-    if (${PREFER_ANACONDA})
-      # When prefering Anaconda, always search anaconda for header files before
-      # system include directories
-      if (${path} MATCHES "/anaconda")
-        include_directories(BEFORE ${path})
-      else()
-        include_directories(AFTER ${path})
-      endif()
-    else()
+    if (${DEPRIORITIZE_ANACONDA})
       # When not preferring anaconda, always search system header files before
       # anaconda include directories
       if (${path} MATCHES "/anaconda")
         include_directories(AFTER ${path})
       else()
         include_directories(BEFORE ${path})
+      endif()
+    else()
+      # When prefering Anaconda, always search anaconda for header files before
+      # system include directories
+      if (${path} MATCHES "/anaconda")
+        include_directories(BEFORE ${path})
+      else()
+        include_directories(AFTER ${path})
       endif()
     endif()
   endforeach()

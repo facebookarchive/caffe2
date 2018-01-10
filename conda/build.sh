@@ -49,10 +49,6 @@ CMAKE_ARGS+=("-DUSE_NCCL=OFF")
 CMAKE_ARGS+=("-DCMAKE_INSTALL_PREFIX=$PREFIX")
 CMAKE_ARGS+=("-DCMAKE_PREFIX_PATH=$PREFIX")
 
-# Search Anaconda include directories for header files before searching system
-# directories
-CMAKE_ARGS+=("-DPREFER_ANACONDA=ON")
-
 mkdir -p build
 cd build
 cmake "${CMAKE_ARGS[@]}"  $CONDA_CMAKE_ARGS $PYTHON_ARGS ..
