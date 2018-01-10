@@ -20,6 +20,8 @@
 // still keep it simple, so all platforms would be able to support it fairly
 // easily.
 
+#include <vector>
+
 // We include the cblas header here so that we can obtain the macros from cblas.
 extern "C" {
 #include "caffe2/utils/cblas.h"
@@ -198,6 +200,17 @@ void Maximum(
     T* y,
     Context* context);
 
+// Transpose tensor X with x_dims by axes and write the result to tensor Y with
+// y_dims.
+template <typename T, class Context>
+void Transpose(
+    const std::vector<TIndex>& x_dims,
+    const std::vector<TIndex>& y_dims,
+    const std::vector<int>& axes,
+    const T* X,
+    T* Y,
+    Context* context);
+
 // Decaf gemm provides a simpler interface to the gemm functions, with the
 // limitation that the data has to be contiguous in memory.
 template <typename T, class Context, class Engine = DefaultEngine>
@@ -239,7 +252,10 @@ template <typename T, class Context, class Engine = DefaultEngine>
 void GemmBatched(
     const CBLAS_TRANSPOSE TransA,
     const CBLAS_TRANSPOSE TransB,
-    const int batch_size,
+    const int A_size,
+    const int A_batches,
+    const int B_size,
+    const int B_batches,
     const int M,
     const int N,
     const int K,
