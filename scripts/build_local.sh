@@ -22,7 +22,7 @@ fi
 
 # Use special install script with Anaconda
 if [ -n "${USE_ANACONDA}" ]; then
-  CONDA_CMAKE_ARGS=CMAKE_ARGS conda build "$CAFFE2_ROOT/conda"
+  CONDA_CMAKE_ARGS="${CMAKE_ARGS}" conda build "$CAFFE2_ROOT/conda"
 else
   # Build protobuf compiler from third_party if configured to do so
   if [ -n "${USE_HOST_PROTOC:-}" ]; then
