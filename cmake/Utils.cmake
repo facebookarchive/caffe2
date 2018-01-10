@@ -255,7 +255,8 @@ endfunction()
 # of those can conflict with headers/libraries that must be sourced
 # from elsewhere. This helper ensures that Anaconda paths are always
 # added AFTER other include paths, such that it does not accidentally
-# takes precedence when it shouldn't.
+# takes precedence when it shouldn't, unless the user specifies that
+# want to use Anaconda headers.
 #
 # This is just a heuristic and does not have any guarantees. We can
 # add other corner cases here (as long as they are generic enough).
@@ -264,10 +265,22 @@ endfunction()
 #
 function(caffe2_include_directories)
   foreach(path IN LISTS ARGN)
-    if (${path} MATCHES "/anaconda")
-      include_directories(AFTER SYSTEM ${path})
+    if (${PREFER_ANACONDA})
+      # When prefering Anaconda, always search anaconda for header files before
+      # system include directories
+      if (${path} MATCHES "/anaconda")
+        include_directories(BEFORE ${path})
+      else()
+        include_directories(AFTER ${path})
+      endif()
     else()
-      include_directories(BEFORE SYSTEM ${path})
+      # When not preferring anaconda, always search system header files before
+      # anaconda include directories
+      if (${path} MATCHES "/anaconda")
+        include_directories(AFTER ${path})
+      else()
+        include_directories(BEFORE ${path})
+      endif()
     endif()
   endforeach()
 endfunction()
