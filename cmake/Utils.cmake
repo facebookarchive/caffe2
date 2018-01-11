@@ -254,9 +254,10 @@ endfunction()
 # Anaconda distributions typically contain a lot of packages and some
 # of those can conflict with headers/libraries that must be sourced
 # from elsewhere. This helper ensures that Anaconda paths are always
-# added AFTER other include paths, such that it does not accidentally
-# takes precedence when it shouldn't, unless the user specifies that
-# want to use Anaconda headers.
+# added BEFORE other include paths. This prevents a common case where
+# libraries and binaries are linked from Anaconda but headers are
+# included from system packages, since system include directories come
+# before Anaconda include directories by default. 
 #
 # This is just a heuristic and does not have any guarantees. We can
 # add other corner cases here (as long as they are generic enough).
