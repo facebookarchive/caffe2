@@ -2,11 +2,11 @@
 
 <block class="mac compile" />
 
-The Mac build works easiest with Anaconda. Always pull the latest from github, so you get any build fixes. See the Troubleshooting section below for tips.
+There are three ways to install on Mac, with [Anaconda and conda](#anaconda-install-path), with [Anaconda but custom make commands](#custom-anaconda-install), or [without Anaconda](#brew-and-pip-install-path). Always pull the latest from github, so you get any build fixes. See the [Troubleshooting](#troubleshooting) section below for tips.
 
 ## Anaconda Install Path
 
-[Anaconda](https://www.continuum.io/downloads) is the recommended install route. Skip this section to find brew/pip install directions if you are not using Anaconda. The following commands will install caffe2 similarly to how `conda install caffe2` would; it will install a caffe2 library wherever your other conda packages are installed.
+[Anaconda](https://www.continuum.io/downloads) is the recommended install route.  The following commands will install caffe2 similarly to how `conda install caffe2` would; it will install a caffe2 library wherever your other conda packages are installed.
 
 ```bash
 git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
@@ -14,7 +14,7 @@ conda build conda
 conda install caffe2 --use-local
 ```
 
-This will build caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/build.sh` and the packages specified in `conda/meta.yaml`. `conda build` will create a conda package (tarball) on your machine, which `conda install` then installs a caffe2 library into the current conda environment. To build caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/build.sh` and run the build and install commands again. 
+This will build caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/build.sh` and the packages specified in `conda/meta.yaml`. `conda build` will create a conda package (tarball) on your machine, which `conda install` then installs a caffe2 library into the current conda environment. To build caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/build.sh` and run the build and install commands again. Note that this will create a new ephemeral conda environment on every build, so it'll be slower than the [Custom Anaconda Installation](#custom-anaconda-install) approach below.
 
 Anaconda recommends using [conda environments](https://conda.io/docs/user-guide/tasks/manage-environments.html). For example, you can build caffe2 in a python2 environment with
 
@@ -37,7 +37,7 @@ source deactivate
 
 In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries. You will have to remove `-DUSE_CUDA=OFF` and `-DUSE_NCCL=OFF` flags from `conda/build.sh`.
 
-### Custom Anaconda Install
+## Custom Anaconda Install
 
 If you plan to change the source code of caffe2 frequently and don't want to wait for a full conda build and install cycle, you may want to bypass conda and call cmake manually. The following commands will build caffe2 in a directory called `build` under your caffe2 root and install caffe2 in a conda env. In this example Anaconda is installed in `~/anaconda2`.
 
