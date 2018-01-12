@@ -61,11 +61,19 @@ conda install -y \
 # (Optional) these packages are needed for some of the ipython jupyter notebook
 # tutorials, but not for base caffe2
 conda install -y --channel https://conda.anaconda.org/conda-forge \
+    flask \
     graphviz \
     hypothesis \
+    jupyter \
     leveldb \
     lmdb \
+    matplotlib \
+    pydot \
+    pyyaml \
     requests \
+    scikit-image \
+    scipy \
+    tornado \
     unzip \
     zeromq
 

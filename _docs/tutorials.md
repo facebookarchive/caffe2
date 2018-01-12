@@ -171,20 +171,22 @@ pip install scikit-image
 
 Hit it with a hammer you say? Ok, here's a full list for your installation pleasure, and note that you'll want them installed with Python, and in some cases C++ or at the system level, so you might `brew install` as well as `pip install` or `conda install` them:
 
-flask
-graphviz
-hypothesis
-jupyter
-leveldb
-lmdb
-matplotlib
-pydot
-pyyaml
-requests
-scikit-image
-scipy
-tornado
+```bash
+flask \
+graphviz \
+hypothesis \
+jupyter \
+leveldb \
+lmdb \
+matplotlib \
+pydot \
+pyyaml \
+requests \
+scikit-image \
+scipy \
+tornado \
 zeromq
+```
 
 Instructions on how to setup Jupyter Notebook, which is the latest, greatest way to use and create interactive code notebooks (ipynb files) is found at [http://jupyter.org](http://jupyter.org/install.html).
 
