@@ -27,17 +27,31 @@ requirements:
     - mkl-include
     - mkl
   run:
+    - flask
     - future
     - glog
-    - numpy
-    - six
-    - python
-    - protobuf
+    - graphviz
+    - hypothesis
+    - jupyter
+    - leveldb
     - lmdb
-    - snappy ==1.1.6
-    - future
-    - mkl-include
+    - matplotlib
     - mkl
+    - mkl-include
+    - numpy
+    - protobuf
+    - pydot
+    - python
+    - pyyaml
+    - requests
+    - scikit-image
+    - scipy
+    - six
+    - snappy ==1.1.6
+    - tornado
+    - unzip
+    - zeromq
+    - future
 
 test:
   imports:
