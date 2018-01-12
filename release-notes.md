@@ -93,12 +93,10 @@ sudo pip install \
       jupyter \
       matplotlib \
       pydot python-nvd3 \
-      pyyaml \
       requests \
       scikit-image \
       scipy \
-      setuptools \
-      tornado
+      setuptools
 ```
 
 ### Clone & Build
