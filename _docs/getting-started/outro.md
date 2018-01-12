@@ -80,20 +80,3 @@ There are also various Python libraries that will be valuable in your experience
 [setuptools](https://pypi.python.org/pypi/setuptools) |
 [Tornado](http://www.tornadoweb.org/en/stable/) |
 [ZeroMQ](http://zeromq.org/) |
-
-
-| What's in Third Party?
-----|-----
-Whether building from source or installing from the Python wheel, you also get complimentary tools installed as well. |
-[Android cmake](https://github.com/taka-no-me/android-cmake) |
-[benchmark](https://github.com/google/benchmark) |
-[cnmem](https://github.com/NVIDIA/cnmem) |
-[cub](http://nvlabs.github.io/cub/) |
-[eigen](http://eigen.tuxfamily.org/) |
-[googletest](https://github.com/google/googletest) |
-[ios-cmake](https://github.com/cristeab/ios-cmake) |
-[nccl](https://github.com/NVIDIA/nccl) |
-[nervanagpu](https://github.com/NervanaSystems/nervanagpu) |
-[NNPACK](https://github.com/Maratyszcza/NNPACK) | requires ninja and confu to build
-[Google Protocol Buffers (protobuf)](https://developers.google.com/protocol-buffers/) |
-[pybind11](https://github.com/pybind/pybind11) |
