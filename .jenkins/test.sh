@@ -79,18 +79,23 @@ if [[ "$BUILD_ENVIRONMENT" == *-cuda* ]]; then
   EXTRA_TESTS+=(caffe2/contrib/nccl)
 fi
 
+
+# Get the relative path to where the caffe2 python module was installed
+SITE_DIR=$($PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
+CAFFE2_PYPATH="$SITE_DIR/caffe2"
+
 # Python tests
 echo "Running Python tests.."
 "$PYTHON" \
   -m pytest \
   -v \
   --junit-xml="$TEST_DIR"/python/result.xml \
-  --ignore caffe2/python/test/executor_test.py \
-  --ignore caffe2/python/operator_test/matmul_op_test.py \
-  --ignore caffe2/python/operator_test/pack_ops_test.py \
-  --ignore caffe2/python/operator_test/rnn_cell_test.py \
-  --ignore caffe2/python/mkl/mkl_sbn_speed_test.py \
-  caffe2/python/ \
+  --ignore $CAFFE2_PYPATH/python/test/executor_test.py \
+  --ignore $CAFFE2_PYPATH/python/operator_test/matmul_op_test.py \
+  --ignore $CAFFE2_PYPATH/python/operator_test/pack_ops_test.py \
+  --ignore $CAFFE2_PYPATH/python/operator_test/rnn_cell_test.py \
+  --ignore $CAFFE2_PYPATH/python/mkl/mkl_sbn_speed_test.py \
+  $CAFFE2_PYPATH/python \
   ${EXTRA_TESTS[@]}
 
 tmp_exit_code="$?"
