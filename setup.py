@@ -98,11 +98,11 @@ class build_ext(setuptools.command.build_ext.build_ext):
     ]
 
     def initialize_options(self):
-        super(build_ext, self).initialize_options()
+        setuptools.command.build_ext.build_ext.initialize_options(self)
         self.jobs = None
 
     def finalize_options(self):
-        super(build_ext, self).finalize_options()
+        setuptools.command.build_ext.build_ext.finalize_options(self)
         # Check for the -j argument to make with a specific number of cpus
         try:
             self.jobs = int(self.jobs)
