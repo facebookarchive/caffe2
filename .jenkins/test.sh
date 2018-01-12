@@ -11,7 +11,6 @@ if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   exit 0
 fi
 
-export PYTHONPATH="${PYTHONPATH}:/usr/local/caffe2"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/caffe2/lib"
 
 exit_code=0
@@ -79,9 +78,11 @@ if [[ "$BUILD_ENVIRONMENT" == *-cuda* ]]; then
   EXTRA_TESTS+=(caffe2/contrib/nccl)
 fi
 
+# Add the site-packages in the caffe2 install prefix to the PYTHONPATH
+SITE_DIR=$($PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
+export PYTHONPATH="${PYTHONPATH}:/usr/local/caffe2/$SITE_DIR"
 
 # Get the relative path to where the caffe2 python module was installed
-SITE_DIR=$($PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
 CAFFE2_PYPATH="$SITE_DIR/caffe2"
 
 # Python tests
