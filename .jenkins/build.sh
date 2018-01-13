@@ -23,10 +23,6 @@ if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   exit 0
 fi
 
-# Run cmake from ./build directory
-mkdir -p ./build
-cd ./build
-
 INSTALL_PREFIX="/usr/local/caffe2"
 CMAKE_ARGS=("-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}")
 
@@ -40,6 +36,9 @@ fi
 
 case "${BUILD_ENVIRONMENT}" in
   *-mkl)
+    CMAKE_ARGS+=("-DBLAS=MKL")
+    ;;
+  *-conda)
     CMAKE_ARGS+=("-DBLAS=MKL")
     ;;
   *-cuda*)
@@ -68,15 +67,30 @@ if [ "$(uname)" == "Linux" ]; then
   CMAKE_ARGS+=("-DUSE_REDIS=ON")
 fi
 
-# Configure
-cmake "${ROOT_DIR}" ${CMAKE_ARGS[*]} "$@"
-
-# Build
-if [ "$(uname)" == "Linux" ]; then
-  make "-j$(nproc)" install
+if [[ "${BUILD_ENVIRONMENT}" == conda ]]; then
+  # Anaconda builds use conda
+  if [[ "${BUILD_ENVIRONMENT}" == py2* ]]; then
+    conda build conda
+  else
+    # The major AND minor version must match here
+    conda build conda --python 3.6
+  fi
+  conda install caffe2 --use-local
 else
-  echo "Don't know how to build on $(uname)"
-  exit 1
+  # Run cmake from ./build directory
+  mkdir -p ./build
+  cd ./build
+
+  # Configure
+  cmake "${ROOT_DIR}" ${CMAKE_ARGS[*]} "$@"
+
+  # Build
+  if [ "$(uname)" == "Linux" ]; then
+    make "-j$(nproc)" install
+  else
+    echo "Don't know how to build on $(uname)"
+    exit 1
+  fi
 fi
 
 # Symlink the caffe2 base python path into the system python path,
