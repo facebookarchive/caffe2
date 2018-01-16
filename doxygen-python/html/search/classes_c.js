@@ -1,13 +1,19 @@
 var searchData=
 [
   ['maptorange',['MapToRange',['../classlayers_1_1build__index_1_1MapToRange.html',1,'layers::build_index']]],
+  ['marginrankloss',['MarginRankLoss',['../classlayers_1_1margin__rank__loss_1_1MarginRankLoss.html',1,'layers::margin_rank_loss']]],
   ['markdown',['Markdown',['../classformatter_1_1Markdown.html',1,'formatter']]],
+  ['mergeidlists',['MergeIdLists',['../classlayers_1_1merge__id__lists_1_1MergeIdLists.html',1,'layers::merge_id_lists']]],
   ['metadata',['Metadata',['../classschema_1_1Metadata.html',1,'schema']]],
+  ['metrics',['Metrics',['../classparallel__workers_1_1Metrics.html',1,'parallel_workers']]],
   ['milstmcell',['MILSTMCell',['../classrnn__cell_1_1MILSTMCell.html',1,'rnn_cell']]],
   ['milstmwithattentioncell',['MILSTMWithAttentionCell',['../classrnn__cell_1_1MILSTMWithAttentionCell.html',1,'rnn_cell']]],
   ['modelhelper',['ModelHelper',['../classmodel__helper_1_1ModelHelper.html',1,'model_helper']]],
   ['modellayer',['ModelLayer',['../classlayers_1_1layers_1_1ModelLayer.html',1,'layers::layers']]],
   ['modeltrainerlog',['ModelTrainerLog',['../classexperiment__util_1_1ModelTrainerLog.html',1,'experiment_util']]],
+  ['modifiercontext',['ModifierContext',['../classmodifier__context_1_1ModifierContext.html',1,'modifier_context']]],
   ['multinodecheckpointmanager',['MultiNodeCheckpointManager',['../classcheckpoint_1_1MultiNodeCheckpointManager.html',1,'checkpoint']]],
-  ['multirnncell',['MultiRNNCell',['../classrnn__cell_1_1MultiRNNCell.html',1,'rnn_cell']]]
+  ['multiprecisionsgdoptimizer',['MultiPrecisionSgdOptimizer',['../classoptimizer_1_1MultiPrecisionSgdOptimizer.html',1,'optimizer']]],
+  ['multirnncell',['MultiRNNCell',['../classrnn__cell_1_1MultiRNNCell.html',1,'rnn_cell']]],
+  ['multirnncellinitializer',['MultiRNNCellInitializer',['../classrnn__cell_1_1MultiRNNCellInitializer.html',1,'rnn_cell']]]
 ];

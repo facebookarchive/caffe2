@@ -1,8 +1,10 @@
 var searchData=
 [
+  ['make_5funique_5fblob_5fname',['make_unique_blob_name',['../classoptimizer_1_1Optimizer.html#a2067b3e3d8ba09fa0acd97174c798a85',1,'optimizer::Optimizer']]],
   ['makeargument',['MakeArgument',['../namespaceutils.html#a54827e92761df13925288ce6f262dde0',1,'utils']]],
   ['map',['Map',['../namespaceschema.html#a68f09235cee356f4148efb0bdd02bf37',1,'schema']]],
   ['maptorange',['MapToRange',['../classlayers_1_1build__index_1_1MapToRange.html',1,'layers::build_index']]],
+  ['marginrankloss',['MarginRankLoss',['../classlayers_1_1margin__rank__loss_1_1MarginRankLoss.html',1,'layers::margin_rank_loss']]],
   ['markdown',['Markdown',['../classformatter_1_1Markdown.html',1,'formatter']]],
   ['masknallocate',['maskNallocate',['../namespaceSparseTransformer.html#ae644ca926619d1d661a3c9efdd2b009c',1,'SparseTransformer']]],
   ['matrix_5fto_5ftt',['matrix_to_tt',['../namespacett__core.html#a68c3765d2b23c995d3711f4f4ffbeda8',1,'tt_core']]],
@@ -10,17 +12,23 @@ var searchData=
   ['max_5fpool_5fwith_5findex',['max_pool_with_index',['../namespacepooling.html#a368ffcd25f52f15a8dc2fde6cae997f2',1,'pooling']]],
   ['memonger',['memonger',['../namespacememonger.html',1,'']]],
   ['mergeconditionnets',['MergeConditionNets',['../namespacecontrol.html#a20875d154e701fd14edb35191ab8a3b6',1,'control']]],
+  ['mergeidlists',['MergeIdLists',['../classlayers_1_1merge__id__lists_1_1MergeIdLists.html',1,'layers::merge_id_lists']]],
   ['metadata',['Metadata',['../classschema_1_1Metadata.html',1,'schema']]],
+  ['metrics',['Metrics',['../classparallel__workers_1_1Metrics.html',1,'parallel_workers']]],
   ['metrics_5fschema',['metrics_schema',['../classlayer__model__helper_1_1LayerModelHelper.html#adb3051e367d0c10992071b3bff003bbf',1,'layer_model_helper::LayerModelHelper']]],
   ['milstmcell',['MILSTMCell',['../classrnn__cell_1_1MILSTMCell.html',1,'rnn_cell']]],
   ['milstmwithattentioncell',['MILSTMWithAttentionCell',['../classrnn__cell_1_1MILSTMWithAttentionCell.html',1,'rnn_cell']]],
   ['mkl_5ftest_5futil',['mkl_test_util',['../namespacemkl__test__util.html',1,'']]],
+  ['mobile_5fexporter',['mobile_exporter',['../namespacemobile__exporter.html',1,'']]],
   ['model_5fhelper',['model_helper',['../namespacemodel__helper.html',1,'']]],
   ['model_5fhelper_5fapi',['model_helper_api',['../namespacemodel__helper__api.html',1,'']]],
   ['modelhelper',['ModelHelper',['../classmodel__helper_1_1ModelHelper.html',1,'model_helper']]],
   ['modellayer',['ModelLayer',['../classlayers_1_1layers_1_1ModelLayer.html',1,'layers::layers']]],
   ['modeltrainerlog',['ModelTrainerLog',['../classexperiment__util_1_1ModelTrainerLog.html',1,'experiment_util']]],
+  ['modifiercontext',['ModifierContext',['../classmodifier__context_1_1ModifierContext.html',1,'modifier_context']]],
   ['muji',['muji',['../namespacemuji.html',1,'']]],
   ['multinodecheckpointmanager',['MultiNodeCheckpointManager',['../classcheckpoint_1_1MultiNodeCheckpointManager.html',1,'checkpoint']]],
-  ['multirnncell',['MultiRNNCell',['../classrnn__cell_1_1MultiRNNCell.html',1,'rnn_cell']]]
+  ['multiprecisionsgdoptimizer',['MultiPrecisionSgdOptimizer',['../classoptimizer_1_1MultiPrecisionSgdOptimizer.html',1,'optimizer']]],
+  ['multirnncell',['MultiRNNCell',['../classrnn__cell_1_1MultiRNNCell.html',1,'rnn_cell']]],
+  ['multirnncellinitializer',['MultiRNNCellInitializer',['../classrnn__cell_1_1MultiRNNCellInitializer.html',1,'rnn_cell']]]
 ];
