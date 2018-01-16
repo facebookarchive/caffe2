@@ -1,5 +1,6 @@
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
+# uncomment following two lines if you use custom build protobuf
+# find_package(Protobuf REQUIRED)
+# include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 file(GLOB Caffe2_PROTOBUF_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.proto")
 
