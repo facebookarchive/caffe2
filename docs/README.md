@@ -22,8 +22,7 @@ git clone https://github.com/caffe2/caffe2.git c2docs && cd c2docs && git checko
 To update the operator catalog, a script must be run on the master branch and copied to your docs checkout. To trigger this use:
 
 1. `cd ~/c2master`
-2. `cd caffe2/python/docs/`
-3. `python github.py > ~/c2docs/_docs/operators-catalogue.md`
+2. `python caffe2/python/docs/github.py ~/c2docs/_docs/operators-catalogue.md`
 
 ## Generating API Docs with Doxygen
 
