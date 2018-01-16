@@ -52,7 +52,7 @@ endfunction()
 # They are available in CMake 2.8.12 and later.
 #
 if (WIN32)
-  find_package(Protobuf NO_MODULE)
+  find_package(Protobuf REQUIRED)
 elseif (ANDROID OR IOS)
   custom_protobuf_find()
   # Unfortunately, new protobuf does not support libprotoc and protoc

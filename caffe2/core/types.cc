@@ -95,10 +95,10 @@ const TypeMeta& DataTypeToTypeMeta(const TensorProto::DataType& dt) {
   return it->second;
 }
 
-// Helpers to avoid using typeinfo with -rtti
-template <>
-bool fp16_type<float16>() {
-  return true;
-}
+//// Helpers to avoid using typeinfo with -rtti
+//template <>
+//bool fp16_type<float16>() {
+//  return true;
+//}
 
 }  // namespace caffe2

@@ -153,11 +153,11 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
               desc_,
               cudnnTypeWrapper<T>::type,
               N,
-#if CUDNN_VERSION_MIN(7,0,0)
+//#if CUDNN_VERSION_MIN(7,0,0)
               C,
-#else
-              C / group_,
-#endif
+//#else
+//              C / group_,
+//#endif
               H,
               W,
               H * W * C,
@@ -184,11 +184,11 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
               desc_,
               cudnnTypeWrapper<T>::type,
               N,
-#if CUDNN_VERSION_MIN(7,0,0)
+//#if CUDNN_VERSION_MIN(7,0,0)
               C,
-#else
-              C / group_,
-#endif
+//#else
+//              C / group_,
+//#endif
               H,
               W,
               C * H * W,
@@ -369,11 +369,11 @@ bool CudnnConvOp::DoRunWithType() {
             filter_desc_,
             cudnnTypeWrapper<T_W>::type,
             GetCudnnTensorFormat(order_),
-#if CUDNN_VERSION_MIN(7,0,0)
+//#if CUDNN_VERSION_MIN(7,0,0)
             M,
-#else
-            M / group_,
-#endif
+//#else
+//            M / group_,
+//#endif
             C / group_,
             kernel_h(),
             kernel_w()));
@@ -733,11 +733,11 @@ bool CudnnConvGradientOp::DoRunWithType() {
             filter_desc_,
             cudnnTypeWrapper<T_W>::type,
             GetCudnnTensorFormat(order_),
-#if CUDNN_VERSION_MIN(7,0,0)
+//#if CUDNN_VERSION_MIN(7,0,0)
             M,
-#else
-            M / group_,
-#endif
+//#else
+//            M / group_,
+//#endif
             C / group_,
             kernel_h(),
             kernel_w()));

@@ -1,4 +1,5 @@
-# find_package(Protobuf REQUIRED)
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 file(GLOB Caffe_PROTOBUF_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.proto")
 

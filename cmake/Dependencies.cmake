@@ -5,6 +5,8 @@ set(Caffe2_PYTHON_DEPENDENCY_LIBS "")
 set(Caffe2_EXTERNAL_DEPENDENCIES "")
 
 # ---[ Custom Protobuf
+# find_package(Protobuf REQUIRED)
+# include_directories(${PROTOBUF_INCLUDE_DIRS})
 include("cmake/ProtoBuf.cmake")
 
 # ---[ Threads
