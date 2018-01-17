@@ -70,7 +70,7 @@ mkdir build && cd build
 # Add flags to this command to control which packages you want to use. The
 # options to use are at the top of CMakeLists.txt in the topmost Caffe2
 # directory
-cmake -DUSE_CUDA=OFF -DCMAKE_PREFIX_PATH=~/anaconda2/envs/my_caffe2_env -DCMAKE_INSTALL_PREFIX=~/anaconda2/envs/my_caffe2_env ..
+cmake -DUSE_CUDA=OFF -DUSE_LEVELDB=OFF -DCMAKE_PREFIX_PATH=~/anaconda2/envs/my_caffe2_env -DCMAKE_INSTALL_PREFIX=~/anaconda2/envs/my_caffe2_env ..
 sudo make install
 ```
 
