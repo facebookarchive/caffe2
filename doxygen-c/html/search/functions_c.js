@@ -1,7 +1,10 @@
 var searchData=
 [
-  ['make',['Make',['../classcaffe2_1_1TypeMeta.html#a883a496f664bb647722739b4b751b19f',1,'caffe2::TypeMeta']]],
+  ['make',['Make',['../classcaffe2_1_1TypeMeta.html#a2acbe49fa3c19f9d49d4431a9d0d4fd2',1,'caffe2::TypeMeta']]],
+  ['makeguard',['MakeGuard',['../namespacecaffe2.html#a12ebf399716fbf0ba249317657150790',1,'caffe2']]],
+  ['matcharguments',['MatchArguments',['../namespacecaffe2.html#a31b9693edd3666311a6d33e4418d7303',1,'caffe2']]],
   ['matchgradstoparams',['MatchGradsToParams',['../classcaffe2_1_1GradientMakerBase.html#aee76543ce1ca853f02e884d0716d3a92',1,'caffe2::GradientMakerBase']]],
+  ['matchstrings',['MatchStrings',['../namespacecaffe2.html#ae0b7e581ccd292b6b16296966cfbd7ff',1,'caffe2']]],
   ['maxoutputdimension',['maxOutputDimension',['../classcaffe2_1_1Params.html#a82ef9221f606209e318b3bffcd67205f',1,'caffe2::Params']]],
   ['maxoutputframes',['maxOutputFrames',['../classcaffe2_1_1Params.html#a01ab0b3066e11fab2faedaf999f0accf',1,'caffe2::Params']]],
   ['meta',['meta',['../classcaffe2_1_1Blob.html#a0be60fcbeb701c6dd3c3bfa7e3b03ce3',1,'caffe2::Blob::meta()'],['../classcaffe2_1_1Tensor.html#a5c8e05e982bbefa1dd7e438415574c8f',1,'caffe2::Tensor::meta()']]],

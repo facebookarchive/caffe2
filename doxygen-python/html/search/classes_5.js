@@ -1,6 +1,7 @@
 var searchData=
 [
   ['executionstep',['ExecutionStep',['../classcore_1_1ExecutionStep.html',1,'core']]],
-  ['expanddims',['ExpandDims',['../classlayers_1_1expand__dims_1_1ExpandDims.html',1,'layers::expand_dims']]],
+  ['executortestbase',['ExecutorTestBase',['../classexecutor__test__util_1_1ExecutorTestBase.html',1,'executor_test_util']]],
+  ['externalinitializer',['ExternalInitializer',['../classinitializers_1_1ExternalInitializer.html',1,'initializers']]],
   ['externallogger',['ExternalLogger',['../classexperiment__util_1_1ExternalLogger.html',1,'experiment_util']]]
 ];

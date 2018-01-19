@@ -9,5 +9,6 @@ var searchData=
   ['testcase',['TestCase',['../classtest__util_1_1TestCase.html',1,'test_util']]],
   ['text',['Text',['../classnet__printer_1_1Text.html',1,'net_printer']]],
   ['textfilereader',['TextFileReader',['../classtext__file__reader_1_1TextFileReader.html',1,'text_file_reader']]],
-  ['translatorregistry',['TranslatorRegistry',['../classcaffe__translator_1_1TranslatorRegistry.html',1,'caffe_translator']]]
+  ['translatorregistry',['TranslatorRegistry',['../classcaffe__translator_1_1TranslatorRegistry.html',1,'caffe_translator']]],
+  ['trie',['Trie',['../classbinarysize_1_1Trie.html',1,'binarysize']]]
 ];

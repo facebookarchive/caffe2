@@ -1,6 +1,6 @@
 var searchData=
 [
   ['optimizer',['optimizer',['../namespaceoptimizer.html',1,'']]],
-  ['optimizer_5ftest_5futil',['optimizer_test_util',['../namespaceoptimizer__test__util.html',1,'']]],
-  ['optimizers',['optimizers',['../namespaceoptimizers.html',1,'']]]
+  ['optimizer_5fcontext',['optimizer_context',['../namespaceoptimizer__context.html',1,'']]],
+  ['optimizer_5ftest_5futil',['optimizer_test_util',['../namespaceoptimizer__test__util.html',1,'']]]
 ];

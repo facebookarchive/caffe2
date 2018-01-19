@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['make_5funique_5fblob_5fname',['make_unique_blob_name',['../classoptimizer_1_1Optimizer.html#a2067b3e3d8ba09fa0acd97174c798a85',1,'optimizer::Optimizer']]],
   ['makeargument',['MakeArgument',['../namespaceutils.html#a54827e92761df13925288ce6f262dde0',1,'utils']]],
   ['map',['Map',['../namespaceschema.html#a68f09235cee356f4148efb0bdd02bf37',1,'schema']]],
   ['masknallocate',['maskNallocate',['../namespaceSparseTransformer.html#ae644ca926619d1d661a3c9efdd2b009c',1,'SparseTransformer']]],

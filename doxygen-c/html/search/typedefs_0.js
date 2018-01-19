@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['exportedstatlist',['ExportedStatList',['../namespacecaffe2.html#a8eb1578901c4027246db0d3e46305c7f',1,'caffe2']]]
+  ['costinferencefunctiontype',['CostInferenceFunctionType',['../classcaffe2_1_1OpSchema.html#a23a13dd72c0a1d2157969888ed85970f',1,'caffe2::OpSchema']]]
 ];

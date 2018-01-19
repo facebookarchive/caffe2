@@ -1,11 +1,12 @@
 var searchData=
 [
   ['fc',['FC',['../classlayers_1_1fc_1_1FC.html',1,'layers.fc.FC'],['../namespacefc.html',1,'fc']]],
-  ['fc_5fdecomp',['fc_decomp',['../namespacefc.html#a25a862ee676a2e191d5c00e3ebe8c4be',1,'fc']]],
+  ['fc_5fdecomp',['fc_decomp',['../namespacefc.html#a43d1bce98780f318b92af0bf0c6f0233',1,'fc']]],
   ['fc_5fprune',['fc_prune',['../namespacefc.html#a89ad981a562cad9e1fe407edafa01960',1,'fc']]],
   ['fc_5fsparse',['fc_sparse',['../namespacefc.html#aa7daf22970cb4df8dbf2b43702687196',1,'fc']]],
   ['fc_5fwithout_5fbias',['fc_without_bias',['../namespacefc__without__bias.html',1,'']]],
   ['fcwithoutbias',['FCWithoutBias',['../classlayers_1_1fc__without__bias_1_1FCWithoutBias.html',1,'layers::fc_without_bias']]],
+  ['featuresparsetodense',['FeatureSparseToDense',['../classlayers_1_1feature__sparse__to__dense_1_1FeatureSparseToDense.html',1,'layers::feature_sparse_to_dense']]],
   ['feedblob',['FeedBlob',['../namespaceworkspace.html#a34cb41f806c820ea5ce1876ee3aa29f0',1,'workspace']]],
   ['feedrecord',['FeedRecord',['../namespaceschema.html#a4b96503f1b415197188d8094e01d4ae3',1,'schema']]],
   ['fetchblob',['FetchBlob',['../namespaceworkspace.html#a7fc10c05fdcadb6c88057004fbd74926',1,'workspace']]],
@@ -20,9 +21,10 @@ var searchData=
   ['finalizeaftercheckpoint',['FinalizeAfterCheckpoint',['../namespacedata__parallel__model.html#aeaf6f1994dee2a119718c0fff65962ba',1,'data_parallel_model']]],
   ['for',['For',['../namespacecontrol.html#a70e5286c7091856f2b0acd41312d97d1',1,'control']]],
   ['formatter',['Formatter',['../classformatter_1_1Formatter.html',1,'formatter.Formatter'],['../namespaceformatter.html',1,'formatter']]],
+  ['fp16sgdoptimizer',['FP16SgdOptimizer',['../classoptimizer_1_1FP16SgdOptimizer.html',1,'optimizer']]],
   ['from_5fblob_5flist',['from_blob_list',['../namespaceschema.html#a3cf4513e2a6ecfe11d22a014253fc7d6',1,'schema']]],
   ['from_5fcolumn_5flist',['from_column_list',['../namespaceschema.html#a3c4b8b4ea83ee93df212d50f0f73d57e',1,'schema']]],
   ['from_5fdtype',['from_dtype',['../namespaceschema.html#ab6a8ab29767000fdbe1a48221efe93c3',1,'schema']]],
   ['ftrloptimizer',['FtrlOptimizer',['../classoptimizer_1_1FtrlOptimizer.html',1,'optimizer']]],
-  ['functional',['Functional',['../classlayers_1_1functional_1_1Functional.html',1,'layers.functional.Functional'],['../namespacefunctional.html',1,'functional']]]
+  ['functional',['Functional',['../classlayers_1_1functional_1_1Functional.html',1,'layers::functional']]]
 ];
