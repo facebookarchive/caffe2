@@ -26,22 +26,14 @@ case "$ANACONDA_VERSION" in
   ;;
 esac
 /bin/bash ~/anaconda.sh -b -p /opt/conda
-rm ~/anaconda.sh
+rm -f ~/anaconda.sh
 
 export PATH="/opt/conda/bin:$PATH"
 echo 'export PATH=/opt/conda/bin:$PATH' > ~/.bashrc
 
-# This follows the instructions from
-# https://caffe2.ai/docs/getting-started.html?platform=ubuntu&configuration=compile
-# as closely as possible to install and build. Anaconda should already be
-# installed.
-
-# Required dependencies are already installed in install_base.sh
-
 # Optional dependencies not yet installed by install_base.sh
+# TODO is this needed?
 apt-get install -y --no-install-recommends \
       libgflags-dev \
       libgtest-dev \
       libopenmpi-dev
-
-# Optional dependencies installed by pip are not important here

@@ -20,4 +20,9 @@ if [ -n "$UPLOAD_TO_CONDA" ]; then
   CONDA_BLD_ARGS+=(" --token ${CAFFE2_ANACONDA_ORG_ACCESS_TOKEN}")
 fi
 
+# Reinitialize submodules
+git submodule sync
+git submodule foreach git fetch
+git submodule update --init
+
 conda build "${CAFFE2_ROOT}/conda" ${CONDA_BLD_ARGS[@]} "$@"
