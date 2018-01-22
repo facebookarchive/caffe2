@@ -88,10 +88,13 @@ pushd pip-9.0.1
 popd
 rm -rf pip-9.0.1*
 
-# Install pip packages
+# Install pip packages.
+# Lock hypothesis to 3.44.6. Version 3.44.7 (and possibly beyond)
+# don't work with the ancient version of setuptools that is included
+# in Ubuntu Trusty (setuptools 3.3)
 pip install --no-cache-dir \
     future \
-    hypothesis \
+    hypothesis==3.44.6 \
     jupyter \
     numpy \
     protobuf \
