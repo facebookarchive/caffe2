@@ -25,4 +25,10 @@ git submodule sync
 git submodule foreach git fetch
 git submodule update --init
 
-conda build "${CAFFE2_ROOT}/conda" ${CONDA_BLD_ARGS[@]} "$@"
+# Separate build folder for CUDA builds so that the packages have different
+# names
+if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
+  conda build "${CAFFE2_ROOT}/cuda_conda" ${CONDA_BLD_ARGS[@]} "$@
+else
+  conda build "${CAFFE2_ROOT}/conda" ${CONDA_BLD_ARGS[@]} "$@"
+fi
