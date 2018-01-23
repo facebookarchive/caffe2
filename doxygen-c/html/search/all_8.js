@@ -1,8 +1,8 @@
 var searchData=
 [
   ['halftofloatop',['HalfToFloatOp',['../classcaffe2_1_1HalfToFloatOp.html',1,'caffe2']]],
-  ['hasargument',['HasArgument',['../classcaffe2_1_1OperatorBase.html#a0fdb4f088171482b418de4ea9fb7e8e6',1,'caffe2::OperatorBase']]],
-  ['hasblob',['HasBlob',['../classcaffe2_1_1Workspace.html#a55450314a807396ed55ce759c6ee559b',1,'caffe2::Workspace']]],
+  ['hasargument',['HasArgument',['../classcaffe2_1_1OperatorBase.html#a4d92f66a58019292c021a9fa8bd626fd',1,'caffe2::OperatorBase']]],
+  ['hasblob',['HasBlob',['../classcaffe2_1_1Workspace.html#ab0b28346a24f95f330d3d4d491b39311',1,'caffe2::Workspace']]],
   ['hascudagpu',['HasCudaGPU',['../namespacecaffe2.html#a48638afbef9a25309bf7ef40a6e97919',1,'caffe2']]],
   ['haselementsop',['HasElementsOp',['../classcaffe2_1_1HasElementsOp.html',1,'caffe2']]],
   ['hash_3c_20caffe2_3a_3adeviceoption_20_3e',['hash&lt; caffe2::DeviceOption &gt;',['../structstd_1_1hash_3_01caffe2_1_1DeviceOption_01_4.html',1,'std']]],

@@ -790,6 +790,41 @@ No documentation yet.
 
 
 
+## BBoxTransform
+
+
+Transform proposal bounding boxes to target bounding box using bounding box  
+
+```
+    regression deltas.
+```
+
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`weights` | vector<float> weights [wx, wy, ww, wh] for the deltas
+*Inputs* | 
+`rois` | Bounding box proposals in pixel coordinates, Size (M, 4), format [x1, y1, x2, y2], orSize (M, 5), format [img_index_IGNORED, x1, y1, x2, y2]
+`deltas` | bounding box translations and scales,size (M, 4*K), format [dx, dy, dw, dh], K = # classes
+`im_info` | Image dimensions, size (1, 3), format [img_height, img_width, img_scale_IGNORED]
+*Outputs* | 
+`box_out` | Pixel coordinates of the transformed bounding boxes,Size (M, 4*K), format [x1, y1, x2, y2]
+
+
+### Code
+
+
+[caffe2/operators/bbox_transform_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/bbox_transform_op.cc)
+
+---
+
+
+
 ## BRGNCHWCToPackedInt8BGRAStylizerDeprocess
 
 No documentation yet.
@@ -1239,6 +1274,50 @@ Given a series of mask and values, reconstruct values together according to mask
 
 
 [caffe2/operators/boolean_unmask_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/boolean_unmask_ops.cc)
+
+---
+
+
+
+## BoxWithNMSLimit
+
+
+Apply NMS to each class (except background) and limit the number of returned  
+
+```
+  boxes.
+```
+
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`score_thres` | (float) TEST.SCORE_THRES
+`nms` | (float) TEST.NMS
+`detections_per_im` | (int) TEST.DEECTIONS_PER_IM
+`soft_nms_enabled` | (bool) TEST.SOFT_NMS.ENABLED
+`soft_nms_method` | (string) TEST.SOFT_NMS.METHOD
+`soft_nms_sigma` | (float) TEST.SOFT_NMS.SIGMA
+`soft_nms_min_score_thres` | (float) Lower bound on updated scores to discard boxes
+*Inputs* | 
+`scores` | Scores, size (count, num_classes)
+`boxes` | Bounding box for each class, size (count, num_classes * 4)
+*Outputs* | 
+`scores` | Filtered scores, size (n)
+`boxes` | Filtered boxes, size (n, 4)
+`classes` | Class id for each filtered score/box, size (n)
+`keeps` | Optional filtered indices, size (n)
+`keeps_size` | Optional number of filtered indices per class, size (num_classes)
+
+
+### Code
+
+
+[caffe2/operators/box_with_nms_limit_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/box_with_nms_limit_op.cc)
 
 ---
 
@@ -3834,6 +3913,41 @@ No documentation yet.
 
 
 
+## FloatToFused8BitRowwiseQuantized
+
+Applies 8-bit row-wise quantization by determining the range  
+
+```
+      (maximum - minimum) and offset (minimum value) of each row in the input
+      matrix, and then scaling each element to an 8-bit number between 0 and
+      255. To later de-quantize values, the scale (range / 255) and offset
+      (bias) are stored alongside the data. More precisely, the first 4 bytes
+      of each row in the output matrix are a 32-bit float storing the scale,
+      the next 4 bytes store the bias as a 32-bit float, and all remaining
+```
+
+       bytes in the row encode single quantized values.
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`input` | Float32 input data
+*Outputs* | 
+`output` | Fused scale, bias and quantized data
+
+
+### Code
+
+
+[caffe2/operators/fused_rowwise_8bit_conversion_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fused_rowwise_8bit_conversion_ops.cc)
+
+---
+
+
+
 ## FloatToRowwiseQuantized8Bits
 
 This operator applies 8Bit row-wise quantization to  
@@ -3897,6 +4011,42 @@ No documentation yet.
 
 
 [caffe2/sgd/ftrl_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/sgd/ftrl_op.cc)
+
+---
+
+
+
+## Fused8BitRowwiseQuantizedToFloat
+
+De-quantizes the result of the  
+
+```
+      FloatToFused8BitRowwiseQuantized operator. The input is expected to
+      encode the scale as a 32-bit float in the first 4 bytes of each row,
+      followed by the bias as a 32-bit float in the next 4 bytes, followed by
+      the quantized values in the remaining bytes of the row. The output is a
+      matrix containing only the values, but de-quantized. De-quantization is
+      performed by multiplying each value by its row's scale and bias
+      parameters. The de-quantized values will thus not be exactly equal to
+```
+
+       the original, un-quantized floating point values.
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`scale_bias_quantized_input` | Fused scale, bias and quantized data
+*Outputs* | 
+`float_input` | Float32 data
+
+
+### Code
+
+
+[caffe2/operators/fused_rowwise_8bit_conversion_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fused_rowwise_8bit_conversion_ops.cc)
 
 ---
 
@@ -4250,6 +4400,63 @@ No documentation yet.
 
 
 [caffe2/operators/filler_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/filler_op.cc)
+
+---
+
+
+
+## GenerateProposals
+
+
+Generate bounding box proposals for Faster RCNN. The propoasls are generated for  
+
+```
+  a list of images based on image score 'score', bounding box regression result
+  'deltas' as well as predefined bounding box shapes 'anchors'. Greedy
+  non-maximum suppression is applied to generate the final bounding boxes.
+```
+
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`spatial_scale` | (float) spatial scale
+`pre_nms_topN` | (int) RPN_PRE_NMS_TOP_N
+`post_nms_topN` | (int) RPN_POST_NMS_TOP_N
+`nms_thresh` | (float) RPN_NMS_THRESH
+`min_size` | (float) RPN_MIN_SIZE
+*Inputs* | 
+`scores` | Scores from conv layer, size (img_count, A, H, W)
+`bbox_deltas` | Bounding box deltas from conv layer, size (img_count, 4 * A, H, W)
+`im_info` | Image info, size (img_count, 3), format (height, width, scale)
+`anchors` | Bounding box anchors, size (A, 4)
+*Outputs* | 
+`rois` | Proposals, size (n x 5), format (image_index, x1, y1, x2, y2)
+`rois_probs` | scores of proposals, size (n)
+
+
+### Code
+
+
+[caffe2/operators/generate_proposals_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/generate_proposals_op.cc)
+
+---
+
+
+
+## GenerateProposalsCPP
+
+No documentation yet.
+
+
+### Code
+
+
+[caffe2/operators/generate_proposals_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/generate_proposals_op.cc)
 
 ---
 
@@ -8828,6 +9035,45 @@ Given a matrix A and column vector w, the output is the multiplication of row i 
 
 
 
+## RowWiseSparseAdam
+
+
+ Computes a modified Adam Update for the sparse case.
+Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the Adam update on (param, moment1[indices], moment2[indices], lr, iter) and returns (new_param, new_moment1, new_moment2), where moment1 and moment2 are 1D tensors with length equal to the number of rows in param: shape(moment1) == shape(moment2) == shape(param)[0]. Each element of moment1 and moment2 is applied to an entire row of param, and the new moment1 and moment2 values are calculated by averaging across the row.
+ 
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`beta1` | Default 0.9
+`beta2` | Default 0.999
+`epsilon` | Default 1e-5
+*Inputs* | 
+`param` | Parameters to be updated
+`moment_1` | First moment history
+`moment_2` | Second moment history
+`indices` | Sparse indices
+`grad` | Gradient computed
+`lr` | learning rate
+`iter` | iteration number
+*Outputs* | 
+`output_param` | Updated parameters
+`output_moment_1` | Updated first moment
+`output_moment_2` | Updated second moment
+
+
+### Code
+
+
+[caffe2/sgd/adam_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/sgd/adam_op.cc)
+
+---
+
+
+
 ## Rowwise8BitQuantizedToFloat
 
 Given uint8 tensor, quantized using 8bit row-wise  
@@ -10391,6 +10637,38 @@ Variation of SparseLengthsMean operator, where DATA is
 
 
 
+## SparseLengthsMeanFused8BitRowwise
+
+Performs the same operation as SparseLengthsMean, but  
+
+```
+        operating on 8-bit rowwise quantized matrices with fused storage
+```
+
+         (where each row stores the scale, bias and then quantized values).
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`DATA` | uint8 tensor obtained with operator FloatToFusedRowwiseQuantized8Bits
+`INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
+`LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
+*Outputs* | 
+`output` | output
+
+
+### Code
+
+
+[caffe2/operators/lengths_reducer_fused_8bit_rowwise_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/lengths_reducer_fused_8bit_rowwise_ops.cc)
+
+---
+
+
+
 ## SparseLengthsMeanGradient
 
 No documentation yet.
@@ -10468,6 +10746,38 @@ Variation of SparseLengthsSum operator, where DATA is
 
 
 [caffe2/operators/lengths_reducer_rowwise_8bit_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/lengths_reducer_rowwise_8bit_ops.cc)
+
+---
+
+
+
+## SparseLengthsSumFused8BitRowwise
+
+Performs the same operation as SparseLengthsSum, but operating on  
+
+```
+        8-bit rowwise quantized matrices with fused storage (where each row
+```
+
+         stores the scale, bias and then quantized values).
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`DATA` | uint8 tensor obtained with operator FloatToFusedRowwiseQuantized8Bits
+`INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
+`LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
+*Outputs* | 
+`output` | output
+
+
+### Code
+
+
+[caffe2/operators/lengths_reducer_fused_8bit_rowwise_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/lengths_reducer_fused_8bit_rowwise_ops.cc)
 
 ---
 
@@ -10590,6 +10900,39 @@ Variation of SparseLengthsWeightedSum operator, where
 
 
 [caffe2/operators/lengths_reducer_rowwise_8bit_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/lengths_reducer_rowwise_8bit_ops.cc)
+
+---
+
+
+
+## SparseLengthsWeightedSumFused8BitRowwise
+
+Performs the same operation as SparseLengthsWeightedSum,  
+
+```
+        but operating on 8-bit rowwise quantized matrices with fused storage
+```
+
+         (where each row stores the scale, bias and then quantized values).
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`DATA` | uint8 tensor obtained with operator FloatToFusedRowwiseQuantized8Bits
+`INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
+`LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
+`WEIGHTS` | Vector of weights to scale rows of DATA with before reduction
+*Outputs* | 
+`output` | output
+
+
+### Code
+
+
+[caffe2/operators/lengths_reducer_fused_8bit_rowwise_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/lengths_reducer_fused_8bit_rowwise_ops.cc)
 
 ---
 

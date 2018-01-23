@@ -38,11 +38,16 @@ var searchData=
   ['rocksdb',['RocksDB',['../classcaffe2_1_1db_1_1RocksDB.html',1,'caffe2::db']]],
   ['rocksdbcursor',['RocksDBCursor',['../classcaffe2_1_1db_1_1RocksDBCursor.html',1,'caffe2::db']]],
   ['rocksdbtransaction',['RocksDBTransaction',['../classcaffe2_1_1db_1_1RocksDBTransaction.html',1,'caffe2::db']]],
+  ['roialigngradientop',['RoIAlignGradientOp',['../classcaffe2_1_1RoIAlignGradientOp.html',1,'caffe2']]],
+  ['roialignop',['RoIAlignOp',['../classcaffe2_1_1RoIAlignOp.html',1,'caffe2']]],
+  ['roipoolfgradientop',['RoIPoolFGradientOp',['../classcaffe2_1_1RoIPoolFGradientOp.html',1,'caffe2']]],
+  ['roipoolfop',['RoIPoolFOp',['../classcaffe2_1_1RoIPoolFOp.html',1,'caffe2']]],
   ['roipoolgradientop',['RoIPoolGradientOp',['../classcaffe2_1_1RoIPoolGradientOp.html',1,'caffe2']]],
   ['roipoolop',['RoIPoolOp',['../classcaffe2_1_1RoIPoolOp.html',1,'caffe2']]],
   ['rowmulop',['RowMulOp',['../classcaffe2_1_1RowMulOp.html',1,'caffe2']]],
   ['rowwise8bitquantizedtofloatop',['Rowwise8BitQuantizedToFloatOp',['../classcaffe2_1_1Rowwise8BitQuantizedToFloatOp.html',1,'caffe2']]],
   ['rowwisesparseadagradop',['RowWiseSparseAdagradOp',['../classcaffe2_1_1RowWiseSparseAdagradOp.html',1,'caffe2']]],
+  ['rowwisesparseadamop',['RowWiseSparseAdamOp',['../classcaffe2_1_1RowWiseSparseAdamOp.html',1,'caffe2']]],
   ['runcountnetobserver',['RunCountNetObserver',['../classcaffe2_1_1RunCountNetObserver.html',1,'caffe2']]],
   ['runcountoperatorobserver',['RunCountOperatorObserver',['../classcaffe2_1_1RunCountOperatorObserver.html',1,'caffe2']]]
 ];

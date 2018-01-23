@@ -1,9 +1,11 @@
 var searchData=
 [
   ['tagcontext',['TagContext',['../classlayers_1_1tags_1_1TagContext.html',1,'layers::tags']]],
-  ['tags',['Tags',['../classlayers_1_1tags_1_1Tags.html',1,'layers.tags.Tags'],['../namespacetags.html',1,'tags']]],
+  ['tags',['Tags',['../classlayers_1_1tags_1_1Tags.html',1,'layers::tags']]],
+  ['tags',['tags',['../namespacetags.html',1,'']]],
   ['tanh',['tanh',['../namespacenonlinearity.html#a7ed1579e019b7a3fb4d87328e28e2472',1,'nonlinearity']]],
-  ['task',['Task',['../classtask_1_1Task.html',1,'task.Task'],['../namespacetask.html',1,'task']]],
+  ['task',['Task',['../classtask_1_1Task.html',1,'task']]],
+  ['task',['task',['../namespacetask.html',1,'']]],
   ['task_5fexit',['task_exit',['../classnet__builder_1_1Operations.html#a3485bf75e086aa9ce769d6230ce3e4dc',1,'net_builder::Operations']]],
   ['task_5fgroup',['task_group',['../classnet__builder_1_1Operations.html#a12658024ac3a1d6fe46f81f13951d1ea',1,'net_builder::Operations']]],
   ['task_5finit',['task_init',['../classnet__builder_1_1Operations.html#a4f3857838bf15433ec9f84e289dae6e9',1,'net_builder::Operations']]],

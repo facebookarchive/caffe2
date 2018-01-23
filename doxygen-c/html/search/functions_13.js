@@ -7,5 +7,5 @@ var searchData=
   ['test_5fbenchmark',['TEST_Benchmark',['../classcaffe2_1_1NetBase.html#a69aed01ddcd98e7fa13b174c4cd134a8',1,'caffe2::NetBase::TEST_Benchmark()'],['../classcaffe2_1_1DAGNetBase.html#a6d325ca3e2e4557bee26b773757465e3',1,'caffe2::DAGNetBase::TEST_Benchmark()'],['../classcaffe2_1_1SimpleNet.html#a130a5cdba80ddb6e52bd45c0da276e26',1,'caffe2::SimpleNet::TEST_Benchmark()'],['../classcaffe2_1_1AsyncSimpleNet.html#a1766f137a639177634af5de98d8f60e7',1,'caffe2::AsyncSimpleNet::TEST_Benchmark()']]],
   ['tovectortindex',['ToVectorTIndex',['../namespacecaffe2.html#a591122a8091d7c58df32810129874cb2',1,'caffe2']]],
   ['typemeta',['TypeMeta',['../classcaffe2_1_1TypeMeta.html#a9f8e66d75448302751da57b8df1c906f',1,'caffe2::TypeMeta::TypeMeta()'],['../classcaffe2_1_1TypeMeta.html#aa110c2a289bafa97472342f25755a10f',1,'caffe2::TypeMeta::TypeMeta(const TypeMeta &amp;src)']]],
-  ['typename',['TypeName',['../classcaffe2_1_1Blob.html#a7d1c2807d24c63381d452ad91fdd598d',1,'caffe2::Blob']]]
+  ['typename',['TypeName',['../classcaffe2_1_1Blob.html#a2a807ee90e38f2f0261f8c1f6709727a',1,'caffe2::Blob']]]
 ];

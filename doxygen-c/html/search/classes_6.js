@@ -20,6 +20,7 @@ var searchData=
   ['flexibletopkgradientop',['FlexibleTopKGradientOp',['../classcaffe2_1_1FlexibleTopKGradientOp.html',1,'caffe2']]],
   ['flexibletopkop',['FlexibleTopKOp',['../classcaffe2_1_1FlexibleTopKOp.html',1,'caffe2']]],
   ['float16constantfillop',['Float16ConstantFillOp',['../classcaffe2_1_1Float16ConstantFillOp.html',1,'caffe2']]],
+  ['floattofused8bitrowwisequantizedop',['FloatToFused8BitRowwiseQuantizedOp',['../classcaffe2_1_1FloatToFused8BitRowwiseQuantizedOp.html',1,'caffe2']]],
   ['floattohalfop',['FloatToHalfOp',['../classcaffe2_1_1FloatToHalfOp.html',1,'caffe2']]],
   ['floattorowwisequantized8bitsop',['FloatToRowwiseQuantized8BitsOp',['../classcaffe2_1_1FloatToRowwiseQuantized8BitsOp.html',1,'caffe2']]],
   ['foreach',['ForEach',['../structcaffe2_1_1ForEach.html',1,'caffe2']]],
@@ -36,5 +37,6 @@ var searchData=
   ['fullyconnectedopprune',['FullyConnectedOpPrune',['../classcaffe2_1_1FullyConnectedOpPrune.html',1,'caffe2']]],
   ['fullyconnectedprunegradientop',['FullyConnectedPruneGradientOp',['../classcaffe2_1_1FullyConnectedPruneGradientOp.html',1,'caffe2']]],
   ['funhashgradientop',['FunHashGradientOp',['../classcaffe2_1_1FunHashGradientOp.html',1,'caffe2']]],
-  ['funhashop',['FunHashOp',['../classcaffe2_1_1FunHashOp.html',1,'caffe2']]]
+  ['funhashop',['FunHashOp',['../classcaffe2_1_1FunHashOp.html',1,'caffe2']]],
+  ['fused8bitrowwisequantizedtofloatop',['Fused8BitRowwiseQuantizedToFloatOp',['../classcaffe2_1_1Fused8BitRowwiseQuantizedToFloatOp.html',1,'caffe2']]]
 ];

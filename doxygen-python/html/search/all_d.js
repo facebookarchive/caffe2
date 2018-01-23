@@ -2,7 +2,8 @@ var searchData=
 [
   ['names',['names',['../classtask_1_1TaskOutputList.html#a315290e3e3a1fd5e98f009174f33bc07',1,'task::TaskOutputList']]],
   ['nchw',['NCHW',['../classvisualize_1_1NCHW.html',1,'visualize']]],
-  ['net',['Net',['../classcore_1_1Net.html',1,'core.Net'],['../classnet__builder_1_1Operations.html#aeb83d8e9dacdbc01f3525031693f7b07',1,'net_builder.Operations.net()']]],
+  ['net',['Net',['../classcore_1_1Net.html',1,'core']]],
+  ['net',['net',['../classnet__builder_1_1Operations.html#aeb83d8e9dacdbc01f3525031693f7b07',1,'net_builder::Operations']]],
   ['net2list',['net2list',['../namespaceSparseTransformer.html#ab39d4021ac0c2dcc5e1b8c35b484b46c',1,'SparseTransformer']]],
   ['net_5fbuilder',['net_builder',['../namespacenet__builder.html',1,'']]],
   ['net_5fconstruct_5fbench',['net_construct_bench',['../namespacenet__construct__bench.html',1,'']]],

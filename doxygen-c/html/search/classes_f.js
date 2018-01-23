@@ -19,7 +19,8 @@ var searchData=
   ['piecewiselineartransformop',['PiecewiseLinearTransformOp',['../classcaffe2_1_1PiecewiseLinearTransformOp.html',1,'caffe2']]],
   ['pinnedcpuallocator',['PinnedCPUAllocator',['../structcaffe2_1_1PinnedCPUAllocator.html',1,'caffe2']]],
   ['planexecutiontime',['PlanExecutionTime',['../structcaffe2_1_1PlanExecutionTime.html',1,'caffe2']]],
-  ['point',['point',['../structGLPool_1_1point.html',1,'GLPool::point'],['../structpoint.html',1,'point']]],
+  ['point',['point',['../structpoint.html',1,'']]],
+  ['point',['point',['../structGLPool_1_1point.html',1,'GLPool']]],
   ['polylearningrate',['PolyLearningRate',['../classcaffe2_1_1PolyLearningRate.html',1,'caffe2']]],
   ['poolgradientop',['PoolGradientOp',['../classcaffe2_1_1PoolGradientOp.html',1,'caffe2']]],
   ['poolop',['PoolOp',['../classcaffe2_1_1PoolOp.html',1,'caffe2']]],
@@ -34,5 +35,7 @@ var searchData=
   ['protodb',['ProtoDB',['../classcaffe2_1_1db_1_1ProtoDB.html',1,'caffe2::db']]],
   ['protodbcursor',['ProtoDBCursor',['../classcaffe2_1_1db_1_1ProtoDBCursor.html',1,'caffe2::db']]],
   ['protodbtransaction',['ProtoDBTransaction',['../classcaffe2_1_1db_1_1ProtoDBTransaction.html',1,'caffe2::db']]],
+  ['psroipoolgradientop',['PSRoIPoolGradientOp',['../classcaffe2_1_1PSRoIPoolGradientOp.html',1,'caffe2']]],
+  ['psroipoolop',['PSRoIPoolOp',['../classcaffe2_1_1PSRoIPoolOp.html',1,'caffe2']]],
   ['pthreadpool',['pthreadpool',['../structpthreadpool.html',1,'']]]
 ];

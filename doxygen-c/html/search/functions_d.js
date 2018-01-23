@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['name',['Name',['../classcaffe2_1_1TypeMeta.html#af2e0775b4d7176faff8147e5cdbcf9f3',1,'caffe2::TypeMeta::Name()'],['../classcaffe2_1_1TypeMeta.html#a11fd1062af3349c190cac0a491652923',1,'caffe2::TypeMeta::name() const']]],
-  ['nbytes',['nbytes',['../classcaffe2_1_1Tensor.html#a7b30cefe34ea2200f322546fd512e895',1,'caffe2::Tensor']]],
-  ['ndim',['ndim',['../classcaffe2_1_1QTensor.html#ac32235c657734ad20a4806dd42fcf258',1,'caffe2::QTensor::ndim()'],['../classcaffe2_1_1Tensor.html#aedbfe677a5e77039b247d44e62b9f4aa',1,'caffe2::Tensor::ndim()']]],
-  ['nets',['Nets',['../classcaffe2_1_1Workspace.html#aac8457dbd6f552d58a50a95dd755ebf0',1,'caffe2::Workspace']]],
+  ['name',['Name',['../classcaffe2_1_1TypeMeta.html#af2e0775b4d7176faff8147e5cdbcf9f3',1,'caffe2::TypeMeta::Name()'],['../classcaffe2_1_1TypeMeta.html#a3d9a187b58d9e3ebdd91aca3fe75e8fa',1,'caffe2::TypeMeta::name() const ']]],
+  ['nbytes',['nbytes',['../classcaffe2_1_1Tensor.html#af014327871aac019039083a51c65e851',1,'caffe2::Tensor']]],
+  ['ndim',['ndim',['../classcaffe2_1_1QTensor.html#abd1d5827f1f866e3a5c02e5656724efb',1,'caffe2::QTensor::ndim()'],['../classcaffe2_1_1Tensor.html#aea51c872873f4db0abad47713315e81f',1,'caffe2::Tensor::ndim()']]],
+  ['nets',['Nets',['../classcaffe2_1_1Workspace.html#a1df76675933417b6070f89ebef661410',1,'caffe2::Workspace']]],
   ['newcaffe2iospredictor',['NewCaffe2IOSPredictor',['../classCaffe2IOSPredictor.html#a23762913b23fda25ec8abfc294cb107c',1,'Caffe2IOSPredictor']]],
   ['newcursor',['NewCursor',['../classcaffe2_1_1db_1_1MiniDB.html#a1205f750c866c79a6784f9c3e029f8ad',1,'caffe2::db::MiniDB::NewCursor()'],['../classcaffe2_1_1db_1_1DB.html#a3abbf010015da20a380ea2ca8ca733b0',1,'caffe2::db::DB::NewCursor()'],['../classcaffe2_1_1db_1_1LevelDB.html#a0b70b7c6dbba237a65ad597486c2618a',1,'caffe2::db::LevelDB::NewCursor()'],['../classcaffe2_1_1db_1_1LMDB.html#a12e5ff9e683d6ef861e0c0e45c80f03c',1,'caffe2::db::LMDB::NewCursor()'],['../classcaffe2_1_1db_1_1ProtoDB.html#ae734c16bb09b1ce885de33b4effc384f',1,'caffe2::db::ProtoDB::NewCursor()'],['../classcaffe2_1_1db_1_1RocksDB.html#a27500b764cf86b497bd980303ce13b73',1,'caffe2::db::RocksDB::NewCursor()'],['../classcaffe2_1_1db_1_1ZmqDB.html#a025ef4a4ffe4c57afc40db127c77dea7',1,'caffe2::db::ZmqDB::NewCursor()'],['../classcaffe2_1_1db_1_1BlobsQueueDB.html#a65617f648c4547f4785d4dca92887981',1,'caffe2::db::BlobsQueueDB::NewCursor()']]],
   ['newglimageallocator',['newGLImageAllocator',['../classGLImageAllocator.html#aec49b72729c1c4d02bcea26492b6a331',1,'GLImageAllocator']]],

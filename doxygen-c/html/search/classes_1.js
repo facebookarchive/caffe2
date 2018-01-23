@@ -30,6 +30,8 @@ var searchData=
   ['adagradop',['AdagradOp',['../classcaffe2_1_1AdagradOp.html',1,'caffe2']]],
   ['adamop',['AdamOp',['../classcaffe2_1_1AdamOp.html',1,'caffe2']]],
   ['addpaddingop',['AddPaddingOp',['../classcaffe2_1_1AddPaddingOp.html',1,'caffe2']]],
+  ['affinechannelgradientop',['AffineChannelGradientOp',['../classcaffe2_1_1AffineChannelGradientOp.html',1,'caffe2']]],
+  ['affinechannelop',['AffineChannelOp',['../classcaffe2_1_1AffineChannelOp.html',1,'caffe2']]],
   ['algorithmscache',['AlgorithmsCache',['../classcaffe2_1_1AlgorithmsCache.html',1,'caffe2']]],
   ['algorithmscache_3c_20cudnnconvolutionbwddataalgo_5ft_20_3e',['AlgorithmsCache&lt; cudnnConvolutionBwdDataAlgo_t &gt;',['../classcaffe2_1_1AlgorithmsCache.html',1,'caffe2']]],
   ['algorithmscache_3c_20cudnnconvolutionbwdfilteralgo_5ft_20_3e',['AlgorithmsCache&lt; cudnnConvolutionBwdFilterAlgo_t &gt;',['../classcaffe2_1_1AlgorithmsCache.html',1,'caffe2']]],

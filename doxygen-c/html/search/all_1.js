@@ -33,6 +33,8 @@ var searchData=
   ['addblobmapping',['AddBlobMapping',['../classcaffe2_1_1Workspace.html#aba6da83107180ddafe0e8bed95f1ec48',1,'caffe2::Workspace']]],
   ['addgradientinputaccumulationops',['AddGradientInputAccumulationOps',['../classcaffe2_1_1RecurrentNetworkGradientOp.html#a94f76361aa9eccfdc955851c5502d4b8',1,'caffe2::RecurrentNetworkGradientOp']]],
   ['addpaddingop',['AddPaddingOp',['../classcaffe2_1_1AddPaddingOp.html',1,'caffe2']]],
+  ['affinechannelgradientop',['AffineChannelGradientOp',['../classcaffe2_1_1AffineChannelGradientOp.html',1,'caffe2']]],
+  ['affinechannelop',['AffineChannelOp',['../classcaffe2_1_1AffineChannelOp.html',1,'caffe2']]],
   ['algorithmscache',['AlgorithmsCache',['../classcaffe2_1_1AlgorithmsCache.html',1,'caffe2']]],
   ['algorithmscache_3c_20cudnnconvolutionbwddataalgo_5ft_20_3e',['AlgorithmsCache&lt; cudnnConvolutionBwdDataAlgo_t &gt;',['../classcaffe2_1_1AlgorithmsCache.html',1,'caffe2']]],
   ['algorithmscache_3c_20cudnnconvolutionbwdfilteralgo_5ft_20_3e',['AlgorithmsCache&lt; cudnnConvolutionBwdFilterAlgo_t &gt;',['../classcaffe2_1_1AlgorithmsCache.html',1,'caffe2']]],

@@ -1,6 +1,7 @@
 var searchData=
 [
   ['basetranslate',['BaseTranslate',['../namespacecaffe__translator.html#adf8e600011855e0d37256b8643759c8a',1,'caffe_translator']]],
+  ['basicrnncell',['BasicRNNCell',['../classrnn__cell_1_1BasicRNNCell.html',1,'rnn_cell']]],
   ['batch_5fdistill_5flr_5floss',['batch_distill_lr_loss',['../namespacebatch__distill__lr__loss.html',1,'']]],
   ['batch_5flr_5floss',['batch_lr_loss',['../namespacebatch__lr__loss.html',1,'']]],
   ['batch_5fmse_5floss',['batch_mse_loss',['../namespacebatch__mse__loss.html',1,'']]],

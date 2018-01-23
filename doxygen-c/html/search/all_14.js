@@ -9,5 +9,7 @@ var searchData=
   ['unsafecoalesceop',['UnsafeCoalesceOp',['../classcaffe2_1_1UnsafeCoalesceOp.html',1,'caffe2']]],
   ['unsupportedoperatorfeature',['UnsupportedOperatorFeature',['../classcaffe2_1_1UnsupportedOperatorFeature.html',1,'caffe2']]],
   ['update',['update',['../classcaffe2_1_1StatRegistry.html#a60f98c2d3af0185283589f777729ce5c',1,'caffe2::StatRegistry']]],
+  ['upsamplenearestgradientop',['UpsampleNearestGradientOp',['../classcaffe2_1_1UpsampleNearestGradientOp.html',1,'caffe2']]],
+  ['upsamplenearestop',['UpsampleNearestOp',['../classcaffe2_1_1UpsampleNearestOp.html',1,'caffe2']]],
   ['usagemessage',['UsageMessage',['../namespacecaffe2.html#a5df9421b2b851cffabdd3fa2bd728c9f',1,'caffe2']]]
 ];

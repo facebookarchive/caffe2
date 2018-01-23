@@ -3,7 +3,7 @@ var searchData=
   ['feedblobop',['FeedBlobOp',['../classcaffe2_1_1FeedBlobOp.html',1,'caffe2']]],
   ['field',['Field',['../classcaffe2_1_1dataset__ops_1_1TreeWalker_1_1Field.html',1,'caffe2::dataset_ops::TreeWalker']]],
   ['fielddesc',['FieldDesc',['../structcaffe2_1_1dataset__ops_1_1TreeIterator_1_1FieldDesc.html',1,'caffe2::dataset_ops::TreeIterator']]],
-  ['file',['file',['../classcaffe2_1_1OpSchema.html#aa463ba826de1a266d647aca6a830d7ee',1,'caffe2::OpSchema']]],
+  ['file',['file',['../classcaffe2_1_1OpSchema.html#a04ce12463029b41126ac79c701783607',1,'caffe2::OpSchema']]],
   ['filereader',['FileReader',['../classcaffe2_1_1FileReader.html',1,'caffe2']]],
   ['filestorehandler',['FileStoreHandler',['../classcaffe2_1_1FileStoreHandler.html',1,'caffe2']]],
   ['filestorehandlercreateop',['FileStoreHandlerCreateOp',['../classcaffe2_1_1FileStoreHandlerCreateOp.html',1,'caffe2']]],
@@ -22,6 +22,7 @@ var searchData=
   ['flexibletopkgradientop',['FlexibleTopKGradientOp',['../classcaffe2_1_1FlexibleTopKGradientOp.html',1,'caffe2']]],
   ['flexibletopkop',['FlexibleTopKOp',['../classcaffe2_1_1FlexibleTopKOp.html',1,'caffe2']]],
   ['float16constantfillop',['Float16ConstantFillOp',['../classcaffe2_1_1Float16ConstantFillOp.html',1,'caffe2']]],
+  ['floattofused8bitrowwisequantizedop',['FloatToFused8BitRowwiseQuantizedOp',['../classcaffe2_1_1FloatToFused8BitRowwiseQuantizedOp.html',1,'caffe2']]],
   ['floattohalfop',['FloatToHalfOp',['../classcaffe2_1_1FloatToHalfOp.html',1,'caffe2']]],
   ['floattorowwisequantized8bitsop',['FloatToRowwiseQuantized8BitsOp',['../classcaffe2_1_1FloatToRowwiseQuantized8BitsOp.html',1,'caffe2']]],
   ['foreach',['ForEach',['../structcaffe2_1_1ForEach.html',1,'caffe2']]],
@@ -41,5 +42,7 @@ var searchData=
   ['fullyconnectedopprune',['FullyConnectedOpPrune',['../classcaffe2_1_1FullyConnectedOpPrune.html',1,'caffe2']]],
   ['fullyconnectedprunegradientop',['FullyConnectedPruneGradientOp',['../classcaffe2_1_1FullyConnectedPruneGradientOp.html',1,'caffe2']]],
   ['funhashgradientop',['FunHashGradientOp',['../classcaffe2_1_1FunHashGradientOp.html',1,'caffe2']]],
-  ['funhashop',['FunHashOp',['../classcaffe2_1_1FunHashOp.html',1,'caffe2']]]
+  ['funhashop',['FunHashOp',['../classcaffe2_1_1FunHashOp.html',1,'caffe2']]],
+  ['fused8bitrowwiseembeddinglookup',['Fused8BitRowwiseEmbeddingLookup',['../namespacecaffe2.html#a3aaf346b2578e6a4300823adc211ca26',1,'caffe2']]],
+  ['fused8bitrowwisequantizedtofloatop',['Fused8BitRowwiseQuantizedToFloatOp',['../classcaffe2_1_1Fused8BitRowwiseQuantizedToFloatOp.html',1,'caffe2']]]
 ];

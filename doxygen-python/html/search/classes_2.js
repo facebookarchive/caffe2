@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['basicrnncell',['BasicRNNCell',['../classrnn__cell_1_1BasicRNNCell.html',1,'rnn_cell']]],
   ['batchdistilllrloss',['BatchDistillLRLoss',['../classlayers_1_1batch__distill__lr__loss_1_1BatchDistillLRLoss.html',1,'layers::batch_distill_lr_loss']]],
   ['batchfeeder',['BatchFeeder',['../classdata__workers_1_1BatchFeeder.html',1,'data_workers']]],
   ['batchlrloss',['BatchLRLoss',['../classlayers_1_1batch__lr__loss_1_1BatchLRLoss.html',1,'layers::batch_lr_loss']]],

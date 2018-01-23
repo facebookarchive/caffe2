@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['fc',['FC',['../classlayers_1_1fc_1_1FC.html',1,'layers.fc.FC'],['../namespacefc.html',1,'fc']]],
+  ['fc',['FC',['../classlayers_1_1fc_1_1FC.html',1,'layers::fc']]],
+  ['fc',['fc',['../namespacefc.html',1,'']]],
   ['fc_5fdecomp',['fc_decomp',['../namespacefc.html#a43d1bce98780f318b92af0bf0c6f0233',1,'fc']]],
   ['fc_5fprune',['fc_prune',['../namespacefc.html#a89ad981a562cad9e1fe407edafa01960',1,'fc']]],
   ['fc_5fsparse',['fc_sparse',['../namespacefc.html#aa7daf22970cb4df8dbf2b43702687196',1,'fc']]],
@@ -20,7 +21,8 @@ var searchData=
   ['final_5foutput',['final_output',['../namespacetask.html#a6f12acd781b20917edab0ad97a69c1c6',1,'task']]],
   ['finalizeaftercheckpoint',['FinalizeAfterCheckpoint',['../namespacedata__parallel__model.html#aeaf6f1994dee2a119718c0fff65962ba',1,'data_parallel_model']]],
   ['for',['For',['../namespacecontrol.html#a70e5286c7091856f2b0acd41312d97d1',1,'control']]],
-  ['formatter',['Formatter',['../classformatter_1_1Formatter.html',1,'formatter.Formatter'],['../namespaceformatter.html',1,'formatter']]],
+  ['formatter',['Formatter',['../classformatter_1_1Formatter.html',1,'formatter']]],
+  ['formatter',['formatter',['../namespaceformatter.html',1,'']]],
   ['fp16sgdoptimizer',['FP16SgdOptimizer',['../classoptimizer_1_1FP16SgdOptimizer.html',1,'optimizer']]],
   ['from_5fblob_5flist',['from_blob_list',['../namespaceschema.html#a3cf4513e2a6ecfe11d22a014253fc7d6',1,'schema']]],
   ['from_5fcolumn_5flist',['from_column_list',['../namespaceschema.html#a3c4b8b4ea83ee93df212d50f0f73d57e',1,'schema']]],

@@ -5,7 +5,8 @@ var searchData=
   ['data_5fparallel_5fmodel_5futils',['data_parallel_model_utils',['../namespacedata__parallel__model__utils.html',1,'']]],
   ['data_5fworkers',['data_workers',['../namespacedata__workers.html',1,'']]],
   ['dataio',['dataio',['../namespacedataio.html',1,'']]],
-  ['dataset',['Dataset',['../classdataset_1_1Dataset.html',1,'dataset.Dataset'],['../namespacedataset.html',1,'dataset']]],
+  ['dataset',['dataset',['../namespacedataset.html',1,'']]],
+  ['dataset',['Dataset',['../classdataset_1_1Dataset.html',1,'dataset']]],
   ['datatype',['DataType',['../classcore_1_1DataType.html',1,'core']]],
   ['dataworker',['DataWorker',['../classdata__workers_1_1DataWorker.html',1,'data_workers']]],
   ['db_5fname',['db_name',['../namespacecheckpoint.html#aca28f531caef6ef6f5343617179bc02a',1,'checkpoint']]],
@@ -29,7 +30,8 @@ var searchData=
   ['dountil',['DoUntil',['../namespacecontrol.html#a50616b610a4942631a1af2d585503aff',1,'control']]],
   ['dowhile',['DoWhile',['../namespacecontrol.html#a7299c1728c33357dbe45cee77570ebe7',1,'control']]],
   ['download',['download',['../namespacedownload.html',1,'']]],
-  ['dropout',['Dropout',['../classlayers_1_1dropout_1_1Dropout.html',1,'layers.dropout.Dropout'],['../namespacedropout.html',1,'dropout'],['../namespacedropout.html#ab25b66117798e8d41658ee83b9be0b4b',1,'dropout.dropout()']]],
+  ['dropout',['Dropout',['../classlayers_1_1dropout_1_1Dropout.html',1,'layers::dropout']]],
+  ['dropout',['dropout',['../namespacedropout.html',1,'dropout'],['../namespacedropout.html#ab25b66117798e8d41658ee83b9be0b4b',1,'dropout.dropout()']]],
   ['dropoutcell',['DropoutCell',['../classrnn__cell_1_1DropoutCell.html',1,'rnn_cell']]],
   ['dyndep',['dyndep',['../namespacedyndep.html',1,'']]]
 ];

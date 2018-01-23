@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['deviceinferencefunctiontype',['DeviceInferenceFunctionType',['../classcaffe2_1_1OpSchema.html#a9f4ef6c5e731b137419be609168dab66',1,'caffe2::OpSchema']]]
+  ['deviceinferencefunctiontype',['DeviceInferenceFunctionType',['../classcaffe2_1_1OpSchema.html#a37f1a10889ea9b1f4c07ae647d1d1e56',1,'caffe2::OpSchema']]]
 ];
