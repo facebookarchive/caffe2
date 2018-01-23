@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Install script for Anaconda environments on macOS. This will only work on mac
+# Install script for Anaconda environments on macOS and linux.
 # This script is not supposed to be called correctly, but should be run by:
 #
 # $ cd <path to caffe2, e.g. ~/caffe2>
-# $ conda build conda/build
+# $ conda build conda
 #
 # This installation uses MKL and does not use CUDA
 #
@@ -34,15 +34,8 @@ CMAKE_ARGS+=("-DUSE_LEVELDB=OFF")
 # want to build without MKL then you should also remove mkl from meta.yaml in
 # addition to removing the flags below
 CMAKE_ARGS+=("-DBLAS=MKL")
-CMAKE_ARGS+=("-DMKL_INCLUDE_DIR=$CONDA_PREFIX/include")
 
-# The following libraries are incompatible with macOS builds
-CMAKE_ARGS+=("-DUSE_GLOO=OFF")
-CMAKE_ARGS+=("-DUSE_MOBILE_OPENGL=OFF")
-CMAKE_ARGS+=("-DUSE_METAL=OFF")
-
-# It is rare for macs to have a GPU card with CUDA support, but if you have one
-# then remove these flags
+# There is a separate build folder for CUDA builds
 CMAKE_ARGS+=("-DUSE_CUDA=OFF")
 CMAKE_ARGS+=("-DUSE_NCCL=OFF")
 
