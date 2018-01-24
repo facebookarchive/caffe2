@@ -7100,6 +7100,20 @@ The operator switches the order of data in a tensor from NCHW- sample index N, c
 
 
 
+## NGramFromCategorical
+
+No documentation yet.
+
+
+### Code
+
+
+[caffe2/operators/ngram_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/ngram_ops.cc)
+
+---
+
+
+
 ## NHWC2NCHW
 
 

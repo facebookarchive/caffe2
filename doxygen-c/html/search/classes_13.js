@@ -2,8 +2,8 @@ var searchData=
 [
   ['tanhcpufunctor',['TanhCPUFunctor',['../structcaffe2_1_1TanhCPUFunctor.html',1,'caffe2']]],
   ['tanhgradientcpufunctor',['TanhGradientCPUFunctor',['../structcaffe2_1_1TanhGradientCPUFunctor.html',1,'caffe2']]],
-  ['task',['Task',['../structcaffe2_1_1Task.html',1,'caffe2']]],
   ['task',['Task',['../structcaffe2_1_1gpu__single__thread_1_1Task.html',1,'caffe2::gpu_single_thread']]],
+  ['task',['Task',['../structcaffe2_1_1Task.html',1,'caffe2']]],
   ['taskthreadpool',['TaskThreadPool',['../classcaffe2_1_1TaskThreadPool.html',1,'caffe2']]],
   ['tensor',['Tensor',['../classcaffe2_1_1Tensor.html',1,'caffe2']]],
   ['tensor',['Tensor',['../structTensor.html',1,'']]],
