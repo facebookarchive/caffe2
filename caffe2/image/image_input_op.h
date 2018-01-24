@@ -130,7 +130,7 @@ class ImageInputOp final
   // it ensures that both dimensions of the image are at least minsize_
   int minsize_;
   bool warp_;
-  bool shuffle_num_;
+  int shuffle_num_;
   int crop_;
   std::vector<float> mean_;
   std::vector<float> std_;
