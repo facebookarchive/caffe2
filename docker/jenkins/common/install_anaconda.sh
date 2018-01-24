@@ -7,6 +7,7 @@ export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 
 # Install needed packages
+# This also needs build-essentials but that should be installed already
 apt-get update --fix-missing
 apt-get install -y wget
 
