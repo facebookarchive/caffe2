@@ -16,6 +16,7 @@
 
 #include "caffe2/operators/text_file_reader_utils.h"
 
+#include <errno.h>
 #include <fcntl.h>
 #include <cstring>
 #include <sstream>
