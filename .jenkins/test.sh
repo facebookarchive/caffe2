@@ -2,6 +2,9 @@
 
 set -e
 
+# The prefix must mirror the setting from build.sh
+INSTALL_PREFIX="/usr/local/caffe2"
+
 LOCAL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT_DIR=$(cd "$LOCAL_DIR"/.. && pwd)
 
@@ -11,7 +14,7 @@ if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   exit 0
 fi
 
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/caffe2/lib"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${INSTALL_PREFIX}/lib"
 
 exit_code=0
 
@@ -37,8 +40,7 @@ fi
 mkdir -p ./test/{cpp,python}
 TEST_DIR="$PWD/test"
 
-
-cd /usr/local/caffe2
+cd ${INSTALL_PREFIX}
 
 # Commands below may exit with non-zero status
 set +e
@@ -80,7 +82,7 @@ fi
 
 # Add the site-packages in the caffe2 install prefix to the PYTHONPATH
 SITE_DIR=$($PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
-export PYTHONPATH="${PYTHONPATH}:/usr/local/caffe2/$SITE_DIR"
+export PYTHONPATH="${PYTHONPATH}:${INSTALL_PREFIX}/${SITE_DIR}"
 
 # Get the relative path to where the caffe2 python module was installed
 CAFFE2_PYPATH="$SITE_DIR/caffe2"
