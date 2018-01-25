@@ -160,13 +160,18 @@ function(caffe2_protobuf_generate_cpp_py srcs_var hdrs_var python_var)
     # generate sources if we're using protoc from the third_party
     # directory and are building it as part of the Caffe2 build. If
     # points to an existing path, it is a no-op.
+    if (MSVC)
+      set(PROTOBUF_DLLEXPORT_DECL dllexport_decl=CAFFE2_API:)
+    else()
+      set(PROTOBUF_DLLEXPORT_DECL)
+    endif()
     add_custom_command(
       OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${fil_we}.pb.cc"
              "${CMAKE_CURRENT_BINARY_DIR}/${fil_we}.pb.h"
              "${CMAKE_CURRENT_BINARY_DIR}/${fil_we}_pb2.py"
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
       COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}"
-      COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} -I${PROJECT_SOURCE_DIR} --cpp_out=dllexport_decl=CAFFE2_API:${PROJECT_BINARY_DIR} ${abs_fil}
+      COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} -I${PROJECT_SOURCE_DIR} --cpp_out=${PROTOBUF_DLLEXPORT_DECL}${PROJECT_BINARY_DIR} ${abs_fil}
       COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} -I${PROJECT_SOURCE_DIR} --python_out "${PROJECT_BINARY_DIR}" ${abs_fil}
       DEPENDS ${PROTOBUF_PROTOC_EXECUTABLE} ${abs_fil}
       COMMENT "Running C++/Python protocol buffer compiler on ${fil}" VERBATIM )
