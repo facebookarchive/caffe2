@@ -325,6 +325,9 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>momentum_</b></td><
 <tr class="memitem:a72efd5072f521675d94a7a62fb197d77 inherit pro_attribs_classcaffe2_1_1SpatialBNOp"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72efd5072f521675d94a7a62fb197d77"></a>
 StorageOrder&#160;</td><td class="memItemRight" valign="bottom"><b>order_</b></td></tr>
 <tr class="separator:a72efd5072f521675d94a7a62fb197d77 inherit pro_attribs_classcaffe2_1_1SpatialBNOp"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36c79d40fcde00d8e98b2814c035a686 inherit pro_attribs_classcaffe2_1_1SpatialBNOp"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a36c79d40fcde00d8e98b2814c035a686"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>num_batches_</b></td></tr>
+<tr class="separator:a36c79d40fcde00d8e98b2814c035a686 inherit pro_attribs_classcaffe2_1_1SpatialBNOp"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classcaffe2_1_1Operator"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1Operator')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1Operator.html">caffe2::Operator&lt; CUDAContext &gt;</a></td></tr>
 <tr class="memitem:af4c08188782db9c1461a50a20923a3b9 inherit pro_attribs_classcaffe2_1_1Operator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af4c08188782db9c1461a50a20923a3b9"></a>
 <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a>&#160;</td><td class="memItemRight" valign="bottom"><b>context_</b></td></tr>
@@ -353,9 +356,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>Observer</b> = <a cl
 static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kNoNetPositionSet</b> = -1</td></tr>
 <tr class="separator:a6469b8d61dc1107bc3c649ac47bbd24d inherit pub_static_attribs_classcaffe2_1_1OperatorBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classcaffe2_1_1SpatialBNOp"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classcaffe2_1_1SpatialBNOp')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classcaffe2_1_1SpatialBNOp.html">caffe2::SpatialBNOp&lt; CUDAContext &gt;</a></td></tr>
-<tr class="memitem:afa2777e2ee8b0c69b2d35726efda8ec0 inherit pro_methods_classcaffe2_1_1SpatialBNOp"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa2777e2ee8b0c69b2d35726efda8ec0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>INPUT_TAGS</b> (INPUT, SCALE, BIAS, EST_MEAN, EST_VAR)</td></tr>
-<tr class="separator:afa2777e2ee8b0c69b2d35726efda8ec0 inherit pro_methods_classcaffe2_1_1SpatialBNOp"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a837621ca982b75550b0c9052731cd274 inherit pro_methods_classcaffe2_1_1SpatialBNOp"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a837621ca982b75550b0c9052731cd274"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>INPUT_TAGS</b> (INPUT, SCALE, BIAS, EST_MEAN, EST_VAR, SUMS, SUMSQ)</td></tr>
+<tr class="separator:a837621ca982b75550b0c9052731cd274 inherit pro_methods_classcaffe2_1_1SpatialBNOp"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2517dd13bd429bbbda5e51beebce3d80 inherit pro_methods_classcaffe2_1_1SpatialBNOp"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2517dd13bd429bbbda5e51beebce3d80"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OUTPUT_TAGS</b> (OUTPUT, RUNNING_MEAN, RUNNING_VAR, SAVED_MEAN, SAVED_INV_VAR)</td></tr>
 <tr class="separator:a2517dd13bd429bbbda5e51beebce3d80 inherit pro_methods_classcaffe2_1_1SpatialBNOp"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -381,7 +384,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>getErrorMsg</b
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 24 2018 13:03:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jan 25 2018 13:03:40 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

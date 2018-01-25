@@ -808,6 +808,8 @@ Transform proposal bounding boxes to target bounding box using bounding box
 ---------- | ----------
 *Arguments* | 
 `weights` | vector<float> weights [wx, wy, ww, wh] for the deltas
+`apply_scale` | bool (default true), transform the boxes to the scaled image space after applying the bbox deltas.Set to false to match the detectron code, set to true for keypoint models and for backward compatibility
+`correct_transform_coords` | bool (default false), Correct bounding box transform coordates, see bbox_transform() in boxes.py Set to true to match the detectron code, set to false for backward compatibility
 *Inputs* | 
 `rois` | Bounding box proposals in pixel coordinates, Size (M, 4), format [x1, y1, x2, y2], orSize (M, 5), format [img_index_IGNORED, x1, y1, x2, y2]
 `deltas` | bounding box translations and scales,size (M, 4*K), format [dx, dy, dw, dh], K = # classes
@@ -1381,6 +1383,35 @@ The operator casts the elements of a given input tensor to a data type specified
 
 
 
+## ChannelBackpropStats
+
+
+Given an input tensor in NCHW format, the gradient for the output of SpatialBN and the per-channel mean and inverse std var vectors for the input, computes the per-channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation. Typically, the results of this op are subsequently reduced over multiple devices to obtain statistics over a larger batch size in cases where the batch size for a single model copy is too low to yield the full benefit of batch normalization. The resulting bias and scale can then be plugged back into SpatialBNGradient to get results over the larger batch size 
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`X` | The input 4-dimensional tensor of shape NCHW
+`mean` | The mean saved from the forward pass as a 1-dimensional tensor of size C.
+`inv_std` | The saved inverse standard deviation as a 1-dimensional tensor of size C.
+`output_grad` | Gradient for the output layer of SpatialBN, here used as input because we are on the backward pass
+*Outputs* | 
+`scale_grad` | Gradient for the scale vector
+`bias_grad` | Gradient for the bias vector
+
+
+### Code
+
+
+[caffe2/operators/channel_backprop_stats_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/channel_backprop_stats_op.cc)
+
+---
+
+
+
 ## ChannelShuffle
 
 No documentation yet.
@@ -1404,6 +1435,33 @@ No documentation yet.
 
 
 [caffe2/operators/channel_shuffle_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/channel_shuffle_op.cc)
+
+---
+
+
+
+## ChannelStats
+
+
+Given an input tensor in NCHW format, computes the sum of all elements per channel and the sum of all elements squared per channel. These values can be reduced across multiple batches and used to obtain the mean and variance across the full set of batches. Using the new mean and variance as input to SpatialBN has the effect of changing the batch size over which SpatialBN is applied.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`X` | The input 4-dimensional tensor of shape NCHW
+*Outputs* | 
+`sum` | The output 1-dimensional tensor of size C containing the sum of elements of X per channel.
+`sumsq` | The output 1-dimensional tensor of size C containing the sum of elements squared per channel.
+
+
+### Code
+
+
+[caffe2/operators/channel_stats_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/channel_stats_op.cc)
 
 ---
 
@@ -5298,6 +5356,202 @@ No documentation yet.
 
 
 
+## LC
+
+
+ 
+
+```
+    The locally connected operator consumes an input vector, a filter blob
+    and a bias blob and computes the output. 
+```
+
+ Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`None` | 
+`filter` | The filter blob that will be used in the locally connected op; has size (YH * YW * M x C x kH x kW), where YH and YW are the height and width of the output image, C is the number of channels, and kH and kW are the height and width of the kernel.
+`bias` | The 1D bias blob that is added through the locally connected op; has size (YH * YW * M).
+*Outputs* | 
+`Y` | Output data blob that contains the result of the locally connected op.The output dimensions are functions of the kernel size, stride size, and pad lengths.
+
+
+### Code
+
+
+[caffe2/operators/locally_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/locally_connected_op.cc)
+
+---
+
+
+
+## LC1D
+
+
+ 
+
+```
+    The locally connected operator consumes an input vector, a 1D filter blob
+    and a bias blob and computes the output. 
+```
+
+ Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`None` | 
+`filter` | The filter blob that will be used in the locally connected op; has size (YH * YW * M x C x kH x kW), where YH and YW are the height and width of the output image, C is the number of channels, and kH and kW are the height and width of the kernel.
+`bias` | The 1D bias blob that is added through the locally connected op; has size (YH * YW * M).
+*Outputs* | 
+`Y` | Output data blob that contains the result of the locally connected op.The output dimensions are functions of the kernel size, stride size, and pad lengths.
+
+
+### Code
+
+
+[caffe2/operators/locally_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/locally_connected_op.cc)
+
+---
+
+
+
+## LC1DGradient
+
+No documentation yet.
+
+
+### Code
+
+
+[caffe2/operators/locally_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/locally_connected_op.cc)
+
+---
+
+
+
+## LC2D
+
+
+ 
+
+```
+    The locally connected operator consumes an input vector, a 2D filter blob
+    and a bias blob and computes the output. 
+```
+
+ Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`None` | 
+`filter` | The filter blob that will be used in the locally connected op; has size (YH * YW * M x C x kH x kW), where YH and YW are the height and width of the output image, C is the number of channels, and kH and kW are the height and width of the kernel.
+`bias` | The 1D bias blob that is added through the locally connected op; has size (YH * YW * M).
+*Outputs* | 
+`Y` | Output data blob that contains the result of the locally connected op.The output dimensions are functions of the kernel size, stride size, and pad lengths.
+
+
+### Code
+
+
+[caffe2/operators/locally_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/locally_connected_op.cc)
+
+---
+
+
+
+## LC2DGradient
+
+No documentation yet.
+
+
+### Code
+
+
+[caffe2/operators/locally_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/locally_connected_op.cc)
+
+---
+
+
+
+## LC3D
+
+
+ 
+
+```
+    The locally connected operator consumes an input vector, a 3D filter blob
+    and a bias blob and computes the output. 
+```
+
+ Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`None` | 
+`filter` | The filter blob that will be used in the locally connected op; has size (YH * YW * M x C x kH x kW), where YH and YW are the height and width of the output image, C is the number of channels, and kH and kW are the height and width of the kernel.
+`bias` | The 1D bias blob that is added through the locally connected op; has size (YH * YW * M).
+*Outputs* | 
+`Y` | Output data blob that contains the result of the locally connected op.The output dimensions are functions of the kernel size, stride size, and pad lengths.
+
+
+### Code
+
+
+[caffe2/operators/locally_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/locally_connected_op.cc)
+
+---
+
+
+
+## LC3DGradient
+
+No documentation yet.
+
+
+### Code
+
+
+[caffe2/operators/locally_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/locally_connected_op.cc)
+
+---
+
+
+
+## LCGradient
+
+No documentation yet.
+
+
+### Code
+
+
+[caffe2/operators/locally_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/locally_connected_op.cc)
+
+---
+
+
+
 ## LE
 
 
@@ -8934,6 +9188,64 @@ Concretely, given inputs (grad, mean_squares, mom, lr), computes:
 
 
 
+## RoIAlign
+
+
+Region of Interest (RoI) align operation as used in Mask R-CNN.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`spatial_scale` | (float) default 1.0; Spatial scale of the input feature map X relative to the input image. E.g., 0.0625 if X has a stride of 16 w.r.t. the input image.
+`pooled_h` | (int) default 1; Pooled output Y's height.
+`pooled_w` | (int) default 1; Pooled output Y's width.
+`sampling_ratio` | (int) default -1; number of sampling points in the interpolation grid used to compute the output value of each pooled output bin. If > 0, then exactly sampling_ratio x sampling_ratio grid points are used. If <= 0, then an adaptive number of grid points are used (computed as ceil(roi_width / pooled_w), and likewise for height).
+*Inputs* | 
+`X` | 4D feature map input of shape (N, C, H, W).
+`RoIs` | 2D input of shape (R, 5) specifying R RoIs with five columns representing: batch index in [0, N - 1], x1, y1, x2, y2. The RoI coordinates are in the coordinate system of the input image.
+*Outputs* | 
+`Y` | 4D output of shape (R, C, pooled_h, pooled_w). The r-th batch element is a pooled feature map cooresponding to the r-th RoI.
+
+
+### Code
+
+
+[caffe2/operators/roi_align_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/roi_align_op.cc)
+
+---
+
+
+
+## RoIAlignGradient
+
+No documentation yet.
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`X` | See RoIPoolF.
+`RoIs` | See RoIPoolF.
+`dY` | Gradient of forward output 0 (Y)
+*Outputs* | 
+`dX` | Gradient of forward input 0 (X)
+
+
+### Code
+
+
+[caffe2/operators/roi_align_gradient_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/roi_align_gradient_op.cc)
+
+---
+
+
+
 ## RoIPool
 
 
@@ -11411,12 +11723,15 @@ Carries out spatial batch normalization as described in the paper  [https://arxi
 `epsilon` | The epsilon value to use to avoid division by zero.
 `order` | A StorageOrder string.
 `momentum` | Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum)
+`num_batches` | (Optional) Specifies the number of batches to apply normalization on. Requires specifying the optional sums and sumsq inputs that provide statistics across multiple batches from which mean and variance can be determined.
 *Inputs* | 
 `X` | The input 4-dimensional tensor of shape NCHW or NHWC depending on the order parameter.
 `scale` | The scale as a 1-dimensional tensor of size C to be applied to the output.
 `bias` | The bias as a 1-dimensional tensor of size C to be applied to the output.
 `mean` | The running mean (training) or the estimated mean (testing) as a 1-dimensional tensor of size C.
 `var` | The running variance (training) or the estimated variance (testing) as a 1-dimensional tensor of size C.
+`sums` | (optional) Per-channel sums of elements to be used to determine the mean and variance for this batch
+`sumsq` | (optional) Per-channel sum of elements squared per channel to be used to determine the variance for this batch
 *Outputs* | 
 `Y` | The output 4-dimensional tensor of the same shape as X.
 `mean` | The running mean after the spatial BN operator. Must be in-place with the input mean. Should not be used for testing.
@@ -13180,8 +13495,9 @@ The 1st input is the queue and the last output is the status. The rest are data 
 
 
 ---------- | ----------
-*Inputs* | 
+*Arguments* | 
 `weights` | Weights for sampling from multiple queues
+`table_idx_blob` | The index of the blob (among the output blob list) that will be used to store the index of the table chosen to read the current batch.
 
 
 ### Code

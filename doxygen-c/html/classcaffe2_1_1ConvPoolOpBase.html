@@ -111,18 +111,20 @@ Inheritance diagram for caffe2::ConvPoolOpBase&lt; Context &gt;:</div>
  <div class="center">
   <img src="classcaffe2_1_1ConvPoolOpBase.png" usemap="#caffe2::ConvPoolOpBase_3C_20Context_20_3E_map" alt=""/>
   <map id="caffe2::ConvPoolOpBase_3C_20Context_20_3E_map" name="caffe2::ConvPoolOpBase&lt; Context &gt;_map">
-<area href="classcaffe2_1_1Operator.html" alt="caffe2::Operator&lt; Context &gt;" shape="rect" coords="0,112,288,136"/>
-<area href="classcaffe2_1_1OperatorBase.html" alt="caffe2::OperatorBase" shape="rect" coords="0,56,288,80"/>
-<area href="classcaffe2_1_1Observable.html" alt="caffe2::Observable&lt; OperatorBase &gt;" shape="rect" coords="0,0,288,24"/>
-<area href="classcaffe2_1_1ChannelShuffleGradientOp.html" alt="caffe2::ChannelShuffleGradientOp&lt; Context &gt;" shape="rect" coords="298,224,586,248"/>
-<area href="classcaffe2_1_1ChannelShuffleOp.html" alt="caffe2::ChannelShuffleOp&lt; Context &gt;" shape="rect" coords="298,280,586,304"/>
-<area href="classcaffe2_1_1ConvGradientOp.html" alt="caffe2::ConvGradientOp&lt; T, Context &gt;" shape="rect" coords="298,336,586,360"/>
-<area href="classcaffe2_1_1ConvOp.html" alt="caffe2::ConvOp&lt; T, Context &gt;" shape="rect" coords="298,392,586,416"/>
-<area href="classcaffe2_1_1DeformConvOpBase.html" alt="caffe2::DeformConvOpBase&lt; T, Context &gt;" shape="rect" coords="298,448,586,472"/>
-<area href="classcaffe2_1_1PadImageGradientOp.html" alt="caffe2::PadImageGradientOp&lt; T, Context &gt;" shape="rect" coords="298,504,586,528"/>
-<area href="classcaffe2_1_1PadImageOp.html" alt="caffe2::PadImageOp&lt; T, Context &gt;" shape="rect" coords="298,560,586,584"/>
-<area href="classcaffe2_1_1PoolGradientOp.html" alt="caffe2::PoolGradientOp&lt; T, Context, PoolType &gt;" shape="rect" coords="298,616,586,640"/>
-<area href="classcaffe2_1_1PoolOp.html" alt="caffe2::PoolOp&lt; T, Context, PoolType &gt;" shape="rect" coords="298,672,586,696"/>
+<area href="classcaffe2_1_1Operator.html" alt="caffe2::Operator&lt; Context &gt;" shape="rect" coords="0,112,303,136"/>
+<area href="classcaffe2_1_1OperatorBase.html" alt="caffe2::OperatorBase" shape="rect" coords="0,56,303,80"/>
+<area href="classcaffe2_1_1Observable.html" alt="caffe2::Observable&lt; OperatorBase &gt;" shape="rect" coords="0,0,303,24"/>
+<area href="classcaffe2_1_1ChannelShuffleGradientOp.html" alt="caffe2::ChannelShuffleGradientOp&lt; Context &gt;" shape="rect" coords="313,224,616,248"/>
+<area href="classcaffe2_1_1ChannelShuffleOp.html" alt="caffe2::ChannelShuffleOp&lt; Context &gt;" shape="rect" coords="313,280,616,304"/>
+<area href="classcaffe2_1_1ConvGradientOp.html" alt="caffe2::ConvGradientOp&lt; T, Context &gt;" shape="rect" coords="313,336,616,360"/>
+<area href="classcaffe2_1_1ConvOp.html" alt="caffe2::ConvOp&lt; T, Context &gt;" shape="rect" coords="313,392,616,416"/>
+<area href="classcaffe2_1_1DeformConvOpBase.html" alt="caffe2::DeformConvOpBase&lt; T, Context &gt;" shape="rect" coords="313,448,616,472"/>
+<area href="classcaffe2_1_1LocallyConnectedGradientOp.html" alt="caffe2::LocallyConnectedGradientOp&lt; T, Context &gt;" shape="rect" coords="313,504,616,528"/>
+<area href="classcaffe2_1_1LocallyConnectedOp.html" alt="caffe2::LocallyConnectedOp&lt; T, Context &gt;" shape="rect" coords="313,560,616,584"/>
+<area href="classcaffe2_1_1PadImageGradientOp.html" alt="caffe2::PadImageGradientOp&lt; T, Context &gt;" shape="rect" coords="313,616,616,640"/>
+<area href="classcaffe2_1_1PadImageOp.html" alt="caffe2::PadImageOp&lt; T, Context &gt;" shape="rect" coords="313,672,616,696"/>
+<area href="classcaffe2_1_1PoolGradientOp.html" alt="caffe2::PoolGradientOp&lt; T, Context, PoolType &gt;" shape="rect" coords="313,728,616,752"/>
+<area href="classcaffe2_1_1PoolOp.html" alt="caffe2::PoolOp&lt; T, Context, PoolType &gt;" shape="rect" coords="313,784,616,808"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -144,6 +146,13 @@ template&lt;typename AlternativeContext &gt; </td></tr>
 <tr class="memitem:a69437d47c5c0b00b4c4c523b666a7524"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69437d47c5c0b00b4c4c523b666a7524"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ComputePads</b> (const vector&lt; int &gt; &amp;dims)</td></tr>
 <tr class="separator:a69437d47c5c0b00b4c4c523b666a7524"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ca659acabaf582fe47cbe3692d67764"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ca659acabaf582fe47cbe3692d67764"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetDeviceTensor</b> (const std::vector&lt; int &gt; &amp;data, <a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; Context &gt; *tensor)</td></tr>
+<tr class="separator:a3ca659acabaf582fe47cbe3692d67764"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0949b34a5feb5924c1efc9030aeec7d"><td class="memTemplParams" colspan="2"><a class="anchor" id="aa0949b34a5feb5924c1efc9030aeec7d"></a>
+template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aa0949b34a5feb5924c1efc9030aeec7d"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>SetBiasMultiplier</b> (const int size, <a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; Context &gt; *bias_multiplier_)</td></tr>
+<tr class="separator:aa0949b34a5feb5924c1efc9030aeec7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51179dbd9de36eaf6fe747718ef785ae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a51179dbd9de36eaf6fe747718ef785ae"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>RunOnDevice</b> () override</td></tr>
 <tr class="separator:a51179dbd9de36eaf6fe747718ef785ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -459,7 +468,7 @@ static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kNoNe
 class caffe2::ConvPoolOpBase&lt; Context &gt;</h3>
 
 
-<p>Definition at line <a class="el" href="conv__pool__op__base_8h_source.html#l00042">42</a> of file <a class="el" href="conv__pool__op__base_8h_source.html">conv_pool_op_base.h</a>.</p>
+<p>Definition at line <a class="el" href="conv__pool__op__base_8h_source.html#l00044">44</a> of file <a class="el" href="conv__pool__op__base_8h_source.html">conv_pool_op_base.h</a>.</p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/operators/<a class="el" href="conv__pool__op__base_8h_source.html">conv_pool_op_base.h</a></li>
 </ul>
@@ -467,7 +476,7 @@ class caffe2::ConvPoolOpBase&lt; Context &gt;</h3>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 24 2018 13:03:29 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jan 25 2018 13:03:39 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

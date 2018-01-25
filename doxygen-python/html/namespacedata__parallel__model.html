@@ -114,8 +114,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>Parallelize_GPU</b> (a
 <tr class="memitem:a517a9e06da30c9a0e7809d411439db1d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a517a9e06da30c9a0e7809d411439db1d"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>Parallelize_CPU</b> (args, kwargs)</td></tr>
 <tr class="separator:a517a9e06da30c9a0e7809d411439db1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8528db8b99860b41e6870bc2c73adb65"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model.html#a8528db8b99860b41e6870bc2c73adb65">Parallelize</a> (model_helper_obj, input_builder_fun, forward_pass_builder_fun, param_update_builder_fun=None, optimizer_builder_fun=None, post_sync_builder_fun=None, devices=None, rendezvous=None, net_type='dag', broadcast_computed_params=True, optimize_gradient_memory=False, dynamic_memory_management=False, blobs_to_keep=None, use_nccl=False, max_concurrent_distributed_ops=16, cpu_device=False, num_threads_per_device=4, shared_model=False)</td></tr>
-<tr class="separator:a8528db8b99860b41e6870bc2c73adb65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05acaf7715ce27d17c1221ec77c64bbf"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model.html#a05acaf7715ce27d17c1221ec77c64bbf">Parallelize</a> (model_helper_obj, input_builder_fun, forward_pass_builder_fun, param_update_builder_fun=None, optimizer_builder_fun=None, post_sync_builder_fun=None, devices=None, rendezvous=None, net_type='dag', broadcast_computed_params=True, optimize_gradient_memory=False, dynamic_memory_management=False, blobs_to_keep=None, use_nccl=False, max_concurrent_distributed_ops=16, cpu_device=False, num_threads_per_device=4, shared_model=False, combine_spatial_bn=False)</td></tr>
+<tr class="separator:a05acaf7715ce27d17c1221ec77c64bbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb91a7b83e88e50e8f89e6906679bce1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb91a7b83e88e50e8f89e6906679bce1"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>Parallelize_GPU_BMUF</b> (args, kwargs)</td></tr>
 <tr class="separator:abb91a7b83e88e50e8f89e6906679bce1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -199,7 +199,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>barrier_instance</b> =
 </div><div class="memdoc">
 <pre class="fragment">Sync a blob across devices and hosts
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l01017">1017</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l01032">1032</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -228,7 +228,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>barrier_instance</b> =
 </div><div class="memdoc">
 <pre class="fragment">Sync blobs across machines (but not across devices)
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l01041">1041</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l01056">1056</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -266,7 +266,7 @@ forward_pass_builder_fun:
       model.param_init_net.AppendNet(
          data_parallel_model.ConvertNetForDevice(othermodel.param_init_net))
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00710">710</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00725">725</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -308,7 +308,7 @@ forward_pass_builder_fun:
 <pre class="fragment">Returns (net, params) that can be exported to be used as a prediction
 net.
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00776">776</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00791">791</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -338,7 +338,7 @@ net.
 <pre class="fragment">This function should be called after loading parameters from a
 checkpoint / initial parameters file.
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00823">823</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00838">838</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -358,7 +358,7 @@ checkpoint / initial parameters file.
 <pre class="fragment">Returns a set of blobs that are needed for a complete check point.
 They are blobs for the first gpu and iteration blobs.
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00799">799</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00814">814</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -377,7 +377,7 @@ They are blobs for the first gpu and iteration blobs.
 </div><div class="memdoc">
 <pre class="fragment">Returns a list of learning rates blob names used in the optimizer.
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00878">878</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00893">893</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -424,11 +424,11 @@ excluded_blobs: list of blobs that cannot be recycled. These are blobs
                that you will access externally.
 recycle_activations: whether to also recycle forward pass activations
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l01667">1667</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l01669">1669</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a8528db8b99860b41e6870bc2c73adb65"></a>
+<a class="anchor" id="a05acaf7715ce27d17c1221ec77c64bbf"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -538,7 +538,13 @@ recycle_activations: whether to also recycle forward pass activations
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>shared_model</em> = <code>False</code>&#160;</td>
+          <td class="paramname"><em>shared_model</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>combine_spatial_bn</em> = <code>False</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -590,8 +596,13 @@ recycle_activations: whether to also recycle forward pass activations
   blobs_to_keep :   A list of blob names to keep and don't free during
                     dynamic memory optimization (for example loss blob).
   cpu_device        Use CPU instead of GPU.
+  combine_spatial_bn:
+                    When set to True, applies batch normalization across
+                    all devices within the node. If False, batch
+                    normalization will be done separately for each device.
+                    This option is currently only supported on the CPU.
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00071">71</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00073">73</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -728,7 +739,7 @@ in : Scalable Training of Deep Learning Machines by Incremental Block
 Training with Intra-block Parallel Optimization and Blockwise Model-Update
 Filtering (ICASSP 2016).
 </pre> 
-<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00386">386</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
+<p>Definition at line <a class="el" href="data__parallel__model_8py_source.html#l00401">401</a> of file <a class="el" href="data__parallel__model_8py_source.html">data_parallel_model.py</a>.</p>
 
 </div>
 </div>
@@ -736,7 +747,7 @@ Filtering (ICASSP 2016).
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 24 2018 13:03:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jan 25 2018 13:03:28 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

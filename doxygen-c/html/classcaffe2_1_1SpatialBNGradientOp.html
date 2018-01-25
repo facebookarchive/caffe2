@@ -294,9 +294,9 @@ Data Fields</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a86dc1bd4692e129c0b3ae1674f0d94d3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86dc1bd4692e129c0b3ae1674f0d94d3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>INPUT_TAGS</b> (INPUT, SCALE, OUTPUT_GRAD, SAVED_MEAN, SAVED_INV_VAR)</td></tr>
-<tr class="separator:a86dc1bd4692e129c0b3ae1674f0d94d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a757f9010bf846a13fbf4b6266833d29c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a757f9010bf846a13fbf4b6266833d29c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>INPUT_TAGS</b> (INPUT, SCALE, OUTPUT_GRAD, SAVED_MEAN, SAVED_INV_VAR, AGGREGATE_SCALE_GRAD, AGGREGATE_BIAS_GRAD)</td></tr>
+<tr class="separator:a757f9010bf846a13fbf4b6266833d29c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48b15893e0fe64f6ef222b4614580480"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a48b15893e0fe64f6ef222b4614580480"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OUTPUT_TAGS</b> (INPUT_GRAD, SCALE_GRAD, BIAS_GRAD)</td></tr>
 <tr class="separator:a48b15893e0fe64f6ef222b4614580480"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -323,6 +323,9 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>epsilon_</b></td></
 <tr class="memitem:a1d4f239f9d53e06674f3d2436a7b6650"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d4f239f9d53e06674f3d2436a7b6650"></a>
 StorageOrder&#160;</td><td class="memItemRight" valign="bottom"><b>order_</b></td></tr>
 <tr class="separator:a1d4f239f9d53e06674f3d2436a7b6650"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addc7c6de5bde3f792d57b3688b8aedfd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="addc7c6de5bde3f792d57b3688b8aedfd"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>num_batches_</b></td></tr>
+<tr class="separator:addc7c6de5bde3f792d57b3688b8aedfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classcaffe2_1_1Operator"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1Operator')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1Operator.html">caffe2::Operator&lt; Context &gt;</a></td></tr>
 <tr class="memitem:af4c08188782db9c1461a50a20923a3b9 inherit pro_attribs_classcaffe2_1_1Operator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af4c08188782db9c1461a50a20923a3b9"></a>
 Context&#160;</td><td class="memItemRight" valign="bottom"><b>context_</b></td></tr>
@@ -352,7 +355,7 @@ static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kNoNe
 class caffe2::SpatialBNGradientOp&lt; Context &gt;</h3>
 
 
-<p>Definition at line <a class="el" href="spatial__batch__norm__op_8h_source.html#l00060">60</a> of file <a class="el" href="spatial__batch__norm__op_8h_source.html">spatial_batch_norm_op.h</a>.</p>
+<p>Definition at line <a class="el" href="spatial__batch__norm__op_8h_source.html#l00062">62</a> of file <a class="el" href="spatial__batch__norm__op_8h_source.html">spatial_batch_norm_op.h</a>.</p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/operators/<a class="el" href="spatial__batch__norm__op_8h_source.html">spatial_batch_norm_op.h</a></li>
 </ul>
@@ -360,7 +363,7 @@ class caffe2::SpatialBNGradientOp&lt; Context &gt;</h3>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 24 2018 13:03:33 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jan 25 2018 13:03:46 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

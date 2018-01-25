@@ -293,6 +293,9 @@ Data Fields</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
+<tr class="memitem:a3330cd783e466896f8177caf329f5bcb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3330cd783e466896f8177caf329f5bcb"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetDeviceTensor</b> (const std::vector&lt; int &gt; &amp;data, <a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a> &gt; *tensor)</td></tr>
+<tr class="separator:a3330cd783e466896f8177caf329f5bcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d9f355adfeb98110f60fec7148919ea"><td class="memTemplParams" colspan="2"><a class="anchor" id="a7d9f355adfeb98110f60fec7148919ea"></a>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a7d9f355adfeb98110f60fec7148919ea"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>DoRunWithType</b> ()</td></tr>
@@ -332,15 +335,15 @@ cudnnTensorDescriptor_t&#160;</td><td class="memItemRight" valign="bottom"><b>yD
 <tr class="memitem:a2728b7f1d9d12e949d223cd9ae540280"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2728b7f1d9d12e949d223cd9ae540280"></a>
 std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>axes_</b></td></tr>
 <tr class="separator:a2728b7f1d9d12e949d223cd9ae540280"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ca50ca4f75f29938845e632214232ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9ca50ca4f75f29938845e632214232ba"></a>
-std::vector&lt; TIndex &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>new_dims_</b></td></tr>
-<tr class="separator:a9ca50ca4f75f29938845e632214232ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65b8452a4cae8a04b4588b6e2dcbae0d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a65b8452a4cae8a04b4588b6e2dcbae0d"></a>
-<a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>buffer_</b></td></tr>
-<tr class="separator:a65b8452a4cae8a04b4588b6e2dcbae0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a72ec21ee7f7a1b30cb38208ff2df36"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4a72ec21ee7f7a1b30cb38208ff2df36"></a>
-<a class="el" href="classcaffe2_1_1Tensor.html">TensorCPU</a>&#160;</td><td class="memItemRight" valign="bottom"><b>buffer_cpu_</b></td></tr>
-<tr class="separator:a4a72ec21ee7f7a1b30cb38208ff2df36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49400e56d832b1195ebb366bbe37520f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49400e56d832b1195ebb366bbe37520f"></a>
+<a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>x_dims_device_</b></td></tr>
+<tr class="separator:a49400e56d832b1195ebb366bbe37520f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85ec717d52d93c792a817dde53efb0ab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a85ec717d52d93c792a817dde53efb0ab"></a>
+<a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>y_dims_device_</b></td></tr>
+<tr class="separator:a85ec717d52d93c792a817dde53efb0ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bb2d8e2ee2aa6e1b22801f78ded82af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5bb2d8e2ee2aa6e1b22801f78ded82af"></a>
+<a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>axes_device_</b></td></tr>
+<tr class="separator:a5bb2d8e2ee2aa6e1b22801f78ded82af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classcaffe2_1_1Operator"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1Operator')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1Operator.html">caffe2::Operator&lt; CUDAContext &gt;</a></td></tr>
 <tr class="memitem:af4c08188782db9c1461a50a20923a3b9 inherit pro_attribs_classcaffe2_1_1Operator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af4c08188782db9c1461a50a20923a3b9"></a>
 <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a>&#160;</td><td class="memItemRight" valign="bottom"><b>context_</b></td></tr>
@@ -367,7 +370,7 @@ static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kNoNe
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="transpose__op__cudnn_8cc_source.html#l00026">26</a> of file <a class="el" href="transpose__op__cudnn_8cc_source.html">transpose_op_cudnn.cc</a>.</p>
+<p>Definition at line <a class="el" href="transpose__op__cudnn_8cc_source.html#l00027">27</a> of file <a class="el" href="transpose__op__cudnn_8cc_source.html">transpose_op_cudnn.cc</a>.</p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/operators/<a class="el" href="transpose__op__cudnn_8cc_source.html">transpose_op_cudnn.cc</a></li>
 </ul>
@@ -375,7 +378,7 @@ static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kNoNe
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 24 2018 13:03:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jan 25 2018 13:03:40 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

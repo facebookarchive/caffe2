@@ -36,6 +36,8 @@ var searchData=
   ['loadmodule',['LoadModule',['../namespacecaffe2.html#ad9f3bdc17d263b9070079af7c9248b97',1,'caffe2']]],
   ['loadop',['LoadOp',['../classcaffe2_1_1LoadOp.html',1,'caffe2']]],
   ['localblobs',['LocalBlobs',['../classcaffe2_1_1Workspace.html#ad3158ca87421fe5d3104837b7c913289',1,'caffe2::Workspace']]],
+  ['locallyconnectedgradientop',['LocallyConnectedGradientOp',['../classcaffe2_1_1LocallyConnectedGradientOp.html',1,'caffe2']]],
+  ['locallyconnectedop',['LocallyConnectedOp',['../classcaffe2_1_1LocallyConnectedOp.html',1,'caffe2']]],
   ['logcpufunctor',['LogCPUFunctor',['../structcaffe2_1_1LogCPUFunctor.html',1,'caffe2']]],
   ['loggervoidify',['LoggerVoidify',['../classcaffe2_1_1LoggerVoidify.html',1,'caffe2']]],
   ['logitcpufunctor',['LogitCPUFunctor',['../structcaffe2_1_1LogitCPUFunctor.html',1,'caffe2']]],

@@ -1,7 +1,7 @@
 var searchData=
 [
   ['pairwisedotproduct',['PairwiseDotProduct',['../classlayers_1_1pairwise__dot__product_1_1PairwiseDotProduct.html',1,'layers::pairwise_dot_product']]],
-  ['parallelize',['Parallelize',['../namespacedata__parallel__model.html#a8528db8b99860b41e6870bc2c73adb65',1,'data_parallel_model']]],
+  ['parallelize',['Parallelize',['../namespacedata__parallel__model.html#a05acaf7715ce27d17c1221ec77c64bbf',1,'data_parallel_model']]],
   ['parallelize_5fbmuf',['Parallelize_BMUF',['../namespacedata__parallel__model.html#a75712d2f72a7a833151191750a4f6587',1,'data_parallel_model']]],
   ['param_5fblobs',['param_blobs',['../classlayers_1_1sampling__trainable__mixin_1_1SamplingTrainableMixin.html#a93df3baa3e54849f90fd3296af57eb63',1,'layers::sampling_trainable_mixin::SamplingTrainableMixin']]],
   ['parameterinfo',['ParameterInfo',['../classparameter__info_1_1ParameterInfo.html',1,'parameter_info']]],

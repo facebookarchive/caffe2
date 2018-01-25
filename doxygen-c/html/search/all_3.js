@@ -11,8 +11,10 @@ var searchData=
   ['calculateoutput',['CalculateOutput',['../classcaffe2_1_1OpSchema.html#a2004e2bf609df00b021bc8ffccb7488a',1,'caffe2::OpSchema']]],
   ['canonical_5faxis_5findex',['canonical_axis_index',['../classcaffe2_1_1QTensor.html#a5a460a6fa8c438a8ac9a4b353dd0c5b6',1,'caffe2::QTensor::canonical_axis_index()'],['../classcaffe2_1_1Tensor.html#af8cf542a5e06562c22126ff029d367e0',1,'caffe2::Tensor::canonical_axis_index()']]],
   ['castop',['CastOp',['../classcaffe2_1_1CastOp.html',1,'caffe2']]],
+  ['channelbackpropstatsop',['ChannelBackpropStatsOp',['../classcaffe2_1_1ChannelBackpropStatsOp.html',1,'caffe2']]],
   ['channelshufflegradientop',['ChannelShuffleGradientOp',['../classcaffe2_1_1ChannelShuffleGradientOp.html',1,'caffe2']]],
   ['channelshuffleop',['ChannelShuffleOp',['../classcaffe2_1_1ChannelShuffleOp.html',1,'caffe2']]],
+  ['channelstatsop',['ChannelStatsOp',['../classcaffe2_1_1ChannelStatsOp.html',1,'caffe2']]],
   ['charrange',['CharRange',['../structcaffe2_1_1CharRange.html',1,'caffe2']]],
   ['checkcounterdoneop',['CheckCounterDoneOp',['../classcaffe2_1_1CheckCounterDoneOp.html',1,'caffe2']]],
   ['checkpointop',['CheckpointOp',['../classcaffe2_1_1CheckpointOp.html',1,'caffe2']]],
@@ -165,7 +167,7 @@ var searchData=
   ['cudnnwrapper',['CuDNNWrapper',['../classcaffe2_1_1CuDNNWrapper.html#a0efa9399b67e409f822eb979d61e0824',1,'caffe2::CuDNNWrapper']]],
   ['curandgeterrorstring',['curandGetErrorString',['../namespacecaffe2.html#a8cd40a0417e6ec30c62f7fb8b49aa031',1,'caffe2']]],
   ['currentmodules',['CurrentModules',['../namespacecaffe2.html#a2015a66b1fe9fccf95985a1b9de6d31c',1,'caffe2']]],
-  ['cursor',['Cursor',['../classcaffe2_1_1db_1_1Cursor.html',1,'caffe2::db']]],
   ['cursor',['cursor',['../classcaffe2_1_1db_1_1DBReader.html#a67e032b62adfa1eeeb2ad24613b46bf8',1,'caffe2::db::DBReader']]],
+  ['cursor',['Cursor',['../classcaffe2_1_1db_1_1Cursor.html',1,'caffe2::db']]],
   ['enforce_5fdetail',['enforce_detail',['../namespacecaffe2_1_1enforce__detail.html',1,'caffe2']]]
 ];

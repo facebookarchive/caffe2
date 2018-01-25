@@ -293,14 +293,13 @@ Data Fields</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
+<tr class="memitem:ae7583a1fc0aa379a12010a2dcb269d6b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae7583a1fc0aa379a12010a2dcb269d6b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetDeviceTensor</b> (const std::vector&lt; int &gt; &amp;data, <a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; Context &gt; *tensor)</td></tr>
+<tr class="separator:ae7583a1fc0aa379a12010a2dcb269d6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36a5fe4b6c9871a34d5917c500c12d2f"><td class="memTemplParams" colspan="2"><a class="anchor" id="a36a5fe4b6c9871a34d5917c500c12d2f"></a>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a36a5fe4b6c9871a34d5917c500c12d2f"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>DoRunWithType</b> ()</td></tr>
 <tr class="separator:a36a5fe4b6c9871a34d5917c500c12d2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad19cc20e4712415aa51b75208a6d1a7a"><td class="memTemplParams" colspan="2"><a class="anchor" id="ad19cc20e4712415aa51b75208a6d1a7a"></a>
-template&lt;&gt; </td></tr>
-<tr class="memitem:ad19cc20e4712415aa51b75208a6d1a7a"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>DoRunWithType</b> ()</td></tr>
-<tr class="separator:ad19cc20e4712415aa51b75208a6d1a7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classcaffe2_1_1Operator"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classcaffe2_1_1Operator')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classcaffe2_1_1Operator.html">caffe2::Operator&lt; Context &gt;</a></td></tr>
 <tr class="memitem:abb6b26b9d6d77aa5ac1db7d5b2d50ce5 inherit pro_methods_classcaffe2_1_1Operator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb6b26b9d6d77aa5ac1db7d5b2d50ce5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecordEvent</b> (const char *err_msg=nullptr) final</td></tr>
@@ -318,15 +317,15 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:ab777ea2cb8eeaac90eec7cb52b6e16d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab777ea2cb8eeaac90eec7cb52b6e16d8"></a>
 std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>axes_</b></td></tr>
 <tr class="separator:ab777ea2cb8eeaac90eec7cb52b6e16d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5701c671dcc0e64b3e33e150950337e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5701c671dcc0e64b3e33e150950337e"></a>
-std::vector&lt; TIndex &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>new_dims_</b></td></tr>
-<tr class="separator:aa5701c671dcc0e64b3e33e150950337e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a00fff10244f899c54e0a44f7a5594190"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a00fff10244f899c54e0a44f7a5594190"></a>
-<a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; Context &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>buffer_</b></td></tr>
-<tr class="separator:a00fff10244f899c54e0a44f7a5594190"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d8653c7413a7a78ec8a0bb08ec6c0c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3d8653c7413a7a78ec8a0bb08ec6c0c3"></a>
-<a class="el" href="classcaffe2_1_1Tensor.html">TensorCPU</a>&#160;</td><td class="memItemRight" valign="bottom"><b>buffer_cpu_</b></td></tr>
-<tr class="separator:a3d8653c7413a7a78ec8a0bb08ec6c0c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88b8b1523e64c5ef78d2557fa6687dff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a88b8b1523e64c5ef78d2557fa6687dff"></a>
+<a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; Context &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>x_dims_device_</b></td></tr>
+<tr class="separator:a88b8b1523e64c5ef78d2557fa6687dff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1424473e4a3871469e630ef60507fa82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1424473e4a3871469e630ef60507fa82"></a>
+<a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; Context &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>y_dims_device_</b></td></tr>
+<tr class="separator:a1424473e4a3871469e630ef60507fa82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30efd13f74f7d2cd225600b37bec8b5f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a30efd13f74f7d2cd225600b37bec8b5f"></a>
+<a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; Context &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>axes_device_</b></td></tr>
+<tr class="separator:a30efd13f74f7d2cd225600b37bec8b5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classcaffe2_1_1Operator"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1Operator')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1Operator.html">caffe2::Operator&lt; Context &gt;</a></td></tr>
 <tr class="memitem:af4c08188782db9c1461a50a20923a3b9 inherit pro_attribs_classcaffe2_1_1Operator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af4c08188782db9c1461a50a20923a3b9"></a>
 Context&#160;</td><td class="memItemRight" valign="bottom"><b>context_</b></td></tr>
@@ -364,7 +363,7 @@ class caffe2::TransposeOp&lt; Context &gt;</h3>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 24 2018 13:03:33 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jan 25 2018 13:03:47 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -285,9 +285,13 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1CastOp.html">CastOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1ChannelBackpropStatsOp.html">ChannelBackpropStatsOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1ChannelShuffleGradientOp.html">ChannelShuffleGradientOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1ChannelShuffleOp.html">ChannelShuffleOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1ChannelStatsOp.html">ChannelStatsOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcaffe2_1_1CharRange.html">CharRange</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -987,6 +991,10 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1LinearWarmupLearningRate.html">LinearWarmupLearningRate</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1LoadOp.html">LoadOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1LocallyConnectedGradientOp.html">LocallyConnectedGradientOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1LocallyConnectedOp.html">LocallyConnectedOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcaffe2_1_1LogCPUFunctor.html">LogCPUFunctor</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3552,6 +3560,24 @@ The data type to which the elements of the input tensor are cast Strictly must b
 <tr class="memitem:a8ca31f20f5f48826244c16253688e969"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ca31f20f5f48826244c16253688e969"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Cast, <a class="el" href="classcaffe2_1_1GetCastGradient.html">GetCastGradient</a>)</td></tr>
 <tr class="separator:a8ca31f20f5f48826244c16253688e969"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc1df83ff9b308cd592da73ded0d46cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc1df83ff9b308cd592da73ded0d46cf"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ChannelBackpropStats, <a class="el" href="classcaffe2_1_1ChannelBackpropStatsOp.html">ChannelBackpropStatsOp</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:afc1df83ff9b308cd592da73ded0d46cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56eb89cfd95dc8efc2c24fc1b1f43c21"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a56eb89cfd95dc8efc2c24fc1b1f43c21"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (4).NumOutputs(2).SetDoc(R&quot;DOC( Given an input tensor in NCHW format</td></tr>
+<tr class="separator:a56eb89cfd95dc8efc2c24fc1b1f43c21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac77a1c41934099d8e709424acfe69e53"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac77a1c41934099d8e709424acfe69e53"></a>
+the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation the results of this op are subsequently reduced over multiple devices to obtain statistics over a larger batch size in cases where the batch size for a single model copy is too low to yield the full benefit of batch normalization The resulting bias and scale can then be plugged back into SpatialBNGradient to get results over the larger batch size DOC&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;X&quot;,&quot;The input 4-dimensional tensor of shape NCHW&quot;).Input(1</td></tr>
+<tr class="separator:ac77a1c41934099d8e709424acfe69e53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb5e823bd1a5297db0fdd5b420fa89eb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afb5e823bd1a5297db0fdd5b420fa89eb"></a>
+the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation the results of this op are subsequently reduced over multiple devices to obtain statistics over a larger batch size in cases where the batch size for a single model copy is too low to yield the full benefit of batch normalization The resulting bias and scale can then be plugged back into SpatialBNGradient to get results over the larger batch size DOC The mean saved from the forward pass as a dimensional tensor of size C&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (2,&quot;inv_std&quot;,&quot;The saved inverse standard deviation as a 1-dimensional tensor &quot;&quot;of size C.&quot;).Input(3</td></tr>
+<tr class="separator:afb5e823bd1a5297db0fdd5b420fa89eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac39073bdd0839017842a6ce618c0fcc9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac39073bdd0839017842a6ce618c0fcc9"></a>
+the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation the results of this op are subsequently reduced over multiple devices to obtain statistics over a larger batch size in cases where the batch size for a single model copy is too low to yield the full benefit of batch normalization The resulting bias and scale can then be plugged back into SpatialBNGradient to get results over the larger batch size DOC The mean saved from the forward pass as a dimensional tensor of size C Gradient for the output layer of here used as input because we are on the backward pass&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;scale_grad&quot;,&quot;Gradient for the scale vector&quot;).Output(1</td></tr>
+<tr class="separator:ac39073bdd0839017842a6ce618c0fcc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cb7dc3fc153a2bcc28ddf48b3981809"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9cb7dc3fc153a2bcc28ddf48b3981809"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (ChannelBackpropStats)</td></tr>
+<tr class="separator:a9cb7dc3fc153a2bcc28ddf48b3981809"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1174a2acc80f69b1c4900bedf764eb7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa1174a2acc80f69b1c4900bedf764eb7"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ChannelShuffle, <a class="el" href="classcaffe2_1_1ChannelShuffleOp.html">ChannelShuffleOp</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:aa1174a2acc80f69b1c4900bedf764eb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3561,6 +3587,15 @@ The data type to which the elements of the input tensor are cast Strictly must b
 <tr class="memitem:a1942f40b3c748c8fed39212060a1d1af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1942f40b3c748c8fed39212060a1d1af"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ChannelShuffle, <a class="el" href="classcaffe2_1_1GetChannelShuffleGradient.html">GetChannelShuffleGradient</a>)</td></tr>
 <tr class="separator:a1942f40b3c748c8fed39212060a1d1af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8565aab178d2940cf141c30bb3ff7eec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8565aab178d2940cf141c30bb3ff7eec"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ChannelStats, <a class="el" href="classcaffe2_1_1ChannelStatsOp.html">ChannelStatsOp</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a8565aab178d2940cf141c30bb3ff7eec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a099fb98c647d4c955977cf5b90217e4e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a099fb98c647d4c955977cf5b90217e4e"></a>
+computes the sum of all elements per channel and the sum of all elements squared per channel These values can be reduced across multiple batches and used to obtain the mean and variance across the full set of batches Using the new mean and variance as input to SpatialBN has the effect of changing the batch size over which SpatialBN is applied DOC The output dimensional tensor of size C containing the sum of elements of X per channel&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (1,&quot;sumsq&quot;,&quot;The output 1-dimensional tensor of size C containing the sum of &quot;&quot;elements squared per channel.&quot;)</td></tr>
+<tr class="separator:a099fb98c647d4c955977cf5b90217e4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a526bfbd0065285dc0b9b45e54fa59228"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a526bfbd0065285dc0b9b45e54fa59228"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (ChannelStats)</td></tr>
+<tr class="separator:a526bfbd0065285dc0b9b45e54fa59228"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5193b73ccc1a3de3067c1b65af80f23"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5193b73ccc1a3de3067c1b65af80f23"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Clip, <a class="el" href="classcaffe2_1_1ClipOp.html">ClipOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ac5193b73ccc1a3de3067c1b65af80f23"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4143,9 +4178,6 @@ Returns a tensor of shape (batch_size,) of losses for each example.
 <tr class="memitem:aa12cba80072c4e774c5937c17a2688c1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa12cba80072c4e774c5937c17a2688c1"></a>
 matrix of logits for each example and class matrix of same shape as logits&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;xentropy&quot;,&quot;Vector with the total xentropy for each example.&quot;)</td></tr>
 <tr class="separator:aa12cba80072c4e774c5937c17a2688c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae665eba412dfdd2c2dd6a6b858086100"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae665eba412dfdd2c2dd6a6b858086100"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (4).NumOutputs(1)</td></tr>
-<tr class="separator:ae665eba412dfdd2c2dd6a6b858086100"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47a3b8b865de49c0da833bddb86fc6e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47a3b8b865de49c0da833bddb86fc6e1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (MakeTwoClass, <a class="el" href="structcaffe2_1_1GetMakeTwoClassGradient.html">GetMakeTwoClassGradient</a>)</td></tr>
 <tr class="separator:a47a3b8b865de49c0da833bddb86fc6e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5129,6 +5161,54 @@ template&lt;typename... Ts&gt; </td></tr>
 <tr class="memitem:af3c499f29f00ec4a299b806f50d19b83"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af3c499f29f00ec4a299b806f50d19b83"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (LRN, <a class="el" href="classcaffe2_1_1GetLRNGradient.html">GetLRNGradient</a>)</td></tr>
 <tr class="separator:af3c499f29f00ec4a299b806f50d19b83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a1b86cbff4a05b3c01cdb4c9f045fe4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6a1b86cbff4a05b3c01cdb4c9f045fe4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LC, <a class="el" href="classcaffe2_1_1LocallyConnectedOp.html">LocallyConnectedOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a6a1b86cbff4a05b3c01cdb4c9f045fe4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ae234337a0f5b723601a468cc35d61e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4ae234337a0f5b723601a468cc35d61e"></a>
+NumInputs(2, 3).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classcaffe2_1_1ConvPoolOpBase.html">ConvPoolOpBase</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LC1D, <a class="el" href="classcaffe2_1_1LocallyConnectedOp.html">LocallyConnectedOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a4ae234337a0f5b723601a468cc35d61e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ecaff2efc994a1396203c6d75cff4a6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ecaff2efc994a1396203c6d75cff4a6"></a>
+NumInputs(2, 3).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classcaffe2_1_1ConvPoolOpBase.html">ConvPoolOpBase</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LC2D, <a class="el" href="classcaffe2_1_1LocallyConnectedOp.html">LocallyConnectedOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a3ecaff2efc994a1396203c6d75cff4a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac32e2253300a3fd1b58d636a7d9bacd4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac32e2253300a3fd1b58d636a7d9bacd4"></a>
+NumInputs(2, 3).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classcaffe2_1_1ConvPoolOpBase.html">ConvPoolOpBase</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LC3D, <a class="el" href="classcaffe2_1_1LocallyConnectedOp.html">LocallyConnectedOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:ac32e2253300a3fd1b58d636a7d9bacd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3691743e6c1b60e8bf613c05ab0c125"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3691743e6c1b60e8bf613c05ab0c125"></a>
+NumInputs(2, 3).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classcaffe2_1_1ConvPoolOpBase.html">ConvPoolOpBase</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LCGradient, <a class="el" href="classcaffe2_1_1LocallyConnectedGradientOp.html">LocallyConnectedGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:ab3691743e6c1b60e8bf613c05ab0c125"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8426a407adb929ab24a730ff53fee83a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8426a407adb929ab24a730ff53fee83a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (LCGradient).NumInputs(2</td></tr>
+<tr class="separator:a8426a407adb929ab24a730ff53fee83a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a164978d7deef2ba12deb94e1f0be5380"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a164978d7deef2ba12deb94e1f0be5380"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LC1DGradient, <a class="el" href="classcaffe2_1_1LocallyConnectedGradientOp.html">LocallyConnectedGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a164978d7deef2ba12deb94e1f0be5380"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9828214ab329c658ea2dec0557ae20f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae9828214ab329c658ea2dec0557ae20f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (LC1DGradient).NumInputs(2</td></tr>
+<tr class="separator:ae9828214ab329c658ea2dec0557ae20f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c7be3ac8dd05e2696316efb5b3c2e6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c7be3ac8dd05e2696316efb5b3c2e6d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LC2DGradient, <a class="el" href="classcaffe2_1_1LocallyConnectedGradientOp.html">LocallyConnectedGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a6c7be3ac8dd05e2696316efb5b3c2e6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a922e5441460996843774046bb54f1b41"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a922e5441460996843774046bb54f1b41"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (LC2DGradient).NumInputs(2</td></tr>
+<tr class="separator:a922e5441460996843774046bb54f1b41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab92c83d050f7aa5379fa4a80aefa102d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab92c83d050f7aa5379fa4a80aefa102d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LC3DGradient, <a class="el" href="classcaffe2_1_1LocallyConnectedGradientOp.html">LocallyConnectedGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:ab92c83d050f7aa5379fa4a80aefa102d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb2ff6d35b42931a85ace3074ac3de8b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adb2ff6d35b42931a85ace3074ac3de8b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (LC3DGradient).NumInputs(2</td></tr>
+<tr class="separator:adb2ff6d35b42931a85ace3074ac3de8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afeea10cda4338df72063c16742af28a4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afeea10cda4338df72063c16742af28a4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (LC, GetLocallyConnectedGradient)</td></tr>
+<tr class="separator:afeea10cda4338df72063c16742af28a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a492be997ec6d0e35a30d2183d6e664a1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a492be997ec6d0e35a30d2183d6e664a1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (LC1D, GetLocallyConnectedGradient)</td></tr>
+<tr class="separator:a492be997ec6d0e35a30d2183d6e664a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3769e348f517d725c973cfb5f52a6a7b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3769e348f517d725c973cfb5f52a6a7b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (LC2D, GetLocallyConnectedGradient)</td></tr>
+<tr class="separator:a3769e348f517d725c973cfb5f52a6a7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63f8bf91a78f04b115ddddfc2175d2a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a63f8bf91a78f04b115ddddfc2175d2a7"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (LC3D, GetLocallyConnectedGradient)</td></tr>
+<tr class="separator:a63f8bf91a78f04b115ddddfc2175d2a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a33d9fdf95c6a6174779262572e85ae15"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a33d9fdf95c6a6174779262572e85ae15"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Log, <a class="el" href="namespacecaffe2.html#a3c84075c5d69ce9499450fbbb3f72965">UnaryElementwiseOp</a>&lt; <a class="el" href="structcaffe2_1_1TensorTypes.html">TensorTypes</a>&lt; float &gt;, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a>, <a class="el" href="structcaffe2_1_1LogCPUFunctor.html">LogCPUFunctor</a> &gt;)</td></tr>
 <tr class="separator:a33d9fdf95c6a6174779262572e85ae15"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6034,6 +6114,33 @@ leaving paddings unchanged This length of each segment&#160;</td><td class="memI
 <tr class="memitem:ae23bb5b87e8ea0cfb2b5a63695f04d51"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae23bb5b87e8ea0cfb2b5a63695f04d51"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RMACRegions, <a class="el" href="classcaffe2_1_1RMACRegionsOp.html">RMACRegionsOp</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ae23bb5b87e8ea0cfb2b5a63695f04d51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa02e3f0cf047e22fde957ff1944a75c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa02e3f0cf047e22fde957ff1944a75c3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RoIAlignGradient, <a class="el" href="classcaffe2_1_1RoIAlignGradientOp.html">RoIAlignGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:aa02e3f0cf047e22fde957ff1944a75c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18b61e2e35f1d6ad76c7b11fa81115d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18b61e2e35f1d6ad76c7b11fa81115d1"></a>
+See RoIPoolF&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;RoIs&quot;,&quot;See RoIPoolF.&quot;).Input(2</td></tr>
+<tr class="separator:a18b61e2e35f1d6ad76c7b11fa81115d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ecddef0f549003ae2c2a62941797348"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6ecddef0f549003ae2c2a62941797348"></a>
+See RoIPoolF Gradient of forward&#160;</td><td class="memItemRight" valign="bottom"><b>output</b> (Y)&quot;) .Output(0</td></tr>
+<tr class="separator:a6ecddef0f549003ae2c2a62941797348"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe9cf8601b57d03a62e24cdeb93c3a96"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe9cf8601b57d03a62e24cdeb93c3a96"></a>
+See RoIPoolF Gradient of forward Gradient of forward&#160;</td><td class="memItemRight" valign="bottom"><b>input</b> (X)&quot;)</td></tr>
+<tr class="separator:abe9cf8601b57d03a62e24cdeb93c3a96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a010a8d227eacf6ba571036bde754b67b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a010a8d227eacf6ba571036bde754b67b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (RoIAlign, GetRoIAlignGradient)</td></tr>
+<tr class="separator:a010a8d227eacf6ba571036bde754b67b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeffa0928b5c4d64d88722b8a244774c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeffa0928b5c4d64d88722b8a244774c3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RoIAlign, <a class="el" href="classcaffe2_1_1RoIAlignOp.html">RoIAlignOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:aeffa0928b5c4d64d88722b8a244774c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6f9159ea374c3300e4f6448da8ed41f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac6f9159ea374c3300e4f6448da8ed41f"></a>
+Spatial scale of the input feature map X relative to the input image E if X has a stride of w r t the input image&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;pooled_h&quot;,&quot;(int) default 1; Pooled output Y's height.&quot;).Arg(&quot;pooled_w&quot;</td></tr>
+<tr class="separator:ac6f9159ea374c3300e4f6448da8ed41f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fb3cdd581ebd796201ac66bf86353f9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7fb3cdd581ebd796201ac66bf86353f9"></a>
+Pooled output Y s width&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;sampling_ratio&quot;,&quot;(int) default -1; number of sampling points in the interpolation grid &quot;&quot;used to compute the output value of each pooled output bin. If &gt; 0, &quot;&quot;then exactly sampling_ratio x sampling_ratio grid points are used. If &quot;&quot;&lt;= 0, then an adaptive number of grid points are used (computed as &quot;&quot;ceil(roi_width / pooled_w), and likewise for height).&quot;).Input(0</td></tr>
+<tr class="separator:a7fb3cdd581ebd796201ac66bf86353f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa108f8c790dc94d5ad5674b7ef598445"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa108f8c790dc94d5ad5674b7ef598445"></a>
+Pooled output Y s width feature map input of&#160;</td><td class="memItemRight" valign="bottom"><b>shape</b> (N, C, H, W).&quot;) .Input( 1</td></tr>
+<tr class="separator:aa108f8c790dc94d5ad5674b7ef598445"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad9c6d36284b653af0276dbee5a02c3a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aad9c6d36284b653af0276dbee5a02c3a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RoIPool, <a class="el" href="classcaffe2_1_1RoIPoolOp.html">RoIPoolOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:aad9c6d36284b653af0276dbee5a02c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6374,9 +6481,9 @@ value represented as indices vector and values tensor into a compacted tensor wh
 <tr class="memitem:aa9e07bf5c8fe8cf9b4271e54079dbe7b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa9e07bf5c8fe8cf9b4271e54079dbe7b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SpatialBNGradient, <a class="el" href="classcaffe2_1_1SpatialBNGradientOp.html">SpatialBNGradientOp</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:aa9e07bf5c8fe8cf9b4271e54079dbe7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3265e966db5a02cd79e006c9558a8c4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3265e966db5a02cd79e006c9558a8c4"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (SpatialBNGradient).NumInputs(5).NumOutputs(3)</td></tr>
-<tr class="separator:ab3265e966db5a02cd79e006c9558a8c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d1d13cabc445187bfb179291dc92224"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0d1d13cabc445187bfb179291dc92224"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> ({5, 7}).NumOutputs(3).AllowInplace(</td></tr>
+<tr class="separator:a0d1d13cabc445187bfb179291dc92224"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93a270cc689758874f92fe7d28977027"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a93a270cc689758874f92fe7d28977027"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (SpatialBN, <a class="el" href="classcaffe2_1_1GetSpatialBNGradient.html">GetSpatialBNGradient</a>)</td></tr>
 <tr class="separator:a93a270cc689758874f92fe7d28977027"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6717,10 +6824,6 @@ will be (2, 1, 3).
 <tr class="memitem:a10f4078c9362f6abbf685aa1c1b5ca9c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a10f4078c9362f6abbf685aa1c1b5ca9c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CUDNN_OPERATOR</b> (Transpose, <a class="el" href="classcaffe2_1_1CuDNNTransposeOp.html">CuDNNTransposeOp</a>)</td></tr>
 <tr class="separator:a10f4078c9362f6abbf685aa1c1b5ca9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9988f946e01a8bde14f466b0fc2fa5f"><td class="memTemplParams" colspan="2"><a class="anchor" id="ae9988f946e01a8bde14f466b0fc2fa5f"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ae9988f946e01a8bde14f466b0fc2fa5f"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>TransposeCUDA</b> (vector&lt; int &gt; &amp;axes, <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a> &amp;context, const <a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a> &gt; &amp;input, <a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a> &gt; *output, <a class="el" href="classcaffe2_1_1Tensor.html">TensorCPU</a> &amp;buffer_cpu, <a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a>&lt; <a class="el" href="classcaffe2_1_1CUDAContext.html">CUDAContext</a> &gt; &amp;buffer)</td></tr>
-<tr class="separator:ae9988f946e01a8bde14f466b0fc2fa5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae4b46540691eb1afcf1547e3a91b57a5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae4b46540691eb1afcf1547e3a91b57a5"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (WallClockTime, <a class="el" href="classcaffe2_1_1WallClockTimeOp.html">WallClockTimeOp</a>&lt; <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ae4b46540691eb1afcf1547e3a91b57a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7152,15 +7255,18 @@ data blobs.
 <tr class="memitem:aa38e795404dd0bccc4ad8004c1ea0e87"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa38e795404dd0bccc4ad8004c1ea0e87"></a>
 the output status will be set to true which can be used as exit criteria for execution step The input is the queue and the last output is the status The rest are data blobs DOC&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;num_records&quot;,&quot;(default 1) If &gt; 1, multiple records will be dequeued and tensors &quot;&quot;for each column will be concatenated. This requires all tensors in &quot;&quot;the records to be at least 1D, and to have the same inner dimensions.&quot;).Input(0</td></tr>
 <tr class="separator:aa38e795404dd0bccc4ad8004c1ea0e87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34a2e84c8a636bf4bd2cde75fdfd18c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a34a2e84c8a636bf4bd2cde75fdfd18c5"></a>
+<tr class="memitem:a13c98bc459911afabe77cabbaa6a9b69"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a13c98bc459911afabe77cabbaa6a9b69"></a>
 INT_MAX&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 Dequeue the blobs from multiple queues. When one of queues is closed and empty,
 the output status will be set to true which can be used as exit criteria for
 execution step.
 The 1st input is the queue and the last output is the status. The rest are
 data blobs.
-)DOC&quot;).Input(0</td></tr>
-<tr class="separator:a34a2e84c8a636bf4bd2cde75fdfd18c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+)DOC&quot;).Arg(&quot;weights&quot;</td></tr>
+<tr class="separator:a13c98bc459911afabe77cabbaa6a9b69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac476b804725e7b2840d154107684c4cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac476b804725e7b2840d154107684c4cb"></a>
+INT_MAX Weights for sampling from multiple queues&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;table_idx_blob&quot;,&quot;The index of the blob (among the output blob list) &quot;&quot;that will be used to store the index of the table chosen to read the &quot;&quot;current batch.&quot;)</td></tr>
+<tr class="separator:ac476b804725e7b2840d154107684c4cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7bf8929088680b81f5f66c26b4ee20f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7bf8929088680b81f5f66c26b4ee20f3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NO_GRADIENT</b> (CreateBlobsQueue)</td></tr>
 <tr class="separator:a7bf8929088680b81f5f66c26b4ee20f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7824,9 +7930,6 @@ Applies a separate affine transformation to each channel of the input. Useful
 for replacing spatial batch norm with its equivalent fixed transformation.
 )DOC&quot;).Input(0</td></tr>
 <tr class="separator:afa79c3a20b5a8076243207b216776525"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97e9077b9f134ae857f38d76ed5187df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a97e9077b9f134ae857f38d76ed5187df"></a>
-feature map input of&#160;</td><td class="memItemRight" valign="bottom"><b>shape</b> (N, C, H, W).&quot;) .Input( 1</td></tr>
-<tr class="separator:a97e9077b9f134ae857f38d76ed5187df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ecc9f7161974e24c3e13b413b3ee7b0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7ecc9f7161974e24c3e13b413b3ee7b0"></a>
 feature map input of input of&#160;</td><td class="memItemRight" valign="bottom"><b>shape</b> (C)</td></tr>
 <tr class="separator:a7ecc9f7161974e24c3e13b413b3ee7b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7836,12 +7939,6 @@ the c th element is the scale factor of the affine transformation for the c th c
 <tr class="memitem:ad3e0cca54317791227ed4d2901dd03bf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3e0cca54317791227ed4d2901dd03bf"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;scale&quot;,&quot;See AffineChannel.&quot;).Input(1</td></tr>
 <tr class="separator:ad3e0cca54317791227ed4d2901dd03bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70cc5f7e505bd8a217255793bb854855"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a70cc5f7e505bd8a217255793bb854855"></a>
-Gradient of forward&#160;</td><td class="memItemRight" valign="bottom"><b>output</b> (Y)&quot;) .Output( 0</td></tr>
-<tr class="separator:a70cc5f7e505bd8a217255793bb854855"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d9c1307606276ce139fa5ea3cecaa79"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d9c1307606276ce139fa5ea3cecaa79"></a>
-Gradient of forward Gradient of forward&#160;</td><td class="memItemRight" valign="bottom"><b>input</b> (X)&quot;)</td></tr>
-<tr class="separator:a6d9c1307606276ce139fa5ea3cecaa79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a389e705d13db7335cfa69a8a7e106720"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a389e705d13db7335cfa69a8a7e106720"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (AffineChannel, <a class="el" href="classcaffe2_1_1GetAffineChannelGradient.html">GetAffineChannelGradient</a>)</td></tr>
 <tr class="separator:a389e705d13db7335cfa69a8a7e106720"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7899,18 +7996,6 @@ Spatial scale of the input feature map X relative to the input image E if X has 
 <tr class="memitem:a72114556592a2a580890dfb40ccb7275"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72114556592a2a580890dfb40ccb7275"></a>
 number of channels in the pooled which might be the number of classes is used for classification or if used for class agnostic bounding box regression&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;X&quot;,&quot;4D position sensitive feature map input of shape (N, C, H, W), where &quot;&quot;C = group_size**2 * output_dim.&quot;).Input(1</td></tr>
 <tr class="separator:a72114556592a2a580890dfb40ccb7275"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeffa0928b5c4d64d88722b8a244774c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeffa0928b5c4d64d88722b8a244774c3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RoIAlign, <a class="el" href="classcaffe2_1_1RoIAlignOp.html">RoIAlignOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
-<tr class="separator:aeffa0928b5c4d64d88722b8a244774c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa02e3f0cf047e22fde957ff1944a75c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa02e3f0cf047e22fde957ff1944a75c3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RoIAlignGradient, <a class="el" href="classcaffe2_1_1RoIAlignGradientOp.html">RoIAlignGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
-<tr class="separator:aa02e3f0cf047e22fde957ff1944a75c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6f9159ea374c3300e4f6448da8ed41f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac6f9159ea374c3300e4f6448da8ed41f"></a>
-Spatial scale of the input feature map X relative to the input image E if X has a stride of w r t the input image&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;pooled_h&quot;,&quot;(int) default 1; Pooled output Y's height.&quot;).Arg(&quot;pooled_w&quot;</td></tr>
-<tr class="separator:ac6f9159ea374c3300e4f6448da8ed41f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fb3cdd581ebd796201ac66bf86353f9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7fb3cdd581ebd796201ac66bf86353f9"></a>
-Pooled output Y s width&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;sampling_ratio&quot;,&quot;(int) default -1; number of sampling points in the interpolation grid &quot;&quot;used to compute the output value of each pooled output bin. If &gt; 0, &quot;&quot;then exactly sampling_ratio x sampling_ratio grid points are used. If &quot;&quot;&lt;= 0, then an adaptive number of grid points are used (computed as &quot;&quot;ceil(roi_width / pooled_w), and likewise for height).&quot;).Input(0</td></tr>
-<tr class="separator:a7fb3cdd581ebd796201ac66bf86353f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68fba055e322a02f230ec321c9b25ecc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68fba055e322a02f230ec321c9b25ecc"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RoIPoolF, <a class="el" href="classcaffe2_1_1RoIPoolFOp.html">RoIPoolFOp</a>&lt; float, <a class="el" href="classcaffe2_1_1CPUContext.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a68fba055e322a02f230ec321c9b25ecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8279,9 +8364,9 @@ const auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>indices_d
 <tr class="separator:a8f75701e2593a04b1e285366a5965a48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af04e8baeca5dcb4f675a99f815264363"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcaffe2_1_1Tensor.html">Tensor</a> of rank&#160;</td><td class="memItemRight" valign="bottom"><b>r</b></td></tr>
 <tr class="separator:af04e8baeca5dcb4f675a99f815264363"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2e4fe6b7771867d3b5f9753141155cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa2e4fe6b7771867d3b5f9753141155cf"></a>
+<tr class="memitem:a183f77fabf70f4a3888a396b1c722248"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a183f77fabf70f4a3888a396b1c722248"></a>
 indices&#160;</td><td class="memItemRight" valign="bottom"><b>vector</b></td></tr>
-<tr class="separator:aa2e4fe6b7771867d3b5f9753141155cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a183f77fabf70f4a3888a396b1c722248"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac0d66c92e7159ad7563d50297971887"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac0d66c92e7159ad7563d50297971887"></a>
 indices and values vector Each element in lengths indices should not have duplicate number For&#160;</td><td class="memItemRight" valign="bottom"><b>example</b></td></tr>
 <tr class="separator:aac0d66c92e7159ad7563d50297971887"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8332,6 +8417,24 @@ reconstruct values together according to masks A comprehensive False False True 
 <tr class="memitem:a5205e5927822adb8687a095d5b80dc40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5205e5927822adb8687a095d5b80dc40"></a>
 The data type to which the elements of the input tensor are cast Strictly must be one of the types from DataType enum in TensorProto Output tensor with the same shape as input with type specified by the to&#160;</td><td class="memItemRight" valign="bottom"><b>argument</b></td></tr>
 <tr class="separator:a5205e5927822adb8687a095d5b80dc40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc83acec950979e55215b3ead8ff3c93"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc83acec950979e55215b3ead8ff3c93"></a>
+the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation&#160;</td><td class="memItemRight" valign="bottom"><b>Typically</b></td></tr>
+<tr class="separator:afc83acec950979e55215b3ead8ff3c93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa7ee5ca45d083c80de818b3b666a25e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa7ee5ca45d083c80de818b3b666a25e"></a>
+the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation the results of this op are subsequently reduced over multiple devices to obtain statistics over a larger batch size in cases where the batch size for a single model copy is too low to yield the full benefit of batch normalization The resulting bias and scale can then be plugged back into SpatialBNGradient to get results over the larger batch size DOC&#160;</td><td class="memItemRight" valign="bottom"><b>mean</b></td></tr>
+<tr class="separator:afa7ee5ca45d083c80de818b3b666a25e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13f6a72d88af45a62ebade1938f893bc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a13f6a72d88af45a62ebade1938f893bc"></a>
+the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation the results of this op are subsequently reduced over multiple devices to obtain statistics over a larger batch size in cases where the batch size for a single model copy is too low to yield the full benefit of batch normalization The resulting bias and scale can then be plugged back into SpatialBNGradient to get results over the larger batch size DOC The mean saved from the forward pass as a dimensional tensor of size C&#160;</td><td class="memItemRight" valign="bottom"><b>output_grad</b></td></tr>
+<tr class="separator:a13f6a72d88af45a62ebade1938f893bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd996a69d304ea7be28941b23e9b9228"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afd996a69d304ea7be28941b23e9b9228"></a>
+the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation the results of this op are subsequently reduced over multiple devices to obtain statistics over a larger batch size in cases where the batch size for a single model copy is too low to yield the full benefit of batch normalization The resulting bias and scale can then be plugged back into SpatialBNGradient to get results over the larger batch size DOC The mean saved from the forward pass as a dimensional tensor of size C Gradient for the output layer of&#160;</td><td class="memItemRight" valign="bottom"><b>SpatialBN</b></td></tr>
+<tr class="separator:afd996a69d304ea7be28941b23e9b9228"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f5b30a4606edd5458f6676a4067b86c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6f5b30a4606edd5458f6676a4067b86c"></a>
+the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation the results of this op are subsequently reduced over multiple devices to obtain statistics over a larger batch size in cases where the batch size for a single model copy is too low to yield the full benefit of batch normalization The resulting bias and scale can then be plugged back into SpatialBNGradient to get results over the larger batch size DOC The mean saved from the forward pass as a dimensional tensor of size C Gradient for the output layer of here used as input because we are on the backward pass&#160;</td><td class="memItemRight" valign="bottom"><b>bias_grad</b></td></tr>
+<tr class="separator:a6f5b30a4606edd5458f6676a4067b86c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98688e03bca94af1143033ef9a62d245"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a98688e03bca94af1143033ef9a62d245"></a>
+computes the sum of all elements per channel and the sum of all elements squared per channel These values can be reduced across multiple batches and used to obtain the mean and variance across the full set of batches Using the new mean and variance as input to SpatialBN has the effect of changing the batch size over which SpatialBN is applied DOC&#160;</td><td class="memItemRight" valign="bottom"><b>sum</b></td></tr>
+<tr class="separator:a98688e03bca94af1143033ef9a62d245"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac2069850bb2c06fd98dd2142a18e0441"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac2069850bb2c06fd98dd2142a18e0441"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>kv_handler</b></td></tr>
 <tr class="separator:ac2069850bb2c06fd98dd2142a18e0441"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8453,9 +8556,9 @@ X is a array of size N x where N is the batch size and D is the number of classe
 <tr class="memitem:a65fe76d250f625cac01228c609b9754a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a65fe76d250f625cac01228c609b9754a"></a>
 matrix of logits for each example and class&#160;</td><td class="memItemRight" valign="bottom"><b>xentropy</b></td></tr>
 <tr class="separator:a65fe76d250f625cac01228c609b9754a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a03278b0203e4f159132b34ed7b513c4a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a03278b0203e4f159132b34ed7b513c4a"></a>
+<tr class="memitem:a26538ce8b849e2eb1d6f0639c681463c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a26538ce8b849e2eb1d6f0639c681463c"></a>
 matrix of logits for each example and class&#160;</td><td class="memItemRight" valign="bottom"><b>weights</b></td></tr>
-<tr class="separator:a03278b0203e4f159132b34ed7b513c4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a26538ce8b849e2eb1d6f0639c681463c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e84d76cd6fb8c90b44f5fe5913183a1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e84d76cd6fb8c90b44f5fe5913183a1"></a>
 or input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Z</b></td></tr>
 <tr class="separator:a4e84d76cd6fb8c90b44f5fe5913183a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8494,9 +8597,6 @@ default the ratio of random dropout The input data as <a class="el" href="classc
 <tr class="memitem:a86e3d9c45a7261ea359c0626b47c447c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86e3d9c45a7261ea359c0626b47c447c"></a>
 and the dimensions of the second input is the contiguous subset of the dimensions of the first For the following tensor shapes are&#160;</td><td class="memItemRight" valign="bottom"><b>supported</b></td></tr>
 <tr class="separator:a86e3d9c45a7261ea359c0626b47c447c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98688e03bca94af1143033ef9a62d245"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a98688e03bca94af1143033ef9a62d245"></a>
-in which case the sum will be done in place and results will be accumulated in input0 All inputs and outputs must have the same shape and data type DOC&#160;</td><td class="memItemRight" valign="bottom"><b>sum</b></td></tr>
-<tr class="separator:a98688e03bca94af1143033ef9a62d245"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ccf5560bbe932330ac819bb50ddc719"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0ccf5560bbe932330ac819bb50ddc719"></a>
 element wise This operation can be done in an in place fashion&#160;</td><td class="memItemRight" valign="bottom"><b>too</b></td></tr>
 <tr class="separator:a0ccf5560bbe932330ac819bb50ddc719"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8627,9 +8727,6 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><b>input_dims_long</b> =
 <tr class="memitem:adc4915704cb8323a7767a70a700d183f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc4915704cb8323a7767a70a700d183f"></a>
 int default&#160;</td><td class="memItemRight" valign="bottom"><b>to</b></td></tr>
 <tr class="separator:adc4915704cb8323a7767a70a700d183f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa7ee5ca45d083c80de818b3b666a25e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa7ee5ca45d083c80de818b3b666a25e"></a>
-Describes axis of the inputs Defaults to one because the axis most likely describes the batch size Input tensor which layer normalization will be applied to&#160;</td><td class="memItemRight" valign="bottom"><b>mean</b></td></tr>
-<tr class="separator:afa7ee5ca45d083c80de818b3b666a25e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad15db7db5c2b5cf0082bdcbeefcc1bad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad15db7db5c2b5cf0082bdcbeefcc1bad"></a>
 but operating on bit rowwise quantized matrices with fused uint8 tensor obtained with&#160;</td><td class="memItemRight" valign="bottom"><b>LENGTHS</b></td></tr>
 <tr class="separator:ad15db7db5c2b5cf0082bdcbeefcc1bad"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8830,6 +8927,18 @@ an extra argument shape must be specified It outputs the reshaped tensor as well
 <tr class="memitem:ade68c67fc2c092431b76e601447c8a10"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ade68c67fc2c092431b76e601447c8a10"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>embeddings</b></td></tr>
 <tr class="separator:ade68c67fc2c092431b76e601447c8a10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73ffdee20b31f06da7a5ad73418913da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a73ffdee20b31f06da7a5ad73418913da"></a>
+See RoIPoolF&#160;</td><td class="memItemRight" valign="bottom"><b>dY</b></td></tr>
+<tr class="separator:a73ffdee20b31f06da7a5ad73418913da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa359d2095f6c54a1076ff23f33fedfd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa359d2095f6c54a1076ff23f33fedfd"></a>
+See RoIPoolF Gradient of forward&#160;</td><td class="memItemRight" valign="bottom"><b>dX</b></td></tr>
+<tr class="separator:aaa359d2095f6c54a1076ff23f33fedfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8abb08815ed2b537572b7770bfbef4d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8abb08815ed2b537572b7770bfbef4d"></a>
+Spatial scale of the input feature map X relative to the input image E&#160;</td><td class="memItemRight" valign="bottom"><b>g</b></td></tr>
+<tr class="separator:ae8abb08815ed2b537572b7770bfbef4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9115771c8c914cda9be537c1ec39e402"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9115771c8c914cda9be537c1ec39e402"></a>
+Pooled output Y s width feature map input of&#160;</td><td class="memItemRight" valign="bottom"><b>RoIs</b></td></tr>
+<tr class="separator:a9115771c8c914cda9be537c1ec39e402"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92f1546edffed1e9aba557b776054b41"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92f1546edffed1e9aba557b776054b41"></a>
 there are multiple output&#160;</td><td class="memItemRight" valign="bottom"><b>cases</b></td></tr>
 <tr class="separator:a92f1546edffed1e9aba557b776054b41"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8839,9 +8948,6 @@ default the scale to&#160;</td><td class="memItemRight" valign="bottom"><b>apply
 <tr class="memitem:a76dde945e8c293e42578695bb73fa128"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76dde945e8c293e42578695bb73fa128"></a>
 affects the activation function itself This should go with the weight initialization in the paper See&#160;</td><td class="memItemRight" valign="bottom"><b>https</b></td></tr>
 <tr class="separator:a76dde945e8c293e42578695bb73fa128"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73ffdee20b31f06da7a5ad73418913da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a73ffdee20b31f06da7a5ad73418913da"></a>
-affects the activation function itself&#160;</td><td class="memItemRight" valign="bottom"><b>dY</b></td></tr>
-<tr class="separator:a73ffdee20b31f06da7a5ad73418913da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64e0ab7bd353bf53fdb04b239c3ec035"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64e0ab7bd353bf53fdb04b239c3ec035"></a>
 Number of copies of padding to add around each range&#160;</td><td class="memItemRight" valign="bottom"><b>data_in</b></td></tr>
 <tr class="separator:a64e0ab7bd353bf53fdb04b239c3ec035"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9031,9 +9137,6 @@ the output status will be set to true which can be used as exit criteria for exe
 <tr class="memitem:a29f8a500a75314ea467a2106a53c34cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29f8a500a75314ea467a2106a53c34cb"></a>
 the output status will be set to true which can be used as exit criteria for execution step The input is the queue and the last output is the status The rest are data blobs DOC The shared pointer for the <a class="el" href="classcaffe2_1_1BlobsQueue.html">BlobsQueue</a> Is set to depending on the success of&#160;</td><td class="memItemRight" valign="bottom"><b>dequeue</b></td></tr>
 <tr class="separator:a29f8a500a75314ea467a2106a53c34cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7a3f06084ea8051300fb0e43a837c58"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab7a3f06084ea8051300fb0e43a837c58"></a>
-INT_MAX Weights for sampling from multiple&#160;</td><td class="memItemRight" valign="bottom"><b>queues</b></td></tr>
-<tr class="separator:ab7a3f06084ea8051300fb0e43a837c58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa762c75d4e46531704cfa03cdaf723ac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa762c75d4e46531704cfa03cdaf723ac"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>param</b></td></tr>
 <tr class="separator:aa762c75d4e46531704cfa03cdaf723ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9082,9 +9185,6 @@ given param&#160;</td><td class="memItemRight" valign="bottom"><b>momentum</b></
 <tr class="memitem:ad1f18bb49a8ab18db4eb71615e96ce71"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad1f18bb49a8ab18db4eb71615e96ce71"></a>
 given param parameter Note the difference to&#160;</td><td class="memItemRight" valign="bottom"><b>MomentumSGD</b></td></tr>
 <tr class="separator:ad1f18bb49a8ab18db4eb71615e96ce71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13f6a72d88af45a62ebade1938f893bc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a13f6a72d88af45a62ebade1938f893bc"></a>
-GradientSlice with gradients for updated indices Learning rate&#160;</td><td class="memItemRight" valign="bottom"><b>output_grad</b></td></tr>
-<tr class="separator:a13f6a72d88af45a62ebade1938f893bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9e753c4409d91d8b8b316a4a3740105"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa9e753c4409d91d8b8b316a4a3740105"></a>
 GradientSlice with gradients for updated indices Learning rate Adjusted gradient Updated parameter boolean Whether to use Nesterov Accelerated&#160;</td><td class="memItemRight" valign="bottom"><b>Gradient</b></td></tr>
 <tr class="separator:aa9e753c4409d91d8b8b316a4a3740105"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9122,9 +9222,6 @@ const int&#160;</td><td class="memItemRight" valign="bottom"><b>kMaxBusyWaitNOPs
 <tr class="separator:a82248e928a2f3c1aceb1fc9a2dce1170"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd2384e213740343e0730eb743b3f3a0"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InputDataStd</b></td></tr>
 <tr class="separator:abd2384e213740343e0730eb743b3f3a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaa359d2095f6c54a1076ff23f33fedfd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa359d2095f6c54a1076ff23f33fedfd"></a>
-Gradient of forward&#160;</td><td class="memItemRight" valign="bottom"><b>dX</b></td></tr>
-<tr class="separator:aaa359d2095f6c54a1076ff23f33fedfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed020b5f0b3d2bfb6bfab750924d9dd2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed020b5f0b3d2bfb6bfab750924d9dd2"></a>
 where N is the number of elements in the&#160;</td><td class="memItemRight" valign="bottom"><b>batch</b></td></tr>
 <tr class="separator:aed020b5f0b3d2bfb6bfab750924d9dd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9143,12 +9240,6 @@ number of classes in each softmax group tensor of softmax probabilities with whe
 <tr class="memitem:a2dabcd58efcb03a5854ddc2ced520955"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2dabcd58efcb03a5854ddc2ced520955"></a>
 See GroupSpatialSoftmax&#160;</td><td class="memItemRight" valign="bottom"><b>d_scores</b></td></tr>
 <tr class="separator:a2dabcd58efcb03a5854ddc2ced520955"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8abb08815ed2b537572b7770bfbef4d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8abb08815ed2b537572b7770bfbef4d"></a>
-Spatial scale of the input feature map X relative to the input image E&#160;</td><td class="memItemRight" valign="bottom"><b>g</b></td></tr>
-<tr class="separator:ae8abb08815ed2b537572b7770bfbef4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9115771c8c914cda9be537c1ec39e402"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9115771c8c914cda9be537c1ec39e402"></a>
-number of channels in the pooled which might be the number of classes is used for classification or if used for class agnostic bounding box regression&#160;</td><td class="memItemRight" valign="bottom"><b>RoIs</b></td></tr>
-<tr class="separator:a9115771c8c914cda9be537c1ec39e402"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa896509ba020db78e177d62b08e853ab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa896509ba020db78e177d62b08e853ab"></a>
 L2 to L1 transition <a class="el" href="structpoint.html">point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Y_hat</b></td></tr>
 <tr class="separator:aa896509ba020db78e177d62b08e853ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10348,7 +10439,7 @@ Resource Acquisition" idiom. </p>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div><div class="line">            std::all_of(axes.begin(), axes.end(), [&amp;tensor_size](<span class="keywordtype">int</span>&amp; axis) {</div><div class="line">              <span class="keywordflow">return</span> axis &gt;= 0 &amp;&amp; axis &lt; tensor_size;</div><div class="line">            })</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="transpose__op_8cc_source.html#l00066">66</a> of file <a class="el" href="transpose__op_8cc_source.html">transpose_op.cc</a>.</p>
+<p>Definition at line <a class="el" href="transpose__op_8cc_source.html#l00051">51</a> of file <a class="el" href="transpose__op_8cc_source.html">transpose_op.cc</a>.</p>
 
 </div>
 </div>
@@ -10384,7 +10475,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 24 2018 13:03:29 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jan 25 2018 13:03:39 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

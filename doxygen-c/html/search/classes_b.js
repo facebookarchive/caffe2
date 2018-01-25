@@ -33,6 +33,8 @@ var searchData=
   ['lmdbcursor',['LMDBCursor',['../classcaffe2_1_1db_1_1LMDBCursor.html',1,'caffe2::db']]],
   ['lmdbtransaction',['LMDBTransaction',['../classcaffe2_1_1db_1_1LMDBTransaction.html',1,'caffe2::db']]],
   ['loadop',['LoadOp',['../classcaffe2_1_1LoadOp.html',1,'caffe2']]],
+  ['locallyconnectedgradientop',['LocallyConnectedGradientOp',['../classcaffe2_1_1LocallyConnectedGradientOp.html',1,'caffe2']]],
+  ['locallyconnectedop',['LocallyConnectedOp',['../classcaffe2_1_1LocallyConnectedOp.html',1,'caffe2']]],
   ['logcpufunctor',['LogCPUFunctor',['../structcaffe2_1_1LogCPUFunctor.html',1,'caffe2']]],
   ['loggervoidify',['LoggerVoidify',['../classcaffe2_1_1LoggerVoidify.html',1,'caffe2']]],
   ['logitcpufunctor',['LogitCPUFunctor',['../structcaffe2_1_1LogitCPUFunctor.html',1,'caffe2']]],
