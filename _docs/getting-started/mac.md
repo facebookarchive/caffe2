@@ -37,28 +37,10 @@ conda install -y \
     mkl \
     mkl-include \
     numpy \
+    opencv \
     protobuf \
     snappy \
     six
-
-# (Optional) these packages are needed for some of the ipython jupyter notebook
-# tutorials, but not for base Caffe2
-conda install -y --channel https://conda.anaconda.org/conda-forge \
-    flask \
-    graphviz \
-    hypothesis \
-    jupyter \
-    leveldb \
-    lmdb \
-    matplotlib \
-    pydot \
-    pyyaml \
-    requests \
-    scikit-image \
-    scipy \
-    tornado \
-    unzip \
-    zeromq
 
 # Clone Caffe2
 cd ~ && git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
@@ -84,31 +66,26 @@ Follow these instructions if you want to build Caffe2 without Anaconda. Make sur
 
 ```bash
 brew install \
-automake \
-cmake \
-git \
-glog \
-protobuf \
-python
+    automake \
+    cmake \
+    git \
+    glog \
+    protobuf \
+    python
 ```
 
 ```bash
 sudo -H pip install \
-flask \
-future \
-glog \
-jupyter \
-matplotlib \
-numpy \
-protobuf \
-pydot \
-python-gflags \
-pyyaml \
-scikit-image \
-scipy \
-setuptools \
-six \
-tornado
+    future \
+    glog \
+    numpy \
+    protobuf \
+    pydot \
+    python-gflags \
+    pyyaml \
+    scikit-image \
+    setuptools \
+    six
 ```
 
 ### Clone and Build
@@ -264,6 +241,14 @@ malloc error | If you are using homebrew leveldb on a Mac, you might see an erro
 {{ outro | markdownify }}
 
 <block class="mac prebuilt" />
+
+### Anaconda package
+
+```bash
+conda install -c caffe2 caffe2
+```
+
+Packages exist for both Python 2.7 and 3.6. At this time all packages are built with MKL, without GPU support.
 
 ### Prebuilt Caffe2 Python Wheel
 
