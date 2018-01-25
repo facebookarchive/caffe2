@@ -108,7 +108,7 @@ class RecurrentNetworkExecutorBase {
 
     // Initialize timestep if it is not initialized
     if (timestep_ops_.size() <= t ||
-        (timestep_ops_.size() > t && timestep_ops_[t].size() == 0)) {
+        timestep_ops_[t].size() == 0) {
       // Initialize empty timestep ops vectors for each timestep preceding
       // this.
       for (int j = timestep_ops_.size(); j < t + 1; j++) {
