@@ -28,12 +28,10 @@ RUN pip install --no-cache-dir \
     matplotlib \
     pydot \
     python-nvd3 \
-    pyyaml \
     requests \
     scikit-image \
     scipy \
-    setuptools \
-    tornado
+    setuptools
 
 ########## INSTALLATION STEPS ###################
 RUN cd caffe2 && mkdir build && cd build \

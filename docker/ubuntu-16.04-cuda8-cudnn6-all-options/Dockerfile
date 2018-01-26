@@ -41,13 +41,11 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     protobuf \
     pydot \
     python-nvd3 \
-    pyyaml \
     requests \
     scikit-image \
     scipy \
     setuptools \
-    six \
-    tornado
+    six
 
 ########## INSTALLATION STEPS ###################
 RUN git clone --branch v0.8.1 --recursive https://github.com/caffe2/caffe2.git
