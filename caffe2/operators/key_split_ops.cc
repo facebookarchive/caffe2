@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef CAFFE2_OPERATORS_TRANSPOSE_GPU_H_
-#define CAFFE2_OPERATORS_TRANSPOSE_GPU_H_
+#include "caffe2/operators/key_split_ops.h"
 
-#include "caffe2/core/context_gpu.h"
+#include "caffe2/core/operator.h"
+#include "caffe2/core/tensor.h"
 
 namespace caffe2 {
 
-template <typename T>
-bool TransposeCUDA(
-    vector<int>& axes,
-    CUDAContext& context,
-    const Tensor<CUDAContext>& input,
-    Tensor<CUDAContext>* output,
-    TensorCPU& buffer_cpu,
-    Tensor<CUDAContext>& buffer);
-}
-
-#endif // CAFFE2_OPERATORS_TRANSPOSE_H_
+REGISTER_CPU_OPERATOR(KeySplit, KeySplitOp<int64_t, CPUContext>);
+NO_GRADIENT(KeySplitOp);
+OPERATOR_SCHEMA(KeySplit).NumInputs(1).NumOutputs(1, INT_MAX);
+} // namespace caffe2

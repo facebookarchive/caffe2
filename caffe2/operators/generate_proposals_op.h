@@ -61,7 +61,7 @@ ERMatXf ComputeAllAnchors(
 //     regression result 'deltas' as well as predefined bounding box shapes
 //     'anchors'. Greedy non-maximum suppression is applied to generate the
 //     final bounding boxes.
-// Reference: detection.caffe2/lib/ops/generate_proposals.py
+// Reference: detectron/lib/ops/generate_proposals.py
 template <class Context>
 class GenerateProposalsOp final : public Operator<Context> {
  public:
@@ -77,7 +77,10 @@ class GenerateProposalsOp final : public Operator<Context> {
             OperatorBase::GetSingleArgument<int>("post_nms_topN", 300)),
         rpn_nms_thresh_(
             OperatorBase::GetSingleArgument<float>("nms_thresh", 0.7f)),
-        rpn_min_size_(OperatorBase::GetSingleArgument<float>("min_size", 16)) {}
+        rpn_min_size_(OperatorBase::GetSingleArgument<float>("min_size", 16)),
+        correct_transform_coords_(OperatorBase::GetSingleArgument<bool>(
+            "correct_transform_coords",
+            false)) {}
 
   ~GenerateProposalsOp() {}
 
@@ -111,6 +114,10 @@ class GenerateProposalsOp final : public Operator<Context> {
   float rpn_nms_thresh_{0.7};
   // RPN_MIN_SIZE
   float rpn_min_size_{16};
+  // Correct bounding box transform coordates, see bbox_transform() in boxes.py
+  // Set to true to match the detectron code, set to false for backward
+  // compatibility
+  bool correct_transform_coords_{false};
 };
 
 } // namespace caffe2
