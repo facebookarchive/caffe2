@@ -28,7 +28,7 @@ git submodule update --init
 # Separate build folder for CUDA builds so that the packages have different
 # names
 if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
-  conda build "${CAFFE2_ROOT}/conda/cuda_conda" ${CONDA_BLD_ARGS[@]} "$@"
+  conda build "${CAFFE2_ROOT}/conda/cuda" ${CONDA_BLD_ARGS[@]} "$@"
 else
-  conda build "${CAFFE2_ROOT}/conda" ${CONDA_BLD_ARGS[@]} "$@"
+  conda build "${CAFFE2_ROOT}/conda/no_cuda" ${CONDA_BLD_ARGS[@]} "$@"
 fi
