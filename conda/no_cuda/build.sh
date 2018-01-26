@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install script for Anaconda environments on macOS and linux.
-# This script is not supposed to be called correctly, but should be run by:
+# This script is not supposed to be called directly, but should be run by:
 #
 # $ cd <path to caffe2, e.g. ~/caffe2>
 # $ conda build conda
