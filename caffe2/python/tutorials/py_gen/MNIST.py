@@ -10,9 +10,11 @@
 
 # # MNIST
 # 
-# In this tutorial, we will show you how to train an actual CNN model, albeit small. We will be using the good ol' MNIST dataset and the LeNet model, with a slight change that the sigmoid activations are replaced with ReLUs.
+# In this tutorial, we will show you how to train a small convolutional neural network (a CNN) model. We will be training the model on the MNIST dataset, which consists of labeled handwritten digits. Each sample is a 28x28 picture of a handwritten single digit and the label is a digit from 0 to 9.
 # 
-# We will use the model helper - that helps us to deal with parameter initializations naturally.
+# We will be constructing the [LeNet model](http://yann.lecun.com/exdb/lenet/) with the sigmoid activations replaced with [ReLUs](http://www.cs.toronto.edu/~fritz/absps/reluICML.pdf). A flag below will allow us to toggle between the LeNet model and a simple MLP (multilayer perceptron) architectures.
+# 
+# We will be using ModelHelper - the class that helps us deal with parameter initialization naturally.
 # 
 # First, let's import the necessities.
 
@@ -26,17 +28,29 @@ import shutil
 import caffe2.python.predictor.predictor_exporter as pe
 
 
-from caffe2.python import core, model_helper, net_drawer, workspace, visualize, brew
+from caffe2.python import (
+    brew,
+    core,
+    model_helper,
+    net_drawer,
+    optimizer,
+    visualize,
+    workspace,
+)
 
 # If you would like to see some really detailed initializations,
 # you can change --caffe2_log_level=0 to --caffe2_log_level=-1
 core.GlobalInit(['caffe2', '--caffe2_log_level=0'])
 print("Necessities imported!")
 
+# If True, a more complicated convolutional model is used
+# If False, a multilayer perceptron model is used
+USE_LENET_MODEL = True
+
 
 # We will track statistics during the training time and store these on disk in a local folder. We need to set up a data folder for the data and a root folder for the stats. You should already have these folders, and in the data folder the MNIST dataset should be setup as a lmdb database for both the training set and the test set for this tutorial. 
 
-# In[ ]:
+# In[2]:
 
 
 # This section preps your image and test set in a lmdb database
@@ -94,12 +108,18 @@ print("workspace root folder:" + root_folder)
 
 # > If the database wasn't found in the last step, [download the MNIST lmdb database](https://download.caffe2.ai/databases/mnist-lmdb.zip) or review the [datasets and databases notebook](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/MNIST_Dataset_and_Databases.ipynb) on how to create the database from the MNIST dataset.
 
-# We will be using the `ModelHelper` class to represent our main model and using `brew` module and `Operators` to build our model. `brew` module has a set of wrapper functions that automatically separates the parameter intialization and the actual computation into two networks. Under the hood, a `ModelHelper` object has two underlying nets, `param_init_net` and `net`, that keeps record of the initialization network and the main network respectively.
+# We will be using the `ModelHelper` class to represent our main model and using `brew` module as well as normal Caffe2 operators to build our model. `ModelHelper` is a special class which stores a lot of information about parameters initialization, their names and later on mapping to gradients. We will see how it is used in `brew` and other places below.
+# 
+# model.MyOperator is a syntactic sugar for model.net.MyOperator, which adds the corresponding MyOperator operator to model.net.
+# 
+# `brew` is a collection of helper functions designed to simplify the addition of complex logic to our models. When we want to add parameter initialization as well as a computation step, for example, `brew` comes in handy. Lets explore this in more detail.
+# 
+# `brew` module has a set of wrapper functions that automatically separate the parameter intialization and the actual computation into two networks. Under the hood, a `ModelHelper` object has two underlying nets, `param_init_net` and `net`, that keep record of the initialization network and the main network respectively. Also model.params keeps track of parameter names.
 # 
 # For the sake of modularity, we will separate the model to multiple different parts:
 # 
 #     (1) The data input part (AddInput function)
-#     (2) The main computation part (AddLeNetModel function)
+#     (2) The main computation part (AddModel function)
 #     (3) The training part - adding gradient operators, update, etc. (AddTrainingOperators function)
 #     (4) The bookkeeping part, where we just print out statistics for inspection. (AddBookkeepingOperators function)
 #     
@@ -108,7 +128,7 @@ print("workspace root folder:" + root_folder)
 # Since we are going to do float computations, we will cast the data to the *float* data type.
 # For better numerical stability, instead of representing data in [0, 255] range, we will scale them down to [0, 1].
 # Note that we are doing in-place computation for this operator: we don't need the pre-scale data.
-# Now, when computing the backward pass, we will not need the gradient computation for the backward pass. `StopGradient` does exactly that: in the forward pass it does nothing and in the backward pass all it does is to tell the gradient generator "the gradient does not need to pass through me".
+# Now, when computing the backward pass, we will not need the gradient computation for the data preparation part. `StopGradient` does exactly that: in the forward pass it does nothing and in the backward pass all it does is to tell the gradient generator "the gradient does not need to pass through here".
 #     
 
 # In[3]:
@@ -116,9 +136,13 @@ print("workspace root folder:" + root_folder)
 
 def AddInput(model, batch_size, db, db_type):
     # load the data
-    data_uint8, label = model.TensorProtosDBInput(
-        [], ["data_uint8", "label"], batch_size=batch_size,
-        db=db, db_type=db_type)
+    data_uint8, label = brew.db_input(
+        model,
+        blobs_out=["data_uint8", "label"],
+        batch_size=batch_size,
+        db=db,
+        db_type=db_type,
+    )
     # cast the data to float
     data = model.Cast(data_uint8, "data", to=core.DataType.FLOAT)
     # scale data from [0,255] down to [0,1]
@@ -128,18 +152,50 @@ def AddInput(model, batch_size, db, db_type):
     return data, label
 
 
-# At this point we need to take a look at the predictions coming out of the network at convert them into probabilities.
-# "What's the probability that this number we're looking at is a 5", or "is this a 7", and so forth. 
+# Now we are going to construct our own model. The input will be our data blob, and the output will be vectors of length 10 containing the network's prediction on each of the 10 possible digits.
 # 
-# The results will be conformed into a range between 0 and 1 such that the closer you are to 1 the more likely the number matches the prediction. The process that we can use to do this is available in LeNet and will provide us the *softmax* prediction. The `AddLeNetModel` function below will output the `softmax`. However, in this case, it does much more than the softmax - it is the computed model with its convoluted layers, as well as the softmax.
+# We are going to use the Multilayer Perceptron (MLP) architecture. The ReLU activation function is going to be used:
 # 
-# [An explanation of kernels in image processing](https://en.wikipedia.org/wiki/Kernel_%28image_processing%29) might be useful for more info on why `kernel=5` is used in the convolutional layers below. `dim_in` is the number of input channels and `dim_out` is the number of output channels. 
+# Relu(x) = x if x > 0 else 0
 # 
-# As you can see below `conv1` has 1 channel coming in (`dim_in`) and 20 going out (`dim_out`), whereas `conv2` has 20 going in and 50 going out and `fc3` has 50 going in and 500 going out. The images are transformed to smaller sizes along each convolution.d
+# Each layer of an MLP is just matrix multiplication with a bias plus an activation function. In our case, with ReLU activation, that is:
 # 
-# TODO: include image of the model below
+# layer1 = Relu(X * W1^T + b1)
+# 
+# layer2 = Relu(layer1 * W2^T + b2)
+# 
+# ...
+# 
+# Ultimately we will use the Softmax operator to convert scores for each of the digits to probabilities. So (p_0 + ... + p_9) = 1.0 and 0 <= p_i <= 1.0. 
+# 
+# There are more detailed MLP explanations online. A good example is [here](http://deeplearning.net/tutorial/mlp.html).
+# 
+# In this function we are going to use Brew for the second time. Please refer to the explanation given above. When below we call brew.fc(model, layer, ...) under the hood the following happens. FC operator is going to be added to model.net by calling model.net.FC([layer, W, b], ...). Where W and b are the weight and the bias of this fully connected layer (output = layer * W^T + b). Initially, we get W and b by adding their initialization into model.param_init_net. All of these is happening under the hood. You could just use Brew! :) 
 
 # In[4]:
+
+
+def AddMLPModel(model, data):
+    size = 28 * 28 * 1
+    sizes = [size, size * 2, size * 2, 10]
+    layer = data
+    for i in range(len(sizes) - 1):
+        layer = brew.fc(model, layer, 'dense_{}'.format(i), dim_in=sizes[i], dim_out=sizes[i + 1])
+        layer = model.net.Relu(layer, 'relu_{}'.format(i))
+    softmax = model.net.Softmax(layer, 'softmax')
+    return softmax
+    
+
+
+# Below is another possible (and much better) architecture called LeNet. This section is optional and you could run and use this tutorial for MLPs without understanding this function.
+# 
+# It uses convolutional layers. To understand convolution first you could look into [an explanation of kernels in image processing](https://en.wikipedia.org/wiki/Kernel_%28image_processing%29) 
+# 
+# The next step would be to understand convolutions in machine learning. There are also a lot of great resources online. Such as [this one](http://deeplearning.net/software/theano_versions/dev/tutorial/conv_arithmetic.html)
+# 
+# This function is also using Brew, this time for adding convolutional layers as well as fully connected ones.
+
+# In[5]:
 
 
 def AddLeNetModel(model, data):
@@ -156,79 +212,45 @@ def AddLeNetModel(model, data):
     # Image size: 28 x 28 -> 24 x 24
     conv1 = brew.conv(model, data, 'conv1', dim_in=1, dim_out=20, kernel=5)
     # Image size: 24 x 24 -> 12 x 12
-    pool1 = brew.max_pool(model, conv1, 'pool1', kernel=2, stride=2)
+    pool1 = model.net.MaxPool(conv1, 'pool1', kernel=2, stride=2)
     # Image size: 12 x 12 -> 8 x 8
     conv2 = brew.conv(model, pool1, 'conv2', dim_in=20, dim_out=50, kernel=5)
     # Image size: 8 x 8 -> 4 x 4
-    pool2 = brew.max_pool(model, conv2, 'pool2', kernel=2, stride=2)
+    pool2 = model.net.MaxPool(conv2, 'pool2', kernel=2, stride=2)
     # 50 * 4 * 4 stands for dim_out from previous layer multiplied by the image size
     fc3 = brew.fc(model, pool2, 'fc3', dim_in=50 * 4 * 4, dim_out=500)
-    fc3 = brew.relu(model, fc3, fc3)
+    fc3 = model.net.Relu(fc3, 'relu3')
     pred = brew.fc(model, fc3, 'pred', 500, 10)
-    softmax = brew.softmax(model, pred, 'softmax')
+    softmax = model.net.Softmax(pred, 'softmax')
     return softmax
 
 
-# The `AddAccuracy` function below adds an accuracy operator to the model. We will use this in the next function to keep track of the model's accuracy.
+# The `AddModel` function below allows us to easily switch from MLP to LeNet model. Just change `USE_LENET_MODEL` at the very top of the notebook and rerun the whole thing.
 
-# In[5]:
+# In[6]:
+
+
+def AddModel(model, data):
+    if USE_LENET_MODEL:
+        return AddLeNetModel(model, data)
+    else:
+        return AddMLPModel(model, data)
+
+
+# `AddAccuracy` function below adds an accuracy operator to the model. It is not going to be used in training. But will allow us to track accuracy of the model during training and build a nice plot.
+
+# In[7]:
 
 
 def AddAccuracy(model, softmax, label):
     """Adds an accuracy op to the model"""
-    accuracy = brew.accuracy(model, [softmax, label], "accuracy")
+    accuracy = model.Accuracy([softmax, label], "accuracy")
     return accuracy
 
 
-# The next function, `AddTrainingOperators`, adds training operators to the model. 
-# 
-# In the first step, we apply an Operator, `LabelCrossEntropy`, that computes the cross entropy between the input and the label set. This operator is almost always used after getting a softmax and before computing the model's loss. It's going to take in the `[softmax, label]` array along with a label, `'xent'` for "Cross Entropy".
-# 
-#     xent = model.LabelCrossEntropy([softmax, label], 'xent')
-#     
-# `AveragedLoss` will take in the cross entropy and return the average of the losses found in the cross entropy.
-# 
-#     loss = model.AveragedLoss(xent, "loss")
-# 
-# For bookkeeping purposes, we will also compute the accuracy of the model by invoking the AddAccuracy function like so:
-# 
-#     AddAccuracy(model, softmax, label)
-# 
-# The next line is the key part of the training model: we add all the gradient operators to the model. The gradient is computed with respect to the loss that we computed above.
-# 
-#     model.AddGradientOperators([loss])
-#     
+# The next function, `AddTrainingOperators`, adds training operators to the model. Please follow inline comments to understand all of the steps. We are going to use `build_sgd` helper function here. You can also build the whole update process yourself. The model object contains all the required information such as parameter names (`model.param`) and a mapping from parameter names to corresponding gradients.
 
-# The next handful of lines support a very simple stochastic gradient descent. 
-# --- TODO(jiayq): We are working on wrapping these SGD operations in a cleaner fashion, and we will update this when it is ready. For now, you can see how we basically express the SGD algorithms with basic operators. 
-# It isn't necessary to fully understand this part at the moment, but we'll walk you through the process anyway.
-# 
-# `Iter` operator is a counter for the number of iterations we run in the training. We use `brew.iter` helper function to add it to model
-# 
-#     ITER = brew.iter(model, "iter")
-# 
-# We do a simple learning rate schedule where lr = base_lr * (t ^ gamma)
-# Note that we are doing minimization, so the base_lr is negative so we are going the DOWNHILL direction. 
-# 
-#     LR = model.LearningRate(
-#         ITER, "LR", base_lr=-0.1, policy="step", stepsize=1, gamma=0.999 )
-# ONE is a constant value that is used in the gradient update. We only need to create it once, so it is explicitly placed in param_init_net.
-# 
-#     ONE = model.param_init_net.ConstantFill([], "ONE", shape=[1], value=1.0)
-# 
-# Now, for each parameter, we do the gradient updates. Note how we get the gradient of each parameter - `ModelHelper` keeps track of that. The update is a simple weighted sum: param = param + param_grad * LR
-# 
-#     for param in model.params:
-#         param_grad = model.param_to_grad[param]
-#         model.WeightedSum([param, ONE, param_grad, LR], param)        
-#         
-# We will need to checkpoint the parameters of the model periodically. This is achieved via the Checkpoint operator. It also takes in a parameter "every" so that we don't checkpoint way too often. In this case, we will say let's checkpoint every 20 iterations, which should probably be fine.
-# 
-#     model.Checkpoint([ITER] + model.params, [],
-#                    db="mnist_lenet_checkpoint_%05d.lmdb",
-#                    db_type="lmdb", every=20)
-
-# In[6]:
+# In[8]:
 
 
 def AddTrainingOperators(model, softmax, label):
@@ -240,26 +262,18 @@ def AddTrainingOperators(model, softmax, label):
     AddAccuracy(model, softmax, label)
     # use the average loss we just computed to add gradient operators to the model
     model.AddGradientOperators([loss])
-    # do a simple stochastic gradient descent
-    ITER = brew.iter(model, "iter")
-    # set the learning rate schedule
-    LR = model.LearningRate(
-        ITER, "LR", base_lr=-0.1, policy="step", stepsize=1, gamma=0.999 )
-    # ONE is a constant value that is used in the gradient update. We only need
-    # to create it once, so it is explicitly placed in param_init_net.
-    ONE = model.param_init_net.ConstantFill([], "ONE", shape=[1], value=1.0)
-    # Now, for each parameter, we do the gradient updates.
-    for param in model.params:
-        # Note how we get the gradient of each parameter - ModelHelper keeps
-        # track of that.
-        param_grad = model.param_to_grad[param]
-        # The update is a simple weighted sum: param = param + param_grad * LR
-        model.WeightedSum([param, ONE, param_grad, LR], param)
+    optimizer.build_sgd(
+        model,
+        base_learning_rate=0.1,
+        policy="step",
+        stepsize=1,
+        gamma=0.999,
+    )
 
 
 # The following function, `AddBookkeepingOperations`, adds a few bookkeeping operators that we can inspect later. These operators do not affect the training procedure: they only collect statistics and prints them to file or to logs.
 
-# In[7]:
+# In[9]:
 
 
 def AddBookkeepingOperators(model):
@@ -294,7 +308,7 @@ def AddBookkeepingOperators(model):
 #     
 # Before we can do the data input though we need to define our training model. We will basically need every piece of the components we defined above. In this example, we're using NCHW storage order on the mnist_train dataset. 
 
-# In[8]:
+# In[10]:
 
 
 arg_scope = {"order": "NCHW"}
@@ -303,13 +317,13 @@ data, label = AddInput(
     train_model, batch_size=64,
     db=os.path.join(data_folder, 'mnist-train-nchw-lmdb'),
     db_type='lmdb')
-softmax = AddLeNetModel(train_model, data)
+softmax = AddModel(train_model, data)
 AddTrainingOperators(train_model, softmax, label)
 AddBookkeepingOperators(train_model)
 
 # Testing model. We will set the batch size to 100, so that the testing
 # pass is 100 iterations (10,000 images in total).
-# For the testing model, we need the data input part, the main LeNetModel
+# For the testing model, we need the data input part, the main AddModel
 # part, and an accuracy part. Note that init_params is set False because
 # we will be using the parameters obtained from the train model.
 test_model = model_helper.ModelHelper(
@@ -318,25 +332,23 @@ data, label = AddInput(
     test_model, batch_size=100,
     db=os.path.join(data_folder, 'mnist-test-nchw-lmdb'),
     db_type='lmdb')
-softmax = AddLeNetModel(test_model, data)
+softmax = AddModel(test_model, data)
 AddAccuracy(test_model, softmax, label)
 
-# Deployment model. We simply need the main LeNetModel part.
+# Deployment model. We simply need the main AddModel part.
 deploy_model = model_helper.ModelHelper(
     name="mnist_deploy", arg_scope=arg_scope, init_params=False)
-AddLeNetModel(deploy_model, "data")
+AddModel(deploy_model, "data")
 # You may wonder what happens with the param_init_net part of the deploy_model.
 # No, we will not use them, since during deployment time we will not randomly
 # initialize the parameters, but load the parameters from the db.
 
 
-# Now, let's take a look what the training and deploy models look like, using the simple graph visualization tool that Caffe2 has. If the following command fails for you, it might be because that the machine you run on does not have graphviz installed. You can usually install that by:
-# 
-# ```sudo yum install graphviz```
+# Now, let's take a look what the training and deploy models look like using the simple graph visualization tool that Caffe2 has. If the following command fails for you, it might be because your machine does not have graphviz installed. You'll need to install it through the package manager of your choice.
 # 
 # If the graph looks too small, right click and open the image in a new tab for better inspection.
 
-# In[9]:
+# In[11]:
 
 
 from IPython import display
@@ -348,7 +360,7 @@ display.Image(graph.create_png(), width=800)
 # 
 # Let's display the graph in a more minimal way by showing only the necessary dependencies and only showing the operators. If you read carefully, you can see that the left half of the graph is the forward pass, the right half of the graph is the backward pass, and on the very right there are a set of parameter update and summarization operators.
 
-# In[10]:
+# In[12]:
 
 
 graph = net_drawer.GetPydotGraphMinimal(
@@ -358,75 +370,46 @@ display.Image(graph.create_png(), width=800)
 
 # Now, when we run the network, one way is to directly run it from Python. Remember as we are running the network, we can periodically pull blobs from the network - Let's first show how we do this.
 # 
-# Before, that, let's re-iterate the fact that, the ModelHelper class has not executed anything yet. All it does is to *declare* the network, which is basically creating the protocol buffers. For example, we will show a portion of the serialized protocol buffer for the training models' param init net.
-
-# In[ ]:
-
-
-print(str(train_model.param_init_net.Proto())[:400] + '\n...')
-
-
-# We will also dump all the protocol buffers to disk so you can easily inspect them. As you may have noticed, these protocol buffers are much like the old good caffe's network definitions.
-
-# In[ ]:
-
-
-with open(os.path.join(root_folder, "train_net.pbtxt"), 'w') as fid:
-    fid.write(str(train_model.net.Proto()))
-with open(os.path.join(root_folder, "train_init_net.pbtxt"), 'w') as fid:
-    fid.write(str(train_model.param_init_net.Proto()))
-with open(os.path.join(root_folder, "test_net.pbtxt"), 'w') as fid:
-    fid.write(str(test_model.net.Proto()))
-with open(os.path.join(root_folder, "test_init_net.pbtxt"), 'w') as fid:
-    fid.write(str(test_model.param_init_net.Proto()))
-with open(os.path.join(root_folder, "deploy_net.pbtxt"), 'w') as fid:
-    fid.write(str(deploy_model.net.Proto()))
-print("Protocol buffers files have been created in your root folder: " + root_folder)
-
-
-# Next we will run the training procedure. We will drive all the computation in Python here, however you can also write a plan out to disk so that you can completely train stuff in C++.  We'll leave discussion on that route for another tutorial.
-# 
-# Please note that this process will take a while to run. Keep an eye on the asterisk (In [\*]) or other IPython indicators that the code block is still running.
-# 
-# First we must initialize the network with:
-# 
-#     workspace.RunNetOnce(train_model.param_init_net)
-#     
-# Since we are going to run the main network multiple times, we first create the network which puts the actual network generated from the protobuf into the workspace.
-# 
-#     workspace.CreateNet(train_model.net)
-# 
-# We will set the number of iterations that we'll run the network to 200 and create two numpy arrays to record the accuracy and loss for each iteration.
-# 
-#     total_iters = 200
-#     accuracy = np.zeros(total_iters)
-#     loss = np.zeros(total_iters)
-# 
-# With the network and tracking of accuracy and loss setup we can now loop the 200 interations calling `workspace.RunNet` and passing the name of the network `train_model.net.Proto().name`. On each iteration we calculate the accuracy and loss with `workspace.FetchBlob('accuracy')` and `workspace.FetchBlob('loss')`.
-# 
-#     for i in range(total_iters):
-#         workspace.RunNet(train_model.net.Proto().name)
-#         accuracy[i] = workspace.FetchBlob('accuracy')
-#         loss[i] = workspace.FetchBlob('loss')
-# 
-# Finally, we can plot the results using `pyplot`.
+# Before that, though, let's reiterate the fact that the ModelHelper class has not executed anything yet. All it does is declare the network, which is basically creating the protocol buffers. For example, we will show a portion of the serialized protocol buffer for the training model's main network and the parameter initialization network.
 
 # In[13]:
 
 
+print(str(train_model.net.Proto())[:400] + '\n...')
+print(str(train_model.param_init_net.Proto())[:400] + '\n...')
+
+
+# Next we will run the training procedure. Please note that this process will take a while to run. Keep an eye on the asterisk (In [\*]) or other IPython indicators that the code block is still running.
+# 
+# We perform training by just executing our network many times in a row. Note how during this process we can fetch values of any blobs in the workspace. This allows us to build training plots. 
+# 
+# When using MLP, model accuracy greatly depends on the random initialization of parameters. If your model is staying at about 50% accurate, re-run the notebook, which will start from another random seed and initialize the parameters again.
+
+# In[14]:
+
+
 # The parameter initialization network only needs to be run once.
+# Now all the parameter blobs are going to be initialized in the workspace.
 workspace.RunNetOnce(train_model.param_init_net)
-# creating the network
+
+# Creating an actual network as a C++ object in memory.
+# We need this as its going to be used a lot.
+# So we avoid an object every single time it is used.
+ 
+# overwrite=True allows you to run this cell several times and avoid errors
 workspace.CreateNet(train_model.net, overwrite=True)
-# set the number of iterations and track the accuracy & loss
+
+# Set the iterations number and track the accuracy & loss
 total_iters = 200
 accuracy = np.zeros(total_iters)
 loss = np.zeros(total_iters)
+
 # Now, we will manually run the network for 200 iterations. 
 for i in range(total_iters):
     workspace.RunNet(train_model.net)
-    accuracy[i] = workspace.FetchBlob('accuracy')
-    loss[i] = workspace.FetchBlob('loss')
+    accuracy[i] = workspace.blobs['accuracy']
+    loss[i] = workspace.blobs['loss']
+
 # After the execution is done, let's plot the values.
 pyplot.plot(loss, 'b')
 pyplot.plot(accuracy, 'r')
@@ -435,7 +418,7 @@ pyplot.legend(('Loss', 'Accuracy'), loc='upper right')
 
 # Now we can sample some of the data and predictions. 
 
-# In[14]:
+# In[15]:
 
 
 # Let's look at some of the data.
@@ -448,27 +431,31 @@ _ = pyplot.plot(softmax[0], 'ro')
 pyplot.title('Prediction for the first image')
 
 
-# In[15]:
+# For convolutional models we can also see how they "think", i.e. which features they come up with. Instead of fetching learned weights, which can make less sense to a human, we fetch results of convolving those weights over the input. Note that if this code is rerun after the evaluation phase, the last mini-batch will change, since evaluation and training share the same workspace.
+
+# In[16]:
 
 
-# Convolutions for this mini-batch
-pyplot.figure()
-conv = workspace.FetchBlob('conv1')
-shape = list(conv.shape)
-shape[1] = 1
-# We can look into any channel. This of it as a feature model learned
-conv = conv[:,15,:,:].reshape(shape)
+if USE_LENET_MODEL:
+    pyplot.figure()
+    # We look into the first conv layer output. Change this to conv2 in order to look into the second one. 
+    conv = workspace.FetchBlob('conv1')
+    
+    # We can look into any channel. Think of it as a feature model learned.
+    # In this case we look into the 5th channel. Play with other channels to see other features
+    conv = conv[:,[5],:,:]
 
-_ = visualize.NCHW.ShowMultiple(conv)
+    _ = visualize.NCHW.ShowMultiple(conv)
 
 
 # Remember that we created the test net? We will run the test pass and report the test accuracy here. Note that although test_model will be using the parameters obtained from train_model, test_model.param_init_net must still be run to initialize the input data.
 # In this run, we only need to track the accuracy and we're also only going to run 100 iterations.
 
-# In[16]:
+# In[17]:
 
 
-# run a test pass on the test net
+# param_init_net here will only create a data reader
+# Other parameters won't be re-created because we selected init_params=False before
 workspace.RunNetOnce(test_model.param_init_net)
 workspace.CreateNet(test_model.net, overwrite=True)
 test_accuracy = np.zeros(100)
@@ -483,7 +470,7 @@ print('test_accuracy: %f' % test_accuracy.mean())
 
 # Let's save the deploy model with the trained weights and biases to a file. 
 
-# In[ ]:
+# In[18]:
 
 
 # construct the model to be exported
@@ -502,7 +489,7 @@ print("The deploy model is saved to: " + root_folder + "/mnist_model.minidb")
 
 # Now we can load the model back and run the prediction to verify it works.
 
-# In[18]:
+# In[19]:
 
 
 # we retrieve the last input data out and use it in our prediction test before we scratch the workspace
@@ -535,5 +522,5 @@ _ = pyplot.plot(softmax[0], 'ro')
 pyplot.title('Prediction for the first image')
 
 
-# This concludes the MNIST tutorial. We hope this tutorial highlighted some of Caffe2's features and how easy it is to create a simple CNN.
+# This concludes the MNIST tutorial. We hope this tutorial highlighted some of Caffe2's features and how easy it is to create a simple MLP or CNN model.
 
