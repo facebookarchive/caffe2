@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['yellowfinop',['YellowFinOp',['../classcaffe2_1_1YellowFinOp.html',1,'caffe2']]]
+  ['yellowfinop',['YellowFinOp',['../classcaffe2_1_1_yellow_fin_op.html',1,'caffe2']]]
 ];

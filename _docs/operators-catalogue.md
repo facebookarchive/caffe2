@@ -5284,6 +5284,20 @@ Useful for tracking the iteration count during SGD, for example.
 
 
 
+## KeySplit
+
+No documentation yet.
+
+
+### Code
+
+
+[caffe2/operators/key_split_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/key_split_ops.cc)
+
+---
+
+
+
 ## KeyValueToMap
 
 Convert key and value blob pairs into a map blob
@@ -10979,7 +10993,7 @@ Performs the same operation as SparseLengthsMean, but
 
 ---------- | ----------
 *Inputs* | 
-`DATA` | uint8 tensor obtained with operator FloatToFusedRowwiseQuantized8Bits
+`DATA` | uint8 tensor obtained with operator FloatToFused8BitRowwiseQuantized
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
 *Outputs* | 
@@ -11093,7 +11107,7 @@ Performs the same operation as SparseLengthsSum, but operating on
 
 ---------- | ----------
 *Inputs* | 
-`DATA` | uint8 tensor obtained with operator FloatToFusedRowwiseQuantized8Bits
+`DATA` | uint8 tensor obtained with operator FloatToFused8BitRowwiseQuantized
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
 *Outputs* | 
@@ -11247,7 +11261,7 @@ Performs the same operation as SparseLengthsWeightedSum,
 
 ---------- | ----------
 *Inputs* | 
-`DATA` | uint8 tensor obtained with operator FloatToFusedRowwiseQuantized8Bits
+`DATA` | uint8 tensor obtained with operator FloatToFused8BitRowwiseQuantized
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
 `WEIGHTS` | Vector of weights to scale rows of DATA with before reduction
