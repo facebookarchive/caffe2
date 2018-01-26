@@ -65,18 +65,17 @@ Strictly speaking, the core dependencies above are all you need to run the core 
 ----|-----
 There are also various Python libraries that will be valuable in your experience with Caffe2. Many of these are required to run the tutorials. |
 [Flask](http://flask.pocoo.org/) |
-[Graphviz](http://www.graphviz.org/) |
+[Graphviz](http://www.graphviz.org/) | Used for plotting in the Jupyter Notebook Tutorials
 [Hypothesis](https://hypothesis.readthedocs.io/) |
-[Jupyter](https://ipython.org/) | for the Jupyter Notebook
+[Jupyter](https://ipython.org/) | Used for some some interactive tutorials
 [LevelDB](https://github.com/google/leveldb) |
 [lmdb](https://lmdb.readthedocs.io/en/release/) |
-[Matplotlib](http://matplotlib.org/) |
-[Pydot](https://pypi.python.org/pypi/pydot) |
+[Matplotlib](http://matplotlib.org/) | Used for plotting in the Jupyter Notebook Tutorials
+[Pydot](https://pypi.python.org/pypi/pydot) | Used for plotting in the Jupyter Notebook Tutorials
 [Python-nvd3](https://pypi.python.org/pypi/python-nvd3/) |
 [pyyaml](http://pyyaml.org/) |
-[requests](http://docs.python-requests.org/en/master/) |
+[requests](http://docs.python-requests.org/en/master/) | Used in the MNIST tutorial to download the dataset
 [Scikit-Image](http://scikit-image.org/) |
 [SciPy](https://www.scipy.org/) |
 [setuptools](https://pypi.python.org/pypi/setuptools) |
-[Tornado](http://www.tornadoweb.org/en/stable/) |
 [ZeroMQ](http://zeromq.org/) |

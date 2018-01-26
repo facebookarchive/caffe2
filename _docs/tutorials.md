@@ -7,6 +7,42 @@ permalink: /docs/tutorials.html
 
   We'd love to start by saying that we really appreciate your interest in Caffe2, and hope this will be a high-performance framework for your machine learning product uses. Caffe2 is intended to be modular and facilitate fast prototyping of ideas and experiments in deep learning. Given this modularity, note that once you have a model defined, and you are interested in gaining additional performance and scalability, you are able to use pure C++ to deploy such models without having to use Python in your final product. Also, as the community develops enhanced and high-performance modules you are able to easily swap these modules into your Caffe2 project.
 
+## Tutorials Installation
+
+To run the tutorials you will need some third-party libraries, including [ipython-notebooks](http://jupyter.org/install.html) and [matplotlib](http://matplotlib.org/users/installing.html). You can install everything you'll need with the following command.
+
+> Anaconda users: If you're using Anaconda, use `conda install` instead of `pip install`.
+
+```bash
+pip install \
+    flask \
+    graphviz \
+    hypothesis \
+    ipython \
+    jupyter \
+    leveldb \
+    lmdb \
+    matplotlib \
+    notebook \
+    pydot \
+    python-nvd3 \
+    pyyaml \
+    requests \
+    scikit-image \
+    scipy \
+    six \
+    unzip \
+    zeromq
+```
+
+Then run the shell script included in the `caffe2/caffe2/python/tutorials` folder:
+
+```bash
+./start_ipython_notebook.sh
+```
+
+Or you can run `jupyter notebook`, and when your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in the `caffe2/caffe2/python/tutorials` directory. Opening them this way will launch their interactive features just like the shell script mentioned above. The script has the additional feature of setting your PYTHONPATH environment variable.
+
 ## Pick Your Path
 
 1. [Use a pre-trained neural network off the shelf!](tutorials.html#null__new-to-deep-learning) (Easy)
@@ -139,63 +175,3 @@ One of basic units of computation in Caffe2 are the [Operators](/docs/operators)
 Fantastic idea! Write custom operators and share them with the community! Refer to the guide on writing operators:
 
 * [Guide for creating your own operators](/docs/custom-operators)
-
-## Tutorials Installation
-
-To run the tutorials you'll need Python 2.7, [ipython-notebooks](http://jupyter.org/install.html) and [matplotlib](http://matplotlib.org/users/installing.html), which can be installed on with:
-
-#### Mac OS X via brew & pip
-
-```bash
-brew install matplotlib
-pip install ipython notebook
-pip install scikit-image
-```
-
-#### Anaconda
-
-Anaconda comes with iPython notebook, so you'll only need to install matplotlib.
-
-```bash
-conda install matplotlib
-conda install scikit-image
-```
-
-#### pip
-
-```bash
-pip install matplotlib
-pip install ipython notebook
-pip install scikit-image
-```
-
-Hit it with a hammer you say? Ok, here's a full list for your installation pleasure, and note that you'll want them installed with Python, and in some cases C++ or at the system level, so you might `brew install` as well as `pip install` or `conda install` them:
-
-```bash
-flask \
-graphviz \
-hypothesis \
-jupyter \
-leveldb \
-lmdb \
-matplotlib \
-pydot \
-pyyaml \
-requests \
-scikit-image \
-scipy \
-tornado \
-zeromq
-```
-
-Instructions on how to setup Jupyter Notebook, which is the latest, greatest way to use and create interactive code notebooks (ipynb files) is found at [http://jupyter.org](http://jupyter.org/install.html).
-
-Note: if you've already successfully installed Caffe2 with Anaconda Python, then great news! You already have Jupyter Notebook. Starting it is easy.
-
-Run the shell script included in the `caffe2/caffe2/python/tutorials` folder:
-
-```bash
-./start_ipython_notebook.sh
-```
-
-Or you can run `jupyter notebook`, and when your browser opens with your local Jupyter server (default is http://localhost:8888), browse to the Caffe2 repository and look for them in the `caffe2/caffe2/python/tutorials` directory. Opening them this way will launch their interactive features just like the shell script mentioned above. The script has the additional feature of setting your PYTHONPATH environment variable.

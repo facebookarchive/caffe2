@@ -13,7 +13,9 @@ This build is confirmed for:
 * Ubuntu 14.04
 * Ubuntu 16.04
 
-### Required Dependencies
+> Anaconda users: To build with Anaconda, follow the instructions on the [Mac page](https://caffe2.ai/docs/getting-started.html?platform=mac&configuration=compile#anaconda-install-path).
+
+### Install Dependencies
 
 ```bash
 sudo apt-get update
@@ -22,14 +24,62 @@ sudo apt-get install -y --no-install-recommends \
       cmake \
       git \
       libgoogle-glog-dev \
+      libgtest-dev \
+      libiomp-dev \
+      libleveldb-dev \
+      liblmdb-dev \
+      libopencv-dev \
+      libopenmpi-dev \
+      libsnappy-dev \
       libprotobuf-dev \
+      openmpi-bin \
+      openmpi-doc
       protobuf-compiler \
       python-dev \
       python-pip                          
-sudo pip install numpy protobuf
+sudo pip install \
+      future \
+      numpy \
+      protobuf
 ```
+
+> Note `libgflags2` is for Ubuntu 14.04. `libgflags-dev` is for Ubuntu 16.04.
+
+```bash
+# for Ubuntu 14.04
+sudo apt-get install -y --no-install-recommends libgflags2
+# for Ubuntu 16.04
+sudo apt-get install -y --no-install-recommends libgflags-dev
+```
+
+> If you have a GPU, follow [these additional steps](#install-with-gpu-support) before continuing.
+
+### Clone & Build
+
+```bash
+git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
+make && cd build && sudo make install
+```
+
+### Test the Caffe2 Installation
+Run this to see if your Caffe2 installation was successful. 
+
+```bash
+cd ~ && python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
+```
+
+If this fails, then get a better error message by running a Python interpreter in the `caffe2/build` directory and then trying `from caffe2.python import core`.
+
+If this fails with a message about not finding caffe2.python or not finding libcaffe2.so, [check your environment variables](#environment-variables) first.
+
+If you installed with GPU support, test that the GPU build was a success with this command. You will get a test output either way, but it will warn you at the top of the output if CPU was used instead of GPU, along with other errors such as missing libraries.
+
+```bash
+python -m caffe2.python.operator_test.relu_op_test
+```
+
 <block class="ubuntu compile" />
-### Optional GPU Support
+### Install with GPU Support
 
 If you plan to use GPU instead of CPU only, then you should install NVIDIA CUDA 8 and cuDNN v5.1 or v6.0, a GPU-accelerated library of primitives for deep neural networks.
 [NVIDIA's detailed instructions](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation) or if you're feeling lucky try the quick install set of commands below.
@@ -68,65 +118,6 @@ rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig
 
 **Version 6.0**
 Visit [NVIDIA's cuDNN download](https://developer.nvidia.com/rdp/cudnn-download) to register and download the archive. Follow the same instructions above switching out for the updated library.
-
-<block class="ubuntu compile" />
-### Optional Dependencies
-
-> Note `libgflags2` is for Ubuntu 14.04. `libgflags-dev` is for Ubuntu 16.04.
-
-```bash
-# for Ubuntu 14.04
-sudo apt-get install -y --no-install-recommends libgflags2
-```
-
-```bash
-# for Ubuntu 16.04
-sudo apt-get install -y --no-install-recommends libgflags-dev
-```
-
-```bash
-# for both Ubuntu 14.04 and 16.04
-sudo apt-get install -y --no-install-recommends \
-      libgtest-dev \
-      libiomp-dev \
-      libleveldb-dev \
-      liblmdb-dev \
-      libopencv-dev \
-      libopenmpi-dev \
-      libsnappy-dev \
-      openmpi-bin \
-      openmpi-doc \
-      python-pydot
-sudo pip install \
-      flask \
-      future \
-      graphviz \
-      hypothesis \
-      jupyter \
-      matplotlib \
-      pydot python-nvd3 \
-      pyyaml \
-      requests \
-      scikit-image \
-      scipy \
-      setuptools \
-      six \
-      tornado
-```
-
-### Clone & Build
-
-```bash
-git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
-make && cd build && sudo make install
-python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
-```
-
-Run this command below to test if your GPU build was a success. You will get a test output either way, but it will warn you at the top of the output if CPU was used instead along with other errors like missing libraries.
-
-```bash
-python -m caffe2.python.operator_test.relu_op_test
-```
 
 ### Environment Variables
 
@@ -191,9 +182,13 @@ Build issues | Be warned that installing CUDA and cuDNN will increase the size o
 
 <block class="ubuntu prebuilt" />
 
-### Prebuilt Binaries
+### Anaconda package
 
-** COMING SOON **
+```bash
+conda install -c caffe2 caffe2
+```
+
+Packages exist for both Python 2.7 and 3.6. At this time all packages are built with MKL, without GPU support. Anaconda packages built for CUDA are coming soon.
 
 <block class="ubuntu docker" />
 
