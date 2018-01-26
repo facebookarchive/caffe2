@@ -84,7 +84,7 @@ def _test_binary(name, ref, filter_=None, gcs=hu.gcs,
     @given(
         inputs=dtypes().flatmap(
             lambda dtype: hu.tensors(
-                n=2, dtype=dtype,
+                min_n=2, dtype=dtype,
                 elements=hu.elements_of_type(dtype, filter_=filter_))),
         out=st.sampled_from(('Y', 'X1', 'X2') if allow_inplace else ('Y',)),
         **gcs)
@@ -137,7 +137,9 @@ class TestOperators(hu.HypothesisTestCase):
             _test_binary(name, ref, gcs=hu.gcs_cpu_only)(self)
             _test_binary_broadcast(name, ref, gcs=hu.gcs_cpu_only)(self)
 
-    @given(inputs=hu.tensors(n=2), in_place=st.booleans(), **hu.gcs)
+    @given(inputs=hu.tensors(min_n=2),
+           in_place=st.booleans(),
+           **hu.gcs)
     def test_sum(self, inputs, in_place, gc, dc):
         op = core.CreateOperator("Sum", ["X1", "X2"],
                                         ["Y" if not in_place else "X1"])
@@ -145,7 +147,8 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertDeviceChecks(dc, op, [X1, X2], [0])
         self.assertGradientChecks(gc, op, [X1, X2], 0, [0])
 
-    @given(inputs=hu.tensors(n=2, min_dim=2, max_dim=2), **hu.gcs_cpu_only)
+    @given(inputs=hu.tensors(min_n=2, min_dim=2, max_dim=2),
+           **hu.gcs_cpu_only)
     def test_row_mul(self, inputs, gc, dc):
         op = core.CreateOperator("RowMul", ["X1", "X2"], ["Y"])
         X1, Xtmp = inputs
@@ -162,7 +165,8 @@ class TestOperators(hu.HypothesisTestCase):
             self.assertGradientChecks(gc, op, [X1, X2], i, [0])
         self.assertReferenceChecks(gc, op, [X1, X2], ref)
 
-    @given(inputs=hu.tensors(n=2), **hu.gcs_cpu_only)
+    @given(inputs=hu.tensors(min_n=2),
+           **hu.gcs_cpu_only)
     def test_max(self, inputs, gc, dc):
         op = core.CreateOperator("Max", ["X1", "X2"], ["Y"])
 
@@ -492,7 +496,7 @@ class TestOperators(hu.HypothesisTestCase):
         op = core.CreateOperator("Print", "data", [])
         self.ws.run(op)
 
-    @given(inputs=hu.tensors(n=2),
+    @given(inputs=hu.tensors(min_n=2),
            in_place=st.booleans(),
            momentum=st.floats(min_value=0.1, max_value=0.9),
            nesterov=st.booleans(),
@@ -525,7 +529,7 @@ class TestOperators(hu.HypothesisTestCase):
 
         self.assertReferenceChecks(gc, op, [grad, m, lr], momentum_sgd)
 
-    @given(inputs=hu.tensors(n=3),
+    @given(inputs=hu.tensors(min_n=3),
            in_place=st.booleans(),
            decay=st.floats(min_value=0.1, max_value=0.9),
            momentum=st.floats(min_value=0.1, max_value=0.9),
@@ -571,7 +575,7 @@ class TestOperators(hu.HypothesisTestCase):
         w[np.abs(z) <= lambda1] = 0
         return (w, np.stack([n, z], axis=-1))
 
-    @given(inputs=hu.tensors(n=4),
+    @given(inputs=hu.tensors(min_n=4),
            in_place=st.booleans(),
            alpha=st.floats(min_value=0.01, max_value=0.1),
            beta=st.floats(min_value=0.1, max_value=0.9),
@@ -599,7 +603,7 @@ class TestOperators(hu.HypothesisTestCase):
             gc, op, [var, nz, grad],
             partial(self._dense_ftrl, alpha, beta, lambda1, lambda2))
 
-    @given(inputs=hu.tensors(n=4),
+    @given(inputs=hu.tensors(min_n=4),
            alpha=st.floats(min_value=0.01, max_value=0.1),
            beta=st.floats(min_value=0.1, max_value=0.9),
            lambda1=st.floats(min_value=0.001, max_value=0.1),
@@ -641,7 +645,7 @@ class TestOperators(hu.HypothesisTestCase):
         return TestOperators._dense_ftrl(alpha, beta, lambda1, lambda2, w, nz,
                                          g)
 
-    @given(inputs=hu.tensors(n=4),
+    @given(inputs=hu.tensors(min_n=4),
            in_place=st.booleans(),
            alpha=st.floats(min_value=0.01, max_value=0.1),
            beta=st.floats(min_value=0.1, max_value=0.9),
@@ -670,7 +674,7 @@ class TestOperators(hu.HypothesisTestCase):
             gc, op, [var, nz, grad, alpha],
             partial(self._dense_ftrl_send_alpha_by_input, beta, lambda1, lambda2))
 
-    @given(inputs=hu.tensors(n=4),
+    @given(inputs=hu.tensors(min_n=4),
            alpha=st.floats(min_value=0.01, max_value=0.1),
            beta=st.floats(min_value=0.1, max_value=0.9),
            lambda1=st.floats(min_value=0.001, max_value=0.1),
@@ -2196,7 +2200,8 @@ class TestOperators(hu.HypothesisTestCase):
         X = X.astype(np.float32)
         self.assertGradientChecks(gc, op, [I, X, D], 1, [0])
 
-    @given(inputs=hu.tensors(n=2, min_dim=2, max_dim=2), **hu.gcs_cpu_only)
+    @given(inputs=hu.tensors(min_n=2, min_dim=2, max_dim=2),
+           **hu.gcs_cpu_only)
     def test_dot_product(self, inputs, gc, dc):
         X, Y = inputs
         op = core.CreateOperator("DotProduct", ["X", "Y"], 'out')

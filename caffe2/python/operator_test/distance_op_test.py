@@ -47,7 +47,7 @@ class DistanceTest(hu.HypothesisTestCase):
         self.assertGradientChecks(gc, cos_op, [X, Y], 1, [0],
                                   stepsize=1e-2, threshold=1e-2)
 
-    @given(inputs=hu.tensors(n=2,
+    @given(inputs=hu.tensors(min_n=2,
                              min_dim=1,
                              max_dim=2,
                              dtype=np.float32),

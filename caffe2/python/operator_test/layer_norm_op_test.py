@@ -26,7 +26,7 @@ import numpy as np
 from caffe2.python.model_helper import ModelHelper
 
 class TestLayerNormOp(hu.HypothesisTestCase):
-    @given(X=hu.tensors(n=1), **hu.gcs)
+    @given(X=hu.tensors(min_n=1), **hu.gcs)
     def test_layer_norm_grad_op(self, X, gc, dc):
         X = X[0]
         if len(X.shape) == 1:
@@ -97,7 +97,7 @@ class TestLayerNormOp(hu.HypothesisTestCase):
             outputs_to_check=[0],
         )
 
-    @given(X=hu.tensors(n=1), **hu.gcs)
+    @given(X=hu.tensors(min_n=1), **hu.gcs)
     def test_layer_norm_op(self, X, gc, dc):
         X = X[0]
         if len(X.shape) == 1:
@@ -139,7 +139,7 @@ class TestLayerNormOp(hu.HypothesisTestCase):
             outputs_to_check=[0, 1, 2],
         )
 
-    @given(X=hu.tensors(n=1), **hu.gcs)
+    @given(X=hu.tensors(min_n=1), **hu.gcs)
     def test_layer_norm_brew_wrapper(self, X, gc, dc):
         X = X[0]
         if len(X.shape) == 1:

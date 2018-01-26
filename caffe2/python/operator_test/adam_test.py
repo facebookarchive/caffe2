@@ -56,7 +56,7 @@ class TestAdam(hu.HypothesisTestCase):
         return (param_out, mom1_out, mom2_out)
 
 
-    @given(inputs=hu.tensors(n=4),
+    @given(inputs=hu.tensors(min_n=4),
            ITER=st.integers(min_value=0, max_value=10000),
            LR=st.floats(min_value=0.01, max_value=0.99,
                         allow_nan=False, allow_infinity=False),
@@ -89,7 +89,7 @@ class TestAdam(hu.HypothesisTestCase):
                 beta1=beta1, beta2=beta2, epsilon=epsilon),
             input_device_options=input_device_options)
 
-    @given(inputs=hu.tensors(n=4),
+    @given(inputs=hu.tensors(min_n=4),
            ITER=st.integers(min_value=0, max_value=10000),
            LR=st.floats(min_value=0.01, max_value=0.99,
                         allow_nan=False, allow_infinity=False),

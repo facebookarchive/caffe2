@@ -25,7 +25,7 @@ from hypothesis import given
 
 
 class LpnormTest(hu.HypothesisTestCase):
-    @given(inputs=hu.tensors(n=1,
+    @given(inputs=hu.tensors(min_n=1,
                              min_dim=1,
                              max_dim=3,
                              dtype=np.float32),

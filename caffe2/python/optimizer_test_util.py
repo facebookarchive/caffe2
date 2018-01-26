@@ -192,7 +192,10 @@ class LRModificationTestBase(object):
     def test_global_norm_based_gradient_clipping(self):
         max_gradient_norm = 1.0
         model, perfect_model, data, label = self._createDense()
-        opt = self.build_optimizer(model, max_gradient_norm=max_gradient_norm)
+        opt = self.build_optimizer(
+            model,
+            max_gradient_norm=max_gradient_norm,
+            clip_using_lr_multiplier=True)
 
         params = []
         for param in model.GetParams(top_scope=True):
@@ -250,4 +253,4 @@ class LRModificationTestBase(object):
         # lr_multiplier. Here, we have both lr_injector and norm_ratio that
         # affect the lr_multiplier
         workspace.RunNet(model.net.Proto().name)
-        self.assertEqual(workspace.FetchBlob('lr_multiplier'), 0)
+        self.assertEqual(workspace.FetchBlob(opt._lr_multiplier), 0)

@@ -1037,6 +1037,7 @@ def _build(
     weights_only=False,
     use_param_info_optim=True,
     max_gradient_norm=None,
+    clip_using_lr_multiplier=False,
     allow_lr_injection=False,
 ):
     param_to_device = _get_param_to_device(model)
@@ -1052,13 +1053,33 @@ def _build(
 
     lr_multiplier = None
     if max_gradient_norm is not None:
-        lr_multiplier = _calc_norm_ratio(
-            model,
-            params,
-            'norm_clipped_grad_update',
-            param_to_device,
-            max_gradient_norm,
-        )
+        param_devices = [get_param_device(
+            str(param.blob), param.grad, param_to_device)
+            for param in params]
+        if len(param_devices) == 0:
+            raise ValueError("No device was detected for params")
+        if (not clip_using_lr_multiplier) and \
+           (param_devices[1:] == param_devices[:-1]):
+            with core.NameScope('clipped_grad'):
+                with core.DeviceScope(param_devices[0]):
+                    grads = [param.grad
+                        if not isinstance(param.grad, core.GradientSlice)
+                        else param.grad.values
+                        for param in params]
+                    # output_type has to be the same as input_type,
+                    # because inplace is used.
+                    model.ClipByGlobalNorm(
+                        grads, grads,
+                        clip_norm=float(max_gradient_norm),
+                        output_type='input_type')
+        else:
+            lr_multiplier = _calc_norm_ratio(
+                model,
+                params,
+                'norm_clipped_grad_update',
+                param_to_device,
+                max_gradient_norm,
+            )
 
     if allow_lr_injection:
         if not model.net.BlobIsDefined(_LEARNING_RATE_INJECTION):
@@ -1114,6 +1135,7 @@ def build_sgd(
     model,
     base_learning_rate,
     max_gradient_norm=None,
+    clip_using_lr_multiplier=False,
     allow_lr_injection=False,
     **kwargs
 ):
@@ -1122,6 +1144,7 @@ def build_sgd(
         model,
         sgd_optimizer,
         max_gradient_norm=max_gradient_norm,
+        clip_using_lr_multiplier=clip_using_lr_multiplier,
         allow_lr_injection=allow_lr_injection,
     )
 
@@ -1164,6 +1187,7 @@ def build_adagrad(
     base_learning_rate,
     parameters=None,
     max_gradient_norm=None,
+    clip_using_lr_multiplier=False,
     allow_lr_injection=False,
     **kwargs
 ):
@@ -1172,6 +1196,7 @@ def build_adagrad(
         model,
         adagrad_optimizer,
         max_gradient_norm=max_gradient_norm,
+        clip_using_lr_multiplier=clip_using_lr_multiplier,
         allow_lr_injection=allow_lr_injection,
     )
 
@@ -1180,6 +1205,7 @@ def build_adam(
     model,
     base_learning_rate,
     max_gradient_norm=None,
+    clip_using_lr_multiplier=False,
     allow_lr_injection=False,
     **kwargs
 ):
@@ -1188,6 +1214,7 @@ def build_adam(
         model,
         adam_optimizer,
         max_gradient_norm=max_gradient_norm,
+        clip_using_lr_multiplier=clip_using_lr_multiplier,
         allow_lr_injection=allow_lr_injection,
     )
 
@@ -1203,6 +1230,7 @@ def build_rms_prop(
     model,
     base_learning_rate,
     max_gradient_norm=None,
+    clip_using_lr_multiplier=False,
     allow_lr_injection=False,
     **kwargs
 ):
@@ -1211,5 +1239,6 @@ def build_rms_prop(
         model,
         rms_prop_optimizer,
         max_gradient_norm=max_gradient_norm,
+        clip_using_lr_multiplier=clip_using_lr_multiplier,
         allow_lr_injection=allow_lr_injection,
     )

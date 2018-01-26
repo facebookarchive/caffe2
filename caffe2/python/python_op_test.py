@@ -190,7 +190,8 @@ class PythonOpTest(hu.HypothesisTestCase):
         self.assertGradientChecks(gc, op, [x], 0, [0])
         self.assertDeviceChecks(dc, op, [x], [0])
 
-    @given(inputs=hu.tensors(n=2), **hu.gcs)
+    @given(inputs=hu.tensors(min_n=2),
+           **hu.gcs)
     def test_gradient_multiple(self, inputs, gc, dc):
         (x1, x2) = inputs
 
@@ -216,7 +217,8 @@ class PythonOpTest(hu.HypothesisTestCase):
             self.assertGradientChecks(gc, op, [x1, x2], idx, [0, 1])
         self.assertDeviceChecks(dc, op, [x1, x2], [0, 1])
 
-    @given(inputs=hu.tensors(n=3), **hu.gcs)
+    @given(inputs=hu.tensors(min_n=3),
+           **hu.gcs)
     def test_gradient_multiple_with_indices(self, inputs, gc, dc):
         (x1, x2, x3) = inputs
 

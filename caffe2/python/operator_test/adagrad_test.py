@@ -55,7 +55,7 @@ class TestAdagrad(hu.HypothesisTestCase):
         param_out = param_in + grad_adj
         return (param_out, mom_out)
 
-    @given(inputs=hu.tensors(n=3),
+    @given(inputs=hu.tensors(min_n=3),
            lr=st.floats(min_value=0.01, max_value=0.99,
                         allow_nan=False, allow_infinity=False),
            epsilon=st.floats(min_value=0.01, max_value=0.99,
@@ -81,7 +81,7 @@ class TestAdagrad(hu.HypothesisTestCase):
     # Suppress filter_too_much health check.
     # Likely caused by `assume` call falling through too often.
     @settings(suppress_health_check=[HealthCheck.filter_too_much])
-    @given(inputs=hu.tensors(n=3),
+    @given(inputs=hu.tensors(min_n=3),
            lr=st.floats(min_value=0.01, max_value=0.99,
                         allow_nan=False, allow_infinity=False),
            epsilon=st.floats(min_value=0.01, max_value=0.99,
@@ -149,7 +149,7 @@ class TestAdagrad(hu.HypothesisTestCase):
                 ref_sparse
             )
 
-    @given(inputs=hu.tensors(n=2),
+    @given(inputs=hu.tensors(min_n=2),
            lr=st.floats(min_value=0.01, max_value=0.99,
                         allow_nan=False, allow_infinity=False),
            epsilon=st.floats(min_value=0.01, max_value=0.99,
@@ -200,7 +200,7 @@ class TestAdagrad(hu.HypothesisTestCase):
     # Suppress filter_too_much health check.
     # Likely caused by `assume` call falling through too often.
     @settings(suppress_health_check=[HealthCheck.filter_too_much])
-    @given(inputs=hu.tensors(n=2),
+    @given(inputs=hu.tensors(min_n=2),
            lr=st.floats(min_value=0.01, max_value=0.99,
                         allow_nan=False, allow_infinity=False),
            epsilon=st.floats(min_value=0.01, max_value=0.99,
@@ -259,7 +259,7 @@ class TestAdagrad(hu.HypothesisTestCase):
             [param, momentum, indices, grad, lr],
             ref_row_wise_sparse)
 
-    @given(inputs=hu.tensors(n=1),
+    @given(inputs=hu.tensors(min_n=1),
            lr=st.floats(min_value=0.01, max_value=0.99,
                         allow_nan=False, allow_infinity=False),
            epsilon=st.floats(min_value=0.01, max_value=0.99,

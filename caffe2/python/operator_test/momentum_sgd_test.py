@@ -85,7 +85,7 @@ class TestMomentumSGD(hu.HypothesisTestCase):
         )
 
     @given(
-        inputs=hu.tensors(n=3),
+        inputs=hu.tensors(min_n=3),
         momentum=st.floats(min_value=0.1, max_value=0.9),
         nesterov=st.booleans(),
         lr=st.floats(min_value=0.1, max_value=0.9),
