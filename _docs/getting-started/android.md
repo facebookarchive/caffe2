@@ -22,9 +22,18 @@ git clone --recursive https://github.com/caffe2/caffe2.git
 
 ## Run the Build Script
 
+If you want to build Caffe2 for Android with armeabi-v7a ABI:
+
 ```
 cd caffe2
 ./scripts/build_android.sh
+```
+
+Or if you want to build Caffe2 for Android with arm64-v8a ABI:
+
+```
+cd caffe2
+./scripts/build_android.sh -DANDROID_ABI=arm64-v8a -DANDROID_TOOLCHAIN=clang
 ```
 
 <block class="android prebuilt docker" />
