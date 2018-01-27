@@ -59,12 +59,9 @@ endif()
 
 # After above, we should have the gflags target now.
 if (NOT TARGET gflags)
-  message(FATAL_ERROR
-      "gflags cannot be found. It is strongly recommended that you use "
-      "Caffe2 with gflags. If you are building Caffe2 and do not want "
-      "gflags, specify -DUSE_GFLAGS=OFF. If you are building a Caffe2 "
-      "dependent library, it means that your installed Caffe2 version "
-      "uses gflags, so you will need to install gflags and set the library "
-      "path accordingly.")
+  message(WARNING
+      "gflags cannot be found. Depending on whether you are building Caffe2 "
+      "or a Caffe2 dependent library, the next warning / error will give you "
+      "more info.")
 endif()
 

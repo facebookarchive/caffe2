@@ -85,8 +85,16 @@ endif()
 # ---[ gflags
 if(USE_GFLAGS)
   include(cmake/public/gflags.cmake)
-  set(CAFFE2_USE_GFLAGS 1)
-  list(APPEND Caffe2_DEPENDENCY_LIBS gflags)
+  if (TARGET gflags)
+    set(CAFFE2_USE_GFLAGS 1)
+    list(APPEND Caffe2_DEPENDENCY_LIBS gflags)
+  else()
+    message(WARNING
+        "gflags is not found. Caffe2 will build without gflags support but "
+        "it is strongly recommended that you install gflags. Suppress this "
+        "warning with -DUSE_GFLAGS=OFF")
+    set(USE_GFLAGS OFF)
+  endif()
 endif()
 
 # ---[ Google-glog
