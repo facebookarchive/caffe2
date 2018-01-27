@@ -125,10 +125,20 @@ if(USE_CUDA)
   # one cannot use PUBLIC/PRIVATE/INTERFACE for the target anymore. This
   # hack adds the PRIVATE keywords to CUDA_LIBRARIES so we can deal with
   # it.
+
+  #set(__tmp ${CUDA_LIBRARIES})
+  #set(CUDA_LIBRARIES PRIVATE ${CUDA_LIBRARIES})
+  #CUDA_ADD_LIBRARY(caffe2_gpu ${Caffe2_GPU_SRCS})
+  #set(CUDA_LIBRARIES ${__tmp})
+
+  # Note: the above misses transitive cuda dependencies, as we have not
+  # sorted out the interface library for cuda related libs. As a result,
+  # we will first put all CUDA_LIBRARIES as the dependency.
   set(__tmp ${CUDA_LIBRARIES})
-  set(CUDA_LIBRARIES PRIVATE ${CUDA_LIBRARIES})
+  set(CUDA_LIBRARIES PUBLIC ${CUDA_LIBRARIES})
   CUDA_ADD_LIBRARY(caffe2_gpu ${Caffe2_GPU_SRCS})
   set(CUDA_LIBRARIES ${__tmp})
+
   target_include_directories(
       caffe2_gpu INTERFACE $<INSTALL_INTERFACE:include>)
   list(APPEND Caffe2_MAIN_LIBS_ORDER caffe2_gpu)

@@ -218,7 +218,7 @@ inline double stod(const string& str, std::size_t* pos = 0) {
   double val = 0;
   ss >> val;
   if (pos) {
-    if (ss.tellg() == -1) {
+    if (ss.tellg() == std::streampos(-1)) {
       *pos = str.size();
     } else {
       *pos = ss.tellg();
@@ -272,19 +272,17 @@ class SkipIndices<> {
   }
 };
 
-// A global variable to mark if Caffe2 has cuda linked to the current runtime.
-// Do not directly use this variable, but instead use the HasCudaRuntime()
-// function below.
-extern bool g_caffe2_has_cuda_linked;
-
 // HasCudaRuntime() tells the program whether the binary has Cuda runtime
 // linked. This function should not be used in static initialization functions
 // as the underlying boolean variable is going to be switched on when one
 // loads libcaffe2_gpu.so.
-inline bool HasCudaRuntime() {
-  return g_caffe2_has_cuda_linked;
+bool HasCudaRuntime();
+namespace internal {
+// Sets the Cuda Runtime flag that is used by HasCudaRuntime(). You should
+// never use this function - it is only used by the Caffe2 gpu code to notify
+// Caffe2 core that cuda runtime has been loaded.
+void SetCudaRuntimeFlag();
 }
-
 // Returns which setting Caffe2 was configured and built with (exported from
 // CMake)
 const std::map<string, string>& GetBuildOptions();

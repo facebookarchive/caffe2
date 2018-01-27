@@ -328,12 +328,11 @@ const char* curandGetErrorString(curandStatus_t error) {
 
 // Turn on the flag g_caffe2_has_cuda_linked to true for HasCudaRuntime()
 // function.
-extern bool g_caffe2_has_cuda_linked;
 namespace {
 class CudaRuntimeFlagFlipper {
  public:
   CudaRuntimeFlagFlipper() {
-    g_caffe2_has_cuda_linked = true;
+    SetCudaRuntimeFlag();
   }
 };
 static CudaRuntimeFlagFlipper g_flipper;
