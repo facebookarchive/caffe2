@@ -5651,6 +5651,7 @@ LSTMUnit computes the activations of a standard LSTM (without peephole connectio
 ---------- | ----------
 *Arguments* | 
 `forget_bias` | Bias term to add in while calculating forget gate
+`no_sequence_lengths` | Ignore the sequence lengths input
 
 
 ### Code
@@ -5665,6 +5666,14 @@ LSTMUnit computes the activations of a standard LSTM (without peephole connectio
 ## LSTMUnitGradient
 
 No documentation yet.
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`no_sequence_lengths` | Ignore the sequence lengths input
 
 
 ### Code

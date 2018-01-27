@@ -95,7 +95,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Data Fields</a> &#124;
@@ -105,12 +104,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:a2b4ac153be867c2ed3aee6d910986c58"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b4ac153be867c2ed3aee6d910986c58"></a>
-typedef EventWaitFunction(*&#160;</td><td class="memItemRight" valign="bottom"><b>EWFMatrix</b>)[MaxDeviceTypes]</td></tr>
-<tr class="separator:a2b4ac153be867c2ed3aee6d910986c58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a42a92c6d6c816e215b388731657e9273"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a42a92c6d6c816e215b388731657e9273"></a>
@@ -158,30 +151,6 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a39f10f3b3cc2abb091ef46964f1fc4f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39f10f3b3cc2abb091ef46964f1fc4f5"></a>
 static bool&#160;</td><td class="memItemRight" valign="bottom"><b>CanSchedule</b> (int parent_type, EventStatus parent_status, int child_type, bool child_supports_async)</td></tr>
 <tr class="separator:a39f10f3b3cc2abb091ef46964f1fc4f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9bc7d3c31cf689e870cd0cd4fb06a967"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9bc7d3c31cf689e870cd0cd4fb06a967"></a>
-static EventCreateFunction *&#160;</td><td class="memItemRight" valign="bottom"><b>event_creator</b> ()</td></tr>
-<tr class="separator:a9bc7d3c31cf689e870cd0cd4fb06a967"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8974b6cdeabfec51c282926feec61d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8974b6cdeabfec51c282926feec61d1"></a>
-static EventRecordFunction *&#160;</td><td class="memItemRight" valign="bottom"><b>event_recorder</b> ()</td></tr>
-<tr class="separator:ae8974b6cdeabfec51c282926feec61d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c5223cae84ff1691d0b8ef25a54b1ae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4c5223cae84ff1691d0b8ef25a54b1ae"></a>
-static EWFMatrix&#160;</td><td class="memItemRight" valign="bottom"><b>event_waiter</b> ()</td></tr>
-<tr class="separator:a4c5223cae84ff1691d0b8ef25a54b1ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a135b19c1e6b79a644327d4fd094420"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a135b19c1e6b79a644327d4fd094420"></a>
-static EventFinishFunction *&#160;</td><td class="memItemRight" valign="bottom"><b>event_finisher</b> ()</td></tr>
-<tr class="separator:a0a135b19c1e6b79a644327d4fd094420"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06d61be53ed36e2e04c48afabe21411d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a06d61be53ed36e2e04c48afabe21411d"></a>
-static EventQueryFunction *&#160;</td><td class="memItemRight" valign="bottom"><b>event_querier</b> ()</td></tr>
-<tr class="separator:a06d61be53ed36e2e04c48afabe21411d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a184a9f5cdb40e32914c97b72f65130ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a184a9f5cdb40e32914c97b72f65130ff"></a>
-static EventErrorMessageFunction *&#160;</td><td class="memItemRight" valign="bottom"><b>event_err_msg_getter</b> ()</td></tr>
-<tr class="separator:a184a9f5cdb40e32914c97b72f65130ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76b030f70975cb02bcc56cd92dab9724"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76b030f70975cb02bcc56cd92dab9724"></a>
-static EventSetFinishedFunction *&#160;</td><td class="memItemRight" valign="bottom"><b>event_finished_setter</b> ()</td></tr>
-<tr class="separator:a76b030f70975cb02bcc56cd92dab9724"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac4076479105f585f2888072eeb9247e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac4076479105f585f2888072eeb9247e"></a>
-static EventResetFunction *&#160;</td><td class="memItemRight" valign="bottom"><b>event_resetter</b> ()</td></tr>
-<tr class="separator:aac4076479105f585f2888072eeb9247e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
@@ -235,7 +204,7 @@ template&lt;int d&gt; </td></tr>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jan 26 2018 13:03:05 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jan 27 2018 13:03:02 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

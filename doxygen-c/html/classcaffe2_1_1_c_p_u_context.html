@@ -98,8 +98,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="#pro-static-methods">Static Protected Member Functions</a> &#124;
-<a href="#pro-attribs">Protected Attributes</a>  </div>
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="#pro-static-attribs">Static Protected Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">caffe2::CPUContext Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div>  </div>
 </div><!--header-->
@@ -179,12 +179,6 @@ static bool&#160;</td><td class="memItemRight" valign="bottom"><b>SupportsAsyncS
 static bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsStreamFree</b> (const DeviceOption &amp;, int)</td></tr>
 <tr class="separator:aedfca73916c1eac8d0c7448510f4ab70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-static-methods"></a>
-Static Protected Member Functions</h2></td></tr>
-<tr class="memitem:a78832381ed48436b5d48d71fc192fad4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a78832381ed48436b5d48d71fc192fad4"></a>
-static <a class="el" href="classcaffe2_1_1_memory_allocation_reporter.html">MemoryAllocationReporter</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>reporter</b> ()</td></tr>
-<tr class="separator:a78832381ed48436b5d48d71fc192fad4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a8274a8c6e2b000e708494fa92882c605"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8274a8c6e2b000e708494fa92882c605"></a>
@@ -193,6 +187,12 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>random_seed_</b> {1701
 <tr class="memitem:afeb4e041dde06a6880585aa54688d19e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afeb4e041dde06a6880585aa54688d19e"></a>
 std::unique_ptr&lt; rand_gen_type &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>random_generator_</b></td></tr>
 <tr class="separator:afeb4e041dde06a6880585aa54688d19e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-static-attribs"></a>
+Static Protected Attributes</h2></td></tr>
+<tr class="memitem:a4b02640e26b89e6b865a8d8af4deced4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b02640e26b89e6b865a8d8af4deced4"></a>
+static <a class="el" href="classcaffe2_1_1_memory_allocation_reporter.html">MemoryAllocationReporter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>reporter_</b></td></tr>
+<tr class="separator:a4b02640e26b89e6b865a8d8af4deced4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The CPU Context, representing the bare minimum of what a Context class in Caffe2 should implement. </p>
@@ -211,14 +211,14 @@ std::unique_ptr&lt; rand_gen_type &gt;&#160;</td><td class="memItemRight" valign
 <p>Definition at line <a class="el" href="context_8h_source.html#l00082">82</a> of file <a class="el" href="context_8h_source.html">context.h</a>.</p>
 </div><hr/>The documentation for this class was generated from the following files:<ul>
 <li>caffe2/core/<a class="el" href="context_8h_source.html">context.h</a></li>
-<li>caffe2/core/<a class="el" href="context_8cc_source.html">context.cc</a></li>
+<li>caffe2/core/<a class="el" href="allocator_8cc_source.html">allocator.cc</a></li>
 <li>caffe2/core/<a class="el" href="context__gpu_8h_source.html">context_gpu.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jan 26 2018 13:03:05 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jan 27 2018 13:03:02 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

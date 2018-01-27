@@ -220,8 +220,36 @@ Public Attributes</h2></td></tr>
 <tr class="separator:aa67c0a9daddfbaa02546d98fafd9f6de inherit pub_attribs_classlayers_1_1layers_1_1_model_layer"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p>Definition at line <a class="el" href="concat_8py_source.html#l00031">31</a> of file <a class="el" href="concat_8py_source.html">concat.py</a>.</p>
+<div class="textblock"><pre class="fragment">Construct Concat layer
+Assume that first dimension is batch,
+
+Example:
+
+    embedding_dim = 64
+    input_record = self.new_record(schema.Struct(
+        ('input1', schema.Scalar((np.float32, (embedding_dim, )))),
+        ('input2', schema.Scalar((np.float32, (embedding_dim, )))),
+        ('input3', schema.Scalar((np.float32, (embedding_dim, )))),
+    ))
+
+    output = self.model.Concat(input_record)
+    self.assertEqual(
+        schema.Scalar((np.float32, ((len(input_record.fields) * embedding_dim, )))),
+        output
+    )
+
+    # Note that in Concat layer we assume first dimension is batch.
+    # so input is B * embedding_dim
+    # add_axis=1 make it B * 1 * embedding_dim
+    # Concat on axis=1 make it B * N * embedding_dim
+
+    output = self.model.Concat(input_record, axis=1, add_axis=1)
+    self.assertEqual(
+        schema.Scalar((np.float32, ((len(input_record.fields), embedding_dim)))),
+        output
+    )
+</pre> 
+<p>Definition at line <a class="el" href="concat_8py_source.html#l00033">33</a> of file <a class="el" href="concat_8py_source.html">concat.py</a>.</p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/python/layers/<a class="el" href="concat_8py_source.html">concat.py</a></li>
 </ul>
@@ -229,7 +257,7 @@ Public Attributes</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jan 26 2018 13:02:54 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jan 27 2018 13:02:51 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

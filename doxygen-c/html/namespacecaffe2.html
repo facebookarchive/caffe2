@@ -4901,7 +4901,7 @@ Pointer to an <a class="el" href="structcaffe2_1_1_index.html">Index</a> instanc
 &#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_KNOWN_TYPE</b> (std::unique_ptr&lt; <a class="el" href="structcaffe2_1_1_index_base.html">caffe2::IndexBase</a> &gt;)</td></tr>
 <tr class="separator:a2431e6b523ecc2eb8aced116bac416d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a498534efc64526508676a9fa17b443bd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a498534efc64526508676a9fa17b443bd"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_SERIALIZER</b> ((<a class="el" href="classcaffe2_1_1_type_meta.html#a9bae816834082a016bbac0f1387a4a9f">TypeMeta::Id</a>&lt; std::unique_ptr&lt; <a class="el" href="structcaffe2_1_1_index_base.html">caffe2::IndexBase</a> &gt;&gt;()), <a class="el" href="classcaffe2_1_1_index_serializer.html">IndexSerializer</a>)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_SERIALIZER</b> ((<a class="el" href="classcaffe2_1_1_type_meta.html#a0b050c4a9e4e5b2f9e099b0f2a6db019">TypeMeta::Id</a>&lt; std::unique_ptr&lt; <a class="el" href="structcaffe2_1_1_index_base.html">caffe2::IndexBase</a> &gt;&gt;()), <a class="el" href="classcaffe2_1_1_index_serializer.html">IndexSerializer</a>)</td></tr>
 <tr class="separator:a498534efc64526508676a9fa17b443bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b6bfcb6492d0e7044d8b2461f108e6c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b6bfcb6492d0e7044d8b2461f108e6c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_DESERIALIZER</b> (std::unique_ptr&lt; <a class="el" href="structcaffe2_1_1_index_base.html">caffe2::IndexBase</a> &gt;, <a class="el" href="classcaffe2_1_1_index_deserializer.html">IndexDeserializer</a>)</td></tr>
@@ -5289,12 +5289,15 @@ stride and pad lengths defined by the <a class="el" href="classcaffe2_1_1_conv_p
 <tr class="memitem:ae556702783a95dfa3475ae030ec0fa82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae556702783a95dfa3475ae030ec0fa82"></a>
 in a sequence length aware fashion given the previous cell and the sequence computes the LSTM avoiding computation if the input is&#160;</td><td class="memItemRight" valign="bottom"><b>invalid</b> (as in, the value at X{t][n] &gt;=seqLengths[n].) DOC&quot;) .Arg(&quot;forget_bias&quot;</td></tr>
 <tr class="separator:ae556702783a95dfa3475ae030ec0fa82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06edc4d9fc39e0278fbb65d6eb480448"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a06edc4d9fc39e0278fbb65d6eb480448"></a>
+in a sequence length aware fashion given the previous cell and the sequence computes the LSTM avoiding computation if the input is Bias term to add in while calculating forget gate&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;no_sequence_lengths&quot;,&quot;Ignore the sequence lengths input&quot;)</td></tr>
+<tr class="separator:a06edc4d9fc39e0278fbb65d6eb480448"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4d1a5de72aa682f38ea6ba570466b89"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab4d1a5de72aa682f38ea6ba570466b89"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LSTMUnitGradient, <a class="el" href="classcaffe2_1_1_l_s_t_m_unit_gradient_op.html">LSTMUnitGradientOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ab4d1a5de72aa682f38ea6ba570466b89"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab69c0a2f50b59adab4f44cda7815464c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab69c0a2f50b59adab4f44cda7815464c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (LSTMUnitGradient).NumInputs(9).NumOutputs(3)</td></tr>
-<tr class="separator:ab69c0a2f50b59adab4f44cda7815464c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6e21f58358778e84474ce5b36dbb884"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6e21f58358778e84474ce5b36dbb884"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (9).NumOutputs(3).Arg(&quot;no_sequence_lengths&quot;</td></tr>
+<tr class="separator:ad6e21f58358778e84474ce5b36dbb884"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a077ac830f10218a734569cd51deb4410"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a077ac830f10218a734569cd51deb4410"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (LSTMUnit, <a class="el" href="classcaffe2_1_1_get_l_s_t_m_unit_gradient.html">GetLSTMUnitGradient</a>)</td></tr>
 <tr class="separator:a077ac830f10218a734569cd51deb4410"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7546,7 +7549,7 @@ template&lt;typename Context , typename T &gt; </td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (AtomicIter, <a class="el" href="classcaffe2_1_1_atomic_iter_op.html">AtomicIterOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ab8d2904a82671957e8cb3d50705d05f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac90b4bd2ed2e46b5c17a1400c46aeb75"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac90b4bd2ed2e46b5c17a1400c46aeb75"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_SERIALIZER</b> ((<a class="el" href="classcaffe2_1_1_type_meta.html#a9bae816834082a016bbac0f1387a4a9f">TypeMeta::Id</a>&lt; std::unique_ptr&lt; std::mutex &gt;&gt;()), <a class="el" href="classcaffe2_1_1_mutex_serializer.html">MutexSerializer</a>)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_SERIALIZER</b> ((<a class="el" href="classcaffe2_1_1_type_meta.html#a0b050c4a9e4e5b2f9e099b0f2a6db019">TypeMeta::Id</a>&lt; std::unique_ptr&lt; std::mutex &gt;&gt;()), <a class="el" href="classcaffe2_1_1_mutex_serializer.html">MutexSerializer</a>)</td></tr>
 <tr class="separator:ac90b4bd2ed2e46b5c17a1400c46aeb75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa76ee30697814ee55ca6b7c2401cf927"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa76ee30697814ee55ca6b7c2401cf927"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_DESERIALIZER</b> (std::unique_ptr&lt; std::mutex &gt;, <a class="el" href="classcaffe2_1_1_mutex_deserializer.html">MutexDeserializer</a>)</td></tr>
@@ -8819,9 +8822,6 @@ stride and pad lengths defined by the <a class="el" href="classcaffe2_1_1_conv_p
 <tr class="memitem:afedcf06f00cafa9c79c0b1ac1c3f8106"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afedcf06f00cafa9c79c0b1ac1c3f8106"></a>
 stride and pad lengths defined by the <a class="el" href="classcaffe2_1_1_conv_pool_op_base.html">ConvPoolOpBase</a> Output data tensor from L p pooling across the input tensor Dimensions will vary based on various&#160;</td><td class="memItemRight" valign="bottom"><b>stride</b></td></tr>
 <tr class="separator:afedcf06f00cafa9c79c0b1ac1c3f8106"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee2e799eef5663bc0ac3e9103493c53d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee2e799eef5663bc0ac3e9103493c53d"></a>
-in a sequence length aware fashion given the previous cell and the sequence computes the LSTM avoiding computation if the input is Bias term to add in while calculating forget&#160;</td><td class="memItemRight" valign="bottom"><b>gate</b></td></tr>
-<tr class="separator:aee2e799eef5663bc0ac3e9103493c53d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af27fa78c467fba5c61c550605162022c"><td class="memItemLeft" align="right" valign="top">and label is applied to the tensor elementwise If&#160;</td><td class="memItemRight" valign="bottom"><b>y</b></td></tr>
 <tr class="separator:af27fa78c467fba5c61c550605162022c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a332cb22714eba8bb0fdef14c34030d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a332cb22714eba8bb0fdef14c34030d"></a>
@@ -10510,7 +10510,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jan 26 2018 13:03:05 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jan 27 2018 13:03:01 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

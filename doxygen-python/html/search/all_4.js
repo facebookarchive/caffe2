@@ -9,6 +9,7 @@ var searchData=
   ['dataset',['Dataset',['../classdataset_1_1_dataset.html',1,'dataset']]],
   ['datatype',['DataType',['../classcore_1_1_data_type.html',1,'core']]],
   ['dataworker',['DataWorker',['../classdata__workers_1_1_data_worker.html',1,'data_workers']]],
+  ['db_5finput',['db_input',['../namespacedb__input.html',1,'']]],
   ['db_5fname',['db_name',['../namespacecheckpoint.html#aca28f531caef6ef6f5343617179bc02a',1,'checkpoint']]],
   ['debug',['debug',['../namespaceutils.html#a68543be3c44bfa46cb5441cc17144469',1,'utils']]],
   ['debug_5fnet',['debug_net',['../namespacenet__printer.html#a0dd4ea9bc5ef439a7f7ef5f77cab9a20',1,'net_printer']]],
