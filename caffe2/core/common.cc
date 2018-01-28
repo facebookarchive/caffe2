@@ -29,10 +29,11 @@ bool HasCudaRuntime() {
   return g_caffe2_has_cuda_linked.load();
 }
 
+namespace internal {
 void SetCudaRuntimeFlag() {
   g_caffe2_has_cuda_linked.store(true);
 }
-
+} // namespace internal
 
 const std::map<string, string>& GetBuildOptions() {
 #ifndef CAFFE2_BUILD_STRINGS

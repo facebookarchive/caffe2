@@ -8,8 +8,5 @@ add_library(Caffe_PROTO OBJECT ${Caffe_PROTO_HEADERS} ${Caffe_PROTO_SRCS})
 if (MSVC)
   target_compile_definitions(
       Caffe_PROTO PRIVATE "-DCAFFE2_API=__declspec(dllexport)")
-else()
-  target_compile_definitions(
-      Caffe_PROTO PRIVATE "-DCAFFE2_API=")
 endif()
 install(FILES ${Caffe_PROTO_HEADERS} DESTINATION include/caffe/proto)

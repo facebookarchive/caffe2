@@ -15,12 +15,13 @@
  */
 
 #include "caffe2/core/common_gpu.h"
-#include "caffe2/core/asan.h"
 
 #include <atomic>
 #include <cstdlib>
 #include <sstream>
 
+#include "caffe2/core/asan.h"
+#include "caffe2/core/common.h"
 #include "caffe2/core/init.h"
 #include "caffe2/core/logging.h"
 
@@ -332,7 +333,7 @@ namespace {
 class CudaRuntimeFlagFlipper {
  public:
   CudaRuntimeFlagFlipper() {
-    SetCudaRuntimeFlag();
+    internal::SetCudaRuntimeFlag();
   }
 };
 static CudaRuntimeFlagFlipper g_flipper;
