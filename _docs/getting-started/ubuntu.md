@@ -33,7 +33,7 @@ sudo apt-get install -y --no-install-recommends \
       libsnappy-dev \
       libprotobuf-dev \
       openmpi-bin \
-      openmpi-doc
+      openmpi-doc \
       protobuf-compiler \
       python-dev \
       python-pip                          
