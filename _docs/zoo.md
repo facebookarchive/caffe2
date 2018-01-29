@@ -31,8 +31,8 @@ Loading up a pre-trained model to do things like [predictions such as object det
 
 |Protobuf file | Download |
 |-----|-----|
-| predict_net.pb | [![download predict_net.pb](../static/images/download-c2.png)](https://s3.amazonaws.com/caffe2/models/squeezenet/predict_net.pb) |
-| init_net.pb | [![download predict_net.pb](../static/images/download-c2.png)](https://s3.amazonaws.com/caffe2/models/squeezenet/init_net.pb) |
+| predict_net.pb | [![download predict_net.pb](../static/images/download-c2.png)](https://s3.amazonaws.com/download.caffe2.ai/models/squeezenet/predict_net.pb) |
+| init_net.pb | [![download predict_net.pb](../static/images/download-c2.png)](https://s3.amazonaws.com/download.caffe2.ai/models/squeezenet/init_net.pb) |
 
 Using them from within Python is easy. Just open the files by passing in the path to them where you see `path_to_INIT_NET` and `path_to_PREDICT_NET` respectively. You'll read them into `init_net` and  `predict_net`, then you'll spawn a new Caffe2 workspace automatically when you call `workspace.Predictor`. This call is a wrapper directly to the C++ API `Predictor` and all you need to pass it is the two protobuf files you just opened.
 
