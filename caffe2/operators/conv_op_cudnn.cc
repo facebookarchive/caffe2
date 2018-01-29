@@ -149,7 +149,7 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
 #if CUDNN_VERSION_MIN(7,0,0)
     const int CC = C;
 #else
-    const int CC = C / group;
+    const int CC = C / group_;
 #endif
     switch (order_) {
       case StorageOrder::NHWC:
