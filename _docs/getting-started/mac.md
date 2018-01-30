@@ -32,6 +32,7 @@ conda create -n my_caffe2_env && source activate my_caffe2_env
 # mkl isn't actually required, but is really recommended for Anaconda
 conda install -y \
     future \
+    gflags \
     glog \
     lmdb \
     mkl \
@@ -69,15 +70,14 @@ brew install \
     automake \
     cmake \
     git \
+    gflags \
     glog \
-    protobuf \
     python
 ```
 
 ```bash
 sudo -H pip install \
     future \
-    glog \
     numpy \
     protobuf \
     pydot \
