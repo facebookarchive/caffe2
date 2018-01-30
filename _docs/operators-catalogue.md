@@ -5899,7 +5899,7 @@ LeakyRelu takes input data (Tensor<T>) and an argument alpha, and produces one o
 
 ---------- | ----------
 *Arguments* | 
-`alpha` | Coefficient of leakage
+`alpha` | Coefficient of leakage, default value is 0.01
 *Inputs* | 
 `X` | 1D input tensor
 *Outputs* | 

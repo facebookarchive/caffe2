@@ -1229,6 +1229,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_operator.html">Operator</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_operator_attaching_net_observer.html">OperatorAttachingNetObserver</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_op_schema.html">OpSchema</a></td></tr>
@@ -1704,13 +1706,11 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_tile_op.html">TileOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_time_counter.html">TimeCounter</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_time_observer.html">TimeObserver</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_time_observer_3_01_net_base_01_4.html">TimeObserver&lt; NetBase &gt;</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_time_observer_3_01_operator_base_01_4.html">TimeObserver&lt; OperatorBase &gt;</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_time_observer_base.html">TimeObserverBase</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_time_operator_observer.html">TimeOperatorObserver</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_timer.html">Timer</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A simple timer object for measuring time.  <a href="classcaffe2_1_1_timer.html#details">More...</a><br /></td></tr>
@@ -2178,6 +2178,9 @@ unique_ptr&lt; <a class="el" href="classcaffe2_1_1_blob_serializer_base.html">Bl
 <tr class="memitem:aab22598778f6a6b1817b0081f79a8195"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab22598778f6a6b1817b0081f79a8195"></a>
 unique_ptr&lt; <a class="el" href="classcaffe2_1_1_blob_deserializer_base.html">BlobDeserializerBase</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateDeserializer</b> (const string &amp;type)</td></tr>
 <tr class="separator:aab22598778f6a6b1817b0081f79a8195"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7615da9e915dc78d5bec46fd6be778e8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7615da9e915dc78d5bec46fd6be778e8"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HasCudaRuntime</b> ()</td></tr>
+<tr class="separator:a7615da9e915dc78d5bec46fd6be778e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a198d55b1f81063933bfff4f66ff819e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a198d55b1f81063933bfff4f66ff819e4"></a>
 const std::map&lt; string, string &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetBuildOptions</b> ()</td></tr>
 <tr class="separator:a198d55b1f81063933bfff4f66ff819e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2197,9 +2200,6 @@ template&lt;typename T , typename... Args&gt; </td></tr>
 template&lt;typename Dst , typename Src &gt; </td></tr>
 <tr class="memitem:acc93877ba8e3cb6ad6f874582a22da80"><td class="memTemplItemLeft" align="right" valign="top">Dst&#160;</td><td class="memTemplItemRight" valign="bottom"><b>dynamic_cast_if_rtti</b> (Src ptr)</td></tr>
 <tr class="separator:acc93877ba8e3cb6ad6f874582a22da80"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7615da9e915dc78d5bec46fd6be778e8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7615da9e915dc78d5bec46fd6be778e8"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>HasCudaRuntime</b> ()</td></tr>
-<tr class="separator:a7615da9e915dc78d5bec46fd6be778e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4413739415b39b948f054531e05544e0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4413739415b39b948f054531e05544e0"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>cudnnCompiledVersion</b> ()</td></tr>
 <tr class="separator:a4413739415b39b948f054531e05544e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2810,10 +2810,6 @@ TensorProto::DataType&#160;</td><td class="memItemRight" valign="bottom"><b>Type
 <tr class="memitem:a847a88c5009fa01818909600b736cc30"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a847a88c5009fa01818909600b736cc30"></a>
 const <a class="el" href="classcaffe2_1_1_type_meta.html">TypeMeta</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>DataTypeToTypeMeta</b> (const TensorProto::DataType &amp;dt)</td></tr>
 <tr class="separator:a847a88c5009fa01818909600b736cc30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a176793571dce6525db610f6d826494f9"><td class="memTemplParams" colspan="2"><a class="anchor" id="a176793571dce6525db610f6d826494f9"></a>
-template&lt;&gt; </td></tr>
-<tr class="memitem:a176793571dce6525db610f6d826494f9"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>fp16_type&lt; float16 &gt;</b> ()</td></tr>
-<tr class="separator:a176793571dce6525db610f6d826494f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86bbd44760a61e661c53c6cdaa7baf6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86bbd44760a61e661c53c6cdaa7baf6d"></a>
 StorageOrder&#160;</td><td class="memItemRight" valign="bottom"><b>StringToStorageOrder</b> (const string &amp;str)</td></tr>
 <tr class="separator:a86bbd44760a61e661c53c6cdaa7baf6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2827,6 +2823,10 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE2_ALIGNED</b> 
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:afb1492d6608aa1f2b649828d333a6910"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>fp16_type</b> ()</td></tr>
 <tr class="separator:afb1492d6608aa1f2b649828d333a6910"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a176793571dce6525db610f6d826494f9"><td class="memTemplParams" colspan="2"><a class="anchor" id="a176793571dce6525db610f6d826494f9"></a>
+template&lt;&gt; </td></tr>
+<tr class="memitem:a176793571dce6525db610f6d826494f9"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>fp16_type&lt; float16 &gt;</b> ()</td></tr>
+<tr class="separator:a176793571dce6525db610f6d826494f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0306aadcb419780516c195f5b435897c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0306aadcb419780516c195f5b435897c"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>GetUniqueName</b> ()</td></tr>
 <tr class="separator:a0306aadcb419780516c195f5b435897c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4647,6 +4647,12 @@ NumInputs(3).NumOutputs(1).TensorInferenceFunction(std NumInputs(3).NumOutputs(1
 <tr class="memitem:a21cc15980ac98f61c26ba6772cb26f1a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21cc15980ac98f61c26ba6772cb26f1a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CUDA_OPERATOR</b> (FCGradient, <a class="el" href="classcaffe2_1_1_fully_connected_gradient_op.html">FullyConnectedGradientOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_u_d_a_context.html">CUDAContext</a> &gt;)</td></tr>
 <tr class="separator:a21cc15980ac98f61c26ba6772cb26f1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4aa7282aa4ed23e9f10a6ae3f021345"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4aa7282aa4ed23e9f10a6ae3f021345"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CUDA_OPERATOR</b> (FCTransposed, <a class="el" href="classcaffe2_1_1_fully_connected_op.html">FullyConnectedOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_u_d_a_context.html">CUDAContext</a>, <a class="el" href="classcaffe2_1_1_default_engine.html">DefaultEngine</a>, false &gt;)</td></tr>
+<tr class="separator:ad4aa7282aa4ed23e9f10a6ae3f021345"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c7cc869429fbba5869a831a6bc177a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c7cc869429fbba5869a831a6bc177a3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CUDA_OPERATOR</b> (FCTransposedGradient, <a class="el" href="classcaffe2_1_1_fully_connected_gradient_op.html">FullyConnectedGradientOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_u_d_a_context.html">CUDAContext</a>, <a class="el" href="classcaffe2_1_1_default_engine.html">DefaultEngine</a>, false &gt;)</td></tr>
+<tr class="separator:a9c7cc869429fbba5869a831a6bc177a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59f8c0b657005eb2d0e6ab4a34b7fd16"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a59f8c0b657005eb2d0e6ab4a34b7fd16"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (FloatToFused8BitRowwiseQuantized, <a class="el" href="classcaffe2_1_1_float_to_fused8_bit_rowwise_quantized_op.html">FloatToFused8BitRowwiseQuantizedOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a59f8c0b657005eb2d0e6ab4a34b7fd16"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4901,7 +4907,7 @@ Pointer to an <a class="el" href="structcaffe2_1_1_index.html">Index</a> instanc
 &#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_KNOWN_TYPE</b> (std::unique_ptr&lt; <a class="el" href="structcaffe2_1_1_index_base.html">caffe2::IndexBase</a> &gt;)</td></tr>
 <tr class="separator:a2431e6b523ecc2eb8aced116bac416d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a498534efc64526508676a9fa17b443bd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a498534efc64526508676a9fa17b443bd"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_SERIALIZER</b> ((<a class="el" href="classcaffe2_1_1_type_meta.html#a0b050c4a9e4e5b2f9e099b0f2a6db019">TypeMeta::Id</a>&lt; std::unique_ptr&lt; <a class="el" href="structcaffe2_1_1_index_base.html">caffe2::IndexBase</a> &gt;&gt;()), <a class="el" href="classcaffe2_1_1_index_serializer.html">IndexSerializer</a>)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_SERIALIZER</b> ((<a class="el" href="classcaffe2_1_1_type_meta.html#a832b40f4bf4158dd3f1cc0b7d51858db">TypeMeta::Id</a>&lt; std::unique_ptr&lt; <a class="el" href="structcaffe2_1_1_index_base.html">caffe2::IndexBase</a> &gt;&gt;()), <a class="el" href="classcaffe2_1_1_index_serializer.html">IndexSerializer</a>)</td></tr>
 <tr class="separator:a498534efc64526508676a9fa17b443bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b6bfcb6492d0e7044d8b2461f108e6c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b6bfcb6492d0e7044d8b2461f108e6c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_DESERIALIZER</b> (std::unique_ptr&lt; <a class="el" href="structcaffe2_1_1_index_base.html">caffe2::IndexBase</a> &gt;, <a class="el" href="classcaffe2_1_1_index_deserializer.html">IndexDeserializer</a>)</td></tr>
@@ -4988,9 +4994,9 @@ Describes axis of the inputs Defaults to one because the axis most likely descri
 <tr class="memitem:a411c5b13234bf990c1555a10fb09b95d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a411c5b13234bf990c1555a10fb09b95d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LeakyReluGradient, <a class="el" href="classcaffe2_1_1_leaky_relu_gradient_op.html">LeakyReluGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a411c5b13234bf990c1555a10fb09b95d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed73d70fa755572baf9271ba4df29ca3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed73d70fa755572baf9271ba4df29ca3"></a>
-Coefficient of leakage and produces one output&#160;</td><td class="memItemRight" valign="bottom"><b>data</b> (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; T &gt;) where the function`f(x)</td></tr>
-<tr class="separator:aed73d70fa755572baf9271ba4df29ca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89bd555dbc7fce4a1bee4eee7f49d195"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a89bd555dbc7fce4a1bee4eee7f49d195"></a>
+Coefficient of default value is and produces one output&#160;</td><td class="memItemRight" valign="bottom"><b>data</b> (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; T &gt;) where the function`f(x)</td></tr>
+<tr class="separator:a89bd555dbc7fce4a1bee4eee7f49d195"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e08259846bbbdb9446f66960fe014ae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e08259846bbbdb9446f66960fe014ae"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;alpha&quot;,&quot;Coefficient of leakage&quot;)</td></tr>
 <tr class="separator:a4e08259846bbbdb9446f66960fe014ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7549,7 +7555,7 @@ template&lt;typename Context , typename T &gt; </td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (AtomicIter, <a class="el" href="classcaffe2_1_1_atomic_iter_op.html">AtomicIterOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ab8d2904a82671957e8cb3d50705d05f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac90b4bd2ed2e46b5c17a1400c46aeb75"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac90b4bd2ed2e46b5c17a1400c46aeb75"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_SERIALIZER</b> ((<a class="el" href="classcaffe2_1_1_type_meta.html#a0b050c4a9e4e5b2f9e099b0f2a6db019">TypeMeta::Id</a>&lt; std::unique_ptr&lt; std::mutex &gt;&gt;()), <a class="el" href="classcaffe2_1_1_mutex_serializer.html">MutexSerializer</a>)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_SERIALIZER</b> ((<a class="el" href="classcaffe2_1_1_type_meta.html#a832b40f4bf4158dd3f1cc0b7d51858db">TypeMeta::Id</a>&lt; std::unique_ptr&lt; std::mutex &gt;&gt;()), <a class="el" href="classcaffe2_1_1_mutex_serializer.html">MutexSerializer</a>)</td></tr>
 <tr class="separator:ac90b4bd2ed2e46b5c17a1400c46aeb75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa76ee30697814ee55ca6b7c2401cf927"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa76ee30697814ee55ca6b7c2401cf927"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_BLOB_DESERIALIZER</b> (std::unique_ptr&lt; std::mutex &gt;, <a class="el" href="classcaffe2_1_1_mutex_deserializer.html">MutexDeserializer</a>)</td></tr>
@@ -7790,9 +7796,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>are_nodes_common</b> 
 <tr class="memitem:ac4de906b41a8aabb7bdddcf918de41a5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac4de906b41a8aabb7bdddcf918de41a5"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>compare_ops</b> (const OperatorDef &amp;p_op, const OperatorDef &amp;g_op, bool arg_match)</td></tr>
 <tr class="separator:ac4de906b41a8aabb7bdddcf918de41a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9bd2b58cb62675d3618b8e13541c192"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae9bd2b58cb62675d3618b8e13541c192"></a>
+<tr class="memitem:a415daf787ec8776bdb27e21a9f4864cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a415daf787ec8776bdb27e21a9f4864cf"></a>
 const <a class="el" href="classcaffe2_1_1_cpu_id.html">CpuId</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetCpuId</b> ()</td></tr>
-<tr class="separator:ae9bd2b58cb62675d3618b8e13541c192"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a415daf787ec8776bdb27e21a9f4864cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a141c2c5e0b2a5195f016cb34f35f8cd6"><td class="memTemplParams" colspan="2"><a class="anchor" id="a141c2c5e0b2a5195f016cb34f35f8cd6"></a>
 template&lt;typename T , typename T2 &gt; </td></tr>
 <tr class="memitem:a141c2c5e0b2a5195f016cb34f35f8cd6"><td class="memTemplItemLeft" align="right" valign="top">__device__ T&#160;</td><td class="memTemplItemRight" valign="bottom"><b>mixed_mult</b> (T data1, T2 data2)</td></tr>
@@ -8274,9 +8280,9 @@ constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kDefaultChun
 <tr class="memitem:ad1900bca08da42b6be306f413ccd2182"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad1900bca08da42b6be306f413ccd2182"></a>
 constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kNoChunking</b> = 0</td></tr>
 <tr class="separator:ad1900bca08da42b6be306f413ccd2182"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a11301f418558bfbce8a0babda295b6bf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a11301f418558bfbce8a0babda295b6bf"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_caffe2_has_cuda_linked</b> = false</td></tr>
-<tr class="separator:a11301f418558bfbce8a0babda295b6bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3dd5d4fba7c9642de6fc45c88f84b16"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3dd5d4fba7c9642de6fc45c88f84b16"></a>
+std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>g_caffe2_has_cuda_linked</b> {false}</td></tr>
+<tr class="separator:ab3dd5d4fba7c9642de6fc45c88f84b16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a016b982f98fda42e3e49f9553ad75231"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a016b982f98fda42e3e49f9553ad75231"></a>
 constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_CUDA_NUM_THREADS</b> = 512</td></tr>
 <tr class="separator:a016b982f98fda42e3e49f9553ad75231"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8768,6 +8774,9 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><b>input_dims_long</b> =
 <tr class="memitem:adc4915704cb8323a7767a70a700d183f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc4915704cb8323a7767a70a700d183f"></a>
 int default&#160;</td><td class="memItemRight" valign="bottom"><b>to</b></td></tr>
 <tr class="separator:adc4915704cb8323a7767a70a700d183f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16c2439e693d3e6737478637555ac966"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16c2439e693d3e6737478637555ac966"></a>
+Coefficient of&#160;</td><td class="memItemRight" valign="bottom"><b>leakage</b></td></tr>
+<tr class="separator:a16c2439e693d3e6737478637555ac966"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad15db7db5c2b5cf0082bdcbeefcc1bad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad15db7db5c2b5cf0082bdcbeefcc1bad"></a>
 but operating on bit rowwise quantized matrices with fused uint8 tensor obtained with&#160;</td><td class="memItemRight" valign="bottom"><b>LENGTHS</b></td></tr>
 <tr class="separator:ad15db7db5c2b5cf0082bdcbeefcc1bad"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9376,7 +9385,7 @@ template&lt;typename InputTypes , class Context , class Functor , class OutputTy
 <p>Gets the current GPU id. </p>
 <p>This is a simple wrapper around cudaGetDevice(). </p>
 
-<p>Definition at line <a class="el" href="common__gpu_8cc_source.html#l00124">124</a> of file <a class="el" href="common__gpu_8cc_source.html">common_gpu.cc</a>.</p>
+<p>Definition at line <a class="el" href="common__gpu_8cc_source.html#l00125">125</a> of file <a class="el" href="common__gpu_8cc_source.html">common_gpu.cc</a>.</p>
 
 </div>
 </div>
@@ -9397,7 +9406,7 @@ template&lt;typename InputTypes , class Context , class Functor , class OutputTy
 <p>Gets the current GPU id. </p>
 <p>This is a simple wrapper around cudaGetDevice(). </p>
 
-<p>Definition at line <a class="el" href="common__gpu_8cc_source.html#l00137">137</a> of file <a class="el" href="common__gpu_8cc_source.html">common_gpu.cc</a>.</p>
+<p>Definition at line <a class="el" href="common__gpu_8cc_source.html#l00138">138</a> of file <a class="el" href="common__gpu_8cc_source.html">common_gpu.cc</a>.</p>
 
 </div>
 </div>
@@ -9722,7 +9731,7 @@ template&lt;typename IndexType , typename InType , typename OutType &gt; </div>
 <p>Return a peer access pattern by returning a matrix (in the format of a nested vector) of boolean values specifying whether peer access is possible. </p>
 <p>This function returns false if anything wrong happens during the query of the GPU access pattern. </p>
 
-<p>Definition at line <a class="el" href="common__gpu_8cc_source.html#l00233">233</a> of file <a class="el" href="common__gpu_8cc_source.html">common_gpu.cc</a>.</p>
+<p>Definition at line <a class="el" href="common__gpu_8cc_source.html#l00234">234</a> of file <a class="el" href="common__gpu_8cc_source.html">common_gpu.cc</a>.</p>
 
 </div>
 </div>
@@ -9743,7 +9752,7 @@ template&lt;typename IndexType , typename InType , typename OutType &gt; </div>
 <p>Gets the device property for the given device. </p>
 <p>This function is thread safe. </p>
 
-<p>Definition at line <a class="el" href="common__gpu_8cc_source.html#l00181">181</a> of file <a class="el" href="common__gpu_8cc_source.html">common_gpu.cc</a>.</p>
+<p>Definition at line <a class="el" href="common__gpu_8cc_source.html#l00182">182</a> of file <a class="el" href="common__gpu_8cc_source.html">common_gpu.cc</a>.</p>
 
 </div>
 </div>
@@ -10510,7 +10519,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jan 29 2018 13:03:08 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 30 2018 13:03:13 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

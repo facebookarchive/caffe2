@@ -12,7 +12,7 @@ var searchData=
   ['copy',['copy',['../classcaffe2_1_1_type_meta.html#ac8dd4e4823774c12643659bc4acf9872',1,'caffe2::TypeMeta']]],
   ['copyforwardedtensors',['CopyForwardedTensors',['../classcaffe2_1_1_workspace.html#a7babdb407d47f7d588973d2ab80e5e37',1,'caffe2::Workspace']]],
   ['copyfrom',['CopyFrom',['../classcaffe2_1_1_tensor.html#a8882e06c5240e1705fd00a535834a245',1,'caffe2::Tensor::CopyFrom(const Tensor&lt; SrcContext &gt; &amp;src, ContextForCopy *context)'],['../classcaffe2_1_1_tensor.html#a5cbee7d7cd88ebb963f75582e14cf92e',1,'caffe2::Tensor::CopyFrom(const Tensor&lt; SrcContext &gt; &amp;src)']]],
-  ['costinferencefunction',['CostInferenceFunction',['../classcaffe2_1_1_op_schema.html#a27237934cbce55556df8b7fa0abe1074',1,'caffe2::OpSchema']]],
+  ['costinferencefunction',['CostInferenceFunction',['../classcaffe2_1_1_op_schema.html#a61d74a03e1ed793daa7879816a33cca7',1,'caffe2::OpSchema']]],
   ['createblob',['CreateBlob',['../classcaffe2_1_1_workspace.html#a224e2d844e235c2db1804b7f45cd6822',1,'caffe2::Workspace']]],
   ['createlocalblob',['CreateLocalBlob',['../classcaffe2_1_1_workspace.html#af3ca6c77437205c4f5c967106e94c937',1,'caffe2::Workspace']]],
   ['createnet',['CreateNet',['../classcaffe2_1_1_workspace.html#ac8c465ceb6cecbd5a2311f3d5bf4c35e',1,'caffe2::Workspace::CreateNet()'],['../namespacecaffe2.html#aa9463003c6ef9000d089ffeaf9296c05',1,'caffe2::CreateNet()']]],

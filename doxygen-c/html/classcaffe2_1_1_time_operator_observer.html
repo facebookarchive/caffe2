@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Caffe2 - C++ API: caffe2::TimeObserver&lt; OperatorBase &gt; Class Template Reference</title>
+<title>Caffe2 - C++ API: caffe2::TimeOperatorObserver Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link rel="icon" href="/static/favicon.png" type="image/x-icon">
 <script type="text/javascript" src="jquery.js"></script>
@@ -90,48 +90,42 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacecaffe2.html">caffe2</a></li><li class="navelem"><a class="el" href="classcaffe2_1_1_time_observer_3_01_operator_base_01_4.html">TimeObserver&lt; OperatorBase &gt;</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacecaffe2.html">caffe2</a></li><li class="navelem"><a class="el" href="classcaffe2_1_1_time_operator_observer.html">TimeOperatorObserver</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
-<div class="title">caffe2::TimeObserver&lt; OperatorBase &gt; Class Template Reference<span class="mlabels"><span class="mlabel">final</span></span></div>  </div>
+<div class="title">caffe2::TimeOperatorObserver Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="dynheader">
-Inheritance diagram for caffe2::TimeObserver&lt; OperatorBase &gt;:</div>
+Inheritance diagram for caffe2::TimeOperatorObserver:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="classcaffe2_1_1_time_observer_3_01_operator_base_01_4.png" usemap="#caffe2::TimeObserver_3C_20OperatorBase_20_3E_map" alt=""/>
-  <map id="caffe2::TimeObserver_3C_20OperatorBase_20_3E_map" name="caffe2::TimeObserver&lt; OperatorBase &gt;_map">
-<area href="classcaffe2_1_1_time_observer_base.html" alt="caffe2::TimeObserverBase&lt; OperatorBase &gt;" shape="rect" coords="0,56,265,80"/>
-<area href="classcaffe2_1_1_observer_base.html" alt="caffe2::ObserverBase&lt; OperatorBase &gt;" shape="rect" coords="0,0,265,24"/>
+  <img src="classcaffe2_1_1_time_operator_observer.png" usemap="#caffe2::TimeOperatorObserver_map" alt=""/>
+  <map id="caffe2::TimeOperatorObserver_map" name="caffe2::TimeOperatorObserver_map">
+<area href="classcaffe2_1_1_time_counter.html" alt="caffe2::TimeCounter" shape="rect" coords="0,0,239,24"/>
+<area href="classcaffe2_1_1_observer_base.html" alt="caffe2::ObserverBase&lt; OperatorBase &gt;" shape="rect" coords="249,0,488,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac83ded0081551028526722d6d49987fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac83ded0081551028526722d6d49987fe"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>TimeObserver</b> (<a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> *subject)</td></tr>
-<tr class="separator:ac83ded0081551028526722d6d49987fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae743498e2eede88713c75b651395f4e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae743498e2eede88713c75b651395f4e1"></a>
+<tr class="memitem:a5c0d9e8ac71bc9e54286a6317ce24246"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c0d9e8ac71bc9e54286a6317ce24246"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>TimeOperatorObserver</b> (<a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> *subject)=delete</td></tr>
+<tr class="separator:a5c0d9e8ac71bc9e54286a6317ce24246"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cc22f232c43da057353cb34941a009b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3cc22f232c43da057353cb34941a009b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>TimeOperatorObserver</b> (<a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> *subject, <a class="el" href="classcaffe2_1_1_time_observer.html">TimeObserver</a> *)</td></tr>
+<tr class="separator:a3cc22f232c43da057353cb34941a009b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dbd379458df1d4b2ab2234caed7b713"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2dbd379458df1d4b2ab2234caed7b713"></a>
 std::unique_ptr&lt; <a class="el" href="classcaffe2_1_1_observer_base.html">ObserverBase</a>&lt; <a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>copy</b> (<a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> *subject) override</td></tr>
-<tr class="separator:ae743498e2eede88713c75b651395f4e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classcaffe2_1_1_time_observer_base"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classcaffe2_1_1_time_observer_base')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classcaffe2_1_1_time_observer_base.html">caffe2::TimeObserverBase&lt; OperatorBase &gt;</a></td></tr>
-<tr class="memitem:ac991e9649e12db0f01493e561aba130c inherit pub_methods_classcaffe2_1_1_time_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac991e9649e12db0f01493e561aba130c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>TimeObserverBase</b> (<a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> *subject)</td></tr>
-<tr class="separator:ac991e9649e12db0f01493e561aba130c inherit pub_methods_classcaffe2_1_1_time_observer_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e49073c2e0960c374d44d2f1f8379d9 inherit pub_methods_classcaffe2_1_1_time_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1e49073c2e0960c374d44d2f1f8379d9"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>average_time</b> () const</td></tr>
-<tr class="separator:a1e49073c2e0960c374d44d2f1f8379d9 inherit pub_methods_classcaffe2_1_1_time_observer_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a563de8451d4944f4957e14f8d1ef6e29 inherit pub_methods_classcaffe2_1_1_time_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a563de8451d4944f4957e14f8d1ef6e29"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Start</b> () override</td></tr>
-<tr class="separator:a563de8451d4944f4957e14f8d1ef6e29 inherit pub_methods_classcaffe2_1_1_time_observer_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac70b587874a48e41c38897e20fcaacbc inherit pub_methods_classcaffe2_1_1_time_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac70b587874a48e41c38897e20fcaacbc"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Stop</b> () override</td></tr>
-<tr class="separator:ac70b587874a48e41c38897e20fcaacbc inherit pub_methods_classcaffe2_1_1_time_observer_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a2dbd379458df1d4b2ab2234caed7b713"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classcaffe2_1_1_time_counter"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classcaffe2_1_1_time_counter')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classcaffe2_1_1_time_counter.html">caffe2::TimeCounter</a></td></tr>
+<tr class="memitem:aa9b08244c9646e44dbcebfda07596c0c inherit pub_methods_classcaffe2_1_1_time_counter"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa9b08244c9646e44dbcebfda07596c0c"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>average_time</b> () const </td></tr>
+<tr class="separator:aa9b08244c9646e44dbcebfda07596c0c inherit pub_methods_classcaffe2_1_1_time_counter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classcaffe2_1_1_observer_base"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classcaffe2_1_1_observer_base')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classcaffe2_1_1_observer_base.html">caffe2::ObserverBase&lt; OperatorBase &gt;</a></td></tr>
 <tr class="memitem:a1ad2776a5dd42ee2bd4c986550fde126 inherit pub_methods_classcaffe2_1_1_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1ad2776a5dd42ee2bd4c986550fde126"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ObserverBase</b> (<a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> *subject)</td></tr>
@@ -145,38 +139,36 @@ virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><b>debugI
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pro_attribs_classcaffe2_1_1_time_observer_base"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1_time_observer_base')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1_time_observer_base.html">caffe2::TimeObserverBase&lt; OperatorBase &gt;</a></td></tr>
-<tr class="memitem:a9a9c6c95ad1d38c71ca616742ed61411 inherit pro_attribs_classcaffe2_1_1_time_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a9c6c95ad1d38c71ca616742ed61411"></a>
+<tr class="inherit_header pro_attribs_classcaffe2_1_1_time_counter"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1_time_counter')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1_time_counter.html">caffe2::TimeCounter</a></td></tr>
+<tr class="memitem:ad4f133b9aa9593ffa25ae4168c370e81 inherit pro_attribs_classcaffe2_1_1_time_counter"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4f133b9aa9593ffa25ae4168c370e81"></a>
 <a class="el" href="classcaffe2_1_1_timer.html">Timer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>timer_</b></td></tr>
-<tr class="separator:a9a9c6c95ad1d38c71ca616742ed61411 inherit pro_attribs_classcaffe2_1_1_time_observer_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5164faf8a7a7cd4ef60ea20e20676587 inherit pro_attribs_classcaffe2_1_1_time_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5164faf8a7a7cd4ef60ea20e20676587"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>start_time_</b></td></tr>
-<tr class="separator:a5164faf8a7a7cd4ef60ea20e20676587 inherit pro_attribs_classcaffe2_1_1_time_observer_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2bc22d19112700814c4e98b259f84bcf inherit pro_attribs_classcaffe2_1_1_time_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2bc22d19112700814c4e98b259f84bcf"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>total_time_</b></td></tr>
-<tr class="separator:a2bc22d19112700814c4e98b259f84bcf inherit pro_attribs_classcaffe2_1_1_time_observer_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b79647e565ecc51ca2d10a67df97780 inherit pro_attribs_classcaffe2_1_1_time_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b79647e565ecc51ca2d10a67df97780"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>iterations_</b></td></tr>
-<tr class="separator:a4b79647e565ecc51ca2d10a67df97780 inherit pro_attribs_classcaffe2_1_1_time_observer_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:ad4f133b9aa9593ffa25ae4168c370e81 inherit pro_attribs_classcaffe2_1_1_time_counter"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a117dda1f40f11fb9655e8e1ee2f3e4c2 inherit pro_attribs_classcaffe2_1_1_time_counter"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a117dda1f40f11fb9655e8e1ee2f3e4c2"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>start_time_</b> = 0.0f</td></tr>
+<tr class="separator:a117dda1f40f11fb9655e8e1ee2f3e4c2 inherit pro_attribs_classcaffe2_1_1_time_counter"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29e338a2f0d43a1af2f4b0597b335c1f inherit pro_attribs_classcaffe2_1_1_time_counter"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29e338a2f0d43a1af2f4b0597b335c1f"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>total_time_</b> = 0.0f</td></tr>
+<tr class="separator:a29e338a2f0d43a1af2f4b0597b335c1f inherit pro_attribs_classcaffe2_1_1_time_counter"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad960a6af06e76472869f9bccd88df0fc inherit pro_attribs_classcaffe2_1_1_time_counter"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad960a6af06e76472869f9bccd88df0fc"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>iterations_</b> = 0</td></tr>
+<tr class="separator:ad960a6af06e76472869f9bccd88df0fc inherit pro_attribs_classcaffe2_1_1_time_counter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classcaffe2_1_1_observer_base"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1_observer_base')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1_observer_base.html">caffe2::ObserverBase&lt; OperatorBase &gt;</a></td></tr>
 <tr class="memitem:ad5371c2a7a6dce112b4daecef2ff6b5c inherit pro_attribs_classcaffe2_1_1_observer_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad5371c2a7a6dce112b4daecef2ff6b5c"></a>
 <a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>subject_</b></td></tr>
 <tr class="separator:ad5371c2a7a6dce112b4daecef2ff6b5c inherit pro_attribs_classcaffe2_1_1_observer_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;&gt;<br />
-class caffe2::TimeObserver&lt; OperatorBase &gt;</h3>
-
-
-<p>Definition at line <a class="el" href="time__observer_8h_source.html#l00056">56</a> of file <a class="el" href="time__observer_8h_source.html">time_observer.h</a>.</p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+<div class="textblock">
+<p>Definition at line <a class="el" href="time__observer_8h_source.html#l00046">46</a> of file <a class="el" href="time__observer_8h_source.html">time_observer.h</a>.</p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
 <li>caffe2/observers/<a class="el" href="time__observer_8h_source.html">time_observer.h</a></li>
+<li>caffe2/observers/<a class="el" href="time__observer_8cc_source.html">time_observer.cc</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jan 29 2018 13:03:12 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 30 2018 13:03:21 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

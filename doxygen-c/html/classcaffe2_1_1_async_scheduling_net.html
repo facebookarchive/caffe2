@@ -185,9 +185,9 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:abb796fa07858aa7a8d01686ac41b7fbe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb796fa07858aa7a8d01686ac41b7fbe"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>DoRunAsync</b> () override</td></tr>
 <tr class="separator:abb796fa07858aa7a8d01686ac41b7fbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf02284893c14de7d9fd899538cd9bce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abf02284893c14de7d9fd899538cd9bce"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>pollAndSchedule</b> (int thread_id)</td></tr>
-<tr class="separator:abf02284893c14de7d9fd899538cd9bce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee884301f302dd41820541c15b18b052"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee884301f302dd41820541c15b18b052"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>pollAndSchedule</b> (int task_id)</td></tr>
+<tr class="separator:aee884301f302dd41820541c15b18b052"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b2a763f580881eb250a65a0cff09a8a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b2a763f580881eb250a65a0cff09a8a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>schedule</b> (int task_id)</td></tr>
 <tr class="separator:a4b2a763f580881eb250a65a0cff09a8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -274,15 +274,6 @@ std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>
 <tr class="memitem:afd0823a7dfeaae68fed3c7a18c1296cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afd0823a7dfeaae68fed3c7a18c1296cf"></a>
 std::atomic&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>processed_tasks_num_</b></td></tr>
 <tr class="separator:afd0823a7dfeaae68fed3c7a18c1296cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab68e406d4bbd900723c85b33ce8cc243"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab68e406d4bbd900723c85b33ce8cc243"></a>
-std::vector&lt; std::unique_ptr&lt; <a class="el" href="classcaffe2_1_1_simple_queue.html">SimpleQueue</a>&lt; int &gt; &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pending_tasks_</b></td></tr>
-<tr class="separator:ab68e406d4bbd900723c85b33ce8cc243"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a130a69cf790e5ac5ec7bdd6026ed6144"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a130a69cf790e5ac5ec7bdd6026ed6144"></a>
-std::vector&lt; std::thread &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>polling_threads_</b></td></tr>
-<tr class="separator:a130a69cf790e5ac5ec7bdd6026ed6144"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a487606e3ac189089fa1ba5054c83902e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a487606e3ac189089fa1ba5054c83902e"></a>
-std::atomic&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>next_polling_thread_counter_</b></td></tr>
-<tr class="separator:a487606e3ac189089fa1ba5054c83902e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classcaffe2_1_1_async_net_base"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1_async_net_base')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1_async_net_base.html">caffe2::AsyncNetBase</a></td></tr>
 <tr class="memitem:a6da34675d175196b6de99c0462b6c9b8 inherit pro_attribs_classcaffe2_1_1_async_net_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6da34675d175196b6de99c0462b6c9b8"></a>
 std::vector&lt; <a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>operators_</b></td></tr>
@@ -351,7 +342,7 @@ static thread_local std::vector&lt; int &gt;&#160;</td><td class="memItemRight" 
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jan 29 2018 13:03:08 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 30 2018 13:03:13 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -105,7 +105,7 @@ var searchData=
   ['cosinesimilaritygradientop',['CosineSimilarityGradientOp',['../classcaffe2_1_1_cosine_similarity_gradient_op.html',1,'caffe2']]],
   ['cosinesimilarityop',['CosineSimilarityOp',['../classcaffe2_1_1_cosine_similarity_op.html',1,'caffe2']]],
   ['cost',['Cost',['../structcaffe2_1_1_op_schema_1_1_cost.html',1,'caffe2::OpSchema']]],
-  ['costinferencefunction',['CostInferenceFunction',['../classcaffe2_1_1_op_schema.html#a27237934cbce55556df8b7fa0abe1074',1,'caffe2::OpSchema']]],
+  ['costinferencefunction',['CostInferenceFunction',['../classcaffe2_1_1_op_schema.html#a61d74a03e1ed793daa7879816a33cca7',1,'caffe2::OpSchema']]],
   ['costinferencefunctiontype',['CostInferenceFunctionType',['../classcaffe2_1_1_op_schema.html#a23a13dd72c0a1d2157969888ed85970f',1,'caffe2::OpSchema']]],
   ['countdownop',['CountDownOp',['../classcaffe2_1_1_count_down_op.html',1,'caffe2']]],
   ['counter',['Counter',['../classcaffe2_1_1_counter.html',1,'caffe2']]],
