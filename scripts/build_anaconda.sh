@@ -21,8 +21,6 @@ if [ -n "$UPLOAD_TO_CONDA" ]; then
 fi
 
 # Reinitialize submodules
-git submodule sync
-git submodule foreach git fetch
 git submodule update --init
 
 # Separate build folder for CUDA builds so that the packages have different
