@@ -22,10 +22,8 @@ The first thing you want to do is to assess whether or not you're going to use G
     * [cuDNN](https://developer.nvidia.com/cudnn) (registration required; it is a zip file, not installer, so you need to copy the contents of the zip file to the cuda folder which is `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0` by default)
 3. Python 2.7.6 to [Python 2.7.14](https://www.python.org/downloads/release/python-2714/). Python 3 support is experimental. You can use regular Python or Anaconda Python. Just note that you many have issues with package location and versioning with Anaconda. Some Anaconda notes are provided below the Regular Python notes. Take care to install the 64 bits version of Python, since we will be going to compile for 64 bits.
 4. Install a C++ compiler such as [Visual Studio Community Edition 2017](https://www.visualstudio.com/vs/community/)
-    * When installing VS 2017, install Desktop Development with C++ (on the right check: C++/CLI support)
+    * When installing VS 2017, install Desktop Development with C++ (on the right select: C++/CLI support) and v140 (on the right select: VC++ 2015.3 v140 toolset)
 5. Install [Cmake](http://cmake.org)
-6. Run `Developer Command Prompt for VS 2017`.
-7. Install `protobuf`. Go to `caffe2\scripts\` and run `build_host_protoc.bat`. This should build protobuf from source for your system.
 
 ## Setup Python, Install Python Packages, Build
 
@@ -75,18 +73,21 @@ pip install flask ^
 
 ### Clone & Build
 
-Open up a Developer Command Prompt, find an appropriate place to clone the repo, and use this command. Or if you have github desktop, you can use that instead. If you've already forked Caffe2 or have it locally and you're using Visual Studio, skip ahead to the next step.
+Open up a Developer Command Prompt, find an appropriate place to clone the repo, and use this command. Or if you have GitHub Desktop, you can use that instead. If you've already forked Caffe2 or have it locally and you're using Visual Studio, skip ahead to the next step.
 
 ```
 git clone --recursive https://github.com/caffe2/caffe2.git
 ```
 
-Using the Developer Command Prompt, browse to the repo's folders to `\caffe2\scripts` and run `build_windows.bat`.
+Run the `Developer Command Prompt for VS 2017`, browse to the repo's `\caffe2\scripts` folder and execute:
 
-For VS15 and VS17 users:
+1. `build_host_protoc.bat`, which will build protobuf from source for your system.
+2. `build_windows.bat`, which will build Caffe2.
 
-1. Install the [Github Extension for Visual Studio](https://visualstudio.github.com).
-2. From within Visual Studio you can open/clone the Github repository. From the Getting Started page under Open, you should have GitHub as an option. Login, and then either choose Caffe2 from the list (if you've forked it) or browse to where you cloned it. Default location hereinafter is referencing `C:\Users\username\Source\Repos\caffe2`.
+For VS15 and VS17 users with GitHub Desktop:
+
+1. Install the [GitHub Extension for Visual Studio](https://visualstudio.github.com).
+2. From within Visual Studio you can open/clone the GitHub repository. From the Getting Started page under Open, you should have GitHub as an option. Login, and then either choose Caffe2 from the list (if you've forked it) or browse to where you cloned it. Default location hereinafter is referencing `C:\Users\username\Source\Repos\caffe2`.
 
 ### Python Configuration
 
