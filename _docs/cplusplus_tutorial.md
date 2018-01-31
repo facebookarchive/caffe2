@@ -5,7 +5,6 @@ layout: docs
 permalink: /docs/cplusplus_tutorial.html
 ---
 
-# A C++ Console Program using Caffe2
 There are only a few documents that explain how to use Caffe2 with C++. In this tutorial I'll go through how to setup the properties for Caffe2 with C++ using VC++ in Windows.
 
 
