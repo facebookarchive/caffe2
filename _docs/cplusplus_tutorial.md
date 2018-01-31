@@ -40,4 +40,4 @@ $PROTOBUF_DIRECTORY\protobuf-master\src
 
 6. Go to the directory "**$CAFFE2_DIRECTORY\caffe2\proto**". In the directory there are some '.proto' files. You should generate '.cc' files and '.h' files from these files using Google Protocol Buffer Execution file. Put the exe file into same directory with '.proto' files, and in the prompt, execute the instruction **"protoc --cpp_out=./ $FILENAME.proto"**. Then you will have the new files you'll need to execute the program.
 
-7. Make a simple C++ program, including some Caffe2 headers like **<blob.h>**. If that works you can try other tutorials from here!
+7. Make a simple C++ program, including some Caffe2 headers like **blob.h**. If that works you can try other tutorials from here!
