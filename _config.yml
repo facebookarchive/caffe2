@@ -104,3 +104,5 @@ defaults:
 
 exclude:
   - doc-type-examples/
+  - docker/
+  - doxygen/
