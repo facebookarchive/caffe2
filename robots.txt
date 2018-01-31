@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /docker/
+Disallow: /doxygen/
+
+Sitemap: http://caffe2.ai/sitemap.xml
