@@ -5,7 +5,7 @@ layout: docs
 permalink: /docs/zoo.html
 ---
 
-> [Caffe2's Model Zoo](https://github.com/caffe2/caffe2/wiki/Model-Zoo) is maintained by project contributors on the [Github wiki](https://github.com/caffe2/caffe2/wiki/Model-Zoo). Head over there for the full list.
+> [Caffe2's Model Zoo](https://github.com/caffe2/caffe2/wiki/Model-Zoo) is maintained by project contributors on the [GitHub Wiki](https://github.com/caffe2/caffe2/wiki/Model-Zoo). Head over there for the full list.
 
 ## ![model zoo icon ](../static/images/landing-puzzle.png) Model Zoo Overview
 
