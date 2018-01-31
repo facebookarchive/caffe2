@@ -65,9 +65,9 @@ It is a little trickier to test your own data though. We'll cover that in anothe
 
 Let's jump into a specific example now that you have the overview. You will be looking at a small set of files that will be utilized to run a model and see how it works.
 
-* .caffemodel or .pb2: these are the models; they're binary and usually large files
+* .caffemodel or .pb: these are the models; they're binary and usually large files
     * caffemodel: from original Caffe
-    * pb2: from Caffe2
+    * pb: from Caffe2 and generally have init and predict together
 * deploy.prototxt: this is a json file that describes the design of neural network
 * solver.prototxt: this describes the variables that were used during training
 * train_val.prototxt:
