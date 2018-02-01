@@ -9,7 +9,7 @@ Did you check out the wide array of [Operators](operators-catalogue.html) alread
 
 ## Writing a Basic Operator
 
-Almost every operator will use both a .cc file for the registering of the operator and a .h file for the actual implementation, though this can vary across operators. For example, in some cases, the implementation may be coded in the .cc file. In addition, several operators also have GPU/CUDA implementations, which are stored in .cu files.
+Almost every operator will use both a .h file for the registering of the operator and a .cc file for the actual implementation, though this can vary across operators. For example, in some cases, the implementation may be coded in the .cc file. In addition, several operators also have GPU/CUDA implementations, which are stored in .cu files.
 
 If a CUDA implementation involves actual CUDA kernels it has to be named .cu so it is complied by NVCC. If it is only implementing existing CUDA libraries then we name it `_gpu.cc` to save on compilation time.
 
