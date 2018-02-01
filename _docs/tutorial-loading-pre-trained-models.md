@@ -19,7 +19,8 @@ python -m caffe2.python.models.download -i squeezenet
 ```
 
 If the above download worked then you should have a copy of squeezenet in your model folder or if you used the `-i` flag it will have installed the model locally in the `/caffe2/python/models` folder.
-Alternatively, you can clone the entire repo of models: `git clone https://github.com/caffe2/models`.
+
+Alternatively, you can clone the entire repo of models at `git clone https://github.com/caffe2/models` but you will need to install [Git Larg File Storage](https://git-lfs.github.com/) to download the models themselves.
 
 ## Overview
 
