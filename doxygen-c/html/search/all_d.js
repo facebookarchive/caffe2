@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['name',['Name',['../classcaffe2_1_1_type_meta.html#af2e0775b4d7176faff8147e5cdbcf9f3',1,'caffe2::TypeMeta::Name()'],['../classcaffe2_1_1_type_meta.html#a3d9a187b58d9e3ebdd91aca3fe75e8fa',1,'caffe2::TypeMeta::name() const ']]],
+  ['name',['name',['../classcaffe2_1_1_type_meta.html#a3d9a187b58d9e3ebdd91aca3fe75e8fa',1,'caffe2::TypeMeta']]],
   ['nancheckop',['NanCheckOp',['../classcaffe2_1_1_nan_check_op.html',1,'caffe2']]],
   ['nbytes',['nbytes',['../classcaffe2_1_1_tensor.html#af014327871aac019039083a51c65e851',1,'caffe2::Tensor']]],
   ['nchw2nhwcop',['NCHW2NHWCOp',['../classcaffe2_1_1_n_c_h_w2_n_h_w_c_op.html',1,'caffe2']]],

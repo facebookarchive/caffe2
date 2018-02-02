@@ -274,7 +274,7 @@ template&lt;class T &gt; </div>
 <p>Gets a mutable pointer to the stored object. </p>
 <p>If the current object is not of the right type, a new object is created and the old object is freed. Note that type T should have a default constructor. Otherwise, create the object yourself first, and use <a class="el" href="classcaffe2_1_1_blob.html#abb411d603b3c91f77eec8b4bb3c1dae1" title="Resets the Blob to an empty one. ">Reset()</a>. </p>
 
-<p>Definition at line <a class="el" href="blob_8h_source.html#l00114">114</a> of file <a class="el" href="blob_8h_source.html">blob.h</a>.</p>
+<p>Definition at line <a class="el" href="blob_8h_source.html#l00117">117</a> of file <a class="el" href="blob_8h_source.html">blob.h</a>.</p>
 
 </div>
 </div>
@@ -302,7 +302,7 @@ template&lt;class T &gt; </div>
 <p>Releases the ownership, if any, this <a class="el" href="classcaffe2_1_1_blob.html" title="Blob is a general container that hosts a typed pointer. ">Blob</a> has on the underlying pointer. </p>
 <p>The user is then responsible for freeing the data if needed </p>
 
-<p>Definition at line <a class="el" href="blob_8h_source.html#l00159">159</a> of file <a class="el" href="blob_8h_source.html">blob.h</a>.</p>
+<p>Definition at line <a class="el" href="blob_8h_source.html#l00162">162</a> of file <a class="el" href="blob_8h_source.html">blob.h</a>.</p>
 
 </div>
 </div>
@@ -334,7 +334,7 @@ template&lt;class T &gt; </div>
 <p>The <a class="el" href="classcaffe2_1_1_blob.html" title="Blob is a general container that hosts a typed pointer. ">Blob</a> then takes over the ownership of the passed in pointer. If there is already an object in the <a class="el" href="classcaffe2_1_1_blob.html" title="Blob is a general container that hosts a typed pointer. ">Blob</a>, the old object is freed.</p>
 <p>This is used when the underlying class T does not have a default ctor, or complex initializations needs to be done outside the blob. </p>
 
-<p>Definition at line <a class="el" href="blob_8h_source.html#l00134">134</a> of file <a class="el" href="blob_8h_source.html">blob.h</a>.</p>
+<p>Definition at line <a class="el" href="blob_8h_source.html#l00137">137</a> of file <a class="el" href="blob_8h_source.html">blob.h</a>.</p>
 
 </div>
 </div>
@@ -425,7 +425,7 @@ template&lt;class T &gt; </div>
 <p>If there is already an object in the <a class="el" href="classcaffe2_1_1_blob.html" title="Blob is a general container that hosts a typed pointer. ">Blob</a>, the old object is freed.</p>
 <p>Unlike Reset, this does not take over the ownership of the pointer and the caller is responsible for making sure that the lifetime of the allocated blob outlasts the lifetime of any access to this blob, until another Reset call is made or the blob is destructed. </p>
 
-<p>Definition at line <a class="el" href="blob_8h_source.html#l00176">176</a> of file <a class="el" href="blob_8h_source.html">blob.h</a>.</p>
+<p>Definition at line <a class="el" href="blob_8h_source.html#l00179">179</a> of file <a class="el" href="blob_8h_source.html">blob.h</a>.</p>
 
 </div>
 </div>
@@ -437,7 +437,7 @@ template&lt;class T &gt; </div>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 31 2018 13:03:10 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Feb 2 2018 13:03:34 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

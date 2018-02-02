@@ -195,7 +195,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>schedule</b> (int tas
 void&#160;</td><td class="memItemRight" valign="bottom"><b>reset</b> ()</td></tr>
 <tr class="separator:a8c1032ce3e70083b1f6dbdbcedefdada"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad25a9157d42a7f0802270f341b2adf83"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad25a9157d42a7f0802270f341b2adf83"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>finishRun</b> ()</td></tr>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>finishRun</b> ()</td></tr>
 <tr class="separator:ad25a9157d42a7f0802270f341b2adf83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accef697285d3abb741137a9c4e890a55"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="accef697285d3abb741137a9c4e890a55"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>updateParentCount</b> (int child_id)</td></tr>
@@ -225,9 +225,9 @@ const std::vector&lt; int &gt; &amp;&#160;</td><td class="memItemRight" valign="
 <tr class="memitem:ad4da79b9276859925248e488daec3092 inherit pro_methods_classcaffe2_1_1_async_net_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4da79b9276859925248e488daec3092"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>asyncWait</b> (int task_id, int stream_id, const std::vector&lt; int &gt; &amp;wait_task_ids) const </td></tr>
 <tr class="separator:ad4da79b9276859925248e488daec3092 inherit pro_methods_classcaffe2_1_1_async_net_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaa3ca90d881a871145902406402bd2f4 inherit pro_methods_classcaffe2_1_1_async_net_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa3ca90d881a871145902406402bd2f4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>run</b> (int task_id, int stream_id)</td></tr>
-<tr class="separator:aaa3ca90d881a871145902406402bd2f4 inherit pro_methods_classcaffe2_1_1_async_net_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefde71b8abd7b6267ca9c0e92473930e inherit pro_methods_classcaffe2_1_1_async_net_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefde71b8abd7b6267ca9c0e92473930e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>run</b> (int task_id, int stream_id)</td></tr>
+<tr class="separator:aefde71b8abd7b6267ca9c0e92473930e inherit pro_methods_classcaffe2_1_1_async_net_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0cd029624ba9d9d0cbd4d4d06827691 inherit pro_methods_classcaffe2_1_1_async_net_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0cd029624ba9d9d0cbd4d4d06827691"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>stream</b> (int task_id)</td></tr>
 <tr class="separator:ad0cd029624ba9d9d0cbd4d4d06827691 inherit pro_methods_classcaffe2_1_1_async_net_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -274,6 +274,12 @@ std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>
 <tr class="memitem:afd0823a7dfeaae68fed3c7a18c1296cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afd0823a7dfeaae68fed3c7a18c1296cf"></a>
 std::atomic&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>processed_tasks_num_</b></td></tr>
 <tr class="separator:afd0823a7dfeaae68fed3c7a18c1296cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00439753d5e8b7487b1ad35bf4ccdbd2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a00439753d5e8b7487b1ad35bf4ccdbd2"></a>
+std::mutex&#160;</td><td class="memItemRight" valign="bottom"><b>exception_mutex_</b></td></tr>
+<tr class="separator:a00439753d5e8b7487b1ad35bf4ccdbd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae4c475dd7e5ece189883c2f301ee1f8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae4c475dd7e5ece189883c2f301ee1f8"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>exception_messages_</b></td></tr>
+<tr class="separator:aae4c475dd7e5ece189883c2f301ee1f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classcaffe2_1_1_async_net_base"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1_async_net_base')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1_async_net_base.html">caffe2::AsyncNetBase</a></td></tr>
 <tr class="memitem:a6da34675d175196b6de99c0462b6c9b8 inherit pro_attribs_classcaffe2_1_1_async_net_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6da34675d175196b6de99c0462b6c9b8"></a>
 std::vector&lt; <a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>operators_</b></td></tr>
@@ -342,7 +348,7 @@ static thread_local std::vector&lt; int &gt;&#160;</td><td class="memItemRight" 
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 31 2018 13:03:10 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Feb 2 2018 13:03:34 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -178,10 +178,10 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a7d982913a6ce531bfe046939246eb4e0"><td class="memTemplItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_type_meta.html#a7d982913a6ce531bfe046939246eb4e0">ItemSize</a> ()</td></tr>
 <tr class="memdesc:a7d982913a6ce531bfe046939246eb4e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the item size of the type.  <a href="#a7d982913a6ce531bfe046939246eb4e0">More...</a><br /></td></tr>
 <tr class="separator:a7d982913a6ce531bfe046939246eb4e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af2e0775b4d7176faff8147e5cdbcf9f3"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:af2e0775b4d7176faff8147e5cdbcf9f3"><td class="memTemplItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_type_meta.html#af2e0775b4d7176faff8147e5cdbcf9f3">Name</a> ()</td></tr>
-<tr class="memdesc:af2e0775b4d7176faff8147e5cdbcf9f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the printable name of the type.  <a href="#af2e0775b4d7176faff8147e5cdbcf9f3">More...</a><br /></td></tr>
-<tr class="separator:af2e0775b4d7176faff8147e5cdbcf9f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac692ec187e8d53c6324e95ca0ac074a1"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ac692ec187e8d53c6324e95ca0ac074a1"><td class="memTemplItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_type_meta.html#ac692ec187e8d53c6324e95ca0ac074a1">TypeName</a> ()</td></tr>
+<tr class="memdesc:ac692ec187e8d53c6324e95ca0ac074a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the registered printable name of the type.  <a href="#ac692ec187e8d53c6324e95ca0ac074a1">More...</a><br /></td></tr>
+<tr class="separator:ac692ec187e8d53c6324e95ca0ac074a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e5bd6d2be8c33082190e8f7b9195899"><td class="memTemplParams" colspan="2"><a class="anchor" id="a3e5bd6d2be8c33082190e8f7b9195899"></a>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a3e5bd6d2be8c33082190e8f7b9195899"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_type_meta.html#a3e5bd6d2be8c33082190e8f7b9195899">_Ctor</a> (void *ptr, size_t n)</td></tr>
@@ -220,7 +220,7 @@ template&lt;typename T &gt; </td></tr>
 <div class="textblock"><p><a class="el" href="classcaffe2_1_1_type_meta.html" title="TypeMeta is a thin class that allows us to store the type of a container such as a blob...">TypeMeta</a> is a thin class that allows us to store the type of a container such as a blob, or the data type of a tensor, with a unique run-time id. </p>
 <p>It also stores some additional data such as the item size and the name of the type for run-time inspection. </p>
 
-<p>Definition at line <a class="el" href="typeid_8h_source.html#l00085">85</a> of file <a class="el" href="typeid_8h_source.html">typeid.h</a>.</p>
+<p>Definition at line <a class="el" href="typeid_8h_source.html#l00102">102</a> of file <a class="el" href="typeid_8h_source.html">typeid.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a9f8e66d75448302751da57b8df1c906f"></a>
 <div class="memitem">
@@ -246,7 +246,7 @@ template&lt;typename T &gt; </td></tr>
 <p>Create a dummy <a class="el" href="classcaffe2_1_1_type_meta.html" title="TypeMeta is a thin class that allows us to store the type of a container such as a blob...">TypeMeta</a> object. </p>
 <p>To create a <a class="el" href="classcaffe2_1_1_type_meta.html" title="TypeMeta is a thin class that allows us to store the type of a container such as a blob...">TypeMeta</a> object for a specific type, use <a class="el" href="classcaffe2_1_1_type_meta.html#a2acbe49fa3c19f9d49d4431a9d0d4fd2" title="Returns a TypeMeta object that corresponds to the typename T. ">TypeMeta::Make&lt;T&gt;()</a>. </p>
 
-<p>Definition at line <a class="el" href="typeid_8h_source.html#l00093">93</a> of file <a class="el" href="typeid_8h_source.html">typeid.h</a>.</p>
+<p>Definition at line <a class="el" href="typeid_8h_source.html#l00110">110</a> of file <a class="el" href="typeid_8h_source.html">typeid.h</a>.</p>
 
 </div>
 </div>
@@ -305,11 +305,11 @@ template&lt;typename T &gt; </div>
 <p>Returns the item size of the type. </p>
 <p>This is equivalent to sizeof(T). </p>
 
-<p>Definition at line <a class="el" href="typeid_8h_source.html#l00197">197</a> of file <a class="el" href="typeid_8h_source.html">typeid.h</a>.</p>
+<p>Definition at line <a class="el" href="typeid_8h_source.html#l00214">214</a> of file <a class="el" href="typeid_8h_source.html">typeid.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="af2e0775b4d7176faff8147e5cdbcf9f3"></a>
+<a class="anchor" id="ac692ec187e8d53c6324e95ca0ac074a1"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -319,7 +319,7 @@ template&lt;typename T &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static const char* caffe2::TypeMeta::Name </td>
+          <td class="memname">static const char* caffe2::TypeMeta::TypeName </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -332,10 +332,10 @@ template&lt;typename T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Returns the printable name of the type. </p>
-<p>Works for all types, not only the ones registered with CAFFE_KNOWN_TYPE </p>
+<p>Returns the registered printable name of the type. </p>
+<p>Works for only the ones registered with CAFFE_KNOWN_TYPE </p>
 
-<p>Definition at line <a class="el" href="typeid_8h_source.html#l00207">207</a> of file <a class="el" href="typeid_8h_source.html">typeid.h</a>.</p>
+<p>Definition at line <a class="el" href="typeid_8h_source.html#l00224">224</a> of file <a class="el" href="typeid_8h_source.html">typeid.h</a>.</p>
 
 </div>
 </div>
@@ -346,7 +346,7 @@ template&lt;typename T &gt; </div>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 31 2018 13:03:14 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Feb 2 2018 13:03:39 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

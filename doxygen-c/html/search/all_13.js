@@ -62,7 +62,7 @@ var searchData=
   ['type',['Type',['../struct_g_l_texture_1_1_type.html',1,'GLTexture']]],
   ['typemeta',['TypeMeta',['../classcaffe2_1_1_type_meta.html',1,'caffe2']]],
   ['typemeta',['TypeMeta',['../classcaffe2_1_1_type_meta.html#a9f8e66d75448302751da57b8df1c906f',1,'caffe2::TypeMeta::TypeMeta()'],['../classcaffe2_1_1_type_meta.html#aa110c2a289bafa97472342f25755a10f',1,'caffe2::TypeMeta::TypeMeta(const TypeMeta &amp;src)']]],
-  ['typename',['TypeName',['../classcaffe2_1_1_blob.html#a2a807ee90e38f2f0261f8c1f6709727a',1,'caffe2::Blob']]],
+  ['typename',['TypeName',['../classcaffe2_1_1_blob.html#a2a807ee90e38f2f0261f8c1f6709727a',1,'caffe2::Blob::TypeName()'],['../classcaffe2_1_1_type_meta.html#ac692ec187e8d53c6324e95ca0ac074a1',1,'caffe2::TypeMeta::TypeName()']]],
   ['typenameregisterer',['TypeNameRegisterer',['../structcaffe2_1_1_type_name_registerer.html',1,'caffe2']]],
   ['typenametraits',['TypeNameTraits',['../structcaffe2_1_1_type_name_traits.html',1,'caffe2']]],
   ['typenametraits_3c_20int32_5ft_20_3e',['TypeNameTraits&lt; int32_t &gt;',['../structcaffe2_1_1_type_name_traits_3_01int32__t_01_4.html',1,'caffe2']]],

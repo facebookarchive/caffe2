@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['name',['Name',['../classcaffe2_1_1_type_meta.html#af2e0775b4d7176faff8147e5cdbcf9f3',1,'caffe2::TypeMeta::Name()'],['../classcaffe2_1_1_type_meta.html#a3d9a187b58d9e3ebdd91aca3fe75e8fa',1,'caffe2::TypeMeta::name() const ']]],
+  ['name',['name',['../classcaffe2_1_1_type_meta.html#a3d9a187b58d9e3ebdd91aca3fe75e8fa',1,'caffe2::TypeMeta']]],
   ['nbytes',['nbytes',['../classcaffe2_1_1_tensor.html#af014327871aac019039083a51c65e851',1,'caffe2::Tensor']]],
   ['ndim',['ndim',['../classcaffe2_1_1_q_tensor.html#abd1d5827f1f866e3a5c02e5656724efb',1,'caffe2::QTensor::ndim()'],['../classcaffe2_1_1_tensor.html#aea51c872873f4db0abad47713315e81f',1,'caffe2::Tensor::ndim()']]],
   ['nets',['Nets',['../classcaffe2_1_1_workspace.html#a1df76675933417b6070f89ebef661410',1,'caffe2::Workspace']]],

@@ -7206,6 +7206,7 @@ Elementwise modulo operation. Each element in the output is the modulo result of
 ---------- | ----------
 *Arguments* | 
 `divisor` | The divisor of the modulo operation. Must >= 1
+`sign_follow_divisor` | The sign of output follows Dividend if set to `false`.           Otherwise follows Divisor
 *Inputs* | 
 `data` | input int32 or int64 data
 *Outputs* | 
