@@ -3,6 +3,7 @@ var searchData=
   ['maptorange',['MapToRange',['../classlayers_1_1build__index_1_1_map_to_range.html',1,'layers::build_index']]],
   ['marginrankloss',['MarginRankLoss',['../classlayers_1_1margin__rank__loss_1_1_margin_rank_loss.html',1,'layers::margin_rank_loss']]],
   ['markdown',['Markdown',['../classformatter_1_1_markdown.html',1,'formatter']]],
+  ['maxnorm',['MaxNorm',['../classregularizer_1_1_max_norm.html',1,'regularizer']]],
   ['mergeidlists',['MergeIdLists',['../classlayers_1_1merge__id__lists_1_1_merge_id_lists.html',1,'layers::merge_id_lists']]],
   ['metadata',['Metadata',['../classschema_1_1_metadata.html',1,'schema']]],
   ['metrics',['Metrics',['../classparallel__workers_1_1_metrics.html',1,'parallel_workers']]],

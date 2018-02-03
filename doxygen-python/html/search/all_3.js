@@ -31,6 +31,7 @@ var searchData=
   ['cond',['cond',['../namespacecontrol__ops.html#aee93fa9ca6b3b8c4cce2110dc4ea1611',1,'control_ops']]],
   ['condition',['Condition',['../classnet__builder_1_1_operations.html#a8cea1589646cd1e35e47afb0dcbbe175',1,'net_builder::Operations']]],
   ['const',['Const',['../namespacedataset.html#a15ea74e9a4fd4e401d4a13952b91b501',1,'dataset']]],
+  ['constantnorm',['ConstantNorm',['../classregularizer_1_1_constant_norm.html',1,'regularizer']]],
   ['constrecord',['ConstRecord',['../namespaceschema.html#af74411f6624ef7d0c3c826f0d5ea9818',1,'schema']]],
   ['content',['content',['../classdataset_1_1_dataset.html#ab6ceb96921c923d77d66b9a2e2df51fa',1,'dataset::Dataset']]],
   ['context',['context',['../namespacecontext.html',1,'']]],

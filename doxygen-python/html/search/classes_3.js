@@ -9,6 +9,7 @@ var searchData=
   ['collectivesconcurrencycontrol',['CollectivesConcurrencyControl',['../classdata__parallel__model_1_1_collectives_concurrency_control.html',1,'data_parallel_model']]],
   ['compiledrunnable',['CompiledRunnable',['../classsession_1_1_compiled_runnable.html',1,'session']]],
   ['concat',['Concat',['../classlayers_1_1concat_1_1_concat.html',1,'layers::concat']]],
+  ['constantnorm',['ConstantNorm',['../classregularizer_1_1_constant_norm.html',1,'regularizer']]],
   ['contextinfo',['ContextInfo',['../classcontext_1_1_context_info.html',1,'context']]],
   ['contextmanager',['ContextManager',['../classcontext_1_1_context_manager.html',1,'context']]],
   ['conv',['Conv',['../classlayers_1_1conv_1_1_conv.html',1,'layers::conv']]],

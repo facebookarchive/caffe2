@@ -10,6 +10,7 @@ var searchData=
   ['matrix_5fto_5ftt',['matrix_to_tt',['../namespacett__core.html#a68c3765d2b23c995d3711f4f4ffbeda8',1,'tt_core']]],
   ['max_5fpool',['max_pool',['../namespacepooling.html#a4fd3ca802f7d226e6b4230d575165785',1,'pooling']]],
   ['max_5fpool_5fwith_5findex',['max_pool_with_index',['../namespacepooling.html#a368ffcd25f52f15a8dc2fde6cae997f2',1,'pooling']]],
+  ['maxnorm',['MaxNorm',['../classregularizer_1_1_max_norm.html',1,'regularizer']]],
   ['memonger',['memonger',['../namespacememonger.html',1,'']]],
   ['mergeconditionnets',['MergeConditionNets',['../namespacecontrol.html#a20875d154e701fd14edb35191ab8a3b6',1,'control']]],
   ['mergeidlists',['MergeIdLists',['../classlayers_1_1merge__id__lists_1_1_merge_id_lists.html',1,'layers::merge_id_lists']]],

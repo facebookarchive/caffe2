@@ -78,6 +78,7 @@ var searchData=
   ['sparselengthsfused8bitrowwiseop',['SparseLengthsFused8BitRowwiseOp',['../classcaffe2_1_1_sparse_lengths_fused8_bit_rowwise_op.html',1,'caffe2']]],
   ['sparsematrixreshapeop',['SparseMatrixReshapeOp',['../classcaffe2_1_1_sparse_matrix_reshape_op.html',1,'caffe2']]],
   ['sparsemomentumsgdupdateop',['SparseMomentumSGDUpdateOp',['../classcaffe2_1_1_sparse_momentum_s_g_d_update_op.html',1,'caffe2']]],
+  ['sparsenormalizeop',['SparseNormalizeOp',['../classcaffe2_1_1_sparse_normalize_op.html',1,'caffe2']]],
   ['sparsetodensemaskbase',['SparseToDenseMaskBase',['../classcaffe2_1_1_sparse_to_dense_mask_base.html',1,'caffe2']]],
   ['sparsetodensemaskgradientop',['SparseToDenseMaskGradientOp',['../classcaffe2_1_1_sparse_to_dense_mask_gradient_op.html',1,'caffe2']]],
   ['sparsetodensemaskop',['SparseToDenseMaskOp',['../classcaffe2_1_1_sparse_to_dense_mask_op.html',1,'caffe2']]],

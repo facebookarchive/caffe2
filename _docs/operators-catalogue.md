@@ -903,9 +903,20 @@ Input  `data`  is a N * D matrix. Apply box-cox transform for each column.
 
 ## BatchBucketOneHot
 
+
 Input is a matrix tensor. Its first dimension is the batch size. For each column, bucketize it based on the boundary values and then do one hot encoding. The  `lengths`  specifies the number of boundary values for each column. The final number of buckets is this number plus 1. This would also be the expanded feature size.  `boundaries`  specifies all the boundary values.
 Note that each bucket is right-inclusive. That is, given boundary values [b1, b2, b3], the buckets are defined as (-int, b1], (b1, b2], (b2, b3], (b3, inf).
-For example  If data = [[2, 3], [4, 1], [2, 5]], lengths = [2, 3], and boundaries = [0.1, 2.5, 1, 3.1, 4.5], then  output = [[0, 1, 0, 0, 1, 0, 0], [0, 0, 1, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1]]  
+For example   
+
+```
+  If data = [[2, 3], [4, 1], [2, 5]], lengths = [2, 3],
+  and boundaries = [0.1, 2.5, 1, 3.1, 4.5], then
+
+  output = [[0, 1, 0, 0, 1, 0, 0], [0, 0, 1, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1]]
+
+```
+
+
 
 
 ### Interface
@@ -933,23 +944,29 @@ For example  If data = [[2, 3], [4, 1], [2, 5]], lengths = [2, 3], and boundarie
 
 
 This Op is a inverse of BatchSparseToDenseOp.
-Basically, given a  `lengths`  vector, a  `indices`  vecotr, and a dense matrix  `dense` , output  `value`  vector so that, along with  `lengths`  vector and  `indices`  vecotr, forms a sparse representation of the dense matrix  A sparse matrix is represented by  `lengths`  vector,  `indices`  vector, and  `values`  vector. Each element in  `lengths`  vector (lengths[ `i` ]) represents the number of indices in this batch (batch  `i` ).
+Basically, given a  `lengths`  vector, a  `indices`  vector, and a dense matrix  `dense` , output  `value`  vector so that, along with  `lengths`  vector and  `indices`  vector, forms a sparse representation of the dense matrix.
+ A sparse matrix is represented by  `lengths`  vector,  `indices`  vector, and  `values`  vector. Each element in  `lengths`  vector (lengths[ `i` ]) represents the number of indices in this batch (batch  `i` ).
 With in each batch,  `indices`  should not have duplicate number.
- Example: input:  ```  lengths = [2,3,1] indices = [0, 1, 2, 3, 4, 5] output = [[6, 7, 0, 0, 0, 
+ For example, with input:   
 
 ```
-  0],
-          [0, 0, 8, 9, 10, 0],
-          [0, 0, 0, 0, 0, 11]]
+  lengths = [2, 3, 1]
+  indices = [0, 1, 2, 3, 4, 5]
+  output = [[6, 7, 0, 0, 0,  0],
+            [0, 0, 8, 9, 10, 0],
+            [0, 0, 0, 0, 0, 11]]
+
 ```
 
- 
+ The output is:   
 
 ```
-  [6, 7, 8, 9, 10, 11]
+  values = [6, 7, 8, 9, 10, 11]
+
 ```
 
- ```  After running this op:  ```  values = ```  
+ after running this operator.
+
 
 
 ### Interface
@@ -1036,12 +1053,7 @@ No documentation yet.
 ## BatchMatMul
 
 
-Batch Matrix multiplication Yi = Ai * Bi, where A has shape (dim0, dim1, ... M, 
-
-```
-  K), B has shape (dim0, dim1, ... K, N), Y has shape (dim0, dim1, ... M, N) and i ranges from 0 to (dim0 * dim1 ...) - 1. rank(A) == rank(B) >= 2. In case of A and B being two diemnsional, it behaves like normal matrix multiplication.
-```
-
+Batch Matrix multiplication Yi = Ai  * Bi, where A has shape (dim0, dim1, ... M, K), B has shape (dim0, dim1, ... K, N), Y has shape (dim0, dim1, ... M, N) and i ranges from 0 to (dim0 *  dim1 ...) - 1. rank(A) == rank(B) >= 2. In case of A and B being two diemnsional, it behaves like normal matrix multiplication.
 
 
 
@@ -1071,7 +1083,17 @@ Batch Matrix multiplication Yi = Ai * Bi, where A has shape (dim0, dim1, ... M,
 
 ## BatchOneHot
 
-Input is a matrix tensor. Its first dimension is the batch size. Expand each column of it using one hot encoding. The  `lengths`  specifies the size of each column after encoding, and the  `values`  is the dictionary value of one-hot encoding for each column. For example  If data = [[2, 3], [4, 1], [2, 5]], lengths = [2, 3], and values = [2, 4, 1, 3, 5], then  output = [[1, 0, 0, 1, 0], [0, 1, 1, 0, 0], [1, 0, 0, 0, 1]]  
+
+Input is a matrix tensor. Its first dimension is the batch size. Expand each column of it using one hot encoding. The  `lengths`  specifies the size of each column after encoding, and the  `values`  is the dictionary value of one-hot encoding for each column. For example   
+
+```
+  If data = [[2, 3], [4, 1], [2, 5]], lengths = [2, 3],
+  and values = [2, 4, 1, 3, 5], then
+
+  output = [[1, 0, 0, 1, 0], [0, 1, 1, 0, 0], [1, 0, 0, 0, 1]]
+```
+
+
 
 
 ### Interface
@@ -1101,21 +1123,28 @@ Input is a matrix tensor. Its first dimension is the batch size. Expand each col
 Convert sparse matrix representation into dense matrix.
  A sparse matrix is represented by  `lengths`  vector,  `indices`  vector, and  `values`  vector. Each element in  `lengths`  vector (lengths[ `i` ]) represents the number of indices in this batch (batch  `i` ).
 With in each batch,  `indices`  should not have duplicate number.
-For example, with input:  ```  lengths = [2,3,1] indices = [0, 1, 2, 3, 4, 5] values = 
+ For example, with input:   
 
 ```
-  [6, 7, 8, 9, 10, 11]
+  lengths = [2, 3, 1]
+  indices = [0, 1, 2, 3, 4, 5]
+  values =  [6, 7, 8, 9, 10, 11]
+  dense_dim = 6
+  default_value = 0
+
 ```
 
- dense_dim = 6 default_value = 0  ```  After running this op:  ```  output = [[6, 7, 0, 0, 0, 
+ The output is:   
 
 ```
-  0],
-          [0, 0, 8, 9, 10, 0],
-          [0, 0, 0, 0, 0, 11]]
+  output = [[6, 7, 0, 0, 0,  0],
+            [0, 0, 8, 9, 10, 0],
+            [0, 0, 0, 0, 0, 11]]
+
 ```
 
- ```  
+ after running this operator.
+
 
 
 ### Interface
@@ -1219,49 +1248,68 @@ Given a tensor of int32 segment lengths and a mask (boolean) tensor, return the 
 
 
 Given a series of mask and values, reconstruct values together according to masks.
- A comprehensive example: mask1  
+ A comprehensive example:  
 
 ```
-  = True, False, True, False, False
-```
-
- values1 = 1.0, 3.0 mask2  
-
-```
-  = False, True, False, False, False
-```
-
- values2 = 2.0 mask3  
+  mask1   = True, False, True, False, False
+  values1 = 1.0, 3.0
+  mask2   = False, True, False, False, False
+  values2 = 2.0
+  mask3   = False, False, False, True, True
+  values3 = 4.0, 5.0
 
 ```
-  = False, False, False, True, True
-```
 
- values3 = 4.0, 5.0  Reconstruct by: output = net.BooleanUnmask([mask1, values1, mask2, values2, mask3, values3], ["output"])  We get: output = 1.0, 2.0, 3.0, 4.0, 5.0  Note that for all mask positions, there must be at least one True. If for a field there are multiple True's, we will accept the first value. For example:  Example 1: mask1  
+ Reconstruct by:  
 
 ```
-  = True, False
-```
-
- values1 = 1.0 mask2  
+  output = net.BooleanUnmask([mask1, values1, mask2, values2, mask3, values3], ["output"])
 
 ```
-  = False, False
-```
 
- values2 =  This is not allowed: output = net.BooleanUnmask([mask1, values1, mask2, values2], ["output"])  Example 2: mask1  
+ We get:  
 
 ```
-  = True, False
-```
-
- values1 = 1.0 mask2  
+  output = 1.0, 2.0, 3.0, 4.0, 5.0
 
 ```
-  = True, True
+
+ Note that for all mask positions, there must be at least one True. If for a field there are multiple True's, we will accept the first value. For example:   Example 1:  
+
+```
+  mask1   = True, False
+  values1 = 1.0
+  mask2   = False, False
+  values2 =
+
 ```
 
- values2 = 2.0, 2.0  output = net.BooleanUnmask([mask1, values1, mask2, values2], ["output"])  We get: output = 1.0, 2.0 
+ This is not allowed:  
+
+```
+  output = net.BooleanUnmask([mask1, values1, mask2, values2], ["output"])
+
+```
+
+ Example 2:  
+
+```
+  mask1   = True, False
+  values1 = 1.0
+  mask2   = True, True
+  values2 = 2.0, 2.0
+
+  output = net.BooleanUnmask([mask1, values1, mask2, values2], ["output"])
+
+```
+
+ We get:  
+
+```
+  output = 1.0, 2.0
+```
+
+
 
 
 ### Interface
@@ -1284,12 +1332,7 @@ Given a series of mask and values, reconstruct values together according to mask
 ## BoxWithNMSLimit
 
 
-Apply NMS to each class (except background) and limit the number of returned  
-
-```
-  boxes.
-```
-
+Apply NMS to each class (except background) and limit the number of returned boxes.
 
 
 
@@ -1654,12 +1697,7 @@ No documentation yet.
 ## CloseRebatchingQueue
 
 
- 
-
-```
-      Closes the Queue.
-```
-
+Closes the Queue.
 
 
 
@@ -1840,13 +1878,7 @@ Concat Tensors in the std::unique_ptr<std::vector<Tensor> > along the first dime
 ## Conditional
 
 
-Given a 1-D tensor of boolean values, apply conditional operator along the first dimension of DataT and DataF and return DataO. 
-
-```
-  Note, DataT and DataF must
-```
-
- have the exact same shape and type.
+Given a 1-D tensor of boolean values, apply conditional operator along the first dimension of DataT and DataF and return DataO. Note, DataT and DataF must have the exact same shape and type.
 
 
 
@@ -1874,13 +1906,7 @@ Given a 1-D tensor of boolean values, apply conditional operator along the first
 ## ConditionalSetAtomicBool
 
 
- 
-
-```
-    Set an atomic<bool> to true if the given condition bool variable is true
-```
-
-     
+Set an atomic<bool> to true if the given condition bool variable is true     
 
 
 ### Interface
@@ -1939,14 +1965,7 @@ The operator fills the elements of the output tensor with a constant value speci
 ## Conv
 
 
- 
-
-```
-    The convolution operator consumes an input vector, a filter blob
-    and a bias blob and computes the output. 
-```
-
- Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is convolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_op_impl.h is the templated implementation of the conv_op.h file, which is why they are separate files.
+The convolution operator consumes an input vector, a filter blob and a bias blob and computes the output.  Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is convolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_op_impl.h is the templated implementation of the conv_op.h file, which is why they are separate files.
 
 
 
@@ -1974,14 +1993,7 @@ The operator fills the elements of the output tensor with a constant value speci
 ## Conv1D
 
 
- 
-
-```
-    The convolution operator consumes an input vector, a 1D filter blob
-    and a bias blob and computes the output. 
-```
-
- Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is convolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_op_impl.h is the templated implementation of the conv_op.h file, which is why they are separate files.
+The convolution operator consumes an input vector, a 1D filter blob and a bias blob and computes the output.  Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is convolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_op_impl.h is the templated implementation of the conv_op.h file, which is why they are separate files.
 
 
 
@@ -2023,14 +2035,7 @@ No documentation yet.
 ## Conv2D
 
 
- 
-
-```
-    The convolution operator consumes an input vector, a 2D filter blob
-    and a bias blob and computes the output. 
-```
-
- Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is convolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_op_impl.h is the templated implementation of the conv_op.h file, which is why they are separate files.
+The convolution operator consumes an input vector, a 2D filter blob and a bias blob and computes the output.  Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is convolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_op_impl.h is the templated implementation of the conv_op.h file, which is why they are separate files.
 
 
 
@@ -2072,14 +2077,7 @@ No documentation yet.
 ## Conv3D
 
 
- 
-
-```
-    The convolution operator consumes an input vector, a 3D filter blob
-    and a bias blob and computes the output. 
-```
-
- Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is convolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_op_impl.h is the templated implementation of the conv_op.h file, which is why they are separate files.
+The convolution operator consumes an input vector, a 3D filter blob and a bias blob and computes the output.  Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is convolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_op_impl.h is the templated implementation of the conv_op.h file, which is why they are separate files.
 
 
 
@@ -2135,23 +2133,9 @@ No documentation yet.
 ## ConvTranspose
 
 
- 
-
-```
-    The transposed convolution consumes an input vector, the filter blob, and
-    the bias blob, and computes the output. Note that other parameters, such as
-    the stride and kernel size, or the pads' sizes in each direction are not
-    necessary for input because they are provided by the
-    ConvTransposeUnpoolOpBase operator. Various dimension checks are done
-    implicitly, and the sizes are specified in the Input docs for this operator.
-    As is expected, the filter is deconvolved with a subset of the
-    image and the bias is added; this is done throughout the image data and the
-    output is computed. As a side note on the implementation layout:
-    conv_transpose_op_impl.h is the templated implementation of the
-    conv_transpose_op.h file, which is why they are separate files.
-```
-
-   
+The transposed convolution consumes an input vector, the filter blob, and the bias blob, and computes the output. Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvTransposeUnpoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator.
+As is expected, the filter is deconvolved with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: conv_transpose_op_impl.h is the templated implementation of the conv_transpose_op.h file, which is why they are separate files.
+  
 
 
 ### Interface
@@ -2307,16 +2291,16 @@ No documentation yet.
 ## CosineEmbeddingCriterion
 
 
-CosineEmbeddingCriterion takes two inputs: the similarity value and the label, and computes the elementwise criterion output as  output = 1 - s,  
+CosineEmbeddingCriterion takes two inputs: the similarity value and the label, and computes the elementwise criterion output as   
 
 ```
-              if y == 1
+  output = 1 - s,               if y == 1
 ```
 
    
 
 ```
-        max(0, s - margin),  if y == -1
+          max(0, s - margin),  if y == -1
 ```
 
 
@@ -2359,14 +2343,8 @@ No documentation yet.
 ## CosineSimilarity
 
 
- 
+Given two input float tensors X, Y, and produces one output float tensor of the cosine similarity between X and Y.
 
-```
-  Given two input float tensors X, Y, and produces one output float tensor
-  of the cosine similarity between X and Y.
-```
-
-   
 
 
 ### Interface
@@ -2661,12 +2639,7 @@ Creates an unlocked mutex and returns it in a unique_ptr blob.
 ## CreateRebatchingQueue
 
 
- 
-
-```
-      Creates the Queue.
-```
-
+Creates the Queue.
 
 
 
@@ -2987,16 +2960,9 @@ Backward compatible operator name for Split.
 ## DequeueRebatchingQueue
 
 
- 
-
-```
-      Dequeue Tensors from the Queue.
-      If the Queue is closed this might return less elements than asked.
-      If num_elements > 1 the returned elements will be concatenated into one
-      tensor per component.
-
-```
-
+Dequeue Tensors from the Queue.
+If the Queue is closed this might return less elements than asked.
+If num_elements > 1 the returned elements will be concatenated into one tensor per component.
 
 
 
@@ -3166,14 +3132,8 @@ Last blobs in the input and output lists should be the same blob created with Cr
 ## DotProduct
 
 
- 
+Given two input float tensors X, Y, and produces one output float tensor of the dot product between X and Y.
 
-```
-  Given two input float tensors X, Y, and produces one output float tensor
-  of the dot product between X and Y.
-```
-
-   
 
 
 ### Interface
@@ -3213,19 +3173,9 @@ No documentation yet.
 ## DotProductWithPadding
 
 
- 
+Given two input float tensors X, Y with different shapes and produces one output float tensor of the dot product between X and Y. We currently support two kinds of strategies to achieve this. Before doing normal dot_product 1) pad the smaller tensor (using pad_value) to the same shape as the other one.
+2) replicate the smaller tensor to the same shape as the other one. Note the first dimension of X, Y must be equal. Only the second dimension of X or Y can be padded.
 
-```
-  Given two input float tensors X, Y with different shapes and produces one
-  output float tensor of the dot product between X and Y. We currently support
-  two kinds of strategies to achieve this. Before doing normal dot_product 1)
-  pad the smaller tensor (using pad_value) to the same shape as the other one.
-  2) replicate the smaller tensor to the same shape as the other one. Note the
-  first dimension of X, Y must be equal. Only the second dimension of X or Y
-  can be padded.
-```
-
-   
 
 
 ### Interface
@@ -3355,14 +3305,7 @@ Performs element-wise equality comparison  `==`  (with limited broadcast support
 ## ElementwiseLinear
 
 
- 
-
-```
-    Given inputs X of size (N x D), w of size D and b of size D,
-    the op computes Y of size (N X D) where Y_{nd} = X_{nd} * w_d + b_d
-```
-
-   
+Given inputs X of size (N x D), w of size D and b of size D, the op computes Y of size (N X D) where Y_{nd} = X_{nd} * w_d + b_d   
 
 
 ### Interface
@@ -3461,17 +3404,10 @@ No documentation yet.
 ## EnqueueRebatchingQueue
 
 
- 
-
-```
-      Enqueues Tensors into the queue.
-      Number of input tensors should be equal to the number of components passed
-      during creation of the queue.
-      If the Queue is closed this operation will fail.
-      If enqueue_batch argument is set. We will split the input tensors by the
-      first dimension to produce single queue elements.
-```
-
+Enqueues Tensors into the queue.
+Number of input tensors should be equal to the number of components passed during creation of the queue.
+If the Queue is closed this operation will fail.
+If enqueue_batch argument is set. We will split the input tensors by the first dimension to produce single queue elements.
 
 
 
@@ -3526,13 +3462,8 @@ Take an input tensor in the current Context (GPU or CPU) and create an output wh
 
 This operator converts dense or sparse gradients to dense ones.
 Therefore, sparse gradient can be back propagated to Operators that consume dense gradients only (e.g., FCGradient).
- The operator's behaviors: - In forward, simply pass in place or copy input to the output.
-- In backward, if the gradient passed-in is sparse gradient, change it to  
-
-```
-  dense gradient in linear time; otherwise, simply pass the dense gradient.
-```
-
+ The operator's behaviors:  - In forward, simply pass in place or copy input to the output.
+- In backward, if the gradient passed-in is sparse gradient, change it to dense gradient in linear time; otherwise, simply pass the dense gradient.
 
 
 
@@ -3651,31 +3582,11 @@ All except the outer-most dimension must be the same between input 0 and 1.
 ## FC
 
 
- 
-
-```
-    Computes the result of passing an input vector X into a fully
-    connected layer with 2D weight matrix W and 1D bias vector b. That is,
-    the layer computes Y = X * W^T + b, where X has size (M x K),
-    W has size (N x K), b has size (N), and Y has size (M x N),
-    where M is often the batch size.
-
-
-    NOTE: X does not need to explicitly be a 2D vector; rather, it will be
-    coerced into one. For an arbitrary n-dimensional tensor
-    X \in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}] where a_i \in N+ and k is
-    the axis provided, then X will be coerced into a 2-dimensional tensor with
-    dimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default
-    case where axis=1, this means the X tensor will be coerced into a 2D tensor
-    of dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.
-    In this situation, we must have a_0 = M and a_1 * ... * a_{n-1} = K.
-    Lastly, even though b is a 1D vector of size N, it is copied/resized to
-    be size (M x N) implicitly and added to each vector in the batch.
-    Each of these dimensions must be matched correctly, or else the operator
-    will throw errors.
-
-```
-
+Computes the result of passing an input vector X into a fully connected layer with 2D weight matrix W and 1D bias vector b. That is, the layer computes Y = X * W^T + b, where X has size (M x K), W has size (N x K), b has size (N), and Y has size (M x N), where M is often the batch size.
+  NOTE: X does not need to explicitly be a 2D vector; rather, it will be coerced into one. For an arbitrary n-dimensional tensor X \in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}] where a_i \in N+ and k is the axis provided, then X will be coerced into a 2-dimensional tensor with dimensions [a_0  * ... *  a_{k-1}, a_k  * ... *  a_{n-1}]. For the default case where axis=1, this means the X tensor will be coerced into a 2D tensor of dimensions [a_0, a_1  * ... *  a_{n-1}], where a_0 is often the batch size.
+In this situation, we must have a_0 = M and a_1  * ... *  a_{n-1} = K.
+Lastly, even though b is a 1D vector of size N, it is copied/resized to be size (M x N) implicitly and added to each vector in the batch.
+Each of these dimensions must be matched correctly, or else the operator will throw errors.
 
 
 
@@ -3801,16 +3712,11 @@ This store handler is not built to be fast. Its recommended use is for integrati
 
 ## Find
 
-Finds elements of second input from first input,  
 
-```
-                outputting the last (max) index for each query.
-                If query not find, inserts missing_value.
-                See IndexGet() for a version that modifies the index when
-                values are not found.
-```
+Finds elements of second input from first input, outputting the last (max) index for each query.
+If query not find, inserts missing_value.
+See IndexGet() for a version that modifies the index when values are not found.
 
-             
 
 
 ### Interface
@@ -3973,18 +3879,8 @@ No documentation yet.
 
 ## FloatToFused8BitRowwiseQuantized
 
-Applies 8-bit row-wise quantization by determining the range  
 
-```
-      (maximum - minimum) and offset (minimum value) of each row in the input
-      matrix, and then scaling each element to an 8-bit number between 0 and
-      255. To later de-quantize values, the scale (range / 255) and offset
-      (bias) are stored alongside the data. More precisely, the first 4 bytes
-      of each row in the output matrix are a 32-bit float storing the scale,
-      the next 4 bytes store the bias as a 32-bit float, and all remaining
-```
-
-       bytes in the row encode single quantized values.
+Applies 8-bit row-wise quantization by determining the range (maximum - minimum) and offset (minimum value) of each row in the input matrix, and then scaling each element to an 8-bit number between 0 and 255. To later de-quantize values, the scale (range / 255) and offset (bias) are stored alongside the data. More precisely, the first 4 bytes of each row in the output matrix are a 32-bit float storing the scale, the next 4 bytes store the bias as a 32-bit float, and all remaining bytes in the row encode single quantized values.) 
 
 
 ### Interface
@@ -4008,21 +3904,21 @@ Applies 8-bit row-wise quantization by determining the range
 
 ## FloatToRowwiseQuantized8Bits
 
-This operator applies 8Bit row-wise quantization to  
+
+This operator applies 8Bit row-wise quantization to input tensor and returns quantized tensor. Row wise quantization of input tensor is the following process. We take tensor of size (m_1, m_2,...,m_n), n >= 2, reshape it into matrix of size (m_1, m_2 x... x m_n) and apply row-wise quantization. After this, we compute scale_i= (min_i - max_i) / 255 and 
 
 ```
-    input tensor and returns quantized tensor. Row wise quantization of
-    input tensor is the following process. We take tensor of size
-    (m_1, m_2,...,m_n), n >= 2, reshape it into matrix of size
-    (m_1, m_2 x... x m_n) and apply row-wise quantization. After this,
-    we compute scale_i= (min_i - max_i) / 255 and  bias_i = min_i for
-    i-th row r_i of reshaped matrix, where min_i and max_i --  minimum
-    and maximum elements of i-th row, and quantize each element r_{ij} as
-    0 <= round(r_ij - bias_i) / scale_i) < 256. Instead of input tensor
-    we obtain uint8 tensor and auxiliary information as scale and bias to
+  bias_i = min_i for
 ```
 
-     restore input tensor (with losses).
+ i-th row r_i of reshaped matrix, where min_i and max_i -- 
+
+```
+  minimum
+```
+
+ and maximum elements of i-th row, and quantize each element r_{ij} as 0 <= round(r_ij - bias_i) / scale_i) < 256. Instead of input tensor we obtain uint8 tensor and auxiliary information as scale and bias to restore input tensor (with losses).
+
 
 
 ### Interface
@@ -4076,19 +3972,9 @@ No documentation yet.
 
 ## Fused8BitRowwiseQuantizedToFloat
 
-De-quantizes the result of the  
 
-```
-      FloatToFused8BitRowwiseQuantized operator. The input is expected to
-      encode the scale as a 32-bit float in the first 4 bytes of each row,
-      followed by the bias as a 32-bit float in the next 4 bytes, followed by
-      the quantized values in the remaining bytes of the row. The output is a
-      matrix containing only the values, but de-quantized. De-quantization is
-      performed by multiplying each value by its row's scale and bias
-      parameters. The de-quantized values will thus not be exactly equal to
-```
+De-quantizes the result of the FloatToFused8BitRowwiseQuantized operator. The input is expected to encode the scale as a 32-bit float in the first 4 bytes of each row, followed by the bias as a 32-bit float in the next 4 bytes, followed by the quantized values in the remaining bytes of the row. The output is a matrix containing only the values, but de-quantized. De-quantization is performed by multiplying each value by its row's scale and bias parameters. The de-quantized values will thus not be exactly equal to the original, un-quantized floating point values.
 
-       the original, un-quantized floating point values.
 
 
 ### Interface
@@ -4466,14 +4352,7 @@ No documentation yet.
 ## GenerateProposals
 
 
-Generate bounding box proposals for Faster RCNN. The propoasls are generated for  
-
-```
-  a list of images based on image score 'score', bounding box regression result
-  'deltas' as well as predefined bounding box shapes 'anchors'. Greedy
-  non-maximum suppression is applied to generate the final bounding boxes.
-```
-
+Generate bounding box proposals for Faster RCNN. The propoasls are generated for a list of images based on image score 'score', bounding box regression result 'deltas' as well as predefined bounding box shapes 'anchors'. Greedy non-maximum suppression is applied to generate the final bounding boxes.
 
 
 
@@ -4633,26 +4512,7 @@ No documentation yet.
 ## Glu
 
 
- 
-
-```
-  Applies gated linear unit to the input Tensor X. The output Y is half the size
-  of the input X, so if the shape of X is [d1, d2, ..., N] shape of Y will be
-```
-
-   
-
-```
-  [d1, d2, ..., dn/2] and Y(:dn-1, i) = GLU(X(:dn-1, i), X(:dn-1, i+N/2)) =
-```
-
-   
-
-```
-  X(dn-1, i) * sigmoid(X(dn-1, i+N/2))
-```
-
-
+Applies gated linear unit to the input Tensor X. The output Y is half the size of the input X, so if the shape of X is [d1, d2, ..., N] shape of Y will be [d1, d2, ..., dn/2] and Y(:dn-1, i) = GLU(X(:dn-1, i), X(:dn-1, i+N/2)) = X(dn-1, i) * sigmoid(X(dn-1, i+N/2)) 
 
 
 ### Interface
@@ -4725,15 +4585,8 @@ No documentation yet.
 ## HSoftmaxSearch
 
 
- 
+HSoftmaxSearch is an operator to generate the most possible paths given a well-trained model and input vector. Greedy algorithm is used for pruning the search tree.
 
-```
-  HSoftmaxSearch is an operator to generate the most possible paths given a
-  well-trained model and input vector. Greedy algorithm is used for pruning the
-  search tree.
-```
-
-   
 
 
 ### Interface
@@ -4804,14 +4657,7 @@ Checks whether scope blob has any saved scopes left
 ## HuffmanTreeHierarchy
 
 
- 
-
-```
-    HuffmanTreeHierarchy is an operator to generate huffman tree hierarchy given
-    the input labels. It returns the tree as seralized HierarchyProto
-```
-
-     
+HuffmanTreeHierarchy is an operator to generate huffman tree hierarchy given the input labels. It returns the tree as seralized HierarchyProto 
 
 
 ### Interface
@@ -5131,16 +4977,14 @@ Stores the keys of this index in a 1-D tensor. Since element 0 is reserved for u
 ## InstanceNorm
 
 
-Carries out instance normalization as described in the paper  [https://arxiv.org/abs/1607.08022.](https://arxiv.org/abs/1607.08022.)  Depending on the mode it is being run, there are multiple cases for the number of outputs, which we list below:   * Output case #1: output *  Output case #2: output, saved_mean  
+Carries out instance normalization as described in the paper  [https://arxiv.org/abs/1607.08022.](https://arxiv.org/abs/1607.08022.)  Depending on the mode it is being run, there are multiple cases for the number of outputs, which we list below:   
 
 ```
-  - don't use, doesn't make sense but won't crash
-```
-
- * Output case #3: output, saved_mean, saved_inv_stdev  
-
-```
-  - Makes sense for training only
+  * Output case #1: output
+  * Output case #2: output, saved_mean
+    - don't use, doesn't make sense but won't crash
+  * Output case #3: output, saved_mean, saved_inv_stdev
+    - Makes sense for training only
 
 ```
 
@@ -5326,14 +5170,7 @@ Convert key and value blob pairs into a map blob
 ## L1Distance
 
 
- 
-
-```
-  Given two input float tensors X, Y, and produces one output float tensor
-  of the L1 difference between X and Y, computed as L1(x,y) = sum over |x-y|
-```
-
-   
+Given two input float tensors X, Y, and produces one output float tensor of the L1 difference between X and Y, computed as L1(x,y) = sum over |x-y| 
 
 
 ### Interface
@@ -5373,14 +5210,7 @@ No documentation yet.
 ## LC
 
 
- 
-
-```
-    The locally connected operator consumes an input vector, a filter blob
-    and a bias blob and computes the output. 
-```
-
- Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
+The locally connected operator consumes an input vector, a filter blob and a bias blob and computes the output.  Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
 
 
 
@@ -5408,14 +5238,7 @@ No documentation yet.
 ## LC1D
 
 
- 
-
-```
-    The locally connected operator consumes an input vector, a 1D filter blob
-    and a bias blob and computes the output. 
-```
-
- Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
+The locally connected operator consumes an input vector, a 1D filter blob and a bias blob and computes the output.  Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
 
 
 
@@ -5457,14 +5280,7 @@ No documentation yet.
 ## LC2D
 
 
- 
-
-```
-    The locally connected operator consumes an input vector, a 2D filter blob
-    and a bias blob and computes the output. 
-```
-
- Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
+The locally connected operator consumes an input vector, a 2D filter blob and a bias blob and computes the output.  Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
 
 
 
@@ -5506,14 +5322,7 @@ No documentation yet.
 ## LC3D
 
 
- 
-
-```
-    The locally connected operator consumes an input vector, a 3D filter blob
-    and a bias blob and computes the output. 
-```
-
- Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
+The locally connected operator consumes an input vector, a 3D filter blob and a bias blob and computes the output.  Note that other parameters, such as the stride and kernel size, or the pads' sizes in each direction are not necessary for input because they are provided by the ConvPoolOpBase operator. Various dimension checks are done implicitly, and the sizes are specified in the Input docs for this operator. As is expected, the filter is locally connected with a subset of the image and the bias is added; this is done throughout the image data and the output is computed. As a side note on the implementation layout: locally_connected_op_impl.h is the templated implementation of the locally_connected_op.h file, which is why they are separate files.
 
 
 
@@ -5810,7 +5619,46 @@ No documentation yet.
 ## LastNWindowCollector
 
 
-Collect the last N rows from input data. The purpose is to keep track of data accross batches, so for example suppose the LastNWindowCollector is called successively with the following input data  [1,2,3,4] [5,6,7] [8,9,10,11]  And the number of items is set to 6, then the output after the 3rd call will contain the following elements: [6,7,8,9,10,11]  No guarantee is made on the ordering of elements in input. So a valid value for output could have been [11,10,9,8,7,6]  Also, this method works for any order tensor, treating the first dimension as input rows and keeping the last N rows seen as input. So for instance:  [[1,2],[2,3],[3,4],[4,5]] [[5,6],[6,7],[7,8]] [[8,9],[9,10],[10,11],[11,12]]  A possible output would be [[6,7],[7,8],[8,9],[9,10],[10,11],[11,12]]  This is not thread safe unless a mutex is given.
+Collect the last N rows from input data. The purpose is to keep track of data accross batches, so for example suppose the LastNWindowCollector is called successively with the following input data   
+
+```
+  [1, 2, 3, 4]
+  [5, 6, 7]
+  [8, 9, 10, 11]
+
+```
+
+ And the number of items is set to 6, then the output after the 3rd call will contain the following elements:   
+
+```
+  [6, 7, 8, 9, 10, 11]
+
+```
+
+ No guarantee is made on the ordering of elements in input. So a valid value for output could have been   
+
+```
+  [11, 10, 9, 8, 7, 6]
+
+```
+
+ Also, this method works for any order tensor, treating the first dimension as input rows and keeping the last N rows seen as input. So for instance:   
+
+```
+  [[1, 2], [2, 3], [3, 4], [4, 5]]
+  [[5, 6], [6, 7], [7, 8]]
+  [[8, 9], [9, 10], [10, 11], [11, 12]]
+
+```
+
+ A possible output would be   
+
+```
+  [[6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12]]
+
+```
+
+ This is not thread safe unless a mutex is given.
 
 
 
@@ -5940,31 +5788,61 @@ No documentation yet.
 ## LearningRate
 
 
-Learning rate is a decreasing function of time. With low learning rates the improvements will be linear. With high learning rates they will start to look more exponential. Learning rate is controlled by the following arguments:  #### Required  *  `iterations`  *  `base_lr` : base learning rate *  `policy` : this controls how the learning rate is applied, options are:  
+Learning rate is a decreasing function of time. With low learning rates the improvements will be linear. With high learning rates they will start to look more exponential. Learning rate is controlled by the following arguments:   Required:  
 
 ```
-  * `fixed`
-  * `step`: uses `stepsize`, `gamma`
-  * `exp`: uses `gamma`
-  * `inv`: uses `gamma`, `power`
-  * `linearWarmup`: uses `start_multiplier`, `num_iter`
-  * `constantWarmup`: uses `multiplier`, `num_iter`
-  * `alter`: uses  `active_first`, `active_period`, `inactive_period`
-  * `hill`: uses those in both `linearWarmup` and `inv`, plus `end_multiplier`
+  `iterations`
+  `base_lr`: base learning rate
+  `policy`: this controls how the learning rate is applied, options are:
+    `fixed`
+    `step`: uses `stepsize`, `gamma`
+    `exp`: uses `gamma`
+    `inv`: uses `gamma`, `power`
+    `linearWarmup`: uses `start_multiplier`, `num_iter`
+    `constantWarmup`: uses `multiplier`, `num_iter`
+    `alter`: uses  `active_first`, `active_period`, `inactive_period`
+    `hill`: uses those in both `linearWarmup` and `inv`, plus `end_multiplier`
 
 
 ```
 
- ### Optional: *  `stepsize` : defaults to 0 *  `gamma` : defaults to 0 *  `power` : defaults to 0 *  `num_iter` : defaults to 0 *  `start_multiplier` : defaults to 0 *  `multiplier` : defaults to 0.5   Usage: train_net.LearningRate( *iterations* , " *label* ", base_lr= *float* ,  
+ Optional:  
 
 ```
-                            policy="policy_name", stepsize=*int*, gamma=*float*)
+  `stepsize`: defaults to 0
+  `gamma`: defaults to 0
+  `power`: defaults to 0
+  `num_iter`: defaults to 0
+  `start_multiplier`: defaults to 0
+  `multiplier`: defaults to 0.5
+
+
 ```
 
- Example usage: train_net.LearningRate(200, "LR", base_lr=-0.1,  
+ Usage:  
 
 ```
-                            policy="step", stepsize=20, gamma=0.9)
+  train_net.LearningRate(*iterations*, "*label*", base_lr=*float*,
+```
+
+   
+
+```
+                        policy="policy_name", stepsize=*int*, gamma=*float*)
+
+
+```
+
+ Example usage:  
+
+```
+  train_net.LearningRate(200, "LR", base_lr=-0.1,
+```
+
+   
+
+```
+                        policy="step", stepsize=20, gamma=0.9)
 ```
 
 
@@ -6007,7 +5885,17 @@ Learning rate is a decreasing function of time. With low learning rates the impr
 
 
 Gather items from sparse tensor. Sparse tensor is described by items and lengths. This operator gathers items corresponding to lengths at the given indices. This deliberately doesn't return lengths of OUTPUTS so that both lists and maps can be supported without special cases. If you need lengths tensor for  OUTPUT, use  `Gather` .
- Example:  ```  ITEMS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] LENGTHS = [0, 2, 3, 1, 4] INDICES = [0, 2, 4]  OUTPUT = [2, 3, 4, 6, 7, 8, 9]  ```   
+ Example:  
+
+```
+  ITEMS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  LENGTHS = [0, 2, 3, 1, 4]
+  INDICES = [0, 2, 4]
+
+  OUTPUT = [2, 3, 4, 6, 7, 8, 9]
+```
+
+
 
 
 ### Interface
@@ -6625,16 +6513,8 @@ Creates a dictionary that maps int64 keys to consecutive integers from 1 to max_
 ## LpNorm
 
 
- 
+Given one input float tensor X, and produces one output float tensor of the Lp norm of tensor X, computed as Lp(x) = sum over |x^p|, in which p is either 1 or 2(currently only supports l1 and l2 norm), determined by the argument p.
 
-```
-  Given one input float tensor X, and produces one output float tensor
-  of the Lp norm of tensor X, computed as Lp(x) = sum over |x^p|,
-  in which p is either 1 or 2(currently only supports l1 and l2 norm),
-  determined by the argument p.
-```
-
-   
 
 
 ### Interface
@@ -6661,16 +6541,8 @@ Creates a dictionary that maps int64 keys to consecutive integers from 1 to max_
 ## LpNormGradient
 
 
- 
+Given one input float tensor X, derivative dout, and produces one output float tensor dX. dX is the derivative of the Lp norm of tensor X, computed as dx = d(sum over |x^p|)/dx, in which p is either 1 or 2(currently only supports l1 and l2 norm) determined by the argument p.
 
-```
-  Given one input float tensor X, derivative dout, and produces one output
-  float tensor dX. dX is the derivative of the Lp norm of tensor X, computed as
-  dx = d(sum over |x^p|)/dx, in which p is either 1 or 2(currently only
-  supports l1 and l2 norm) determined by the argument p.
-```
-
-   
 
 
 ### Interface
@@ -6698,8 +6570,8 @@ Creates a dictionary that maps int64 keys to consecutive integers from 1 to max_
 ## LpPool
 
 
- LpPool consumes an input blob X and applies L-p pooling across the the blob according to kernel sizes, stride sizes, and pad lengths defined by the ConvPoolOpBase operator. L-p pooling consisting of taking the L-p norm of a subset of the input tensor according to the kernel size and downsampling the data into the output blob Y for further processing.
-   
+LpPool consumes an input blob X and applies L-p pooling across the the blob according to kernel sizes, stride sizes, and pad lengths defined by the ConvPoolOpBase operator. L-p pooling consisting of taking the L-p norm of a subset of the input tensor according to the kernel size and downsampling the data into the output blob Y for further processing.
+
 
 
 ### Interface
@@ -6894,16 +6766,8 @@ Matrix multiplication Y = A * B, where A has size (M x K), B has size (K x N), a
 ## Max
 
 
- 
+Element-wise max of each of the input tensors. The first input tensor can be used in-place as the output tensor, in which case the max will be done in place and results will be accumulated in input0. All inputs and outputs must have the same shape and data type.
 
-```
-  Element-wise max of each of the input tensors. The first input tensor can be
-  used in-place as the output tensor, in which case the max will be done in
-  place and results will be accumulated in input0. All inputs and outputs must
-  have the same shape and data type.
-```
-
-   
 
 
 ### Interface
@@ -7445,14 +7309,7 @@ Identity operator, but checks all values for nan or inf
 ## NegateGradient
 
 
- 
-
-```
-    NegagteGradient operator in forward pass simply copies input to the
-    output, and in backward pass, flips the sign of the output gradient
-```
-
-   
+NegagteGradient operator in forward pass simply copies input to the output, and in backward pass, flips the sign of the output gradient 
 
 
 ### Code
@@ -7539,13 +7396,8 @@ No documentation yet.
 ## NormalizeL1
 
 
- 
+Given a matrix, apply L1-normalization along the specified axis.
 
-```
-  Given a matrix, apply L1-normalization along the specified axis.
-```
-
-   
 
 
 ### Interface
@@ -7720,38 +7572,29 @@ Both input operands should be of type  `bool` .
 ## PackRNNSequence
 
 
- 
+Pack values based on the length blob. Each number from length blob represents the corresponding values that need to be packed. The dimension for each pack is the same as the maximum number from the length blob (padding with zero is implemented for smaller length value). The overall output dimension is: T  * N *  D, where T is the max number of lengths, N is the size of lengths, and D is the dimension of each feature value. The following example shows the input and output of this operator:   Given:  
 
 ```
-  Pack values based on the length blob. Each number from length blob represents
-  the corresponding values that need to be packed. The dimension for each pack
-  is the same as the maximum number from the length blob (padding with zero is
-  implemented for smaller length value). The overall output dimension is:
-  T * N * D, where T is the max number of lengths, N is the size of lengths,
-  and D is the dimension of each feature value. The following example shows
-  the input and output of this operator:
+  values = [v1, v2, v3, v4, v5, v6, v7, v8]
+  lengths = [2, 3, 1, 2];
 
-  ```
-  Given: values = [v1, v2, v3, v4, v5, v6, v7, v8]; lengths = [2, 3, 1, 2];
-
-  Output: output = [
-                      [v1, v3, v6, v7],
-                      [v2, v4, 0,  v8],
-                      [0,  v5, 0,  0 ],
-```
-
-   
 
 ```
-                  ];
-  ```
 
-  One application for this operator is the transfer data into the format that is
-  used for RNN models. Note that the gradient operator of PackRNNSequence is
-  UnpackRNNSequence.
+ Output:  
+
+```
+  output = [
+    [v1, v3, v6, v7],
+    [v2, v4, 0,  v8],
+    [0,  v5, 0,  0 ],
+  ]
+
+
 ```
 
-   
+ One application for this operator is the transfer data into the format that is used for RNN models. Note that the gradient operator of PackRNNSequence is UnpackRNNSequence.
+
 
 
 ### Interface
@@ -8187,12 +8030,14 @@ No documentation yet.
 
 
 Decode inputs using codebook. This is a general LUT operator that returns tensors with values from codebook (input 0) based on given indices in codes (input 1 ~ n).
-Example: Input:  
+  Example:   Input:  
 
 ```
   codebook = [1.5, 2.5, 3.5]
   codes_0 = [0, 1, 1, 2]
   codes_1 = [2, 0, 0]
+
+
 ```
 
  Output:  
@@ -8415,18 +8260,12 @@ Receives the tensor from another node.
 ## RecurrentNetwork
 
 
- Run the input network in a recurrent fashion. This can be used to implement fairly general recurrent neural networks (RNNs).
+Run the input network in a recurrent fashion. This can be used to implement fairly general recurrent neural networks (RNNs).
  The operator proceeds as follows.
- - First, initialized the states from the input recurrent states - For each timestep T, apply the links (that map offsets from input/output  
-
-```
-  tensors into the inputs/outputs for the `step` network)
-```
-
- - Finally, alias the recurrent states to the specified output blobs.
+ - First, initialized the states from the input recurrent states - For each timestep T, apply the links (that map offsets from input/output tensors into the inputs/outputs for the  `step`  network) - Finally, alias the recurrent states to the specified output blobs.
  This is a fairly special-case meta-operator, and so the implementation is somewhat complex. It trades of generality (and frankly usability) against performance and control (compared to e.g. TF dynamic_rnn, Theano scan, etc).
  See the usage examples for a flavor of how to use it.
- 
+
 
 
 ### Code
@@ -8511,7 +8350,8 @@ Does a reduce operation from every node to the root node. Currently only Sum is 
 
 ## ReduceBackMax
 
-"Reduces the input tensor along the last dimension of the               input tensor by applying 'Max'
+
+Reduces the input tensor along the last dimension of the input tensor by applying 'Max' 
 
 
 ### Interface
@@ -8547,7 +8387,8 @@ No documentation yet.
 
 ## ReduceBackMean
 
-"Reduces the input tensor along the last dimension of the               input tensor by applying 'Mean'
+
+Reduces the input tensor along the last dimension of the input tensor by applying 'Mean' 
 
 
 ### Interface
@@ -8583,7 +8424,8 @@ No documentation yet.
 
 ## ReduceBackSum
 
-"Reduces the input tensor along the last dimension of the               input tensor by applying 'Sum'
+
+Reduces the input tensor along the last dimension of the input tensor by applying 'Sum' 
 
 
 ### Interface
@@ -8619,7 +8461,8 @@ No documentation yet.
 
 ## ReduceFrontMax
 
-"Reduces the input tensor along the first dimension of the input                  tensor by applying 'Max'
+
+Reduces the input tensor along the first dimension of the input tensor by applying 'Max' 
 
 
 ### Interface
@@ -8655,7 +8498,8 @@ No documentation yet.
 
 ## ReduceFrontMean
 
-"Reduces the input tensor along the first dimension of the input                  tensor by applying 'Mean'
+
+Reduces the input tensor along the first dimension of the input tensor by applying 'Mean' 
 
 
 ### Interface
@@ -8691,7 +8535,8 @@ No documentation yet.
 
 ## ReduceFrontSum
 
-"Reduces the input tensor along the first dimension of the input                  tensor by applying 'Sum'
+
+Reduces the input tensor along the first dimension of the input tensor by applying 'Sum' 
 
 
 ### Interface
@@ -9075,17 +8920,7 @@ Produces tensor containing data of first input and shape of second input.
 ## ResizeNearest
 
 
- 
-
-```
-            Resizes the spatial dimensions of the input using nearest neighbor
-            interpolation. The `width_scale` and `height_scale` arguments
-            control the size of the output, which is given by:
-            output_width = floor(input_width * width_scale)
-            output_height = floor(output_height * height_scale)
-```
-
-             
+Resizes the spatial dimensions of the input using nearest neighbor interpolation. The  `width_scale`  and  `height_scale`  arguments control the size of the output, which is given by: output_width = floor(input_width  * width_scale) output_height = floor(output_height *  height_scale) 
 
 
 ### Interface
@@ -9189,7 +9024,7 @@ Reverse segments in a 3-D tensor (lengths, segments, embeddings,), leaving paddi
 ## RmsProp
 
 
- Computes the RMSProp update ( [http://www.cs.toronto.edu/](http://www.cs.toronto.edu/) ~tijmen/csc321/slides/lecture_slides_lec6.pdf).
+Computes the RMSProp update ( [http://www.cs.toronto.edu/](http://www.cs.toronto.edu/) ~tijmen/csc321/slides/lecture_slides_lec6.pdf).
 Concretely, given inputs (grad, mean_squares, mom, lr), computes:   
 
 ```
@@ -9199,8 +9034,8 @@ Concretely, given inputs (grad, mean_squares, mom, lr), computes:
 
 ```
 
- returns (grad_o, mean_squares_o, mom_o).
- 
+ Returns (grad_o, mean_squares_o, mom_o).
+
 
 
 ### Code
@@ -9426,17 +9261,15 @@ Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the Adam u
 
 ## Rowwise8BitQuantizedToFloat
 
-Given uint8 tensor, quantized using 8bit row-wise  
+
+Given uint8 tensor, quantized using 8bit row-wise quantization, and auxiliary scales and biases, this operator restores float tensor in the following way. We take input 8bits tensor of size 
 
 ```
-    quantization, and auxiliary scales and biases, this operator
-    restores float tensor in the following way. We take input 8bits tensor
-    of size  (m_1, m_2, ..., m_n), n >= 2, reshape it  into matrix of size
-    (m_1, m_2 x... x m_n). We compute element r_{ij} of output matrix as
-    r_{ij} * s_i + b_i and after this we reshape this output matrix into
+  (m_1, m_2, ..., m_n), n >= 2, reshape it  into matrix of size
 ```
 
-     output tensor of size (m_1, m_2, ..., m_n).
+ (m_1, m_2 x... x m_n). We compute element r_{ij} of output matrix as r_{ij} * s_i + b_i and after this we reshape this output matrix into output tensor of size (m_1, m_2, ..., m_n).
+
 
 
 ### Interface
@@ -9846,51 +9679,20 @@ Sends the tensor to another node.
 
 Mask op designed for use in attention mechanisms for sequence modeling tasks.
 Supports batching: given batch_dim, collapses dims 0 through batch_dim into a single dimension, e.g. if tensor dims are [4,2,1,3,4] and batch_dim=2, first collapse tensor to [4 *2* 1,3,4], then mask each batch [i,:,:].
- Two current operating modes: 1) Given a 2D input tensor and 1D tensor of sequence lengths, for each row i in  
+  Two current operating modes:   1) Given a 2D input tensor and 1D tensor of sequence lengths, for each row i in the input tensor, set elements in that row to -inf if their column index j >= sequence_lengths[i]. This mode takes two inputs and argument mode = 'sequence'   2) Triangular mask. Given row index i and column index j, set elements to -inf given the following conditions:   
 
 ```
-      the input tensor, set elements in that row to -inf if their column index
-      j >= sequence_lengths[i]. This mode takes two inputs and argument mode =
-      'sequence'
-```
-
- 2) Triangular mask. Given row index i and column index j, set elements to -inf  
-
-```
-      given the following conditions:
-
       mode='upper', x_ij = -inf if j < i
       mode='lower', x_ij = -inf if j > i
       mode='upperdiag', x_ij = -inf if j <= i
       mode='lowerdiag', x_ij = -inf if j >= i
 
-    This mode takes one input.
 ```
 
- 3) Window Mask. Given a 2D input tensor and 1D tensor of window centers,   
-
-```
-  for each row i in the input tensor, set elements in that row to -inf
-```
-
-   
-
-```
-  if their column index j outside [center - radius, center + radius].
-```
-
-   
-
-```
-  This mode takes two inputs and argument mode = 'sequence'.
-```
-
-   
-
-```
-  Argument 'radius' should be provided.
-```
-
+ This mode takes one input.
+  3) Window Mask. Given a 2D input tensor and 1D tensor of window centers, for each row i in the input tensor, set elements in that row to -inf if their column index j outside [center - radius, center + radius].
+This mode takes two inputs and argument mode = 'sequence'.
+Argument 'radius' should be provided.
 
 
 
@@ -10134,7 +9936,7 @@ Return a 1D tensor of type int64 that contains the number of elements of the inp
 
 Produces a slice of the input tensor. Currently, only slicing in a single dimension is supported.
 Slices are passed as 2 1D vectors or as two keyword argument lists with starting and end indices for each dimension of the input  `data`  tensor. If a negative value is passed for any of the start or end indices, it represents the number of elements before the end of that dimension. End indices are non-inclusive unless negative (end index -1 means up to and including the last element).
- Example:   
+  Example:   
 
 ```
   data = [
@@ -10954,15 +10756,9 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Mean
 
 ## SparseLengthsMean8BitsRowwise
 
-Variation of SparseLengthsMean operator, where DATA is  
 
-```
-    stored using 8bits. DATA was quantized with 8Bit row-wise
-    quantization (see doc to FloatToRowwiseQuantized8Bits operator). To
-    restore DATA from 8Bit, we use additional input that stores scales
-```
+Variation of SparseLengthsMean operator, where DATA is stored using 8bits. DATA was quantized with 8Bit row-wise quantization (see doc to FloatToRowwiseQuantized8Bits operator). To restore DATA from 8Bit, we use additional input that stores scales and biases.
 
-     and biases..
 
 
 ### Interface
@@ -10989,13 +10785,9 @@ Variation of SparseLengthsMean operator, where DATA is
 
 ## SparseLengthsMeanFused8BitRowwise
 
-Performs the same operation as SparseLengthsMean, but  
 
-```
-        operating on 8-bit rowwise quantized matrices with fused storage
-```
+Performs the same operation as SparseLengthsMean, but operating on 8-bit rowwise quantized matrices with fused storage (where each row stores the scale, bias and then quantized values).
 
-         (where each row stores the scale, bias and then quantized values).
 
 
 ### Interface
@@ -11068,15 +10860,9 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Sum'
 
 ## SparseLengthsSum8BitsRowwise
 
-Variation of SparseLengthsSum operator, where DATA is  
 
-```
-    stored using 8bits. DATA was quantized with 8Bit row-wise
-    quantization (see doc to FloatToRowwiseQuantized8Bits operator). To
-    restore DATA from 8Bit, we use additional input that stores scales
-```
+Variation of SparseLengthsSum operator, where DATA is stored using 8bits. DATA was quantized with 8Bit row-wise quantization (see doc to FloatToRowwiseQuantized8Bits operator). To restore DATA from 8Bit, we use additional input that stores scales and biases.
 
-     and biases..
 
 
 ### Interface
@@ -11103,13 +10889,9 @@ Variation of SparseLengthsSum operator, where DATA is
 
 ## SparseLengthsSumFused8BitRowwise
 
-Performs the same operation as SparseLengthsSum, but operating on  
 
-```
-        8-bit rowwise quantized matrices with fused storage (where each row
-```
+Performs the same operation as SparseLengthsSum, but operating on 8-bit rowwise quantized matrices with fused storage (where each row stores the scale, bias and then quantized values).
 
-         stores the scale, bias and then quantized values).
 
 
 ### Interface
@@ -11149,15 +10931,9 @@ No documentation yet.
 
 ## SparseLengthsWeightedMean8BitsRowwise
 
-Variation of SparseLengthsWeightedMean operator, where  
 
-```
-    DATA is stored using 8bits. DATA was quantized with 8Bit row-wise
-    quantization (see doc to FloatToRowwiseQuantized8Bits operator). To
-    restore DATA from 8Bit, we use additional input that stores scales
-```
+Variation of SparseLengthsWeightedMean operator, where DATA is stored using 8bits. DATA was quantized with 8Bit row-wise quantization (see doc to FloatToRowwiseQuantized8Bits operator). To restore DATA from 8Bit, we use additional input that stores scales and biases.
 
-     and biases..
 
 
 ### Interface
@@ -11221,15 +10997,9 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Weig
 
 ## SparseLengthsWeightedSum8BitsRowwise
 
-Variation of SparseLengthsWeightedSum operator, where  
 
-```
-    DATA is stored using 8bits. DATA was quantized with 8Bit row-wise
-    quantization (see doc to FloatToRowwiseQuantized8Bits operator). To
-    restore DATA from 8Bit, we use additional input that stores scales
-```
+Variation of SparseLengthsWeightedSum operator, where DATA is stored using 8bits. DATA was quantized with 8Bit row-wise quantization (see doc to FloatToRowwiseQuantized8Bits operator). To restore DATA from 8Bit, we use additional input that stores scales and biases.
 
-     and biases..
 
 
 ### Interface
@@ -11257,13 +11027,9 @@ Variation of SparseLengthsWeightedSum operator, where
 
 ## SparseLengthsWeightedSumFused8BitRowwise
 
-Performs the same operation as SparseLengthsWeightedSum,  
 
-```
-        but operating on 8-bit rowwise quantized matrices with fused storage
-```
+Performs the same operation as SparseLengthsWeightedSum, but operating on 8-bit rowwise quantized matrices with fused storage (where each row stores the scale, bias and then quantized values).
 
-         (where each row stores the scale, bias and then quantized values).
 
 
 ### Interface
@@ -11346,6 +11112,37 @@ No documentation yet.
 
 
 [caffe2/sgd/momentum_sgd_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/sgd/momentum_sgd_op.cc)
+
+---
+
+
+
+## SparseNormalize
+
+
+Given a sparse matrix, apply max_norm or constant_norm sparse regularization.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`use_max_norm` | A bool variable to control whether to use max norm     or constant norm. When use_max_norm = false, constant norm is used so that     all the embedding vectors are scaled to have a L2 norm equals to A     (see blow arugment norm=A). If use_max_norm = true,     max norm is used so that embedding is scaled so that its l2 norm is no larger     than A. If an embedding's norm is less than A originally,     the embedding is left unchanged.    The default is True.
+`norm` | L2 norm of the embedding. The default is 1.0.
+*Inputs* | 
+`param` | Parameters to be normalized
+`indices` | Sparse indices
+`grad` | Gradient computed
+*Outputs* | 
+`output_param` | Normalized parameters
+
+
+### Code
+
+
+[caffe2/operators/sparse_normalize_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/sparse_normalize_op.cc)
 
 ---
 
@@ -11501,13 +11298,14 @@ No documentation yet.
 Convert sparse representations to dense with given indices.
  Transforms a sparse representation of map<id, value> represented as  `indices`  vector and  `values`  tensor into a compacted tensor where the first dimension is determined by the first dimension of the 3rd input if it is given or the max index. Missing values are filled with zeros.
  The op supports duplicated indices and performs summation over corresponding values. This behavior is useful for converting GradientSlices into dense representation.
- After running this op:   ```  output[indices[i], :] += values[i] 
+ After running this op:   
 
 ```
-  # sum over all indices[i] equal to the index
+  output[indices[i], :] += values[i]  # sum over all indices[i] equal to the index
+  output[j, ...] = 0 if j not in indices
 ```
 
- output[j, ...] = 0 if j not in indices  ```  
+
 
 
 ### Interface
@@ -11535,7 +11333,15 @@ Convert sparse representations to dense with given indices.
 
 
 Convert sparse representations to dense with given indices.
- Transforms a sparse representation of map<id, value> represented as  `indices`  vector and  `values`  tensor into a compacted tensor where the first dimension corresponds to each id provided in mask argument. Missing values are filled with the value of  `default_value` . After running this op:   ```  output[j, :] = values[i] # where mask[j] == indices[i] output[j, ...] = default_value # when mask[j] doesn't appear in indices  ```   If  `lengths`  is provided and not empty, and extra "batch" dimension is prepended to the output.
+ Transforms a sparse representation of map<id, value> represented as  `indices`  vector and  `values`  tensor into a compacted tensor where the first dimension corresponds to each id provided in mask argument. Missing values are filled with the value of  `default_value` . After running this op:   
+
+```
+  output[j, :] = values[i] # where mask[j] == indices[i]
+  output[j, ...] = default_value # when mask[j] doesn't appear in indices
+
+```
+
+ If  `lengths`  is provided and not empty, and extra "batch" dimension is prepended to the output.
   `values`  and  `default_value`  can have additional matching dimensions, operation is performed on the entire subtensor in thise case.
  For example, if  `lengths`  is supplied and  `values`  is 1-D vector of floats and  `default_value`  is a float scalar, the output is going to be a float matrix of size  `len(lengths) X len(mask)`  
 
@@ -11729,13 +11535,21 @@ No documentation yet.
 ## SpatialBN
 
 
-Carries out spatial batch normalization as described in the paper  [https://arxiv.org/abs/1502.03167](https://arxiv.org/abs/1502.03167)  . Depending on the mode it is being run, there are multiple cases for the number of outputs, which we list below:  Output case #1: Y, mean, var, saved_mean, saved_var  
+Carries out spatial batch normalization as described in the paper  [https://arxiv.org/abs/1502.03167](https://arxiv.org/abs/1502.03167)  . Depending on the mode it is being run, there are multiple cases for the number of outputs, which we list below:   Output case #1:  
 
 ```
-                (training mode)
+  Y, mean, var, saved_mean, saved_var (training mode)
+
+
 ```
 
- Output case #2: Y (test mode) 
+ Output case #2:  
+
+```
+  Y (test mode)
+```
+
+
 
 
 ### Interface
@@ -11835,15 +11649,9 @@ No documentation yet.
 
 ## Split
 
-Split a tensor into a list of tensors, along the specified  
 
-```
-    'axis'. The lengths of the split can be specified using argument 'axis' or
-    optional second input blob to the operator. Otherwise, the tensor is split
-    to equal sized parts.
-```
+Split a tensor into a list of tensors, along the specified 'axis'. The lengths of the split can be specified using argument 'axis' or optional second input blob to the operator. Otherwise, the tensor is split to equal sized parts.
 
-     
 
 
 ### Interface
@@ -11927,14 +11735,8 @@ Given DATA tensor with first dimension N and SCALE vector of the same size N pro
 ## SquaredL2Distance
 
 
- 
+Given two input float tensors X, Y, and produces one output float tensor of the L2 difference between X and Y that is computed as ||(X - Y)^2 / 2||.
 
-```
-  Given two input float tensors X, Y, and produces one output float tensor
-  of the L2 difference between X and Y that is computed as ||(X - Y)^2 / 2||.
-```
-
-   
 
 
 ### Interface
@@ -11975,13 +11777,8 @@ No documentation yet.
 
 
 Remove single-dimensional entries from the shape of a tensor.
-Takes a 
-
-```
-  parameter `dims` with a list of dimension to squeeze.
-```
-
- If the same blob is provided in input and output, the operation is copy-free.
+Takes a parameter  `dims`  with a list of dimension to squeeze.
+If the same blob is provided in input and output, the operation is copy-free.
 This is the exact inverse operation of ExpandDims given the same  `dims`  arg.
 
 
@@ -13197,40 +12994,29 @@ If the second input is given, its elements will be excluded from uniform samplin
 ## UnpackRNNSequence
 
 
- 
+This is the reverse operator for PackRNNSequence. It maps the packed values back to sequence values based on the length blob. Each number from length blob represents the corresponding values that has been grouped. The dimension for each pack is the same as the maximum number from the length blob (padding with zero was implemented for smaller length value). The overall output dimension is: M * D, where M is the sum of lengths, and D is the dimension of each feature value. The following example shows the input and output of this operator:   Given:  
 
 ```
-  This is the reverse operator for PackRNNSequence. It maps the packed values
-  back to sequence values based on the length blob. Each number from length blob
-  represents the corresponding values that has been grouped. The dimension
-  for each pack is the same as the maximum number from the length blob (padding
-  with zero was implemented for smaller length value). The overall output
-  dimension is: M * D, where M is the sum of lengths, and D is the dimension of
-  each feature value. The following example shows the input and output of
-  this operator:
+  values = [
+    [v1, v3, v6, v7],
+    [v2, v4, 0,  v8],
+    [0,  v5, 0,  0 ],
+  ]
+  lengths = [2, 3, 1, 2]
 
-  ```
-  Given: values = [
-                      [v1, v3, v6, v7],
-                      [v2, v4, 0,  v8],
-                      [0,  v5, 0,  0 ],
-```
-
-   
 
 ```
-                  ];
-          lengths = [2, 3, 1, 2];
 
-  Output: output = [v1, v2, v3, v4, v5, v6, v7, v8];
-  ```
+ Output:  
 
-  One application for this operator is the transfer data from the format of RNN
-  back to sequence values. Note that the gradient operator of
-  UnpackRNNSequence is PackRNNSequence.
+```
+  output = [v1, v2, v3, v4, v5, v6, v7, v8];
+
+
 ```
 
-   
+ One application for this operator is the transfer data from the format of RNN back to sequence values. Note that the gradient operator of UnpackRNNSequence is PackRNNSequence.
+
 
 
 ### Interface
@@ -13285,13 +13071,7 @@ Coalesce the N inputs into N outputs and a single coalesced output blob.
  This allows operations that operate over multiple small kernels (e.g.
 biases in a deep CNN) to be coalesced into a single larger operation, amortizing the kernel launch overhead, synchronization costs for distributed computation, etc.
  The operator:  - computes the total size of the coalesced blob by summing the input sizes - allocates the coalesced output blob as the total size - copies the input vectors into the coalesced blob, at the correct offset.
-- aliases each Output(i) to- point into the coalesced blob, at the  
-
-```
-  corresponding offset for Input(i).
-
-```
-
+- aliases each Output(i) to- point into the coalesced blob, at the corresponding offset for Input(i).
  This is 'unsafe' as the output vectors are aliased, so use with caution.
  
 
@@ -13470,20 +13250,11 @@ Time since epoch in nanoseconds.
 ## WeightedSample
 
 
-  
+The operator performs sampling based on the input sampling weights for each batch. All weights must be non-negative numbers.
+The input is a 2-D tensor (Tensor<float>) of size (batch_size x weights_dim).
+For each batch, an index is randomly sampled from the distribution given by the weights of the corresponding batch.
+The output is a 1-D tensor (Tensor<int>) of size (batch_size x 1) and contains the index(es) of the sampled output.
 
-```
-    The operator performs sampling based on the input sampling weights for
-    each batch. All weights must be non-negative numbers.
-    The input is a 2-D tensor (Tensor<float>) of size (batch_size x weights_dim).
-    For each batch, an index is randomly sampled from the distribution given by
-    the weights of the corresponding batch.
-    The output is a 1-D tensor (Tensor<int>) of size (batch_size x 1) and
-    contains the index(es) of the sampled output.
-
-```
-
-     
 
 
 ### Interface
@@ -13781,14 +13552,8 @@ Both input operands should be of type  `bool` .
 ## ZeroGradient
 
 
- 
+ZeroGradient operators doesn't produce any output blobs. One can use this operator to produce 0 gradient for the input blob.
 
-```
-            ZeroGradient operators doesn't produce any output blobs. One can use
-            this operator to produce 0 gradient for the input blob.
-```
-
-             
 
 
 ### Code
@@ -13802,7 +13567,9 @@ Both input operands should be of type  `bool` .
 
 ## rnn_internal_accumulate_gradient_input
 
---internal--
+
+Internal RNN operator.
+
 
 
 ### Code
@@ -13816,7 +13583,9 @@ Both input operands should be of type  `bool` .
 
 ## rnn_internal_apply_link
 
---internal--
+
+Internal RNN operator.
+
 
 
 ### Code

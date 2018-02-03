@@ -1548,6 +1548,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_sparse_momentum_s_g_d_update_op.html">SparseMomentumSGDUpdateOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_sparse_normalize_op.html">SparseNormalizeOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_sparse_to_dense_mask_base.html">SparseToDenseMaskBase</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_sparse_to_dense_mask_gradient_op.html">SparseToDenseMaskGradientOp</a></td></tr>
@@ -3769,13 +3771,14 @@ INT_MAX Optional list of output&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a7017a1ace23b0e8e35ef3af2d36cda93"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7017a1ace23b0e8e35ef3af2d36cda93"></a>
 INT_MAX Optional list of output Which axis to split on&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;split&quot;,&quot;length of each output&quot;).Arg(&quot;order&quot;</td></tr>
 <tr class="separator:a7017a1ace23b0e8e35ef3af2d36cda93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4219d17aa2d9020922110170a26b1c67"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4219d17aa2d9020922110170a26b1c67"></a>
-INT_MAX Optional list of output Which axis to split on Either NHWC or will split on C defaults to NCHW&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(Split a tensor into a list of tensors, along the specified
-    'axis'. The lengths of the split can be specified using argument 'axis' or
-    optional second input blob to the operator. Otherwise, the tensor is split
-    to equal sized parts.
-    )DOC&quot;)</td></tr>
-<tr class="separator:a4219d17aa2d9020922110170a26b1c67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44a680c2a03838257983454ef3df8ac8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a44a680c2a03838257983454ef3df8ac8"></a>
+INT_MAX Optional list of output Which axis to split on Either NHWC or will split on C defaults to NCHW&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Split a tensor into a list of tensors, along the specified
+'axis'. The lengths of the split can be specified using argument 'axis' or
+optional second input blob to the operator. Otherwise, the tensor is split
+to equal sized parts.
+)DOC&quot;)</td></tr>
+<tr class="separator:a44a680c2a03838257983454ef3df8ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8476fd5adf9b91b80df1a23c791fc736"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8476fd5adf9b91b80df1a23c791fc736"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (1, INT_MAX).NumOutputs(2).Arg(&quot;axis&quot;</td></tr>
 <tr class="separator:a8476fd5adf9b91b80df1a23c791fc736"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4236,12 +4239,12 @@ matrix of logits for each example and class matrix of same shape as logits&#160;
 <tr class="memitem:a193ee1375b1ba85a1cd7a766ea6ae047"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a193ee1375b1ba85a1cd7a766ea6ae047"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SquaredL2DistanceGradient, <a class="el" href="classcaffe2_1_1_squared_l2_distance_gradient_op.html">SquaredL2DistanceGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a193ee1375b1ba85a1cd7a766ea6ae047"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a238c63509c9d5d1481d4c089dba11f8c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a238c63509c9d5d1481d4c089dba11f8c"></a>
+<tr class="memitem:a82136e05b09fbfa006d612ec955fc70d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a82136e05b09fbfa006d612ec955fc70d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-  Given two input float tensors X, Y, and produces one output float tensor
-  of the L2 difference between X and Y that is computed as ||(X - Y)^2 / 2||.
-  )DOC&quot;).Input(0</td></tr>
-<tr class="separator:a238c63509c9d5d1481d4c089dba11f8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+Given two input float tensors X, Y, and produces one output float tensor
+of the L2 difference between X and Y that is computed as ||(X - Y)^2 / 2||.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:a82136e05b09fbfa006d612ec955fc70d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea308eb3099e114845e74fe035573d05"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea308eb3099e114845e74fe035573d05"></a>
 or input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;Y&quot;,&quot;1D or 2D input tensor (must have the same shape as X)&quot;).Output(0</td></tr>
 <tr class="separator:aea308eb3099e114845e74fe035573d05"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4257,12 +4260,12 @@ or input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> 
 <tr class="memitem:a9e7868e35ea4a154b4ef0846da048a1a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9e7868e35ea4a154b4ef0846da048a1a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (L1DistanceGradient, <a class="el" href="classcaffe2_1_1_l1_distance_gradient_op.html">L1DistanceGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a9e7868e35ea4a154b4ef0846da048a1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acbddf1e34d8ae5852e49f71cd868f627"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acbddf1e34d8ae5852e49f71cd868f627"></a>
+<tr class="memitem:acc21a98353546087a9d488e023d3d019"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc21a98353546087a9d488e023d3d019"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-  Given two input float tensors X, Y, and produces one output float tensor
-  of the L1 difference between X and Y, computed as L1(x,y) = sum over |x-y|
-  )DOC&quot;).Input(0</td></tr>
-<tr class="separator:acbddf1e34d8ae5852e49f71cd868f627"><td class="memSeparator" colspan="2">&#160;</td></tr>
+Given two input float tensors X, Y, and produces one output float tensor
+of the L1 difference between X and Y, computed as L1(x,y) = sum over |x-y|
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:acc21a98353546087a9d488e023d3d019"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03dba067dd6ecf88e697a9134cc8f03a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a03dba067dd6ecf88e697a9134cc8f03a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (L1DistanceGradient).NumInputs(3).NumOutputs(2)</td></tr>
 <tr class="separator:a03dba067dd6ecf88e697a9134cc8f03a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4275,12 +4278,12 @@ or input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> 
 <tr class="memitem:aa88847c6a3482af154ce49fa4e5b8708"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa88847c6a3482af154ce49fa4e5b8708"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (DotProductGradient, <a class="el" href="classcaffe2_1_1_dot_product_gradient_op.html">DotProductGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:aa88847c6a3482af154ce49fa4e5b8708"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a724c35d6477d10a678c3000b2e5bfb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8a724c35d6477d10a678c3000b2e5bfb"></a>
+<tr class="memitem:a31bf8ed4609a41ed40f9c6abed0d0bf4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a31bf8ed4609a41ed40f9c6abed0d0bf4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-  Given two input float tensors X, Y, and produces one output float tensor
-  of the dot product between X and Y.
-  )DOC&quot;).Input(0</td></tr>
-<tr class="separator:a8a724c35d6477d10a678c3000b2e5bfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+Given two input float tensors X, Y, and produces one output float tensor
+of the dot product between X and Y.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:a31bf8ed4609a41ed40f9c6abed0d0bf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6abb0efe4e8e91bb3f21451535faa3bc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6abb0efe4e8e91bb3f21451535faa3bc"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (DotProductGradient).NumInputs(3).NumOutputs(2)</td></tr>
 <tr class="separator:a6abb0efe4e8e91bb3f21451535faa3bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4293,12 +4296,12 @@ or input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> 
 <tr class="memitem:ae5de21b7a7a3425f67a507a140c15c17"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae5de21b7a7a3425f67a507a140c15c17"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (CosineSimilarityGradient, <a class="el" href="classcaffe2_1_1_cosine_similarity_gradient_op.html">CosineSimilarityGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ae5de21b7a7a3425f67a507a140c15c17"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33eed177e1f835bfb5e5aa3ad6f3b8f2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a33eed177e1f835bfb5e5aa3ad6f3b8f2"></a>
+<tr class="memitem:a51cf830490129391ad795e2d408ef391"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a51cf830490129391ad795e2d408ef391"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-  Given two input float tensors X, Y, and produces one output float tensor
-  of the cosine similarity between X and Y.
-  )DOC&quot;).Input(0</td></tr>
-<tr class="separator:a33eed177e1f835bfb5e5aa3ad6f3b8f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+Given two input float tensors X, Y, and produces one output float tensor
+of the cosine similarity between X and Y.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:a51cf830490129391ad795e2d408ef391"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e95453ffd4f09215d3d7b74b3c9ecfe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8e95453ffd4f09215d3d7b74b3c9ecfe"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (CosineSimilarityGradient).NumInputs(3).NumOutputs(2)</td></tr>
 <tr class="separator:a8e95453ffd4f09215d3d7b74b3c9ecfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4566,14 +4569,15 @@ template&lt;int VALUE_TYPE = TensorProto_DataType_FLOAT&gt; </td></tr>
 <tr class="memitem:a776e20a70e6f034b0ab99c8cbb0e440d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a776e20a70e6f034b0ab99c8cbb0e440d"></a>
 Needles query&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;query_indices&quot;,&quot;Indices of the needles in index or 'missing value'&quot;).Arg(&quot;missing_value&quot;</td></tr>
 <tr class="separator:a776e20a70e6f034b0ab99c8cbb0e440d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a406b9a2f49cc48231ea30d1cf647a9c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a406b9a2f49cc48231ea30d1cf647a9c5"></a>
-Needles query Placeholder for items that are not found&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(Finds elements of second input from first input,
-                outputting the last (max) index for each query.
-                If query not find, inserts missing_value.
-                See IndexGet() for a version that modifies the index when
-                values are not found.
-            )DOC&quot;)</td></tr>
-<tr class="separator:a406b9a2f49cc48231ea30d1cf647a9c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2f8acbf738bbcfb85fa22285b787061"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af2f8acbf738bbcfb85fa22285b787061"></a>
+Needles query Placeholder for items that are not found&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Finds elements of second input from first input,
+outputting the last (max) index for each query.
+If query not find, inserts missing_value.
+See IndexGet() for a version that modifies the index when
+values are not found.
+)DOC&quot;)</td></tr>
+<tr class="separator:af2f8acbf738bbcfb85fa22285b787061"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1755f5007b5525661e297ac95b85289d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1755f5007b5525661e297ac95b85289d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Flatten, <a class="el" href="classcaffe2_1_1_flatten_op.html">FlattenOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a1755f5007b5525661e297ac95b85289d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5060,9 +5064,9 @@ but operating on bit rowwise quantized matrices with fused uint8 tensor obtained
 <tr class="memitem:a906c1b465e20295abe7d0a644ba260f4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a906c1b465e20295abe7d0a644ba260f4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SparseLengthsWeightedMean8BitsRowwise, <a class="el" href="classcaffe2_1_1_sparse_lengths8_bits_rowwise_op.html">SparseLengths8BitsRowwiseOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, 1, 1 &gt;)</td></tr>
 <tr class="separator:a906c1b465e20295abe7d0a644ba260f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0ed3faf300f86f4ebfc1ece4eaabf2a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac0ed3faf300f86f4ebfc1ece4eaabf2a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (5).NumOutputs(1).SetDoc(R&quot;DOC(Variation of SparseLengthsWeightedSum operator</td></tr>
-<tr class="separator:ac0ed3faf300f86f4ebfc1ece4eaabf2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef9ca94af1f491bf7be627d57f0eb59d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef9ca94af1f491bf7be627d57f0eb59d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (5).NumOutputs(1).SetDoc(R&quot;DOC( Variation of SparseLengthsWeightedSum operator</td></tr>
+<tr class="separator:aef9ca94af1f491bf7be627d57f0eb59d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa22f7bbcc05c2fd91ab3a8a01f31d4c4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa22f7bbcc05c2fd91ab3a8a01f31d4c4"></a>
 reshape it into matrix of&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> (m_1, m_2 x...x m_n) and apply row-wise quantization.After this</td></tr>
 <tr class="separator:aa22f7bbcc05c2fd91ab3a8a01f31d4c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5401,14 +5405,14 @@ INT_MAX&#160;</td><td class="memItemRight" valign="bottom"><b>NumOutputs</b> (1,
 <tr class="memitem:acc565a8b3aff1ff2ea7e134c2a744f8a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc565a8b3aff1ff2ea7e134c2a744f8a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Min, <a class="el" href="classcaffe2_1_1_min_op.html">MinOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:acc565a8b3aff1ff2ea7e134c2a744f8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8ccb2cab21c0a8e44200c296ad4d3f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad8ccb2cab21c0a8e44200c296ad4d3f5"></a>
+<tr class="memitem:a683c61a99d45d137e9b86dae33f5caf5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a683c61a99d45d137e9b86dae33f5caf5"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-  Element-wise max of each of the input tensors. The first input tensor can be
-  used in-place as the output tensor, in which case the max will be done in
-  place and results will be accumulated in input0. All inputs and outputs must
-  have the same shape and data type.
-  )DOC&quot;).Input(0</td></tr>
-<tr class="separator:ad8ccb2cab21c0a8e44200c296ad4d3f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+Element-wise max of each of the input tensors. The first input tensor can be
+used in-place as the output tensor, in which case the max will be done in
+place and results will be accumulated in input0. All inputs and outputs must
+have the same shape and data type.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:a683c61a99d45d137e9b86dae33f5caf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a5c5136c7d786c9932b42740d062b8b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2a5c5136c7d786c9932b42740d062b8b"></a>
 First of the input tensors Can be inplace&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;max&quot;,&quot;Output tensor. Same dimension as inputs.&quot;)</td></tr>
 <tr class="separator:a2a5c5136c7d786c9932b42740d062b8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5444,12 +5448,12 @@ D float i batch size D is number of possible classes labels D float its accuracy
 <tr class="memitem:a7a74d9ce08d54b01200e60d08738f416"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a74d9ce08d54b01200e60d08738f416"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (NegateGradient, <a class="el" href="classcaffe2_1_1_negate_gradient_op.html">NegateGradientOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a7a74d9ce08d54b01200e60d08738f416"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9cb19a98c4c4ddf0c80642ab606caae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa9cb19a98c4c4ddf0c80642ab606caae"></a>
+<tr class="memitem:aca61e8187d209a1b44b9b69bb0f92b73"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca61e8187d209a1b44b9b69bb0f92b73"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-    NegagteGradient operator in forward pass simply copies input to the
-    output, and in backward pass, flips the sign of the output gradient
-  )DOC&quot;)</td></tr>
-<tr class="separator:aa9cb19a98c4c4ddf0c80642ab606caae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+NegagteGradient operator in forward pass simply copies input to the
+output, and in backward pass, flips the sign of the output gradient
+)DOC&quot;)</td></tr>
+<tr class="separator:aca61e8187d209a1b44b9b69bb0f92b73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a308242536221240cfb3c23408915176e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a308242536221240cfb3c23408915176e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (NegateGradient, <a class="el" href="structcaffe2_1_1_get_negate_gradient_gradient.html">GetNegateGradientGradient</a>)</td></tr>
 <tr class="separator:a308242536221240cfb3c23408915176e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5474,11 +5478,11 @@ input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0
 <tr class="memitem:ac7bda0e37849040ded81e611019e5b21"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac7bda0e37849040ded81e611019e5b21"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (NormalizeL1, <a class="el" href="classcaffe2_1_1_normalize_l1_op.html">NormalizeL1Op</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ac7bda0e37849040ded81e611019e5b21"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3db549283cbd541a4ec93700fe2d316"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3db549283cbd541a4ec93700fe2d316"></a>
+<tr class="memitem:a996da1960a88803183debe3c722f25dd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a996da1960a88803183debe3c722f25dd"></a>
 axis to normalize&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-  Given a matrix, apply L1-normalization along the specified axis.
-  )DOC&quot;)</td></tr>
-<tr class="separator:ad3db549283cbd541a4ec93700fe2d316"><td class="memSeparator" colspan="2">&#160;</td></tr>
+Given a matrix, apply L1-normalization along the specified axis.
+)DOC&quot;)</td></tr>
+<tr class="separator:a996da1960a88803183debe3c722f25dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7bd9d79e49c3a5064c3ee6f99033f3cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7bd9d79e49c3a5064c3ee6f99033f3cf"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Normalize, <a class="el" href="classcaffe2_1_1_normalize_op.html">NormalizeOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a7bd9d79e49c3a5064c3ee6f99033f3cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5815,9 +5819,8 @@ template&lt;&gt; </td></tr>
 <tr class="memitem:a1e4e5e322c97dfc904b690f67b3a7ed4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1e4e5e322c97dfc904b690f67b3a7ed4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RecurrentNetwork, <a class="el" href="classcaffe2_1_1_recurrent_network_op.html">RecurrentNetworkOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a1e4e5e322c97dfc904b690f67b3a7ed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46c8be74b3ef50fa44738d909a9cece6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a46c8be74b3ef50fa44738d909a9cece6"></a>
+<tr class="memitem:ac7f20ebf7a9f4b7d043508e628d578bd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac7f20ebf7a9f4b7d043508e628d578bd"></a>
 INT_MAX&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-
 Run the input network in a recurrent fashion. This can be used to
 implement fairly general recurrent neural networks (RNNs).
 
@@ -5825,7 +5828,7 @@ The operator proceeds as follows.
 
 - First, initialized the states from the input recurrent states
 - For each timestep T, apply the links (that map offsets from input/output
-  tensors into the inputs/outputs for the `step` network)
+tensors into the inputs/outputs for the `step` network)
 - Finally, alias the recurrent states to the specified output blobs.
 
 This is a fairly special-case meta-operator, and so the implementation
@@ -5834,9 +5837,8 @@ against performance and control (compared to e.g. TF
 dynamic_rnn, Theano scan, etc).
 
 See the usage examples for a flavor of how to use it.
-
 )DOC&quot;)</td></tr>
-<tr class="separator:a46c8be74b3ef50fa44738d909a9cece6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:ac7f20ebf7a9f4b7d043508e628d578bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3072d167ef5ca0c7db265ef083e6a5a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af3072d167ef5ca0c7db265ef083e6a5a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RecurrentNetworkGradient, <a class="el" href="classcaffe2_1_1_recurrent_network_gradient_op.html">RecurrentNetworkGradientOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:af3072d167ef5ca0c7db265ef083e6a5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5846,15 +5848,15 @@ See the usage examples for a flavor of how to use it.
 <tr class="memitem:a60e7a17169132702eab06cd99f41083c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a60e7a17169132702eab06cd99f41083c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (rnn_internal_accumulate_gradient_input, <a class="el" href="classcaffe2_1_1_accumulate_input_gradient_op.html">AccumulateInputGradientOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a60e7a17169132702eab06cd99f41083c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98cc349cb580a35dd0dd94fd251092c8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a98cc349cb580a35dd0dd94fd251092c8"></a>
-INT_MAX&#160;</td><td class="memItemRight" valign="bottom"><b>EnforceInplace</b> ({{2, 0}}).Private().SetDoc(&quot;--internal--&quot;)</td></tr>
-<tr class="separator:a98cc349cb580a35dd0dd94fd251092c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a122355b1a16b247872c691033387bde6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a122355b1a16b247872c691033387bde6"></a>
+INT_MAX&#160;</td><td class="memItemRight" valign="bottom"><b>EnforceInplace</b> ({{2, 0}}).Private().SetDoc(R&quot;DOC( Internal RNN operator. )DOC&quot;)</td></tr>
+<tr class="separator:a122355b1a16b247872c691033387bde6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5a3b03cb18e129bd217ab2a049529add"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5a3b03cb18e129bd217ab2a049529add"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (rnn_internal_apply_link, <a class="el" href="classcaffe2_1_1_r_n_n_apply_link_op.html">RNNApplyLinkOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a5a3b03cb18e129bd217ab2a049529add"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a299f42329ac02158e2db04c02d44c631"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a299f42329ac02158e2db04c02d44c631"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Private</b> ().SetDoc(&quot;--internal--&quot;)</td></tr>
-<tr class="separator:a299f42329ac02158e2db04c02d44c631"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9bac68523a2edaa6d77434877f9f504"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad9bac68523a2edaa6d77434877f9f504"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Private</b> ().SetDoc(R&quot;DOC( Internal RNN operator. )DOC&quot;)</td></tr>
+<tr class="separator:ad9bac68523a2edaa6d77434877f9f504"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f3ca4e0250dfc68055be3726ad3322b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9f3ca4e0250dfc68055be3726ad3322b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (RecurrentNetwork, <a class="el" href="structcaffe2_1_1_get_recurrent_network_gradient.html">GetRecurrentNetworkGradient</a>)</td></tr>
 <tr class="separator:a9f3ca4e0250dfc68055be3726ad3322b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5930,18 +5932,21 @@ R recurrent or input R <a class="el" href="classcaffe2_1_1_blob.html">Blob</a> h
 <tr class="memitem:acbf18ca8ca4422f8813c2e004b56badf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acbf18ca8ca4422f8813c2e004b56badf"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ReduceBackSum, <a class="el" href="classcaffe2_1_1_get_reduce_back_sum_gradient.html">GetReduceBackSumGradient</a>)</td></tr>
 <tr class="separator:acbf18ca8ca4422f8813c2e004b56badf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a209be84c2ad892c51aa3bcb8d507663c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a209be84c2ad892c51aa3bcb8d507663c"></a>
-Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(&quot;Reduces the input tensor along the first dimension of the inputtensor by applying 'Sum') DOC&quot;) .TensorInferenceFunction([]( const OperatorDef&amp; def</td></tr>
-<tr class="separator:a209be84c2ad892c51aa3bcb8d507663c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acae190efacf6695e69d764dac5cd6007"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acae190efacf6695e69d764dac5cd6007"></a>
+Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Reduces the input tensor along the first dimension of the input
+tensor by applying 'Sum'
+)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
+<tr class="separator:acae190efacf6695e69d764dac5cd6007"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a58264bb40fc4b27c9aec7f9732e2d0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8a58264bb40fc4b27c9aec7f9732e2d0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceFrontSumGradient).NumInputs(2).NumOutputs(1)</td></tr>
 <tr class="separator:a8a58264bb40fc4b27c9aec7f9732e2d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0e527b5be3b43755a3aedf4d86229a9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0e527b5be3b43755a3aedf4d86229a9"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackSum).NumInputs(1).NumOutputs(1).Arg(&quot;num_reduce_dims&quot;</td></tr>
-<tr class="separator:ad0e527b5be3b43755a3aedf4d86229a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a577de3ad3f6b2d0b61dcd1ffa32d04e6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a577de3ad3f6b2d0b61dcd1ffa32d04e6"></a>
-Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(&quot;Reduces the input tensor along the last dimension of theinput tensor by applying 'Sum') DOC&quot;) .TensorInferenceFunction([]( const OperatorDef&amp; def</td></tr>
-<tr class="separator:a577de3ad3f6b2d0b61dcd1ffa32d04e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ac335e9dd430108d1f0e7ee35c550b9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7ac335e9dd430108d1f0e7ee35c550b9"></a>
+Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Reduces the input tensor along the last dimension of the
+input tensor by applying 'Sum'
+)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
+<tr class="separator:a7ac335e9dd430108d1f0e7ee35c550b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7eeabe746137ba44ac37c426cec413f1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7eeabe746137ba44ac37c426cec413f1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackSumGradient).NumInputs(2).NumOutputs(1)</td></tr>
 <tr class="separator:a7eeabe746137ba44ac37c426cec413f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5954,9 +5959,12 @@ Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom
 <tr class="memitem:abe10cbb7b5f5e42e3c1e1497bdfe0f34"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe10cbb7b5f5e42e3c1e1497bdfe0f34"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ReduceFrontMean, <a class="el" href="classcaffe2_1_1_get_reduce_front_mean_gradient.html">GetReduceFrontMeanGradient</a>)</td></tr>
 <tr class="separator:abe10cbb7b5f5e42e3c1e1497bdfe0f34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae956987d7b1af7bd42021a65a96552de"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae956987d7b1af7bd42021a65a96552de"></a>
-Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(&quot;Reduces the input tensor along the first dimension of the inputtensor by applying 'Mean') DOC&quot;) .TensorInferenceFunction([]( const OperatorDef&amp; def</td></tr>
-<tr class="separator:ae956987d7b1af7bd42021a65a96552de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab469953ffa522a35c91406c17d8adf44"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab469953ffa522a35c91406c17d8adf44"></a>
+Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Reduces the input tensor along the first dimension of the input
+tensor by applying 'Mean'
+)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
+<tr class="separator:ab469953ffa522a35c91406c17d8adf44"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8cf80f72400b359c840622a040f36d68"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8cf80f72400b359c840622a040f36d68"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceFrontMeanGradient).NumInputs(2).NumOutputs(1)</td></tr>
 <tr class="separator:a8cf80f72400b359c840622a040f36d68"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5969,12 +5977,12 @@ Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom
 <tr class="memitem:a8114f3254d4db8752ebef20359b59ad4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8114f3254d4db8752ebef20359b59ad4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ReduceBackMean, <a class="el" href="classcaffe2_1_1_get_reduce_back_mean_gradient.html">GetReduceBackMeanGradient</a>)</td></tr>
 <tr class="separator:a8114f3254d4db8752ebef20359b59ad4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b7c31e2d186a92021855bd31df128b3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b7c31e2d186a92021855bd31df128b3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackMean).NumInputs(1).NumOutputs(1).Arg(&quot;num_reduce_dims&quot;</td></tr>
-<tr class="separator:a8b7c31e2d186a92021855bd31df128b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7796d197544e36002f7c43c2f27398ee"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7796d197544e36002f7c43c2f27398ee"></a>
-Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(&quot;Reduces the input tensor along the last dimension of theinput tensor by applying 'Mean') DOC&quot;) .TensorInferenceFunction([]( const OperatorDef&amp; def</td></tr>
-<tr class="separator:a7796d197544e36002f7c43c2f27398ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ffc115a7f920c23f3dfd18913188174"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6ffc115a7f920c23f3dfd18913188174"></a>
+Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Reduces the input tensor along the last dimension of the
+input tensor by applying 'Mean'
+)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
+<tr class="separator:a6ffc115a7f920c23f3dfd18913188174"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb70f9d66a3e7d7fb90db5f903d2982b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afb70f9d66a3e7d7fb90db5f903d2982b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackMeanGradient).NumInputs(2).NumOutputs(1)</td></tr>
 <tr class="separator:afb70f9d66a3e7d7fb90db5f903d2982b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5996,18 +6004,21 @@ Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom
 <tr class="memitem:a92bf96ee5953a075f8a573fda63fc280"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92bf96ee5953a075f8a573fda63fc280"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ReduceBackMax, <a class="el" href="classcaffe2_1_1_get_reduce_back_max_gradient.html">GetReduceBackMaxGradient</a>)</td></tr>
 <tr class="separator:a92bf96ee5953a075f8a573fda63fc280"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af873fd69e38eb4eeaf891a04d2e175cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af873fd69e38eb4eeaf891a04d2e175cf"></a>
-Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(&quot;Reduces the input tensor along the first dimension of the inputtensor by applying 'Max') DOC&quot;) .TensorInferenceFunction([]( const OperatorDef&amp; def</td></tr>
-<tr class="separator:af873fd69e38eb4eeaf891a04d2e175cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9960f8b8cdafbc058a99e6fab135b92"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae9960f8b8cdafbc058a99e6fab135b92"></a>
+Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Reduces the input tensor along the first dimension of the input
+tensor by applying 'Max'
+)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
+<tr class="separator:ae9960f8b8cdafbc058a99e6fab135b92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca78a46214042913c52193473f088dc2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca78a46214042913c52193473f088dc2"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceFrontMaxGradient).NumInputs(3).NumOutputs(1)</td></tr>
 <tr class="separator:aca78a46214042913c52193473f088dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a742e31f718ad2e95fef4bc12b86e08cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a742e31f718ad2e95fef4bc12b86e08cf"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackMax).NumInputs(1).NumOutputs(1).Arg(&quot;num_reduce_dims&quot;</td></tr>
-<tr class="separator:a742e31f718ad2e95fef4bc12b86e08cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a210a328e87bd4e4f2938b581015c9ef9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a210a328e87bd4e4f2938b581015c9ef9"></a>
-Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(&quot;Reduces the input tensor along the last dimension of theinput tensor by applying 'Max') DOC&quot;) .TensorInferenceFunction([]( const OperatorDef&amp; def</td></tr>
-<tr class="separator:a210a328e87bd4e4f2938b581015c9ef9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52013b117d756434028017dabf14373a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a52013b117d756434028017dabf14373a"></a>
+Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Reduces the input tensor along the last dimension of the
+input tensor by applying 'Max'
+)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
+<tr class="separator:a52013b117d756434028017dabf14373a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af84b91040d8030b7c034ad88b5ce1fe1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af84b91040d8030b7c034ad88b5ce1fe1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackMaxGradient).NumInputs(3).NumOutputs(1)</td></tr>
 <tr class="separator:af84b91040d8030b7c034ad88b5ce1fe1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6516,6 +6527,24 @@ template&lt;typename Context &gt; </td></tr>
 template&lt;typename Context &gt; </td></tr>
 <tr class="memitem:ad1fbe16f3907d5fcaef2a1f394e6d11c"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>batchToSpace</b> (const <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; Context &gt; &amp;input, int pad_t, int pad_l, int block_size, <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; Context &gt; *output, Context *)</td></tr>
 <tr class="separator:ad1fbe16f3907d5fcaef2a1f394e6d11c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ad28f101d7677a0b3a740b404e8f713"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7ad28f101d7677a0b3a740b404e8f713"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SparseNormalize, <a class="el" href="classcaffe2_1_1_sparse_normalize_op.html">SparseNormalizeOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a7ad28f101d7677a0b3a740b404e8f713"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af11db6b664e5991a32021e3ead53c753"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af11db6b664e5991a32021e3ead53c753"></a>
+Parameters to be normalized&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;indices&quot;,&quot;Sparse indices&quot;).Input(2</td></tr>
+<tr class="separator:af11db6b664e5991a32021e3ead53c753"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e9949e506c97983c304e6def927d310"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3e9949e506c97983c304e6def927d310"></a>
+Parameters to be normalized Gradient computed&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;output_param&quot;,&quot;Normalized parameters&quot;).EnforceOneToOneInplace().Arg(&quot;use_max_norm&quot;</td></tr>
+<tr class="separator:a3e9949e506c97983c304e6def927d310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70bbc8cc8136b15d45cb1aa3249cff80"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a70bbc8cc8136b15d45cb1aa3249cff80"></a>
+Parameters to be normalized Gradient computed A bool variable to control whether to use max norm or constant norm When constant norm is used so that all the embedding vectors are scaled to have a L2 norm equals to&#160;</td><td class="memItemRight" valign="bottom"><b>A</b> (see blow arugment norm=A).If use_max_norm</td></tr>
+<tr class="separator:a70bbc8cc8136b15d45cb1aa3249cff80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad30ab7763e1b43ddf59571e3d4273fbf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad30ab7763e1b43ddf59571e3d4273fbf"></a>
+Parameters to be normalized Gradient computed A bool variable to control whether to use max norm or constant norm When constant norm is used so that all the embedding vectors are scaled to have a L2 norm equals to max norm is used so that embedding is scaled so that its l2 norm is no larger than A If an embedding s norm is less than A the embedding is left unchanged The default is True&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;norm&quot;,&quot;L2 norm of the embedding. The default is 1.0.&quot;).SetDoc(R&quot;DOC( Given a sparse matrix</td></tr>
+<tr class="separator:ad30ab7763e1b43ddf59571e3d4273fbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac36c4a2e2bcada3dfabbea97bd7bb56e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac36c4a2e2bcada3dfabbea97bd7bb56e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (SparseNormalize)</td></tr>
+<tr class="separator:ac36c4a2e2bcada3dfabbea97bd7bb56e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09acb13ce73b40a3605ef0995ed15260"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a09acb13ce73b40a3605ef0995ed15260"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SparseToDense, <a class="el" href="classcaffe2_1_1_sparse_to_dense_op.html">SparseToDenseOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a09acb13ce73b40a3605ef0995ed15260"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7134,9 +7163,6 @@ INT_MAX Net executed on each iteration&#160;</td><td class="memItemRight" valign
 <tr class="memitem:a86f526c762e31c803fbb22e25978d1ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86f526c762e31c803fbb22e25978d1ff"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ZeroGradient, <a class="el" href="classcaffe2_1_1_zero_gradient_op.html">ZeroGradientOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a86f526c762e31c803fbb22e25978d1ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6005751214e6bcbd2ed96de870cec48"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab6005751214e6bcbd2ed96de870cec48"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ZeroGradient).NumInputs(1).NumOutputs(0).SetDoc(R&quot;DOC( ZeroGradient operators doesn't produce any output blobs. One can use this operator to produce 0 gradient for the input blob. )DOC&quot;)</td></tr>
-<tr class="separator:ab6005751214e6bcbd2ed96de870cec48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada778193a182df6ced292b0e04f500a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ada778193a182df6ced292b0e04f500a8"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ZeroGradient, <a class="el" href="structcaffe2_1_1_get_zero_gradient_op_gradient.html">GetZeroGradientOpGradient</a>)</td></tr>
 <tr class="separator:ada778193a182df6ced292b0e04f500a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7677,9 +7703,8 @@ template&lt;&gt; </td></tr>
 <tr class="memitem:a97b90ea97be1a556b20e63346816d4f0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a97b90ea97be1a556b20e63346816d4f0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RmsProp, <a class="el" href="classcaffe2_1_1_rms_prop_op.html">RmsPropOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a97b90ea97be1a556b20e63346816d4f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97b0208e81d09b152dcd96b1273453b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a97b0208e81d09b152dcd96b1273453b2"></a>
+<tr class="memitem:a89e95977c65ff678c1161df753483829"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a89e95977c65ff678c1161df753483829"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-
 Computes the RMSProp update
 (http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf).
 Concretely, given inputs (grad, mean_squares, mom, lr), computes:
@@ -7688,10 +7713,9 @@ Concretely, given inputs (grad, mean_squares, mom, lr), computes:
     mom_o = momentum * mom + lr * grad / sqrt(epsilon + mean_squares_o)
     grad_o = mom_o
 
-returns (grad_o, mean_squares_o, mom_o).
-
+Returns (grad_o, mean_squares_o, mom_o).
 )DOC&quot;)</td></tr>
-<tr class="separator:a97b0208e81d09b152dcd96b1273453b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a89e95977c65ff678c1161df753483829"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab8e7a8e73e8793ec9ee086c500e62e2f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab8e7a8e73e8793ec9ee086c500e62e2f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (RmsProp)</td></tr>
 <tr class="separator:ab8e7a8e73e8793ec9ee086c500e62e2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8558,9 +8582,11 @@ the filter&#160;</td><td class="memItemRight" valign="bottom"><b>blob</b></td></
 <tr class="memitem:a039d1b6280ba35e31510fa7343ee2b0f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a039d1b6280ba35e31510fa7343ee2b0f"></a>
 the filter and the bias and computes the output Note that other&#160;</td><td class="memItemRight" valign="bottom"><b>parameters</b></td></tr>
 <tr class="separator:a039d1b6280ba35e31510fa7343ee2b0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a032fe7ada8fe2247dac366fd626135a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a032fe7ada8fe2247dac366fd626135a7"></a>
-the filter and the bias and computes the output Note that other such as the stride and kernel or the pads sizes in each direction are not necessary for input because they are provided by the ConvTransposeUnpoolOpBase&#160;</td><td class="memItemRight" valign="bottom"><b>operator.Various dimension checks are doneimplicitly, and the sizes are specified in the Input docs for this operator.As is expected, the filter is deconvolved with a subset of theimage and the bias is added</b></td></tr>
-<tr class="separator:a032fe7ada8fe2247dac366fd626135a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27cf8af7c4d0382ce71520246f4f67d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27cf8af7c4d0382ce71520246f4f67d8"></a>
+the filter and the bias and computes the output Note that other such as the stride and kernel or the pads sizes in each direction are not necessary for input because they are provided by the ConvTransposeUnpoolOpBase&#160;</td><td class="memItemRight" valign="bottom"><b>operator.Various dimension checks are done
+implicitly, and the sizes are specified in the Input docs for this operator.As is expected, the filter is deconvolved with a subset of the
+image and the bias is added</b></td></tr>
+<tr class="separator:a27cf8af7c4d0382ce71520246f4f67d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afef7c7e01c62304c3bf69c8a3e290385"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afef7c7e01c62304c3bf69c8a3e290385"></a>
 this is done throughout the image data and the output is computed As a side note on the implementation&#160;</td><td class="memItemRight" valign="bottom"><b>layout</b></td></tr>
 <tr class="separator:afef7c7e01c62304c3bf69c8a3e290385"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9044,6 +9070,18 @@ this op outputs a copy of the input tensor where values from the height and widt
 <tr class="memitem:abc109e6351665ebf886eff4bff7615ef"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc109e6351665ebf886eff4bff7615ef"></a>
 followed by cropping This is the reverse transformation of SpaceToBatch More&#160;</td><td class="memItemRight" valign="bottom"><b>specifically</b></td></tr>
 <tr class="separator:abc109e6351665ebf886eff4bff7615ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa762c75d4e46531704cfa03cdaf723ac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa762c75d4e46531704cfa03cdaf723ac"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>param</b></td></tr>
+<tr class="separator:aa762c75d4e46531704cfa03cdaf723ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22b2361594237f0e46c48218e03999df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a22b2361594237f0e46c48218e03999df"></a>
+Parameters to be normalized&#160;</td><td class="memItemRight" valign="bottom"><b>grad</b></td></tr>
+<tr class="separator:a22b2361594237f0e46c48218e03999df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2506c69ffc53d2e96b8bdea9b074175c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2506c69ffc53d2e96b8bdea9b074175c"></a>
+Parameters to be normalized Gradient computed A bool variable to control whether to use max norm or constant norm When&#160;</td><td class="memItemRight" valign="bottom"><b>use_max_norm</b> = false</td></tr>
+<tr class="separator:a2506c69ffc53d2e96b8bdea9b074175c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43af402778303cefcff606cf59b2ed3a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a43af402778303cefcff606cf59b2ed3a"></a>
+Parameters to be normalized Gradient computed A bool variable to control whether to use max norm or constant norm When constant norm is used so that all the embedding vectors are scaled to have a L2 norm equals to max norm is used so that embedding is scaled so that its l2 norm is no larger than A If an embedding s norm is less than A&#160;</td><td class="memItemRight" valign="bottom"><b>originally</b></td></tr>
+<tr class="separator:a43af402778303cefcff606cf59b2ed3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5c0ceac2d49bca5216c9907ac507867"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5c0ceac2d49bca5216c9907ac507867"></a>
 value represented as indices vector and values tensor into a compacted tensor where the first dimension is determined by the first dimension of the input if it is given or the max index Missing values are filled with zeros The op supports duplicated indices and performs summation over corresponding values This behavior is useful for converting GradientSlices into dense representation After running this&#160;</td><td class="memItemRight" valign="bottom"><b>op</b></td></tr>
 <tr class="separator:aa5c0ceac2d49bca5216c9907ac507867"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9181,12 +9219,6 @@ the output status will be set to true which can be used as exit criteria for exe
 <tr class="memitem:a29f8a500a75314ea467a2106a53c34cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29f8a500a75314ea467a2106a53c34cb"></a>
 the output status will be set to true which can be used as exit criteria for execution step The input is the queue and the last output is the status The rest are data blobs DOC The shared pointer for the <a class="el" href="classcaffe2_1_1_blobs_queue.html">BlobsQueue</a> Is set to depending on the success of&#160;</td><td class="memItemRight" valign="bottom"><b>dequeue</b></td></tr>
 <tr class="separator:a29f8a500a75314ea467a2106a53c34cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa762c75d4e46531704cfa03cdaf723ac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa762c75d4e46531704cfa03cdaf723ac"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>param</b></td></tr>
-<tr class="separator:aa762c75d4e46531704cfa03cdaf723ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22b2361594237f0e46c48218e03999df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a22b2361594237f0e46c48218e03999df"></a>
-Parameters to be updated&#160;</td><td class="memItemRight" valign="bottom"><b>grad</b></td></tr>
-<tr class="separator:a22b2361594237f0e46c48218e03999df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76351eacbd2e27f4c16e4f8c8cc0ad27"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76351eacbd2e27f4c16e4f8c8cc0ad27"></a>
 Parameters to be updated Gradient computed&#160;</td><td class="memItemRight" valign="bottom"><b>output_param</b></td></tr>
 <tr class="separator:a76351eacbd2e27f4c16e4f8c8cc0ad27"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10383,7 +10415,7 @@ Resource Acquisition" idiom. </p>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= net.BooleanUnmask([mask1, values1, mask2, values2], [<span class="stringliteral">&quot;output&quot;</span>])</div><div class="line"></div><div class="line">We <span class="keyword">get</span>:</div><div class="line">output = 1.0</div></div><!-- fragment -->
+<b>Initial value:</b><div class="fragment"><div class="line">= net.BooleanUnmask([mask1, values1, mask2, values2], [<span class="stringliteral">&quot;output&quot;</span>])</div><div class="line"></div><div class="line">We <span class="keyword">get</span>:</div><div class="line">  output = 1.0</div></div><!-- fragment -->
 <p>Definition at line <a class="el" href="abs__op_8cc_source.html#l00061">61</a> of file <a class="el" href="abs__op_8cc_source.html">abs_op.cc</a>.</p>
 
 </div>
@@ -10412,8 +10444,8 @@ Resource Acquisition" idiom. </p>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">{ij} as</div><div class="line">    0 &lt;= round(r_ij - bias_i) / scale_i) &lt; 256. Instead of input tensor</div><div class="line">    we obtain uint8 tensor and auxiliary information as scale and bias to</div><div class="line">    restore input tensor (with losses).)DOC<span class="stringliteral">&quot;)</span></div><div class="line"><span class="stringliteral">    .Input(0, &quot;</span>input<span class="stringliteral">&quot;, &quot;</span>input<span class="stringliteral">&quot;)</span></div><div class="line"><span class="stringliteral">    .Output(0, &quot;</span>quantized_input<span class="stringliteral">&quot;, &quot;</span>quantized_input<span class="stringliteral">&quot;)</span></div><div class="line"><span class="stringliteral">    .Output(</span></div><div class="line"><span class="stringliteral">        1,</span></div><div class="line"><span class="stringliteral">        &quot;</span>scale_bias<span class="stringliteral">&quot;,</span></div><div class="line"><span class="stringliteral">        &quot;</span>Matrix of floats</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="lengths__reducer__rowwise__8bit__ops_8cc_source.html#l00183">183</a> of file <a class="el" href="lengths__reducer__rowwise__8bit__ops_8cc_source.html">lengths_reducer_rowwise_8bit_ops.cc</a>.</p>
+<b>Initial value:</b><div class="fragment"><div class="line">{ij} as</div><div class="line">0 &lt;= round(r_ij - bias_i) / scale_i) &lt; 256. Instead of input tensor</div><div class="line">we obtain uint8 tensor and auxiliary information as scale and bias to</div><div class="line">restore input tensor (with losses).</div><div class="line">)DOC<span class="stringliteral">&quot;)</span></div><div class="line"><span class="stringliteral">    .Input(0, &quot;</span>input<span class="stringliteral">&quot;, &quot;</span>input<span class="stringliteral">&quot;)</span></div><div class="line"><span class="stringliteral">    .Output(0, &quot;</span>quantized_input<span class="stringliteral">&quot;, &quot;</span>quantized_input<span class="stringliteral">&quot;)</span></div><div class="line"><span class="stringliteral">    .Output(</span></div><div class="line"><span class="stringliteral">        1,</span></div><div class="line"><span class="stringliteral">        &quot;</span>scale_bias<span class="stringliteral">&quot;,</span></div><div class="line"><span class="stringliteral">        &quot;</span>Matrix of floats</div></div><!-- fragment -->
+<p>Definition at line <a class="el" href="lengths__reducer__rowwise__8bit__ops_8cc_source.html#l00192">192</a> of file <a class="el" href="lengths__reducer__rowwise__8bit__ops_8cc_source.html">lengths_reducer_rowwise_8bit_ops.cc</a>.</p>
 
 </div>
 </div>
@@ -10440,8 +10472,8 @@ Resource Acquisition" idiom. </p>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= (min_i - max_i) / 255 and  bias_i = min_i <span class="keywordflow">for</span></div><div class="line">    i-th row r_i of reshaped matrix</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="lengths__reducer__rowwise__8bit__ops_8cc_source.html#l00181">181</a> of file <a class="el" href="lengths__reducer__rowwise__8bit__ops_8cc_source.html">lengths_reducer_rowwise_8bit_ops.cc</a>.</p>
+<b>Initial value:</b><div class="fragment"><div class="line">= (min_i - max_i) / 255 and  bias_i = min_i <span class="keywordflow">for</span></div><div class="line">i-th row r_i of reshaped matrix</div></div><!-- fragment -->
+<p>Definition at line <a class="el" href="lengths__reducer__rowwise__8bit__ops_8cc_source.html#l00190">190</a> of file <a class="el" href="lengths__reducer__rowwise__8bit__ops_8cc_source.html">lengths_reducer_rowwise_8bit_ops.cc</a>.</p>
 
 </div>
 </div>
@@ -10496,7 +10528,7 @@ Resource Acquisition" idiom. </p>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">= 2.0</div><div class="line">mask3   = False</div></div><!-- fragment -->
+<b>Initial value:</b><div class="fragment"><div class="line">= 2.0</div><div class="line">  mask3   = False</div></div><!-- fragment -->
 <p>Definition at line <a class="el" href="boolean__unmask__ops_8cc_source.html#l00085">85</a> of file <a class="el" href="boolean__unmask__ops_8cc_source.html">boolean_unmask_ops.cc</a>.</p>
 
 </div>
@@ -10519,7 +10551,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Feb 2 2018 13:03:34 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Feb 3 2018 13:03:22 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
