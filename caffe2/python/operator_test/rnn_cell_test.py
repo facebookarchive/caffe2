@@ -32,11 +32,13 @@ from hypothesis import assume, given
 from hypothesis import settings as ht_settings
 import hypothesis.strategies as st
 import numpy as np
+import pytest
 import unittest
 
 
 def lstm_unit(hidden_t_prev, cell_t_prev, gates,
-              seq_lengths, timestep, forget_bias=0.0, drop_states=False):
+              seq_lengths, timestep, forget_bias=0.0,
+              drop_states=False, no_sequence_lengths=False):
     D = cell_t_prev.shape[2]
     G = gates.shape[2]
     N = gates.shape[1]
@@ -57,7 +59,10 @@ def lstm_unit(hidden_t_prev, cell_t_prev, gates,
     f_t = sigmoid(f_t + forget_bias)
     o_t = sigmoid(o_t)
     g_t = tanh(g_t)
-    valid = (t < seq_lengths).astype(np.int32)
+    if no_sequence_lengths:
+        valid = np.ones(shape=(N, D))
+    else:
+        valid = (t < seq_lengths).astype(np.int32)
     assert valid.shape == (N, D)
     cell_t = ((f_t * cell_t_prev) + (i_t * g_t)) * (valid) + \
         (1 - valid) * cell_t_prev * (1 - drop_states)
@@ -1086,11 +1091,13 @@ class RNNCellTest(hu.HypothesisTestCase):
     def test_milstm(self):
         self.lstm_base(lstm_type=(rnn_cell.MILSTM, milstm_reference))
 
+    @pytest.mark.skip(reason="This is currently numerically unstable")
     def test_norm_lstm(self):
         self.lstm_base(
             lstm_type=(rnn_cell.LayerNormLSTM, layer_norm_lstm_reference),
         )
 
+    @pytest.mark.skip(reason="This is currently numerically unstable")
     def test_norm_milstm(self):
         self.lstm_base(
             lstm_type=(rnn_cell.LayerNormMILSTM, layer_norm_milstm_reference)
@@ -1557,12 +1564,16 @@ class RNNCellTest(hu.HypothesisTestCase):
                 stepsize=0.001,
             )
 
-    @given(n=st.integers(1, 10),
+    @given(seed=st.integers(0, 2**32 - 1),
+           n=st.integers(1, 10),
            d=st.integers(1, 10),
            t=st.integers(1, 10),
            dtype=st.sampled_from([np.float32, np.float16]),
+           no_sequence_lengths=st.booleans(),
            **hu.gcs)
-    def test_lstm_unit_recurrent_network(self, n, d, t, dtype, dc, gc):
+    def test_lstm_unit_recurrent_network(
+            self, seed, n, d, t, dtype, dc, no_sequence_lengths, gc):
+        np.random.seed(seed)
         if dtype == np.float16:
             # only supported with CUDA
             assume(gc.device_type == caffe2_pb2.CUDA)
@@ -1577,7 +1588,9 @@ class RNNCellTest(hu.HypothesisTestCase):
                 'seq_lengths',
                 'timestep',
             ],
-            ['hidden_t', 'cell_t'])
+            ['hidden_t', 'cell_t'],
+            no_sequence_lengths=no_sequence_lengths,
+        )
         cell_t_prev = np.random.randn(1, n, d).astype(dtype)
         hidden_t_prev = np.random.randn(1, n, d).astype(dtype)
         gates = np.random.randn(1, n, 4 * d).astype(dtype)
@@ -1593,8 +1606,11 @@ class RNNCellTest(hu.HypothesisTestCase):
         if dtype == np.float16:
             kwargs['threshold'] = 1e-1  # default is 1e-4
 
+        def lstm_unit_reference(*args, **kwargs):
+            return lstm_unit(*args, no_sequence_lengths=no_sequence_lengths, **kwargs)
+
         self.assertReferenceChecks(
-            gc, op, inputs, lstm_unit,
+            gc, op, inputs, lstm_unit_reference,
             input_device_options=input_device_options,
             **kwargs)
 
@@ -1755,4 +1771,3 @@ if __name__ == "__main__":
         '--caffe2_log_level=0',
     ])
     unittest.main()
-

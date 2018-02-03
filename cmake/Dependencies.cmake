@@ -84,15 +84,14 @@ endif()
 
 # ---[ gflags
 if(USE_GFLAGS)
-  find_package(GFlags)
-  if(GFLAGS_FOUND)
+  include(cmake/public/gflags.cmake)
+  if (TARGET gflags)
     set(CAFFE2_USE_GFLAGS 1)
-    caffe2_include_directories(${GFLAGS_INCLUDE_DIRS})
-    list(APPEND Caffe2_DEPENDENCY_LIBS ${GFLAGS_LIBRARIES})
+    list(APPEND Caffe2_DEPENDENCY_LIBS gflags)
   else()
     message(WARNING
-        "gflags is not found. Caffe2 will build without gflags support but it "
-        "is strongly recommended that you install gflags. Suppress this "
+        "gflags is not found. Caffe2 will build without gflags support but "
+        "it is strongly recommended that you install gflags. Suppress this "
         "warning with -DUSE_GFLAGS=OFF")
     set(USE_GFLAGS OFF)
   endif()
@@ -100,11 +99,10 @@ endif()
 
 # ---[ Google-glog
 if(USE_GLOG)
-  find_package(Glog)
-  if(GLOG_FOUND)
+  include(cmake/public/glog.cmake)
+  if (TARGET glog::glog)
     set(CAFFE2_USE_GOOGLE_GLOG 1)
-    caffe2_include_directories(${GLOG_INCLUDE_DIRS})
-    list(APPEND Caffe2_DEPENDENCY_LIBS ${GLOG_LIBRARIES})
+    list(APPEND Caffe2_DEPENDENCY_LIBS glog::glog)
   else()
     message(WARNING
         "glog is not found. Caffe2 will build without glog support but it is "
@@ -113,6 +111,7 @@ if(USE_GLOG)
     set(USE_GLOG OFF)
   endif()
 endif()
+
 
 # ---[ Googletest and benchmark
 if(BUILD_TEST)
@@ -125,6 +124,10 @@ if(BUILD_TEST)
   set(INSTALL_GTEST OFF)
   # We currently don't need gmock right now.
   set(BUILD_GMOCK OFF)
+  # For Windows, we will check the runtime used is correctly passed in.
+  if (NOT CAFFE2_USE_MSVC_STATIC_RUNTIME)
+    set(gtest_force_shared_crt ON)
+  endif()
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/googletest)
   caffe2_include_directories(${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include)
 
