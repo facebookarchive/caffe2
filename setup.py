@@ -106,7 +106,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
         # Check for the -j argument to make with a specific number of cpus
         try:
             self.jobs = int(self.jobs)
-        except:
+        except Exception:
             self.jobs = None
 
     def _build_with_cmake(self):
