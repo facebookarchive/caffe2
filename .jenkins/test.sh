@@ -83,7 +83,7 @@ EXTRA_TESTS=()
 
 # CUDA builds always include NCCL support
 if [[ "$BUILD_ENVIRONMENT" == *-cuda* ]]; then
-  EXTRA_TESTS+=($CAFFE2_PYPATH/python/contrib/nccl)
+  EXTRA_TESTS+=($CAFFE2_PYPATH/contrib/nccl)
 fi
 
 # Python tests
