@@ -2,6 +2,16 @@
 
 set -e
 
+# Figure out which Python to use
+PYTHON="python"
+if [ -n "$BUILD_ENVIRONMENT" ]; then
+  if [[ "$BUILD_ENVIRONMENT" == py2* ]]; then
+    PYTHON="python2"
+  elif [[ "$BUILD_ENVIRONMENT" == py3* ]]; then
+    PYTHON="python3"
+  fi
+fi
+
 # The prefix must mirror the setting from build.sh
 INSTALL_PREFIX="/usr/local/caffe2"
 # Add the site-packages in the caffe2 install prefix to the PYTHONPATH
@@ -64,16 +74,6 @@ for test in ./test/*; do
     exit_code="$tmp_exit_code"
   fi
 done
-
-# Figure out which Python to use
-PYTHON="python"
-if [ -n "$BUILD_ENVIRONMENT" ]; then
-  if [[ "$BUILD_ENVIRONMENT" == py2* ]]; then
-    PYTHON="python2"
-  elif [[ "$BUILD_ENVIRONMENT" == py3* ]]; then
-    PYTHON="python3"
-  fi
-fi
 
 # Get the relative path to where the caffe2 python module was installed
 CAFFE2_PYPATH="$SITE_DIR/caffe2"
