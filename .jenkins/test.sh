@@ -83,7 +83,7 @@ EXTRA_TESTS=()
 
 # CUDA builds always include NCCL support
 if [[ "$BUILD_ENVIRONMENT" == *-cuda* ]]; then
-  EXTRA_TESTS+=($CAFFE2_PYPATH/contrib/nccl)
+  EXTRA_TESTS+=("$CAFFE2_PYPATH/contrib/nccl")
 fi
 
 # Python tests
@@ -91,13 +91,13 @@ echo "Running Python tests.."
 "$PYTHON" \
   -m pytest \
   -v \
-  --junit-xml="$TEST_DIR"/python/result.xml \
-  --ignore $CAFFE2_PYPATH/python/test/executor_test.py \
-  --ignore $CAFFE2_PYPATH/python/operator_test/matmul_op_test.py \
-  --ignore $CAFFE2_PYPATH/python/operator_test/pack_ops_test.py \
-  --ignore $CAFFE2_PYPATH/python/mkl/mkl_sbn_speed_test.py \
-  $CAFFE2_PYPATH/python \
-  ${EXTRA_TESTS[@]}
+  --junit-xml="$TEST_DIR/python/result.xml" \
+  --ignore "$CAFFE2_PYPATH/python/test/executor_test.py" \
+  --ignore "$CAFFE2_PYPATH/python/operator_test/matmul_op_test.py" \
+  --ignore "$CAFFE2_PYPATH/python/operator_test/pack_ops_test.py" \
+  --ignore "$CAFFE2_PYPATH/python/mkl/mkl_sbn_speed_test.py" \
+  "$CAFFE2_PYPATH/python" \
+  "${EXTRA_TESTS[@]}"
 
 tmp_exit_code="$?"
 if [ "$exit_code" -eq 0 ]; then
