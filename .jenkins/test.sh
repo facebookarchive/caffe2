@@ -4,6 +4,8 @@ set -e
 
 # The prefix must mirror the setting from build.sh
 INSTALL_PREFIX="/usr/local/caffe2"
+# Add the site-packages in the caffe2 install prefix to the PYTHONPATH
+SITE_DIR=$($PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
 
 LOCAL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT_DIR=$(cd "$LOCAL_DIR"/.. && pwd)
@@ -14,6 +16,7 @@ if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   exit 0
 fi
 
+export PYTHONPATH="${PYTHONPATH}:${INSTALL_PREFIX}/${SITE_DIR}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${INSTALL_PREFIX}/lib"
 
 exit_code=0
@@ -72,20 +75,16 @@ if [ -n "$BUILD_ENVIRONMENT" ]; then
   fi
 fi
 
+# Get the relative path to where the caffe2 python module was installed
+CAFFE2_PYPATH="$SITE_DIR/caffe2"
+
 # Collect additional tests to run (outside caffe2/python)
 EXTRA_TESTS=()
 
 # CUDA builds always include NCCL support
 if [[ "$BUILD_ENVIRONMENT" == *-cuda* ]]; then
-  EXTRA_TESTS+=(caffe2/contrib/nccl)
+  EXTRA_TESTS+=($CAFFE2_PYPATH/python/contrib/nccl)
 fi
-
-# Add the site-packages in the caffe2 install prefix to the PYTHONPATH
-SITE_DIR=$($PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
-export PYTHONPATH="${PYTHONPATH}:${INSTALL_PREFIX}/${SITE_DIR}"
-
-# Get the relative path to where the caffe2 python module was installed
-CAFFE2_PYPATH="$SITE_DIR/caffe2"
 
 # Python tests
 echo "Running Python tests.."
