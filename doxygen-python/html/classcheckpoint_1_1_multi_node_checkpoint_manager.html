@@ -126,15 +126,16 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>load</b> (self, epoch,
 <tr class="separator:a8f2c314267cbc1c47caa6ff57445d562"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4e4f1470e311ee18816ff5377d09716"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_multi_node_checkpoint_manager.html#aa4e4f1470e311ee18816ff5377d09716">get_ckpt_db_name</a> (self, node_name, epoch)</td></tr>
 <tr class="separator:aa4e4f1470e311ee18816ff5377d09716"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc8ed2a690251ffd359388d276f394a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc8ed2a690251ffd359388d276f394a3"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>save</b> (self, epoch)</td></tr>
+<tr class="memitem:adc8ed2a690251ffd359388d276f394a3"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_multi_node_checkpoint_manager.html#adc8ed2a690251ffd359388d276f394a3">save</a> (self, epoch)</td></tr>
 <tr class="separator:adc8ed2a690251ffd359388d276f394a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac7524bfa5cc0b9f67eccd05e01f28e9f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac7524bfa5cc0b9f67eccd05e01f28e9f"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>write_checkpoint_metadata</b> (self, epoch)</td></tr>
+<tr class="memitem:ac7524bfa5cc0b9f67eccd05e01f28e9f"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_multi_node_checkpoint_manager.html#ac7524bfa5cc0b9f67eccd05e01f28e9f">write_checkpoint_metadata</a> (self, epoch)</td></tr>
 <tr class="separator:ac7524bfa5cc0b9f67eccd05e01f28e9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ef7ac1d6a59e780a1d7cdc4ea6b371c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ef7ac1d6a59e780a1d7cdc4ea6b371c"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>get_resume_from_epoch_id</b> (self, user_epoch=None)</td></tr>
+<tr class="memitem:a8ef7ac1d6a59e780a1d7cdc4ea6b371c"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_multi_node_checkpoint_manager.html#a8ef7ac1d6a59e780a1d7cdc4ea6b371c">get_resume_from_epoch_id</a> (self, user_epoch=None)</td></tr>
 <tr class="separator:a8ef7ac1d6a59e780a1d7cdc4ea6b371c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3eb209f15cd17b4af4d43ddf9555730a"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_multi_node_checkpoint_manager.html#a3eb209f15cd17b4af4d43ddf9555730a">set_params</a> (self, nodes, path_prefix=None, path_type=None)</td></tr>
+<tr class="separator:a3eb209f15cd17b4af4d43ddf9555730a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ed9193e2bf8fb225e532abdd7a50666"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_multi_node_checkpoint_manager.html#a2ed9193e2bf8fb225e532abdd7a50666">cp_accessible</a> (self, epoch=None)</td></tr>
+<tr class="separator:a2ed9193e2bf8fb225e532abdd7a50666"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">Coordinates checkpointing and checkpointing across multiple nodes.
@@ -148,8 +149,44 @@ Args:
     metadata_handler: An optional object capable of reading/writing
         checkpoint info in storage of choice.
 </pre> 
-<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00327">327</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00368">368</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a2ed9193e2bf8fb225e532abdd7a50666"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def checkpoint.MultiNodeCheckpointManager.cp_accessible </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>epoch</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Returns True if Checkpoint data is accessible
+
+Args:
+    epoch: An integer. The epoch of the checkpoint. If None,
+it implies we need to check if checkpoint directory is accessible
+
+Returns:
+    is_cp_accessible: A boolean. Returns True if Checkpoint data is accessible
+</pre> 
+<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00537">537</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="aa4e4f1470e311ee18816ff5377d09716"></a>
 <div class="memitem">
 <div class="memproto">
@@ -192,7 +229,43 @@ Returns:
     checkpoint_db_name: A string. The checkpoint path of the given
 node and the given epoch.
 </pre> 
-<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00434">434</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00465">465</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a8ef7ac1d6a59e780a1d7cdc4ea6b371c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def checkpoint.MultiNodeCheckpointManager.get_resume_from_epoch_id </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>user_epoch</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Identify the epoch-id from which Job must resume
+
+Args:
+    user_epoch: An integer. Optional parameter for user to explicitly
+identify the epoch-id to load checkpoint from
+Retruns:
+    epoch: the epoch-id to load checkpoints from
+or None if no checkpoints were written
+</pre> 
+<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00501">501</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
 
 </div>
 </div>
@@ -245,7 +318,117 @@ blob.
     epoch: An integer. The checkpoint epoch to load from.
     session: A Session object to execute the Load ops.
 </pre> 
-<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00400">400</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00431">431</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="adc8ed2a690251ffd359388d276f394a3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def checkpoint.MultiNodeCheckpointManager.save </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>epoch</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Build a Task that will execute a Save ops to serialize and persist
+blobs present in the global workspace.
+</pre> 
+<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00483">483</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a3eb209f15cd17b4af4d43ddf9555730a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def checkpoint.MultiNodeCheckpointManager.set_params </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>path_prefix</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>path_type</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Set parameters associated with CP manager
+
+Args:
+    nodes: An array of nodes where this checkpoint manager is running.
+    path_prefix: Used to construct db name or path where checkpoint files are
+stored.
+    path_type: Indicate the type of path where checkpoint files are stored.
+</pre> 
+<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00517">517</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac7524bfa5cc0b9f67eccd05e01f28e9f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def checkpoint.MultiNodeCheckpointManager.write_checkpoint_metadata </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>epoch</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Write metadata for checkpoint
+
+Args:
+    epoch: An integer. The epoch-id for which checkpoint metadata is
+written
+</pre> 
+<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00490">490</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
 
 </div>
 </div>
@@ -256,7 +439,7 @@ blob.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 5 2018 13:03:23 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 6 2018 13:03:23 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

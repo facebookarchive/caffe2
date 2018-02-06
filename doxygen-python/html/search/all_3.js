@@ -51,6 +51,7 @@ var searchData=
   ['convnet_5fbenchmarks',['convnet_benchmarks',['../namespaceconvnet__benchmarks.html',1,'']]],
   ['core',['core',['../namespacecore.html',1,'']]],
   ['counterreader',['CounterReader',['../classdataio_1_1_counter_reader.html',1,'dataio']]],
+  ['cp_5faccessible',['cp_accessible',['../classcheckpoint_1_1_checkpoint_manager.html#ad87e23b34e91cf57ef92f75010cfd406',1,'checkpoint.CheckpointManager.cp_accessible()'],['../classcheckpoint_1_1_multi_node_checkpoint_manager.html#a2ed9193e2bf8fb225e532abdd7a50666',1,'checkpoint.MultiNodeCheckpointManager.cp_accessible()']]],
   ['create_5ffrom_5fproto',['create_from_proto',['../classcore_1_1_execution_step.html#ad8ab8e7bf2ec76f88481f314e11c6317',1,'core::ExecutionStep']]],
   ['create_5fparam',['create_param',['../classmodel__helper_1_1_model_helper.html#ae775f99256616cbcbe818e5f38f1562d',1,'model_helper::ModelHelper']]],
   ['create_5fpredict_5finit_5fnet',['create_predict_init_net',['../namespacepredictor__py__utils.html#accaf0a6a78c325bed10fa7905bc1be1d',1,'predictor_py_utils']]],

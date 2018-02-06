@@ -1197,6 +1197,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_one_hot_op.html">OneHotOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_o_n_n_x_while_op.html">ONNXWhileOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_open_g_l_add_op.html">OpenGLAddOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_open_g_l_concat_op.html">OpenGLConcatOp</a></td></tr>
@@ -1266,6 +1268,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_pattern_net_transform.html">PatternNetTransform</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classcaffe2_1_1_pattern_net_transform.html" title="PatternNetTransform allows you to create transforms using a simple interface. ">PatternNetTransform</a> allows you to create transforms using a simple interface.  <a href="classcaffe2_1_1_pattern_net_transform.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_percentile_op.html">PercentileOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_perf_net_observer.html">PerfNetObserver</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4744,21 +4748,15 @@ in a sequence length aware fashion given the previous hidden and the sequence&#1
 <tr class="memitem:a0bded13860e75746552c5f62698996f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0bded13860e75746552c5f62698996f3"></a>
 in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is&#160;</td><td class="memItemRight" valign="bottom"><b>invalid</b> (as in, the value at X[t][n] &gt;=seqLengths[n].) DOC&quot;) .Arg( &quot;drop_states&quot;</td></tr>
 <tr class="separator:a0bded13860e75746552c5f62698996f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a118eb2cfff8ea90e9aef5d7af0a97bc3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a118eb2cfff8ea90e9aef5d7af0a97bc3"></a>
-in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;hidden_prev&quot;,&quot;The previous GRU hidden state.&quot;).Input(1</td></tr>
-<tr class="separator:a118eb2cfff8ea90e9aef5d7af0a97bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dca8642fac40c2d42cf9ff00ab7260d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8dca8642fac40c2d42cf9ff00ab7260d"></a>
-in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length Unactivated gate outputs from and output pre activation&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (2,&quot;seq_lengths&quot;,&quot;Array of sequence lengths.  &quot;&quot;len(seq_lengths) should equal batch size N.&quot;).Input(3</td></tr>
-<tr class="separator:a8dca8642fac40c2d42cf9ff00ab7260d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad768a26df3fb1bb1acbbeb51d2916912"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad768a26df3fb1bb1acbbeb51d2916912"></a>
-in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length Unactivated gate outputs from and output pre activation The timestep for this operation&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;hidden&quot;,&quot;The new GRU hidden state calculated by this op.&quot;)</td></tr>
-<tr class="separator:ad768a26df3fb1bb1acbbeb51d2916912"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab42f64f71fed13909e998bfb422051df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab42f64f71fed13909e998bfb422051df"></a>
+in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;sequence_lengths&quot;,&quot;When false, the sequence lengths input is left out, &quot;&quot;and all following inputs are shifted left by one.&quot;).Output(0</td></tr>
+<tr class="separator:ab42f64f71fed13909e998bfb422051df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65219a73c9faa974635939b186318b75"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a65219a73c9faa974635939b186318b75"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (GRUUnitGradient, <a class="el" href="classcaffe2_1_1_g_r_u_unit_gradient_op.html">GRUUnitGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a65219a73c9faa974635939b186318b75"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a940641a0ecfad46d8e0af6b43114377a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a940641a0ecfad46d8e0af6b43114377a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (GRUUnitGradient).NumInputs(6).NumOutputs(2)</td></tr>
-<tr class="separator:a940641a0ecfad46d8e0af6b43114377a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af75c99c5b2b78b982546af2552826ac8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af75c99c5b2b78b982546af2552826ac8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (5, 6).NumOutputs(2).Arg(&quot;sequence_lengths&quot;</td></tr>
+<tr class="separator:af75c99c5b2b78b982546af2552826ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67ded52bdd945fab308b19d3d7eb1c42"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a67ded52bdd945fab308b19d3d7eb1c42"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (GRUUnit, <a class="el" href="classcaffe2_1_1_get_g_r_u_unit_gradient.html">GetGRUUnitGradient</a>)</td></tr>
 <tr class="separator:a67ded52bdd945fab308b19d3d7eb1c42"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5296,18 +5294,18 @@ stride and pad lengths defined by the <a class="el" href="classcaffe2_1_1_conv_p
 <tr class="memitem:a4233cbd96ab2aa3f1dac368f5af4776a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4233cbd96ab2aa3f1dac368f5af4776a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LSTMUnit, <a class="el" href="classcaffe2_1_1_l_s_t_m_unit_op.html">LSTMUnitOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a4233cbd96ab2aa3f1dac368f5af4776a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81b805b430b58da15a61e93b165a723a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a81b805b430b58da15a61e93b165a723a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (4, 5).NumOutputs(2).SetDoc(R&quot;DOC( LSTMUnit computes the activations of a standard LSTM (without peephole connections)</td></tr>
+<tr class="separator:a81b805b430b58da15a61e93b165a723a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae556702783a95dfa3475ae030ec0fa82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae556702783a95dfa3475ae030ec0fa82"></a>
 in a sequence length aware fashion given the previous cell and the sequence computes the LSTM avoiding computation if the input is&#160;</td><td class="memItemRight" valign="bottom"><b>invalid</b> (as in, the value at X{t][n] &gt;=seqLengths[n].) DOC&quot;) .Arg(&quot;forget_bias&quot;</td></tr>
 <tr class="separator:ae556702783a95dfa3475ae030ec0fa82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06edc4d9fc39e0278fbb65d6eb480448"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a06edc4d9fc39e0278fbb65d6eb480448"></a>
-in a sequence length aware fashion given the previous cell and the sequence computes the LSTM avoiding computation if the input is Bias term to add in while calculating forget gate&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;no_sequence_lengths&quot;,&quot;Ignore the sequence lengths input&quot;)</td></tr>
-<tr class="separator:a06edc4d9fc39e0278fbb65d6eb480448"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4d1a5de72aa682f38ea6ba570466b89"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab4d1a5de72aa682f38ea6ba570466b89"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (LSTMUnitGradient, <a class="el" href="classcaffe2_1_1_l_s_t_m_unit_gradient_op.html">LSTMUnitGradientOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ab4d1a5de72aa682f38ea6ba570466b89"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6e21f58358778e84474ce5b36dbb884"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6e21f58358778e84474ce5b36dbb884"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (9).NumOutputs(3).Arg(&quot;no_sequence_lengths&quot;</td></tr>
-<tr class="separator:ad6e21f58358778e84474ce5b36dbb884"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef1b7a763f73632a332d11ed579f7361"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef1b7a763f73632a332d11ed579f7361"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (8, 9).NumOutputs(3).Arg(&quot;sequence_lengths&quot;</td></tr>
+<tr class="separator:aef1b7a763f73632a332d11ed579f7361"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a077ac830f10218a734569cd51deb4410"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a077ac830f10218a734569cd51deb4410"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (LSTMUnit, <a class="el" href="classcaffe2_1_1_get_l_s_t_m_unit_gradient.html">GetLSTMUnitGradient</a>)</td></tr>
 <tr class="separator:a077ac830f10218a734569cd51deb4410"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5509,6 +5507,67 @@ Given a matrix, apply L2-normalization along the specified dimension.
 <tr class="memitem:a87576f4d67a3c7ce8a0c13a06a869231"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a87576f4d67a3c7ce8a0c13a06a869231"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SegmentOneHot, <a class="el" href="classcaffe2_1_1_segment_one_hot_op.html">SegmentOneHotOp</a>)</td></tr>
 <tr class="separator:a87576f4d67a3c7ce8a0c13a06a869231"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0966ddf36b0cdaaec4a3f9fb19f01baf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0966ddf36b0cdaaec4a3f9fb19f01baf"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ONNXWhile, <a class="el" href="classcaffe2_1_1_o_n_n_x_while_op.html">ONNXWhileOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a0966ddf36b0cdaaec4a3f9fb19f01baf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a633d23021135a47fdd095abc1dacebab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a633d23021135a47fdd095abc1dacebab"></a>
+INT_MAX&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+*** EXPERIMENTAL. This operator is a work-in-progress. No assumption should be
+made about the stability or correctness of this op. ***
+
+Generic Looping construct confirming to the ONNX Loop operator spec. This loop
+has multiple termination conditions:
+
+1. Trip count. Iteration count specified at runtime. Set by specifying the
+    input M. Optional. Set to empty string to omit. Note that a static trip
+    count (specified at graph construction time) can be specified by passing
+    in a constant node for input M.
+2. Loop termination condition. This is an input to the op that determines
+    whether to run the first interation and also a loop-carried dependency for
+    the body graph. The body graph must yield a value for the condition
+    variable, whether this input is provided or not.
+
+This table summarizes the operating modes of this operator with equivalent
+C-style code:
+
+<a class="el" href="classcaffe2_1_1_operator.html">Operator</a> inputs defined as (max_trip_count, condition_var). Omitted optional
+inputs are represented as empty string. Concretely, in this caffe2 op an input
+is marked as omitted by setting its 'has_{name}' argument to False.
+
+    input (&quot;&quot;, &quot;&quot;):
+        for (int i=0; ; ++i) {
+          cond = ... // Note this value is ignored, but is required in the body
+        }
+
+    input (&quot;&quot;, cond) // Note this is analogous to a while loop
+        bool cond = ...;
+        for (int i=0; cond; ++i) {
+          cond = ...;
+        }
+
+    input (&quot;&quot;, 1) // Note this is analogous to a do-while loop
+        bool cond = true
+        for (int i=0; cond; ++i) {
+          cond = ...;
+        }
+
+    input (trip_count, &quot;&quot;) // Note this is analogous to a for loop
+        int trip_count = ...
+        for (int i=0; i &lt; trip_count; ++i) {
+          cond = ...; // ignored
+        }
+
+    input (trip_count, cond)
+        int trip_count = ...;
+        bool cond = ...;
+        for (int i=0; i &lt; trip_count &amp;&amp; cond; ++i) {
+          cond = ...;
+        }
+    )DOC&quot;).Arg(&quot;loop_net&quot;</td></tr>
+<tr class="separator:a633d23021135a47fdd095abc1dacebab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0d404cf83563a4699221ea75a819084"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0d404cf83563a4699221ea75a819084"></a>
+INT_MAX Net executed on each iteration&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;condition&quot;,&quot;Scalar boolean condition&quot;).AllowInplace([](int in</td></tr>
+<tr class="separator:ad0d404cf83563a4699221ea75a819084"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92947fc7103428f88eb5f1462c6c1c88"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92947fc7103428f88eb5f1462c6c1c88"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (NHWC2NCHW, <a class="el" href="classcaffe2_1_1_n_h_w_c2_n_c_h_w_op.html">NHWC2NCHWOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a92947fc7103428f88eb5f1462c6c1c88"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5607,6 +5666,18 @@ dimensions depend on whether the NCHW or NHWC operators are being used For in th
 <tr class="memitem:afabfd45bcf5afac18be7162dfa9d0ac3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afabfd45bcf5afac18be7162dfa9d0ac3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (PadImage, <a class="el" href="classcaffe2_1_1_get_pad_image_gradient.html">GetPadImageGradient</a>)</td></tr>
 <tr class="separator:afabfd45bcf5afac18be7162dfa9d0ac3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b411f3767afb32fffa1080f9b38afa3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b411f3767afb32fffa1080f9b38afa3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Percentile, <a class="el" href="classcaffe2_1_1_percentile_op.html">PercentileOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a0b411f3767afb32fffa1080f9b38afa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12a3eef2f3efde81d2b994fb30ad93b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a12a3eef2f3efde81d2b994fb30ad93b7"></a>
+given a sample set of raw labeled with their corresponding percentiles from the same distribution In this&#160;</td><td class="memItemRight" valign="bottom"><b>operator takes as input a tensor of floats to find the percentile values for, a 2D tensor of floats, where the first column of the tensor represents sampled values, and the second column represents the percentile labels, and a tensor of integers lengths.This lengths tensor is used because the operator works on multiple sets of raw values at the same time.For example, for an input:original_values=[[3, 5, 3], [5, 1, 6]], lengths=[2, 1, 1], value_to_pct=[[3, 0.2],[5, 0.5],[1, 0.3],[3.0.6]] Our operator expects that each column i of the input tensor is sampled from distribution i.Lengths tells us that the first two elements in value_to_pct are sampled from distribution 1, the next is from distribution two, and the last is from distribution 3.We expect the output of our operator to give us[[0.2, 1.0, 0.6],[0.5, 0.3, 1.0]].To calculate the percentile of an element, we check to see if its value is already mapped to a percentile in value_to_pct.If so, we return that value.If not, we linearly interpolate between the two closest values in value_to_pct.If the value is larger than all values in value_to_pct, we return 1.If it's smaller than all the values, we return 0.) DOC&quot;) .Input</b> (0,&quot;original_values&quot;,&quot;Input 2D tensor of floats, representing the original, raw data to calculate percentiles for.&quot;).Input(1</td></tr>
+<tr class="separator:a12a3eef2f3efde81d2b994fb30ad93b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b343b9a0305d399016cd967c1a92125"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b343b9a0305d399016cd967c1a92125"></a>
+given a sample set of raw labeled with their corresponding percentiles from the same distribution In this Sorted with columns Each element in the first column is a float representing the raw value of a sample Its corresponding element in the next column represents the percentile it maps to&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (2,&quot;lengths&quot;,&quot;1D tensor, representing the length of each distribution. We expect that the sum of elements of this tensor&quot;&quot; is equal to the total length of value_to_pct.&quot;).Output(0</td></tr>
+<tr class="separator:a2b343b9a0305d399016cd967c1a92125"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad42ee021aa8e4e81fb4f2289192b2754"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad42ee021aa8e4e81fb4f2289192b2754"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NO_GRADIENT</b> (Percentile)</td></tr>
+<tr class="separator:ad42ee021aa8e4e81fb4f2289192b2754"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b4cdcbfd982aeba7cdf0893b2f1f5a1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b4cdcbfd982aeba7cdf0893b2f1f5a1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Perplexity, <a class="el" href="classcaffe2_1_1_perplexity_op.html">PerplexityOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a3b4cdcbfd982aeba7cdf0893b2f1f5a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8640,9 +8711,9 @@ INT_MAX Subnet with blob bindings Indices of corresponding outer workspace&#160;
 <tr class="separator:a0e10186bd5c4b61d0501819044b6119c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb2a34a424811068acf175bd0272749c"><td class="memItemLeft" align="right" valign="top">INT_MAX Subnet with blob bindings Indices of corresponding outer workspace in&#160;</td><td class="memItemRight" valign="bottom"><b>order</b></td></tr>
 <tr class="separator:afb2a34a424811068acf175bd0272749c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45c572cb5522ce6bbfdd93781bdcac5b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45c572cb5522ce6bbfdd93781bdcac5b"></a>
+<tr class="memitem:aea54367a931bcd1c6e3218ab2f9ad04d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea54367a931bcd1c6e3218ab2f9ad04d"></a>
 INT_MAX Subnet with blob bindings Indices of corresponding outer workspace in List of blobs from the forward Do int out&#160;</td><td class="memItemRight" valign="bottom"><b>bool</b> { return true</td></tr>
-<tr class="separator:a45c572cb5522ce6bbfdd93781bdcac5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aea54367a931bcd1c6e3218ab2f9ad04d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa65868e3ebf153459a7dc65217a7bad9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa65868e3ebf153459a7dc65217a7bad9"></a>
 <a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a>&#160;</td><td class="memItemRight" valign="bottom"><b>argsHelper</b> (def)</td></tr>
 <tr class="separator:aa65868e3ebf153459a7dc65217a7bad9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8708,18 +8779,18 @@ in a sequence length aware fashion&#160;</td><td class="memItemRight" valign="bo
 <tr class="memitem:a79bbf8f3ec52ccd3913154c386b75a9e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79bbf8f3ec52ccd3913154c386b75a9e"></a>
 in a sequence length aware fashion given the previous hidden and the sequence computes the GRU&#160;</td><td class="memItemRight" valign="bottom"><b>activations</b></td></tr>
 <tr class="separator:a79bbf8f3ec52ccd3913154c386b75a9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a019e70013d9197422138abe4913baa67"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a019e70013d9197422138abe4913baa67"></a>
-in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length&#160;</td><td class="memItemRight" valign="bottom"><b>gates</b></td></tr>
-<tr class="separator:a019e70013d9197422138abe4913baa67"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1ce5a02a90f02aac5324920e24ccfd5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae1ce5a02a90f02aac5324920e24ccfd5"></a>
-in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length Unactivated gate outputs from&#160;</td><td class="memItemRight" valign="bottom"><b>forget</b></td></tr>
-<tr class="separator:ae1ce5a02a90f02aac5324920e24ccfd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0e5da5cdcd95ca28ec9501fa791326e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0e5da5cdcd95ca28ec9501fa791326e"></a>
-in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length Unactivated gate outputs from&#160;</td><td class="memItemRight" valign="bottom"><b>update</b></td></tr>
-<tr class="separator:ad0e5da5cdcd95ca28ec9501fa791326e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a218c1e40fee4183bff563f824ff34377"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a218c1e40fee4183bff563f824ff34377"></a>
-in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length Unactivated gate outputs from and output pre activation&#160;</td><td class="memItemRight" valign="bottom"><b>t</b></td></tr>
-<tr class="separator:a218c1e40fee4183bff563f824ff34377"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5dd7a0d505d35c0cdeceae6e72bbf668"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5dd7a0d505d35c0cdeceae6e72bbf668"></a>
+in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length&#160;</td><td class="memItemRight" valign="bottom"><b>hidden</b></td></tr>
+<tr class="separator:a5dd7a0d505d35c0cdeceae6e72bbf668"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5c0ceac2d49bca5216c9907ac507867"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5c0ceac2d49bca5216c9907ac507867"></a>
+in a sequence length aware fashion given the previous hidden and the sequence computes the GRU avoiding computation if the input is Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length The new GRU hidden state calculated by this&#160;</td><td class="memItemRight" valign="bottom"><b>op</b></td></tr>
+<tr class="separator:aa5c0ceac2d49bca5216c9907ac507867"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4de84d17dee51f14a129bf538f6e5c95"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4de84d17dee51f14a129bf538f6e5c95"></a>
+When&#160;</td><td class="memItemRight" valign="bottom"><b>false</b></td></tr>
+<tr class="separator:a4de84d17dee51f14a129bf538f6e5c95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfe7a7bcf1a3cee70ba27814d3bd7ed7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abfe7a7bcf1a3cee70ba27814d3bd7ed7"></a>
+When the sequence lengths input is left and all following inputs are shifted left by&#160;</td><td class="memItemRight" valign="bottom"><b>one</b></td></tr>
+<tr class="separator:abfe7a7bcf1a3cee70ba27814d3bd7ed7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75af76b9adf6d15343f3c87937d96132"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a75af76b9adf6d15343f3c87937d96132"></a>
 INT_MAX Net executed when condition is true&#160;</td><td class="memItemRight" valign="bottom"><b>condition</b></td></tr>
 <tr class="separator:a75af76b9adf6d15343f3c87937d96132"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8922,6 +8993,21 @@ CPUContext::PadTensorInference Input data tensor from the previous&#160;</td><td
 <tr class="memitem:aba0a98ae5bc51ac68c5fecf74846a08d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba0a98ae5bc51ac68c5fecf74846a08d"></a>
 dimensions depend on whether the NCHW or NHWC operators are being used For in the&#160;</td><td class="memItemRight" valign="bottom"><b>former</b></td></tr>
 <tr class="separator:aba0a98ae5bc51ac68c5fecf74846a08d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa1f4eca0104e94278a74f4ef8e73e3f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa1f4eca0104e94278a74f4ef8e73e3f"></a>
+given a sample set of raw labeled with their corresponding percentiles from the same distribution In&#160;</td><td class="memItemRight" valign="bottom"><b>particular</b></td></tr>
+<tr class="separator:aaa1f4eca0104e94278a74f4ef8e73e3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a781301c4e85af233a6284cd73a386a90"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a781301c4e85af233a6284cd73a386a90"></a>
+given a sample set of raw labeled with their corresponding percentiles from the same distribution In this&#160;</td><td class="memItemRight" valign="bottom"><b>value_to_pct</b></td></tr>
+<tr class="separator:a781301c4e85af233a6284cd73a386a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a000385437867c1c3d0c350bb31799f8a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a000385437867c1c3d0c350bb31799f8a"></a>
+given a sample set of raw labeled with their corresponding percentiles from the same distribution In this Sorted with columns Each element in the first column is a float representing the raw value of a sample Its corresponding element in the next column represents the percentile it maps to&#160;</td><td class="memItemRight" valign="bottom"><b>percentile_values</b></td></tr>
+<tr class="separator:a000385437867c1c3d0c350bb31799f8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85259127c31499d533b3dfcd7ebf5dcf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a85259127c31499d533b3dfcd7ebf5dcf"></a>
+given a sample set of raw labeled with their corresponding percentiles from the same distribution In this Sorted with columns Each element in the first column is a float representing the raw value of a sample Its corresponding element in the next column represents the percentile it maps to tensor of&#160;</td><td class="memItemRight" valign="bottom"><b>floats</b></td></tr>
+<tr class="separator:a85259127c31499d533b3dfcd7ebf5dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed6e93b181e5889e7dcc8f3c9de22d97"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed6e93b181e5889e7dcc8f3c9de22d97"></a>
+given a sample set of raw labeled with their corresponding percentiles from the same distribution In this Sorted with columns Each element in the first column is a float representing the raw value of a sample Its corresponding element in the next column represents the percentile it maps to tensor of with the same dimensions as the flattened input tensor Each element of this corresponds to the percentile calculated for&#160;</td><td class="memItemRight" valign="bottom"><b>original_values</b> [i]</td></tr>
+<tr class="separator:aed6e93b181e5889e7dcc8f3c9de22d97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a06e77cee7ed8c180ee4ac48a93e6af07"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a06e77cee7ed8c180ee4ac48a93e6af07"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>probabilities</b></td></tr>
 <tr class="separator:a06e77cee7ed8c180ee4ac48a93e6af07"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9082,9 +9168,6 @@ Parameters to be normalized Gradient computed A bool variable to control whether
 <tr class="memitem:a43af402778303cefcff606cf59b2ed3a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a43af402778303cefcff606cf59b2ed3a"></a>
 Parameters to be normalized Gradient computed A bool variable to control whether to use max norm or constant norm When constant norm is used so that all the embedding vectors are scaled to have a L2 norm equals to max norm is used so that embedding is scaled so that its l2 norm is no larger than A If an embedding s norm is less than A&#160;</td><td class="memItemRight" valign="bottom"><b>originally</b></td></tr>
 <tr class="separator:a43af402778303cefcff606cf59b2ed3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5c0ceac2d49bca5216c9907ac507867"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5c0ceac2d49bca5216c9907ac507867"></a>
-value represented as indices vector and values tensor into a compacted tensor where the first dimension is determined by the first dimension of the input if it is given or the max index Missing values are filled with zeros The op supports duplicated indices and performs summation over corresponding values This behavior is useful for converting GradientSlices into dense representation After running this&#160;</td><td class="memItemRight" valign="bottom"><b>op</b></td></tr>
-<tr class="separator:aa5c0ceac2d49bca5216c9907ac507867"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8de4b212a0e77899730111b72a268394"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8de4b212a0e77899730111b72a268394"></a>
 Unscaled log probabilities Optional blob to be used to weight the samples for the loss With spatial weighting is by&#160;</td><td class="memItemRight" valign="bottom"><b>x</b></td></tr>
 <tr class="separator:a8de4b212a0e77899730111b72a268394"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10551,7 +10634,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 5 2018 13:03:33 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 6 2018 13:03:33 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

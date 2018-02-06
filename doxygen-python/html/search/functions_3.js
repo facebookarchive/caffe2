@@ -24,6 +24,7 @@ var searchData=
   ['convertnetfordevice',['ConvertNetForDevice',['../namespacedata__parallel__model.html#a0301331ccdf3c0d6f6fd2f38991b3c4c',1,'data_parallel_model']]],
   ['convertprototobinary',['ConvertProtoToBinary',['../namespaceutils.html#a2ec94e603ff1cacc225fee57a8ffca10',1,'utils']]],
   ['converttensorprotostoinitnet',['ConvertTensorProtosToInitNet',['../namespacecaffe__translator.html#a2aecefb40d81ad42733ffea5597aa15a',1,'caffe_translator']]],
+  ['cp_5faccessible',['cp_accessible',['../classcheckpoint_1_1_checkpoint_manager.html#ad87e23b34e91cf57ef92f75010cfd406',1,'checkpoint.CheckpointManager.cp_accessible()'],['../classcheckpoint_1_1_multi_node_checkpoint_manager.html#a2ed9193e2bf8fb225e532abdd7a50666',1,'checkpoint.MultiNodeCheckpointManager.cp_accessible()']]],
   ['create_5ffrom_5fproto',['create_from_proto',['../classcore_1_1_execution_step.html#ad8ab8e7bf2ec76f88481f314e11c6317',1,'core::ExecutionStep']]],
   ['create_5fparam',['create_param',['../classmodel__helper_1_1_model_helper.html#ae775f99256616cbcbe818e5f38f1562d',1,'model_helper::ModelHelper']]],
   ['create_5fpredict_5finit_5fnet',['create_predict_init_net',['../namespacepredictor__py__utils.html#accaf0a6a78c325bed10fa7905bc1be1d',1,'predictor_py_utils']]],

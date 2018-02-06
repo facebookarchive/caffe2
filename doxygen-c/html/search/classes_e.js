@@ -9,6 +9,7 @@ var searchData=
   ['observerconfig',['ObserverConfig',['../classcaffe2_1_1_observer_config.html',1,'caffe2']]],
   ['offsetalias',['OffsetAlias',['../structcaffe2_1_1detail_1_1_offset_alias.html',1,'caffe2::detail']]],
   ['onehotop',['OneHotOp',['../classcaffe2_1_1_one_hot_op.html',1,'caffe2']]],
+  ['onnxwhileop',['ONNXWhileOp',['../classcaffe2_1_1_o_n_n_x_while_op.html',1,'caffe2']]],
   ['opengladdop',['OpenGLAddOp',['../classcaffe2_1_1_open_g_l_add_op.html',1,'caffe2']]],
   ['openglconcatop',['OpenGLConcatOp',['../classcaffe2_1_1_open_g_l_concat_op.html',1,'caffe2']]],
   ['openglconvop',['OpenGLConvOp',['../classcaffe2_1_1_open_g_l_conv_op.html',1,'caffe2']]],

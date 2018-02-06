@@ -1,12 +1,13 @@
 var searchData=
 [
-  ['save',['save',['../classcheckpoint_1_1_checkpoint_manager.html#ac066d395b434f37e394a249e0c2bc47f',1,'checkpoint::CheckpointManager']]],
+  ['save',['save',['../classcheckpoint_1_1_checkpoint_manager.html#ac066d395b434f37e394a249e0c2bc47f',1,'checkpoint.CheckpointManager.save()'],['../classcheckpoint_1_1_multi_node_checkpoint_manager.html#adc8ed2a690251ffd359388d276f394a3',1,'checkpoint.MultiNodeCheckpointManager.save()']]],
   ['save_5fcheckpoints',['save_checkpoints',['../classcheckpoint_1_1_job_runner.html#a310994a775df73346c7b0c259fd059b9',1,'checkpoint::JobRunner']]],
   ['scoped_5fexecution_5fstep',['scoped_execution_step',['../namespacecore.html#aca7ac0d3ade05a220a9198583daaddae',1,'core']]],
   ['scopedblobreference',['ScopedBlobReference',['../namespacecore.html#ac1d245fb23a63603b0879a75c037ed9d',1,'core']]],
   ['scopedname',['ScopedName',['../namespacecore.html#a5f0d4f0ce488d86c6ecb04426c26ceaa',1,'core']]],
   ['set',['set',['../classschema_1_1_scalar.html#a0a566db67068cd62bc2d1b18750a8959',1,'schema::Scalar']]],
   ['set_5flr_5finjection',['set_lr_injection',['../namespaceoptimizer.html#adab96dd67ce08b866aa41f58154ae2f6',1,'optimizer']]],
+  ['set_5fparams',['set_params',['../classcheckpoint_1_1_checkpoint_manager.html#a7bc4f584e4ed905aac03200e7633408e',1,'checkpoint.CheckpointManager.set_params()'],['../classcheckpoint_1_1_multi_node_checkpoint_manager.html#a3eb209f15cd17b4af4d43ddf9555730a',1,'checkpoint.MultiNodeCheckpointManager.set_params()']]],
   ['set_5frand_5fseed',['set_rand_seed',['../classcore_1_1_net.html#a9432c6758f6ae1dc4123da30c494267b',1,'core::Net']]],
   ['set_5fruntime_5fargs',['set_runtime_args',['../classexperiment__util_1_1_external_logger.html#a6958df366dcf4503578e4fee11340f52',1,'experiment_util::ExternalLogger']]],
   ['set_5fvalue',['set_value',['../classschema_1_1_scalar.html#a85390b1fc563a3b5593b9687b94c7c78',1,'schema::Scalar']]],

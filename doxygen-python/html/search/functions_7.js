@@ -22,6 +22,7 @@ var searchData=
   ['get_5fparam_5fto_5fgrad',['get_param_to_grad',['../classmodel__helper_1_1_model_helper.html#a4e16d734d6834a9c09e22626ff51613c',1,'model_helper::ModelHelper']]],
   ['get_5fpatch_5fshape',['get_patch_shape',['../classvisualize_1_1_patch_visualizer.html#af7eda3eaa678f397485f549cb540b600',1,'visualize::PatchVisualizer']]],
   ['get_5fpredictor_5fexporter_5fhelper',['get_predictor_exporter_helper',['../namespacepredictor__exporter.html#a715acb0ba60110ebda2be1e354c9cbc1',1,'predictor_exporter']]],
+  ['get_5fresume_5ffrom_5fepoch_5fid',['get_resume_from_epoch_id',['../classcheckpoint_1_1_checkpoint_manager.html#a2b89727daf636acbabe833ea078bce0c',1,'checkpoint.CheckpointManager.get_resume_from_epoch_id()'],['../classcheckpoint_1_1_multi_node_checkpoint_manager.html#a8ef7ac1d6a59e780a1d7cdc4ea6b371c',1,'checkpoint.MultiNodeCheckpointManager.get_resume_from_epoch_id()']]],
   ['get_5fssa',['get_ssa',['../namespacecore.html#a0b214cc9ec83086e82d98f06294c2a40',1,'core']]],
   ['get_5fstate_5fnames',['get_state_names',['../classrnn__cell_1_1_r_n_n_cell.html#a1073f2d9e399b5832cd1ceb94d4594f6',1,'rnn_cell::RNNCell']]],
   ['get_5ftraining_5fnets',['get_training_nets',['../classlayer__test__util_1_1_layers_test_case.html#a2b18073f4b5e5d58bfc418cb92438800',1,'layer_test_util::LayersTestCase']]],

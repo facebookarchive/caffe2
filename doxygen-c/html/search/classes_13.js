@@ -2,11 +2,11 @@ var searchData=
 [
   ['tanhcpufunctor',['TanhCPUFunctor',['../structcaffe2_1_1_tanh_c_p_u_functor.html',1,'caffe2']]],
   ['tanhgradientcpufunctor',['TanhGradientCPUFunctor',['../structcaffe2_1_1_tanh_gradient_c_p_u_functor.html',1,'caffe2']]],
-  ['task',['Task',['../structcaffe2_1_1gpu__single__thread_1_1_task.html',1,'caffe2::gpu_single_thread']]],
   ['task',['Task',['../structcaffe2_1_1_task.html',1,'caffe2']]],
+  ['task',['Task',['../structcaffe2_1_1gpu__single__thread_1_1_task.html',1,'caffe2::gpu_single_thread']]],
   ['taskthreadpool',['TaskThreadPool',['../classcaffe2_1_1_task_thread_pool.html',1,'caffe2']]],
-  ['tensor',['Tensor',['../struct_tensor.html',1,'']]],
   ['tensor',['Tensor',['../classcaffe2_1_1_tensor.html',1,'caffe2']]],
+  ['tensor',['Tensor',['../struct_tensor.html',1,'']]],
   ['tensor_3c_20caffe2_3a_3acpucontext_20_3e',['Tensor&lt; caffe2::CPUContext &gt;',['../classcaffe2_1_1_tensor.html',1,'caffe2']]],
   ['tensor_3c_20caffe2_3a_3acudacontext_20_3e',['Tensor&lt; caffe2::CUDAContext &gt;',['../classcaffe2_1_1_tensor.html',1,'caffe2']]],
   ['tensor_3c_20cpucontext_20_3e',['Tensor&lt; CPUContext &gt;',['../classcaffe2_1_1_tensor.html',1,'caffe2']]],

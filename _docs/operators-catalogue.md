@@ -4053,11 +4053,7 @@ GRUUnit computes the activations of a standard GRU, in a sequence-length aware f
 ---------- | ----------
 *Arguments* | 
 `drop_states` | Bool to determine if hidden state is zeroes or passed along for timesteps past the given sequence_length.
-*Inputs* | 
-`hidden_prev` | The previous GRU hidden state.
-`gates` | Unactivated gate outputs from forget, update, and output gates, pre-activation.
-`seq_lengths` | Array of sequence lengths.  len(seq_lengths) should equal batch size N.
-`t` | The timestep for this operation.
+`sequence_lengths` | When false, the sequence lengths input is left out, and all following inputs are shifted left by one.
 *Outputs* | 
 `hidden` | The new GRU hidden state calculated by this op.
 
@@ -4074,6 +4070,14 @@ GRUUnit computes the activations of a standard GRU, in a sequence-length aware f
 ## GRUUnitGradient
 
 No documentation yet.
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`sequence_lengths` | When false, the sequence lengths input is left out, and all following inputs are shifted left by one.
 
 
 ### Code
@@ -5460,7 +5464,7 @@ LSTMUnit computes the activations of a standard LSTM (without peephole connectio
 ---------- | ----------
 *Arguments* | 
 `forget_bias` | Bias term to add in while calculating forget gate
-`no_sequence_lengths` | Ignore the sequence lengths input
+`sequence_lengths` | When false, the sequence lengths input is left out, and all following inputs are shifted left by one.
 
 
 ### Code
@@ -5482,7 +5486,7 @@ No documentation yet.
 
 ---------- | ----------
 *Arguments* | 
-`no_sequence_lengths` | Ignore the sequence lengths input
+`sequence_lengths` | When false, the sequence lengths input is left out, and all following inputs are shifted left by one.
 
 
 ### Code
@@ -7455,6 +7459,83 @@ Performs element-wise negation.
 
 
 
+## ONNXWhile
+
+
+ *** EXPERIMENTAL. This operator is a work-in-progress. No assumption should be made about the stability or correctness of this op. ** *  Generic Looping construct confirming to the ONNX Loop operator spec. This loop has multiple termination conditions:  1. Trip count. Iteration count specified at runtime. Set by specifying the  
+
+```
+    input M. Optional. Set to empty string to omit. Note that a static trip
+    count (specified at graph construction time) can be specified by passing
+    in a constant node for input M.
+```
+
+ 2. Loop termination condition. This is an input to the op that determines  
+
+```
+    whether to run the first interation and also a loop-carried dependency for
+    the body graph. The body graph must yield a value for the condition
+    variable, whether this input is provided or not.
+
+```
+
+ This table summarizes the operating modes of this operator with equivalent C-style code:  Operator inputs defined as (max_trip_count, condition_var). Omitted optional inputs are represented as empty string. Concretely, in this caffe2 op an input is marked as omitted by setting its 'has_{name}' argument to False.
+  
+
+```
+    input ("", ""):
+        for (int i=0; ; ++i) {
+          cond = ... // Note this value is ignored, but is required in the body
+        }
+
+    input ("", cond) // Note this is analogous to a while loop
+        bool cond = ...;
+        for (int i=0; cond; ++i) {
+          cond = ...;
+        }
+
+    input ("", 1) // Note this is analogous to a do-while loop
+        bool cond = true
+        for (int i=0; cond; ++i) {
+          cond = ...;
+        }
+
+    input (trip_count, "") // Note this is analogous to a for loop
+        int trip_count = ...
+        for (int i=0; i < trip_count; ++i) {
+          cond = ...; // ignored
+        }
+
+    input (trip_count, cond)
+        int trip_count = ...;
+        bool cond = ...;
+        for (int i=0; i < trip_count && cond; ++i) {
+          cond = ...;
+        }
+```
+
+     
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`loop_net` | Net executed on each iteration
+*Inputs* | 
+`condition` | Scalar boolean condition
+
+
+### Code
+
+
+[caffe2/operators/onnx_while_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/onnx_while_op.cc)
+
+---
+
+
+
 ## OneHot
 
 
@@ -7820,6 +7901,57 @@ Splits the input int tensor into multiple ones according to the first tensor.
 
 
 [caffe2/operators/partition_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/partition_ops.cc)
+
+---
+
+
+
+## Percentile
+
+
+ 
+
+```
+    This operator is used to find percentile representations for raw values, given a sample
+    set of raw values, labeled with their corresponding percentiles from the same distribution.
+    In particular, this operator takes as input a tensor of floats to find the percentile values
+    for, a 2D tensor of floats, where the first column of the tensor represents sampled values,
+    and the second column represents the percentile labels, and a tensor  of integers lengths.
+
+    This lengths tensor is used because the operator works on multiple sets of raw values at the same time. For
+    example, for an input:
+    original_values=[[3, 5, 3],[5, 1, 6]], lengths = [2, 1, 1], value_to_pct = [[3, 0.2], [5, 0.5], [1, 0.3], [3. 0.6]]
+
+    Our operator expects that each column i of the input tensor is sampled from distribution i. Lengths tells
+    us that the first two elements in value_to_pct are sampled from distribution 1, the next is from distribution two,
+    and the last is from distribution 3. We expect the output of our operator to give us [[0.2, 1.0, 0.6], [0.5, 0.3, 1.0]].
+
+    To calculate the percentile of an element, we check to see if its value is already mapped to
+    a percentile in value_to_pct. If so, we return that value. If not, we linearly interpolate between
+    the two closest values in value_to_pct. If the value is larger than all values in value_to_pct, we
+    return 1. If it's smaller than all the values, we return 0.
+
+```
+
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`original_values` | Input 2D tensor of floats, representing the original, raw data to calculate percentiles for.
+`value_to_pct` | Sorted 2D tensor, with 2 columns. Each element in the first column is a float representing the raw value of a sample. Its corresponding element in the next column represents the percentile it maps to.
+`lengths` | 1D tensor, representing the length of each distribution. We expect that the sum of elements of this tensor is equal to the total length of value_to_pct.
+*Outputs* | 
+`percentile_values` | 1D tensor of floats, with the same dimensions as the flattened input tensor. Each element of this tensor, percentile_values[i], corresponds to the percentile calculated for original_values[i].
+
+
+### Code
+
+
+[caffe2/operators/percentile_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/percentile_op.cc)
 
 ---
 
