@@ -26,11 +26,13 @@ import hypothesis.strategies as st
 import numpy as np
 import unittest
 
+
 @st.composite
 def slice_indices(draw, size):
-    begin = draw(st.integers(0, size-1))
-    end = draw(st.integers(begin, size-1))
+    begin = draw(st.integers(0, size - 1))
+    end = draw(st.integers(begin, size - 1))
     return (begin, end)
+
 
 @st.composite
 def tensor_and_1d_slice_indices(draw):
