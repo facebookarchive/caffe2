@@ -89,7 +89,7 @@ popd
 rm -rf pip-9.0.1*
 
 # Install pip packages
-pip install setuptools
+pip install setuptools && pip install --upgrade setuptools
 pip install --no-cache-dir \
     future \
     hypothesis \
