@@ -24,21 +24,32 @@ from caffe2.proto import caffe2_pb2
 import caffe2.python.hypothesis_test_util as hu
 import hypothesis.strategies as st
 import numpy as np
-import random
 import unittest
 
-class TestUtilityOps(hu.HypothesisTestCase):
+@st.composite
+def slice_indices(draw, size):
+    begin = draw(st.integers(0, size-1))
+    end = draw(st.integers(begin, size-1))
+    return (begin, end)
 
-    @given(X=hu.tensor(), args=st.booleans(), **hu.gcs)
-    def test_slice(self, X, args, gc, dc):
-        X = X.astype(dtype=np.float32)
-        dim = random.randint(0, X.ndim - 1)
-        slice_start = random.randint(0, X.shape[dim] - 1)
-        slice_end = random.randint(slice_start, X.shape[dim] - 1)
-        starts = np.array([0] * X.ndim).astype(np.int32)
-        ends = np.array([-1] * X.ndim).astype(np.int32)
-        starts[dim] = slice_start
-        ends[dim] = slice_end
+@st.composite
+def tensor_and_1d_slice_indices(draw):
+    X = draw(hu.tensor()).astype(dtype=np.float32)
+    dim = draw(st.integers(0, X.ndim - 1))
+    (slice_start, slice_end) = draw(slice_indices(X.shape[dim]))
+    starts = np.array([0] * X.ndim).astype(np.int32)
+    ends = np.array(X.shape).astype(np.int32)
+    starts[dim] = slice_start
+    ends[dim] = slice_end
+    return (X, starts, ends)
+
+
+class TestUtilityOps(hu.HypothesisTestCase):
+    @given(data=tensor_and_1d_slice_indices(), args=st.booleans(), **hu.gcs)
+    def test_slice(self, data, args, gc, dc):
+        X = data[0]
+        starts = data[1]
+        ends = data[2]
 
         if args:
             op = core.CreateOperator(
@@ -47,7 +58,8 @@ class TestUtilityOps(hu.HypothesisTestCase):
 
             def slice_ref(X):
                 slc = [slice(None)] * X.ndim
-                slc[dim] = slice(slice_start, slice_end)
+                for dim in range(0, X.ndim):
+                    slc[dim] = slice(starts[dim], ends[dim])
                 return [X[slc]]
             inputs = [X]
         else:
@@ -55,10 +67,11 @@ class TestUtilityOps(hu.HypothesisTestCase):
                 "Slice", ["X", "starts", "ends"], ["Y"], device_option=gc
             )
 
-            def slice_ref(x, starts, ends):
-                slc = [slice(None)] * x.ndim
-                slc[dim] = slice(slice_start, slice_end)
-                return [x[slc]]
+            def slice_ref(X, starts, ends):
+                slc = [slice(None)] * X.ndim
+                for dim in range(0, X.ndim):
+                    slc[dim] = slice(starts[dim], ends[dim])
+                return [X[slc]]
             inputs = [X, starts, ends]
 
         self.assertReferenceChecks(gc, op, inputs, slice_ref)
@@ -80,7 +93,7 @@ class TestUtilityOps(hu.HypothesisTestCase):
     def test_transpose(self, dtype, ndims, seed, null_axes, engine, gc, dc):
         if (gc.device_type == caffe2_pb2.CUDA and engine == "CUDNN"):
             # cudnn 5.1 does not support int.
-            assume(workspace.GetCuDNNVersion() >= 6000 or dtype != np.int32) 
+            assume(workspace.GetCuDNNVersion() >= 6000 or dtype != np.int32)
 
         dims = (np.random.rand(ndims) * 16 + 1).astype(np.int32)
         X = (np.random.rand(*dims) * 16).astype(dtype)
