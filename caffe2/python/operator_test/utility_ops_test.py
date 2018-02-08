@@ -45,9 +45,36 @@ def tensor_and_1d_slice_indices(draw):
     ends[dim] = slice_end
     return (X, starts, ends)
 
+@st.composite
+def tensor_and_2d_slice_indices(draw):
+    X = draw(hu.tensor()).astype(dtype=np.float32)
+    dim1 = draw(st.integers(0, X.ndim - 1))
+    dim2 = draw(st.integers(0, X.ndim - 1))
+    assume(dim1 != dim2)
+    (slice_start1, slice_end1) = draw(slice_indices(X.shape[dim1]))
+    (slice_start2, slice_end2) = draw(slice_indices(X.shape[dim2]))
+    starts = np.array([0] * X.ndim).astype(np.int32)
+    ends = np.array(X.shape).astype(np.int32)
+    starts[dim1] = slice_start1
+    ends[dim1] = slice_end1
+    starts[dim2] = slice_start2
+    ends[dim2] = slice_end2
+    return (X, starts, ends)
+
+@st.composite
+def tensor_and_nd_slice_indices(draw):
+    X = draw(hu.tensor()).astype(dtype=np.float32)
+    starts = np.array([0] * X.ndim).astype(np.int32)
+    ends = np.array(X.shape).astype(np.int32)
+    for dim in range(X.ndim):
+        (slice_start, slice_end) = draw(slice_indices(X.shape[dim]))
+        starts[dim] = slice_start
+        ends[dim] = slice_end
+    return (X, starts, ends)
+
 
 class TestUtilityOps(hu.HypothesisTestCase):
-    @given(data=tensor_and_1d_slice_indices(), args=st.booleans(), **hu.gcs)
+    @given(data=tensor_and_1d_slice_indices() | tensor_and_2d_slice_indices() | tensor_and_nd_slice_indices(), args=st.booleans(), **hu.gcs)
     def test_slice(self, data, args, gc, dc):
         X = data[0]
         starts = data[1]
