@@ -9,6 +9,7 @@ var searchData=
   ['netobserverreporterprint',['NetObserverReporterPrint',['../classcaffe2_1_1_net_observer_reporter_print.html',1,'caffe2']]],
   ['ngramfromcategoricalop',['NGramFromCategoricalOp',['../classcaffe2_1_1_n_gram_from_categorical_op.html',1,'caffe2']]],
   ['nhwc2nchwop',['NHWC2NCHWOp',['../classcaffe2_1_1_n_h_w_c2_n_c_h_w_op.html',1,'caffe2']]],
+  ['nnapi',['NNApi',['../classcaffe2_1_1_n_n_api.html',1,'caffe2']]],
   ['nnpackconvop',['NNPACKConvOp',['../classcaffe2_1_1_n_n_p_a_c_k_conv_op.html',1,'caffe2']]],
   ['node',['Node',['../structcaffe2_1_1transform_1_1_node.html',1,'caffe2::transform']]],
   ['nodefaultengineop',['NoDefaultEngineOp',['../classcaffe2_1_1_no_default_engine_op.html',1,'caffe2']]],

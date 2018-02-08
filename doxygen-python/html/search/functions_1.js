@@ -21,6 +21,7 @@ var searchData=
   ['allreduce8',['Allreduce8',['../namespacemuji.html#a2f440c7f28fc5ab70d51de14e8ee5369',1,'muji']]],
   ['allreducefallback',['AllreduceFallback',['../namespacemuji.html#a4bc35e413041cc92d8f2e2d5554e798f',1,'muji']]],
   ['analyze',['analyze',['../namespacenet__printer.html#a2baff126ab8753032a31c61d1f603fbf',1,'net_printer']]],
+  ['apply_5foverride',['apply_override',['../classrnn__cell_1_1_r_n_n_cell.html#a221c92b82ab3d97179e851245d53cfe2',1,'rnn_cell::RNNCell']]],
   ['applytransform',['ApplyTransform',['../namespaceworkspace.html#a97c1ac7fc57846990d0f01c623293093',1,'workspace']]],
   ['applytransformiffaster',['ApplyTransformIfFaster',['../namespaceworkspace.html#a71d126709c57e2ed32f3ae6294873091',1,'workspace']]],
   ['assertblobsequal',['assertBlobsEqual',['../classlayer__test__util_1_1_layers_test_case.html#a87e1fde8ee0bada1afc7d33e61805f16',1,'layer_test_util::LayersTestCase']]],

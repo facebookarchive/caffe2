@@ -3,11 +3,13 @@ var indexSectionsWithContent =
   0: "_abcdefghiklmnopqrstuvwxyz~",
   1: "_abcdefghiklmnopqrstuvwxyz",
   2: "c",
-  3: "f",
+  3: "fn",
   4: "_abcdefghiklmnopqrstuvw~",
-  5: "f",
-  6: "cdeu",
-  7: "p"
+  5: "dfst",
+  6: "acdeu",
+  7: "fopr",
+  8: "a",
+  9: "n"
 };
 
 var indexSectionNames =
@@ -19,7 +21,9 @@ var indexSectionNames =
   4: "functions",
   5: "variables",
   6: "typedefs",
-  7: "enums"
+  7: "enums",
+  8: "enumvalues",
+  9: "groups"
 };
 
 var indexSectionLabels =
@@ -31,6 +35,8 @@ var indexSectionLabels =
   4: "Functions",
   5: "Variables",
   6: "Typedefs",
-  7: "Enumerations"
+  7: "Enumerations",
+  8: "Enumerator",
+  9: "Modules"
 };
 

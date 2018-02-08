@@ -43,6 +43,7 @@ var searchData=
   ['fullyconnectedprunegradientop',['FullyConnectedPruneGradientOp',['../classcaffe2_1_1_fully_connected_prune_gradient_op.html',1,'caffe2']]],
   ['funhashgradientop',['FunHashGradientOp',['../classcaffe2_1_1_fun_hash_gradient_op.html',1,'caffe2']]],
   ['funhashop',['FunHashOp',['../classcaffe2_1_1_fun_hash_op.html',1,'caffe2']]],
+  ['fusecode',['FuseCode',['../group___neural_networks.html#ga4ec620045a39909a6bf00b3ee0c4d414',1,'NeuralNetworks.h']]],
   ['fused8bitrowwiseembeddinglookup',['Fused8BitRowwiseEmbeddingLookup',['../namespacecaffe2.html#a3aaf346b2578e6a4300823adc211ca26',1,'caffe2']]],
   ['fused8bitrowwisequantizedtofloatop',['Fused8BitRowwiseQuantizedToFloatOp',['../classcaffe2_1_1_fused8_bit_rowwise_quantized_to_float_op.html',1,'caffe2']]]
 ];

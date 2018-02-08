@@ -43,6 +43,7 @@ var searchData=
   ['resizelikeop',['ResizeLikeOp',['../classcaffe2_1_1_resize_like_op.html',1,'caffe2']]],
   ['resizenearestgradientop',['ResizeNearestGradientOp',['../classcaffe2_1_1_resize_nearest_gradient_op.html',1,'caffe2']]],
   ['resizenearestop',['ResizeNearestOp',['../classcaffe2_1_1_resize_nearest_op.html',1,'caffe2']]],
+  ['resultcode',['ResultCode',['../group___neural_networks.html#gad8097859ab1bdd06be52a8421df152d4',1,'NeuralNetworks.h']]],
   ['retrievecountop',['RetrieveCountOp',['../classcaffe2_1_1_retrieve_count_op.html',1,'caffe2']]],
   ['reversepackedsegsop',['ReversePackedSegsOp',['../classcaffe2_1_1_reverse_packed_segs_op.html',1,'caffe2']]],
   ['rmacregionsop',['RMACRegionsOp',['../classcaffe2_1_1_r_m_a_c_regions_op.html',1,'caffe2']]],

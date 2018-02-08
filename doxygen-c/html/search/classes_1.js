@@ -42,6 +42,7 @@ var searchData=
   ['alternatelearningrate',['AlternateLearningRate',['../classcaffe2_1_1_alternate_learning_rate.html',1,'caffe2']]],
   ['analysis',['Analysis',['../structcaffe2_1_1_analysis.html',1,'caffe2']]],
   ['androidglcontext',['AndroidGLContext',['../class_android_g_l_context.html',1,'']]],
+  ['aneuralnetworksoperandtype',['ANeuralNetworksOperandType',['../struct_a_neural_networks_operand_type.html',1,'']]],
   ['apmeterop',['APMeterOp',['../classcaffe2_1_1_a_p_meter_op.html',1,'caffe2']]],
   ['argument',['Argument',['../structcaffe2_1_1_op_schema_1_1_argument.html',1,'caffe2::OpSchema']]],
   ['argumenthelper',['ArgumentHelper',['../classcaffe2_1_1_argument_helper.html',1,'caffe2']]],

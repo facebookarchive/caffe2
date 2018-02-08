@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['exportedstatlist',['ExportedStatList',['../namespacecaffe2.html#a8eb1578901c4027246db0d3e46305c7f',1,'caffe2']]]
+  ['deviceinferencefunctiontype',['DeviceInferenceFunctionType',['../classcaffe2_1_1_op_schema.html#a37f1a10889ea9b1f4c07ae647d1d1e56',1,'caffe2::OpSchema']]]
 ];

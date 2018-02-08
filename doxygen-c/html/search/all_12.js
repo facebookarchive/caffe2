@@ -8,6 +8,7 @@ var searchData=
   ['sampleasop',['SampleAsOp',['../classcaffe2_1_1_sample_as_op.html',1,'caffe2']]],
   ['sampleinterval',['SampleInterval',['../structcaffe2_1_1_sample_interval.html',1,'caffe2']]],
   ['saveop',['SaveOp',['../classcaffe2_1_1_save_op.html',1,'caffe2']]],
+  ['scale',['scale',['../group___neural_networks.html#gaee95637670d7b7179b28a9d5a22f621a',1,'ANeuralNetworksOperandType']]],
   ['scaleimpl',['ScaleImpl',['../structcaffe2_1_1math_1_1detail_1_1_scale_impl.html',1,'caffe2::math::detail']]],
   ['scaleimpl_3c_20t_2c_20cpucontext_2c_201_20_3e',['ScaleImpl&lt; T, CPUContext, 1 &gt;',['../structcaffe2_1_1math_1_1detail_1_1_scale_impl_3_01_t_00_01_c_p_u_context_00_011_01_4.html',1,'caffe2::math::detail']]],
   ['scaleop',['ScaleOp',['../classcaffe2_1_1_scale_op.html',1,'caffe2']]],

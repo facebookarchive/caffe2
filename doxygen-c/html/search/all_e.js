@@ -25,6 +25,8 @@ var searchData=
   ['opengltexturetotensorstylizerdeprocessop',['OpenGLTextureToTensorStylizerDeprocessOp',['../classcaffe2_1_1_open_g_l_texture_to_tensor_stylizer_deprocess_op.html',1,'caffe2']]],
   ['opengltexturetotexturestylizerdeprocessop',['OpenGLTextureToTextureStylizerDeprocessOp',['../classcaffe2_1_1_open_g_l_texture_to_texture_stylizer_deprocess_op.html',1,'caffe2']]],
   ['opengltexturetotexturestylizerpreprocessop',['OpenGLTextureToTextureStylizerPreprocessOp',['../classcaffe2_1_1_open_g_l_texture_to_texture_stylizer_preprocess_op.html',1,'caffe2']]],
+  ['operandcode',['OperandCode',['../group___neural_networks.html#gaf06d1affd33f3bc698d0c04eceb23298',1,'NeuralNetworks.h']]],
+  ['operationcode',['OperationCode',['../group___neural_networks.html#gaabbe492c60331b13038e39d4207940e0',1,'NeuralNetworks.h']]],
   ['operator',['Operator',['../classcaffe2_1_1_operator.html',1,'caffe2']]],
   ['operator_3c_20cpucontext_20_3e',['Operator&lt; CPUContext &gt;',['../classcaffe2_1_1_operator.html',1,'caffe2']]],
   ['operator_3c_20cudacontext_20_3e',['Operator&lt; CUDAContext &gt;',['../classcaffe2_1_1_operator.html',1,'caffe2']]],

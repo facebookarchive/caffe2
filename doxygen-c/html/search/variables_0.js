@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['fp16',['FP16',['../class_g_l_texture.html#a224c14476ae48e6a733e18a3e4b686d3',1,'GLTexture']]]
+  ['dimensioncount',['dimensionCount',['../group___neural_networks.html#ga8e9b0f8229777661e6005b9d1847f026',1,'ANeuralNetworksOperandType']]],
+  ['dimensions',['dimensions',['../group___neural_networks.html#ga6d70bf7a7ea5d2e61e674cf7b3393548',1,'ANeuralNetworksOperandType']]]
 ];

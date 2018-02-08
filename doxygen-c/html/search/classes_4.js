@@ -26,6 +26,7 @@ var searchData=
   ['dispatchhelper_3c_20fixedvalues_3c_20firstval_2c_20values_2e_2e_2e_20_3e_2c_20extraargs_2e_2e_2e_20_3e',['DispatchHelper&lt; FixedValues&lt; FirstVal, Values... &gt;, ExtraArgs... &gt;',['../structcaffe2_1_1_dispatch_helper_3_01_fixed_values_3_01_first_val_00_01_values_8_8_8_01_4_00_01_extra_args_8_8_8_01_4.html',1,'caffe2']]],
   ['dispatchhelper_3c_20fixedvalues_3c_3e_2c_20extraargs_2e_2e_2e_20_3e',['DispatchHelper&lt; FixedValues&lt;&gt;, ExtraArgs... &gt;',['../structcaffe2_1_1_dispatch_helper_3_01_fixed_values_3_4_00_01_extra_args_8_8_8_01_4.html',1,'caffe2']]],
   ['divgradientop',['DivGradientOp',['../classcaffe2_1_1_div_gradient_op.html',1,'caffe2']]],
+  ['dlnnapi',['dlnnapi',['../structdlnnapi.html',1,'']]],
   ['doop',['DoOp',['../classcaffe2_1_1_do_op.html',1,'caffe2']]],
   ['dotproductgradientop',['DotProductGradientOp',['../classcaffe2_1_1_dot_product_gradient_op.html',1,'caffe2']]],
   ['dotproductop',['DotProductOp',['../classcaffe2_1_1_dot_product_op.html',1,'caffe2']]],

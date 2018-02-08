@@ -28,6 +28,7 @@ var searchData=
   ['analyze',['analyze',['../namespacenet__printer.html#a2baff126ab8753032a31c61d1f603fbf',1,'net_printer']]],
   ['analyzer',['Analyzer',['../classnet__printer_1_1_analyzer.html',1,'net_printer']]],
   ['app',['app',['../namespaceapp.html',1,'']]],
+  ['apply_5foverride',['apply_override',['../classrnn__cell_1_1_r_n_n_cell.html#a221c92b82ab3d97179e851245d53cfe2',1,'rnn_cell::RNNCell']]],
   ['applytransform',['ApplyTransform',['../namespaceworkspace.html#a97c1ac7fc57846990d0f01c623293093',1,'workspace']]],
   ['applytransformiffaster',['ApplyTransformIfFaster',['../namespaceworkspace.html#a71d126709c57e2ed32f3ae6294873091',1,'workspace']]],
   ['arccosinefeaturemap',['ArcCosineFeatureMap',['../classlayers_1_1arc__cosine__feature__map_1_1_arc_cosine_feature_map.html',1,'layers::arc_cosine_feature_map']]],
