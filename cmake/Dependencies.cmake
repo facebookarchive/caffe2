@@ -478,6 +478,13 @@ if (USE_METAL)
   endif()
 endif()
 
+if (USE_NNAPI)
+  if (NOT ANDROID)
+    message(WARNING "NNApi is only used in android builds.")
+    set(USE_NNAPI OFF)
+  endif()
+endif()
+
 if (USE_ATEN)
   list(APPEND Caffe2_EXTERNAL_DEPENDENCIES aten_build)
   list(APPEND Caffe2_DEPENDENCY_LIBS ATen)
