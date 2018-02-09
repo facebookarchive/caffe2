@@ -31,11 +31,15 @@ pip install \
     scikit-image \
     scipy \
     six
-
-# These aren't in pip. Try to install them with another package manager
-# unzip
-# zeromq
 ```
+
+Some of the tutorials also use these packages that are not in pip. 
+
+For Mac run : ```brew install unzip zeromq ```
+
+For Ubuntu run : ```apt-get install unzip zeromq ```
+
+For Centos run : ```yum install unzip zeromq ```
 
 Then run the shell script included in the `caffe2/caffe2/python/tutorials` folder:
 
