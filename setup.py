@@ -189,19 +189,18 @@ class build_ext(setuptools.command.build_ext.build_ext):
         setuptools.command.build_ext.build_ext.run(self)
 
     def build_extensions(self):
-        for d in ['caffe', 'caffe2']:
-            src = os.path.join(CMAKE_BUILD_DIR, d)
-            dst = os.path.join(os.path.realpath(self.build_lib), d)
-            self.copy_tree(src, dst)
-
         i = 0
         while i < len(self.extensions):
             ext = self.extensions[i]
             fullname = self.get_ext_fullname(ext.name)
             filename = self.get_ext_filename(fullname)
-            if not os.path.exists(os.path.join(self.build_lib, filename)):
+
+            src = os.path.join(CMAKE_BUILD_DIR, filename)
+            if not os.path.exists(src):
                 del self.extensions[i]
             else:
+                dst = os.path.join(os.path.realpath(self.build_lib), filename)
+                self.copy_file(src, dst)
                 i += 1
 
 class develop(setuptools.command.develop.develop):
