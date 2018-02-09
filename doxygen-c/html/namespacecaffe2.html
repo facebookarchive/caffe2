@@ -1708,6 +1708,10 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_thread_pool.html">ThreadPool</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_thresholded_relu_gradient_op.html">ThresholdedReluGradientOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_thresholded_relu_op.html">ThresholdedReluOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcaffe2_1_1_throw_in_the_towel_if_gradient_is_called.html">ThrowInTheTowelIfGradientIsCalled</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helper class to indicate that the operator should have no gradient.  <a href="structcaffe2_1_1_throw_in_the_towel_if_gradient_is_called.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6874,6 +6878,12 @@ INT_MAX Pointer to an existing <a class="el" href="structcaffe2_1_1_text_file_re
 <tr class="memitem:ab0caaac7cf5c9d7e053638babf99bdbe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0caaac7cf5c9d7e053638babf99bdbe"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NO_GRADIENT</b> (TextFileReaderRead)</td></tr>
 <tr class="separator:ab0caaac7cf5c9d7e053638babf99bdbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4bb6e77295467e6a75b22d917da50f71"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4bb6e77295467e6a75b22d917da50f71"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ThresholdedRelu, <a class="el" href="classcaffe2_1_1_thresholded_relu_op.html">ThresholdedReluOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a4bb6e77295467e6a75b22d917da50f71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19c8e69a96cb294a7072d3345b30aa04"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a19c8e69a96cb294a7072d3345b30aa04"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ThresholdedReluGradient, <a class="el" href="classcaffe2_1_1_thresholded_relu_gradient_op.html">ThresholdedReluGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a19c8e69a96cb294a7072d3345b30aa04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aced5b04811dbf39ebcee085bb455bfd7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aced5b04811dbf39ebcee085bb455bfd7"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Tile, <a class="el" href="classcaffe2_1_1_tile_op.html">TileOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:aced5b04811dbf39ebcee085bb455bfd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10637,7 +10647,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Feb 8 2018 13:03:31 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Feb 9 2018 13:04:20 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

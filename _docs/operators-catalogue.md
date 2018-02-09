@@ -12741,6 +12741,50 @@ Read a batch of rows from the given text file reader instance. Expects the numbe
 
 
 
+## ThresholdedRelu
+
+
+ThresholdedRelu takes one input data (Tensor) and produces one output data (Tensor) where the rectified linear function, y = x for x > alpha, y = 0 otherwise, is applied to the tensor elementwise.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`alpha` | (float) defaults to 1.0.
+*Inputs* | 
+`X` | 1D input tensor
+*Outputs* | 
+`Y` | 1D input tensor
+
+
+### Code
+
+
+[caffe2/operators/thresholded_relu_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/thresholded_relu_op.cc)
+
+---
+
+
+
+## ThresholdedReluGradient
+
+
+ThresholdedReluGradient takes both Y and dY and uses this to update dX according to the chain rule and derivatives of the rectified linear function.
+
+
+
+### Code
+
+
+[caffe2/operators/thresholded_relu_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/thresholded_relu_op.cc)
+
+---
+
+
+
 ## Tile
 
 
