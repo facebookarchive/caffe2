@@ -62,7 +62,7 @@ input_size = 227
 img = helpers.loadToNCHW(img, mean, input_size)
 
 # submit the image to net and get a tensor of results
-results = p.run([img])   
+results = p.run({'data': img})   
 response = helpers.parseResults(results)
 # and lookup our result from the inference list
 print response
