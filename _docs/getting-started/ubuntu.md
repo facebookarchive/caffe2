@@ -199,13 +199,13 @@ Build issues | Be warned that installing CUDA and cuDNN will increase the size o
 conda install -c caffe2 caffe2
 ```
 
-For CUDA 9 and cuDNN 7
+For CUDA 9 and cuDNN 7 (experimental)
 
 ```bash
 conda install -c caffe2 caffe2-cuda9.0-cudnn7
 ```
 
-For CUDA 8 and cuDNN 7
+For CUDA 8 and cuDNN 7 (experimental)
 
 ```bash
 conda install -c caffe2 caffe2-cuda8.0-cudnn7
