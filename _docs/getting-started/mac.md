@@ -96,7 +96,7 @@ git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
 
 We're going to build without CUDA, using the `-DUSE_CUDA=OFF` flag, since it would be rare at this point for your Mac to have GPU card with CUDA support.
 
-```
+```bash
 # This will build Caffe2 in an isolated directory so that Caffe2 source is
 # unaffected
 mkdir build && cd build
@@ -113,7 +113,7 @@ sudo make install
 ## Test the Caffe2 Installation
 Run this to see if your Caffe2 installation was successful. 
 
-```
+```bash
 cd ~ && python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 ```
 
