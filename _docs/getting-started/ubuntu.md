@@ -199,7 +199,20 @@ Build issues | Be warned that installing CUDA and cuDNN will increase the size o
 conda install -c caffe2 caffe2
 ```
 
-Packages exist for both Python 2.7 and 3.6. At this time all packages are built with MKL, without GPU support. Anaconda packages built for CUDA are coming soon.
+For CUDA 9 and cuDNN 7
+
+```bash
+conda install -c caffe2 caffe2-cuda9.0-cudnn7
+```
+
+For CUDA 8 and cuDNN 7
+
+```bash
+conda install -c caffe2 caffe2-cuda8.0-cudnn7
+```
+
+To see what packages these pre-built binaries are built against, see `conda/cuda/meta.yaml` for the CUDA builds and `conda/no_cuda/meta.yaml` for the CPU only build. If you want different libraries then you must build from  source.
+
 
 <block class="ubuntu docker" />
 
