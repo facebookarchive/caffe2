@@ -29,7 +29,7 @@
 # 
 # 3. run the net and get the results!
 # 
-#         results = p.run([img])
+#         results = p.run({'data': img})
 # 
 # The results come back as a multidimensional array of probabilities. Essentially each row is a percentage chance that the object matches something that the neural net recognizes. When you run the flower it should give you over 95% rating that the flower is a daisy.
 # 
@@ -210,7 +210,7 @@ with open(PREDICT_NET) as f:
 p = workspace.Predictor(init_net, predict_net)
 
 # run the net and return prediction
-results = p.run([img])
+results = p.run({'data': img})
 
 # turn it into something we can play with and examine which is in a multi-dimensional array
 results = np.asarray(results)
