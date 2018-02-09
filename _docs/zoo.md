@@ -48,7 +48,7 @@ p = workspace.Predictor(init_net, predict_net)
 From here you can do a simple prediction. Continuing with the Squeezenet example, we can pass in a [prepped image](tutorial-image-pre-processing.html) and get a answer back with the results - which may contain an accurate detection of an object in the image.
 
 ```
-results = p.run([img])
+results = p.run({'data': img})
 ```
 
 ### Model Downloader Module
