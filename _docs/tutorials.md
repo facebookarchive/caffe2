@@ -30,9 +30,11 @@ pip install \
     requests \
     scikit-image \
     scipy \
-    six \
-    unzip \
-    zeromq
+    six
+
+# These aren't in pip. Try to install them with another package manager
+# unzip
+# zeromq
 ```
 
 Then run the shell script included in the `caffe2/caffe2/python/tutorials` folder:

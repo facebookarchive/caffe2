@@ -10,15 +10,15 @@ There are three ways to install on Mac, with [Anaconda and conda](#anaconda-inst
 
 ```bash
 git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
-conda build conda
+conda build conda/no_cuda
 conda install caffe2 --use-local
 ```
 
-This will build Caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/build.sh` and the packages specified in `conda/meta.yaml`. `conda build` will create a conda package (tarball) on your machine, which `conda install` then installs in the current conda environment. To build Caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/build.sh` and run the build and install commands again. Note that this will create a new ephemeral conda environment on every build, so it'll be slower than the [Custom Anaconda Installation](#custom-anaconda-install) approach below.
+This will build Caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/no_cuda/build.sh` and the packages specified in `conda/no_cuda/meta.yaml`. `conda build` will create a conda package (tarball) on your machine called `caffe2`, which `conda install` then installs in the current conda environment. To build Caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/no_cuda/build.sh` and run the build and install commands again. Note that this will create a new ephemeral conda environment on every build, so it'll be slower than the [Custom Anaconda Installation](#custom-anaconda-install) approach below.
 
 ### Optional GPU Support
 
-In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries. You will have to remove `-DUSE_CUDA=OFF` and `-DUSE_NCCL=OFF` flags from `conda/build.sh`.
+In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries. If you want to use `conda-build` then use the `conda/cuda` folder, e.g. `conda build conda/cuda && conda install caffe2-cuda --use-local`. 
 
 ## Custom Anaconda Install
 
@@ -96,16 +96,24 @@ git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
 
 We're going to build without CUDA, using the `-DUSE_CUDA=OFF` flag, since it would be rare at this point for your Mac to have GPU card with CUDA support.
 
-```
+```bash
+# This will build Caffe2 in an isolated directory so that Caffe2 source is
+# unaffected
 mkdir build && cd build
+
+# This configures the build and finds which libraries it will include in the
+# Caffe2 installation. The output of this command is very helpful in debugging
 cmake -DUSE_CUDA=OFF ..
+
+# This actually builds and installs Caffe2 from makefiles generated from the
+# above configuration step
 sudo make install
 ```
 
 ## Test the Caffe2 Installation
 Run this to see if your Caffe2 installation was successful. 
 
-```
+```bash
 cd ~ && python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 ```
 
