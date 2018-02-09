@@ -4,7 +4,7 @@ add_subdirectory(opengl)
 
 if (USE_NNAPI)
   add_subdirectory(nnapi)
-endif()	
+endif()
 
 # CPU source, test sources, binary sources
 set(Caffe2_CPU_SRCS ${Caffe2_CPU_SRCS} PARENT_SCOPE)
