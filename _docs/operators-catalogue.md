@@ -5697,7 +5697,7 @@ Collect the last N rows from input data. The purpose is to keep track of data ac
 
 
 Computes layer normalization as described in  [https://arxiv.org/pdf/1607.06450.pdf.](https://arxiv.org/pdf/1607.06450.pdf.) 
-Given an input vector x \in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}], this op treats dimensions a_k through a_{n-1} as feature vectors. For each feature vector, the op contains the mean and standard deviation. Then, it returns the normalized values (with restdev_mapct to the feature vector).
+Given an input vector x \in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}], this op treats dimensions a_k through a_{n-1} as feature vectors. For each feature vector, the op contains the mean and standard deviation. Then, it returns the normalized values (with respect to the feature vector).
  Note that this op does not contain the scale an bias terms described in the paper. Simply follow this op with an FC op to add those. Concretely, this op implements:  h = \frac{1}{\sigma}(a - \mu) where \mu = \frac{1}{H}\sum_{i=1}^{H} a_i and \sigma = \sqrt{\frac{1}{H}\sum_{i=1}^{H}(a_i - \mu)^2} where H is the number of hidden units (i.e. product of dimensions from 'axis' to the end.) 
 
 
