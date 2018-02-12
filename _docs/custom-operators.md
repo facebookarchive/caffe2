@@ -47,7 +47,7 @@ REGISTER_CUDA_OPERATOR(FCGradient,
 
 Note that the primary differences between this GPU implementation versus the CPU implementation is using `REGISTER_CUDA_OPERATOR` and `CUDAContext` instead of `REGISTER_CPU_OPERATOR` and `CPUContext`. Also note the inclusion of the additional header file [context_gpu.h](https://github.com/caffe2/caffe2/blob/master/caffe2/core/context_gpu.h) which is something you'll want to include for any GPU implementation.
 
-Referring back to `fully_connected_op.cc` we will look at the remainder of the file and discuss the operator schema. This is where the this operator is told how many inputs and outputs are created. This section is also used to generate the documentation for the operator in the [Operators Catalogue](operators_catalogue.html), so be thorough in describing the arguments and the functionality. Also note below that with `.Arg`, `.Input`, and `.Output` the last parameter is a description that is also utilized in generating documentation.
+Referring back to `fully_connected_op.cc` we will look at the remainder of the file and discuss the operator schema. This is where the operator is told how many inputs and outputs are created. This section is also used to generate the documentation for the operator in the [Operators Catalog](operators_catalogue.html), so be thorough in describing the arguments and the functionality. Also note below that with `.Arg`, `.Input`, and `.Output` the last parameter is a description that is also utilized in generating documentation.
 
 **[fully_connected_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/fully_connected_op.cc)**
 
@@ -58,7 +58,7 @@ OPERATOR_SCHEMA(FC)
   .SetDoc(R"DOC(
 Computes the result of passing an input vector X into a fully connected layer with 2D weight matrix W and 1D bias vector b.
 
-The layer computes Y = X * W + b, where X has size (M x K), W has size (K x N), b has size (N), and Y has size (M x N), where M is the batch size. Even though b  is 1D, it is resized to size (M x N) implicitly and added to each vector in the batch. These dimensions must be matched correctly, or else the operator will throw errors.
+The layer computes Y = X * W + b, where X has size (M x K), W has size (K x N), b has size (N), and Y has size (M x N), where M is the batch size. Even though b is 1D, it is resized to size (M x N) implicitly and added to each vector in the batch. These dimensions must be matched correctly, or else the operator will throw errors.
 )DOC")
   .Arg("axis", "(int32_t) default to 1; describes the axis of the inputs; "
   "defaults to one because the 0th axis most likely describes the batch_size")
