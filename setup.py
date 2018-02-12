@@ -42,7 +42,7 @@ except ImportError:
     NINJA = find_executable('ninja')
     USE_NINJA = bool(NINJA)
 else:
-    NINJA = os.path.realpath(os.path.join(ninja.BIN_DIR), 'ninja')
+    NINJA = os.path.realpath(os.path.join(ninja.BIN_DIR, 'ninja'))
     USE_NINJA = True
 
 if not USE_NINJA and not find_executable('make'):
@@ -55,7 +55,7 @@ if not USE_NINJA and not find_executable('make'):
 @contextmanager
 def cd(path):
     if not os.path.isabs(path):
-        raise RuntimeError('Can only cd to absolute path, got: {}',format(path))
+        raise RuntimeError('Can only cd to absolute path, got: {}'.format(path))
     orig_path = os.getcwd()
     os.chdir(path)
     try:
