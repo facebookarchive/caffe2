@@ -20,8 +20,6 @@ requirements:
     - glog
     - gflags
     - lmdb
-    - mkl-include
-    - mkl
     - numpy
     - opencv
     - python
@@ -32,8 +30,6 @@ requirements:
     - glog
     - gflags
     - lmdb
-    - mkl
-    - mkl-include
     - numpy
     - opencv
     - protobuf

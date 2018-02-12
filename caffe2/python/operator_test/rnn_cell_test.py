@@ -36,17 +36,20 @@ import pytest
 import unittest
 
 
-def lstm_unit(hidden_t_prev, cell_t_prev, gates,
-              seq_lengths, timestep, forget_bias=0.0,
-              drop_states=False, no_sequence_lengths=False):
+def lstm_unit(*args, **kwargs):
+    forget_bias = kwargs.get('forget_bias', 0.0)
+    drop_states = kwargs.get('drop_states', False)
+    sequence_lengths = kwargs.get('sequence_lengths', True)
+
+    if sequence_lengths:
+        hidden_t_prev, cell_t_prev, gates, seq_lengths, timestep = args
+    else:
+        hidden_t_prev, cell_t_prev, gates, timestep = args
     D = cell_t_prev.shape[2]
     G = gates.shape[2]
     N = gates.shape[1]
     t = (timestep * np.ones(shape=(N, D))).astype(np.int32)
     assert t.shape == (N, D)
-    seq_lengths = (np.ones(shape=(N, D)) *
-                   seq_lengths.reshape(N, 1)).astype(np.int32)
-    assert seq_lengths.shape == (N, D)
     assert G == 4 * D
     # Resize to avoid broadcasting inconsistencies with NumPy
     gates = gates.reshape(N, 4, D)
@@ -59,10 +62,13 @@ def lstm_unit(hidden_t_prev, cell_t_prev, gates,
     f_t = sigmoid(f_t + forget_bias)
     o_t = sigmoid(o_t)
     g_t = tanh(g_t)
-    if no_sequence_lengths:
-        valid = np.ones(shape=(N, D))
-    else:
+    if sequence_lengths:
+        seq_lengths = (np.ones(shape=(N, D)) *
+                       seq_lengths.reshape(N, 1)).astype(np.int32)
+        assert seq_lengths.shape == (N, D)
         valid = (t < seq_lengths).astype(np.int32)
+    else:
+        valid = np.ones(shape=(N, D))
     assert valid.shape == (N, D)
     cell_t = ((f_t * cell_t_prev) + (i_t * g_t)) * (valid) + \
         (1 - valid) * cell_t_prev * (1 - drop_states)
@@ -126,11 +132,11 @@ def layer_norm_lstm_reference(
         )
 
         hidden_t, cell_t = lstm_unit(
-            hidden_t_prev=hidden_t_prev,
-            cell_t_prev=cell_t_prev,
-            gates=gates,
-            seq_lengths=seq_lengths,
-            timestep=t,
+            hidden_t_prev,
+            cell_t_prev,
+            gates,
+            seq_lengths,
+            t,
             forget_bias=forget_bias,
             drop_states=drop_states,
         )
@@ -166,11 +172,11 @@ def lstm_reference(input, hidden_input, cell_input,
         gates = np.dot(hidden_t_prev, gates_w.T) + gates_b
         gates = gates + input_t
         hidden_t, cell_t = lstm_unit(
-            hidden_t_prev=hidden_t_prev,
-            cell_t_prev=cell_t_prev,
-            gates=gates,
-            seq_lengths=seq_lengths,
-            timestep=t,
+            hidden_t_prev,
+            cell_t_prev,
+            gates,
+            seq_lengths,
+            t,
             forget_bias=forget_bias,
             drop_states=drop_states,
         )
@@ -381,7 +387,7 @@ def lstm_with_attention_reference(
         gates = np.dot(gates_input, gates_w.T) + gates_b
         gates = gates + input_t
         hidden_t, cell_t = lstm_unit(hidden_t_prev, cell_t_prev, gates,
-                                     decoder_input_lengths, t, 0)
+                                     decoder_input_lengths, t)
         hidden[t + 1] = hidden_t
         cell[t + 1] = cell_t
 
@@ -675,7 +681,7 @@ def milstm_reference(
             gates,
             seq_lengths,
             t,
-            forget_bias,
+            forget_bias=forget_bias,
             drop_states=drop_states,
         )
         hidden[t + 1] = hidden_t
@@ -733,7 +739,7 @@ def layer_norm_milstm_reference(
             gates,
             seq_lengths,
             t,
-            forget_bias,
+            forget_bias=forget_bias,
             drop_states=drop_states,
         )
         hidden[t + 1] = hidden_t
@@ -1569,34 +1575,36 @@ class RNNCellTest(hu.HypothesisTestCase):
            d=st.integers(1, 10),
            t=st.integers(1, 10),
            dtype=st.sampled_from([np.float32, np.float16]),
-           no_sequence_lengths=st.booleans(),
+           use_sequence_lengths=st.booleans(),
            **hu.gcs)
     def test_lstm_unit_recurrent_network(
-            self, seed, n, d, t, dtype, dc, no_sequence_lengths, gc):
+            self, seed, n, d, t, dtype, dc, use_sequence_lengths, gc):
         np.random.seed(seed)
         if dtype == np.float16:
             # only supported with CUDA
             assume(gc.device_type == caffe2_pb2.CUDA)
             dc = [do for do in dc if do.device_type == caffe2_pb2.CUDA]
 
+        if use_sequence_lengths:
+            op_inputs = ['hidden_t_prev', 'cell_t_prev', 'gates_t',
+                         'seq_lengths', 'timestep']
+        else:
+            op_inputs = ['hidden_t_prev', 'cell_t_prev', 'gates_t', 'timestep']
         op = core.CreateOperator(
             'LSTMUnit',
-            [
-                'hidden_t_prev',
-                'cell_t_prev',
-                'gates_t',
-                'seq_lengths',
-                'timestep',
-            ],
+            op_inputs,
             ['hidden_t', 'cell_t'],
-            no_sequence_lengths=no_sequence_lengths,
+            sequence_lengths=use_sequence_lengths,
         )
         cell_t_prev = np.random.randn(1, n, d).astype(dtype)
         hidden_t_prev = np.random.randn(1, n, d).astype(dtype)
         gates = np.random.randn(1, n, 4 * d).astype(dtype)
         seq_lengths = np.random.randint(1, t + 1, size=(n,)).astype(np.int32)
         timestep = np.random.randint(0, t, size=(1,)).astype(np.int32)
-        inputs = [hidden_t_prev, cell_t_prev, gates, seq_lengths, timestep]
+        if use_sequence_lengths:
+            inputs = [hidden_t_prev, cell_t_prev, gates, seq_lengths, timestep]
+        else:
+            inputs = [hidden_t_prev, cell_t_prev, gates, timestep]
         input_device_options = {'timestep': hu.cpu_do}
         self.assertDeviceChecks(
             dc, op, inputs, [0],
@@ -1607,7 +1615,7 @@ class RNNCellTest(hu.HypothesisTestCase):
             kwargs['threshold'] = 1e-1  # default is 1e-4
 
         def lstm_unit_reference(*args, **kwargs):
-            return lstm_unit(*args, no_sequence_lengths=no_sequence_lengths, **kwargs)
+            return lstm_unit(*args, sequence_lengths=use_sequence_lengths, **kwargs)
 
         self.assertReferenceChecks(
             gc, op, inputs, lstm_unit_reference,
@@ -1629,7 +1637,6 @@ class RNNCellTest(hu.HypothesisTestCase):
            max_num_units=st.integers(1, 3),
            num_layers=st.integers(2, 3),
            batch_size=st.integers(1, 3))
-    @utils.debug
     def test_multi_lstm(
         self,
         input_length,
@@ -1657,7 +1664,7 @@ class RNNCellTest(hu.HypothesisTestCase):
             initial_states=None,
             dim_in=dim_in,
             dim_out=dim_out,
-            scope='test',
+            # scope='test',
             outputs_with_grads=(0,),
             return_params=False,
             memory_optimization=False,
@@ -1691,23 +1698,26 @@ class RNNCellTest(hu.HypothesisTestCase):
         for i in range(num_layers):
             hidden_input_list.append(
                 workspace.FetchBlob(
-                    'test/test/layer_{}/initial_hidden_state'.format(i)),
+                    'layer_{}/initial_hidden_state'.format(i)),
             )
             cell_input_list.append(
                 workspace.FetchBlob(
-                    'test/test/layer_{}/initial_cell_state'.format(i)),
+                    'layer_{}/initial_cell_state'.format(i)),
             )
+            # Input projection for the first layer is produced outside
+            # of the cell ans thus not scoped
+            prefix = 'layer_{}/'.format(i) if i > 0 else ''
             i2h_w_list.append(
-                workspace.FetchBlob('test/layer_{}/i2h_w'.format(i)),
+                workspace.FetchBlob('{}i2h_w'.format(prefix)),
             )
             i2h_b_list.append(
-                workspace.FetchBlob('test/layer_{}/i2h_b'.format(i)),
+                workspace.FetchBlob('{}i2h_b'.format(prefix)),
             )
             gates_w_list.append(
-                workspace.FetchBlob('test/layer_{}/gates_t_w'.format(i)),
+                workspace.FetchBlob('layer_{}/gates_t_w'.format(i)),
             )
             gates_b_list.append(
-                workspace.FetchBlob('test/layer_{}/gates_t_b'.format(i)),
+                workspace.FetchBlob('layer_{}/gates_t_b'.format(i)),
             )
 
         workspace.RunNetOnce(model.net)
@@ -1764,6 +1774,7 @@ class RNNCellTest(hu.HypothesisTestCase):
                 step_size=0.0001,
                 threshold=0.05,
             )
+
 
 if __name__ == "__main__":
     workspace.GlobalInit([
