@@ -30,6 +30,8 @@
 #include "caffe2/mkl/mkl_utils.h"
 #include "caffe2/observers/runcnt_observer.h"
 #include "caffe2/observers/time_observer.h"
+#include "caffe2/onnx/helper.h"
+#include "caffe2/onnx/backend.h"
 #include "caffe2/utils/cpuid.h"
 #include "caffe2/utils/string_utils.h"
 #include "google/protobuf/io/coded_stream.h"
@@ -610,6 +612,154 @@ void addObjectMethods(py::module& m) {
       .def_property_readonly("name", &OpSchema::Argument::name)
       .def_property_readonly("description", &OpSchema::Argument::description)
       .def_property_readonly("required", &OpSchema::Argument::is_required);
+
+  py::class_<onnx_caffe2::Caffe2Ops>(m, "Caffe2Ops")
+      .def(py::init([](const std::vector<py::bytes>& init_ops,
+                       const std::vector<py::bytes>& ops,
+                       const std::vector<py::bytes>& interface_blobs) {
+        auto* c2ops = new onnx_caffe2::Caffe2Ops();
+        for (const auto &s : init_ops) {
+          ParseProtobufFromLargeString(s.cast<std::string>(),
+                                       c2ops->init_ops.Add());
+        }
+        for (const auto& s : ops) {
+          ParseProtobufFromLargeString(s.cast<std::string>(), c2ops->ops.Add());
+        }
+        for (const auto &s : interface_blobs) {
+          auto *tmp = c2ops->interface_blobs.Add();
+          *tmp = s.cast<std::string>();
+        }
+        return c2ops;
+      }));
+
+  py::class_<onnx_caffe2::Caffe2BackendRep>(m, "Caffe2BackenRep")
+      .def(py::init<>())
+      .def(
+          "init_net",
+          [](onnx_caffe2::Caffe2BackendRep& instance) {
+            const auto& init_net = instance.init_net();
+            std::string out;
+            init_net.SerializeToString(&out);
+            return py::bytes(out);
+          })
+
+      .def(
+          "pred_net",
+          [](onnx_caffe2::Caffe2BackendRep& instance) {
+            const auto& pred_net = instance.pred_net();
+            std::string out;
+            pred_net.SerializeToString(&out);
+            return py::bytes(out);
+          })
+      .def(
+          "external_outputs",
+          [](onnx_caffe2::Caffe2BackendRep& instance) {
+            std::vector<std::string> outputs;
+            for (const auto& o : instance.pred_net().external_output()) {
+              outputs.emplace_back(o);
+            }
+            return outputs;
+          })
+      .def(
+          "external_inputs",
+          [](onnx_caffe2::Caffe2BackendRep& instance) {
+            std::vector<std::string> inputs;
+            for (const auto& o : instance.pred_net().external_input()) {
+              inputs.emplace_back(o);
+            }
+            return inputs;
+          })
+      .def(
+          "uninitialized_inputs",
+          [](onnx_caffe2::Caffe2BackendRep& instance) {
+            return instance.uninitialized_inputs();
+          })
+      .def(
+          "run",
+          [](onnx_caffe2::Caffe2BackendRep& instance,
+             std::map<std::string, py::object> inputs)
+              -> std::vector<py::object> {
+            Predictor::TensorMap tensors;
+            std::map<std::string, TensorCPU> tensors_data{};
+            for (const auto pair : inputs) {
+              const auto& name = pair.first;
+              const auto& input = pair.second;
+              CAFFE_ENFORCE(
+                  PyArray_Check(input.ptr()),
+                  "Input must be of type numpy array.");
+              PyArrayObject* array =
+                  reinterpret_cast<PyArrayObject*>(input.ptr());
+              TensorFeeder<CPUContext>().FeedTensor(
+                  DeviceOption(), array, &tensors_data[name]);
+              tensors.insert(std::make_pair(name, &tensors_data[name]));
+            }
+
+
+            std::vector<TensorCPU*> out;
+            instance.RunMap(tensors, &out);
+            std::vector<py::object> pyout;
+            for (auto t : out) {
+              pyout.push_back(
+                  TensorFetcher<CPUContext>().FetchTensor(*t, true).obj);
+            }
+            return pyout;
+          })
+      .def(
+          "run",
+          [](onnx_caffe2::Caffe2BackendRep& instance,
+             std::vector<py::object> inputs)
+              -> std::vector<py::object> {
+            Predictor::TensorVector tensors;
+            std::vector<TensorCPU> tensors_data(inputs.size());
+            for (auto i = 0; i < inputs.size(); ++i) {
+              auto input = inputs[i];
+              CAFFE_ENFORCE(
+                  PyArray_Check(input.ptr()),
+                  "Input must be of type numpy array.");
+              PyArrayObject* array =
+                  reinterpret_cast<PyArrayObject*>(input.ptr());
+              TensorFeeder<CPUContext>().FeedTensor(
+                  DeviceOption(), array, &(tensors_data[i]));
+              tensors.push_back(&(tensors_data[i]));
+            }
+            std::vector<TensorCPU*> out;
+            instance.Run(tensors, &out);
+            std::vector<py::object> pyout;
+            for (auto t : out) {
+              pyout.push_back(
+                  TensorFetcher<CPUContext>().FetchTensor(*t, true).obj);
+            }
+            return pyout;
+          });
+
+  py::class_<onnx_caffe2::Caffe2Backend>(m, "Caffe2Backend")
+      .def(py::init<>())
+      .def("prepare",
+           [](onnx_caffe2::Caffe2Backend &instance,
+              const py::bytes &onnx_model_str, const std::string &device,
+              const std::vector<onnx_caffe2::Caffe2Ops> &extras) {
+             auto *rep = instance.Prepare(onnx_model_str.cast<std::string>(),
+                                          device, extras);
+             return rep;
+           })
+      .def("convert_node",
+           [](onnx_caffe2::Caffe2Backend &instance, const py::bytes &node_str,
+              int opset_version) -> std::vector<py::bytes> {
+             auto c2ops = instance.ConvertNode(node_str.cast<std::string>(),
+                                               opset_version);
+             std::vector<py::bytes> vals;
+             for (const auto &init_op : c2ops.init_ops) {
+               std::string out;
+               init_op.SerializeToString(&out);
+               vals.emplace_back(py::bytes(out));
+             }
+             for (const auto &op : c2ops.ops) {
+               std::string out;
+               op.SerializeToString(&out);
+               vals.emplace_back(py::bytes(out));
+             }
+             return vals;
+           });
 
   py::class_<Predictor>(m, "Predictor")
       .def(
@@ -1235,6 +1385,14 @@ void addGlobalMethods(py::module& m) {
     CAFFE_ENFORCE(raw_data);
     return GetNUMANode(raw_data);
   });
+  m.def("make_dummy",
+        [](const std::unordered_set<std::string> &args) -> std::string {
+          if (args.empty()) {
+            return onnx_caffe2::DummyName::NewDummyName();
+          } else {
+            return onnx_caffe2::DummyName::Reset(args);
+          }
+        });
 
 #define CAFFE2_CPU_FEATURE_SUPPORT(feature) \
   m.def("builtin_cpu_supports_" #feature, []() { return GetCpuId().feature(); })
