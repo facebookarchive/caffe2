@@ -76,7 +76,7 @@ distribute/*
 cmake_build
 .cmake_build
 gen
-.pip-cmake-build
+.setuptools-cmake-build
 
 # Bram
 plsdontbreak

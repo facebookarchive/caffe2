@@ -22,7 +22,7 @@ from textwrap import dedent
 
 TOP_DIR = os.path.realpath(os.path.dirname(__file__))
 SRC_DIR = os.path.join(TOP_DIR, 'caffe2')
-CMAKE_BUILD_DIR = os.path.join(TOP_DIR, '.pip-cmake-build')
+CMAKE_BUILD_DIR = os.path.join(TOP_DIR, '.setuptools-cmake-build')
 
 install_requires = []
 setup_requires = []
@@ -51,6 +51,7 @@ if not USE_NINJA and not find_executable('make'):
 ################################################################################
 # utils functions
 ################################################################################
+
 
 @contextmanager
 def cd(path):
@@ -202,6 +203,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
                 dst = os.path.join(os.path.realpath(self.build_lib), filename)
                 self.copy_file(src, dst)
                 i += 1
+
 
 class develop(setuptools.command.develop.develop):
     def run(self):
