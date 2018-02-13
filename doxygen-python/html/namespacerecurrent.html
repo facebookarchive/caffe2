@@ -89,8 +89,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">recurrent Namespace Reference</div>  </div>
 </div><!--header-->
@@ -98,169 +96,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Module caffe2.python.recurrent.  
 <a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a7466d46d7cb837c9f828ec7740151a4d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#a7466d46d7cb837c9f828ec7740151a4d">recurrent_net</a> (net, cell_net, inputs, initial_cell_inputs, links, timestep=None, scope=None, outputs_with_grads=(0,), recompute_blobs_on_backward=None, forward_only=False)</td></tr>
-<tr class="separator:a7466d46d7cb837c9f828ec7740151a4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa564936193ec25871674b1196c161045"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa564936193ec25871674b1196c161045"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>set_rnn_executor_config</b> (rnn_op, num_threads=None, max_cuda_streams=None)</td></tr>
-<tr class="separator:aa564936193ec25871674b1196c161045"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72a0232ca3b3dd19fe0f5337f20a28ac"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerecurrent.html#a72a0232ca3b3dd19fe0f5337f20a28ac">retrieve_step_blobs</a> (net, prefix='rnn')</td></tr>
-<tr class="separator:a72a0232ca3b3dd19fe0f5337f20a28ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.recurrent. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a7466d46d7cb837c9f828ec7740151a4d"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def recurrent.recurrent_net </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>net</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>cell_net</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>inputs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>initial_cell_inputs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>links</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>timestep</em> = <code>None</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>scope</em> = <code>None</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>outputs_with_grads</em> = <code>(0,)</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>recompute_blobs_on_backward</em> = <code>None</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>forward_only</em> = <code>False</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">net: the main net operator should be added to
-
-cell_net: cell_net which is executed in a recurrent fasion
-
-inputs: sequences to be fed into the recurrent net. Currently only one input
-is supported. It has to be in a format T x N x (D1...Dk) where T is lengths
-of the sequence. N is a batch size and (D1...Dk) are the rest of dimentions
-
-initial_cell_inputs: inputs of the cell_net for the 0 timestamp.
-Format for each input is:
-    (cell_net_input_name, external_blob_with_data)
-
-links: a dictionary from cell_net input names in moment t+1 and
-output names of moment t. Currently we assume that each output becomes
-an input for the next timestep.
-
-timestep: name of the timestep blob to be used. If not provided "timestep"
-is used.
-
-scope: Internal blobs are going to be scoped in a format
-&lt;scope_name&gt;/&lt;blob_name&gt;
-If not provided we generate a scope name automatically
-
-outputs_with_grads : position indices of output blobs which will receive
-error gradient (from outside recurrent network) during backpropagation
-
-recompute_blobs_on_backward: specify a list of blobs that will be
-             recomputed for backward pass, and thus need not to be
-             stored for each forward timestep.
-
-forward_only: if True, only forward steps are executed
-</pre> 
-<p>Definition at line <a class="el" href="recurrent_8py_source.html#l00030">30</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a72a0232ca3b3dd19fe0f5337f20a28ac"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def recurrent.retrieve_step_blobs </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>net</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>prefix</em> = <code>'rnn'</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Retrieves blobs from step workspaces (which contain intermediate recurrent
-network computation for each timestep) and puts them in the global
-workspace. This allows access to the contents of this intermediate
-computation in python. Returns the list of extracted blob names.
-
-net: the net from which the step workspace blobs should be extracted
-
-prefix: prefix to append to extracted blob names when placing them in the
-global workspace
-</pre> 
-<p>Definition at line <a class="el" href="recurrent_8py_source.html#l00320">320</a> of file <a class="el" href="recurrent_8py_source.html">recurrent.py</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+</div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:15 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

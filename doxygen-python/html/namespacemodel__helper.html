@@ -89,9 +89,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
-<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">model_helper Namespace Reference</div>  </div>
 </div><!--header-->
@@ -99,87 +96,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Module caffe2.python.model_helper.  
 <a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmodel__helper_1_1_model_helper.html">ModelHelper</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:aa1d1738099cd02ab70f7463c4cb9e769"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemodel__helper.html#aa1d1738099cd02ab70f7463c4cb9e769">ExtractPredictorNet</a> (net_proto, input_blobs, output_blobs, device=None, renames=None, disabled_inputs=None)</td></tr>
-<tr class="separator:aa1d1738099cd02ab70f7463c4cb9e769"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.model_helper. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="aa1d1738099cd02ab70f7463c4cb9e769"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def model_helper.ExtractPredictorNet </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>net_proto</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>input_blobs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>output_blobs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>device</em> = <code>None</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>renames</em> = <code>None</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>disabled_inputs</em> = <code>None</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Takes a model net for training and returns a net which can be
-used for prediction. For example, all gradient operators and
-input operators are removed.
-@param net_proto protobuf of the net you want to process (net.Proto())
-@param input_blobs list/set of blob names that are the inputs of predictor
-@param output_blobs list/set of blob names that are outputs of predictor
-@param device optional device option that is assigned
-@param renames dictionary of blob name to a new name (optional)
-@param disabled_inputs optional set of blobs that are 'switched off'. This
-            will cause branches with those blobs as inputs to be removed
-</pre> 
-<p>Definition at line <a class="el" href="model__helper_8py_source.html#l00494">494</a> of file <a class="el" href="model__helper_8py_source.html">model_helper.py</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+</div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:15 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

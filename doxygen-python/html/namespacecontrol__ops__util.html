@@ -89,8 +89,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">control_ops_util Namespace Reference</div>  </div>
 </div><!--header-->
@@ -98,175 +96,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Module caffe2.python.control_ops_util.  
 <a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a433b0590466ee5d666e0764daa0ae605"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecontrol__ops__util.html#a433b0590466ee5d666e0764daa0ae605">get_external_blob_names</a> (net, lexical_scope)</td></tr>
-<tr class="separator:a433b0590466ee5d666e0764daa0ae605"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a226e985637299294b87b3d54b2a30d5f"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecontrol__ops__util.html#a226e985637299294b87b3d54b2a30d5f">add_if_op</a> (if_net, cond_blob, lexical_scope, then_net, else_net=None)</td></tr>
-<tr class="separator:a226e985637299294b87b3d54b2a30d5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aefd60d7a687bf999304371233ba29c6e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecontrol__ops__util.html#aefd60d7a687bf999304371233ba29c6e">add_while_op</a> (while_net, cond_blob, lexical_scope, loop_body_net, condition_body_net=None)</td></tr>
-<tr class="separator:aefd60d7a687bf999304371233ba29c6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.control_ops_util. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a226e985637299294b87b3d54b2a30d5f"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def control_ops_util.add_if_op </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>if_net</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>cond_blob</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>lexical_scope</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>then_net</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>else_net</em> = <code>None</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">A helper function to add an If op to the net.
-Automatically determines whether blobs in the then/else subnets are external
-(from the outer workspace) or local (visible only inside subnet's workspace)
-based on lexical scope - set of all outer blob names visible to the 'If'
-operator. All the blobs in then/else subnets with names matching a name in lexical
-scope and all the blobs that are first used as the operators' inputs are
-considered outer blobs - these blobs must exist in the outer workspace,
-then/else subnets can read their values and new values written into these blobs
-will be visible outside of the 'If' operator. All other blobs are local - exist
-only within inner workspaces for then/else.
-Inputs:
-    if_net - net to add an If op to;
-    cond_blob - scalar bool blob reference, used as If condition;
-    lexical_scope - a set of outer blob names visible to then/else branches;
-    then_net/else_net - nets (core.Net) for then/else branches
-</pre> 
-<p>Definition at line <a class="el" href="control__ops__util_8py_source.html#l00051">51</a> of file <a class="el" href="control__ops__util_8py_source.html">control_ops_util.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="aefd60d7a687bf999304371233ba29c6e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def control_ops_util.add_while_op </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>while_net</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>cond_blob</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>lexical_scope</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>loop_body_net</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>condition_body_net</em> = <code>None</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">A helper function to add a While op to the net. Same rules for determining
-outer and inner blobs as for the 'If' operator apply for the 'While' operator
-loop and condition subnets. If specified, condition net is executed in a separate
-workspace before the first and after each iteration, the last operator must have
-a single scalar boolean output that is written into the condition blob.
-Inputs:
-    while_net - net to add a While op to;
-    cond_blob - scalar bool blob reference, used as a stop condition;
-    lexical_scope - a set of outer blob names visible to the loop's body;
-    loop_body_net - net to execute on each iteration;
-    condition_body_net - net to compute condition value
-</pre> 
-<p>Definition at line <a class="el" href="control__ops__util_8py_source.html#l00157">157</a> of file <a class="el" href="control__ops__util_8py_source.html">control_ops_util.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a433b0590466ee5d666e0764daa0ae605"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def control_ops_util.get_external_blob_names </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>net</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>lexical_scope</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Returns a set of blobs a given net depends on and a set of
-output blobs that are written by the net
-Inputs:
-    net - net to return input/output blobs for;
-    lexical_scope - all external blob names visible to the net
-</pre> 
-<p>Definition at line <a class="el" href="control__ops__util_8py_source.html#l00026">26</a> of file <a class="el" href="control__ops__util_8py_source.html">control_ops_util.py</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+</div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:15 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -89,9 +89,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">embedding_generation_benchmark Namespace Reference</div>  </div>
 </div><!--header-->
@@ -99,85 +96,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Module caffe2.python.embedding_generation_benchmark.  
 <a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:afcbf1dd7ee3ecaeff4867a74a35832a5"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceembedding__generation__benchmark.html#afcbf1dd7ee3ecaeff4867a74a35832a5">generate_data</a> (T, batch_size, max_seq_length)</td></tr>
-<tr class="separator:afcbf1dd7ee3ecaeff4867a74a35832a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a6289b3816776260950fd609c8fdf42"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a6289b3816776260950fd609c8fdf42"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>generate_embedding_table</b> (vocab_size, embedding_size)</td></tr>
-<tr class="separator:a1a6289b3816776260950fd609c8fdf42"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed7226b52e42e998346fab3f28929e9a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed7226b52e42e998346fab3f28929e9a"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>create_model</b> (args, queue, embedding_table, embedding_size)</td></tr>
-<tr class="separator:aed7226b52e42e998346fab3f28929e9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a731f05990ffeebe20638c76f0f24d601"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a731f05990ffeebe20638c76f0f24d601"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>Caffe2EmbeddingGeneration</b> (args)</td></tr>
-<tr class="separator:a731f05990ffeebe20638c76f0f24d601"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34764397a0759f9ac31e0f132bc3696c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a34764397a0759f9ac31e0f132bc3696c"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>Benchmark</b> (args)</td></tr>
-<tr class="separator:a34764397a0759f9ac31e0f132bc3696c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d60f6d31508996d6a98b754074d1e03"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0d60f6d31508996d6a98b754074d1e03"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>GetArgumentParser</b> ()</td></tr>
-<tr class="separator:a0d60f6d31508996d6a98b754074d1e03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a7b1862d26b4eaa29bf919f50e1eb3651"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7b1862d26b4eaa29bf919f50e1eb3651"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>log</b> = logging.getLogger(&quot;embedding_generation_benchmark&quot;)</td></tr>
-<tr class="separator:a7b1862d26b4eaa29bf919f50e1eb3651"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6b44363b25d39a382a3107b0bfdceb7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6b44363b25d39a382a3107b0bfdceb7"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>args</b></td></tr>
-<tr class="separator:ae6b44363b25d39a382a3107b0bfdceb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f5fac19a98d0838c1c2d98e14c616b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4f5fac19a98d0838c1c2d98e14c616b8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>extra_args</b></td></tr>
-<tr class="separator:a4f5fac19a98d0838c1c2d98e14c616b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab13d05ceaf4817cf3020637b49f5c193"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab13d05ceaf4817cf3020637b49f5c193"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>device</b> = core.DeviceOption(caffe2_pb2.CPU)</td></tr>
-<tr class="separator:ab13d05ceaf4817cf3020637b49f5c193"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.embedding_generation_benchmark. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="afcbf1dd7ee3ecaeff4867a74a35832a5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def embedding_generation_benchmark.generate_data </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>T</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>batch_size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>max_seq_length</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Fill a queue with input data
-</pre> 
-<p>Definition at line <a class="el" href="embedding__generation__benchmark_8py_source.html#l00037">37</a> of file <a class="el" href="embedding__generation__benchmark_8py_source.html">embedding_generation_benchmark.py</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+</div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:15 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

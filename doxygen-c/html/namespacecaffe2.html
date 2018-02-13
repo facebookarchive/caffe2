@@ -2125,7 +2125,7 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="separator:af665e0722cfd3ab685a8c41d47dc9d77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acefa7f39f0186e26042ce8ac22b7cb83"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acefa7f39f0186e26042ce8ac22b7cb83"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>VideoResType</b> { <b>USE_WIDTH_HEIGHT</b> = 0, 
-<b>USE_SHORT_EDGE</b> = 1, 
+<b>USE_MINIMAL_WIDTH_HEIGHT</b> = 1, 
 <b>ORIGINAL_RES</b> = 2
  }</td></tr>
 <tr class="separator:acefa7f39f0186e26042ce8ac22b7cb83"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8055,21 +8055,39 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>MultiFrameOpticalFlow
 <tr class="memitem:a47ac2eb7e450d80ba2700e9d49bb7803"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47ac2eb7e450d80ba2700e9d49bb7803"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (VideoInput, <a class="el" href="classcaffe2_1_1_video_input_op.html">VideoInputOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a47ac2eb7e450d80ba2700e9d49bb7803"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36632348f3b09d657fd09aeae918bba5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a36632348f3b09d657fd09aeae918bba5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>TensorInferenceFunction</b> ([](const OperatorDef &amp;def, const vector&lt; TensorShape &gt; &amp;){<a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a> helper(def);int batch_size=helper.GetSingleArgument&lt; int &gt;(&quot;batch_size&quot;, 0);int clip_per_video=helper.GetSingleArgument&lt; int &gt;(&quot;clip_per_video&quot;, 1);int crop_size=helper.GetSingleArgument&lt; int &gt;(&quot;crop_size&quot;,-1);int length_rgb=helper.GetSingleArgument&lt; int &gt;(&quot;length_rgb&quot;, 0);int channels_rgb=helper.GetSingleArgument&lt; int &gt;(&quot;channels_rgb&quot;, 3);int length_of=helper.GetSingleArgument&lt; int &gt;(&quot;length_of&quot;, 0);int channels_of=helper.GetSingleArgument&lt; int &gt;(&quot;channels_of&quot;, 2);bool get_rgb=helper.GetSingleArgument&lt; bool &gt;(&quot;get_rgb&quot;, true);bool get_optical_flow=helper.GetSingleArgument&lt; bool &gt;(&quot;get_optical_flow&quot;, false);bool do_multi_label=helper.GetSingleArgument&lt; bool &gt;(&quot;do_multi_label&quot;, false);bool get_video_id=helper.GetSingleArgument&lt; bool &gt;(&quot;get_video_id&quot;, false);int output_size=1;if(get_rgb){output_size++;}if(get_optical_flow){output_size++;}if(get_video_id){output_size++;}int index=0;vector&lt; TensorShape &gt; out(output_size);CHECK_GT(crop_size, 0);batch_size *=clip_per_video;if(get_rgb){out[index++]=CreateTensorShape(vector&lt; int &gt;{batch_size, channels_rgb, length_rgb, crop_size, crop_size}, TensorProto::FLOAT);}if(get_optical_flow){out[index++]=CreateTensorShape(vector&lt; int &gt;{batch_size, channels_of, length_of, crop_size, crop_size}, TensorProto::FLOAT);}if(!do_multi_label){out[index++]=CreateTensorShape(vector&lt; int &gt;{1, batch_size}, TensorProto::INT32);}else{int num_of_class=helper.GetSingleArgument&lt; int &gt;(&quot;num_of_class&quot;, 0);out[index++]=CreateTensorShape(vector&lt; int &gt;{batch_size, num_of_class}, TensorProto::INT32);}if(get_video_id){out[index]=CreateTensorShape(vector&lt; int &gt;{1, batch_size}, TensorProto::INT32);}return out;})</td></tr>
-<tr class="separator:a36632348f3b09d657fd09aeae918bba5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7866928eb54d9801cb869da86329975d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7866928eb54d9801cb869da86329975d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>TensorInferenceFunction</b> ([](const OperatorDef &amp;def, const vector&lt; TensorShape &gt; &amp;){<a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a> helper(def);int batch_size=helper.GetSingleArgument&lt; int &gt;(&quot;batch_size&quot;, 0);int clip_per_video=helper.GetSingleArgument&lt; int &gt;(&quot;clip_per_video&quot;, 1);int crop_height=helper.GetSingleArgument&lt; int &gt;(&quot;crop_height&quot;, helper.GetSingleArgument&lt; int &gt;(&quot;crop_size&quot;, 0));int crop_width=helper.GetSingleArgument&lt; int &gt;(&quot;crop_width&quot;, helper.GetSingleArgument&lt; int &gt;(&quot;crop_size&quot;, 0));int length_rgb=helper.GetSingleArgument&lt; int &gt;(&quot;length_rgb&quot;, 0);int channels_rgb=helper.GetSingleArgument&lt; int &gt;(&quot;channels_rgb&quot;, 3);int length_of=helper.GetSingleArgument&lt; int &gt;(&quot;length_of&quot;, 0);int channels_of=helper.GetSingleArgument&lt; int &gt;(&quot;channels_of&quot;, 2);bool get_rgb=helper.GetSingleArgument&lt; bool &gt;(&quot;get_rgb&quot;, true);bool get_optical_flow=helper.GetSingleArgument&lt; bool &gt;(&quot;get_optical_flow&quot;, false);bool do_multi_label=helper.GetSingleArgument&lt; bool &gt;(&quot;do_multi_label&quot;, false);bool get_video_id=helper.GetSingleArgument&lt; bool &gt;(&quot;get_video_id&quot;, false);int output_size=1;if(get_rgb){output_size++;}if(get_optical_flow){output_size++;}if(get_video_id){output_size++;}int index=0;vector&lt; TensorShape &gt; out(output_size);CHECK_GT(crop_height, 0);CHECK_GT(crop_width, 0);batch_size *=clip_per_video;if(get_rgb){out[index++]=CreateTensorShape(vector&lt; int &gt;{batch_size, channels_rgb, length_rgb, crop_height, crop_width}, TensorProto::FLOAT);}if(get_optical_flow){out[index++]=CreateTensorShape(vector&lt; int &gt;{batch_size, channels_of, length_of, crop_height, crop_width}, TensorProto::FLOAT);}if(!do_multi_label){out[index++]=CreateTensorShape(vector&lt; int &gt;{1, batch_size}, TensorProto::INT32);}else{int num_of_class=helper.GetSingleArgument&lt; int &gt;(&quot;num_of_class&quot;, 0);out[index++]=CreateTensorShape(vector&lt; int &gt;{batch_size, num_of_class}, TensorProto::INT32);}if(get_video_id){out[index]=CreateTensorShape(vector&lt; int &gt;{1, batch_size}, TensorProto::INT32);}return out;})</td></tr>
+<tr class="separator:a7866928eb54d9801cb869da86329975d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a08128f09da097f94938d256fe2ca0db7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a08128f09da097f94938d256fe2ca0db7"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NO_GRADIENT</b> (VideoInput)</td></tr>
 <tr class="separator:a08128f09da097f94938d256fe2ca0db7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae8a1119be7ed5fbbe15f12e9e6f908ad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8a1119be7ed5fbbe15f12e9e6f908ad"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CUDA_OPERATOR</b> (VideoInput, <a class="el" href="classcaffe2_1_1_video_input_op.html">VideoInputOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_u_d_a_context.html">CUDAContext</a> &gt;)</td></tr>
 <tr class="separator:ae8a1119be7ed5fbbe15f12e9e6f908ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8bf25474f1ce488f82a3e013fd7b79b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa8bf25474f1ce488f82a3e013fd7b79b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ClipTransformRGB</b> (const unsigned char *buffer_rgb, const int crop_size, const int length_rgb, const int channels_rgb, const int sampling_rate_rgb, const int height, const int width, const int h_off, const int w_off, const bool mirror_me, const std::vector&lt; float &gt; &amp;mean_rgb, const std::vector&lt; float &gt; &amp;inv_std_rgb, float *transformed_clip)</td></tr>
-<tr class="separator:aa8bf25474f1ce488f82a3e013fd7b79b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1992f69fdbc016d21b687a78d28a8156"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1992f69fdbc016d21b687a78d28a8156"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ClipTransformOpticalFlow</b> (const unsigned char *buffer_rgb, const int crop_size, const int length_of, const int channels_of, const int sampling_rate_of, const int height, const int width, const cv::Rect &amp;rect, const int channels_rgb, const bool mirror_me, const int flow_alg_type, const int flow_data_type, const int frame_gap_of, const bool do_flow_aggregation, const std::vector&lt; float &gt; &amp;mean_of, const std::vector&lt; float &gt; &amp;inv_std_of, float *transformed_clip)</td></tr>
-<tr class="separator:a1992f69fdbc016d21b687a78d28a8156"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62fa77afbe3272c8aee7667bd504175a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a62fa77afbe3272c8aee7667bd504175a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Saturation</b> (float *clip, const int length, const int crop_height, const int crop_width, const float alpha_rand, std::mt19937 *randgen)</td></tr>
+<tr class="separator:a62fa77afbe3272c8aee7667bd504175a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63a906d5d8188b122429b1a7cbb4bedd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a63a906d5d8188b122429b1a7cbb4bedd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Brightness</b> (float *clip, const int length, const int crop_height, const int crop_width, const float alpha_rand, std::mt19937 *randgen)</td></tr>
+<tr class="separator:a63a906d5d8188b122429b1a7cbb4bedd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1cae843791901a20f962d51ba26488f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad1cae843791901a20f962d51ba26488f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Contrast</b> (float *clip, const int length, const int crop_height, const int crop_width, const float alpha_rand, std::mt19937 *randgen)</td></tr>
+<tr class="separator:ad1cae843791901a20f962d51ba26488f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a282bff30c49c6c699ed9eb2687cf74dc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a282bff30c49c6c699ed9eb2687cf74dc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ColorJitter</b> (float *clip, const int length, const int crop_height, const int crop_width, const float saturation, const float brightness, const float contrast, std::mt19937 *randgen)</td></tr>
+<tr class="separator:a282bff30c49c6c699ed9eb2687cf74dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7acc5e6c3040a1986c8e8736d01e8ec5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7acc5e6c3040a1986c8e8736d01e8ec5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ColorLighting</b> (float *clip, const int length, const int crop_height, const int crop_width, const float alpha_std, const std::vector&lt; std::vector&lt; float &gt;&gt; &amp;eigvecs, const std::vector&lt; float &gt; &amp;eigvals, std::mt19937 *randgen)</td></tr>
+<tr class="separator:a7acc5e6c3040a1986c8e8736d01e8ec5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70033d27ddd9ea416d746eeb332fec3f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a70033d27ddd9ea416d746eeb332fec3f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ColorNormalization</b> (float *clip, const int length, const int crop_height, const int crop_width, const int channels, const std::vector&lt; float &gt; &amp;mean, const std::vector&lt; float &gt; &amp;inv_std)</td></tr>
+<tr class="separator:a70033d27ddd9ea416d746eeb332fec3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d771211931586cf35b45a79ebf57ead"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4d771211931586cf35b45a79ebf57ead"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ClipTransformRGB</b> (const unsigned char *buffer_rgb, const int multi_crop_count, const int crop_height, const int crop_width, const int length_rgb, const int channels_rgb, const int sampling_rate_rgb, const int height, const int width, const int h_off, const int w_off, const int *multi_crop_h_off, const int *multi_crop_w_off, const bool mirror_me, const bool color_jitter, const float saturation, const float brightness, const float contrast, const bool color_lighting, const float color_lighting_std, const std::vector&lt; std::vector&lt; float &gt;&gt; &amp;color_lighting_eigvecs, const std::vector&lt; float &gt; &amp;color_lighting_eigvals, const std::vector&lt; float &gt; &amp;mean_rgb, const std::vector&lt; float &gt; &amp;inv_std_rgb, std::mt19937 *randgen, float *transformed_clip)</td></tr>
+<tr class="separator:a4d771211931586cf35b45a79ebf57ead"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad49a222056a7c5998b1d6d9b0a0adf85"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad49a222056a7c5998b1d6d9b0a0adf85"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ClipTransformOpticalFlow</b> (const unsigned char *buffer_rgb, const int crop_height, const int crop_width, const int length_of, const int channels_of, const int sampling_rate_of, const int height, const int width, const cv::Rect &amp;rect, const int channels_rgb, const bool mirror_me, const int flow_alg_type, const int flow_data_type, const int frame_gap_of, const bool do_flow_aggregation, const std::vector&lt; float &gt; &amp;mean_of, const std::vector&lt; float &gt; &amp;inv_std_of, float *transformed_clip)</td></tr>
+<tr class="separator:ad49a222056a7c5998b1d6d9b0a0adf85"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a897e93cb492525b56d8a21df34c19105"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a897e93cb492525b56d8a21df34c19105"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>FreeDecodedData</b> (std::vector&lt; std::unique_ptr&lt; <a class="el" href="classcaffe2_1_1_decoded_frame.html">DecodedFrame</a> &gt;&gt; &amp;sampledFrames)</td></tr>
 <tr class="separator:a897e93cb492525b56d8a21df34c19105"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9396,10 +9414,6 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>kGEMMLOWP
 <tr class="memitem:ac01c330ff817b47ce5d3f2af7860c9ca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac01c330ff817b47ce5d3f2af7860c9ca"></a>
 const int&#160;</td><td class="memItemRight" valign="bottom"><b>kMaxBusyWaitNOPs</b> = 32 * 1000 * 1000</td></tr>
 <tr class="separator:ac01c330ff817b47ce5d3f2af7860c9ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a82248e928a2f3c1aceb1fc9a2dce1170"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InputDataMean</b></td></tr>
-<tr class="separator:a82248e928a2f3c1aceb1fc9a2dce1170"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd2384e213740343e0730eb743b3f3a0"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InputDataStd</b></td></tr>
-<tr class="separator:abd2384e213740343e0730eb743b3f3a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed020b5f0b3d2bfb6bfab750924d9dd2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed020b5f0b3d2bfb6bfab750924d9dd2"></a>
 where N is the number of elements in the&#160;</td><td class="memItemRight" valign="bottom"><b>batch</b></td></tr>
 <tr class="separator:aed020b5f0b3d2bfb6bfab750924d9dd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10353,34 +10367,6 @@ Resource Acquisition" idiom. </p>
 
 </div>
 </div>
-<a class="anchor" id="a82248e928a2f3c1aceb1fc9a2dce1170"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const std::vector&lt;float&gt; caffe2::InputDataMean</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">=</div><div class="line">    {0.0046635, 0.0046261, 0.963986, 102.976, 110.201, 100.64, 95.9966}</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="optical__flow_8h_source.html#l00054">54</a> of file <a class="el" href="optical__flow_8h_source.html">optical_flow.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="abd2384e213740343e0730eb743b3f3a0"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const std::vector&lt;float&gt; caffe2::InputDataStd</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">=</div><div class="line">    {0.972347, 0.755146, 1.43588, 55.3691, 58.1489, 56.4701, 55.3324}</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="optical__flow_8h_source.html#l00056">56</a> of file <a class="el" href="optical__flow_8h_source.html">optical_flow.h</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="a0efa4ede07f3852f506f974ae6bc276b"></a>
 <div class="memitem">
 <div class="memproto">
@@ -10653,7 +10639,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:25 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:29 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

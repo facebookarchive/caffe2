@@ -89,8 +89,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">control_ops_grad Namespace Reference</div>  </div>
 </div><!--header-->
@@ -98,118 +96,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Module caffe2.python.control_ops_grad.  
 <a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:adc53795b9ff59ea21e6ed5dceeb153ce"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecontrol__ops__grad.html#adc53795b9ff59ea21e6ed5dceeb153ce">gen_do_gradient</a> (op, g_output)</td></tr>
-<tr class="separator:adc53795b9ff59ea21e6ed5dceeb153ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0662895616d69fb81b7d2ba440517d83"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0662895616d69fb81b7d2ba440517d83"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>dedupe_g_output</b> (op, g_output)</td></tr>
-<tr class="separator:a0662895616d69fb81b7d2ba440517d83"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac271b90f3779526d1b3654bbfe025da7"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecontrol__ops__grad.html#ac271b90f3779526d1b3654bbfe025da7">gen_while_gradient</a> (op, g_output)</td></tr>
-<tr class="separator:ac271b90f3779526d1b3654bbfe025da7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7eeb67dce6239d18281ac3ea900abe30"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecontrol__ops__grad.html#a7eeb67dce6239d18281ac3ea900abe30">gen_if_gradient</a> (op, g_output)</td></tr>
-<tr class="separator:a7eeb67dce6239d18281ac3ea900abe30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.control_ops_grad. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="adc53795b9ff59ea21e6ed5dceeb153ce"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def control_ops_grad.gen_do_gradient </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>op</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>g_output</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Generates gradient Do operator, given forward Do op and a list
-of gradient blobs corresponding to forward op's outputs
-Returns a gradient op and a list of blobs corresponding to input gradients
-</pre> 
-<p>Definition at line <a class="el" href="control__ops__grad_8py_source.html#l00026">26</a> of file <a class="el" href="control__ops__grad_8py_source.html">control_ops_grad.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a7eeb67dce6239d18281ac3ea900abe30"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def control_ops_grad.gen_if_gradient </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>op</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>g_output</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Generates gradient If operator, given forward If op and a list
-of gradient blobs corresponding to forward op's outputs
-Returns a gradient op and a list of blobs corresponding to input gradients
-</pre> 
-<p>Definition at line <a class="el" href="control__ops__grad_8py_source.html#l00343">343</a> of file <a class="el" href="control__ops__grad_8py_source.html">control_ops_grad.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ac271b90f3779526d1b3654bbfe025da7"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def control_ops_grad.gen_while_gradient </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>op</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>g_output</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Generates gradient While operator
-</pre> 
-<p>Definition at line <a class="el" href="control__ops__grad_8py_source.html#l00216">216</a> of file <a class="el" href="control__ops__grad_8py_source.html">control_ops_grad.py</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+</div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:15 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

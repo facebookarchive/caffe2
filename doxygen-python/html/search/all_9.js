@@ -1,22 +1,13 @@
 var searchData=
 [
-  ['id',['id',['../classschema_1_1_scalar.html#a0b5e8835afb0e525500ce39b06ba4e11',1,'schema::Scalar']]],
-  ['if',['If',['../classnet__builder_1_1_operations.html#a4ddfe5f8132071c35b353f1e7d34114e',1,'net_builder.Operations.If()'],['../namespacecontrol.html#a3fba912437152f7f702d9169f11610a4',1,'control.If()']]],
-  ['ifnet',['IfNet',['../classnet__builder_1_1_operations.html#a5eb3eaa30163a28232e4237edcde3102',1,'net_builder::Operations']]],
-  ['ifnot',['IfNot',['../namespacecontrol.html#a9e7ffa48bfa64540f212aa394fa46758',1,'control']]],
-  ['import_5frecursive',['import_recursive',['../namespacelayers.html#a4977a0a58b25726151fe2c5c40ccc1b9',1,'layers']]],
-  ['inferblobdevices',['InferBlobDevices',['../namespacecore.html#aa864c3592994876c78ea91eea1e8a2ea',1,'core']]],
-  ['infershapesandtypes',['InferShapesAndTypes',['../namespaceworkspace.html#a161df004b093325ff4c6302d2bdcf66a',1,'workspace']]],
-  ['init',['init',['../classcheckpoint_1_1_checkpoint_manager.html#af94ceee8fb77f77cca48ab55a307da70',1,'checkpoint::CheckpointManager']]],
-  ['init_5fempty',['init_empty',['../classdataset_1_1_dataset.html#ab3465dcbe1e2fd4c51294e814d6a1e0d',1,'dataset::Dataset']]],
-  ['init_5ffrom_5fdataframe',['init_from_dataframe',['../classdataset_1_1_dataset.html#a9fb8b5d289d586f1e8c5e565b7a362a2',1,'dataset::Dataset']]],
-  ['init_5ftt_5fcores',['init_tt_cores',['../namespacett__core.html#a18c955d14bd0996f7a270d113e294f91',1,'tt_core']]],
-  ['initfromlstmparams',['InitFromLSTMParams',['../namespacernn__cell.html#a69770d16d277bf62580bc97ab65ccf87',1,'rnn_cell']]],
-  ['initializer',['Initializer',['../classinitializers_1_1_initializer.html',1,'initializers']]],
-  ['initopslibrary',['InitOpsLibrary',['../namespacedyndep.html#afec863a3735820c9b3ac7aa75dce7f58',1,'dyndep']]],
-  ['injectcrossdevicecopies',['InjectCrossDeviceCopies',['../namespacecore.html#a674ba39ec55b27d0f2e774eaca7d0fb6',1,'core']]],
-  ['injectdevicecopiesamongnets',['InjectDeviceCopiesAmongNets',['../namespacecore.html#ab5154e0a96414ff8c2848a55fd127f7b',1,'core']]],
+  ['id',['id',['../classcaffe2_1_1python_1_1schema_1_1_scalar.html#af07e318c5c15114fdb48b8909c97e115',1,'caffe2::python::schema::Scalar']]],
+  ['if',['If',['../classcaffe2_1_1python_1_1net__builder_1_1_operations.html#aa8248c041e892a2b541b744d8c8ca197',1,'caffe2::python::net_builder::Operations']]],
+  ['ifnet',['IfNet',['../classcaffe2_1_1python_1_1net__builder_1_1_operations.html#a08759d20eccbe026e7b067916788cbbc',1,'caffe2::python::net_builder::Operations']]],
+  ['init',['init',['../classcaffe2_1_1python_1_1checkpoint_1_1_checkpoint_manager.html#a217b03847fcd6d11aecd9d5f90accbab',1,'caffe2::python::checkpoint::CheckpointManager']]],
+  ['init_5fempty',['init_empty',['../classcaffe2_1_1python_1_1dataset_1_1_dataset.html#a4275823853f8be37221da02c4925815f',1,'caffe2::python::dataset::Dataset']]],
+  ['init_5ffrom_5fdataframe',['init_from_dataframe',['../classcaffe2_1_1python_1_1dataset_1_1_dataset.html#ab3f2a774a3e46185b42f46b175b7b79e',1,'caffe2::python::dataset::Dataset']]],
+  ['initializer',['Initializer',['../classcaffe2_1_1python_1_1modeling_1_1initializers_1_1_initializer.html',1,'caffe2::python::modeling::initializers']]],
   ['insertinput',['insertInput',['../class_sparse_transformer_1_1_net_def_node.html#aa48b3092517614c6ec1d5dd5162c5eb3',1,'SparseTransformer::NetDefNode']]],
-  ['instantiationcontext',['InstantiationContext',['../classlayers_1_1layers_1_1_instantiation_context.html',1,'layers::layers']]],
-  ['ir',['IR',['../classcore_1_1_i_r.html',1,'core']]]
+  ['instantiationcontext',['InstantiationContext',['../classcaffe2_1_1python_1_1layers_1_1layers_1_1_instantiation_context.html',1,'caffe2::python::layers::layers']]],
+  ['ir',['IR',['../classcaffe2_1_1python_1_1core_1_1_i_r.html',1,'caffe2::python::core']]]
 ];

@@ -97,8 +97,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classsetup_1_1build__ext-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">setup.build_ext Class Reference</div>  </div>
@@ -115,72 +113,27 @@ Inheritance diagram for setup.build_ext:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a4b8c0ade1e71ebd198f84f69b62187a4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b8c0ade1e71ebd198f84f69b62187a4"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>initialize_options</b> (self)</td></tr>
-<tr class="separator:a4b8c0ade1e71ebd198f84f69b62187a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0401e3a6276c27e1551fc3c353f65b7c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0401e3a6276c27e1551fc3c353f65b7c"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>finalize_options</b> (self)</td></tr>
-<tr class="separator:a0401e3a6276c27e1551fc3c353f65b7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4422d6e1b1222f0c407b7c24ca32271a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4422d6e1b1222f0c407b7c24ca32271a"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_outputs</b> (self)</td></tr>
 <tr class="separator:a4422d6e1b1222f0c407b7c24ca32271a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9835b033a2bad0b44be6af253d8e70f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9835b033a2bad0b44be6af253d8e70f3"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>run</b> (self)</td></tr>
+<tr class="separator:a9835b033a2bad0b44be6af253d8e70f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a419ce77e3efde5cbeab0c27ad9f6d83e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a419ce77e3efde5cbeab0c27ad9f6d83e"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>build_extensions</b> (self)</td></tr>
 <tr class="separator:a419ce77e3efde5cbeab0c27ad9f6d83e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:a307159e9cc2d874e8af48cce4d476408"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a307159e9cc2d874e8af48cce4d476408"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>jobs</b></td></tr>
-<tr class="separator:a307159e9cc2d874e8af48cce4d476408"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
-Static Public Attributes</h2></td></tr>
-<tr class="memitem:a15b3f18e9a00ee611f71bb147d8e3660"><td class="memItemLeft" align="right" valign="top">list&#160;</td><td class="memItemRight" valign="bottom"><b>user_options</b></td></tr>
-<tr class="separator:a15b3f18e9a00ee611f71bb147d8e3660"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><pre class="fragment">Compiles everything when `python setup.py build` is run using cmake.
-
-Custom args can be passed to cmake by specifying the `CMAKE_ARGS`
-environment variable. E.g. to build without cuda support run:
-    `CMAKE_ARGS=-DUSE_CUDA=Off python setup.py build`
-
-The number of CPUs used by `make` can be specified by passing `-j&lt;ncpus&gt;`
-to `setup.py build`.  By default all CPUs are used.
-</pre> 
-<p>Definition at line <a class="el" href="setup_8py_source.html#l00085">85</a> of file <a class="el" href="setup_8py_source.html">setup.py</a>.</p>
-</div><h2 class="groupheader">Member Data Documentation</h2>
-<a class="anchor" id="a15b3f18e9a00ee611f71bb147d8e3660"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">list setup.build_ext.user_options</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;= [</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;        (<span class="stringliteral">&#39;jobs=&#39;</span>, <span class="stringliteral">&#39;j&#39;</span>, <span class="stringliteral">&#39;Specifies the number of jobs to use with make&#39;</span>)</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;    ]</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="setup_8py_source.html#l00096">96</a> of file <a class="el" href="setup_8py_source.html">setup.py</a>.</p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<div class="textblock">
+<p>Definition at line <a class="el" href="setup_8py_source.html#l00183">183</a> of file <a class="el" href="setup_8py_source.html">setup.py</a>.</p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="setup_8py_source.html">setup.py</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:15 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

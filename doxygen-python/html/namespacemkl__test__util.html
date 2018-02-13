@@ -89,9 +89,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">mkl_test_util Namespace Reference</div>  </div>
 </div><!--header-->
@@ -99,80 +96,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Module caffe2.python.mkl_test_util.  
 <a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:ab69296ac1de767bb83d88773b206539f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab69296ac1de767bb83d88773b206539f"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>device_checker_device_options</b> ()</td></tr>
-<tr class="separator:ab69296ac1de767bb83d88773b206539f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5fff5993eff795be7875977201eee308"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5fff5993eff795be7875977201eee308"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>gradient_checker_device_option</b> ()</td></tr>
-<tr class="separator:a5fff5993eff795be7875977201eee308"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:af2fe8f0c03d2047aaac29526c04af0fd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af2fe8f0c03d2047aaac29526c04af0fd"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>cpu_do</b> = hu.cpu_do</td></tr>
-<tr class="separator:af2fe8f0c03d2047aaac29526c04af0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5966957e7f9dbcbe2d6425b4aa786f23"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5966957e7f9dbcbe2d6425b4aa786f23"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>gpu_do</b> = hu.gpu_do</td></tr>
-<tr class="separator:a5966957e7f9dbcbe2d6425b4aa786f23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a727f0a9c0021bd645068f164872dd8be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a727f0a9c0021bd645068f164872dd8be"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>mkl_do</b> = caffe2_pb2.DeviceOption(device_type=caffe2_pb2.MKLDNN)</td></tr>
-<tr class="separator:a727f0a9c0021bd645068f164872dd8be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72a6b473bd6272a43faa272e3e4bb8c4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><b>device_options</b></td></tr>
-<tr class="separator:a72a6b473bd6272a43faa272e3e4bb8c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89d201220c12b2b6f9a955b765d849d5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><b>gcs</b></td></tr>
-<tr class="separator:a89d201220c12b2b6f9a955b765d849d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a187818a7572b25c2fb9a7c2f28a1f405"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a187818a7572b25c2fb9a7c2f28a1f405"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>gcs_cpu_only</b> = dict(gc=st.sampled_from([cpu_do]), dc=st.just([cpu_do]))</td></tr>
-<tr class="separator:a187818a7572b25c2fb9a7c2f28a1f405"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a26a000867ab7d16468d44da9b61f96f4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a26a000867ab7d16468d44da9b61f96f4"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>gcs_gpu_only</b> = dict(gc=st.sampled_from([gpu_do]), dc=st.just([gpu_do]))</td></tr>
-<tr class="separator:a26a000867ab7d16468d44da9b61f96f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd17c78dfdde7494af4d01061fa816d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abd17c78dfdde7494af4d01061fa816d1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>gcs_mkl_only</b> = dict(gc=st.sampled_from([mkl_do]), dc=st.just([mkl_do]))</td></tr>
-<tr class="separator:abd17c78dfdde7494af4d01061fa816d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ab05733c20b1d9cf8cf6c6cfbe8730a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7ab05733c20b1d9cf8cf6c6cfbe8730a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>gcs_cpu_mkl</b> = dict(gc=st.sampled_from([cpu_do, mkl_do]), dc=st.just([cpu_do, mkl_do]))</td></tr>
-<tr class="separator:a7ab05733c20b1d9cf8cf6c6cfbe8730a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.mkl_test_util. </p>
-</div><h2 class="groupheader">Variable Documentation</h2>
-<a class="anchor" id="a72a6b473bd6272a43faa272e3e4bb8c4"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">mkl_test_util.device_options</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacemkl__test__util.html">    1</a></span>&#160;= hu.device_options+(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    [mkl_do] <span class="keywordflow">if</span> workspace.C.has_mkldnn <span class="keywordflow">else</span> [])</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="mkl__test__util_8py_source.html#l00038">38</a> of file <a class="el" href="mkl__test__util_8py_source.html">mkl_test_util.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a89d201220c12b2b6f9a955b765d849d5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">mkl_test_util.gcs</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacemkl__test__util.html">    1</a></span>&#160;= dict(</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    gc=gradient_checker_device_option(),</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;    dc=device_checker_device_options()</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;)</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="mkl__test__util_8py_source.html#l00050">50</a> of file <a class="el" href="mkl__test__util_8py_source.html">mkl_test_util.py</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+</div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:15 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

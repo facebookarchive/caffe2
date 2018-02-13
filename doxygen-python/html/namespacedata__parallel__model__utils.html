@@ -89,9 +89,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">data_parallel_model_utils Namespace Reference</div>  </div>
 </div><!--header-->
@@ -99,73 +96,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Module caffe2.python.data_parallel_model_utils.  
 <a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:ab4ecf7cc10d01b26782f9692ef12c4aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab4ecf7cc10d01b26782f9692ef12c4aa"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>GetActivationBlobs</b> (model)</td></tr>
-<tr class="separator:ab4ecf7cc10d01b26782f9692ef12c4aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e584e44a4f80f4fe513622bfc1d6162"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacedata__parallel__model__utils.html#a2e584e44a4f80f4fe513622bfc1d6162">ShiftActivationDevices</a> (model, activations, shifts)</td></tr>
-<tr class="separator:a2e584e44a4f80f4fe513622bfc1d6162"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a5f18e29fb12eb45ad8d955a32d78d639"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f18e29fb12eb45ad8d955a32d78d639"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>log</b> = logging.getLogger(&quot;data_parallel_model_utils&quot;)</td></tr>
-<tr class="separator:a5f18e29fb12eb45ad8d955a32d78d639"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.data_parallel_model_utils. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a2e584e44a4f80f4fe513622bfc1d6162"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def data_parallel_model_utils.ShiftActivationDevices </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>model</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>activations</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>shifts</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Function to enable simple model-parallellism for data_parallel_model
-models. 'shifts' is a dictionary from_gpu -&gt; to_gpu, and activations is
-a list of activation blobs (wout gpu_x/ prefix -- use GetActivationBlobs()).
-
-Operators handling these activations are shifted to the gpu declared in
-'shifts'. Also related operators such as gradient operators will be moved.
-Appropriate copy-ops are inserted.
-
-This allows shifting memory usage from one gpu to another, enabling bigger
-models to be trained.
-</pre> 
-<p>Definition at line <a class="el" href="data__parallel__model__utils_8py_source.html#l00085">85</a> of file <a class="el" href="data__parallel__model__utils_8py_source.html">data_parallel_model_utils.py</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+</div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:15 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

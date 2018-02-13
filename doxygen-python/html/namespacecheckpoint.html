@@ -89,10 +89,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">checkpoint Namespace Reference</div>  </div>
 </div><!--header-->
@@ -100,150 +96,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Module caffe2.python.checkpoint.  
 <a href="#details">More...</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_checkpoint_manager.html">CheckpointManager</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_job.html">Job</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_job_runner.html">JobRunner</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_multi_node_checkpoint_manager.html">MultiNodeCheckpointManager</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcheckpoint_1_1_upload_task_group_builder.html">UploadTaskGroupBuilder</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:acf4961c762e82c6b2fc98f84e0325a8b"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecheckpoint.html#acf4961c762e82c6b2fc98f84e0325a8b">get_ckpt_filename</a> (node_name, epoch)</td></tr>
-<tr class="separator:acf4961c762e82c6b2fc98f84e0325a8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca28f531caef6ef6f5343617179bc02a"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecheckpoint.html#aca28f531caef6ef6f5343617179bc02a">db_name</a> (epoch, node_name, db_prefix, path_prefix=None)</td></tr>
-<tr class="separator:aca28f531caef6ef6f5343617179bc02a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b2480ecc1b101e63982ca5c5979af49"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecheckpoint.html#a7b2480ecc1b101e63982ca5c5979af49">epoch_limiter</a> (num_epochs)</td></tr>
-<tr class="separator:a7b2480ecc1b101e63982ca5c5979af49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:aad6276cbdf2beacac3a694e6e8ccf04d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aad6276cbdf2beacac3a694e6e8ccf04d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>logger</b> = logging.getLogger(__name__)</td></tr>
-<tr class="separator:aad6276cbdf2beacac3a694e6e8ccf04d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Module caffe2.python.checkpoint. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="aca28f531caef6ef6f5343617179bc02a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def checkpoint.db_name </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>epoch</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>node_name</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>db_prefix</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>path_prefix</em> = <code>None</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Returns the full db name where checkpoint files are saved.
-
-Args:
-    epoch: An integer. The checkpoint epoch.
-    node_name: A string. The name of the node.
-    db_prefix: A string. The prefix used to construct full db name.
-    path_prefix: A string. Optional param used to construct db name or path
-        where checkpoint files are are stored.
-Returns:
-    db_name: A string. The absolute path of full_db_name where checkpoint
-        files are saved
-</pre> 
-<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00137">137</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a7b2480ecc1b101e63982ca5c5979af49"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def checkpoint.epoch_limiter </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>num_epochs</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Creates a task that will output True when a given
-number of epochs has finished.
-</pre> 
-<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00731">731</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="acf4961c762e82c6b2fc98f84e0325a8b"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def checkpoint.get_ckpt_filename </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>node_name</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>epoch</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Returns the checkpoint filename.
-
-Args:
-    node_name: A string. The name of the node.
-    epoch: An integer. The checkpoint epoch.
-
-Returns:
-    ckpt_filename: A string. The filename of the checkpoint.
-</pre> 
-<p>Definition at line <a class="el" href="checkpoint_8py_source.html#l00124">124</a> of file <a class="el" href="checkpoint_8py_source.html">checkpoint.py</a>.</p>
-
-</div>
-</div>
-</div><!-- contents -->
+</div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Feb 12 2018 13:04:14 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Feb 13 2018 13:04:19 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

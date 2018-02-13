@@ -1,13 +1,10 @@
 var searchData=
 [
-  ['names',['names',['../classtask_1_1_task_output_list.html#a315290e3e3a1fd5e98f009174f33bc07',1,'task::TaskOutputList']]],
-  ['net',['net',['../classnet__builder_1_1_operations.html#aeb83d8e9dacdbc01f3525031693f7b07',1,'net_builder::Operations']]],
+  ['names',['names',['../classcaffe2_1_1python_1_1task_1_1_task_output_list.html#af31cf127855a9147a5e69c5e3b7eb54a',1,'caffe2::python::task::TaskOutputList']]],
+  ['net',['net',['../classcaffe2_1_1python_1_1net__builder_1_1_operations.html#a7e6fd63f586eedf6afaa806cfdd999f7',1,'caffe2::python::net_builder::Operations']]],
   ['net2list',['net2list',['../namespace_sparse_transformer.html#ab39d4021ac0c2dcc5e1b8c35b484b46c',1,'SparseTransformer']]],
-  ['newrecord',['NewRecord',['../namespaceschema.html#aae58d200a533eca71ca078d968ec6e0b',1,'schema']]],
-  ['nextblob',['NextBlob',['../classcore_1_1_net.html#a071e2cb04040122401f47aab1710af69',1,'core::Net']]],
-  ['nextname',['NextName',['../classcore_1_1_net.html#ad97867443ef6c922b32a7ddb62b19c79',1,'core::Net']]],
-  ['nextscopedblob',['NextScopedBlob',['../classcore_1_1_net.html#abb0495bd3a568a20a1fa3035bf11e470',1,'core::Net']]],
-  ['nodes',['nodes',['../classtask_1_1_cluster.html#a12a84ad15edd26e71295dfbc9c478d58',1,'task::Cluster']]],
-  ['normalize_5fprocessor_5foutput',['normalize_processor_output',['../namespacepipeline.html#a64553e37e4cd49c8a21c0be11465c1ab',1,'pipeline']]],
-  ['notnet',['NotNet',['../namespacecontrol.html#a1eeddca89e9b2029129b23f2f520eb09',1,'control']]]
+  ['nextblob',['NextBlob',['../classcaffe2_1_1python_1_1core_1_1_net.html#af311dda28d4ae0f49feef9bd10fed65a',1,'caffe2::python::core::Net']]],
+  ['nextname',['NextName',['../classcaffe2_1_1python_1_1core_1_1_net.html#a305bd1b0120f20c54f4e508b526cac49',1,'caffe2::python::core::Net']]],
+  ['nextscopedblob',['NextScopedBlob',['../classcaffe2_1_1python_1_1core_1_1_net.html#a9c4d58bb6c5a5d6c89d11872a4392f88',1,'caffe2::python::core::Net']]],
+  ['nodes',['nodes',['../classcaffe2_1_1python_1_1task_1_1_cluster.html#a834f113370c3cd7aa2151f36039e4c61',1,'caffe2::python::task::Cluster']]]
 ];
