@@ -7,7 +7,8 @@ install_protobuf_26() {
   pb_dir="$build_cache_dir/pb"
   mkdir -p $pb_dir
 
-  curl -L "https://github.com/google/protobuf/releases/download/v2.6.0/protobuf-2.6.0.tar.gz" | tar -xvz -C "$pb_dir" --strip-components 1
+  curl -LO "https://github.com/google/protobuf/releases/download/v2.6.0/protobuf-2.6.0.tar.gz"
+  tar -xvz -C "$pb_dir" --strip-components 1 protobuf-2.6.0.tar.gz
   cd "$pb_dir" && ./configure && make && make check && sudo make install && sudo ldconfig
   rm -rf $pb_dir
 }
