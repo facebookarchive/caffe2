@@ -269,7 +269,7 @@ function(caffe2_include_directories)
     if (${DEPRIORITIZE_ANACONDA})
       # When not preferring anaconda, always search system header files before
       # anaconda include directories
-      if (${path} MATCHES "/anaconda")
+      if (${path} MATCHES "/anaconda" OR ${path} MATCHES "/conda-bld/")
         include_directories(AFTER ${path})
       else()
         include_directories(BEFORE ${path})
@@ -277,7 +277,7 @@ function(caffe2_include_directories)
     else()
       # When prefering Anaconda, always search anaconda for header files before
       # system include directories
-      if (${path} MATCHES "/anaconda")
+      if (${path} MATCHES "/anaconda" OR ${path} MATCHES "/conda-bld/")
         include_directories(BEFORE ${path})
       else()
         include_directories(AFTER ${path})
