@@ -8,7 +8,7 @@ install_protobuf_26() {
   mkdir -p $pb_dir
 
   curl -LO "https://github.com/google/protobuf/releases/download/v2.6.0/protobuf-2.6.0.tar.gz"
-  tar -xvz -C "$pb_dir" --strip-components 1 protobuf-2.6.0.tar.gz
+  tar -xvz -C "$pb_dir" --strip-components 1 -f protobuf-2.6.0.tar.gz
   cd "$pb_dir" && ./configure && make && make check && sudo make install && sudo ldconfig
   rm -rf $pb_dir
 }
@@ -79,8 +79,8 @@ install_centos() {
       lmdb-devel \
       make \
       opencv-devel \
-      protobuf-c-compiler \
-      protobuf-c-devel \
+      protobuf-compiler \
+      protobuf-devel \
       snappy-devel \
       sudo
 
