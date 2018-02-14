@@ -40,8 +40,8 @@ install_ubuntu() {
           protobuf-compiler \
           sudo
 
-  # Ubuntu 14.04 ships with protobuf 2.5, but ONNX needs protobuf >= 2.6 b/c of
-  # Microsoft, so we install protobuf 2.6 here if on 14.04
+  # Ubuntu 14.04 ships with protobuf 2.5, but ONNX needs protobuf >= 2.6
+  # so we install that here if on 14.04
   if [[ "$UBUNTU_VERSION" == 14.04 ]]; then
     install_protobuf_26
   fi
@@ -83,8 +83,8 @@ install_centos() {
       snappy-devel \
       sudo
 
-  # Centos7 ships with protobuf 2.5, but ONNX needs protobuf >= 2.6 b/c of
-  # Microsoft, so we always install protobuf 2.6 here
+  # Centos7 ships with protobuf 2.5, but ONNX needs protobuf >= 2.6
+  # so we always install install that here
   install_protobuf_26
 
   # Cleanup
