@@ -29,7 +29,7 @@ OPERATOR_SCHEMA(Floor)
     .SetDoc(R"DOC(
 Floor takes one input data (Tensor<T>) and produces one output data
 (Tensor<T>) where the floor function, y = floor(x), is applied to
-the tensor elementwise.
+the tensor elementwise. Currently supports only float32.
 )DOC")
     .Input(0, "X", "1D input tensor")
     .Output(0, "Y", "1D input tensor");
