@@ -141,4 +141,5 @@ pip install --no-cache-dir \
     pytest \
     scipy==0.19.1 \
     scikit-image \
+    tabulate \
     virtualenv
