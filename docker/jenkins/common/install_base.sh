@@ -2,6 +2,16 @@
 
 set -ex
 
+# This function installs protobuf 2.6
+install_protobuf_26() {
+  pb_dir="$build_cache_dir/pb"
+  mkdir -p $pb_dir
+  wget -qO- "https://github.com/google/protobuf/releases/download/v2.6.0/protobuf-2.6.0.tar.gz" | tar -xvz -C "$pb_dir" --strip-components 1
+  ccache -z
+  cd "$pb_dir" && ./configure && make && make check && sudo make install && sudo ldconfig
+  ccache -s
+}
+
 install_ubuntu() {
   # Use AWS mirror if running in EC2
   if [ -n "${EC2:-}" ]; then
@@ -29,6 +39,12 @@ install_ubuntu() {
           libsnappy-dev \
           protobuf-compiler \
           sudo
+
+  # Ubuntu 14.04 ships with protobuf 2.5, but ONNX needs protobuf >= 2.6 b/c of
+  # Microsoft, so we install protobuf 2.6 here if on 14.04
+  if [[ "$UBUNTU_VERSION" == 14.04 ]]; then
+    install_protobuf_26
+  fi
 
   # Cleanup
   apt-get autoclean && apt-get clean
@@ -66,6 +82,10 @@ install_centos() {
       protobuf-c-devel \
       snappy-devel \
       sudo
+
+  # Centos7 ships with protobuf 2.5, but ONNX needs protobuf >= 2.6 b/c of
+  # Microsoft, so we always install protobuf 2.6 here
+  install_protobuf_26
 
   # Cleanup
   yum clean all
