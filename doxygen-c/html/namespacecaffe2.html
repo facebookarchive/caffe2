@@ -515,6 +515,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_eigen_conv_op.html">EigenConvOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcaffe2_1_1_eigen_pow_functor.html">EigenPowFunctor</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_elementwise_linear_gradient_op.html">ElementwiseLinearGradientOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_elementwise_linear_op.html">ElementwiseLinearOp</a></td></tr>
@@ -1293,7 +1295,7 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_pool_op.html">PoolOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcaffe2_1_1_pow_functor.html">PowFunctor</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_pow_op.html">PowOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_predictor.html">Predictor</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5820,6 +5822,15 @@ NumInputs(1).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classcaff
 <tr class="memitem:a9998dcc0fdc07b2afa293b1d8911f43c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9998dcc0fdc07b2afa293b1d8911f43c"></a>
 NumInputs(1).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classcaffe2_1_1_conv_pool_op_base.html">ConvPoolOpBase</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (MaxPool3D, <a class="el" href="classcaffe2_1_1_pool_op.html">PoolOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, MaxPool&lt; float &gt;&gt;)</td></tr>
 <tr class="separator:a9998dcc0fdc07b2afa293b1d8911f43c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a675895d042aa981cffa018ac9ccf519b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a675895d042aa981cffa018ac9ccf519b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Pow, <a class="el" href="classcaffe2_1_1_pow_op.html">PowOp</a>&lt; <a class="el" href="structcaffe2_1_1_tensor_types.html">TensorTypes</a>&lt; float &gt;, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, <a class="el" href="structcaffe2_1_1_eigen_pow_functor.html">EigenPowFunctor</a>, <a class="el" href="structcaffe2_1_1_same_type_as_input.html">SameTypeAsInput</a> &gt;).NumInputs(1</td></tr>
+<tr class="separator:a675895d042aa981cffa018ac9ccf519b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad53172da9ec90ca49ea4ffc41ac7010e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad53172da9ec90ca49ea4ffc41ac7010e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NumOutputs</b> (1).Arg(&quot;exponent&quot;</td></tr>
+<tr class="separator:ad53172da9ec90ca49ea4ffc41ac7010e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24208f42353b7aa829fcd2ae080c1b05"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a24208f42353b7aa829fcd2ae080c1b05"></a>
+The exponent of the power function&#160;</td><td class="memItemRight" valign="bottom"><b>AllowInplace</b> ({{0, 0},{1, 0}}).SetDoc(R&quot;DOC( Pow takes input data (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) and an argument exponent</td></tr>
+<tr class="separator:a24208f42353b7aa829fcd2ae080c1b05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae519015529c49ba9edba9b9afcf109a6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae519015529c49ba9edba9b9afcf109a6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (PRelu, <a class="el" href="classcaffe2_1_1_p_relu_op.html">PReluOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ae519015529c49ba9edba9b9afcf109a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6926,9 +6937,6 @@ Number of replicas The input tensor optional Axis to replicate&#160;</td><td cla
 <tr class="memitem:a0b19f8c7e52f0be20be3e3ac9b79499f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b19f8c7e52f0be20be3e3ac9b79499f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (TileGradient).NumInputs(1</td></tr>
 <tr class="separator:a0b19f8c7e52f0be20be3e3ac9b79499f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5bc48b2c0bac2dfd8465141227acdbf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5bc48b2c0bac2dfd8465141227acdbf"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NumOutputs</b> (1)</td></tr>
-<tr class="separator:aa5bc48b2c0bac2dfd8465141227acdbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf75898e19a1c52e1528eb3440a208de"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf75898e19a1c52e1528eb3440a208de"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Tile, <a class="el" href="classcaffe2_1_1_get_tile_gradient.html">GetTileGradient</a>)</td></tr>
 <tr class="separator:adf75898e19a1c52e1528eb3440a208de"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9479,6 +9487,7 @@ See SpatialNarrowAs Gradient of forward&#160;</td><td class="memItemRight" valig
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Copyright (c) 2016-present, Facebook, Inc. </p>
+<p>Copyright (c) 2018-present, Facebook, Inc.</p>
 <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at </p><pre class="fragment">http://www.apache.org/licenses/LICENSE-2.0
 </pre><p>Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</p>
 <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at </p><pre class="fragment">http://www.apache.org/licenses/LICENSE-2.0
@@ -10639,7 +10648,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Feb 13 2018 13:04:29 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Feb 14 2018 13:03:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

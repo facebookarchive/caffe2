@@ -8025,7 +8025,7 @@ PiecewiseLinearTransform takes inputs -- predictions, a 2-D or 1-D tensor (Tenso
 ## Pow
 
 
-Pow takes input data (Tensor<T>) and an argument exponent, and produces one output data (Tensor<T>) where the function  `f(x) = x^exponent` , is applied to the data tensor elementwise.
+Pow takes input data (Tensor<T>) and an argument exponent, which can be a scalar or another tensor. It produces one output data (Tensor<T>), where the function  `f(x) = x^exponent`  is applied to the data tensor elementwise.
 
 
 
@@ -8037,6 +8037,7 @@ Pow takes input data (Tensor<T>) and an argument exponent, and produces one outp
 `exponent` | The exponent of the power function.
 *Inputs* | 
 `X` | Input tensor of any shape
+`exponent` | The exponent of the power function.
 *Outputs* | 
 `Y` | Output tensor (same size as X)
 
@@ -8044,7 +8045,7 @@ Pow takes input data (Tensor<T>) and an argument exponent, and produces one outp
 ### Code
 
 
-[caffe2/operators/math_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/math_ops.cc)
+[caffe2/operators/pow_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/pow_op.cc)
 
 ---
 

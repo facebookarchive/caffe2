@@ -31,7 +31,7 @@ var searchData=
   ['polylearningrate',['PolyLearningRate',['../classcaffe2_1_1_poly_learning_rate.html',1,'caffe2']]],
   ['poolgradientop',['PoolGradientOp',['../classcaffe2_1_1_pool_gradient_op.html',1,'caffe2']]],
   ['poolop',['PoolOp',['../classcaffe2_1_1_pool_op.html',1,'caffe2']]],
-  ['powfunctor',['PowFunctor',['../structcaffe2_1_1_pow_functor.html',1,'caffe2']]],
+  ['powop',['PowOp',['../classcaffe2_1_1_pow_op.html',1,'caffe2']]],
   ['predictor',['Predictor',['../classcaffe2_1_1_predictor.html',1,'caffe2']]],
   ['preferencecode',['PreferenceCode',['../group___neural_networks.html#ga034380829226e2d980b2a7e63c992f18',1,'NeuralNetworks.h']]],
   ['prefetchoperator',['PrefetchOperator',['../classcaffe2_1_1_prefetch_operator.html',1,'caffe2']]],
