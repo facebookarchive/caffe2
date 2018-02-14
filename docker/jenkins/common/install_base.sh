@@ -4,7 +4,7 @@ set -ex
 
 # This function installs protobuf 2.6
 install_protobuf_26() {
-  pb_dir="$build_cache_dir/pb"
+  pb_dir="temp_pb_install_dir"
   mkdir -p $pb_dir
 
   curl -LO "https://github.com/google/protobuf/releases/download/v2.6.0/protobuf-2.6.0.tar.gz"
