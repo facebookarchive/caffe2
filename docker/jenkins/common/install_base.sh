@@ -62,8 +62,8 @@ install_centos() {
       lmdb-devel \
       make \
       opencv-devel \
-      protobuf-c-compiler \
-      protobuf-c-devel \
+      protobuf-compiler \
+      protobuf-devel \
       snappy-devel \
       sudo
 
