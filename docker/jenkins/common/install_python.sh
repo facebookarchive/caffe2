@@ -137,7 +137,6 @@ pip install --no-cache-dir \
     numpy \
     onnx \
     protobuf \
-    psutil \
     pytest \
     scipy==0.19.1 \
     scikit-image \
