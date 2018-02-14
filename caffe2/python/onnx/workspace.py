@@ -13,8 +13,8 @@
 # limitations under the License.
 ##############################################################################
 
-## @package onnx_caffe2
-# Module caffe2.python.onnx_caffe2.workspace
+## @package onnx
+# Module caffe2.python.onnx.workspace
 
 from __future__ import absolute_import
 from __future__ import division

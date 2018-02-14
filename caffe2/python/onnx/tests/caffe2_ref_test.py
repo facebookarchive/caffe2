@@ -13,8 +13,8 @@
 # limitations under the License.
 ##############################################################################
 
-## @package onnx_caffe2
-# Module caffe2.python.onnx_caffe2.tests.caffe2_ref_test
+## @package onnx
+# Module caffe2.python.onnx.tests.caffe2_ref_test
 
 from __future__ import absolute_import
 from __future__ import division
@@ -30,17 +30,17 @@ from caffe2.proto import caffe2_pb2
 
 import onnx
 from onnx.helper import make_node, make_graph, make_tensor, make_tensor_value_info
-from caffe2.python.onnx_caffe2.helper import make_model, c2_native_run_net, c2_native_run_op
+from caffe2.python.onnx.helper import make_model, c2_native_run_net, c2_native_run_op
 
 from onnx import defs, mapping
-import caffe2.python.onnx_caffe2.frontend as c2_onnx
-import caffe2.python.onnx_caffe2.backend as c2
+import caffe2.python.onnx.frontend as c2_onnx
+import caffe2.python.onnx.backend as c2
 
 import numpy as np
 from caffe2.python.models.download import downloadFromURLToFile, getURLFromName, deleteDirectory
 
-from caffe2.python.onnx_caffe2.helper import dummy_name
-from caffe2.python.onnx_caffe2.tests.test_utils import TestCase
+from caffe2.python.onnx.helper import dummy_name
+from caffe2.python.onnx.tests.test_utils import TestCase
 
 
 class TestCaffe2Basic(TestCase):
@@ -295,7 +295,6 @@ class TestCaffe2End2End(TestCase):
         c2_ir = c2.prepare(model)
         onnx_outputs = c2_ir.run(inputs)
         self.assertSameOutputs(c2_outputs, onnx_outputs, decimal=decimal)
-        self.report_mem_usage(net_name)
 
     def _download(self, model):
         model_dir = self._model_dir(model)

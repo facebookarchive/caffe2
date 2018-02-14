@@ -13,8 +13,8 @@
 # limitations under the License.
 ##############################################################################
 
-## @package onnx_caffe2
-# Module caffe2.python.onnx_caffe2.bin.conversion
+## @package onnx
+# Module caffe2.python.onnx.bin.conversion
 
 from __future__ import absolute_import
 from __future__ import division
@@ -27,8 +27,8 @@ import click
 import numpy as np
 from onnx import checker, ModelProto
 
-from caffe2.python.onnx_caffe2.backend import Caffe2Backend as c2
-import caffe2.python.onnx_caffe2.frontend as c2_onnx
+from caffe2.python.onnx.backend import Caffe2Backend as c2
+import caffe2.python.onnx.frontend as c2_onnx
 
 
 @click.command(

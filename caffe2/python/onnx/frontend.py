@@ -13,8 +13,8 @@
 # limitations under the License.
 ##############################################################################
 
-## @package onnx_caffe2
-# Module caffe2.python.onnx_caffe2.frontend
+## @package onnx
+# Module caffe2.python.onnx.frontend
 
 """Caffe2 Protobuf to ONNX converter
 
@@ -38,8 +38,8 @@ from onnx import (defs, checker, helper, numpy_helper, mapping,
 from onnx.helper import make_tensor, make_tensor_value_info
 import numpy as np
 
-from caffe2.python.onnx_caffe2.helper import make_model, c2_native_run_net, dummy_name
-from caffe2.python.onnx_caffe2.error import Unsupported
+from caffe2.python.onnx.helper import make_model, c2_native_run_net, dummy_name
+from caffe2.python.onnx.error import Unsupported
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

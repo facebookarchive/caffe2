@@ -13,33 +13,38 @@
 # limitations under the License.
 ##############################################################################
 
-## @package onnx_caffe2
-# Module caffe2.python.onnx_caffe2.tests.helper_test
+## @package onnx
+# Module caffe2.python.onnx.tests.onnx_backend_test
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os
+
 import unittest
+import onnx.backend.test
 
-from caffe2.python.onnx_caffe2.helper import dummy_name
+import caffe2.python.onnx.backend as c2
 
-from caffe2.python.onnx_caffe2.tests.test_utils import TestCase
+# This is a pytest magic variable to load extra plugins
+pytest_plugins = 'onnx.backend.test.report',
 
+backend_test = onnx.backend.test.BackendTest(c2, __name__)
 
-class TestCaffe2Basic(TestCase):
-    def test_dummy_name(self):
-        dummy_name([])
-        names_1 = [dummy_name() for _ in range(3)]
-        dummy_name([])
-        names_2 = [dummy_name() for _ in range(3)]
-        self.assertEqual(names_1, names_2)
+backend_test.exclude(r'(test_ceil|test_floor'  # Does not support Ceil and Floor.
+                     '|test_hardsigmoid|test_pow'  # Does not support Hardsigmoid and Pow.
+                     '|test_mean|test_hardmax)')  # Does not support Mean and Hardmax.
 
-        dummy_name(names_1)
-        names_3 = [dummy_name() for _ in range(3)]
-        self.assertFalse(set(names_1) & set(names_3))
+# Skip vgg to speed up CI
+if 'CI' in os.environ:
+    backend_test.exclude(r'(test_vgg19|test_vgg)')
 
+# import all test cases at global scope to make them visible to python.unittest
+globals().update(backend_test
+                 .enable_report()
+                 .test_cases)
 
 if __name__ == '__main__':
     unittest.main()

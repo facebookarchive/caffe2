@@ -13,8 +13,8 @@
 # limitations under the License.
 ##############################################################################
 
-## @package onnx_caffe2
-# Module caffe2.python.onnx_caffe2.backend_rep
+## @package onnx
+# Module caffe2.python.onnx.backend_rep
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

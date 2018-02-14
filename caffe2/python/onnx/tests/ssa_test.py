@@ -13,8 +13,8 @@
 # limitations under the License.
 ##############################################################################
 
-## @package onnx_caffe2
-# Module caffe2.python.onnx_caffe2.tests.ssa_test
+## @package onnx
+# Module caffe2.python.onnx.tests.ssa_test
 
 from __future__ import absolute_import
 from __future__ import division
@@ -27,9 +27,9 @@ from caffe2.proto import caffe2_pb2
 from caffe2.python import core
 from onnx import helper, TensorProto
 
-import caffe2.python.onnx_caffe2.frontend as c2_onnx
-from caffe2.python.onnx_caffe2.helper import c2_native_run_net
-from caffe2.python.onnx_caffe2.tests.test_utils import TestCase
+import caffe2.python.onnx.frontend as c2_onnx
+from caffe2.python.onnx.helper import c2_native_run_net
+from caffe2.python.onnx.tests.test_utils import TestCase
 
 
 class TestFrontendSSAConversion(TestCase):

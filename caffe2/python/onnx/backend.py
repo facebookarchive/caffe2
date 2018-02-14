@@ -13,8 +13,8 @@
 # limitations under the License.
 ##############################################################################
 
-## @package onnx_caffe2
-# Module caffe2.python.onnx_caffe2.backend
+## @package onnx
+# Module caffe2.python.onnx.backend
 
 """Backend for running ONNX on Caffe2
 
@@ -42,9 +42,9 @@ import onnx.defs
 import onnx.optimizer
 from onnx.backend.base import Backend, Device, DeviceType, namedtupledict
 
-from caffe2.python.onnx_caffe2.workspace import Workspace
-from caffe2.python.onnx_caffe2.backend_rep import Caffe2Rep
-from caffe2.python.onnx_caffe2.helper import dummy_name
+from caffe2.python.onnx.workspace import Workspace
+from caffe2.python.onnx.backend_rep import Caffe2Rep
+from caffe2.python.onnx.helper import dummy_name
 
 import warnings
 

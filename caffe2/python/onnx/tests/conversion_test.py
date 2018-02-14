@@ -13,8 +13,8 @@
 # limitations under the License.
 ##############################################################################
 
-## @package onnx_caffe2
-# Module caffe2.python.onnx_caffe2.tests.conversion_test
+## @package onnx
+# Module caffe2.python.onnx.tests.conversion_test
 
 from __future__ import absolute_import
 from __future__ import division
@@ -31,12 +31,12 @@ from caffe2.python.model_helper import ModelHelper
 from click.testing import CliRunner
 import numpy as np
 from onnx import helper, ModelProto, TensorProto
-from caffe2.python.onnx_caffe2.helper import make_model, c2_native_run_net
+from caffe2.python.onnx.helper import make_model, c2_native_run_net
 
-from caffe2.python.onnx_caffe2.bin.conversion import caffe2_to_onnx, onnx_to_caffe2
-from caffe2.python.onnx_caffe2.helper import dummy_name
-import caffe2.python.onnx_caffe2.backend as c2
-from caffe2.python.onnx_caffe2.tests.test_utils import TestCase
+from caffe2.python.onnx.bin.conversion import caffe2_to_onnx, onnx_to_caffe2
+from caffe2.python.onnx.helper import dummy_name
+import caffe2.python.onnx.backend as c2
+from caffe2.python.onnx.tests.test_utils import TestCase
 
 
 class TestConversion(TestCase):
