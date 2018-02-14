@@ -374,6 +374,9 @@ class LayerModelHelper(model_helper.ModelHelper):
         assert self._loss is None
         self._loss = loss
 
+    def has_loss(self):
+        return self._loss is not None
+
     def add_loss(self, loss, name='unnamed'):
         assert loss is not None, "Added loss should not be None"
         assert isinstance(loss, schema.Scalar) or isinstance(
@@ -390,6 +393,10 @@ class LayerModelHelper(model_helper.ModelHelper):
                 index += 1
             loss_struct = schema.Struct((prefix, loss))
             self._loss = self._loss + loss_struct
+
+    def add_trainer_extra_schema(self, trainer_extra_schema):
+        trainer_extra_record = schema.NewRecord(self.net, trainer_extra_schema)
+        self._trainer_extra_schema += trainer_extra_record
 
     def __getattr__(self, layer):
         if layer.startswith('__'):
