@@ -86,7 +86,7 @@ If this fails with a message about not finding caffe2.python or not finding libc
 If you installed with GPU support, test that the GPU build was a success with this command. You will get a test output either way, but it will warn you at the top of the output if CPU was used instead of GPU, along with other errors such as missing libraries.
 
 ```bash
-python -m caffe2.python.operator_test.relu_op_test
+python caffe2/python/operator_test/relu_op_test.py
 ```
 
 <block class="ubuntu compile" />
