@@ -19,27 +19,23 @@ requirements:
     - future
     - glog
     - gflags
-    - hiredis
     - lmdb
     - numpy
     - opencv
     - openmpi
     - python
     - protobuf {{ protobuf }}
-    - redis
     - six
   run:
     - future
     - glog
     - gflags
-    - hiredis
     - lmdb
     - numpy
     - opencv
     - openmpi
     - protobuf
     - python
-    - redis
     - six
 
 test:
