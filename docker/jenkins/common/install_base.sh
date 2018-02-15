@@ -4,12 +4,13 @@ set -ex
 
 # This function installs protobuf 2.6
 install_protobuf_26() {
-  pb_dir="temp_pb_install_dir"
+  pb_dir="/usr/temp_pb_install_dir"
   mkdir -p $pb_dir
 
-  curl -LO "https://github.com/google/protobuf/releases/download/v2.6.0/protobuf-2.6.0.tar.gz"
-  tar -xvz -C "$pb_dir" --strip-components 1 -f protobuf-2.6.0.tar.gz
-  cd "$pb_dir" && ./configure && make && make check && sudo make install && sudo ldconfig
+  curl -LO "https://github.com/google/protobuf/releases/download/v2.6.1/protobuf-2.6.1.tar.gz"
+  tar -xvz -C "$pb_dir" --strip-components 1 -f protobuf-2.6.1.tar.gz
+  pushd "$pb_dir" && ./configure && make && make check && sudo make install && sudo ldconfig
+  popd
   rm -rf $pb_dir
 }
 
