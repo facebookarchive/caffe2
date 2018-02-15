@@ -25,19 +25,20 @@ PYTHON_ARGS="$(python ./scripts/get_python_cmake_flags.py)"
 # Build with a big suite of libraries
 CMAKE_ARGS=()
 CMAKE_ARGS+=("-DUSE_CUDA=ON")
-CMAKE_ARGS+=("-DUSE_GFLAGS=ON")
-CMAKE_ARGS+=("-DUSE_GLOG=ON")
-CMAKE_ARGS+=("-DUSE_GLOO=ON")
-CMAKE_ARGS+=("-DUSE_LMBD=ON")
-CMAKE_ARGS+=("-DUSE_MPI=ON")
+#CMAKE_ARGS+=("-DUSE_GFLAGS=ON")
+#CMAKE_ARGS+=("-DUSE_GLOG=ON")
+#CMAKE_ARGS+=("-DUSE_GLOO=ON")
+#CMAKE_ARGS+=("-DUSE_LMBD=ON")
+#CMAKE_ARGS+=("-DUSE_MPI=ON")
 CMAKE_ARGS+=("-DUSE_NCCL=ON")
-CMAKE_ARGS+=("-DUSE_OPENCV=ON")
+#CMAKE_ARGS+=("-DUSE_OPENCV=ON")
 
 # Explicitly turn unused packages off to prevent cmake from trying to find
 # system libraries
 CMAKE_ARGS+=("-DUSE_LEVELDB=OFF")
-CMAKE_ARGS+=("-DUSE_REDIS=OFF")
-CMAKE_ARGS+=("-DUSE_ROCKSDB=OFF")
+CMAKE_ARGS+=("-DUSE_MPI=OFF")
+#CMAKE_ARGS+=("-DUSE_REDIS=OFF")
+#CMAKE_ARGS+=("-DUSE_ROCKSDB=OFF")
 
 # Install under specified prefix
 CMAKE_ARGS+=("-DCMAKE_INSTALL_PREFIX=$PREFIX")
