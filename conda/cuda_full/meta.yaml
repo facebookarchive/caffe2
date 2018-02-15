@@ -19,6 +19,8 @@ requirements:
     - future
     - glog
     - gflags
+    - hiredis
+    - lmdb
     - numpy
     - opencv
     - openmpi
@@ -30,6 +32,8 @@ requirements:
     - future
     - glog
     - gflags
+    - hiredis
+    - lmdb
     - numpy
     - opencv
     - openmpi
