@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Caffe2 - C++ API: caffe2::EigenPowFunctor Struct Reference</title>
+<title>Caffe2 - C++ API: caffe2::PowFunctor Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link rel="icon" href="/static/favicon.png" type="image/x-icon">
 <script type="text/javascript" src="jquery.js"></script>
@@ -91,43 +91,45 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacecaffe2.html">caffe2</a></li><li class="navelem"><a class="el" href="structcaffe2_1_1_eigen_pow_functor.html">EigenPowFunctor</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacecaffe2.html">caffe2</a></li><li class="navelem"><a class="el" href="structcaffe2_1_1_pow_functor.html">PowFunctor</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a>  </div>
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">caffe2::EigenPowFunctor Struct Reference</div>  </div>
+<div class="title">caffe2::PowFunctor Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa4421a91521ba3fc19c9ddda87d4f555"><td class="memTemplParams" colspan="2"><a class="anchor" id="aa4421a91521ba3fc19c9ddda87d4f555"></a>
-template&lt;int b_is_scalar, typename T1 , typename T2 , typename R &gt; </td></tr>
-<tr class="memitem:aa4421a91521ba3fc19c9ddda87d4f555"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Run</b> (size_t n, const T1 *a, const T2 *b, R *out, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> *)</td></tr>
-<tr class="separator:aa4421a91521ba3fc19c9ddda87d4f555"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b8c25d6eb0f045e25062a7df1a1c812"><td class="memTemplParams" colspan="2"><a class="anchor" id="a7b8c25d6eb0f045e25062a7df1a1c812"></a>
-template&lt;typename T1 , typename T2 , typename R &gt; </td></tr>
-<tr class="memitem:a7b8c25d6eb0f045e25062a7df1a1c812"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>RunWithBroadcast</b> (const T1 *a, const T2 *b, R *out, size_t pre, size_t n, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> *)</td></tr>
-<tr class="separator:a7b8c25d6eb0f045e25062a7df1a1c812"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2dfc7518e430f7e8e7e7125ca855424b"><td class="memTemplParams" colspan="2"><a class="anchor" id="a2dfc7518e430f7e8e7e7125ca855424b"></a>
-template&lt;typename T1 , typename T2 , typename R &gt; </td></tr>
-<tr class="memitem:a2dfc7518e430f7e8e7e7125ca855424b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>RunWithBroadcast2</b> (const T1 *a, const T2 *b, R *out, size_t pre, size_t n, size_t post, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> *)</td></tr>
-<tr class="separator:a2dfc7518e430f7e8e7e7125ca855424b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95592f93a09ad1962b0d326792e703f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a95592f93a09ad1962b0d326792e703f3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PowFunctor</b> (<a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> &amp;op)</td></tr>
+<tr class="separator:a95592f93a09ad1962b0d326792e703f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d390f2ab5eb5216ae69f42e860d1ef7"><td class="memTemplParams" colspan="2"><a class="anchor" id="a4d390f2ab5eb5216ae69f42e860d1ef7"></a>
+template&lt;typename T , class Context &gt; </td></tr>
+<tr class="memitem:a4d390f2ab5eb5216ae69f42e860d1ef7"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator()</b> (const int n, const T *x, T *y, Context *device_context)</td></tr>
+<tr class="separator:a4d390f2ab5eb5216ae69f42e860d1ef7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:a710837098ca37348cd829284942293f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a710837098ca37348cd829284942293f3"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>exponent_</b></td></tr>
+<tr class="separator:a710837098ca37348cd829284942293f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="pow__op_8cc_source.html#l00027">27</a> of file <a class="el" href="pow__op_8cc_source.html">pow_op.cc</a>.</p>
+<p>Definition at line <a class="el" href="math__ops_8h_source.html#l00030">30</a> of file <a class="el" href="math__ops_8h_source.html">math_ops.h</a>.</p>
 </div><hr/>The documentation for this struct was generated from the following file:<ul>
-<li>caffe2/operators/<a class="el" href="pow__op_8cc_source.html">pow_op.cc</a></li>
+<li>caffe2/operators/<a class="el" href="math__ops_8h_source.html">math_ops.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Feb 14 2018 13:03:31 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Feb 15 2018 13:03:34 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

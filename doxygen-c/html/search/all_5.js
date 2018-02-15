@@ -1,7 +1,6 @@
 var searchData=
 [
   ['eigenconvop',['EigenConvOp',['../classcaffe2_1_1_eigen_conv_op.html',1,'caffe2']]],
-  ['eigenpowfunctor',['EigenPowFunctor',['../structcaffe2_1_1_eigen_pow_functor.html',1,'caffe2']]],
   ['elementwiselineargradientop',['ElementwiseLinearGradientOp',['../classcaffe2_1_1_elementwise_linear_gradient_op.html',1,'caffe2']]],
   ['elementwiselinearop',['ElementwiseLinearOp',['../classcaffe2_1_1_elementwise_linear_op.html',1,'caffe2']]],
   ['elementwisertcop',['ElementwiseRTCOp',['../classcaffe2_1_1_elementwise_r_t_c_op.html',1,'caffe2']]],
