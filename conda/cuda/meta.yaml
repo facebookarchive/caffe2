@@ -18,9 +18,8 @@ requirements:
     - cmake
     - future
     - glog
+    - gflags
     - lmdb
-    - mkl-include
-    - mkl
     - numpy
     - opencv
     - python
@@ -29,9 +28,8 @@ requirements:
   run:
     - future
     - glog
+    - gflags
     - lmdb
-    - mkl
-    - mkl-include
     - numpy
     - opencv
     - protobuf

@@ -29,6 +29,7 @@ import caffe2.python.predictor.predictor_py_utils as utils
 from builtins import bytes
 import collections
 
+
 def get_predictor_exporter_helper(submodelNetName):
     """ constracting stub for the PredictorExportMeta
         Only used to construct names to subfields,
@@ -82,6 +83,12 @@ class PredictorExportMeta(collections.namedtuple(
         assert len(set(inputs)) == len(inputs), (
             "All inputs to the predictor should be unique")
         parameters = [str(p) for p in parameters]
+        assert set(parameters).isdisjoint(inputs), (
+            "Parameters and inputs are required to be disjoint. "
+            "Intersection: {}".format(set(parameters).intersection(inputs)))
+        assert set(parameters).isdisjoint(outputs), (
+            "Parameters and outputs are required to be disjoint. "
+            "Intersection: {}".format(set(parameters).intersection(outputs)))
         shapes = shapes or {}
 
         if isinstance(predict_net, (core.Net, core.Plan)):
@@ -154,6 +161,9 @@ def _global_init_net(predictor_export_meta):
         predictor_export_meta.parameters)
     net.Proto().external_input.extend([predictor_constants.PREDICTOR_DBREADER])
     net.Proto().external_output.extend(predictor_export_meta.parameters)
+
+    # Add the model_id in the predict_net to the global_init_net
+    utils.AddModelIdArg(predictor_export_meta, net.Proto())
     return net.Proto()
 
 
@@ -162,9 +172,9 @@ def get_meta_net_def(predictor_export_meta, ws=None):
     """
 
     ws = ws or workspace.C.Workspace.current
+    meta_net_def = metanet_pb2.MetaNetDef()
 
     # Predict net is the core network that we use.
-    meta_net_def = metanet_pb2.MetaNetDef()
     utils.AddNet(meta_net_def, predictor_export_meta.predict_init_name(),
                  utils.create_predict_init_net(ws, predictor_export_meta))
     utils.AddNet(meta_net_def, predictor_export_meta.global_init_name(),

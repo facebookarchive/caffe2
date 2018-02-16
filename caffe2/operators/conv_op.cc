@@ -35,8 +35,8 @@ why they are separate files.
 std::function<void(OpSchema&)> ConvDocGenerator(const char* dim) {
   return [=](OpSchema& schema) {
     string doc = R"DOC(
-    The convolution operator consumes an input vector, a {dim}filter blob
-    and a bias blob and computes the output. {conv_doc})DOC";
+The convolution operator consumes an input vector, a {dim}filter blob
+and a bias blob and computes the output. {conv_doc})DOC";
     ReplaceAll(doc, "{dim}", dim);
     ReplaceAll(doc, "{conv_doc}", kConvDoc);
     schema.SetDoc(doc);
@@ -74,6 +74,8 @@ OPERATOR_SCHEMA(Conv)
     .NumInputs(2, 3)
     .NumOutputs(1)
     .TensorInferenceFunction(ConvPoolOpBase<CPUContext>::TensorInferenceForConv)
+    .CostInferenceFunction(OpSchema::CostInferenceFunctionType(
+        ConvPoolOpBase<CPUContext>::CostInferenceForConv))
     .FillUsing(ConvDocGenerator(""));
 
 REGISTER_CPU_OPERATOR(Conv1D, ConvOp<float, CPUContext>);
@@ -99,6 +101,8 @@ REGISTER_CPU_OPERATOR(Conv3D, ConvOp<float, CPUContext>);
 OPERATOR_SCHEMA(Conv3D)
     .NumInputs(2, 3)
     .NumOutputs(1)
+    .CostInferenceFunction(OpSchema::CostInferenceFunctionType(
+        ConvPoolOpBase<CPUContext>::CostInferenceForConv))
     .TensorInferenceFunction(ConvPoolOpBase<CPUContext>::TensorInferenceForConv)
     .FillUsing(ConvDocGenerator("3D "));
 

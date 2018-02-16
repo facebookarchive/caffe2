@@ -21,13 +21,19 @@ if [ -n "$UPLOAD_TO_CONDA" ]; then
 fi
 
 # Reinitialize submodules
-git submodule sync
-git submodule foreach git fetch
 git submodule update --init
 
 # Separate build folder for CUDA builds so that the packages have different
 # names
 if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
+  # CUDA 9.0 and 9.1 are not in conda, and cuDNN is not in conda, so instead of
+  # pinning CUDA and cuDNN versions in the conda_build_config and then setting
+  # the package name in meta.yaml based off of these values, we let Caffe2
+  # take the CUDA and cuDNN versions that it finds in the build environment,
+  # and manually set the package name ourself.
+  # WARNING: This does not work on mac.
+  sed -i "s/caffe2-cuda/caffe2-cuda${CAFFE2_CUDA_VERSION}-cudnn${CAFFE2_CUDNN_VERSION}/" "${CAFFE2_ROOT}/conda/cuda/meta.yaml"
+
   conda build "${CAFFE2_ROOT}/conda/cuda" ${CONDA_BLD_ARGS[@]} "$@"
 else
   conda build "${CAFFE2_ROOT}/conda/no_cuda" ${CONDA_BLD_ARGS[@]} "$@"

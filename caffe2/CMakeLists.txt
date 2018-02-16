@@ -99,22 +99,13 @@ add_library(caffe2 ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJ
 target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_LIBS})
 target_include_directories(caffe2 INTERFACE $<INSTALL_INTERFACE:include>)
 target_compile_options(caffe2 INTERFACE "-std=c++11")
+target_compile_options(caffe2 PRIVATE "-DCAFFE2_BUILD_MAIN_LIB")
 install(TARGETS caffe2 EXPORT Caffe2Targets DESTINATION lib)
 caffe_add_linker_flag(caffe2 Caffe2_CPU_LINK)
 list(APPEND Caffe2_MAIN_LIBS_ORDER caffe2 Caffe2_PROTO)
 list(APPEND Caffe2_MAIN_LIBS ${Caffe2_CPU_LINK})
 if (Caffe2_EXTERNAL_DEPENDENCIES)
   add_dependencies(caffe2 ${Caffe2_EXTERNAL_DEPENDENCIES})
-endif()
-
-# ---[ On Android, Caffe2 uses cpufeatures library in the thread pool
-if (ANDROID)
-  # ---[ Check if cpufeatures was already imported by NNPACK
-  if (NOT TARGET cpufeatures)
-    include(${CMAKE_SOURCE_DIR}/third_party/android-cmake/AndroidNdkModules.cmake)
-    android_ndk_import_module_cpufeatures()
-  endif()
-  target_link_libraries(caffe2 PRIVATE cpufeatures)
 endif()
 
 # ---[ CUDA library.
@@ -124,13 +115,22 @@ if(USE_CUDA)
   # one cannot use PUBLIC/PRIVATE/INTERFACE for the target anymore. This
   # hack adds the PRIVATE keywords to CUDA_LIBRARIES so we can deal with
   # it.
+
+  #set(__tmp ${CUDA_LIBRARIES})
+  #set(CUDA_LIBRARIES PRIVATE ${CUDA_LIBRARIES})
+  #CUDA_ADD_LIBRARY(caffe2_gpu ${Caffe2_GPU_SRCS})
+  #set(CUDA_LIBRARIES ${__tmp})
+
+  # Note: the above misses transitive cuda dependencies, as we have not
+  # sorted out the interface library for cuda related libs. As a result,
+  # we will first put all CUDA_LIBRARIES as the dependency.
   set(__tmp ${CUDA_LIBRARIES})
-  set(CUDA_LIBRARIES PRIVATE ${CUDA_LIBRARIES})
+  set(CUDA_LIBRARIES PUBLIC ${CUDA_LIBRARIES})
   CUDA_ADD_LIBRARY(caffe2_gpu ${Caffe2_GPU_SRCS})
   set(CUDA_LIBRARIES ${__tmp})
+
   target_include_directories(
       caffe2_gpu INTERFACE $<INSTALL_INTERFACE:include>)
-  target_compile_options(caffe2 INTERFACE "-std=c++11")
   list(APPEND Caffe2_MAIN_LIBS_ORDER caffe2_gpu)
   add_dependencies(caffe2_gpu Caffe2_PROTO)
   if (BUILD_SHARED_LIBS)
@@ -187,16 +187,37 @@ endif()
 
 
 if (BUILD_PYTHON)
+  # Python site-packages
+  # Get canonical directory for python site packages (relative to install
+  # location).  It varys from system to system.
+  pycmd(python_site_packages "
+      from distutils import sysconfig
+      print(sysconfig.get_python_lib(prefix=''))
+  ")
+  # Python extension suffix
+  # Try to get from python through sysconfig.get_env_var('EXT_SUFFIX') first,
+  # fallback to ".pyd" if windows and ".so" for all others.
+  pycmd(PY_EXT_SUFFIX "
+      from distutils import sysconfig
+      ext_suffix = sysconfig.get_config_var('EXT_SUFFIX')
+      print(ext_suffix if ext_suffix else '')
+  ")
+  if("${PY_EXT_SUFFIX}" STREQUAL "")
+    if (MSVC)
+      set(PY_EXT_SUFFIX ".pyd")
+    else()
+      set(PY_EXT_SUFFIX ".so")
+    endif()
+  endif()
+
   # ---[ Python.
   add_library(caffe2_pybind11_state MODULE ${Caffe2_CPU_PYTHON_SRCS})
   set_target_properties(caffe2_pybind11_state PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
   add_dependencies(caffe2_pybind11_state ${Caffe2_MAIN_LIBS_ORDER})
   set_target_properties(caffe2_pybind11_state PROPERTIES PREFIX "")
+  set_target_properties(caffe2_pybind11_state PROPERTIES SUFFIX ${PY_EXT_SUFFIX})
   if (APPLE)
-    set_target_properties(caffe2_pybind11_state PROPERTIES SUFFIX ".so")
     set_target_properties(caffe2_pybind11_state PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
-  elseif (MSVC)
-    set_target_properties(caffe2_pybind11_state PROPERTIES SUFFIX ".pyd")
   endif()
   set_target_properties(
       caffe2_pybind11_state PROPERTIES LIBRARY_OUTPUT_DIRECTORY
@@ -204,18 +225,16 @@ if (BUILD_PYTHON)
   target_link_libraries(
       caffe2_pybind11_state ${Caffe2_CPU_LINK} ${Caffe2_DEPENDENCY_LIBS}
       ${Caffe2_PYTHON_DEPENDENCY_LIBS})
-  install(TARGETS caffe2_pybind11_state DESTINATION caffe2/python)
+  install(TARGETS caffe2_pybind11_state DESTINATION "${python_site_packages}/caffe2/python")
 
   if(USE_CUDA)
     add_library(caffe2_pybind11_state_gpu MODULE ${Caffe2_GPU_PYTHON_SRCS})
     set_target_properties(caffe2_pybind11_state_gpu PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
     add_dependencies(caffe2_pybind11_state_gpu ${Caffe2_MAIN_LIBS_ORDER})
     set_target_properties(caffe2_pybind11_state_gpu PROPERTIES PREFIX "")
+    set_target_properties(caffe2_pybind11_state_gpu PROPERTIES SUFFIX ${PY_EXT_SUFFIX})
     if (APPLE)
-      set_target_properties(caffe2_pybind11_state_gpu PROPERTIES SUFFIX ".so")
       set_target_properties(caffe2_pybind11_state_gpu PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
-    elseif (MSVC)
-      set_target_properties(caffe2_pybind11_state_gpu PROPERTIES SUFFIX ".pyd")
     endif()
     set_target_properties(
         caffe2_pybind11_state_gpu PROPERTIES LIBRARY_OUTPUT_DIRECTORY
@@ -223,7 +242,7 @@ if (BUILD_PYTHON)
     target_link_libraries(
         caffe2_pybind11_state_gpu ${Caffe2_CPU_LINK} ${Caffe2_GPU_LINK} ${Caffe2_DEPENDENCY_LIBS}
         ${Caffe2_CUDA_DEPENDENCY_LIBS} ${Caffe2_PYTHON_DEPENDENCY_LIBS})
-    install(TARGETS caffe2_pybind11_state_gpu DESTINATION caffe2/python)
+    install(TARGETS caffe2_pybind11_state_gpu DESTINATION "${python_site_packages}/caffe2/python")
   endif()
 
   if (MSVC AND CMAKE_GENERATOR MATCHES "Visual Studio")
@@ -282,13 +301,13 @@ if (BUILD_PYTHON)
 
   # Install commands
   # Pick up static python files
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION .
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION ${python_site_packages}
           FILES_MATCHING PATTERN "*.py")
   # Caffe proto files
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe DESTINATION .
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe DESTINATION ${python_site_packages}
           FILES_MATCHING PATTERN "*.py")
   # Caffe2 proto files
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION .
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/caffe2 DESTINATION ${python_site_packages}
           FILES_MATCHING PATTERN "*.py")
 endif()
 

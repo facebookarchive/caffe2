@@ -64,6 +64,7 @@ CMAKE_ARGS+=("-DANDROID_TOOLCHAIN=gcc")
 
 # Disable unused dependencies
 CMAKE_ARGS+=("-DUSE_CUDA=OFF")
+CMAKE_ARGS+=("-DUSE_GFLAGS=OFF")
 CMAKE_ARGS+=("-DUSE_OPENCV=OFF")
 CMAKE_ARGS+=("-DUSE_LMDB=OFF")
 CMAKE_ARGS+=("-DUSE_LEVELDB=OFF")
@@ -80,16 +81,29 @@ CMAKE_ARGS+=("-DANDROID_NDK=$ANDROID_NDK")
 CMAKE_ARGS+=("-DANDROID_ABI=armeabi-v7a with NEON")
 CMAKE_ARGS+=("-DANDROID_NATIVE_API_LEVEL=21")
 CMAKE_ARGS+=("-DANDROID_CPP_FEATURES=rtti exceptions")
+# TODO: As the toolchain file doesn't support NEON-FP16 extension,
+# we disable USE_MOBILE_OPENGL for now, it will be re-enabled in the future.
+CMAKE_ARGS+=("-DUSE_MOBILE_OPENGL=OFF")
 
 # Compiler flags
+CMAKE_ARGS+=($@)
+USE_GCC=true
 CMAKE_ARGS+=("-DCMAKE_C_FLAGS=")
-CMAKE_ARGS+=("-DCMAKE_CXX_FLAGS=-s")
+for arg in ${CMAKE_ARGS[@]};do
+  if [ $arg == "-DANDROID_TOOLCHAIN=clang" ];then
+    USE_GCC=false
+  elif [ $arg == "-DANDROID_TOOLCHAIN=gcc" ];then
+    USE_GCC=true
+  fi
+done
+if $USE_GCC;then
+  CMAKE_ARGS+=("-DCMAKE_CXX_FLAGS=-s")
+fi
 
 cmake "$CAFFE2_ROOT" \
     -DCMAKE_INSTALL_PREFIX=../install \
     -DCMAKE_BUILD_TYPE=Release \
-    "${CMAKE_ARGS[@]}" \
-    "$@"
+    "${CMAKE_ARGS[@]}"
 
 # Cross-platform parallel build
 if [ "$(uname)" == "Darwin" ]; then

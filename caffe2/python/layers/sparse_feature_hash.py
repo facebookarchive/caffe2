@@ -26,6 +26,9 @@ from caffe2.python.layers.layers import (
     IdList,
     IdScoreList,
 )
+from caffe2.python.layers.tags import (
+    Tags
+)
 
 import numpy as np
 
@@ -74,6 +77,11 @@ class SparseFeatureHash(ModelLayer):
 
         assert self.modulo >= 1, 'Unexpected modulo: {}'.format(self.modulo)
 
+        # operators in this layer do not have CUDA implementation yet.
+        # In addition, since the sparse feature keys that we are hashing are
+        # typically on CPU originally, it makes sense to have this layer on CPU.
+        self.tags.update([Tags.CPU_ONLY])
+
     def extract_hash_size(self, metadata):
         if metadata.feature_specs and metadata.feature_specs.desired_hash_size:
             return metadata.feature_specs.desired_hash_size
@@ -98,5 +106,5 @@ class SparseFeatureHash(ModelLayer):
             )
         else:
             net.Mod(
-                input_blob, output_blob, divisor=self.modulo
+                input_blob, output_blob, divisor=self.modulo, sign_follow_divisor=True
             )

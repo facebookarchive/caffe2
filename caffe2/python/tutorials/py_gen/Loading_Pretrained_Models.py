@@ -10,7 +10,7 @@
 
 # # Loading Pre-Trained Models
 # 
-# In this tutorial, we'll use the `squeezenet` model to identify objects in images. The image location will pass in a URL to a photo or the location of a local file. The codes is a list of [AlexNet object codes](https://gist.githubusercontent.com/aaronmarkham/cd3a6b6ac071eca6f7b4a6e40e6038aa/raw/9edb4038a37da6b5a44c3b5bc52e448ff09bfe5b/alexnet_codes), like "985" which equates to "daisy".
+# In this tutorial, we'll use the `squeezenet` model to identify objects in images. The image location will pass in a URL to a photo or the location of a local file. The codes is a list of [ImageNet object codes](https://gist.githubusercontent.com/aaronmarkham/cd3a6b6ac071eca6f7b4a6e40e6038aa/raw/9edb4038a37da6b5a44c3b5bc52e448ff09bfe5b/alexnet_codes), like "985" which equates to "daisy".
 # 
 # If you came from the Image Pre-Processing Tutorial, you will see that we're using rescale and crop functions to prep the image, as well as reformatting the image to be CHW, BGR, and finally NCHW. We also correct the image mean, by either using the calculated mean from a provided npy file or statically removing 128 as a placeholder average.
 # 
@@ -29,7 +29,7 @@
 # 
 # 3. run the net and get the results!
 # 
-#         results = p.run([img])
+#         results = p.run({'data': img})
 # 
 # The results come back as a multidimensional array of probabilities. Essentially each row is a percentage chance that the object matches something that the neural net recognizes. When you run the flower it should give you over 95% rating that the flower is a daisy.
 # 
@@ -210,7 +210,7 @@ with open(PREDICT_NET) as f:
 p = workspace.Predictor(init_net, predict_net)
 
 # run the net and return prediction
-results = p.run([img])
+results = p.run({'data': img})
 
 # turn it into something we can play with and examine which is in a multi-dimensional array
 results = np.asarray(results)

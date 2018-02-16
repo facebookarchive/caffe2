@@ -36,12 +36,25 @@ namespace caffe2 {
 
 typedef intptr_t CaffeTypeId;
 std::map<CaffeTypeId, string>& gTypeNames();
-#ifdef __GXX_RTTI
 std::set<string>& gRegisteredTypeNames();
-#endif // __GXX_RTTI
 
 // A utility function to demangle a function name.
 string Demangle(const char* name);
+
+/**
+ * Returns the printable name of the type.
+ *
+ * Works for all types, not only the ones registered with CAFFE_KNOWN_TYPE
+ */
+template <typename T>
+static const char* DemangleType() {
+#ifdef __GXX_RTTI
+  static const string name = Demangle(typeid(T).name());
+  return name.c_str();
+#else // __GXX_RTTI
+  return "(RTTI disabled, cannot show name)";
+#endif // __GXX_RTTI
+}
 
 // A utility function to return an exception string by prepending its exception
 // type before its what() content.
@@ -51,11 +64,12 @@ std::mutex& gCaffe2TypeRegistrationMutex();
 
 template <typename T>
 struct TypeNameRegisterer {
-  explicit TypeNameRegisterer(CaffeTypeId id) {
+  TypeNameRegisterer(CaffeTypeId id, const string& literal_name) {
     std::lock_guard<std::mutex> guard(gCaffe2TypeRegistrationMutex());
 #ifdef __GXX_RTTI
+    (void)literal_name;
+
     string name = Demangle(typeid(T).name());
-    gTypeNames()[id] = name;
     // If we are in RTTI mode, we will also use this opportunity to do sanity
     // check if there are duplicated ids registered for the same type. This
     // usually happens when one does not do RTLD_GLOBAL, which is often the
@@ -70,8 +84,13 @@ struct TypeNameRegisterer {
       throw std::runtime_error("TypeNameRegisterer error with type " + name);
     }
     gRegisteredTypeNames().insert(name);
+    gTypeNames()[id] = name;
 #else // __GXX_RTTI
-    gTypeNames()[id] = "(RTTI disabled, cannot show name)";
+    if (literal_name.empty()) {
+      gTypeNames()[id] = "(RTTI disabled, cannot show name)";
+    } else {
+      gTypeNames()[id] = literal_name;
+    }
 #endif // __GXX_RTTI
   }
 };
@@ -188,7 +207,7 @@ class TypeMeta {
    * is generated during run-time. Do NOT serialize the id for storage.
    */
   template <typename T>
-  CAFFE2_EXPORT static CaffeTypeId Id();
+  CAFFE2_API static CaffeTypeId Id();
 
   /**
    * Returns the item size of the type. This is equivalent to sizeof(T).
@@ -199,18 +218,15 @@ class TypeMeta {
   }
 
   /**
-   * Returns the printable name of the type.
+   * Returns the registered printable name of the type.
    *
-   * Works for all types, not only the ones registered with CAFFE_KNOWN_TYPE
+   * Works for only the ones registered with CAFFE_KNOWN_TYPE
    */
   template <typename T>
-  static const char* Name() {
-#ifdef __GXX_RTTI
-    static const string name = Demangle(typeid(T).name());
-    return name.c_str();
-#else // __GXX_RTTI
-    return "(RTTI disabled, cannot show name)";
-#endif // __GXX_RTTI
+  static const char* TypeName() {
+    auto it = gTypeNames().find(Id<T>());
+    assert(it != gTypeNames().end());
+    return it->second.c_str();
   }
 
   /**
@@ -242,7 +258,7 @@ class TypeMeta {
   template <typename T>
   static void
   _CopyNotAllowed(const void* /*src*/, void* /*dst*/, size_t /*n*/) {
-    std::cerr << "Type " << Name<T>() << " does not allow assignment.";
+    std::cerr << "Type " << DemangleType<T>() << " does not allow assignment.";
     // This is an error by design, so we will quit loud.
     abort();
   }
@@ -308,14 +324,32 @@ class TypeMeta {
  *
  * NOTE: the macro needs to be invoked in ::caffe2 namespace
  */
-#define CAFFE_KNOWN_TYPE(T)                            \
-  template <>                                          \
-  CaffeTypeId TypeMeta::Id<T>() {                      \
-    static bool type_id_bit[1];                        \
-    static TypeNameRegisterer<T> registerer(           \
-        reinterpret_cast<CaffeTypeId>(type_id_bit));   \
-    return reinterpret_cast<CaffeTypeId>(type_id_bit); \
+// Implementation note: in MSVC, we will need to prepend the CAFFE2_EXPORT
+// keyword in order to get things compiled properly. in Linux, gcc seems to
+// create attribute ignored error for explicit template instantiations, see
+//   http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0537r0.html
+//   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=51930
+// and as a result, we define these two macros slightly differently.
+
+#ifdef _MSC_VER
+#define CAFFE_KNOWN_TYPE(T)                              \
+  template <>                                            \
+  CAFFE2_EXPORT CaffeTypeId TypeMeta::Id<T>() {          \
+    static bool type_id_bit[1];                          \
+    static TypeNameRegisterer<T> registerer(             \
+        reinterpret_cast<CaffeTypeId>(type_id_bit), #T); \
+    return reinterpret_cast<CaffeTypeId>(type_id_bit);   \
   }
+#else // _MSC_VER
+#define CAFFE_KNOWN_TYPE(T)                              \
+  template <>                                            \
+  CaffeTypeId TypeMeta::Id<T>() {                        \
+    static bool type_id_bit[1];                          \
+    static TypeNameRegisterer<T> registerer(             \
+        reinterpret_cast<CaffeTypeId>(type_id_bit), #T); \
+    return reinterpret_cast<CaffeTypeId>(type_id_bit);   \
+  }
+#endif
 
 } // namespace caffe2
 

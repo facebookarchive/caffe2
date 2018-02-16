@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 import hypothesis.strategies as st
 import numpy as np
 import numpy.testing as npt
+import unittest
 from hypothesis import given
 
 import caffe2.python.hypothesis_test_util as hu
@@ -385,7 +386,7 @@ class TestLayers(LayersTestCase):
 
         output_idx = [1, 3, 5]
         output_idx_blob = self.model.add_global_constant(
-            self.model.net.NextScopedBlob('pairwise_dot_product_gather'),
+            str(self.model.net.NextScopedBlob('pairwise_dot_product_gather')),
             output_idx,
             dtype=np.int32,
         )
@@ -1004,6 +1005,18 @@ class TestLayers(LayersTestCase):
             self.model.input_feature_schema.float_features()
         assert len(ops[0].output) == 1
         assert ops[0].output[0] in ops[1].input
+
+    @unittest.skipIf(not workspace.has_gpu_support, "No gpu support.")
+    def testHalfToFloatTypeInference(self):
+        input = self.new_record(schema.Scalar((np.float32, (32,))))
+
+        output = self.model.FloatToHalf(input, 1)
+        assert output.field_type().base == np.float16
+        assert output.field_type().shape == (32, )
+
+        output = self.model.HalfToFloat(output, 1)
+        assert output.field_type().base == np.float32
+        assert output.field_type().shape == (32, )
 
     def testFunctionalLayerHelperAutoInferenceScalar(self):
         loss = self.model.AveragedLoss(self.model.input_feature_schema, 1)

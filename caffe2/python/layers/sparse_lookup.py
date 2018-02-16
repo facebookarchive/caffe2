@@ -63,7 +63,7 @@ class SparseLookup(ModelLayer):
 
     def __init__(self, model, input_record, inner_shape, reducer,
                  weight_init=None, weight_optim=None,
-                 name='sparse_lookup', **kwargs):
+                 name='sparse_lookup', regularizer=None, **kwargs):
 
         super(SparseLookup, self).__init__(model, name, input_record, **kwargs)
 
@@ -111,7 +111,9 @@ class SparseLookup(ModelLayer):
             optimizer=weight_optim,
             ps_param=LayerPsParam(
                 sparse_key=sparse_key,
-                average_length=avg_length))
+                average_length=avg_length),
+            regularizer=regularizer
+        )
 
         self.scale_bias_init = ('ConstantFill', {'value': 0.0})
 
@@ -119,7 +121,8 @@ class SparseLookup(ModelLayer):
             param_name='scale_bias',
             shape=[],
             initializer=self.scale_bias_init,
-            optimizer=model.NoOptim)
+            optimizer=model.NoOptim,
+        )
 
         self.output_schema = schema.Scalar(
             (np.float32, inner_shape),
@@ -133,6 +136,10 @@ class SparseLookup(ModelLayer):
         return [self.w]
 
     def get_8bits_compatible_parameters(self, fused=True):
+        # Rowwise quantization makes sense only if shape it's 2D matrix with
+        # second dimension >= 8
+        if len(self.shape) != 2 or self.shape[1] < 8:
+            return []
         if fused:
             RowwiseQuantized8BitsWeight = collections.namedtuple(
                 'RowwiseQuantized8BitsWeight', 'w'

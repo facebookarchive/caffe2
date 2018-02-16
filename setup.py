@@ -11,7 +11,10 @@ import setuptools.command.develop
 import setuptools.command.build_ext
 
 from collections import namedtuple
+from contextlib import contextmanager
+import glob
 import os
+import multiprocessing
 import shlex
 import subprocess
 import sys
@@ -19,6 +22,7 @@ from textwrap import dedent
 
 TOP_DIR = os.path.realpath(os.path.dirname(__file__))
 SRC_DIR = os.path.join(TOP_DIR, 'caffe2')
+CMAKE_BUILD_DIR = os.path.join(TOP_DIR, '.setuptools-cmake-build')
 
 install_requires = []
 setup_requires = []
@@ -30,6 +34,22 @@ tests_require = []
 
 assert find_executable('cmake'), 'Could not find "cmake" executable!'
 assert find_executable('make'), 'Could not find "make" executable!'
+
+################################################################################
+# utils functions
+################################################################################
+
+
+@contextmanager
+def cd(path):
+    if not os.path.isabs(path):
+        raise RuntimeError('Can only cd to absolute path, got: {}'.format(path))
+    orig_path = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(orig_path)
 
 ################################################################################
 # Version
@@ -71,92 +91,133 @@ class create_version(Caffe2Command):
             '''.format(**dict(VersionInfo._asdict()))))
 
 
+class cmake_build(Caffe2Command):
+    """
+    Compiles everything when `python setup.py build` is run using cmake.
+
+    Custom args can be passed to cmake by specifying the `CMAKE_ARGS`
+    environment variable. E.g. to build without cuda support run:
+        `CMAKE_ARGS=-DUSE_CUDA=Off python setup.py build`
+
+    The number of CPUs used by `make` can be specified by passing `-j<ncpus>`
+    to `setup.py build`.  By default all CPUs are used.
+    """
+    user_options = [
+        (str('jobs='), str('j'), str('Specifies the number of jobs to use with make'))
+    ]
+
+    built = False
+
+    def initialize_options(self):
+        self.jobs = multiprocessing.cpu_count()
+
+    def finalize_options(self):
+        self.jobs = int(self.jobs)
+
+    def run(self):
+        if cmake_build.built:
+            return
+        cmake_build.built = True
+
+        if not os.path.exists(CMAKE_BUILD_DIR):
+            os.makedirs(CMAKE_BUILD_DIR)
+
+        with cd(CMAKE_BUILD_DIR):
+            # configure
+            cmake_args = [
+                find_executable('cmake'),
+                '-DBUILD_SHARED_LIBS=OFF',
+                '-DPYTHON_EXECUTABLE:FILEPATH={}'.format(sys.executable),
+                '-DPYTHON_INCLUDE_DIR={}'.format(sysconfig.get_python_inc()),
+                '-DBUILD_TEST=OFF',
+                '-DBUILD_BENCHMARK=OFF',
+                '-DBUILD_BINARY=OFF',
+            ]
+            if 'CMAKE_ARGS' in os.environ:
+                extra_cmake_args = shlex.split(os.environ['CMAKE_ARGS'])
+                # prevent crossfire with downstream scripts
+                del os.environ['CMAKE_ARGS']
+                log.info('Extra cmake args: {}'.format(extra_cmake_args))
+            cmake_args.append(TOP_DIR)
+            subprocess.check_call(cmake_args)
+
+            build_args = [find_executable('make')]
+            # control the number of concurrent jobs
+            if self.jobs is not None:
+                build_args.extend(['-j', str(self.jobs)])
+            subprocess.check_call(build_args)
+
+
 class build_py(setuptools.command.build_py.build_py):
     def run(self):
         self.run_command('create_version')
+        self.run_command('cmake_build')
+        for d in ['caffe', 'caffe2']:
+            for src in glob.glob(
+                    os.path.join(CMAKE_BUILD_DIR, d, 'proto', '*.py')):
+                dst = os.path.join(
+                    TOP_DIR, os.path.relpath(src, CMAKE_BUILD_DIR))
+                self.copy_file(src, dst)
         setuptools.command.build_py.build_py.run(self)
 
 
-class develop(setuptools.command.develop.develop):
-    def run(self):
-        raise RuntimeError('develop mode is not supported!')
-
-
 class build_ext(setuptools.command.build_ext.build_ext):
-    def _build_with_cmake(self):
-        build_temp = os.path.realpath(self.build_temp)
-        build_lib = os.path.realpath(self.build_lib)
-
-        if 'CMAKE_INSTALL_DIR' not in os.environ:
-            cmake_install_dir = os.path.join(build_temp, 'cmake_install')
-
-            py_exe = sys.executable
-            py_inc = sysconfig.get_python_inc()
-
-            if 'CMAKE_ARGS' in os.environ:
-                cmake_args = shlex.split(os.environ['CMAKE_ARGS'])
-                # prevent crossfire with downstream scripts
-                del os.environ['CMAKE_ARGS']
-            else:
-                cmake_args = []
-            log.info('CMAKE_ARGS: {}'.format(cmake_args))
-
-            self.compiler.spawn([
-                os.path.join(TOP_DIR, 'scripts', 'build_local.sh'),
-                '-DBUILD_SHARED_LIBS=OFF',
-                # TODO: Investigate why BUILD_SHARED_LIBS=OFF USE_GLOO=ON
-                # will cause error 'target "gloo" that is not in the
-                # export set' in cmake.
-                '-DUSE_GLOO=OFF',
-                '-DCMAKE_INSTALL_PREFIX:PATH={}'.format(cmake_install_dir),
-                '-DPYTHON_EXECUTABLE:FILEPATH={}'.format(py_exe),
-                '-DPYTHON_INCLUDE_DIR={}'.format(py_inc),
-                '-DBUILD_TEST=OFF',
-                '-BUILD_BENCHMARK=OFF',
-                '-DBUILD_BINARY=OFF',
-                TOP_DIR
-            ] + cmake_args)
-            # This is assuming build_local.sh will use TOP_DIR/build
-            # as the cmake build directory
-            self.compiler.spawn([
-                'make',
-                '-C', os.path.join(TOP_DIR, 'build'),
-                'install'
-            ])
-        else:
-            cmake_install_dir = os.environ['CMAKE_INSTALL_DIR']
-
-        for d in ['caffe', 'caffe2']:
-            self.copy_tree(os.path.join(cmake_install_dir, d),
-                           os.path.join(build_lib, d))
-
     def get_outputs(self):
         return [os.path.join(self.build_lib, d)
                 for d in ['caffe', 'caffe2']]
 
+    def run(self):
+        self.run_command('cmake_build')
+        setuptools.command.build_ext.build_ext.run(self)
+
     def build_extensions(self):
-        assert len(self.extensions) == 1
-        self._build_with_cmake()
+        i = 0
+        while i < len(self.extensions):
+            ext = self.extensions[i]
+            fullname = self.get_ext_fullname(ext.name)
+            filename = self.get_ext_filename(fullname)
+
+            src = os.path.join(CMAKE_BUILD_DIR, filename)
+            if not os.path.exists(src):
+                del self.extensions[i]
+            else:
+                dst = os.path.join(os.path.realpath(self.build_lib), filename)
+                self.copy_file(src, dst)
+                i += 1
+
+
+class develop(setuptools.command.develop.develop):
+    def run(self):
+        self.run_command('build_py')
+        setuptools.command.develop.develop.run(self)
 
 
 cmdclass = {
     'create_version': create_version,
+    'cmake_build': cmake_build,
     'build_py': build_py,
-    'develop': develop,
     'build_ext': build_ext,
+    'develop': develop,
 }
 
 ################################################################################
 # Extensions
 ################################################################################
 
-ext_modules = [setuptools.Extension(str('caffe2-ext'), [])]
+ext_modules = [
+    setuptools.Extension(
+        name=str('caffe2.python.caffe2_pybind11_state'),
+        sources=[]),
+    setuptools.Extension(
+        name=str('caffe2.python.caffe2_pybind11_state_gpu'),
+        sources=[]),
+]
 
 ################################################################################
 # Packages
 ################################################################################
 
-packages = []
+packages = setuptools.find_packages()
 
 install_requires.extend(['protobuf',
                          'numpy',

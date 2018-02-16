@@ -175,6 +175,21 @@ bool SpatialBNOp<CPUContext>::RunOnDevice() {
   return true;
 }
 
+namespace {
+OpSchema::Cost CostInferenceForSpatialBN(
+    const OperatorDef& def,
+    const vector<TensorShape>& in) {
+  struct OpSchema::Cost cost = PointwiseCostInference<2>(def, in);
+  ArgumentHelper helper(def);
+  auto order =
+      StringToStorageOrder(helper.GetSingleArgument<string>("order", "NCHW"));
+  const TensorShape X = in[0];
+  const int C =
+      (order == StorageOrder::NCHW ? X.dims(1) : X.dims(X.dims_size() - 1));
+  cost.params_bytes = 2 * C * sizeof(float);
+  return cost;
+}
+} // namespace
 
 REGISTER_CPU_OPERATOR(SpatialBN, SpatialBNOp<CPUContext>);
 
@@ -182,6 +197,7 @@ OPERATOR_SCHEMA(SpatialBN)
     .NumInputs({5, 7})
     .NumOutputs({1, 5})
     .AllowInplace({{0, 0}})
+    .CostInferenceFunction(CostInferenceForSpatialBN)
     .EnforceInplace({{3, 1}, {4, 2}})
     .TensorInferenceFunction(
         [](const OperatorDef& def, const vector<TensorShape>& in) {
@@ -214,9 +230,13 @@ Carries out spatial batch normalization as described in the paper
 https://arxiv.org/abs/1502.03167 . Depending on the mode it is being run,
 there are multiple cases for the number of outputs, which we list below:
 
-Output case #1: Y, mean, var, saved_mean, saved_var
-                (training mode)
-Output case #2: Y (test mode)
+
+Output case #1:
+  Y, mean, var, saved_mean, saved_var (training mode)
+
+
+Output case #2:
+  Y (test mode)
 )DOC")
     .ArgIsTest(
         "If set to nonzero, run spatial batch normalization in test mode.")

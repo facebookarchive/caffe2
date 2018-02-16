@@ -74,6 +74,10 @@ class LayerModelHelper(model_helper.ModelHelper):
         self._loss = None
         self._output_schema = None
 
+        # breakdown map; breakdown features are categorical (like dense) but not
+        # necessarily used to represent data for training
+        self._breakdown_map = None
+
         # Connect Schema to self.net. That particular instance of schmea will be
         # use for generation of the Layers accross the network and would be used
         # for connection with Readers.
@@ -146,6 +150,8 @@ class LayerModelHelper(model_helper.ModelHelper):
     def add_global_constant(
         self, name, array=None, dtype=None, initializer=None
     ):
+        assert isinstance(name, six.string_types), (
+            'name should be a string as we are using it as map key')
         # This is global namescope for constants. They will be created in all
         # init_nets and there should be very few of them.
         assert name not in self.global_constants, \
@@ -207,8 +213,9 @@ class LayerModelHelper(model_helper.ModelHelper):
         if shape != ref_shape:
             raise ValueError(
                 "Got inconsistent shapes between shared parameters "
-                "when trying to map a blob in scope {0} to {1}.".format(
-                    scope.CurrentNameScope(), param_name)
+                "when trying to map a blob in scope {0} to {1}. ref_shape : "
+                " {2}, shape : {3}".format(
+                    scope.CurrentNameScope(), param_name, ref_shape, shape)
             )
 
     def create_param(self, param_name, shape, initializer, optimizer=None,
@@ -368,6 +375,9 @@ class LayerModelHelper(model_helper.ModelHelper):
         assert self._loss is None
         self._loss = loss
 
+    def has_loss(self):
+        return self._loss is not None
+
     def add_loss(self, loss, name='unnamed'):
         assert loss is not None, "Added loss should not be None"
         assert isinstance(loss, schema.Scalar) or isinstance(
@@ -384,6 +394,10 @@ class LayerModelHelper(model_helper.ModelHelper):
                 index += 1
             loss_struct = schema.Struct((prefix, loss))
             self._loss = self._loss + loss_struct
+
+    def add_trainer_extra_schema(self, trainer_extra_schema):
+        trainer_extra_record = schema.NewRecord(self.net, trainer_extra_schema)
+        self._trainer_extra_schema += trainer_extra_record
 
     def __getattr__(self, layer):
         if layer.startswith('__'):
@@ -493,3 +507,16 @@ class LayerModelHelper(model_helper.ModelHelper):
     # An optimizer which allows us to do NO optimization
     def NoOptim(self, *args, **kwargs):
         pass
+
+    @property
+    def breakdown_map(self):
+        return self._breakdown_map
+
+    @breakdown_map.setter
+    def breakdown_map(self, breakdown_map):
+        # TODO(xlwang): provide more rich feature information in breakdown_map;
+        # and change the assertion accordingly
+        assert isinstance(breakdown_map, dict)
+        assert all(isinstance(k, six.string_types) for k in breakdown_map)
+        assert sorted(list(breakdown_map.values())) == range(len(breakdown_map))
+        self._breakdown_map = breakdown_map

@@ -28,13 +28,13 @@ REGISTER_CPU_OPERATOR(
     FullyConnectedOp<
         CPUContext,
         DefaultEngine,
-        false /* don't tranpose weight */>);
+        false /* don't transpose weight */>);
 REGISTER_CPU_OPERATOR(
     FCTransposedGradient,
     FullyConnectedGradientOp<
         CPUContext,
         DefaultEngine,
-        false /* don't tranpose weight */>);
+        false /* don't transpose weight */>);
 
 namespace {
 std::vector<TensorShape> FCShapeInference(
@@ -61,6 +61,26 @@ std::vector<TensorShape> FCShapeInference(
   out[0] = CreateTensorShape(y_shape, in[0].data_type());
   return out;
 }
+
+OpSchema::Cost CostInferenceForFC(
+    const OperatorDef& def,
+    const vector<TensorShape>& in) {
+  struct OpSchema::Cost c;
+  ArgumentHelper helper(def);
+
+  auto axis = helper.GetSingleArgument<int32_t>("axis", 1);
+  const auto canonical_axis = canonical_axis_index_(axis, in[0].dims().size());
+  const int M = size_to_dim_(canonical_axis, GetDimsVector(in[0]));
+  const int K = size_from_dim_(canonical_axis, GetDimsVector(in[0]));
+  auto axis_w = helper.GetSingleArgument<int32_t>("axis_w", 1);
+  const int canonical_axis_w =
+      canonical_axis_index_(axis_w, in[1].dims().size());
+  const int N = size_to_dim_(canonical_axis_w, GetDimsVector(in[1]));
+  c.flops = 2 * K * M * N + M * N;
+  c.bytes_moved = M * N * sizeof(float);
+  c.params_bytes = (K * N + N) * sizeof(float);
+  return c;
+}
 } // namespace
 
 using namespace std::placeholders;
@@ -77,27 +97,28 @@ OPERATOR_SCHEMA(FC)
     .NumInputs(3)
     .NumOutputs(1)
     .TensorInferenceFunction(std::bind(FCShapeInference, _1, _2, false))
+    .CostInferenceFunction(
+        OpSchema::CostInferenceFunctionType(CostInferenceForFC))
     .SetDoc(R"DOC(
-    Computes the result of passing an input vector X into a fully
-    connected layer with 2D weight matrix W and 1D bias vector b. That is,
-    the layer computes Y = X * W^T + b, where X has size (M x K),
-    W has size (N x K), b has size (N), and Y has size (M x N),
-    where M is often the batch size.
+Computes the result of passing an input vector X into a fully
+connected layer with 2D weight matrix W and 1D bias vector b. That is,
+the layer computes Y = X * W^T + b, where X has size (M x K),
+W has size (N x K), b has size (N), and Y has size (M x N),
+where M is often the batch size.
 
 
-    NOTE: X does not need to explicitly be a 2D vector; rather, it will be
-    coerced into one. For an arbitrary n-dimensional tensor
-    X \in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}] where a_i \in N+ and k is
-    the axis provided, then X will be coerced into a 2-dimensional tensor with
-    dimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default
-    case where axis=1, this means the X tensor will be coerced into a 2D tensor
-    of dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.
-    In this situation, we must have a_0 = M and a_1 * ... * a_{n-1} = K.
-    Lastly, even though b is a 1D vector of size N, it is copied/resized to
-    be size (M x N) implicitly and added to each vector in the batch.
-    Each of these dimensions must be matched correctly, or else the operator
-    will throw errors.
-
+NOTE: X does not need to explicitly be a 2D vector; rather, it will be
+coerced into one. For an arbitrary n-dimensional tensor
+X \in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}] where a_i \in N+ and k is
+the axis provided, then X will be coerced into a 2-dimensional tensor with
+dimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default
+case where axis=1, this means the X tensor will be coerced into a 2D tensor
+of dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.
+In this situation, we must have a_0 = M and a_1 * ... * a_{n-1} = K.
+Lastly, even though b is a 1D vector of size N, it is copied/resized to
+be size (M x N) implicitly and added to each vector in the batch.
+Each of these dimensions must be matched correctly, or else the operator
+will throw errors.
 )DOC")
     .Arg(
         "axis",
