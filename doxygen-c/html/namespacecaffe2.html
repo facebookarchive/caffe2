@@ -1952,6 +1952,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>IntTypes</b> = <a cl
 <tr class="memitem:a0aa97ad24133ca3efbf5f8994d62f25c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0aa97ad24133ca3efbf5f8994d62f25c"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>BoolTypes</b> = <a class="el" href="structcaffe2_1_1_tensor_types.html">TensorTypes</a>&lt; bool &gt;</td></tr>
 <tr class="separator:a0aa97ad24133ca3efbf5f8994d62f25c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a803395e5d8f74b61b36d4f92a6bb3c5b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a803395e5d8f74b61b36d4f92a6bb3c5b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>IntBoolTypes</b> = <a class="el" href="structcaffe2_1_1_tensor_types.html">TensorTypes</a>&lt; int32_t, int64_t, bool &gt;</td></tr>
+<tr class="separator:a803395e5d8f74b61b36d4f92a6bb3c5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c84075c5d69ce9499450fbbb3f72965"><td class="memTemplParams" colspan="2">template&lt;typename InputTypes , class Context , class Functor , class OutputType  = SameTypeAsInput&gt; </td></tr>
 <tr class="memitem:a3c84075c5d69ce9499450fbbb3f72965"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacecaffe2.html#a3c84075c5d69ce9499450fbbb3f72965">UnaryElementwiseOp</a> = <a class="el" href="classcaffe2_1_1_unary_elementwise_with_args_op.html">UnaryElementwiseWithArgsOp</a>&lt; InputTypes, Context, <a class="el" href="structcaffe2_1_1_with_default_constructor.html">WithDefaultConstructor</a>&lt; Functor &gt;, OutputType &gt;</td></tr>
 <tr class="memdesc:a3c84075c5d69ce9499450fbbb3f72965"><td class="mdescLeft">&#160;</td><td class="mdescRight">UnaryElementwiseOp is a wrapper around <a class="el" href="classcaffe2_1_1_unary_elementwise_with_args_op.html">UnaryElementwiseWithArgsOp</a>, with the difference that it takes a functor with default constructor, e.g.  <a href="#a3c84075c5d69ce9499450fbbb3f72965">More...</a><br /></td></tr>
@@ -4435,9 +4438,9 @@ w of size D and b of size the op computes Y of&#160;</td><td class="memItemRight
 <tr class="memitem:a2fb4df4003709084e82e33367d6e3e35"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2fb4df4003709084e82e33367d6e3e35"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NAIVE_FUNCTOR</b> (GE, NAIVE_GE, <a class="el" href="structcaffe2_1_1_tensor_types.html">NumericTypes</a>, <a class="el" href="structcaffe2_1_1_fixed_type.html">FixedType</a>&lt; bool &gt;)</td></tr>
 <tr class="separator:a2fb4df4003709084e82e33367d6e3e35"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd741b424bd401894b7128d78db79431"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abd741b424bd401894b7128d78db79431"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NAIVE_FUNCTOR</b> (EQ, NAIVE_EQ, <a class="el" href="structcaffe2_1_1_tensor_types.html">IntTypes</a>, <a class="el" href="structcaffe2_1_1_fixed_type.html">FixedType</a>&lt; bool &gt;)</td></tr>
-<tr class="separator:abd741b424bd401894b7128d78db79431"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b958eacb0cd2e7d44d4e3b6f11751f7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b958eacb0cd2e7d44d4e3b6f11751f7"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NAIVE_FUNCTOR</b> (EQ, NAIVE_EQ, <a class="el" href="structcaffe2_1_1_tensor_types.html">IntBoolTypes</a>, <a class="el" href="structcaffe2_1_1_fixed_type.html">FixedType</a>&lt; bool &gt;)</td></tr>
+<tr class="separator:a5b958eacb0cd2e7d44d4e3b6f11751f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9245c10717ae88926a31aa7fe1d2b256"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9245c10717ae88926a31aa7fe1d2b256"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NAIVE_FUNCTOR</b> (And, NAIVE_AND, <a class="el" href="structcaffe2_1_1_tensor_types.html">BoolTypes</a>, <a class="el" href="structcaffe2_1_1_fixed_type.html">FixedType</a>&lt; bool &gt;)</td></tr>
 <tr class="separator:a9245c10717ae88926a31aa7fe1d2b256"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9512,7 +9515,7 @@ template&lt;typename InputTypes , class Context , class Functor , class OutputTy
 <p>UnaryElementwiseOp is a wrapper around <a class="el" href="classcaffe2_1_1_unary_elementwise_with_args_op.html">UnaryElementwiseWithArgsOp</a>, with the difference that it takes a functor with default constructor, e.g. </p>
 <p>that does not need to take into consideration any arguments during operator creation. </p>
 
-<p>Definition at line <a class="el" href="elementwise__op_8h_source.html#l00108">108</a> of file <a class="el" href="elementwise__op_8h_source.html">elementwise_op.h</a>.</p>
+<p>Definition at line <a class="el" href="elementwise__op_8h_source.html#l00109">109</a> of file <a class="el" href="elementwise__op_8h_source.html">elementwise_op.h</a>.</p>
 
 </div>
 </div>
@@ -10639,7 +10642,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Feb 15 2018 13:03:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Feb 16 2018 13:03:39 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
