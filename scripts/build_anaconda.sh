@@ -15,9 +15,9 @@ if [[ "$PYTHON_FULL_VERSION" == *3.6* ]]; then
 fi
 
 # The 'full' build requests openmpi, which is only in conda-forge
-if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
-  #CONDA_BUILD_ARGS+=("-c conda-forge")
-fi
+#if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
+#  CONDA_BUILD_ARGS+=("-c conda-forge")
+#fi
 
 
 # Upload to Anaconda.org if needed
