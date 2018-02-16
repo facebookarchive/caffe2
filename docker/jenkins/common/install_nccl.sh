@@ -17,6 +17,10 @@ if [[ "$UBUNTU_VERSION" == 16.04 ]]; then
 elif [[ "$UBUNTU_VERSION" == 14.04 ]]; then
   NCCL_UBUNTU_VER=ubuntu1404
   NCCL_DEB='nvidia-machine-learning-repo-ubuntu1404_4.0-2_amd64.deb'
+else
+  echo "There is no NCCL package for Ubuntu version ${UBUNTU_VERSION}."
+  echo "    NCCL will not be installed."
+  return 0
 fi
 
 curl -L0 "http://developer.download.nvidia.com/compute/machine-learning/repos/${NCCL_UBUNTU_VER}/x86_64/${NCCL_DEB}"
