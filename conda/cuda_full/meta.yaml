@@ -22,7 +22,6 @@ requirements:
     - lmdb
     - numpy
     - opencv
-    - openmpi
     - python
     - protobuf {{ protobuf }}
     - six
@@ -33,7 +32,6 @@ requirements:
     - lmdb
     - numpy
     - opencv
-    - openmpi
     - protobuf
     - python
     - six
