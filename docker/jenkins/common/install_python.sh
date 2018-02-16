@@ -129,7 +129,13 @@ pip install -U setuptools
 # defaults installs the most recent networkx version, so we install this lower
 # version explicitly before scikit-image pulls it in as a dependency
 pip install networkx==2.0
+
+# We need a fixed version of onnx which is newer than current release to test 
+# onnx-caffe2 
+pip install --no-cache-dir -v git+https://github.com/onnx/onnx.git@a43f015
+
 pip install --no-cache-dir \
+    click \
     future \
     hypothesis \
     jupyter \
@@ -138,4 +144,5 @@ pip install --no-cache-dir \
     pytest \
     scipy==0.19.1 \
     scikit-image \
+    tabulate \
     virtualenv
