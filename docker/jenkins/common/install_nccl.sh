@@ -20,10 +20,11 @@ elif [[ "$UBUNTU_VERSION" == 14.04 ]]; then
 else
   echo "There is no NCCL package for Ubuntu version ${UBUNTU_VERSION}."
   echo "    NCCL will not be installed."
-  return 0
 fi
 
-curl -L0 "http://developer.download.nvidia.com/compute/machine-learning/repos/${NCCL_UBUNTU_VER}/x86_64/${NCCL_DEB}"
-dpkg -i "${NCCL_DEB}"
-apt update
-apt install libnccl2 libnccl-dev
+if [ -n "$NCCL_UBUNTU_VER" ]; then
+  curl -L0 "http://developer.download.nvidia.com/compute/machine-learning/repos/${NCCL_UBUNTU_VER}/x86_64/${NCCL_DEB}"
+  dpkg -i "${NCCL_DEB}"
+  apt update
+  apt install libnccl2 libnccl-dev
+fi
