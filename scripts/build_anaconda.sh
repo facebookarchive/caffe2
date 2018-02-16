@@ -16,7 +16,7 @@ fi
 
 # The 'full' build requests openmpi, which is only in conda-forge
 if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
-  CONDA_BUILD_ARGS+=("-c conda-forge")
+  #CONDA_BUILD_ARGS+=("-c conda-forge")
 fi
 
 
