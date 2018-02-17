@@ -190,7 +190,7 @@ if (BUILD_PYTHON)
   # Python site-packages
   # Get canonical directory for python site packages (relative to install
   # location).  It varys from system to system.
-  pycmd(python_site_packages "
+  pycmd(PYTHON_SITE_PACKAGES "
       from distutils import sysconfig
       print(sysconfig.get_python_lib(prefix=''))
   ")
