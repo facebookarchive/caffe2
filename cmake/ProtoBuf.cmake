@@ -28,6 +28,8 @@ macro(custom_protobuf_find)
   endif()
 endmacro()
 
+message(STATUS "debug: BUILD_CUSTOM_PROTOBUF is " ${BUILD_CUSTOM_PROTOBUF})
+
 # Main entry for protobuf. If we are building on Android, iOS or we have hard
 # coded BUILD_CUSTOM_PROTOBUF, we will hard code the use of custom protobuf
 # in the submodule.
