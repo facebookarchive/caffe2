@@ -136,13 +136,9 @@ print("workspace root folder:" + root_folder)
 
 def AddInput(model, batch_size, db, db_type):
     # load the data
-    data_uint8, label = brew.db_input(
-        model,
-        blobs_out=["data_uint8", "label"],
-        batch_size=batch_size,
-        db=db,
-        db_type=db_type,
-    )
+    data_uint8, label = model.TensorProtosDBInput(
+        [], ["data_uint8", "label"], batch_size=batch_size,
+        db=db, db_type=db_type)
     # cast the data to float
     data = model.Cast(data_uint8, "data", to=core.DataType.FLOAT)
     # scale data from [0,255] down to [0,1]
