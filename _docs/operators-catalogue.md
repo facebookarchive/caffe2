@@ -8746,6 +8746,33 @@ No documentation yet.
 
 
 
+## ReduceScatter
+
+
+Does reduce-scatter operation among the nodes. Currently only Sum is supported.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`comm_world` | The common world.
+`X` | A tensor to be reduce-scattered.
+*Outputs* | 
+`Y` | The reduced tensor, scattered on all nodes.
+
+
+### Code
+
+
+[caffe2/operators/communicator_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/communicator_op.cc)
+
+---
+
+
+
 ## ReduceTailSum
 
 
@@ -9356,7 +9383,13 @@ Given a matrix A and column vector w, the output is the multiplication of row i 
 
 
  Computes a modified Adam Update for the sparse case.
-Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the Adam update on (param, moment1[indices], moment2[indices], lr, iter) and returns (new_param, new_moment1, new_moment2), where moment1 and moment2 are 1D tensors with length equal to the number of rows in param: shape(moment1) == shape(moment2) == shape(param)[0]. Each element of moment1 and moment2 is applied to an entire row of param, and the new moment1 and moment2 values are calculated by averaging across the row.
+Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the Adam update on (param, moment1[indices], moment2[indices], lr, iter) and returns (new_param, new_moment1, new_moment2), where moment2 is a 1D tensor with length equal to the number of rows in param: shape(moment2) == shape(param)[0]. Each element of 
+
+```
+  moment2 is
+```
+
+ applied to an entire row of param, and the new moment2 values are calculated by averaging across the row.
  
 
 

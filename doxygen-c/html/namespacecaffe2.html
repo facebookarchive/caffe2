@@ -3656,6 +3656,9 @@ The common world The reduced result on not set for other nodes&#160;</td><td cla
 <tr class="memitem:a80436037cf60851be3a681f7b6a73b5f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80436037cf60851be3a681f7b6a73b5f"></a>
 The common world&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;X&quot;,&quot;A tensor to be allreduced.&quot;).Output(0</td></tr>
 <tr class="separator:a80436037cf60851be3a681f7b6a73b5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0c4bdf578dafa89c7286ea3dc8f5bec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af0c4bdf578dafa89c7286ea3dc8f5bec"></a>
+The common world&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;X&quot;,&quot;A tensor to be reduce-scattered.&quot;).Output(0</td></tr>
+<tr class="separator:af0c4bdf578dafa89c7286ea3dc8f5bec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4bcb2fc070ed6240f7621ecc2cff36b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa4bcb2fc070ed6240f7621ecc2cff36b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (2, INT_MAX).NumOutputs(1).InputsCanCrossDevices().SetDoc(R&quot;DOC( Does an allgather operation among the nodes. )DOC&quot;).Input(0</td></tr>
 <tr class="separator:aa4bcb2fc070ed6240f7621ecc2cff36b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3707,6 +3710,9 @@ The common world An int CPUtensor of size specifying the rank If this overrides 
 <tr class="memitem:a3650a7bd191ce63b9d6d128755473a84"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3650a7bd191ce63b9d6d128755473a84"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (Allreduce)</td></tr>
 <tr class="separator:a3650a7bd191ce63b9d6d128755473a84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a850c724e821d0034ae05de7c615c444a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a850c724e821d0034ae05de7c615c444a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (ReduceScatter)</td></tr>
+<tr class="separator:a850c724e821d0034ae05de7c615c444a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75ea3114660c16d1481ce94385984ea0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a75ea3114660c16d1481ce94385984ea0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (Barrier)</td></tr>
 <tr class="separator:a75ea3114660c16d1481ce94385984ea0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3737,6 +3743,9 @@ The common world An int CPUtensor of size specifying the rank If this overrides 
 <tr class="memitem:a38bf22b5e8ec68635f0d7351a55d8ea9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a38bf22b5e8ec68635f0d7351a55d8ea9"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Allreduce, <a class="el" href="classcaffe2_1_1_no_default_engine_op.html">NoDefaultEngineOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a38bf22b5e8ec68635f0d7351a55d8ea9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a9fe18433659566bdad6651064056fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8a9fe18433659566bdad6651064056fe"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ReduceScatter, <a class="el" href="classcaffe2_1_1_no_default_engine_op.html">NoDefaultEngineOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a8a9fe18433659566bdad6651064056fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0484a83e1404939b456a983ec76da4b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0484a83e1404939b456a983ec76da4b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Barrier, <a class="el" href="classcaffe2_1_1_no_default_engine_op.html">NoDefaultEngineOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:aa0484a83e1404939b456a983ec76da4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7616,20 +7625,20 @@ Parameters to be updated Second moment history Gradient computed iteration numbe
 <tr class="memitem:a1b0354020289fcbc627d1dc764eef18b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1b0354020289fcbc627d1dc764eef18b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RowWiseSparseAdam, <a class="el" href="classcaffe2_1_1_row_wise_sparse_adam_op.html">RowWiseSparseAdamOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a1b0354020289fcbc627d1dc764eef18b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c9d1cb1fa3bc62d9cc78fb54970a8bc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c9d1cb1fa3bc62d9cc78fb54970a8bc"></a>
+<tr class="memitem:af3afaabcd6603756d98a9a230388a504"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af3afaabcd6603756d98a9a230388a504"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 
 Computes a modified Adam Update for the sparse case.
 Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the
 Adam update on (param, moment1[indices], moment2[indices], lr, iter) and returns
-(new_param, new_moment1, new_moment2), where moment1 and moment2 are 1D tensors
-with length equal to the number of rows in param: shape(moment1) ==
-shape(moment2) == shape(param)[0]. Each element of moment1 and moment2 is
-applied to an entire row of param, and the new moment1 and moment2 values are
+(new_param, new_moment1, new_moment2), where moment2 is a 1D tensor
+with length equal to the number of rows in param:
+shape(moment2) == shape(param)[0]. Each element of  moment2 is
+applied to an entire row of param, and the new moment2 values are
 calculated by averaging across the row.
 
 )DOC&quot;).Input(0</td></tr>
-<tr class="separator:a6c9d1cb1fa3bc62d9cc78fb54970a8bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:af3afaabcd6603756d98a9a230388a504"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f4750713478bdc53029a1d45b53e2a6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f4750713478bdc53029a1d45b53e2a6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (Adam)</td></tr>
 <tr class="separator:a5f4750713478bdc53029a1d45b53e2a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10394,7 +10403,7 @@ Resource Acquisition" idiom. </p>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= R<span class="stringliteral">&quot;DOC(</span></div><div class="line"><span class="stringliteral">consumes an input blob X and applies average pooling across the</span></div><div class="line"><span class="stringliteral">the blob according to kernel sizes, stride sizes, and pad lengths defined by the</span></div><div class="line"><span class="stringliteral">ConvPoolOpBase operator. Average pooling consisting of averaging all values of a</span></div><div class="line"><span class="stringliteral">subset of the input tensor according to the kernel size and downsampling the</span></div><div class="line"><span class="stringliteral">data into the output blob Y for further processing.</span></div><div class="line"><span class="stringliteral">)DOC&quot;</span></div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="pool__op_8cc_source.html#l00708">708</a> of file <a class="el" href="pool__op_8cc_source.html">pool_op.cc</a>.</p>
+<p>Definition at line <a class="el" href="pool__op_8cc_source.html#l00746">746</a> of file <a class="el" href="pool__op_8cc_source.html">pool_op.cc</a>.</p>
 
 </div>
 </div>
@@ -10464,7 +10473,7 @@ Resource Acquisition" idiom. </p>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= R<span class="stringliteral">&quot;DOC(</span></div><div class="line"><span class="stringliteral">consumes an input blob X and applies max pooling across the</span></div><div class="line"><span class="stringliteral">the blob according to kernel sizes, stride sizes, and pad lengths defined by the</span></div><div class="line"><span class="stringliteral">ConvPoolOpBase operator. Max pooling consisting of taking the maximum value of a</span></div><div class="line"><span class="stringliteral">subset of the input tensor according to the kernel size and downsampling the</span></div><div class="line"><span class="stringliteral">data into the output blob Y for further processing.</span></div><div class="line"><span class="stringliteral">)DOC&quot;</span></div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="pool__op_8cc_source.html#l00716">716</a> of file <a class="el" href="pool__op_8cc_source.html">pool_op.cc</a>.</p>
+<p>Definition at line <a class="el" href="pool__op_8cc_source.html#l00754">754</a> of file <a class="el" href="pool__op_8cc_source.html">pool_op.cc</a>.</p>
 
 </div>
 </div>
@@ -10642,7 +10651,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Feb 16 2018 13:03:39 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Feb 17 2018 13:03:28 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -141,9 +141,6 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>has_blobs</b> (self)</
 <tr class="memitem:a02638ab81d861da24deae9f67dac32e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a02638ab81d861da24deae9f67dac32e1"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>clone</b> (self, keep_blobs=True)</td></tr>
 <tr class="separator:a02638ab81d861da24deae9f67dac32e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac980021f5a0841285975b5e7189897e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac980021f5a0841285975b5e7189897e4"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__repr__</b> (self)</td></tr>
-<tr class="separator:ac980021f5a0841285975b5e7189897e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16bff23cc4066813b97d4e4d34ff0e7a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16bff23cc4066813b97d4e4d34ff0e7a"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>__contains__</b> (self, item)</td></tr>
 <tr class="separator:a16bff23cc4066813b97d4e4d34ff0e7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -188,6 +185,9 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>clone_schema</b> (self
 <tr class="separator:aad6b90e4fb70e2d06aa014a2d2dc0775 inherit pub_methods_classcaffe2_1_1python_1_1schema_1_1_field"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6239bccb167bb564df74feacd546bb9d inherit pub_methods_classcaffe2_1_1python_1_1schema_1_1_field"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1python_1_1schema_1_1_field.html#a6239bccb167bb564df74feacd546bb9d">__eq__</a> (self, other)</td></tr>
 <tr class="separator:a6239bccb167bb564df74feacd546bb9d inherit pub_methods_classcaffe2_1_1python_1_1schema_1_1_field"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c59968659879fcce5160c89d70bd310 inherit pub_methods_classcaffe2_1_1python_1_1schema_1_1_field"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c59968659879fcce5160c89d70bd310"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__repr__</b> (self)</td></tr>
+<tr class="separator:a6c59968659879fcce5160c89d70bd310 inherit pub_methods_classcaffe2_1_1python_1_1schema_1_1_field"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -198,7 +198,7 @@ Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">Represents a named list of fields sharing the same domain.
 </pre> 
-<p>Definition at line <a class="el" href="schema_8py_source.html#l00278">278</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p>Definition at line <a class="el" href="schema_8py_source.html#l00293">293</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="ade872c52b3c283b233c4c732d6401f99"></a>
 <div class="memitem">
@@ -246,7 +246,7 @@ Struct(
   )),
 )
 </pre> 
-<p>Definition at line <a class="el" href="schema_8py_source.html#l00282">282</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p>Definition at line <a class="el" href="schema_8py_source.html#l00297">297</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -300,7 +300,7 @@ s1 + s2 == Struct(
     )),
 )
 </pre> 
-<p>Definition at line <a class="el" href="schema_8py_source.html#l00468">468</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p>Definition at line <a class="el" href="schema_8py_source.html#l00482">482</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -332,7 +332,7 @@ int or string. String item is a nested field name, e.g., "a", "a:b",
 "a:b:c". Int item is the index of a field at the first level of the
 Struct.
 </pre> 
-<p>Definition at line <a class="el" href="schema_8py_source.html#l00417">417</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p>Definition at line <a class="el" href="schema_8py_source.html#l00431">431</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -405,7 +405,7 @@ s1 - s2 == Struct(
     ('a', Scalar()),
 )
 </pre> 
-<p>Definition at line <a class="el" href="schema_8py_source.html#l00509">509</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p>Definition at line <a class="el" href="schema_8py_source.html#l00523">523</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -443,7 +443,7 @@ s1 - s2 == Struct(
 
 it's a syntax suger of python's builtin getattr method
 </pre> 
-<p>Definition at line <a class="el" href="schema_8py_source.html#l00442">442</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
+<p>Definition at line <a class="el" href="schema_8py_source.html#l00456">456</a> of file <a class="el" href="schema_8py_source.html">schema.py</a>.</p>
 
 </div>
 </div>
@@ -454,7 +454,7 @@ it's a syntax suger of python's builtin getattr method
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Feb 16 2018 13:03:29 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Feb 17 2018 13:03:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
