@@ -21,12 +21,17 @@ else
 fi
 
 if [ -n "$NCCL_UBUNTU_VER" ]; then
+
   # The deb is agnostic of CUDA version
   curl -LO "http://developer.download.nvidia.com/compute/machine-learning/repos/${NCCL_UBUNTU_VER}/x86_64/${NCCL_DEB}"
+
+  # This dpkg call needs wget
+  apt-get update
+  apt-get install -y wget
   dpkg -i "${NCCL_DEB}"
 
   # Actually installing takes into account CUDA version
-  NCCL_LIB_VERSION="2.1.4-1+cuda${CUDA_VERSION}"
+  NCCL_LIB_VERSION="2.1.4-1+cuda${CUDA_VERSION:0:3}"
   apt update
-  apt install libnccl2=$NCCL_LIB_VERSION libnccl-dev=NCCL_LIB_VERSION
+  apt install libnccl2=$NCCL_LIB_VERSION libnccl-dev=$NCCL_LIB_VERSION
 fi
