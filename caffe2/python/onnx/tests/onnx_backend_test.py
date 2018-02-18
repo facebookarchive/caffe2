@@ -38,7 +38,7 @@ backend_test.exclude(r'(test_ceil|test_floor'  # Does not support Ceil and Floor
                      '|test_mean|test_hardmax)')  # Does not support Mean and Hardmax.
 
 # Skip vgg to speed up CI
-if 'CI' in os.environ:
+if 'JENKINS_URL' in os.environ:
     backend_test.exclude(r'(test_vgg19|test_vgg)')
 
 # import all test cases at global scope to make them visible to python.unittest

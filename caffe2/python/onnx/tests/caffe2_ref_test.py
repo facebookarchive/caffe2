@@ -325,13 +325,13 @@ class TestCaffe2End2End(TestCase):
         self._test_net('resnet50')
 
     @unittest.skipIf(
-        os.environ.get('CI'),
+        os.environ.get('JENKINS_URL'),
         'Taking too long to download!')
     def test_vgg16(self):
         self._test_net('vgg16')
 
     @unittest.skipIf(
-        os.environ.get('CI'),
+        os.environ.get('JENKINS_URL'),
         'Running vgg19 on Travis with Python 2 keeps getting OOM!')
     def test_vgg19(self):
         self._test_net('vgg19')
