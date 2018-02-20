@@ -298,7 +298,7 @@ class Caffe2Backend(Backend):
         elif axis == 1:
             return core.CreateOperator("BatchGather", [A, B], [Y])
         raise ValueError(
-            'Caffe2 only supports Gather with axis being 1 or 2,' +
+            'Caffe2 only supports Gather with axis being 0 or 1,' +
             'whereas axis is ' + str(axis))
 
     @classmethod
