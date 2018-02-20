@@ -56,9 +56,19 @@ else()
 endif()
 
 if ((NOT TARGET protobuf::libprotobuf) AND (NOT TARGET protobuf::libprotobuf-lite))
-  message(FATAL_ERROR
-      "Protobuf cannot be found. Caffe2 will have to build with libprotobuf. "
-      "Please set the proper paths so that I can find protobuf correctly.")
+  message(WARNING
+      "Protobuf cannot be found. Caffe2 will automatically switch to use "
+      "own protobuf under third_party. Note that this behavior may change in "
+      "the future, and you will need to specify -DBUILD_CUSTOM_PROTOBUF=ON "
+      "explicitly.")
+  custom_protobuf_find()
+
+  # TODO(jiayq): enable this in the future, when Jenkins Mac support is
+  # prooerly set up with protobuf installs.
+
+  # message(FATAL_ERROR
+  #     "Protobuf cannot be found. Caffe2 will have to build with libprotobuf. "
+  #     "Please set the proper paths so that I can find protobuf correctly.")
 endif()
 
 # TODO: enable using lite protobuf.
