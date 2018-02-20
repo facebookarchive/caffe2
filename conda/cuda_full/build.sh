@@ -35,8 +35,8 @@ CMAKE_ARGS+=("-DUSE_REDIS=ON")
 
 # Explicitly turn unused packages off to prevent cmake from trying to find
 # system libraries
-CMAKE_ARGS+=("-DUSE_LEVELDB=OFF")
-CMAKE_ARGS+=("-DUSE_ROCKSDB=OFF")
+CMAKE_ARGS+=("-DUSE_LEVELDB=ON")
+CMAKE_ARGS+=("-DUSE_ROCKSDB=ON")
 
 # Install under specified prefix
 CMAKE_ARGS+=("-DCMAKE_INSTALL_PREFIX=$PREFIX")
