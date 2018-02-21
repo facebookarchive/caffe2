@@ -9,14 +9,17 @@
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/utils/proto_utils.h"
 #include "caffe2/utils/string_utils.h"
-
 #include "observers/observer_config.h"
+
+#if CAFFE2_MOBILE && (CAFFE2_ANDROID || CAFFE2_IOS)
+#include "caffe2/mobile/contrib/opengl/core/rewrite_net.h"
+#endif
 
 CAFFE2_DEFINE_string(
     backend,
     "builtin",
     "The backend to use when running the model. The allowed "
-    "backend choices are: builtin, default, nnpack, eigen, mkl");
+    "backend choices are: builtin, default, nnpack, eigen, mkl, opengl");
 CAFFE2_DEFINE_string(
     init_net,
     "",
@@ -173,17 +176,35 @@ int main(int argc, char** argv) {
   // Run main network.
   caffe2::NetDef net_def;
   CAFFE_ENFORCE(ReadProtoFromFile(caffe2::FLAGS_net, &net_def));
+
   if (caffe2::FLAGS_backend != "builtin") {
-    std::string engine = caffe2::FLAGS_backend == "nnpack"
-        ? "NNPACK"
-        : caffe2::FLAGS_backend == "eigen" ? "EIGEN"
-                                           : caffe2::FLAGS_backend == "mkl"
-                ? "MKLDNN"
-                : caffe2::FLAGS_backend == "default" ? "" : "NONE";
-    CAFFE_ENFORCE(engine != "NONE", "Backend is not supported");
-    for (int i = 0; i < net_def.op_size(); i++) {
-      caffe2::OperatorDef* op_def = net_def.mutable_op(i);
-      op_def->set_engine(engine);
+    if (caffe2::FLAGS_backend == "opengl") {
+#if CAFFE2_MOBILE && (CAFFE2_ANDROID || CAFFE2_IOS)
+      caffe2::NetDef opengl_net_def;
+      if (caffe2::tryConvertToOpenGL(init_net_def, net_def, &opengl_net_def)) {
+        net_def = opengl_net_def;
+        if (caffe2::FLAGS_run_individual) {
+          caffe2::FLAGS_run_individual = false;
+          LOG(INFO)
+            << "OpenGL implementation does not support individual operator delay. Run net delay only";
+        }
+      } else {
+        LOG(ERROR)
+          << "Net cannot be converted to OpenGL format, use original model instead";
+      }
+#else
+      LOG(ERROR) << "OpenGL build can only be used in mobile platform";
+#endif
+    } else {
+      std::string engine = caffe2::FLAGS_backend == "nnpack" ? "NNPACK" :
+                           caffe2::FLAGS_backend == "eigen" ? "EIGEN" :
+                           caffe2::FLAGS_backend == "mkl" ? "MKLDNN" :
+                           caffe2::FLAGS_backend == "default" ? "" : "NONE";
+      CAFFE_ENFORCE(engine != "NONE", "Backend is not supported");
+      for (int i = 0; i < net_def.op_size(); i++) {
+        caffe2::OperatorDef* op_def = net_def.mutable_op(i);
+        op_def->set_engine(engine);
+      }
     }
   }
 
