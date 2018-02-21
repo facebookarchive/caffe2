@@ -145,4 +145,4 @@ fi
 
 # install onnx
 mkdir -p ./build
-"$PYTHON" -m pip install -b "./build/onnx-build" "file://$ROOT_DIR/third_party/onnx#egg=onnx"
+"$PYTHON" -m pip install -U -b "./build/onnx-build" "file://$ROOT_DIR/third_party/onnx#egg=onnx"
