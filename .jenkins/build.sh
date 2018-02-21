@@ -16,7 +16,7 @@ if [ -n "${SCCACHE_BUCKET}" ]; then
   fi
 
   # Setup wrapper scripts
-  for compiler in cc c++ gcc g++; do
+  for compiler in cc c++ gcc g++ x86_64-linux-gnu-gcc; do
     (
       echo "#!/bin/sh"
       echo "exec $SCCACHE $(which $compiler) \"\$@\""
@@ -35,6 +35,7 @@ if [ -z "${SCCACHE}" ] && which ccache > /dev/null; then
   ln -sf "$(which ccache)" ./ccache/c++
   ln -sf "$(which ccache)" ./ccache/gcc
   ln -sf "$(which ccache)" ./ccache/g++
+  ln -sf "$(which ccache)" ./ccache/x86_64-linux-gnu-gcc
   export CCACHE_WRAPPER_DIR="$PWD/ccache"
   export PATH="$CCACHE_WRAPPER_DIR:$PATH"
 fi
@@ -141,3 +142,7 @@ if [ -n "${JENKINS_URL}" ]; then
     sudo ldconfig
   )
 fi
+
+# install onnx
+mkdir -p ./build
+"$PYTHON" -m pip install -b "./build/onnx-build" "file://$ROOT_DIR/third_party/onnx#egg=onnx"
