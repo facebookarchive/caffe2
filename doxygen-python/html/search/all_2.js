@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['baseexception',['BaseException',['../classcaffe2_1_1python_1_1onnx_1_1error_1_1_base_exception.html',1,'caffe2::python::onnx::error']]],
   ['basicrnncell',['BasicRNNCell',['../classcaffe2_1_1python_1_1rnn__cell_1_1_basic_r_n_n_cell.html',1,'caffe2::python::rnn_cell']]],
   ['batch_5fdistill_5flr_5floss',['batch_distill_lr_loss',['../namespacebatch__distill__lr__loss.html',1,'']]],
   ['batch_5flr_5floss',['batch_lr_loss',['../namespacebatch__lr__loss.html',1,'']]],

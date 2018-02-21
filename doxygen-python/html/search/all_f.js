@@ -22,6 +22,7 @@ var searchData=
   ['predictor_5fexporter',['predictor_exporter',['../namespacepredictor__exporter.html',1,'']]],
   ['predictor_5fpy_5futils',['predictor_py_utils',['../namespacepredictor__py__utils.html',1,'']]],
   ['predictorexportmeta',['PredictorExportMeta',['../classcaffe2_1_1python_1_1predictor_1_1predictor__exporter_1_1_predictor_export_meta.html',1,'caffe2::python::predictor::predictor_exporter']]],
+  ['prepare',['prepare',['../classcaffe2_1_1python_1_1onnx_1_1backend_1_1_caffe2_backend.html#a2bd6063832845e836a1cb206ca60344a',1,'caffe2::python::onnx::backend::Caffe2Backend']]],
   ['prepare_5finput',['prepare_input',['../classcaffe2_1_1python_1_1rnn__cell_1_1_r_n_n_cell.html#afffe344f800408f1337f28c19b19bddc',1,'caffe2::python::rnn_cell::RNNCell']]],
   ['printer',['Printer',['../classcaffe2_1_1python_1_1net__printer_1_1_printer.html',1,'caffe2::python::net_printer']]],
   ['processingreader',['ProcessingReader',['../classcaffe2_1_1python_1_1pipeline_1_1_processing_reader.html',1,'caffe2::python::pipeline']]],

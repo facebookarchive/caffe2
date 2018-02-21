@@ -6,6 +6,7 @@ var searchData=
   ['taskgroup',['TaskGroup',['../classcaffe2_1_1python_1_1task_1_1_task_group.html',1,'caffe2::python::task']]],
   ['taskoutput',['TaskOutput',['../classcaffe2_1_1python_1_1task_1_1_task_output.html',1,'caffe2::python::task']]],
   ['taskoutputlist',['TaskOutputList',['../classcaffe2_1_1python_1_1task_1_1_task_output_list.html',1,'caffe2::python::task']]],
+  ['testcase',['TestCase',['../classtest__utils_1_1_test_case.html',1,'test_utils']]],
   ['testcase',['TestCase',['../classcaffe2_1_1python_1_1test__util_1_1_test_case.html',1,'caffe2::python::test_util']]],
   ['text',['Text',['../classcaffe2_1_1python_1_1net__printer_1_1_text.html',1,'caffe2::python::net_printer']]],
   ['textfilereader',['TextFileReader',['../classcaffe2_1_1python_1_1text__file__reader_1_1_text_file_reader.html',1,'caffe2::python::text_file_reader']]],

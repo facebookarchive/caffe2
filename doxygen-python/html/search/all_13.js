@@ -16,6 +16,7 @@ var searchData=
   ['taskoutputlist',['TaskOutputList',['../classcaffe2_1_1python_1_1task_1_1_task_output_list.html',1,'caffe2::python::task']]],
   ['tensorprotosdbinput',['TensorProtosDBInput',['../classcaffe2_1_1python_1_1model__helper_1_1_model_helper.html#ac6f51ccb8b88812bf26e4a189eff0ab3',1,'caffe2::python::model_helper::ModelHelper']]],
   ['test_5futil',['test_util',['../namespacetest__util.html',1,'']]],
+  ['testcase',['TestCase',['../classtest__utils_1_1_test_case.html',1,'test_utils']]],
   ['testcase',['TestCase',['../classcaffe2_1_1python_1_1test__util_1_1_test_case.html',1,'caffe2::python::test_util']]],
   ['text',['Text',['../classcaffe2_1_1python_1_1net__printer_1_1_text.html',1,'caffe2::python::net_printer']]],
   ['text_5ffile_5freader',['text_file_reader',['../namespacetext__file__reader.html',1,'']]],

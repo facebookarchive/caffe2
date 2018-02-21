@@ -2,7 +2,10 @@ var searchData=
 [
   ['cached_5freader',['cached_reader',['../namespacecached__reader.html',1,'']]],
   ['cachedreader',['CachedReader',['../classcaffe2_1_1python_1_1cached__reader_1_1_cached_reader.html',1,'caffe2::python::cached_reader']]],
+  ['caffe2backend',['Caffe2Backend',['../classcaffe2_1_1python_1_1onnx_1_1backend_1_1_caffe2_backend.html',1,'caffe2::python::onnx::backend']]],
   ['caffe2command',['Caffe2Command',['../classsetup_1_1_caffe2_command.html',1,'setup']]],
+  ['caffe2frontend',['Caffe2Frontend',['../classcaffe2_1_1python_1_1onnx_1_1frontend_1_1_caffe2_frontend.html',1,'caffe2::python::onnx::frontend']]],
+  ['caffe2rep',['Caffe2Rep',['../classcaffe2_1_1python_1_1onnx_1_1backend__rep_1_1_caffe2_rep.html',1,'caffe2::python::onnx::backend_rep']]],
   ['caffe_5ftranslator',['caffe_translator',['../namespacecaffe__translator.html',1,'']]],
   ['char_5frnn',['char_rnn',['../namespacechar__rnn.html',1,'']]],
   ['charrnn',['CharRNN',['../classchar__rnn_1_1_char_r_n_n.html',1,'char_rnn']]],
