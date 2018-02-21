@@ -20,33 +20,33 @@ elseif(Protobuf_FOUND OR PROTOBUF_FOUND)
   if(PROTOBUF_LIBRARY)
     if (NOT TARGET protobuf::libprotobuf)
       add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
+      set_target_properties(protobuf::libprotobuf PROPERTIES
+          INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}")
     endif()
-    set_target_properties(protobuf::libprotobuf PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}")
     if(EXISTS "${PROTOBUF_LIBRARY}")
       set_target_properties(protobuf::libprotobuf PROPERTIES
-        IMPORTED_LOCATION "${PROTOBUF_LIBRARY}")
+          IMPORTED_LOCATION "${PROTOBUF_LIBRARY}")
     endif()
     if(EXISTS "${PROTOBUF_LIBRARY_RELEASE}")
       set_property(TARGET protobuf::libprotobuf APPEND PROPERTY
-        IMPORTED_CONFIGURATIONS RELEASE)
+          IMPORTED_CONFIGURATIONS RELEASE)
       set_target_properties(protobuf::libprotobuf PROPERTIES
-        IMPORTED_LOCATION_RELEASE "${PROTOBUF_LIBRARY_RELEASE}")
+          IMPORTED_LOCATION_RELEASE "${PROTOBUF_LIBRARY_RELEASE}")
     endif()
     if(EXISTS "${PROTOBUF_LIBRARY_DEBUG}")
       set_property(TARGET protobuf::libprotobuf APPEND PROPERTY
-        IMPORTED_CONFIGURATIONS DEBUG)
+          IMPORTED_CONFIGURATIONS DEBUG)
       set_target_properties(protobuf::libprotobuf PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${PROTOBUF_LIBRARY_DEBUG}")
+          IMPORTED_LOCATION_DEBUG "${PROTOBUF_LIBRARY_DEBUG}")
     endif()
   endif()
 
   if(PROTOBUF_LITE_LIBRARY)
     if (NOT TARGET protobuf::libprotobuf-lite)
       add_library(protobuf::libprotobuf-lite UNKNOWN IMPORTED)
+      set_target_properties(protobuf::libprotobuf-lite PROPERTIES
+          INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}")
     endif()
-    set_target_properties(protobuf::libprotobuf-lite PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}")
     if(EXISTS "${PROTOBUF_LITE_LIBRARY}")
       set_target_properties(protobuf::libprotobuf-lite PROPERTIES
           IMPORTED_LOCATION "${PROTOBUF_LITE_LIBRARY}")
