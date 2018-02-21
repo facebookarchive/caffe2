@@ -144,6 +144,7 @@ if(USE_CUDA)
     target_link_libraries(
         caffe2_gpu
         PRIVATE
+        caffe2
         ${Caffe2_DEPENDENCY_LIBS}
         ${Caffe2_CUDA_DEPENDENCY_LIBS})
   endif()
@@ -222,9 +223,12 @@ if (BUILD_PYTHON)
   set_target_properties(
       caffe2_pybind11_state PROPERTIES LIBRARY_OUTPUT_DIRECTORY
       ${CMAKE_BINARY_DIR}/caffe2/python)
+  # Add dependency of caffe2_pybind11 on caffe2
   target_link_libraries(
-      caffe2_pybind11_state ${Caffe2_CPU_LINK} ${Caffe2_DEPENDENCY_LIBS}
-      ${Caffe2_PYTHON_DEPENDENCY_LIBS})
+      caffe2_pybind11_state PUBLIC
+      caffe2
+      ${Caffe2_PYTHON_DEPENDENCY_LIBS}
+  )
   install(TARGETS caffe2_pybind11_state DESTINATION "${python_site_packages}/caffe2/python")
 
   if(USE_CUDA)
