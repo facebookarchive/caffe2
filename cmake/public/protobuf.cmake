@@ -17,7 +17,7 @@ elseif(Protobuf_FOUND OR PROTOBUF_FOUND)
   # backward compatibility. This is backported from CMake's new FindProtobuf.cmake
   # content.
   message(STATUS "Caffe2: Found protobuf with old-style protobuf targets.")
-  if(PROTOBUF_LIBRARY)      
+  if(PROTOBUF_LIBRARY)
     add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
     set_target_properties(protobuf::libprotobuf PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}")
@@ -68,7 +68,7 @@ elseif(Protobuf_FOUND OR PROTOBUF_FOUND)
   endif()
 endif()
 
-# After above, we should have the glog::glog target now.
+# After above, we should have the protobuf related target now.
 if ((NOT TARGET protobuf::libprotobuf) AND (NOT TARGET protobuf::libprotobuf-lite))
   message(WARNING
       "Protobuf cannot be found. Depending on whether you are building Caffe2 "

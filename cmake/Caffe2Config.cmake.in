@@ -45,7 +45,7 @@ if (NOT TARGET protobuf::libprotobuf)
       "Your installed Caffe2 version uses protobuf but the protobuf library "
       "cannot be found. Did you accidentally remove it, or have you set "
       "the right CMAKE_PREFIX_PATH? If you do not have protobuf, you will "
-      "need to install glog and set the library path accordingly.")
+      "need to install protobuf and set the library path accordingly.")
 endif()
 message(STATUS "Caffe2: Protobuf version " ${Protobuf_VERSION})
 if (NOT (${Protobuf_VERSION} VERSION_EQUAL @CAFFE2_BUILT_PROTOBUF_VERSION@))

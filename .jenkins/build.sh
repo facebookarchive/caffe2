@@ -98,9 +98,6 @@ if [ "$(uname)" == "Darwin" ]; then
   CMAKE_ARGS+=("-DBUILD_CUSTOM_PROTOBUF=ON")
 fi
 
-
-
-
 # Configure
 cmake "${ROOT_DIR}" ${CMAKE_ARGS[*]} "$@"
 

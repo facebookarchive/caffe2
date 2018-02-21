@@ -28,8 +28,6 @@ macro(custom_protobuf_find)
   endif()
 endmacro()
 
-message(STATUS "debug: BUILD_CUSTOM_PROTOBUF is " ${BUILD_CUSTOM_PROTOBUF})
-
 # Main entry for protobuf. If we are building on Android, iOS or we have hard
 # coded BUILD_CUSTOM_PROTOBUF, we will hard code the use of custom protobuf
 # in the submodule.
@@ -64,7 +62,7 @@ if ((NOT TARGET protobuf::libprotobuf) AND (NOT TARGET protobuf::libprotobuf-lit
   custom_protobuf_find()
 
   # TODO(jiayq): enable this in the future, when Jenkins Mac support is
-  # prooerly set up with protobuf installs.
+  # properly set up with protobuf installs.
 
   # message(FATAL_ERROR
   #     "Protobuf cannot be found. Caffe2 will have to build with libprotobuf. "
