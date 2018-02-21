@@ -144,5 +144,4 @@ if [ -n "${JENKINS_URL}" ]; then
 fi
 
 # Install onnx
-mkdir -p ./build
-sudo "$PYTHON" -m pip install -U -b "./build/onnx-build" "file://$ROOT_DIR/third_party/onnx#egg=onnx"
+sudo "$PYTHON" -m pip install -U -b "./onnx-build" "file://$ROOT_DIR/third_party/onnx#egg=onnx"
