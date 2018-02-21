@@ -6,7 +6,7 @@ if (NOT Protobuf_FOUND)
   find_package(Protobuf MODULE QUIET)
 endif()
 
-if (TARGET protobuf::libprotobuf)
+if ((TARGET protobuf::libprotobuf OR TARGET protobuf::libprotobuf-lite) AND TARGET protobuf::protoc)
   # Hooray. This is the most ideal situation, meaning that you either have a
   # Protobuf config file installed (like on Windows), or you are using a
   # modern CMake that ships with a FindProtobuf.cmake file that produces
@@ -18,7 +18,9 @@ elseif(Protobuf_FOUND OR PROTOBUF_FOUND)
   # content.
   message(STATUS "Caffe2: Found protobuf with old-style protobuf targets.")
   if(PROTOBUF_LIBRARY)
-    add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
+    if (NOT TARGET protobuf::libprotobuf)
+      add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
+    endif()
     set_target_properties(protobuf::libprotobuf PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}")
     if(EXISTS "${PROTOBUF_LIBRARY}")
@@ -40,7 +42,9 @@ elseif(Protobuf_FOUND OR PROTOBUF_FOUND)
   endif()
 
   if(PROTOBUF_LITE_LIBRARY)
-    add_library(protobuf::libprotobuf-lite UNKNOWN IMPORTED)
+    if (NOT TARGET protobuf::libprotobuf-lite)
+      add_library(protobuf::libprotobuf-lite UNKNOWN IMPORTED)
+    endif()
     set_target_properties(protobuf::libprotobuf-lite PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}")
     if(EXISTS "${PROTOBUF_LITE_LIBRARY}")
@@ -62,7 +66,9 @@ elseif(Protobuf_FOUND OR PROTOBUF_FOUND)
   endif()
   
   if(PROTOBUF_PROTOC_EXECUTABLE)
-    add_executable(protobuf::protoc IMPORTED)
+    if (NOT TARGET protobuf::protoc)
+      add_executable(protobuf::protoc IMPORTED)
+    endif()
     set_property(TARGET protobuf::protoc PROPERTY
         IMPORTED_LOCATION ${PROTOBUF_PROTOC_EXECUTABLE})
   endif()
