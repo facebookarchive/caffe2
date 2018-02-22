@@ -1,5 +1,34 @@
 {% capture outro %}{% include_relative getting-started/outro.md %}{% endcapture %}
 
+<block class="ubuntu prebuilt" />
+
+We only support Anaconda packages at the moment. If you do not wish to use Anaconda, then you must build Caffe2 from [source](https://caffe2.ai/docs/getting-started.html?platform=ubuntu&configuration=compile).
+
+### Anaconda packages
+
+We build Linux packages without CUDA support, with CUDA 9.0 support, and with CUDA 8.0 support, for both Python 2.7 and Python 3.6. These packages are built on Ubuntu 16.04, but they will probably work on Ubuntu14.04 as well (if they do not, please tell us by creating an issue on our [Github page](https://github.com/caffe2/caffe2/issues)). To install Caffe2 with Anaconda, simply activate your desired conda environment and then run one of the following commands:
+
+If you do not have a GPU:
+
+```bash
+conda install -c caffe2 caffe2
+```
+
+For Caffe2 with CUDA 9 and cuDNN 7 support:
+
+```bash
+conda install -c caffe2 caffe2-cuda9.0-cudnn7
+```
+
+For Caffe2 with CUDA 8 and cuDNN 7 support:
+
+```bash
+conda install -c caffe2 caffe2-cuda8.0-cudnn7
+```
+
+To see what packages these pre-built binaries are built against, see `conda/cuda/meta.yaml` for the CUDA builds and `conda/no_cuda/meta.yaml` for the CPU only build. If you want different libraries then you must build from  source.
+
+
 <block class="ubuntu cloud" />
 You can easily try out Caffe2 by using the Cloud services. Caffe2 is available as AWS (Amazon Web Services) Deep Learning AMI and Microsoft Azure Virtual Machine offerings. You can run run Caffe2 in the Cloud at any scale.
 
@@ -190,29 +219,6 @@ Solution | You need to know the specific `deb` for your version of Linux. `sudo 
 Build issues | Be warned that installing CUDA and cuDNN will increase the size of your build by about 4GB, so plan to have at least 12GB for your Ubuntu disk size.
 
 {{ outro | markdownify }}
-
-<block class="ubuntu prebuilt" />
-
-### Anaconda package
-
-```bash
-conda install -c caffe2 caffe2
-```
-
-For CUDA 9 and cuDNN 7 (experimental)
-
-```bash
-conda install -c caffe2 caffe2-cuda9.0-cudnn7
-```
-
-For CUDA 8 and cuDNN 7 (experimental)
-
-```bash
-conda install -c caffe2 caffe2-cuda8.0-cudnn7
-```
-
-To see what packages these pre-built binaries are built against, see `conda/cuda/meta.yaml` for the CUDA builds and `conda/no_cuda/meta.yaml` for the CPU only build. If you want different libraries then you must build from  source.
-
 
 <block class="ubuntu docker" />
 

@@ -6,7 +6,7 @@ Windows 10 or greater is required to run Caffe2.
 
 ## Prebuilt
 
-No binaries available.
+There are no pre-built binaries available for Windows yet. Please install from [source](https://caffe2.ai/docs/getting-started.html?platform=windows&configuration=compile).
 
 <block class="windows compile" />
 
