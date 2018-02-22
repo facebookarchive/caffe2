@@ -61,3 +61,6 @@
 [submodule "third_party/python-six"]
 	path = third_party/python-six
 	url = https://github.com/benjaminp/six.git
+[submodule "third_party/ComputeLibrary"]
+	path = third_party/ComputeLibrary
+	url = https://github.com/ARM-software/ComputeLibrary
