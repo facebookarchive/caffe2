@@ -52,15 +52,26 @@ CMAKE_ARGS=()
 # target architecture and need an exact version match.
 CMAKE_ARGS+=("-DCAFFE2_CUSTOM_PROTOC_EXECUTABLE=$CAFFE2_ROOT/build_host_protoc/bin/protoc")
 
+CMAKE_ARGS+=($@)
+USE_ARM_COMPUTE=false
+for arg in ${CMAKE_ARGS[@]};do
+  if [ $arg == "-DUSE_ARM_COMPUTE=ON" ];then
+    USE_ARM_COMPUTE=true
+  fi
+done
 # Use android-cmake to build Android project from CMake.
 CMAKE_ARGS+=("-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake")
 
 # Don't build artifacts we don't need
-CMAKE_ARGS+=("-DBUILD_TEST=OFF")
+CMAKE_ARGS+=("-DBUILD_TEST=ON")
 CMAKE_ARGS+=("-DBUILD_BINARY=OFF")
 CMAKE_ARGS+=("-DBUILD_PYTHON=OFF")
 CMAKE_ARGS+=("-DBUILD_SHARED_LIBS=OFF")
+if $USE_ARM_COMPUTE;then
+CMAKE_ARGS+=("-DANDROID_TOOLCHAIN_NAME=arm-linux-androideabi-4.9")
+else
 CMAKE_ARGS+=("-DANDROID_TOOLCHAIN=gcc")
+fi
 
 # Disable unused dependencies
 CMAKE_ARGS+=("-DUSE_CUDA=OFF")

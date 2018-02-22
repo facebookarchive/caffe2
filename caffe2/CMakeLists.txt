@@ -10,6 +10,7 @@ set(Caffe2_GPU_SRCS)
 # files for CPU and GPU tests respectively.
 set(Caffe2_CPU_TEST_SRCS)
 set(Caffe2_GPU_TEST_SRCS)
+set(Caffe2_MOBILE_TEST_SRCS)
 
 # ---[ Add respective subdirectories
 # Note: the folders that are being commented out have not been properly
@@ -96,6 +97,15 @@ set(Caffe2_MAIN_LIBS)
 
 # Compile exposed libraries.
 add_library(caffe2 ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
+if(USE_ARM_COMPUTE)
+  target_compile_options(caffe2 PRIVATE "-mfpu=neon-fp16")
+
+  include(CheckCCompilerFlag)
+  CHECK_C_COMPILER_FLAG(-mfp16-format=ieee CAFFE2_COMPILER_SUPPORTS_FP16_FORMAT)
+  if(CAFFE2_COMPILER_SUPPORTS_FP16_FORMAT)
+    target_compile_options(caffe2 PRIVATE "-mfp16-format=ieee")
+  endif()
+endif()
 target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_LIBS})
 target_include_directories(caffe2 INTERFACE $<INSTALL_INTERFACE:include>)
 target_compile_options(caffe2 INTERFACE "-std=c++11")
@@ -163,6 +173,9 @@ if (BUILD_TEST)
   if (USE_CUDA)
     list(APPEND Caffe2_ALL_TEST_SRCS ${Caffe2_GPU_TEST_SRCS})
   endif()
+  if (USE_ARM_COMPUTE AND ANDROID)
+    set(Caffe2_ALL_TEST_SRCS ${Caffe2_MOBILE_TEST_SRCS})
+  endif()
 
   foreach(test_src ${Caffe2_ALL_TEST_SRCS})
     get_filename_component(test_name ${test_src} NAME_WE)
@@ -177,7 +190,7 @@ if (BUILD_TEST)
           ${test_name} ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS}
           gtest_main)
     endif()
-    if (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
+    if (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0 AND NOT ANDROID)
       target_compile_features(${test_name} PRIVATE cxx_range_for)
     endif()
     add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}>)

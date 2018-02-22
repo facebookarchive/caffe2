@@ -1,5 +1,8 @@
 add_subdirectory(ios)
 add_subdirectory(opengl)
+if (USE_ARM_COMPUTE AND ANDROID)
+	add_subdirectory(arm-compute)
+endif()
 # Finally pass the src lists back to the parent
 
 if (USE_NNAPI)
@@ -15,3 +18,6 @@ set(Caffe2_CPU_BINARY_SRCS ${Caffe2_CPU_BINARY_SRCS} PARENT_SCOPE)
 set(Caffe2_GPU_SRCS ${Caffe2_GPU_SRCS} PARENT_SCOPE)
 set(Caffe2_GPU_TEST_SRCS ${Caffe2_GPU_TEST_SRCS} PARENT_SCOPE)
 set(Caffe2_GPU_BINARY_SRCS ${Caffe2_GPU_BINARY_SRCS} PARENT_SCOPE)
+
+# Mobile specific sources
+set(Caffe2_MOBILE_TEST_SRCS ${Caffe2_MOBILE_TEST_SRCS} PARENT_SCOPE)
