@@ -6,7 +6,7 @@ We only support Anaconda packages at the moment. If you do not wish to use Anaco
 
 ### Anaconda packages
 
-We build Linux packages without CUDA support, with CUDA 9.0 support, and with CUDA 8.0 support, for both Python 2.7 and Python 3.6. These packages are built on Ubuntu 16.04, but they will probably work on Centos as well (if they do not, please tell us by creating an issue on our [Github page](https://github.com/caffe2/caffe2/issues)). To install Caffe2 with Anaconda, simply activate your desired conda environment and then run one of the following commands:
+We build Linux packages without CUDA support, with CUDA 9.0 support, and with CUDA 8.0 support, for both Python 2.7 and Python 3.6. These packages are built on Ubuntu 16.04, but they will probably work on CentOS as well (if they do not, please tell us by creating an issue on our [Github page](https://github.com/caffe2/caffe2/issues)). To install Caffe2 with Anaconda, simply activate your desired conda environment and then run one of the following commands:
 
 If you do not have a GPU:
 
