@@ -286,6 +286,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_cast_op.html">CastOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_ceil_op.html">CeilOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_channel_backprop_stats_op.html">ChannelBackpropStatsOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_channel_shuffle_gradient_op.html">ChannelShuffleGradientOp</a></td></tr>
@@ -515,6 +517,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_eigen_conv_op.html">EigenConvOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcaffe2_1_1_eigen_pow_functor.html">EigenPowFunctor</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_elementwise_linear_gradient_op.html">ElementwiseLinearGradientOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_elementwise_linear_op.html">ElementwiseLinearOp</a></td></tr>
@@ -602,6 +606,8 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_float_to_half_op.html">FloatToHalfOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_float_to_rowwise_quantized8_bits_op.html">FloatToRowwiseQuantized8BitsOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_floor_op.html">FloorOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcaffe2_1_1_for_each.html">ForEach</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structcaffe2_1_1_for_each.html" title="ForEach is a unary functor that forwards each element of the input array into the elementwise Functor...">ForEach</a> is a unary functor that forwards each element of the input array into the elementwise Functor provided, and gathers the results of each call into the resulting array.  <a href="structcaffe2_1_1_for_each.html#details">More...</a><br /></td></tr>
@@ -1293,7 +1299,7 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_pool_op.html">PoolOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcaffe2_1_1_pow_functor.html">PowFunctor</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_pow_op.html">PowOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_predictor.html">Predictor</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3578,6 +3584,22 @@ The data type to which the elements of the input tensor are cast Strictly must b
 <tr class="memitem:a8ca31f20f5f48826244c16253688e969"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ca31f20f5f48826244c16253688e969"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Cast, <a class="el" href="classcaffe2_1_1_get_cast_gradient.html">GetCastGradient</a>)</td></tr>
 <tr class="separator:a8ca31f20f5f48826244c16253688e969"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a674cc31b2aac4d11c3c4c904d500b1bd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a674cc31b2aac4d11c3c4c904d500b1bd"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Ceil, <a class="el" href="classcaffe2_1_1_ceil_op.html">CeilOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a674cc31b2aac4d11c3c4c904d500b1bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a010287b826d9507528c87f434a89656d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a010287b826d9507528c87f434a89656d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Ceil takes one input data (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) and produces one output data
+(<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) where the ceil function, y = ceil(x), is applied to
+the tensor elementwise. Currently supports only float32.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:a010287b826d9507528c87f434a89656d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b4360ce81661bcefa2d79f3df180f2f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b4360ce81661bcefa2d79f3df180f2f"></a>
+ND input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;Y&quot;,&quot;ND input tensor&quot;)</td></tr>
+<tr class="separator:a0b4360ce81661bcefa2d79f3df180f2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44bdb2901e888c0122936d0f7abbc78e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a44bdb2901e888c0122936d0f7abbc78e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>GRADIENT_NOT_IMPLEMENTED_YET</b> (Ceil)</td></tr>
+<tr class="separator:a44bdb2901e888c0122936d0f7abbc78e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc1df83ff9b308cd592da73ded0d46cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc1df83ff9b308cd592da73ded0d46cf"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ChannelBackpropStats, <a class="el" href="classcaffe2_1_1_channel_backprop_stats_op.html">ChannelBackpropStatsOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:afc1df83ff9b308cd592da73ded0d46cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4641,6 +4663,19 @@ A tensor of with input dimensions up to axis flattened to the outer dimension of
 <tr class="memitem:a381f774a585fae067302931bb7c00542"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a381f774a585fae067302931bb7c00542"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (FlexibleTopKGradient, <a class="el" href="classcaffe2_1_1_flexible_top_k_gradient_op.html">FlexibleTopKGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a381f774a585fae067302931bb7c00542"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae28839e5aacd40cdf93789551f87c1f1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae28839e5aacd40cdf93789551f87c1f1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Floor, <a class="el" href="classcaffe2_1_1_floor_op.html">FloorOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:ae28839e5aacd40cdf93789551f87c1f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae95bafafbf0932a5b70cb497e8892af3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae95bafafbf0932a5b70cb497e8892af3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+Floor takes one input data (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) and produces one output data
+(<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) where the floor function, y = floor(x), is applied to
+the tensor elementwise. Currently supports only float32.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:ae95bafafbf0932a5b70cb497e8892af3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a062dec729017bbf1bfb05a496e0b73cd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a062dec729017bbf1bfb05a496e0b73cd"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>GRADIENT_NOT_IMPLEMENTED_YET</b> (Floor)</td></tr>
+<tr class="separator:a062dec729017bbf1bfb05a496e0b73cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace44a6fcfc0ff135335e8fbe29ce87b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace44a6fcfc0ff135335e8fbe29ce87b2"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Free, <a class="el" href="classcaffe2_1_1_free_op.html">FreeOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ace44a6fcfc0ff135335e8fbe29ce87b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5832,6 +5867,15 @@ NumInputs(1).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classcaff
 <tr class="memitem:a9998dcc0fdc07b2afa293b1d8911f43c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9998dcc0fdc07b2afa293b1d8911f43c"></a>
 NumInputs(1).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classcaffe2_1_1_conv_pool_op_base.html">ConvPoolOpBase</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (MaxPool3D, <a class="el" href="classcaffe2_1_1_pool_op.html">PoolOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, MaxPool&lt; float &gt;&gt;)</td></tr>
 <tr class="separator:a9998dcc0fdc07b2afa293b1d8911f43c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a675895d042aa981cffa018ac9ccf519b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a675895d042aa981cffa018ac9ccf519b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Pow, <a class="el" href="classcaffe2_1_1_pow_op.html">PowOp</a>&lt; <a class="el" href="structcaffe2_1_1_tensor_types.html">TensorTypes</a>&lt; float &gt;, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, <a class="el" href="structcaffe2_1_1_eigen_pow_functor.html">EigenPowFunctor</a>, <a class="el" href="structcaffe2_1_1_same_type_as_input.html">SameTypeAsInput</a> &gt;).NumInputs(1</td></tr>
+<tr class="separator:a675895d042aa981cffa018ac9ccf519b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad53172da9ec90ca49ea4ffc41ac7010e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad53172da9ec90ca49ea4ffc41ac7010e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NumOutputs</b> (1).Arg(&quot;exponent&quot;</td></tr>
+<tr class="separator:ad53172da9ec90ca49ea4ffc41ac7010e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24208f42353b7aa829fcd2ae080c1b05"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a24208f42353b7aa829fcd2ae080c1b05"></a>
+The exponent of the power function&#160;</td><td class="memItemRight" valign="bottom"><b>AllowInplace</b> ({{0, 0},{1, 0}}).SetDoc(R&quot;DOC( Pow takes input data (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) and an argument exponent</td></tr>
+<tr class="separator:a24208f42353b7aa829fcd2ae080c1b05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae519015529c49ba9edba9b9afcf109a6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae519015529c49ba9edba9b9afcf109a6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (PRelu, <a class="el" href="classcaffe2_1_1_p_relu_op.html">PReluOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ae519015529c49ba9edba9b9afcf109a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6938,9 +6982,6 @@ Number of replicas The input tensor optional Axis to replicate&#160;</td><td cla
 <tr class="memitem:a0b19f8c7e52f0be20be3e3ac9b79499f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b19f8c7e52f0be20be3e3ac9b79499f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (TileGradient).NumInputs(1</td></tr>
 <tr class="separator:a0b19f8c7e52f0be20be3e3ac9b79499f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5bc48b2c0bac2dfd8465141227acdbf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5bc48b2c0bac2dfd8465141227acdbf"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NumOutputs</b> (1)</td></tr>
-<tr class="separator:aa5bc48b2c0bac2dfd8465141227acdbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf75898e19a1c52e1528eb3440a208de"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf75898e19a1c52e1528eb3440a208de"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Tile, <a class="el" href="classcaffe2_1_1_get_tile_gradient.html">GetTileGradient</a>)</td></tr>
 <tr class="separator:adf75898e19a1c52e1528eb3440a208de"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8605,6 +8646,9 @@ reconstruct values together according to masks A comprehensive False False True 
 <tr class="memitem:a5205e5927822adb8687a095d5b80dc40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5205e5927822adb8687a095d5b80dc40"></a>
 The data type to which the elements of the input tensor are cast Strictly must be one of the types from DataType enum in TensorProto Output tensor with the same shape as input with type specified by the to&#160;</td><td class="memItemRight" valign="bottom"><b>argument</b></td></tr>
 <tr class="separator:a5205e5927822adb8687a095d5b80dc40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b8760abd825f0c98fc16dae30030eb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b8760abd825f0c98fc16dae30030eb3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>X</b> = in[0]</td></tr>
+<tr class="separator:a9b8760abd825f0c98fc16dae30030eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc83acec950979e55215b3ead8ff3c93"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc83acec950979e55215b3ead8ff3c93"></a>
 the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation&#160;</td><td class="memItemRight" valign="bottom"><b>Typically</b></td></tr>
 <tr class="separator:afc83acec950979e55215b3ead8ff3c93"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8641,9 +8685,6 @@ Key value handler for A common world for collective operations int rank of this 
 <tr class="memitem:ae95bc248f963a13dfcca20bd71e88995"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae95bc248f963a13dfcca20bd71e88995"></a>
 The common world to be&#160;</td><td class="memItemRight" valign="bottom"><b>destroyed</b></td></tr>
 <tr class="separator:ae95bc248f963a13dfcca20bd71e88995"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b8760abd825f0c98fc16dae30030eb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b8760abd825f0c98fc16dae30030eb3"></a>
-The common world&#160;</td><td class="memItemRight" valign="bottom"><b>X</b> = in[0]</td></tr>
-<tr class="separator:a9b8760abd825f0c98fc16dae30030eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a726982682691269ef900b03784b3431f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a726982682691269ef900b03784b3431f"></a>
 The common world&#160;</td><td class="memItemRight" valign="bottom"><b>Y</b></td></tr>
 <tr class="separator:a726982682691269ef900b03784b3431f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9491,6 +9532,7 @@ See SpatialNarrowAs Gradient of forward&#160;</td><td class="memItemRight" valig
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Copyright (c) 2016-present, Facebook, Inc. </p>
+<p>Copyright (c) 2018-present, Facebook, Inc.</p>
 <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at </p><pre class="fragment">http://www.apache.org/licenses/LICENSE-2.0
 </pre><p>Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</p>
 <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at </p><pre class="fragment">http://www.apache.org/licenses/LICENSE-2.0
@@ -10651,7 +10693,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Feb 21 2018 13:03:01 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Feb 22 2018 13:03:39 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

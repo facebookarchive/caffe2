@@ -1426,6 +1426,32 @@ The operator casts the elements of a given input tensor to a data type specified
 
 
 
+## Ceil
+
+
+Ceil takes one input data (Tensor<T>) and produces one output data (Tensor<T>) where the ceil function, y = ceil(x), is applied to the tensor elementwise. Currently supports only float32.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`X` | ND input tensor
+*Outputs* | 
+`Y` | ND input tensor
+
+
+### Code
+
+
+[caffe2/operators/ceil_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/ceil_op.cc)
+
+---
+
+
+
 ## ChannelBackpropStats
 
 
@@ -3936,6 +3962,32 @@ This operator applies 8Bit row-wise quantization to input tensor and returns qua
 
 
 [caffe2/operators/lengths_reducer_rowwise_8bit_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/lengths_reducer_rowwise_8bit_ops.cc)
+
+---
+
+
+
+## Floor
+
+
+Floor takes one input data (Tensor<T>) and produces one output data (Tensor<T>) where the floor function, y = floor(x), is applied to the tensor elementwise. Currently supports only float32.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`X` | ND input tensor
+*Outputs* | 
+`Y` | ND input tensor
+
+
+### Code
+
+
+[caffe2/operators/floor_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/floor_op.cc)
 
 ---
 
@@ -8025,7 +8077,7 @@ PiecewiseLinearTransform takes inputs -- predictions, a 2-D or 1-D tensor (Tenso
 ## Pow
 
 
-Pow takes input data (Tensor<T>) and an argument exponent, and produces one output data (Tensor<T>) where the function  `f(x) = x^exponent` , is applied to the data tensor elementwise.
+Pow takes input data (Tensor<T>) and an argument exponent, which can be a scalar or another tensor. It produces one output data (Tensor<T>), where the function  `f(x) = x^exponent`  is applied to the data tensor elementwise.
 
 
 
@@ -8037,6 +8089,7 @@ Pow takes input data (Tensor<T>) and an argument exponent, and produces one outp
 `exponent` | The exponent of the power function.
 *Inputs* | 
 `X` | Input tensor of any shape
+`exponent` | The exponent of the power function.
 *Outputs* | 
 `Y` | Output tensor (same size as X)
 
@@ -8044,7 +8097,7 @@ Pow takes input data (Tensor<T>) and an argument exponent, and produces one outp
 ### Code
 
 
-[caffe2/operators/math_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/math_ops.cc)
+[caffe2/operators/pow_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/pow_op.cc)
 
 ---
 

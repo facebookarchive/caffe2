@@ -5,6 +5,7 @@ var searchData=
   ['caffe2iospredictor',['Caffe2IOSPredictor',['../class_caffe2_i_o_s_predictor.html',1,'']]],
   ['caffe2moduletestdynamicdummyop',['Caffe2ModuleTestDynamicDummyOp',['../classcaffe2_1_1_caffe2_module_test_dynamic_dummy_op.html',1,'caffe2']]],
   ['castop',['CastOp',['../classcaffe2_1_1_cast_op.html',1,'caffe2']]],
+  ['ceilop',['CeilOp',['../classcaffe2_1_1_ceil_op.html',1,'caffe2']]],
   ['channelbackpropstatsop',['ChannelBackpropStatsOp',['../classcaffe2_1_1_channel_backprop_stats_op.html',1,'caffe2']]],
   ['channelshufflegradientop',['ChannelShuffleGradientOp',['../classcaffe2_1_1_channel_shuffle_gradient_op.html',1,'caffe2']]],
   ['channelshuffleop',['ChannelShuffleOp',['../classcaffe2_1_1_channel_shuffle_op.html',1,'caffe2']]],

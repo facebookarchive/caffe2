@@ -23,6 +23,7 @@ var searchData=
   ['floattofused8bitrowwisequantizedop',['FloatToFused8BitRowwiseQuantizedOp',['../classcaffe2_1_1_float_to_fused8_bit_rowwise_quantized_op.html',1,'caffe2']]],
   ['floattohalfop',['FloatToHalfOp',['../classcaffe2_1_1_float_to_half_op.html',1,'caffe2']]],
   ['floattorowwisequantized8bitsop',['FloatToRowwiseQuantized8BitsOp',['../classcaffe2_1_1_float_to_rowwise_quantized8_bits_op.html',1,'caffe2']]],
+  ['floorop',['FloorOp',['../classcaffe2_1_1_floor_op.html',1,'caffe2']]],
   ['foreach',['ForEach',['../structcaffe2_1_1_for_each.html',1,'caffe2']]],
   ['fp16momentumsgdupdateop',['FP16MomentumSGDUpdateOp',['../classcaffe2_1_1_f_p16_momentum_s_g_d_update_op.html',1,'caffe2']]],
   ['fp32momentumsgdupdateop',['FP32MomentumSGDUpdateOp',['../classcaffe2_1_1_f_p32_momentum_s_g_d_update_op.html',1,'caffe2']]],

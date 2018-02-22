@@ -11,6 +11,7 @@ var searchData=
   ['calculateoutput',['CalculateOutput',['../classcaffe2_1_1_op_schema.html#a2004e2bf609df00b021bc8ffccb7488a',1,'caffe2::OpSchema']]],
   ['canonical_5faxis_5findex',['canonical_axis_index',['../classcaffe2_1_1_q_tensor.html#a5a460a6fa8c438a8ac9a4b353dd0c5b6',1,'caffe2::QTensor::canonical_axis_index()'],['../classcaffe2_1_1_tensor.html#af8cf542a5e06562c22126ff029d367e0',1,'caffe2::Tensor::canonical_axis_index()']]],
   ['castop',['CastOp',['../classcaffe2_1_1_cast_op.html',1,'caffe2']]],
+  ['ceilop',['CeilOp',['../classcaffe2_1_1_ceil_op.html',1,'caffe2']]],
   ['channelbackpropstatsop',['ChannelBackpropStatsOp',['../classcaffe2_1_1_channel_backprop_stats_op.html',1,'caffe2']]],
   ['channelshufflegradientop',['ChannelShuffleGradientOp',['../classcaffe2_1_1_channel_shuffle_gradient_op.html',1,'caffe2']]],
   ['channelshuffleop',['ChannelShuffleOp',['../classcaffe2_1_1_channel_shuffle_op.html',1,'caffe2']]],
