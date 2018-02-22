@@ -1,5 +1,24 @@
 {% capture outro %}{% include_relative getting-started/outro.md %}{% endcapture %}
 
+<block class="mac prebuilt" />
+
+We only support Anaconda packages at the moment. If you do not wish to use Anaconda, then you must build Caffe2 from [source](https://caffe2.ai/docs/getting-started.html?platform=mac&configuration=compile).
+
+### Anaconda packages
+
+We build Mac packages without CUDA support for both Python 2.7 and Python 3.6. To install Caffe2 with Anaconda, simply activate your desired conda environment and then run one of the following commands:
+
+```bash
+conda install -c caffe2 caffe2
+```
+
+To see what packages these pre-built binaries are built against, see `conda/cuda/meta.yaml` for the CUDA builds and `conda/no_cuda/meta.yaml` for the CPU only build. If you want different libraries then you must build from  source.
+
+### Prebuilt Caffe2 Python Wheel
+
+No wheel is available at this time.
+
+
 <block class="mac compile" />
 
 There are three ways to install on Mac, with [Anaconda and conda](#anaconda-install-path), with [Anaconda but custom make commands](#custom-anaconda-install), or [without Anaconda](#brew-and-pip-install-path). Always pull the latest from GitHub, so you get any build fixes. See the [Troubleshooting](#troubleshooting) section below for tips.
@@ -247,21 +266,6 @@ Solution | Caffe2's GPU support is [Nvidia CUDA 6.5 or greater](https://develope
 malloc error | If you are using homebrew leveldb on a Mac, you might see an error warning you that malloc_zone_unregister() failed. This is not a Caffe2 issue but is due to the homebrew leveldb having an incompatible memory allocator. It does not affect usage.
 
 {{ outro | markdownify }}
-
-<block class="mac prebuilt" />
-
-### Anaconda package
-
-```bash
-conda install -c caffe2 caffe2
-```
-
-Packages exist for both Python 2.7 and 3.6. At this time all packages are built with MKL, without GPU support.
-
-### Prebuilt Caffe2 Python Wheel
-
-No wheel is available at this time.
-
 
 <block class="mac docker" />
 

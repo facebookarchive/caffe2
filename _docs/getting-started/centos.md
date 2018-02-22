@@ -2,6 +2,33 @@
 
 <block class="centos prebuilt" />
 
+We only support Anaconda packages at the moment. If you do not wish to use Anaconda, then you must build Caffe2 from [source](https://caffe2.ai/docs/getting-started.html?platform=centos&configuration=compile).
+
+### Anaconda packages
+
+We build Linux packages without CUDA support, with CUDA 9.0 support, and with CUDA 8.0 support, for both Python 2.7 and Python 3.6. These packages are built on Ubuntu 16.04, but they will probably work on Centos as well (if they do not, please tell us by creating an issue on our [Github page](https://github.com/caffe2/caffe2/issues)). To install Caffe2 with Anaconda, simply activate your desired conda environment and then run one of the following commands:
+
+If you do not have a GPU:
+
+```bash
+conda install -c caffe2 caffe2
+```
+
+For Caffe2 with CUDA 9 and cuDNN 7 support:
+
+```bash
+conda install -c caffe2 caffe2-cuda9.0-cudnn7
+```
+
+For Caffe2 with CUDA 8 and cuDNN 7 support:
+
+```bash
+conda install -c caffe2 caffe2-cuda8.0-cudnn7
+```
+
+To see what packages these pre-built binaries are built against, see `conda/cuda/meta.yaml` for the CUDA builds and `conda/no_cuda/meta.yaml` for the CPU only build. If you want different libraries then you must build from source.
+
+
 <block class="centos docker" />
 
 <block class="centos compile" />
