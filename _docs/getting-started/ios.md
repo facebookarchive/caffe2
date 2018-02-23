@@ -31,6 +31,6 @@ cd caffe2
 
 <block class="ios prebuilt docker" />
 
-Caffe2 for iOS must be built using the iOS build script.
+There are no pre-built binaries available for iOS yet. Please install from [source](https://caffe2.ai/docs/getting-started.html?platform=ios&configuration=compile).
 
 <block class="ios cloud" />

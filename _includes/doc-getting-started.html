@@ -184,7 +184,7 @@ if (platform){
   if (!foundHash) {
     var isMac = navigator.platform.toLowerCase().indexOf('mac') !== -1;
     var isLinux = navigator.platform.toLowerCase().indexOf('linux') !== -1;
-    display('platform', isMac ? 'mac' : (isLinux ? 'linux' : 'windows'));
+    display('platform', isMac ? 'mac' : (isLinux ? 'ubuntu' : 'windows'));
     display('configuration', (isMac || isLinux) ? 'prebuilt' : 'compile');
   }
 }
