@@ -38,6 +38,6 @@ cd caffe2
 
 <block class="android prebuilt docker" />
 
-Caffe2 for Android must be built using the Android build script.
+There are no pre-built binaries available for Android yet. Please install from [source](https://caffe2.ai/docs/getting-started.html?platform=android&configuration=compile).
 
 <block class="android" />

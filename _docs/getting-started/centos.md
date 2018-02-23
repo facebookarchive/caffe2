@@ -239,8 +239,3 @@ error while loading shared libraries: libCaffe2_CPU.so: cannot open shared objec
 undefined reference to \`ncclReduceScatter' | This does not occur on Caffe2 building, but on linking with "libCaffe2_GPU.so" in some external projects. To solve this, you may install NCCL from its source bundled with Caffe2: (under the Caffe2 project directory) `cd third_party/nccl && make -j 8 && sudo make install`
 
 {{ outro | markdownify }}
-
-<block class="ubuntu prebuilt" />
-### Prebuilt Binaries
-
-** COMING SOON **

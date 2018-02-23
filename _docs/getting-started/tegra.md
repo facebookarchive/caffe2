@@ -23,6 +23,15 @@ cd caffe2
 ./scripts/build_tegra_x1.sh
 ```
 
+
+<block class="tegra prebuilt" />
+
+There are no pre-built binaries available for Tegra yet. Please install from [source](https://caffe2.ai/docs/getting-started.html?platform=tegra&configuration=compile).
+
+
 <block class="tegra docker" />
+
+There are no Docker images available for Tegra. Please install from [source](https://caffe2.ai/docs/getting-started.html?platform=tegra&configuration=compile).
+
 
 <block class="tegra cloud" />
