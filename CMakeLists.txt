@@ -25,7 +25,7 @@ cmake_dependent_option(
     "NOT BUILD_SHARED_LIBS" OFF)
 option(BUILD_OBSERVERS "Build performance observers/loggers in caffe2/share/observers directory" OFF)
 option(BUILD_TEST "Build C++ test binaries (need gtest and gbenchmark)" ON)
-option(USE_ARM_COMPUTE "Use ARM Compute Library" ON)
+option(USE_ARM_COMPUTE "Use ARM Compute Library" OFF)
 option(USE_ATEN "Use ATen" OFF)
 option(USE_ASAN "Use Address Sanitizer" OFF)
 option(USE_CUDA "Use Cuda" ON)
