@@ -72,7 +72,6 @@ BlobsQueue::BlobsQueue(
 bool BlobsQueue::blockingRead(
     const std::vector<Blob*>& inputs,
     float timeout_secs) {
-  auto keeper = this->shared_from_this();
   const auto& name = name_.c_str();
   CAFFE_SDT(queue_read_start, name, (void*)this, SDT_BLOCKING_OP);
   std::unique_lock<std::mutex> g(mutex_);
@@ -114,7 +113,6 @@ bool BlobsQueue::blockingRead(
 }
 
 bool BlobsQueue::tryWrite(const std::vector<Blob*>& inputs) {
-  auto keeper = this->shared_from_this();
   const auto& name = name_.c_str();
   CAFFE_SDT(queue_write_start, name, (void*)this, SDT_NONBLOCKING_OP);
   std::unique_lock<std::mutex> g(mutex_);
@@ -129,7 +127,6 @@ bool BlobsQueue::tryWrite(const std::vector<Blob*>& inputs) {
 }
 
 bool BlobsQueue::blockingWrite(const std::vector<Blob*>& inputs) {
-  auto keeper = this->shared_from_this();
   const auto& name = name_.c_str();
   CAFFE_SDT(queue_write_start, name, (void*)this, SDT_BLOCKING_OP);
   std::unique_lock<std::mutex> g(mutex_);
