@@ -50,11 +50,11 @@ if [ -n "$SKIP_CONDA_TESTS" ]; then
   if [ "$(uname)" == 'Darwin' ]; then
     sed -i '' '/test:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
     sed -i '' '/imports:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
-    sed -i '' '/caffe2.python.core:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '' '/caffe2.python.core/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
   else
     sed -i '/test:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
     sed -i '/imports:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
-    sed -i '/caffe2.python.core:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '/caffe2.python.core/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
   fi
 
 elif [ -n "$UPLOAD_TO_CONDA" ]; then
@@ -64,5 +64,12 @@ elif [ -n "$UPLOAD_TO_CONDA" ]; then
   CONDA_BUILD_ARGS+=(" --token ${CAFFE2_ANACONDA_ORG_ACCESS_TOKEN}")
 fi
 
-
+# Build Caffe2 with conda-build
+# If --user and --token are set, then this will also upload the built package
+# to Anaconda.org, provided there were no failures and all the tests passed
 conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
+
+# Install Caffe2 from the built package into the local conda environment
+if [ -n "$CONDA_INSTALL_LOCALLY" ]; then
+  conda install -y "${CAFFE2_PACKAGE_NAME}" --use-local
+fi
