@@ -120,7 +120,7 @@ class TestGradientCalculation(test_util.TestCase):
                 op.device_option.CopyFrom(device_option)
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {'out': 'out_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testDirectImplicitGradientSource(self):
         operators = [
@@ -136,7 +136,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, ['out'])
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testDoesNotGenerateUnnecessaryGradients(self):
         operators = [
@@ -148,7 +148,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {'hidden': 'hidden_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testDirectButNoOutputGradientGiven(self):
         operators = [
@@ -157,7 +157,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {})
-        self.assertEqual(gradients, [])
+        self.assertSameOps(gradients, [])
 
     def testDirectInPlace(self):
         operators = [
@@ -170,7 +170,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {'out': 'out_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testVersionMismatch(self):
         operators = [
@@ -206,7 +206,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {'sink': 'sink_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testUseOutputInPlace(self):
         operators = [
@@ -227,7 +227,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {'sink': 'sink_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testUseOutputButOutputHasBeenChanged(self):
         operators = [
@@ -262,7 +262,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {'sink': 'sink_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testUseInputButInputHasBeenChanged(self):
         """Test gradient for the following case:
@@ -322,7 +322,7 @@ class TestGradientCalculation(test_util.TestCase):
                 op.device_option.CopyFrom(device_option)
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {"out": "out_grad"})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testMultiUseInputButWithNoGradient(self):
         """Test gradient for the following case:
@@ -348,7 +348,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {'out': 'out_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testMultiUseInputAndMultipleVersions(self):
         """Test gradient for the following case:
@@ -387,7 +387,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {'out': 'out_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testMultiUseInputAndMultipleVersionsBig(self):
         """Test gradient for the following case:
@@ -457,7 +457,7 @@ class TestGradientCalculation(test_util.TestCase):
             operators, {'out': 'out_grad'})
         for s in gradients:
             print(str(s))
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testGradientMappingUsingSumOp(self):
         """Since Sum is used in accumulating gradients, we will test if
@@ -506,7 +506,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, _ = GradientRegistry.GetBackwardPass(
             operators, {'out': 'out_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
 
     def testStopGradientOrphan(self):
         operators = [
@@ -530,7 +530,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, grad_map = GradientRegistry.GetBackwardPass(
             operators, {'out': 'out_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
         self.assertEqual(grad_map, {'out': 'out_grad'})
 
     def testStopGradientWithMultiUseOperators(self):
@@ -548,7 +548,7 @@ class TestGradientCalculation(test_util.TestCase):
         ]
         gradients, grad_map = GradientRegistry.GetBackwardPass(
             operators, {'out': 'out_grad'})
-        self.assertEqual(gradients, desired_grad_operators)
+        self.assertSameOps(gradients, desired_grad_operators)
         self.assertEqual(
             grad_map, {'out': 'out_grad', 'hidden2': 'hidden2_grad',
                        'hidden3': 'hidden3_grad', 'hidden': 'hidden_grad',

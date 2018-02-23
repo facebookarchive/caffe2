@@ -48,3 +48,9 @@ class TestCase(unittest.TestCase):
 
     def tearDown(self):
         workspace.ResetWorkspace()
+
+    def assertSameOps(self, ops1, ops2, fields=('type', 'input', 'output')):
+        self.assertEqual(len(ops1), len(ops2))
+        for op1, op2, in zip(ops1, ops2):
+            for field in fields:
+                self.assertEqual(getattr(op1, field), getattr(op2, field))
