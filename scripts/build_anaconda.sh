@@ -13,19 +13,6 @@ PYTHON_FULL_VERSION="$(python --version 2>&1)"
 if [[ "$PYTHON_FULL_VERSION" == *3.6* ]]; then
   CONDA_BUILD_ARGS+=(" --python 3.6")
 fi
-
-# The 'full' build requests openmpi, which is only in conda-forge
-#if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
-#  CONDA_BUILD_ARGS+=("-c conda-forge")
-#fi
-
-
-# Upload to Anaconda.org if needed
-if [ -n "$UPLOAD_TO_CONDA" ]; then
-  CONDA_BUILD_ARGS+=(" --user ${ANACONDA_USERNAME}")
-  CONDA_BUILD_ARGS+=(" --token ${CAFFE2_ANACONDA_ORG_ACCESS_TOKEN}")
-fi
-
 # Reinitialize submodules
 git submodule update --init
 
@@ -56,5 +43,26 @@ if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
   # WARNING: This does not work on mac.
   sed -i "s/caffe2-cuda/${CAFFE2_PACKAGE_NAME}/" "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
 fi
+
+# If skipping tests, remove the test related lines from the meta.yaml
+if [ -n "$SKIP_CONDA_TESTS" ]; then
+
+  if [ "$(uname)" == 'Darwin' ]; then
+    sed -i '' '/test:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '' '/imports:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '' '/caffe2.python.core:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+  else
+    sed -i '/test:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '/imports:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '/caffe2.python.core:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+  fi
+
+elif [ -n "$UPLOAD_TO_CONDA" ]; then
+  # Upload to Anaconda.org if needed. This is only allowed if testing is
+  # enabled
+  CONDA_BUILD_ARGS+=(" --user ${ANACONDA_USERNAME}")
+  CONDA_BUILD_ARGS+=(" --token ${CAFFE2_ANACONDA_ORG_ACCESS_TOKEN}")
+fi
+
 
 conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
