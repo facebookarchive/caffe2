@@ -1,6 +1,12 @@
 #ifndef CAFFE2_OPENGL_CONTEXT_H_
 #define CAFFE2_OPENGL_CONTEXT_H_
 
+#ifdef CAFFE2_OPENGL_BACKEND
+#error Can only build one OpenGL backend at a time.
+#else
+#define CAFFE2_OPENGL_BACKEND
+#endif
+
 #include "caffe2/core/allocator.h"
 #include "caffe2/core/blob.h"
 #include "caffe2/core/context.h"

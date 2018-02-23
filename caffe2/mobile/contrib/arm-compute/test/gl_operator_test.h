@@ -43,7 +43,8 @@ void compareNetResult(Workspace& ws,
                       NetDef& cpu_net, NetDef& gpu_net,
                       string cpu_blob="ref_Y",
                       string gpu_blob="gpu_Y",
-                      double tol=0.01) {
+                      double tol=0.01,
+                      bool relative=false) {
   ws.RunNetOnce(cpu_net);
   ws.RunNetOnce(gpu_net);
 
@@ -67,8 +68,12 @@ void compareNetResult(Workspace& ws,
   EXPECT_EQ(g.size(), t.size());
 
   for (auto i = 0; i < g.size(); ++i) {
-    EXPECT_NEAR(g.data<float>()[i], t.data<float>()[i], tol)
+    if (relative) {
+      EXPECT_NEAR(g.data<float>()[i], t.data<float>()[i], tol + tol * std::abs(t.data<float>()[i])) << "at index " << i;
+    } else{
+      EXPECT_NEAR(g.data<float>()[i], t.data<float>()[i], tol)
         << "at index " << i;
+    }
   }
 }
 

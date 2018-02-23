@@ -52,13 +52,6 @@ CMAKE_ARGS=()
 # target architecture and need an exact version match.
 CMAKE_ARGS+=("-DCAFFE2_CUSTOM_PROTOC_EXECUTABLE=$CAFFE2_ROOT/build_host_protoc/bin/protoc")
 
-CMAKE_ARGS+=($@)
-USE_ARM_COMPUTE=false
-for arg in ${CMAKE_ARGS[@]};do
-  if [ $arg == "-DUSE_ARM_COMPUTE=ON"] || [$arg == "-DUSE_ARM_COMPUTE=1" ];then
-    USE_ARM_COMPUTE=true
-  fi
-done
 # Use android-cmake to build Android project from CMake.
 CMAKE_ARGS+=("-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake")
 
@@ -67,13 +60,7 @@ CMAKE_ARGS+=("-DBUILD_TEST=OFF")
 CMAKE_ARGS+=("-DBUILD_BINARY=OFF")
 CMAKE_ARGS+=("-DBUILD_PYTHON=OFF")
 CMAKE_ARGS+=("-DBUILD_SHARED_LIBS=OFF")
-
-if $USE_ARM_COMPUTE;then
-CMAKE_ARGS+=("-DANDROID_TOOLCHAIN_NAME=arm-linux-androideabi-4.9")
-else
 CMAKE_ARGS+=("-DANDROID_TOOLCHAIN=gcc")
-fi
-
 # Disable unused dependencies
 CMAKE_ARGS+=("-DUSE_CUDA=OFF")
 CMAKE_ARGS+=("-DUSE_GFLAGS=OFF")
@@ -88,9 +75,27 @@ if [ "${VERBOSE:-}" == '1' ]; then
   CMAKE_ARGS+=("-DCMAKE_VERBOSE_MAKEFILE=1")
 fi
 
+# Getting some cmake Arguments
+CMAKE_ARGS+=($@)
+USE_GCC=true
+USE_ARM64=false
+for arg in ${CMAKE_ARGS[@]};do
+  if [ $arg == "-DANDROID_TOOLCHAIN=clang" ];then
+    USE_GCC=false
+  elif [ $arg == "-DANDROID_TOOLCHAIN=gcc" ];then
+    USE_GCC=true
+  elif [ $arg == "-DUSE_ARM64=ON" ] || [ $arg == "-DUSE_ARM64=1" ];then
+    USE_ARM64=true
+  fi
+done
+
 # Android specific flags
 CMAKE_ARGS+=("-DANDROID_NDK=$ANDROID_NDK")
+if $USE_ARM64;then
+CMAKE_ARGS+=("-DANDROID_ABI=arm64-v8a")
+else
 CMAKE_ARGS+=("-DANDROID_ABI=armeabi-v7a with NEON")
+fi
 CMAKE_ARGS+=("-DANDROID_NATIVE_API_LEVEL=21")
 CMAKE_ARGS+=("-DANDROID_CPP_FEATURES=rtti exceptions")
 # TODO: As the toolchain file doesn't support NEON-FP16 extension,
@@ -98,16 +103,7 @@ CMAKE_ARGS+=("-DANDROID_CPP_FEATURES=rtti exceptions")
 CMAKE_ARGS+=("-DUSE_MOBILE_OPENGL=OFF")
 
 # Compiler flags
-CMAKE_ARGS+=($@)
-USE_GCC=true
 CMAKE_ARGS+=("-DCMAKE_C_FLAGS=")
-for arg in ${CMAKE_ARGS[@]};do
-  if [ $arg == "-DANDROID_TOOLCHAIN=clang" ];then
-    USE_GCC=false
-  elif [ $arg == "-DANDROID_TOOLCHAIN=gcc" ];then
-    USE_GCC=true
-  fi
-done
 if $USE_GCC;then
   CMAKE_ARGS+=("-DCMAKE_CXX_FLAGS=-s")
 fi

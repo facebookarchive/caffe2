@@ -444,8 +444,20 @@ if (USE_MOBILE_OPENGL)
   endif()
 endif()
 
-# ---[ ARM ComputeLibrary
-if (USE_ARM_COMPUTE AND ANDROID)
+if (USE_ACL)
+  if (NOT ANDROID)
+    message(WARNING "ARM Compute Library is only used in android builds.")
+    set(USE_ACL OFF)
+  endif()
+endif()
+
+if (USE_ACL AND USE_ARM64)
+  set(ACL_ARCH "arm64-v8a")
+else()
+  set(ACL_ARCH "armv7a")
+endif()
+# ---[ ARM Compute Library
+if (USE_ACL)
   list(APPEND ARM_COMPUTE_INCLUDE_DIRS "third_party/ComputeLibrary/")
   list(APPEND ARM_COMPUTE_INCLUDE_DIRS "third_party/ComputeLibrary/include")
   caffe2_include_directories(${ARM_COMPUTE_INCLUDE_DIRS})
@@ -462,7 +474,7 @@ if (USE_ARM_COMPUTE AND ANDROID)
         scons -C \"${ARM_COMPUTE_SRC_DIR}\" -Q \
           examples=no validation_tests=no benchmark_tests=no standalone=yes \
           embed_kernels=yes opencl=no gles_compute=yes \
-          os=android arch=armv7a \
+          os=android arch=${ACL_ARCH} \
           extra_cxx_flags=\"${ANDROID_CXX_FLAGS} ${ANDROID_STL_INCLUDE_FLAGS}\"" &&
         /bin/sh -c "cp ${ARM_COMPUTE_SRC_DIR}/build/libarm_compute-static.a ${CMAKE_CURRENT_BINARY_DIR}/libarm_compute.a" &&
         /bin/sh -c "cp ${ARM_COMPUTE_SRC_DIR}/build/libarm_compute_core-static.a ${CMAKE_CURRENT_BINARY_DIR}/libarm_compute_core.a" &&
@@ -499,14 +511,6 @@ if (USE_METAL)
     message(WARNING "Metal is only used in ios builds.")
     set(USE_METAL OFF)
   endif()
-endif()
-
-
-if (USE_ARM_COMPUTE)
-  if (NOT ANDROID)
-    message(WARNING "ARM Compute Library is only used in android builds.") 
-    set(USE_ARM_COMPUTE OFF)
-  endif() 
 endif()
 
 if (USE_NNAPI AND NOT ANDROID)

@@ -10,7 +10,6 @@ set(Caffe2_GPU_SRCS)
 # files for CPU and GPU tests respectively.
 set(Caffe2_CPU_TEST_SRCS)
 set(Caffe2_GPU_TEST_SRCS)
-set(Caffe2_MOBILE_TEST_SRCS)
 
 # ---[ Add respective subdirectories
 # Note: the folders that are being commented out have not been properly
@@ -97,8 +96,10 @@ set(Caffe2_MAIN_LIBS)
 
 # Compile exposed libraries.
 add_library(caffe2 ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
-if(USE_ARM_COMPUTE)
-  target_compile_options(caffe2 PRIVATE "-mfpu=neon-fp16")
+if(USE_ACL)
+  if(NOT USE_ARM64)
+    target_compile_options(caffe2 PRIVATE "-mfpu=neon-fp16")
+  endif()
 
   include(CheckCCompilerFlag)
   CHECK_C_COMPILER_FLAG(-mfp16-format=ieee CAFFE2_COMPILER_SUPPORTS_FP16_FORMAT)
@@ -164,9 +165,6 @@ if (BUILD_TEST)
   set(Caffe2_ALL_TEST_SRCS ${Caffe2_CPU_TEST_SRCS})
   if (USE_CUDA)
     list(APPEND Caffe2_ALL_TEST_SRCS ${Caffe2_GPU_TEST_SRCS})
-  endif()
-  if (USE_ARM_COMPUTE AND ANDROID)
-    set(Caffe2_ALL_TEST_SRCS ${Caffe2_MOBILE_TEST_SRCS})
   endif()
 
   foreach(test_src ${Caffe2_ALL_TEST_SRCS})
