@@ -55,7 +55,7 @@ CMAKE_ARGS+=("-DCAFFE2_CUSTOM_PROTOC_EXECUTABLE=$CAFFE2_ROOT/build_host_protoc/b
 CMAKE_ARGS+=($@)
 USE_ARM_COMPUTE=false
 for arg in ${CMAKE_ARGS[@]};do
-  if [ $arg == "-DUSE_ARM_COMPUTE=ON" || $arg == "-DUSE_ARM_COMPUTE=1" ];then
+  if [ $arg == "-DUSE_ARM_COMPUTE=ON"] || [$arg == "-DUSE_ARM_COMPUTE=1" ];then
     USE_ARM_COMPUTE=true
   fi
 done
@@ -63,7 +63,7 @@ done
 CMAKE_ARGS+=("-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake")
 
 # Don't build artifacts we don't need
-CMAKE_ARGS+=("-DBUILD_TEST=ON")
+CMAKE_ARGS+=("-DBUILD_TEST=OFF")
 CMAKE_ARGS+=("-DBUILD_BINARY=OFF")
 CMAKE_ARGS+=("-DBUILD_PYTHON=OFF")
 CMAKE_ARGS+=("-DBUILD_SHARED_LIBS=OFF")
@@ -115,7 +115,7 @@ fi
 cmake "$CAFFE2_ROOT" \
     -DCMAKE_INSTALL_PREFIX=../install \
     -DCMAKE_BUILD_TYPE=Release \
-    "${CMAKE_ARGS[@]}" \
+    "${CMAKE_ARGS[@]}"
 
 # Cross-platform parallel build
 if [ "$(uname)" == "Darwin" ]; then
