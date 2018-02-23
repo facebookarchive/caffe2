@@ -55,7 +55,7 @@ CMAKE_ARGS+=("-DCAFFE2_CUSTOM_PROTOC_EXECUTABLE=$CAFFE2_ROOT/build_host_protoc/b
 CMAKE_ARGS+=($@)
 USE_ARM_COMPUTE=false
 for arg in ${CMAKE_ARGS[@]};do
-  if [ $arg == "-DUSE_ARM_COMPUTE=ON" ];then
+  if [ $arg == "-DUSE_ARM_COMPUTE=ON" || $arg == "-DUSE_ARM_COMPUTE=1" ];then
     USE_ARM_COMPUTE=true
   fi
 done
@@ -76,6 +76,7 @@ fi
 
 # Disable unused dependencies
 CMAKE_ARGS+=("-DUSE_CUDA=OFF")
+CMAKE_ARGS+=("-DUSE_GFLAGS=OFF")
 CMAKE_ARGS+=("-DUSE_OPENCV=OFF")
 CMAKE_ARGS+=("-DUSE_LMDB=OFF")
 CMAKE_ARGS+=("-DUSE_LEVELDB=OFF")
