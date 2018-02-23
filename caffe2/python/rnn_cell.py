@@ -988,7 +988,7 @@ class MultiRNNCell(RNNCell):
 
     def layer_scoper(self, layer_id):
         def helper(name):
-            return "layer_{}/{}".format(layer_id, name)
+            return "{}/layer_{}/{}".format(self.name, layer_id, name)
         return helper
 
     def prepare_input(self, model, input_blob):
@@ -1557,7 +1557,7 @@ def _LSTM(
             hidden_size=dim_out[i],
             forget_bias=forget_bias,
             memory_optimization=memory_optimization,
-            name=scope,
+            name=scope if num_layers == 1 else None,
             forward_only=forward_only,
             drop_states=drop_states,
             **cell_kwargs
