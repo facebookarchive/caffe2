@@ -84,17 +84,12 @@ endif()
 
 # ---[ On Android, Caffe2 uses cpufeatures library in the thread pool
 if (ANDROID)
-  # ---[ Check if cpufeatures was already imported
-  if (NOT TARGET cpufeatures)
-    add_library(cpufeatures STATIC
+  add_library(__caffe2_cpufeatures STATIC
       "${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c")
-    target_include_directories(cpufeatures
+  target_include_directories(__caffe2_cpufeatures
       PUBLIC "${ANDROID_NDK}/sources/android/cpufeatures")
-    target_link_libraries(cpufeatures PRIVATE dl)
-  endif()
-  list(APPEND Caffe2_DEPENDENCY_LIBS $<TARGET_FILE:cpufeatures>)
-  list(APPEND Caffe2_EXTERNAL_DEPENDENCIES cpufeatures)
-  caffe2_include_directories("${ANDROID_NDK}/sources/android/cpufeatures")
+  target_link_libraries(__caffe2_cpufeatures PUBLIC dl)
+  list(APPEND Caffe2_DEPENDENCY_LIBS __caffe2_cpufeatures)
 endif()
 
 # ---[ gflags
