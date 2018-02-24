@@ -32,7 +32,7 @@ if [ -n "$NCCL_UBUNTU_VER" ]; then
 
   if [ ${CUDA_VERSION:0:3} == 9.1 ]; then
     # For 9.1 because 2.1.2 for 9.1 does not exist, we will stil use 2.1.4.
-    NCCL_LIB_VERSION="2.1.2-1+cuda${CUDA_VERSION:0:3}"
+    NCCL_LIB_VERSION="2.1.4-1+cuda${CUDA_VERSION:0:3}"
   else
     # Actually installing takes into account CUDA version.
     # Version 2.1.4 exports symbols it shouldn't, causing a ton of tests to fail.
