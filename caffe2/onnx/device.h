@@ -3,7 +3,7 @@
 #include <functional>
 #include <string>
 
-namespace onnx {
+namespace onnx_caffe2 {
 
 enum class DeviceType {CPU=0, CUDA=1};
 
@@ -16,8 +16,8 @@ struct Device {
 }
 
 namespace std {
-template <> struct hash<onnx::DeviceType> {
-  std::size_t operator()(const onnx::DeviceType &k) const {
+template <> struct hash<onnx_caffe2::DeviceType> {
+  std::size_t operator()(const onnx_caffe2::DeviceType &k) const {
     return std::hash<int>()(static_cast<int>(k));
   }
 };

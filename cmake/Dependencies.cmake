@@ -555,7 +555,7 @@ if (USE_ZSTD)
 endif()
 
 if (USE_ONNX)
-  SET(ONNX_NAMESPACE "onnx")
+  SET(ONNX_NAMESPACE "onnx_c2")
   set(TEMP_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
   # We will build onnx as static libs and embed it directly into the binary.
   set(BUILD_SHARED_LIBS OFF)

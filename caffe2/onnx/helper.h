@@ -20,14 +20,4 @@ class DummyName {
     static size_t counter_;
 };
 
-class Caffe2RegisteredOps {
-  public:
-    static bool IsOperator(const std::string& op_type);
-  private:
-    static void Init();
-
-    static bool inited_;
-    static std::set<std::string> ops_;
-};
-
 }

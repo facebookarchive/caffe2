@@ -25,30 +25,4 @@ DummyName::Reset(const std::unordered_set<std::string> &used_names) {
   return "";
 }
 
-bool Caffe2RegisteredOps::inited_ = false;
-std::set<std::string> Caffe2RegisteredOps::ops_;
-
-void Caffe2RegisteredOps::Init() {
-  // CPU operators
-  for (const auto &name : caffe2::CPUOperatorRegistry()->Keys()) {
-    ops_.insert(name);
-  }
-  // CUDA operators
-  for (const auto &name : caffe2::CUDAOperatorRegistry()->Keys()) {
-    ops_.insert(name);
-  }
-
-  inited_ = true;
-}
-
-
-bool Caffe2RegisteredOps::IsOperator(const std::string& op_type) {
-  // pull in all the operators upon first invocation
-  if (not inited_) {
-    Init();
-  }
-
-  return ops_.count(caffe2::OpRegistryKey(op_type, "DEFAULT"));
-}
-
 }
