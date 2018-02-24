@@ -65,4 +65,5 @@ In this implementation, we uses l2 norm and output the rescaling factor
     .Output(0, "lr_rescale", "Local learning rate rescaling factor")
     .Arg("offset", "rescaling offset parameter");
 
+SHOULD_NOT_DO_GRADIENT(Lars);
 } // namespace caffe2
