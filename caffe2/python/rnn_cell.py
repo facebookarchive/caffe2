@@ -992,7 +992,8 @@ class MultiRNNCell(RNNCell):
         return helper
 
     def prepare_input(self, model, input_blob):
-        return self.cells[0].prepare_input(model, input_blob)
+        with core.NameScope(self.name or ''):
+            return self.cells[0].prepare_input(model, input_blob)
 
     def _apply(
         self,
