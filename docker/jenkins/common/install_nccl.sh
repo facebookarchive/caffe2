@@ -30,10 +30,15 @@ if [ -n "$NCCL_UBUNTU_VER" ]; then
   apt-get install -y wget
   dpkg -i "${NCCL_DEB}"
 
-  # Actually installing takes into account CUDA version.
-  # Version 2.1.4 exports symbols it shouldn't, causing a ton of tests to fail.
-  # We pin this to 2.1.2 until this is solved and NVIDIA releases a new version.
-  NCCL_LIB_VERSION="2.1.2-1+cuda${CUDA_VERSION:0:3}"
+  if [ ${CUDA_VERSION:0:3} == 9.1 ]; then
+    # For 9.1 because 2.1.2 for 9.1 does not exist, we will stil use 2.1.4.
+    NCCL_LIB_VERSION="2.1.2-1+cuda${CUDA_VERSION:0:3}"
+  else
+    # Actually installing takes into account CUDA version.
+    # Version 2.1.4 exports symbols it shouldn't, causing a ton of tests to fail.
+    # We pin this to 2.1.2 until this is solved and NVIDIA releases a new version.
+    NCCL_LIB_VERSION="2.1.2-1+cuda${CUDA_VERSION:0:3}"
+  fi
   apt update
   apt install libnccl2=$NCCL_LIB_VERSION libnccl-dev=$NCCL_LIB_VERSION
 fi
