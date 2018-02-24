@@ -71,7 +71,7 @@ if(USE_NNPACK)
   if(NNPACK_FOUND)
     if(TARGET nnpack)
       # ---[ NNPACK is being built together with Caffe2: explicitly specify dependency
-      list(APPEND Caffe2_DEPENDENCY_LIBS nnpack pthreadpool cpuinfo)
+      list(APPEND Caffe2_DEPENDENCY_LIBS nnpack)
     else()
       caffe2_include_directories(${NNPACK_INCLUDE_DIRS})
       list(APPEND Caffe2_DEPENDENCY_LIBS ${NNPACK_LIBRARIES})
@@ -84,12 +84,14 @@ endif()
 
 # ---[ On Android, Caffe2 uses cpufeatures library in the thread pool
 if (ANDROID)
-  add_library(__caffe2_cpufeatures STATIC
-      "${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c")
-  target_include_directories(__caffe2_cpufeatures
-      PUBLIC "${ANDROID_NDK}/sources/android/cpufeatures")
-  target_link_libraries(__caffe2_cpufeatures PUBLIC dl)
-  list(APPEND Caffe2_DEPENDENCY_LIBS __caffe2_cpufeatures)
+  if (NOT TARGET cpufeatures)
+    add_library(cpufeatures STATIC
+        "${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c")
+    target_include_directories(cpufeatures
+        PUBLIC "${ANDROID_NDK}/sources/android/cpufeatures")
+    target_link_libraries(cpufeatures PUBLIC dl)
+  endif()
+  list(APPEND Caffe2_DEPENDENCY_LIBS cpufeatures)
 endif()
 
 # ---[ gflags
