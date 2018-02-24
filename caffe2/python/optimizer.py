@@ -187,7 +187,7 @@ class Optimizer(object):
 
 class SgdOptimizer(Optimizer):
     def __init__(self, base_learning_rate=0.01, policy='fixed',
-                 momentum=0.0, nesterov=1, lars=-1, sparse_dedup_aggregator=None,
+                 momentum=0.0, nesterov=1, lars=None, sparse_dedup_aggregator=None,
                  **kwargs):
         super(SgdOptimizer, self).__init__()
         self.base_learning_rate = base_learning_rate
@@ -206,7 +206,8 @@ class SgdOptimizer(Optimizer):
         assert self.base_learning_rate > 0
 
         # TODO(zqq): support LARS for sparse parameters
-        if self.lars >= 0. and not isinstance(grad, core.GradientSlice):
+        if self.lars is not None and not isinstance(grad, core.GradientSlice):
+            assert self.lars >= 0, 'Lars offset must be nonnegative.'
             lr_lars_multiplier = net.Lars(
                 [param, grad],
                 self.make_unique_blob_name(str(param) + "_lars"),
@@ -278,7 +279,7 @@ class SgdOptimizer(Optimizer):
 
 class MultiPrecisionSgdOptimizer(SgdOptimizer):
     def __init__(self, base_learning_rate=0.1, momentum=0.0,
-                 policy="fixed", nesterov=1, lars=-1, sparse_dedup_aggregator=None,
+                 policy="fixed", nesterov=1, lars=None, sparse_dedup_aggregator=None,
                  **kwargs):
         super(MultiPrecisionSgdOptimizer, self).__init__(
             base_learning_rate,
@@ -334,7 +335,7 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
 
 class FP16SgdOptimizer(SgdOptimizer):
     def __init__(self, base_learning_rate=0.1, momentum=0.0,
-                 policy="fixed", nesterov=1, lars=-1, weight_decay=0.0001,
+                 policy="fixed", nesterov=1, lars=None, weight_decay=0.0001,
                  sparse_dedup_aggregator=None,
                  **kwargs):
         super(FP16SgdOptimizer, self).__init__(
