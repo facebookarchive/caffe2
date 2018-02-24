@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 #cmake_policy(SET CMP0022 NEW)
 #cmake_policy(SET CMP0023 NEW)
 
@@ -25,8 +25,10 @@ cmake_dependent_option(
     "NOT BUILD_SHARED_LIBS" OFF)
 option(BUILD_OBSERVERS "Build performance observers/loggers in caffe2/share/observers directory" OFF)
 option(BUILD_TEST "Build C++ test binaries (need gtest and gbenchmark)" ON)
-option(USE_ATEN "Use ATen" OFF)
+option(USE_ACL "Use ARM Compute Library" OFF)
+option(USE_ARM64 "Use ARM64" OFF)
 option(USE_ASAN "Use Address Sanitizer" OFF)
+option(USE_ATEN "Use ATen" OFF)
 option(USE_CUDA "Use Cuda" ON)
 option(USE_FFMPEG "Use ffmpeg" OFF)
 option(USE_GFLAGS "Use GFLAGS" ON)

@@ -46,6 +46,12 @@ if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   "${ROOT_DIR}/scripts/build_android.sh" "$@"
   exit 0
 fi
+if [[ "${BUILD_ENVIRONMENT}" == conda* ]]; then
+  export SKIP_CONDA_TESTS=1
+  export CONDA_INSTALL_LOCALLY=1
+  "${ROOT_DIR}/scripts/build_anaconda.sh" "$@"
+  exit 0
+fi
 
 # Run cmake from ./build directory
 mkdir -p ./build
@@ -99,8 +105,16 @@ if [ "$(uname)" == "Darwin" ]; then
   CMAKE_ARGS+=("-DBUILD_CUSTOM_PROTOBUF=ON")
 fi
 
+# We test the presence of cmake3 (for platforms like Centos and Ubuntu 14.04)
+# and use that if so.
+if [[ -x "$(command -v cmake3)" ]]; then
+    CMAKE_BINARY=cmake3
+else
+    CMAKE_BINARY=cmake
+fi
+
 # Configure
-cmake "${ROOT_DIR}" ${CMAKE_ARGS[*]} "$@"
+${CMAKE_BINARY} "${ROOT_DIR}" ${CMAKE_ARGS[*]} "$@"
 
 # Build
 if [ "$(uname)" == "Linux" ]; then
