@@ -187,8 +187,8 @@ class Optimizer(object):
 
 class SgdOptimizer(Optimizer):
     def __init__(self, base_learning_rate=0.01, policy='fixed',
-                 momentum=0.0, nesterov=1, lars=None, sparse_dedup_aggregator=None,
-                 **kwargs):
+                 momentum=0.0, nesterov=1, lars=None,
+                 sparse_dedup_aggregator=None, **kwargs):
         super(SgdOptimizer, self).__init__()
         self.base_learning_rate = base_learning_rate
         self.policy = policy
@@ -279,15 +279,14 @@ class SgdOptimizer(Optimizer):
 
 class MultiPrecisionSgdOptimizer(SgdOptimizer):
     def __init__(self, base_learning_rate=0.1, momentum=0.0,
-                 policy="fixed", nesterov=1, lars=None, sparse_dedup_aggregator=None,
+                 policy="fixed", nesterov=1, sparse_dedup_aggregator=None,
                  **kwargs):
         super(MultiPrecisionSgdOptimizer, self).__init__(
-            base_learning_rate,
-            policy,
-            momentum,
-            nesterov,
-            lars,
-            sparse_dedup_aggregator,
+            base_learning_rate=base_learning_rate,
+            policy=policy,
+            momentum=momentum,
+            nesterov=nesterov,
+            sparse_dedup_aggregator=sparse_dedup_aggregator,
             **kwargs
         )
 
@@ -335,16 +334,15 @@ class MultiPrecisionSgdOptimizer(SgdOptimizer):
 
 class FP16SgdOptimizer(SgdOptimizer):
     def __init__(self, base_learning_rate=0.1, momentum=0.0,
-                 policy="fixed", nesterov=1, lars=None, weight_decay=0.0001,
+                 policy="fixed", nesterov=1, weight_decay=0.0001,
                  sparse_dedup_aggregator=None,
                  **kwargs):
         super(FP16SgdOptimizer, self).__init__(
-            base_learning_rate,
-            policy,
-            momentum,
-            nesterov,
-            lars,
-            sparse_dedup_aggregator,
+            base_learning_rate=base_learning_rate,
+            policy=policy,
+            momentum=momentum,
+            nesterov=nesterov,
+            sparse_dedup_aggregator=sparse_dedup_aggregator,
             **kwargs
         )
         self.weight_decay = weight_decay
