@@ -114,47 +114,6 @@ function(caffe_parse_header_single_define LIBNAME HDR_PATH VARNAME)
 endfunction()
 
 ##############################################################################
-# Helper function to add as-needed flag around a library.
-function(caffe_add_as_needed_flag lib output_var)
-  if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    # TODO: Clang seems to not need this flag. Double check.
-    set(${output_var} ${lib} PARENT_SCOPE)
-  elseif(MSVC)
-    # TODO: check what is the behavior of MSVC.
-    # In MSVC, we will add whole archive in default.
-    set(${output_var} ${lib} PARENT_SCOPE)
-  else()
-    # Assume everything else is like gcc: we will need as-needed flag.
-    set(${output_var} -Wl,--no-as-needed ${lib} -Wl,--as-needed PARENT_SCOPE)
-  endif()
-endfunction()
-
-##############################################################################
-# Helper function to add whole_archive flag around a library.
-function(caffe_add_whole_archive_flag lib output_var)
-  if(APPLE)
-    set(${output_var} -Wl,-force_load,$<TARGET_FILE:${lib}> PARENT_SCOPE)
-  elseif(MSVC)
-    # In MSVC, we will add whole archive in default.
-    set(${output_var} -WHOLEARCHIVE:$<TARGET_FILE:${lib}> PARENT_SCOPE)
-  else()
-    # Assume everything else is like gcc
-    set(${output_var} -Wl,--whole-archive $<TARGET_FILE:${lib}> -Wl,--no-whole-archive PARENT_SCOPE)
-  endif()
-endfunction()
-
-##############################################################################
-# Helper function to add either as-needed, or whole_archive flag around a library.
-function(caffe_add_linker_flag lib output_var)
-  if (BUILD_SHARED_LIBS)
-    caffe_add_as_needed_flag(${lib} tmp)
-  else()
-    caffe_add_whole_archive_flag(${lib} tmp)
-  endif()
-  set(${output_var} ${tmp} PARENT_SCOPE)
-endfunction()
-
-##############################################################################
 # Helper function to automatically generate __init__.py files where python
 # sources reside but there are no __init__.py present.
 function(caffe_autogen_init_py_files)
