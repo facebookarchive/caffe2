@@ -573,21 +573,21 @@ class Caffe2Backend(Backend):
             return hidden_t_all, hidden_t_last, cell_last
 
         if direction == 'forward':
-            hidden_t_all, hidden_t_last, cell_all = make_lstm(0)
+            hidden_t_all, hidden_t_last, cell_last = make_lstm(0)
             pred_mh.net = pred_mh.net.Clone(
                 "dummy-clone-net",
                 blob_remap={hidden_t_all: n.outputs[0],
                             hidden_t_last: n.outputs[1],
-                            cell_all: n.outputs[2]}
+                            cell_last: n.outputs[2]}
             )
         elif direction == 'bidirectional':
-            hidden_t_all_f, hidden_t_last_f, cell_all_f = make_lstm(0)
-            hidden_t_all_b, hidden_t_last_b, cell_all_b = make_lstm(1)
+            hidden_t_all_f, hidden_t_last_f, cell_last_f = make_lstm(0)
+            hidden_t_all_b, hidden_t_last_b, cell_last_b = make_lstm(1)
             pred_mh.net.Concat([hidden_t_all_f, hidden_t_all_b],
                                [n.outputs[0], dummy_name()], axis=2)
             pred_mh.net.Concat([hidden_t_last_f, hidden_t_last_b],
                                [n.outputs[1], dummy_name()], axis=0)
-            pred_mh.net.Concat([cell_all_f, cell_all_b],
+            pred_mh.net.Concat([cell_last_f, cell_last_b],
                                [n.outputs[2], dummy_name()], axis=0)
 
         return Caffe2Ops(list(pred_mh.Proto().op),
