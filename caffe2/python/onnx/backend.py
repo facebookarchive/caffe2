@@ -383,6 +383,10 @@ class Caffe2Backend(Backend):
             prev = prev[0]
             if prev.op_type == n.op_type:
                 return prev.attrs['hidden_size']
+            if prev.op_type == 'Transpose':
+                for x in pred_model.graph.input:
+                    if x.name == prev.inputs[0]:
+                        return x.type.tensor_type.shape.dim[2].dim_value
             curr = prev
 
     @classmethod
