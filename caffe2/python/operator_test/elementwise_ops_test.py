@@ -129,6 +129,26 @@ class TestElementwiseOps(hu.HypothesisTestCase):
             gc, op, [X], 0, [0], stepsize=1e-4, threshold=1e-2)
 
     @given(n=st.integers(5, 6), m=st.integers(4, 6), **hu.gcs)
+    def test_sqrt(self, n, m, gc, dc):
+        X = np.random.rand(n, m).astype(np.float32)
+
+        def sqrt_op(X):
+            return [np.sqrt(X)]
+
+        op = core.CreateOperator(
+            "Sqrt",
+            ["X"],
+            ["Z"]
+        )
+
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=[X],
+            reference=sqrt_op,
+        )
+
+    @given(n=st.integers(5, 6), m=st.integers(4, 6), **hu.gcs)
     def test_swish(self, n, m, gc, dc):
         X = np.random.rand(n, m).astype(np.float32)
 
