@@ -1017,38 +1017,42 @@ class Caffe2Backend(Backend):
         for node in pred_model.graph.node:
             if node.op_type in {'LSTM', 'GRU', 'RNN'}:
                 rnn_nodes.append(node)
-        c2_rnn_ops = []
-        if rnn_nodes:
-            init_model = ModelProto()
-            init_model.ParseFromString(cls.optimize_onnx(model.SerializeToString(), init=True))
-            cls._inplace_rewrite(init_model.graph)
-            for node in rnn_nodes:
-                c2ops = cls._onnx_node_to_caffe2_op(
-                    init_model, pred_model, node, opset_version)
-                init_ops = [x.SerializeToString() for x in c2ops.init_ops]
-                ops = [x.SerializeToString() for x in c2ops.ops]
-                external_inputs = [x.SerializeToString() for x in c2ops.interface_blobs]
-                c2_rnn_ops.extend(C.Caffe2Ops(init_ops, ops, external_inputs))
 
         # Build the C++ backend
-        cbackend = C.Caffe2Backend()
-        rep = cbackend.prepare(model.SerializeToString(), device, c2_rnn_ops)
-        rep_wrapper = Caffe2CppRep(rep)
+        # TODO: build a predictor that supports GPU
+        #       And for RNN nets, we need to avoid adding init_net
+        if device == 'CPU' and len(rnn_nodes) == 0:
+            c2_rnn_ops = []
+            if rnn_nodes:
+                init_model = ModelProto()
+                init_model.ParseFromString(cls.optimize_onnx(model.SerializeToString(), init=True))
+                cls._inplace_rewrite(init_model.graph)
+                for node in rnn_nodes:
+                    c2ops = cls._onnx_node_to_caffe2_op(
+                        init_model, pred_model, node, opset_version)
+                    init_ops = [x.SerializeToString() for x in c2ops.init_ops]
+                    ops = [x.SerializeToString() for x in c2ops.ops]
+                    external_inputs = c2ops.interface_blobs
+                    c2_rnn_ops.append(C.Caffe2Ops(init_ops, ops, external_inputs))
+                del init_model
 
-        # For testing
-        # Dump the net descritpions to file for comparison with the Python ones
-        if "ONNX_CAFFE2_DEBUG" in os.environ:
-            pred_net_str = rep.pred_net()
-            pn = caffe2_pb2.NetDef()
-            pn.ParseFromString(pred_net_str)
-            init_net_str = rep.init_net()
-            inn = caffe2_pb2.NetDef()
-            inn.ParseFromString(init_net_str)
-            with open("cpp.txt", "w") as f:
-                #f.write("init_net: \n{}".format(inn))
-                f.write("pred_net: \n{}".format(pn))
+            cbackend = C.Caffe2Backend()
+            rep = cbackend.prepare(model.SerializeToString(), device, c2_rnn_ops)
+            # For testing
+            # Dump the net descritpions to file for comparison with the Python ones
+            if "ONNX_CAFFE2_DEBUG" in os.environ:
+                pred_net_str = rep.pred_net()
+                pn = caffe2_pb2.NetDef()
+                pn.ParseFromString(pred_net_str)
+                init_net_str = rep.init_net()
+                inn = caffe2_pb2.NetDef()
+                inn.ParseFromString(init_net_str)
+                with open("cpp.txt", "w") as f:
+                    f.write("pred_net: \n{}".format(pn))
 
-
+            rep_wrapper = Caffe2CppRep(rep)
+            return rep_wrapper
+        else:
             ws = Workspace()
             device_option = get_device_option(Device(device))
 
@@ -1070,15 +1074,13 @@ class Caffe2Backend(Backend):
 
             uninitialized = [value_info.name for value_info in model.graph.input if value_info.name not in initialized]
 
-            init_net, predict_net = cls._onnx_model_to_caffe2_net(model, device, opset_version, True)
+            init_net, predict_net = cls._onnx_model_to_caffe2_net(model, device, opset_version, False)
+            if "ONNX_CAFFE2_DEBUG" in os.environ:
+                with open("python.txt", "w") as f:
+                    f.write("pred_net: \n{}".format(predict_net))
+            retval = Caffe2Rep(init_net, predict_net, ws, uninitialized)
+            return retval
 
-            with open("python.txt", "w") as f:
-                #f.write("init_net: \n{}".format(init_net))
-                f.write("pred_net: \n{}".format(predict_net))
-            #retval = Caffe2Rep(init_net, predict_net, ws, uninitialized)
-            #return retval
-
-        return rep_wrapper
 
     @classmethod
     # TODO: This method needs a refactor for clarity

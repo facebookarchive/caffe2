@@ -22,7 +22,7 @@ namespace onnx_caffe2 {
 
 namespace detail {
 
-constexpr static int kKnownOpsetVersion = 3;
+constexpr static int kKnownOpsetVersion = 4;
 
 bool AlmostEqual(double a, double b) {
   constexpr static double kEps = 1e-15;
@@ -32,7 +32,7 @@ bool AlmostEqual(double a, double b) {
 template <class T>
 bool TryConvertingTensorRawValues(const TensorProto &onnx_tensor,
                                   ::google::protobuf::RepeatedField<T> *field) {
-  if (not onnx_tensor.has_raw_data()) {
+  if (!onnx_tensor.has_raw_data()) {
     return false;
   }
 
@@ -254,7 +254,7 @@ OnnxAttributes::OnnxAttrToCaffe2Arg(
   for (const auto& kv:rewritten_onnx_attrs_) {
     // If rewritten attribute doesn't appear in the original attributes, this is
     // a newlly added one and we need to add this to argument too
-    if (not onnx_attrs_.count(kv.first)) {
+    if (!onnx_attrs_.count(kv.first)) {
       const auto& attr = kv.second;
       auto* arg = args.Add();
       arg->set_name(mapper(attr.name()));
@@ -265,66 +265,92 @@ OnnxAttributes::OnnxAttrToCaffe2Arg(
   return args;
 }
 
-const std::unordered_map<std::string, int> Caffe2Backend::kBrokenOperators_;
+const std::unordered_map<std::string, int>&
+Caffe2Backend::get_broken_operators() const {
+  const static std::unordered_map<std::string, int> kBrokenOperators{};
+  return kBrokenOperators;
+}
 
 // Temporary hack for RNN related operators, as we don't have C++ interface in
 // C2 to build those operators yet
-const std::unordered_set<std::string> Caffe2Backend::kRNNOperators_{"LSTM", "GRU", "RNN"};
+const std::unordered_set<std::string>& Caffe2Backend::get_rnn_operators() const {
+  const static std::unordered_set<std::string> kRNNOperators{
+      "LSTM", "GRU", "RNN"};
+  return kRNNOperators;
+}
 
 // Operators that are different between Caffe2 and
 // ONNX but only in their name.
 // In most cases, this should be empty - as the effort of ONNX is
 // to unify the operator definitions.
-const std::unordered_map<std::string, std::string>
-    Caffe2Backend::kRenamedOperators_{{"Caffe2ConvTranspose", "ConvTranspose"},
-                                      {"GlobalMaxPool", "MaxPool"},
-                                      {"GlobalAveragePool", "AveragePool"},
-                                      {"Pad", "PadImage"},
-                                      {"Neg", "Negative"},
-                                      {"BatchNormalization", "SpatialBN"},
-                                      {"InstanceNormalization", "InstanceNorm"},
-                                      {"MatMul", "BatchMatMul"},
-                                      {"Upsample", "ResizeNearest"},
-                                      {"Identity", "Copy"},
-                                      {"InstanceNormalization", "InstanceNorm"},
-                                      {"Equal", "EQ"},
-                                      {"Less", "LT"},
-                                      {"Greater", "GT"},
-                                      {"Unsqueeze", "ExpandDims"}};
+const std::unordered_map<std::string, std::string>&
+Caffe2Backend::get_renamed_operators() const {
+  const static std::unordered_map<std::string, std::string> kRenamedOperators{
+      {"Caffe2ConvTranspose", "ConvTranspose"},
+      {"GlobalMaxPool", "MaxPool"},
+      {"GlobalAveragePool", "AveragePool"},
+      {"Pad", "PadImage"},
+      {"Neg", "Negative"},
+      {"BatchNormalization", "SpatialBN"},
+      {"InstanceNormalization", "InstanceNorm"},
+      {"MatMul", "BatchMatMul"},
+      {"Upsample", "ResizeNearest"},
+      {"Identity", "Copy"},
+      {"InstanceNormalization", "InstanceNorm"},
+      {"Equal", "EQ"},
+      {"Less", "LT"},
+      {"Greater", "GT"},
+      {"Unsqueeze", "ExpandDims"}};
+  return kRenamedOperators;
+}
 
-const std::unordered_map<std::string, std::string>
-    Caffe2Backend::kRenamedAttrs_{{"kernel_shape", "kernels"}};
+const std::unordered_map<std::string, std::string>&
+Caffe2Backend::get_renamed_attrs() const {
+  const static std::unordered_map<std::string, std::string> kRenamedAttrs{
+      {"kernel_shape", "kernels"}};
+  return kRenamedAttrs;
+}
 
-const std::unordered_map<std::string,
-                         std::unordered_map<std::string, std::string>>
-    Caffe2Backend::kPerOpRenamedAttrs_ = {
-        {"Squeeze", {{"axes", "dims"}}},
-        {"Unsqueeze", {{"axes", "dims"}}},
-        {"Transpose", {{"perm", "axes"}}},
-        {"Upsample", {{"mode", ""}}},
-        {"ConvTranspose", {{"output_padding", "adjs"}}},
-        {"Selu", {{"gamma", "scale"}}}};
+const std::
+    unordered_map<std::string, std::unordered_map<std::string, std::string>>&
+    Caffe2Backend::get_per_op_renamed_attrs() const {
+  const static std::
+      unordered_map<std::string, std::unordered_map<std::string, std::string>>
+          kPerOpRenamedAttrs = {{"Squeeze", {{"axes", "dims"}}},
+                                {"Unsqueeze", {{"axes", "dims"}}},
+                                {"Transpose", {{"perm", "axes"}}},
+                                {"Upsample", {{"mode", ""}}},
+                                {"ConvTranspose", {{"output_padding", "adjs"}}},
+                                {"Selu", {{"gamma", "scale"}}}};
+
+  return kPerOpRenamedAttrs;
+}
 
 // operators whose behavior is different beyond renaming
 // the value is an attribute of this class that is a
 // function from ToffeIR node_def to caffe2 op_def
-const std::unordered_map<std::string, Caffe2Backend::SpecialOpConverter>
-    Caffe2Backend::kSpecialOperators_ = {
-        {"Constant", &Caffe2Backend::CreateConstant},
-        {"Conv", &Caffe2Backend::CreateConvePoolOpBase},
-        {"AveragePool", &Caffe2Backend::CreateConvePoolOpBase},
-        {"GlobalAveragePool", &Caffe2Backend::CreateConvePoolOpBase},
-        {"GlobalMaxPool", &Caffe2Backend::CreateConvePoolOpBase},
-        {"MaxPool", &Caffe2Backend::CreateConvePoolOpBase},
-        {"Reshape", &Caffe2Backend::CreateReshape},
-        {"Gather", &Caffe2Backend::CreateGather},
-        {"Gemm", &Caffe2Backend::CreateGemm},
-        {"Pad", &Caffe2Backend::CreatePad},
-        {"Concat", &Caffe2Backend::CreateConcat},
-        {"LogSoftmax", &Caffe2Backend::CreateLogSoftmax},
-        {"Slice", &Caffe2Backend::CreateSlice},
-        {"Sqrt", &Caffe2Backend::CreateSqrt},
-        {"Reciprocal", &Caffe2Backend::CreateReciprocal}};
+const std::unordered_map<std::string, Caffe2Backend::SpecialOpConverter>&
+Caffe2Backend::get_special_operators() const {
+  const static std::
+      unordered_map<std::string, Caffe2Backend::SpecialOpConverter>
+          kSpecialOperators = {
+              {"Constant", &Caffe2Backend::CreateConstant},
+              {"Conv", &Caffe2Backend::CreateConvePoolOpBase},
+              {"AveragePool", &Caffe2Backend::CreateConvePoolOpBase},
+              {"GlobalAveragePool", &Caffe2Backend::CreateConvePoolOpBase},
+              {"GlobalMaxPool", &Caffe2Backend::CreateConvePoolOpBase},
+              {"MaxPool", &Caffe2Backend::CreateConvePoolOpBase},
+              {"Reshape", &Caffe2Backend::CreateReshape},
+              {"Gather", &Caffe2Backend::CreateGather},
+              {"Gemm", &Caffe2Backend::CreateGemm},
+              {"Pad", &Caffe2Backend::CreatePad},
+              {"Concat", &Caffe2Backend::CreateConcat},
+              {"LogSoftmax", &Caffe2Backend::CreateLogSoftmax},
+              {"Slice", &Caffe2Backend::CreateSlice},
+              {"Sqrt", &Caffe2Backend::CreateSqrt},
+              {"Reciprocal", &Caffe2Backend::CreateReciprocal}};
+  return kSpecialOperators;
+}
 
 //============================
 // Special Operator Converters
@@ -426,7 +452,7 @@ Caffe2Ops Caffe2Backend::CreateSqrt(
     OnnxNode* onnx_node,
     int opset_version) {
   const auto& node = onnx_node->node;
-  if (node.input_size() != 1 or node.output_size() != 1) {
+  if (node.input_size() != 1 || node.output_size() != 1) {
     throw std::runtime_error("Caffe2 Sqrt should have 1 input and 1 output");
   }
 
@@ -446,7 +472,7 @@ Caffe2Ops Caffe2Backend::CreateReciprocal(
     OnnxNode* onnx_node,
     int opset_version) {
   const auto& node = onnx_node->node;
-  if (node.input_size() != 1 or node.output_size() != 1) {
+  if (node.input_size() != 1 || node.output_size() != 1) {
     throw std::runtime_error("Caffe2 Reciprocal should have 1 input and 1 output");
   }
 
@@ -466,7 +492,7 @@ Caffe2Ops Caffe2Backend::CreateGather(
     OnnxNode* onnx_node,
     int opset_version) {
   const auto& node = onnx_node->node;
-  if (node.input_size() < 2 or node.output_size() < 1) {
+  if (node.input_size() < 2 || node.output_size() < 1) {
     throw std::runtime_error("Caffe2 Gather should have 2 inputs and 1 output");
   }
 
@@ -497,7 +523,7 @@ Caffe2Ops Caffe2Backend::CreateGemm(const ModelProto &init_model,
                                     const ModelProto &pred_model,
                                     OnnxNode *onnx_node, int opset_version) {
   const auto& node = onnx_node->node;
-  if (node.input_size() < 3 or node.output_size() < 1) {
+  if (node.input_size() < 3 || node.output_size() < 1) {
     throw std::runtime_error("Caffe2 Gemm should have 3 inputs and 1 output");
   }
 
@@ -625,7 +651,7 @@ Caffe2Ops Caffe2Backend::CreateLogSoftmax(const ModelProto &init_model,
                                           OnnxNode *onnx_node,
                                           int opset_version) {
   const auto& node = onnx_node->node;
-  if (node.input_size() < 1 or node.output_size() < 1) {
+  if (node.input_size() < 1 || node.output_size() < 1) {
     throw std::runtime_error("LogSoftmax should have 1 input and 1 output");
   }
   auto axis = onnx_node->attributes.get<int64_t>("axis", 1L);
@@ -884,9 +910,9 @@ Caffe2Backend::AllNamesInGraph(const GraphProto &graph) {
 //  Caffe2 operators.  Besides doing a straightforward marshalling from
 //  one format to another, it also does these extra things:
 //
-//    - Renames operators based on 'kRenamedOperators_'
-//    - Renames attributes based on 'kRenamedAttrs_' and
-//      'kPerOpRenamedAttrs_'
+//    - Renames operators based on 'renamed_operators'
+//    - Renames attributes based on 'renamed_attrs' and
+//      'get_per_op_renamed_attrs'
 //
 //  If you're writing a custom translator, consider calling this first,
 //  and then fixing things up further.
@@ -903,29 +929,30 @@ Caffe2Ops Caffe2Backend::CommonOnnxNodeToCaffe2Ops(
 
   const auto onnx_op_type = node.op_type();
   auto broken_version = LookUpWithDefault(
-      kBrokenOperators_, onnx_op_type, std::numeric_limits<int>::max());
+      get_broken_operators(), onnx_op_type, std::numeric_limits<int>::max());
   if (broken_version <= opset_version) {
     throw std::runtime_error(
         caffe2::MakeString("Don't know how to translate op ", onnx_op_type,
                            " in ONNX operator set v", opset_version,
                            " (I only support prior to v", broken_version));
   }
-  c2_op->set_type(LookUpWithDefault(kRenamedOperators_, onnx_op_type, onnx_op_type));
+  c2_op->set_type(
+      LookUpWithDefault(get_renamed_operators(), onnx_op_type, onnx_op_type));
   if (!IsOperator(c2_op->type())) {
     throw std::runtime_error(
         caffe2::MakeString("Don't know how to translate op ", onnx_op_type));
   }
 
   auto mapper = [&, this](const std::string& k) {
-    const auto it = kPerOpRenamedAttrs_.find(onnx_op_type);
-    if (it != kPerOpRenamedAttrs_.end()) {
+    const auto it = get_per_op_renamed_attrs().find(onnx_op_type);
+    if (it != get_per_op_renamed_attrs().end()) {
       const auto it_op = it->second.find(k);
       if (it_op != it->second.end()) {
         return it_op->second;
       }
     }
-    const auto it_global = kRenamedAttrs_.find(k);
-    if (it_global != kRenamedAttrs_.end()) {
+    const auto it_global = get_renamed_attrs().find(k);
+    if (it_global != get_renamed_attrs().end()) {
       return it_global->second;
     }
     return k;
@@ -951,8 +978,8 @@ Caffe2Ops Caffe2Backend::OnnxNodeToCaffe2Ops(const ModelProto &init_model,
                                             const ModelProto &pred_model,
                                             OnnxNode* onnx_node,
                                             int opset_version) {
-  if (kSpecialOperators_.count(onnx_node->node.op_type())) {
-    return (this->*kSpecialOperators_.at(onnx_node->node.op_type()))(
+  if (get_special_operators().count(onnx_node->node.op_type())) {
+    return (this->*get_special_operators().at(onnx_node->node.op_type()))(
         init_model, pred_model, onnx_node, opset_version);
   } else {
     return CommonOnnxNodeToCaffe2Ops(init_model, pred_model, onnx_node,
@@ -999,7 +1026,7 @@ void Caffe2Backend::OnnxToCaffe2(
       // get rid of this to have one flow. Note that we need to update the dummy
       // name generator to avoid having duplicated names between Python and C++
       // generated dummies
-      if (kRNNOperators_.count(node.op_type())) {
+      if (get_rnn_operators().count(node.op_type())) {
         if (idx_extra < extras.size()) {
           const auto &c2ops = extras[idx_extra++];
           for (const auto& op: c2ops.init_ops) {
@@ -1088,7 +1115,7 @@ Caffe2Backend::Prepare(const std::string &onnx_model_str,
     initialized_inputs.emplace(tp.name());
   }
   for (const auto& input: onnx_model.graph().input()) {
-    if (not initialized_inputs.count(input.name())) {
+    if (!initialized_inputs.count(input.name())) {
       uninitialized_inputs.emplace_back(input.name());
     }
   }
@@ -1144,11 +1171,11 @@ void Caffe2Backend::BuildTensorFillingOp(caffe2::OperatorDef *c2_op,
         c2_values->add_ints(i);
       }
     }
-  } else if (onnx_tensor.data_type() == TensorProto::BOOL or
-             onnx_tensor.data_type() == TensorProto::UINT8 or
-             onnx_tensor.data_type() == TensorProto::INT8 or
-             onnx_tensor.data_type() == TensorProto::UINT16 or
-             onnx_tensor.data_type() == TensorProto::INT16 or
+  } else if (onnx_tensor.data_type() == TensorProto::BOOL ||
+             onnx_tensor.data_type() == TensorProto::UINT8 ||
+             onnx_tensor.data_type() == TensorProto::INT8 ||
+             onnx_tensor.data_type() == TensorProto::UINT16 ||
+             onnx_tensor.data_type() == TensorProto::INT16 ||
              onnx_tensor.data_type() == TensorProto::INT32) {
     c2_op->set_type(onnx_tensor.data_type() == TensorProto::BOOL
                        ? "GivenTensorBoolFill"

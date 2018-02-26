@@ -617,18 +617,18 @@ void addObjectMethods(py::module& m) {
   py::class_<onnx_caffe2::Caffe2Ops>(m, "Caffe2Ops")
       .def(py::init([](const std::vector<py::bytes>& init_ops,
                        const std::vector<py::bytes>& ops,
-                       const std::vector<py::bytes>& interface_blobs) {
+                       const std::vector<std::string>& interface_blobs) {
         auto* c2ops = new onnx_caffe2::Caffe2Ops();
-        for (const auto &s : init_ops) {
-          ParseProtobufFromLargeString(s.cast<std::string>(),
-                                       c2ops->init_ops.Add());
+        for (const auto& s : init_ops) {
+          ParseProtobufFromLargeString(
+              s.cast<std::string>(), c2ops->init_ops.Add());
         }
         for (const auto& s : ops) {
           ParseProtobufFromLargeString(s.cast<std::string>(), c2ops->ops.Add());
         }
-        for (const auto &s : interface_blobs) {
-          auto *tmp = c2ops->interface_blobs.Add();
-          *tmp = s.cast<std::string>();
+        for (const auto& s : interface_blobs) {
+          auto* tmp = c2ops->interface_blobs.Add();
+          *tmp = s;
         }
         return c2ops;
       }));

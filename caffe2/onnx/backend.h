@@ -206,16 +206,16 @@ class Caffe2Backend {
       OnnxNode* onnx_node,
       int opset_version);
 
-  const static std::unordered_set<std::string> kRNNOperators_;
-  const static std::unordered_map<std::string, int> kBrokenOperators_;
-  const static std::unordered_map<std::string, std::string> kRenamedOperators_;
-  const static std::unordered_map<std::string, std::string> kRenamedAttrs_;
-  const static std::
-      unordered_map<std::string, std::unordered_map<std::string, std::string>>
-          kPerOpRenamedAttrs_;
-  const static std::
-      unordered_map<std::string, Caffe2Backend::SpecialOpConverter>
-          kSpecialOperators_;
+  // LUT related getters
+  const std::unordered_map<std::string, std::string>& get_renamed_operators() const;
+  const std::unordered_set<std::string>& get_rnn_operators() const;
+  const std::unordered_map<std::string, int>& get_broken_operators() const;
+  const std::unordered_map<std::string, std::string>& get_renamed_attrs() const;
+  const std::
+      unordered_map<std::string, std::unordered_map<std::string, std::string>>&
+      get_per_op_renamed_attrs() const;
+  const std::unordered_map<std::string, Caffe2Backend::SpecialOpConverter>&
+  get_special_operators() const;
 };
 
 } // namespace onnx_caffe2

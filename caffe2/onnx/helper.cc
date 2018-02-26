@@ -11,7 +11,7 @@ size_t DummyName::counter_ = 0;
 std::string DummyName::NewDummyName() {
   while (true) {
     std::string name = caffe2::MakeString("OC2_DUMMY_", counter_++);
-    if (not used_names_.count(name)) {
+    if (!used_names_.count(name)) {
       used_names_.insert(name);
       return name;
     }
