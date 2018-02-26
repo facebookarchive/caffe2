@@ -483,10 +483,10 @@ class MemongerTest(hu.HypothesisTestCase):
                 "cell_init_{}".format(i)
             )
             init_blobs.extend([hidden_init, cell_init])
-        model.param_init_net.ConstantFill([], ["input"], shape=[T, 4, 10])
+        input_blob = model.param_init_net.ConstantFill([], ["input"], shape=[T, 4, 10])
         output, last_hidden, _, last_state = rnn_cell.LSTM(
             model=model,
-            input_blob="input",
+            input_blob=input_blob,
             seq_lengths=seq_lengths,
             initial_states=init_blobs,
             dim_in=10,
