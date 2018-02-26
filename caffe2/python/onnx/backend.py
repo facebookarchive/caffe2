@@ -450,7 +450,7 @@ class Caffe2Backend(Backend):
                 input_size,
                 hidden_size,
                 name,
-                drop_states=True,
+                drop_states=False,
                 forward_only=True,
                 activation=activation
             )
@@ -474,6 +474,10 @@ class Caffe2Backend(Backend):
                                [n.outputs[0], dummy_name()], axis=2)
             pred_mh.net.Concat([hidden_t_last_f, hidden_t_last_b],
                                [n.outputs[1], dummy_name()], axis=0)
+
+        if sequence_lens is not None:
+            pred_mh.net.VariableLengthSequencePadding(
+                [n.outputs[0], sequence_lens], [n.outputs[0]])
 
         return Caffe2Ops(list(pred_mh.Proto().op),
                          list(init_net.Proto().op),
@@ -561,7 +565,7 @@ class Caffe2Backend(Backend):
                 input_size,
                 hidden_size,
                 name,
-                drop_states=True,
+                drop_states=False,
                 forward_only=True,
                 return_params=True
             )
@@ -589,6 +593,10 @@ class Caffe2Backend(Backend):
                                [n.outputs[1], dummy_name()], axis=0)
             pred_mh.net.Concat([cell_all_f, cell_all_b],
                                [n.outputs[2], dummy_name()], axis=0)
+
+        if sequence_lens is not None:
+            pred_mh.net.VariableLengthSequencePadding(
+                [n.outputs[0], sequence_lens], [n.outputs[0]])
 
         return Caffe2Ops(list(pred_mh.Proto().op),
                          list(init_net.Proto().op),
@@ -674,7 +682,7 @@ class Caffe2Backend(Backend):
                 input_size,
                 hidden_size,
                 name,
-                drop_states=True,
+                drop_states=False,
                 forward_only=True,
                 linear_before_reset=linear_before_reset
             )
@@ -698,6 +706,10 @@ class Caffe2Backend(Backend):
                                [n.outputs[0], dummy_name()], axis=2)
             pred_mh.net.Concat([hidden_t_last_f, hidden_t_last_b],
                                [n.outputs[1], dummy_name()], axis=0)
+
+        if sequence_lens is not None:
+            pred_mh.net.VariableLengthSequencePadding(
+                [n.outputs[0], sequence_lens], [n.outputs[0]])
 
         return Caffe2Ops(list(pred_mh.Proto().op),
                          list(init_net.Proto().op),
