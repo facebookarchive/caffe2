@@ -18,12 +18,10 @@ requirements:
     - cmake
     - future
     - glog
-    - gloo
     - gflags
     - leveldb
     - lmdb
     - numpy
-    - openmpi
     - opencv
     - python
     - protobuf {{ protobuf }}
@@ -31,13 +29,11 @@ requirements:
   run:
     - future
     - glog
-    - gloo
     - gflags
-    - lmdb
     - leveldb
+    - lmdb
     - numpy
     - opencv
-    - openmpi
     - protobuf
     - python
     - six
