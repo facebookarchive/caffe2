@@ -51,7 +51,7 @@ if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
   # take the CUDA and cuDNN versions that it finds in the build environment,
   # and manually set the package name ourself.
   # WARNING: This does not work on mac.
-  sed -i "s/caffe2-cuda/${CAFFE2_PACKAGE_NAME}/" "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+  sed -i "s/caffe2-cuda\$/${CAFFE2_PACKAGE_NAME}/" "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
 fi
 
 # If skipping tests, remove the test related lines from the meta.yaml
