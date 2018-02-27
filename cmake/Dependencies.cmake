@@ -335,7 +335,14 @@ endif()
 # ---[ CUDA
 if(USE_CUDA)
   include(cmake/public/cuda.cmake)
-  if(NOT CAFFE2_FOUND_CUDA)
+  if(CAFFE2_FOUND_CUDA)
+    # A helper variable recording the list of Caffe2 dependent librareis
+    # caffe2::cuda is dealt with separately, due to CUDA_ADD_LIBRARY
+    # design reason (it adds CUDA_LIBRARIES itself).
+    set(Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS
+        caffe2::cudart caffe2::curand
+        caffe2::cublas caffe2::cudnn caffe2::nvrtc)
+  else()
     message(WARNING
         "Not compiling with CUDA. Suppress this warning with "
         "-DUSE_CUDA=OFF.")
