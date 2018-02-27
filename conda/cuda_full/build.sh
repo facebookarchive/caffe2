@@ -28,16 +28,16 @@ CMAKE_ARGS+=("-DUSE_CUDA=ON")
 CMAKE_ARGS+=("-DUSE_GFLAGS=ON")
 CMAKE_ARGS+=("-DUSE_GLOG=ON")
 CMAKE_ARGS+=("-DUSE_GLOO=ON")
-CMAKE_ARGS+=("-DUSE_LEVELDB=ON")
 CMAKE_ARGS+=("-DUSE_LMBD=ON")
 CMAKE_ARGS+=("-DUSE_NCCL=ON")
 CMAKE_ARGS+=("-DUSE_OPENCV=ON")
-CMAKE_ARGS+=("-DUSE_OPENMP=ON")
 CMAKE_ARGS+=("-DUSE_REDIS=ON")
-CMAKE_ARGS+=("-DUSE_ROCKSDB=ON")
 
 # Explicitly turn unused packages off to prevent cmake from trying to find
-# system libraries
+# system libraries. If conda packages are built with any system libraries then
+# they will not be relocatable.
+CMAKE_ARGS+=("-DUSE_LEVELDB=OFF")
+CMAKE_ARGS+=("-DUSE_ROCKSDB=OFF")
 
 # Install under specified prefix
 CMAKE_ARGS+=("-DCMAKE_INSTALL_PREFIX=$PREFIX")

@@ -13,6 +13,16 @@ PYTHON_FULL_VERSION="$(python --version 2>&1)"
 if [[ "$PYTHON_FULL_VERSION" == *3.6* ]]; then
   CONDA_BUILD_ARGS+=(" --python 3.6")
 fi
+
+# openmpi is only available in conda-forge (for linux), so conda-forge has to
+# be added as a channel for this 'full' build. This causes the default opencv
+# to be pulled from conda-forge, which will break with a "can't find
+# libopencv_highgui.so", so we also pin opencv version to 3.3.0 to avoid that
+# issue
+if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
+  CONDA_BUILD_ARGS+=(" -c conda-forge")
+fi
+
 # Reinitialize submodules
 git submodule update --init
 

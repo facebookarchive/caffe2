@@ -22,7 +22,7 @@ requirements:
     - leveldb
     - lmdb
     - numpy
-    - opencv
+    - opencv ==3.3.0
     - python
     - protobuf {{ protobuf }}
     - six
@@ -33,7 +33,7 @@ requirements:
     - leveldb
     - lmdb
     - numpy
-    - opencv
+    - opencv ==3.3.0
     - protobuf
     - python
     - six
