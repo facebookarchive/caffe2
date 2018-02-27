@@ -7,7 +7,7 @@ macro(caffe2_interface_library SRC DST)
   get_target_property(__tmp ${SRC} TYPE)
   # Depending on the type of the source library, we will set up the
   # link command for the specific SRC library.
-  if (__tmp EQUALS STATIC_LIBRARY)
+  if (${__tmp} STREQUAL "STATIC_LIBRARY")
     # In the case of static library, we will need to add whole-static flags.
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
       target_link_libraries(
@@ -22,7 +22,7 @@ macro(caffe2_interface_library SRC DST)
           ${DST} INTERFACE
           -Wl,--whole-archive $<TARGET_FILE:${SRC}> -Wl,--no-whole-archive)
     endif()
-  elseif(__tmp EQUALS SHARED_LIBRARY)
+  elseif(${__tmp} STREQUAL "SHARED_LIBRARY")
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
       target_link_libraries(
           ${DST} -Wl,--no-as-needed ${SRC} -Wl,--as-needed)
