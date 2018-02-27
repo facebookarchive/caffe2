@@ -25,7 +25,7 @@ macro(caffe2_interface_library SRC DST)
   elseif(${__tmp} STREQUAL "SHARED_LIBRARY")
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
       target_link_libraries(
-          ${DST} -Wl,--no-as-needed ${SRC} -Wl,--as-needed)
+          ${DST} INTERFACE -Wl,--no-as-needed ${SRC} -Wl,--as-needed)
     else()
       target_link_libraries(${DST} INTERFACE ${SRC})
     endif()
