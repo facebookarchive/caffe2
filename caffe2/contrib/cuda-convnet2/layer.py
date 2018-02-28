@@ -114,11 +114,11 @@ class MyConfigParser(cfg.SafeConfigParser):
     def safe_get(self, section, option, f=cfg.SafeConfigParser.get, typestr=None, default=None):
         try:
             return f(self, section, option)
-        except cfg.NoOptionError, e:
+        except cfg.NoOptionError as e:
             if default is not None:
                 return default
             raise LayerParsingError("Layer '{}': required parameter '{}' missing".format(section, option))
-        except ValueError, e:
+        except ValueError as e:
             if typestr is None:
                 raise e
             raise LayerParsingError("Layer '{}': parameter '{}' must be {}".format(section, option, typestr))
@@ -343,7 +343,7 @@ class LayerParser:
                     raise LayerParsingError("Layer '{}' of type '{}' requires extra parameters, but none given in file '{}'.".format(name, l['type'], param_cfg_path))
                 lp = layer_parsers[l['type']]().init(l)
                 lp.add_params(mcp)
-        except LayerParsingError, e:
+        except LayerParsingError as e:
             print(e)
             sys.exit(1)
         return layers
@@ -892,7 +892,7 @@ class WeightLayerParser(LayerWithInputParser):
         try:
             mod = __import__(module)
             return getattr(mod, func)(dic['name'], input_idx, shapes, params=params) if input_idx >= 0 else getattr(mod, func)(dic['name'], shapes, params=params)
-        except (ImportError, AttributeError, TypeError), e:
+        except (ImportError, AttributeError, TypeError) as e:
             raise LayerParsingError("Layer '{}': {}.".format(dic['name'], e))
         
     def make_weights(self, initW, rows, cols, order='C'):
@@ -901,7 +901,7 @@ class WeightLayerParser(LayerWithInputParser):
         if dic['initWFunc']: # Initialize weights from user-supplied python function
             # Initialization function is supplied in the format
             # module.func
-            for i in xrange(len(dic['inputs'])):
+            for i in range(len(dic['inputs'])):
                 dic['weights'] += [self.call_init_func('initWFunc', (rows[i], cols[i]), input_idx=i)]
 
                 if type(dic['weights'][i]) != n.ndarray:

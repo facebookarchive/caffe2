@@ -72,7 +72,7 @@ class MultiviewTestDriver(TrainingDriver):
             if not os.path.exists(self.convnet.test_out):
                 os.makedirs(self.convnet.test_out)
             pickle(self.test_file_name,  {'data': self.probs,
-                                          'note': 'generated from {}'.format(self.convnet.save_file}))
+                                          'note': 'generated from {}'.format(self.convnet.save_file)))
 
 class FeatureWriterDriver(Driver):
     def __init__(self, convnet):

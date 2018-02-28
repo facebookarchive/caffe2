@@ -94,7 +94,7 @@ class IGPUModel:
         # model state often requries knowledge of data provider, so it's initialized after
         try:
             self.init_model_state()
-        except ModelStateException, e:
+        except ModelStateException as e:
             print(e)
             sys.exit(1)
         for var, val in self.model_state.iteritems():
@@ -119,7 +119,7 @@ class IGPUModel:
             self.train_data_provider = DataProvider.get_instance(self.data_path, self.train_batch_range,
                                                                      self.model_state["epoch"], self.model_state["batchnum"],
                                                                      type=self.dp_type, dp_params=self.dp_params, test=False)
-        except DataProviderException, e:
+        except DataProviderException as e:
             print("Unable to create data provider: {}".format(e))
             self.print_data_providers()
             sys.exit()
@@ -351,12 +351,12 @@ class IGPUModel:
                 op = old_op
             op.eval_expr_defaults()
             return op, load_dic
-        except OptionMissingException, e:
+        except OptionMissingException as e:
             print(e)
             op.print_usage()
-        except OptionException, e:
+        except OptionException as e:
             print(e)
-        except UnpickleError, e:
+        except UnpickleError as e:
             print("Error loading checkpoint:")
             print(e)
         sys.exit()

@@ -203,10 +203,10 @@ class ShowConvNet(ConvNet):
                 data = [n.require(d[:,rand_idx], requirements='C') for d in data]
 #        data += [preds]
         # Run the model
-        print  [d.shape for d in data], preds.shape
+        print([d.shape for d in data], preds.shape)
         self.libmodel.startFeatureWriter(data, [preds], [self.softmax_name])
         IGPUModel.finish_batch(self)
-        print preds
+        print(preds)
         data[0] = self.test_data_provider.get_plottable_data(data[0])
 
         if self.save_preds:
@@ -236,17 +236,17 @@ class ShowConvNet(ConvNet):
             tf.close()
             tfo.close()
 #                gf.close()
-            print "Wrote %d prediction PNGs to %s" % (preds.shape[0], tar_name)
+            print("Wrote {:%d} prediction PNGs to {}".format(preds.shape[0], tar_name))
         else:
             fig = pl.figure(3, figsize=(12,9))
-            fig.text(.4, .95, '%s test samples' % ('Mistaken' if self.only_errors else 'Random'))
+            fig.text(.4, .95, '{} test samples'.format('Mistaken' if self.only_errors else 'Random'))
             if self.only_errors:
                 # what the net got wrong
                 if NUM_OUTPUTS > 1:
                     err_idx = [i for i,p in enumerate(preds.argmax(axis=1)) if p not in n.where(data[2][:,i] > 0)[0]]
                 else:
                     err_idx = n.where(data[1][0,:] != preds[:,0].T)[0]
-                    print err_idx
+                    print(err_idx)
                 err_idx = r.sample(err_idx, min(len(err_idx), NUM_IMGS))
                 data[0], data[1], preds = data[0][:,err_idx], data[1][:,err_idx], preds[err_idx,:]
                 
@@ -285,7 +285,7 @@ class ShowConvNet(ConvNet):
                     if show_title:
                         pl.title(", ".join(true_label_names), fontsize=15, fontweight='bold')
                     else:
-                        print true_label_names
+                        print(true_label_names)
                     pl.yticks(ylocs + height/2, [l[1] for l in img_labels], x=1, backgroundcolor=cconv.to_rgba('0.65', alpha=0.5), weight='bold')
                     for line in enumerate(axes.get_yticklines()): 
                         line[1].set_visible(False) 
@@ -339,7 +339,7 @@ if __name__ == "__main__":
         op, load_dic = IGPUModel.parse_options(op)
         model = ShowConvNet(op, load_dic)
         model.start()
-    except (UnpickleError, ShowNetError, opt.GetoptError), e:
-        print "----------------"
+    except (UnpickleError, ShowNetError, opt.GetoptError) as e:
+        print("----------------")
         print "Error:"
         print e 

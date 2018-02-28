@@ -47,7 +47,7 @@ class Option:
             self.value = self.parser.parse(value) if parse else value
             self.value_given = True
 #            print self.name, self.value
-        except OptionException, e:
+        except OptionException as e:
             raise OptionException("Unable to parse option %s (%s): %s" % (self.prefixed_letter, self.desc, e))
         
     def set_default(self):
@@ -60,7 +60,7 @@ class Option:
                 self.value = self.default.evaluate(env)
                 if not self.parser.is_type(self.value):
                     raise OptionException("expression result %s is not of right type (%s)" % (self.value, self.parser.get_type_str()))
-        except Exception, e:
+        except Exception as e:
             raise OptionException("Unable to set default value for option %s (%s): %s" % (self.prefixed_letter, self.desc, e))
             
     def get_str_value(self, get_default_str=False):
@@ -408,5 +408,5 @@ class OptionExpression:
         locals().update(options)
         try:
             return eval(self.expr)
-        except Exception, e:
+        except Exception as e:
             raise OptionException("expression '%s': unable to parse: %s" % (self.expr, e))
