@@ -31,28 +31,21 @@ class TestMean(hu.HypothesisTestCase):
     @given(
         inputs=hu.tensors(n=2, min_dim=2, max_dim=2),
         engine=st.sampled_from(["", "CUDNN"]),
-        **hu.gcs
-    )
+        **hu.gcs)
     def test_mean(self, inputs, gc, dc, engine):
         X, Y = inputs
 
         def mean_ref(X, Y):
             return np.mean([X, Y], axis=0)
 
-        op = core.CreateOperator(
-            "Mean", ["X", "Y"], ["Result"], engine=engine
-        )
+        op = core.CreateOperator("Mean", ["X", "Y"], ["Result"], engine=engine)
         self.ws.create_blob("X").feed(X)
         self.ws.create_blob("Y").feed(Y)
         self.ws.run(op)
 
         op_output = self.ws.blobs["Result"].fetch()
         ref_output = mean_ref(X, Y)
-        np.testing.assert_allclose(
-            op_output,
-            ref_output,
-            atol=1e-4,
-            rtol=1e-4)
+        np.testing.assert_allclose(op_output, ref_output, atol=1e-4, rtol=1e-4)
 
         self.assertDeviceChecks(dc, op, [X, Y], [0])
 
