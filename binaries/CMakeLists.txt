@@ -47,5 +47,9 @@ if (USE_OPENCV)
   target_link_libraries(make_image_db ${OpenCV_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
+if (USE_OBSERVERS)
+  caffe2_binary_target("caffe2_benchmark.cc")
+endif()
+
 # ---[ tutorials
 caffe2_binary_target("tutorial_blob.cc")
