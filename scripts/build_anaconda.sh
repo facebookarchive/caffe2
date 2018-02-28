@@ -38,9 +38,10 @@ fi
 
 # Change the package name for CUDA builds to have the specific CUDA and cuDNN
 # version in them
+CAFFE2_PACKAGE_NAME="caffe2"
 if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
   # Build name of package
-  CAFFE2_PACKAGE_NAME="caffe2-cuda${CAFFE2_CUDA_VERSION}-cudnn${CAFFE2_CUDNN_VERSION}"
+  CAFFE2_PACKAGE_NAME="${CAFFE2_PACKAGE_NAME}-cuda${CAFFE2_CUDA_VERSION}-cudnn${CAFFE2_CUDNN_VERSION}"
   if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
     CAFFE2_PACKAGE_NAME="${CAFFE2_PACKAGE_NAME}-full"
   fi
