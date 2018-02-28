@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# This needs to run on Ubuntu 16.04 with gcc 5
 # Install script for Anaconda environments with CUDA on linux
 # This script is not supposed to be called directly, but should be run by:
 #
@@ -28,7 +29,6 @@ CMAKE_ARGS+=("-DUSE_CUDA=ON")
 CMAKE_ARGS+=("-DUSE_GFLAGS=ON")
 CMAKE_ARGS+=("-DUSE_GLOG=ON")
 CMAKE_ARGS+=("-DUSE_GLOO=ON")
-CMAKE_ARGS+=("-DUSE_LEVELDB=ON")
 CMAKE_ARGS+=("-DUSE_LMDB=ON")
 CMAKE_ARGS+=("-DUSE_MPI=ON")
 CMAKE_ARGS+=("-DUSE_NCCL=ON")
@@ -38,6 +38,7 @@ CMAKE_ARGS+=("-DUSE_REDIS=ON")
 # Explicitly turn unused packages off to prevent cmake from trying to find
 # system libraries. If conda packages are built with any system libraries then
 # they will not be relocatable.
+CMAKE_ARGS+=("-DUSE_LEVELDB=OFF")
 CMAKE_ARGS+=("-DUSE_ROCKSDB=OFF")
 
 # Install under specified prefix
