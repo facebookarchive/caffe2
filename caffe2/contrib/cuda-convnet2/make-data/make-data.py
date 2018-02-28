@@ -16,6 +16,10 @@
 
 # This script makes batches suitable for training from raw ILSVRC 2012 tar files.
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import tarfile
 from StringIO import StringIO
 from random import shuffle
@@ -63,7 +67,7 @@ def partition_list(l, partition_size):
 
 def open_tar(path, name):
     if not os.path.exists(path):
-        print "ILSVRC 2012 %s not found at %s. Make sure to set ILSVRC_SRC_DIR correctly at the top of this file (%s)." % (name, path, sys.argv[0])
+        print("ILSVRC 2012 %s not found at {}. Make sure to set ILSVRC_SRC_DIR correctly at the top of this file ({}).".format(name, path, sys.argv[0]))
         sys.exit(1)
     return tarfile.open(path)
 
@@ -88,7 +92,7 @@ def write_batches(target_dir, name, start_batch_num, labels, jpeg_files):
     jpeg_files = partition_list(jpeg_files, OUTPUT_BATCH_SIZE)
     labels = partition_list(labels, OUTPUT_BATCH_SIZE)
     makedir(target_dir)
-    print "Writing %s batches..." % name
+    print("Writing {} batches...".format(name))
     for i,(labels_batch, jpeg_file_batch) in enumerate(zip(labels, jpeg_files)):
         t = time()
         jpeg_strings = list(itertools.chain.from_iterable(resizeJPEG([jpeg.read() for jpeg in jpeg_file_batch], OUTPUT_IMAGE_SIZE, NUM_WORKER_THREADS, CROP_TO_SQUARE)))
@@ -98,7 +102,7 @@ def write_batches(target_dir, name, start_batch_num, labels, jpeg_files):
             pickle(os.path.join(batch_path, 'data_batch_%d.%d' % (start_batch_num + i, j/OUTPUT_SUB_BATCH_SIZE)), 
                    {'data': jpeg_strings[j:j+OUTPUT_SUB_BATCH_SIZE],
                     'labels': labels_batch[j:j+OUTPUT_SUB_BATCH_SIZE]})
-        print "Wrote %s (%s batch %d of %d) (%.2f sec)" % (batch_path, name, i+1, len(jpeg_files), time() - t)
+        print("Wrote {} ({} batch {:%d} of {:%d}) ({:%.2f} sec)".format(batch_path, name, i+1, len(jpeg_files), time() - t))
     return i + 1
 
 if __name__ == "__main__":
@@ -107,9 +111,9 @@ if __name__ == "__main__":
     parser.add_argument('--tgt-dir', help='Directory to output ILSVRC 2012 batches suitable for cuda-convnet to train on.', required=True)
     args = parser.parse_args()
     
-    print "CROP_TO_SQUARE: %s" % CROP_TO_SQUARE
-    print "OUTPUT_IMAGE_SIZE: %s" % OUTPUT_IMAGE_SIZE
-    print "NUM_WORKER_THREADS: %s" % NUM_WORKER_THREADS
+    print("CROP_TO_SQUARE: {}".format(CROP_TO_SQUARE))
+    print("OUTPUT_IMAGE_SIZE: {}".format(OUTPUT_IMAGE_SIZE))
+    print("NUM_WORKER_THREADS: {}".format(NUM_WORKER_THREADS))
 
     ILSVRC_TRAIN_TAR = os.path.join(args.src_dir, 'ILSVRC2012_img_train.tar')
     ILSVRC_VALIDATION_TAR = os.path.join(args.src_dir, 'ILSVRC2012_img_val.tar')
@@ -121,21 +125,21 @@ if __name__ == "__main__":
     with open_tar(ILSVRC_TRAIN_TAR, 'training tar') as tf:
         synsets = tf.getmembers()
         synset_tars = [tarfile.open(fileobj=tf.extractfile(s)) for s in synsets]
-        print "Loaded synset tars."
-        print "Building training set image list (this can take 10-20 minutes)..."
+        print("Loaded synset tars.")
+        print("Building training set image list (this can take 10-20 minutes)...")
         sys.stdout.flush()
     
         train_jpeg_files = []
         for i,st in enumerate(synset_tars):
             if i % 100 == 0:
-                print "%d%% ..." % int(round(100.0 * float(i) / len(synset_tars))),
+                print("{:%d}% ...".format(int(round(100.0 * float(i) / len(synset_tars))))),
                 sys.stdout.flush()
             train_jpeg_files += [st.extractfile(m) for m in st.getmembers()]
             st.close()
             
         shuffle(train_jpeg_files)
         train_labels = [[labels_dic[jpeg.name[:9]]] for jpeg in train_jpeg_files]
-        print "done"
+        print("done")
     
         # Write training batches
         i = write_batches(args.tgt_dir, 'training', 0, train_labels, train_jpeg_files)
@@ -153,5 +157,5 @@ if __name__ == "__main__":
                  'num_vis': OUTPUT_IMAGE_SIZE**2 * 3,
                  'label_names': label_names})
     pickle(meta_file, meta)
-    print "Wrote %s" % meta_file
-    print "All done! ILSVRC 2012 batches are in %s" % args.tgt_dir
+    print("Wrote {}".format(meta_file))
+    print("All done! ILSVRC 2012 batches are in {}".format(args.tgt_dir))

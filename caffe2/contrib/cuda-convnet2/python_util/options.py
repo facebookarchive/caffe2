@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import sys
 from getopt import getopt
 import os
@@ -43,7 +47,7 @@ class Option:
             self.value = self.parser.parse(value) if parse else value
             self.value_given = True
 #            print self.name, self.value
-        except OptionException, e:
+        except OptionException as e:
             raise OptionException("Unable to parse option %s (%s): %s" % (self.prefixed_letter, self.desc, e))
         
     def set_default(self):
@@ -56,7 +60,7 @@ class Option:
                 self.value = self.default.evaluate(env)
                 if not self.parser.is_type(self.value):
                     raise OptionException("expression result %s is not of right type (%s)" % (self.value, self.parser.get_type_str()))
-        except Exception, e:
+        except Exception as e:
             raise OptionException("Unable to set default value for option %s (%s): %s" % (self.prefixed_letter, self.desc, e))
             
     def get_str_value(self, get_default_str=False):
@@ -180,7 +184,7 @@ class OptionsParser:
         return sorted(self.options.values(), cmp=cmp)
     
     def print_usage(self, print_constraints=False):
-        print "%s usage:" % os.path.basename(sys.argv[0])
+        print("{} usage:".format(os.path.basename(sys.argv[0])))
         opslist = self.get_options_list()
 
         usage_strings = []
@@ -203,26 +207,26 @@ class OptionsParser:
         if print_constraints:
             col_names += ["Excused by", "Requires"]
         for i, s in enumerate(col_names):
-            print self._bold(s.ljust(col_widths[i])),
+            print(self._bold(s.ljust(col_widths[i]))),
 
-        print ""
+        print("")
         for l, d, de, ex, req in usage_strings:
             if de is None:
                 de = ' '
-                print ("     %s  -" % l.ljust(col_widths[0])), d.ljust(col_widths[1]), de.ljust(col_widths[2]),
+                print(("     {}  -".format(l.ljust(col_widths[0])), d.ljust(col_widths[1]), de.ljust(col_widths[2])))
             else:
-                print ("    [%s] -" % l.ljust(col_widths[0])), d.ljust(col_widths[1]), de.ljust(col_widths[2]),
+                print(("    [{}] -".format(l.ljust(col_widths[0])), d.ljust(col_widths[1]), de.ljust(col_widths[2])))
             if print_constraints:
-                print ex.ljust(col_widths[3]), req
+                print(ex.ljust(col_widths[3]), req)
             else:
-                print ""
+                print("")
                 
     def print_values(self):
         longest_desc = self._longest_value(self.options.values(), key=lambda x:x.desc)
         longest_def_value = self._longest_value([v for v in self.options.values() if not v.value_given and not v.default is None],
                                                  key=lambda x:x.get_str_value())
         for o in self.get_options_list(sort_order=self.SORT_DESC):
-            print "%s: %s %s" % (o.desc.ljust(longest_desc), o.get_str_value().ljust(longest_def_value), (not o.value_given and not o.default is None) and "[DEFAULT]" or "")
+            print("{}: {} {}".format(o.desc.ljust(longest_desc), o.get_str_value().ljust(longest_def_value), (not o.value_given and not o.default is None) and "[DEFAULT]" or ""))
     
     @staticmethod
     def _longest_value(values, key=lambda x:x):
@@ -404,5 +408,5 @@ class OptionExpression:
         locals().update(options)
         try:
             return eval(self.expr)
-        except Exception, e:
+        except Exception as e:
             raise OptionException("expression '%s': unable to parse: %s" % (self.expr, e))
