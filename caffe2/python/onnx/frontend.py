@@ -542,16 +542,13 @@ class Caffe2Frontend(object):
     @classmethod
     def _filter_fake_init(cls, init_net, value_info):
         if init_net:
-            index = 0
-            while index < len(init_net.op):
-                op = init_net.op[index]
-                assert len(op.output) == 1
-                if op.output[0] in value_info:
-                    assert re.match('GivenTensor.*Fill|ConstantFill', op.type), "type is {}, \n{}".format(op.type, op)
-                    # Delete fake initializer on the real input
-                    del init_net.op[index]
-                    continue
-                index += 1
+            fake_inits = [op for op in init_net.op
+                          if len(op.output) == 1 and op.output[0] in value_info and
+                          re.match('GivenTensor.*Fill|ConstantFill', op.type)]
+            for fake_init in fake_inits:
+                init_net.op.remove(fake_init)
+            del fake_inits[:]
+            del fake_inits
 
     @classmethod
     def _ssa_rewrite(cls, net, init_net, value_info):
