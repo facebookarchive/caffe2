@@ -12,6 +12,7 @@ build:
   skip: True  # [win]
   script_env:
     - CONDA_CMAKE_ARGS
+    - CCACHE_WRAPPER_PATH
 
 requirements:
   build:
