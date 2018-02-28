@@ -25,6 +25,13 @@ echo "Installing caffe2 to ${PREFIX}"
 PYTHON_ARGS="$(python ./scripts/get_python_cmake_flags.py)"
 CMAKE_ARGS=()
 
+# ccache
+if [ -n "${CCACHE_WRAPPER_PATH}" ]; then
+  CMAKE_ARGS+=("-DCMAKE_C_COMPILER=$CCACHE_WRAPPER_PATH/gcc")
+  CMAKE_ARGS+=("-DCMAKE_CXX_COMPILER=$CCACHE_WRAPPER_PATH/g++")
+  export CCACHE_BASEDIR="${CONDA_PREFIX}"
+fi
+
 # Default leveldb from conda-forge doesn't work. If you want to use leveldb,
 # use this old pip version
 # pip install leveldb==0.18
