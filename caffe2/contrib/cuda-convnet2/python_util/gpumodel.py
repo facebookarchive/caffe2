@@ -95,7 +95,7 @@ class IGPUModel:
         try:
             self.init_model_state()
         except ModelStateException, e:
-            print e
+            print(e)
             sys.exit(1)
         for var, val in self.model_state.iteritems():
             setattr(self, var, val)
@@ -104,8 +104,8 @@ class IGPUModel:
         self.init_model_lib()
 
     def import_model(self):
-        print "========================="
-        print "Importing %s C++ module" % ('_' + self.model_name)
+        print("=========================")
+        print("Importing {} C++ module" % ('_' + self.model_name))
         self.libmodel = __import__('_' + self.model_name) 
                    
     def fill_excused_options(self):
@@ -120,7 +120,7 @@ class IGPUModel:
                                                                      self.model_state["epoch"], self.model_state["batchnum"],
                                                                      type=self.dp_type, dp_params=self.dp_params, test=False)
         except DataProviderException, e:
-            print "Unable to create data provider: %s" % e
+            print("Unable to create data provider: {}".format(e))
             self.print_data_providers()
             sys.exit()
         
@@ -142,15 +142,15 @@ class IGPUModel:
         sys.exit(0)
     
     def train(self):
-        print "========================="
-        print "Training %s" % self.model_name
+        print("=========================")
+        print("Training {}".format(self.model_name))
         self.op.print_values()
-        print "========================="
+        print("=========================")
         self.print_model_state()
-        print "Running on CUDA device(s) %s" % ", ".join("%d" % d for d in self.device_ids)
-        print "Current time: %s" % asctime(localtime())
-        print "Saving checkpoints to %s" % self.save_file
-        print "========================="
+        print("Running on CUDA device(s) {}".format(", ".join("{:%d}".format(d) for d in self.device_ids)))
+        print("Current time: {}".format(asctime(localtime())))
+        print("Saving checkpoints to {}".format(self.save_file))
+        print("=========================")
         next_data = self.get_next_batch()
         while self.epoch <= self.num_epochs:
             data = next_data
@@ -204,26 +204,26 @@ class IGPUModel:
         return self.libmodel.finishBatch()
     
     def print_iteration(self):
-        print "\t%d.%d..." % (self.epoch, self.batchnum),
+        print("\t{:%d}.{:%d}...".format(self.epoch, self.batchnum)),
     
     def print_elapsed_time(self, compute_time_py):
-        print "(%.3f sec)" % (compute_time_py)
+        print("({:%.3f} sec)".format(compute_time_py))
     
     def print_train_results(self):
         batch_error = self.train_outputs[-1][0]
         if not (batch_error > 0 and batch_error < 2e20):
-            print "Crazy train error: %.6f" % batch_error
+            print("Crazy train error: {:%.6f}".format(batch_error))
             self.cleanup()
 
-        print "Train error: %.6f " % (batch_error),
+        print("Train error: {:%.6f} ".format(batch_error)),
 
     def print_test_results(self):
         batch_error = self.test_outputs[-1][0]
-        print "%s\t\tTest error: %.6f" % (NL, batch_error),
+        print("{}\t\tTest error: {:%.6f}".format(NL, batch_error)),
 
     def print_test_status(self):
         status = (len(self.test_outputs) == 1 or self.test_outputs[-1][0] < self.test_outputs[-2][0]) and "ok" or "WORSE"
-        print status,
+        print(status),
         
     def sync_with_host(self):
         if self.checkpoint_writer is not None:
@@ -236,7 +236,7 @@ class IGPUModel:
         if batch_error > 0 and batch_error < self.max_test_err:
             self.save_state()
         else:
-            print "\tTest error > %g, not saving." % self.max_test_err,
+            print("\tTest error > {:%g}, not saving.".format(self.max_test_err)),
     
     def aggregate_test_outputs(self, test_outputs):
         test_error = tuple([sum(t[r] for t in test_outputs) / (1 if self.test_one else len(self.test_batch_range)) for r in range(len(test_outputs[-1]))])
@@ -254,7 +254,7 @@ class IGPUModel:
                 next_data = self.get_next_batch(train=False)
             test_outputs += [self.finish_batch()]
             if self.test_only: # Print the individual batch results for safety
-                print "batch %d: %s" % (data[1], str(test_outputs[-1])),
+                print("batch {:%d}: {}".format(data[1], str(test_outputs[-1]))),
                 self.print_elapsed_time(time() - start_time_test)
             if not load_next:
                 break
@@ -289,9 +289,9 @@ class IGPUModel:
         assert self.checkpoint_writer is None
         self.checkpoint_writer = CheckpointWriter(checkpoint_file_full_path, dic)
         self.checkpoint_writer.start()
-        print "-------------------------------------------------------"
-        print "Saved checkpoint to %s" % self.save_file
-        print "=======================================================",
+        print("-------------------------------------------------------")
+        print("Saved checkpoint to {}".format(self.save_file))
+        print("======================================================="),
         return self.checkpoint_writer
         
     def get_progress(self):
@@ -326,9 +326,9 @@ class IGPUModel:
 
     @staticmethod
     def print_data_providers():
-        print "Available data providers:"
+        print("Available data providers:")
         for dp, desc in dp_types.iteritems():
-            print "    %s: %s" % (dp, desc)
+            print("    {}: {}".format(dp, desc))
             
 
     @staticmethod
@@ -352,11 +352,11 @@ class IGPUModel:
             op.eval_expr_defaults()
             return op, load_dic
         except OptionMissingException, e:
-            print e
+            print(e)
             op.print_usage()
         except OptionException, e:
-            print e
+            print(e)
         except UnpickleError, e:
-            print "Error loading checkpoint:"
-            print e
+            print("Error loading checkpoint:")
+            print(e)
         sys.exit()
