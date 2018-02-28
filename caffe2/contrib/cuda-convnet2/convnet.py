@@ -61,7 +61,7 @@ class MultiviewTestDriver(TrainingDriver):
             num_views = self.convnet.test_data_provider.num_views
             if self.convnet.test_out != "" and self.convnet.logreg_name != "":
                 self.write_output = True
-                self.test_file_name = os.path.join(self.convnet.test_out, 'test_preds_%d' % batch_data[1])
+                self.test_file_name = os.path.join(self.convnet.test_out, 'test_preds_{:%d}'.format(batch_data[1]))
                 self.probs = n.zeros((data[0].shape[1]/num_views, self.convnet.test_data_provider.get_num_classes()), dtype=n.single)
                 self.convnet.libmodel.startMultiviewTest(data, num_views, self.probs, self.convnet.logreg_name)
             else:
@@ -72,7 +72,7 @@ class MultiviewTestDriver(TrainingDriver):
             if not os.path.exists(self.convnet.test_out):
                 os.makedirs(self.convnet.test_out)
             pickle(self.test_file_name,  {'data': self.probs,
-                                          'note': 'generated from %s' % self.convnet.save_file})
+                                          'note': 'generated from {}'.format(self.convnet.save_file}))
 
 class FeatureWriterDriver(Driver):
     def __init__(self, convnet):
@@ -93,9 +93,9 @@ class FeatureWriterDriver(Driver):
         self.convnet.libmodel.startFeatureWriter(self.data, [self.ftrs], [self.convnet.write_features])
     
     def on_finish_batch(self):
-        path_out = os.path.join(self.convnet.feature_path, 'data_batch_%d' % self.batchnum)
+        path_out = os.path.join(self.convnet.feature_path, 'data_batch_{:%d}'.format(self.batchnum))
         pickle(path_out, {'data': self.ftrs, 'labels': self.data[1]})
-        print "Wrote feature file %s" % path_out
+        print("Wrote feature file {}".format(path_out))
         if self.batchnum == self.last_batch:
             pickle(os.path.join(self.convnet.feature_path, 'batches.meta'), {'source_model':self.convnet.load_file,
                                                                              'num_vis':self.num_ftrs,
@@ -111,8 +111,8 @@ class ConvNet(IGPUModel):
         
     def import_model(self):
         lib_name = "cudaconvnet._ConvNet"
-        print "========================="
-        print "Importing %s C++ module" % lib_name
+        print("=========================")
+        print("Importing {} C++ module".format(lib_name))
         self.libmodel = __import__(lib_name,fromlist=['_ConvNet'])
         
     def init_model_lib(self):
@@ -151,11 +151,11 @@ class ConvNet(IGPUModel):
                     if name is not None:
                         name, idx = name[0], name[1]
                         if name not in self.model_state['layers']:
-                            raise ModelStateException("Layer '%s' does not exist; unable to unshare" % name)
+                            raise ModelStateException("Layer '{}' does not exist; unable to unshare".format(name))
                         layer = self.model_state['layers'][name]
                         lay.WeightLayerParser.unshare_weights(layer, self.model_state['layers'], matrix_idx=idx)
                     else:
-                        raise ModelStateException("Invalid layer name '%s'; unable to unshare." % name_str)
+                        raise ModelStateException("Invalid layer name '{}'; unable to unshare.".format(name_str))
     
     def set_driver(self):
         if self.op.get_value('check_grads'):
@@ -189,10 +189,10 @@ class ConvNet(IGPUModel):
         return ret
     
     def print_iteration(self):
-        print "%d.%d (%.2f%%)..." % (self.epoch, self.batchnum, 100 * self.get_progress()),
+        print("{:d}.{:d} ({:.2f}%)...".format(self.epoch, self.batchnum, 100 * self.get_progress())),
         
     def print_train_time(self, compute_time_py):
-        print "(%.3f sec)" % (compute_time_py)
+        print("({:.3f} sec)".format(compute_time_py))
         
     def print_costs(self, cost_outputs):
         costs, num_cases = cost_outputs[0], cost_outputs[1]
@@ -205,13 +205,13 @@ class ConvNet(IGPUModel):
                     children.add(child)
             
                 filtered_costs = eval(self.layers[errname]['outputFilter'])(costs[errname], num_cases)
-                print "%s: " % errname,
+                print("{}: ".format(errname)),
                 if 'outputFilterFormatter' not in self.layers[errname]:
-                    print ", ".join("%.6f" % v for v in filtered_costs),
+                    print(", ".join("{:.6f}".format(v) for v in filtered_costs)),
                 else:
-                    print eval(self.layers[errname]['outputFilterFormatter'])(self,filtered_costs),
+                    print(eval(self.layers[errname]['outputFilterFormatter'])(self,filtered_costs)),
                 if m.isnan(filtered_costs[0]) or m.isinf(filtered_costs[0]):
-                    print "<- error nan or inf!"
+                    print("<- error nan or inf!")
                     sys.exit(1)
         for c in children:
             del costs[c]
@@ -223,20 +223,20 @@ class ConvNet(IGPUModel):
         pass
         
     def print_test_results(self):
-        print NL + "======================Test output======================"
+        print(NL + "======================Test output======================")
         self.print_costs(self.test_outputs[-1])
         if not self.test_only:
-            print NL + "----------------------Averages-------------------------"
+            print(NL + "----------------------Averages-------------------------")
             self.print_costs(self.aggregate_test_outputs(self.test_outputs[-len(self.test_batch_range):]))
-        print NL + "-------------------------------------------------------",
+        print(NL + "-------------------------------------------------------"),
         for name,val in sorted(self.layers.items(), key=lambda x: x[1]['id']): # This is kind of hacky but will do for now.
             l = self.layers[name]
             if 'weights' in l:
                 wscales = [(l['name'], i, n.mean(n.abs(w)), n.mean(n.abs(wi))) for i,(w,wi) in enumerate(zip(l['weights'],l['weightsInc']))]
-                print ""
-                print NL.join("Layer '%s' weights[%d]: %e [%e] [%e]" % (s[0], s[1], s[2], s[3], s[3]/s[2] if s[2] > 0 else 0) for s in wscales),
-                print "%sLayer '%s' biases: %e [%e]" % (NL, l['name'], n.mean(n.abs(l['biases'])), n.mean(n.abs(l['biasesInc']))),
-        print ""
+                print("")
+                print(NL.join("Layer '{}' weights[{:%d}]: {:%e} [{:%e}] [{:%e}]".format((s[0], s[1], s[2], s[3], s[3]/s[2] if s[2] > 0 else 0)) for s in wscales)),
+                print("%sLayer '{}' biases: {:%e} [{:%e}]".format(NL, l['name'], n.mean(n.abs(l['biases'])), n.mean(n.abs(l['biasesInc'])))),
+        print("")
         
     def conditional_save(self):
         self.save_state()

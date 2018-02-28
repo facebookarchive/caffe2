@@ -287,7 +287,7 @@ class DummyConvNetLogRegDataProvider(LabeledDummyDataProvider):
     def get_next_batch(self):
         epoch, batchnum, dic = LabeledDummyDataProvider.get_next_batch(self)
         dic = {'data': dic[0], 'labels': dic[1]}
-        print dic['data'].shape, dic['labels'].shape
+        print(dic['data'].shape, dic['labels'].shape)
         return epoch, batchnum, [dic['data'], dic['labels']]
     
     # Returns the dimensionality of the two data matrices returned by get_next_batch

@@ -117,11 +117,11 @@ class MyConfigParser(cfg.SafeConfigParser):
         except cfg.NoOptionError, e:
             if default is not None:
                 return default
-            raise LayerParsingError("Layer '%s': required parameter '%s' missing" % (section, option))
+            raise LayerParsingError("Layer '{}': required parameter '{}' missing".format(section, option))
         except ValueError, e:
             if typestr is None:
                 raise e
-            raise LayerParsingError("Layer '%s': parameter '%s' must be %s" % (section, option, typestr))
+            raise LayerParsingError("Layer '{}': parameter '{}' must be {}".format(section, option, typestr))
         
     def safe_get_list(self, section, option, f=str, typestr='strings', default=None):
         v = self.safe_get(section, option, default=default)
@@ -130,7 +130,7 @@ class MyConfigParser(cfg.SafeConfigParser):
         try:
             return [f(x.strip()) for x in v.split(',')]
         except:
-            raise LayerParsingError("Layer '%s': parameter '%s' must be ','-delimited list of %s" % (section, option, typestr))
+            raise LayerParsingError("Layer '{}': parameter '{}' must be ','-delimited list of {}".format(section, option, typestr))
         
     def safe_get_int(self, section, option, default=None):
         return self.safe_get(section, option, f=cfg.SafeConfigParser.getint, typestr='int', default=default)
@@ -177,7 +177,7 @@ class LayerParser:
         self.dic['actsGradTarget'] = -1
         if len(set(len(l['gpu']) for l in layers.values() if 'inputs' in l and self.dic['name'] in l['inputs'])) > 1:
 #            print set(len(l['gpu']) for l in layers.values())
-            raise LayerParsingError("Layer '%s': all next layers must have equal number of replicas." % (self.dic['name']))
+            raise LayerParsingError("Layer '{}': all next layers must have equal number of replicas.".format(self.dic['name']))
     
     def parse_params(self, vals, parsers, param_name, human_name, num_params=1):
         dic, name = self.dic, self.dic['name']
@@ -198,7 +198,7 @@ class LayerParser:
         if len(parsed) == num_params:
             return parsed
 #        print parsed, vals
-        raise LayerParsingError("Layer '%s': unable to parse %s %s=%s." % (name, human_name, param_name, ",".join(vals)))
+        raise LayerParsingError("Layer '{}': unable to parse {} {}={}.".format(name, human_name, param_name, ",".join(vals)))
     
     # Add parameters from layer parameter file
     def add_params(self, mcp):
@@ -269,34 +269,34 @@ class LayerParser:
     def _verify_num_range(self, v, param_name, _min, _max, input=-1, strconv=lambda x:'%d' % x):
         layer_name = self.dic['name'] if input < 0 else '%s[%d]' % (self.dic['name'], input)
         if _min is not None and _max is not None and (v < _min or v > _max):
-            raise LayerParsingError("Layer '%s': parameter '%s' must be in the range %s-%s" % (layer_name, param_name, strconv(_min), strconv(_max)))
+            raise LayerParsingError("Layer '{}': parameter '{}' must be in the range {}-{}".format(layer_name, param_name, strconv(_min), strconv(_max)))
         elif _min is not None and v < _min:
-            raise LayerParsingError("Layer '%s': parameter '%s' must be greater than or equal to %s" % (layer_name, param_name,  strconv(_min)))
+            raise LayerParsingError("Layer '{}': parameter '{}' must be greater than or equal to {}".format(layer_name, param_name,  strconv(_min)))
         elif _max is not None and v > _max:
-            raise LayerParsingError("Layer '%s': parameter '%s' must be smaller than or equal to %s" % (layer_name, param_name,  strconv(_max)))
+            raise LayerParsingError("Layer '{}': parameter '{}' must be smaller than or equal to {}".format(layer_name, param_name,  strconv(_max)))
     
     def verify_divisible(self, value, div, value_name, div_name=None, input_idx=0):
         layer_name = self.dic['name'] if len(self.dic['inputs']) == 0 else '%s[%d]' % (self.dic['name'], input_idx)
         if value % div != 0:
-            raise LayerParsingError("Layer '%s': parameter '%s' must be divisible by %s" % (layer_name, value_name, str(div) if div_name is None else "'%s'" % div_name))
+            raise LayerParsingError("Layer '{}': parameter '{}' must be divisible by {}".format(layer_name, value_name, str(div) if div_name is None else "'{}'".format(div_name)))
         
     def verify_str_in(self, value, param_name, lst, input_idx=-1):
         lname = self.dic['name'] if input_idx == -1 else ('%s[%d]' % (self.dic['name'], input_idx))
         if value not in lst:
-            raise LayerParsingError("Layer '%s': parameter '%s' must be one of %s" % (lname, param_name, ", ".join("'%s'" % s for s in lst)))
+            raise LayerParsingError("Layer '{}': parameter '{}' must be one of {}".format(lname, param_name, ", ".join("'{:%d}'".format(s) for s in lst)))
         
     def verify_int_in(self, value, param_name, lst):
         if value not in lst:
-            raise LayerParsingError("Layer '%s': parameter '%s' must be one of %s" % (self.dic['name'], param_name, ", ".join("'%d'" % s for s in lst)))
+            raise LayerParsingError("Layer '{}': parameter '{}' must be one of {}".format(self.dic['name'], param_name, ", ".join("'{:%d}'".format(s) for s in lst)))
         
     def verify_all_ints_in(self, values, param_name, lst):
         if len([v for v in values if v not in lst]) > 0:
-            raise LayerParsingError("Layer '%s': all parameters to '%s' must be among %s" % (self.dic['name'], param_name, ", ".join("'%d'" % s for s in lst)))
+            raise LayerParsingError("Layer '{}': all parameters to '{}' must be among {}".format(self.dic['name'], param_name, ", ".join("'{:%d}'".format(s) for s in lst)))
     
     def verify_input_dims(self, dims):
         for i,d in enumerate(dims):
             if d is not None and self.dic['numInputs'][i] != d: # first input must be labels
-                raise LayerParsingError("Layer '%s': dimensionality of input %d must be %d" % (self.dic['name'], i, d))
+                raise LayerParsingError("Layer '{}': dimensionality of input {:%d} must be {:%d}".format(self.dic['name'], i, d))
 
     # This looks for neuron=x arguments in various layers, and creates
     # separate layer definitions for them.
@@ -310,18 +310,18 @@ class LayerParser:
     def parse_layers(layer_cfg_path, param_cfg_path, model, layers={}):
         try:
             if not os.path.exists(layer_cfg_path):
-                raise LayerParsingError("Layer definition file '%s' does not exist" % layer_cfg_path)
+                raise LayerParsingError("Layer definition file '{}' does not exist".format(layer_cfg_path))
             if not os.path.exists(param_cfg_path):
-                raise LayerParsingError("Layer parameter file '%s' does not exist" % param_cfg_path)
+                raise LayerParsingError("Layer parameter file '{}' does not exist".format(param_cfg_path))
             if len(layers) == 0:
                 mcp = MyConfigParser(dict_type=OrderedDict)
                 mcp.readfp(open(layer_cfg_path))
                 for name in mcp.sections():
                     if not mcp.has_option(name, 'type'):
-                        raise LayerParsingError("Layer '%s': no type given" % name)
+                        raise LayerParsingError("Layer '{}': no type given".format(name))
                     ltype = mcp.safe_get(name, 'type')
                     if ltype not in layer_parsers:
-                        raise LayerParsingError("Layer '%s': Unknown layer type: '%s'" % (name, ltype))
+                        raise LayerParsingError("Layer '{}': Unknown layer type: '{}'".format(name, ltype))
                     layers[name] = layer_parsers[ltype]().parse(name, mcp, layers, model)
                 
                 LayerParser.detach_neuron_layers(layers)
@@ -333,25 +333,25 @@ class LayerParser:
                     if not l['type'].startswith('cost.'):
                         found = max(name in l2['inputs'] for l2 in layers.values() if 'inputs' in l2)
                         if not found:
-                            raise LayerParsingError("Layer '%s' of type '%s' is unused" % (name, l['type']))
+                            raise LayerParsingError("Layer '{}' of type '{}' is unused".format(name, l['type']))
             
             mcp = MyConfigParser(dict_type=OrderedDict)
             mcp.readfp(open(param_cfg_path))
 #            mcp.convnet = model
             for name,l in layers.items():
                 if not mcp.has_section(name) and l['requiresParams']:
-                    raise LayerParsingError("Layer '%s' of type '%s' requires extra parameters, but none given in file '%s'." % (name, l['type'], param_cfg_path))
+                    raise LayerParsingError("Layer '{}' of type '{}' requires extra parameters, but none given in file '{}'.".format(name, l['type'], param_cfg_path))
                 lp = layer_parsers[l['type']]().init(l)
                 lp.add_params(mcp)
         except LayerParsingError, e:
-            print e
+            print(e)
             sys.exit(1)
         return layers
         
     @staticmethod
     def register_layer_parser(ltype, cls):
         if ltype in layer_parsers:
-            raise LayerParsingError("Layer type '%s' already registered" % ltype)
+            raise LayerParsingError("Layer type '{}' already registered".format(ltype))
         layer_parsers[ltype] = cls
 
 # Any layer that takes an input (i.e. non-data layer)
@@ -366,7 +366,7 @@ class LayerWithInputParser(LayerParser):
                 if auto_expand and len(self.dic[param]) == 1:
                     self.dic[param] *= len(self.dic['inputs'])
                 else:
-                    raise LayerParsingError("Layer '%s': %s list length does not match number of inputs" % (self.dic['name'], param))        
+                    raise LayerParsingError("Layer '{}': {} list length does not match number of inputs".format(self.dic['name'], param))        
     
     # layers: dictionary: name -> layer
     def optimize(self, layers):
@@ -386,7 +386,7 @@ class LayerWithInputParser(LayerParser):
 #                    print "Layer %s(uses inputs=%d), input %s(uses acts = %d)" % (dic['name'], dic['usesInputs'], inp['name'], inp['usesActs'])
                     if not inp['usesActs'] and not dic['usesInputs']:
                         dic['actsTarget'] = i
-                        print "Layer %s using acts from layer %s" % (dic['name'], inp['name'])
+                        print("Layer {} using acts from layer {}".format(dic['name'], inp['name']))
 #                        print "Layer '%s' sharing activity matrix with layer '%s'" % (dic['name'], l['name'])
                     # I can share my gradient matrix with this layer if we're on the same GPU.
                     # This is different from the logic for actsTarget because this guy doesn't
@@ -403,7 +403,7 @@ class LayerWithInputParser(LayerParser):
         
         for inp in dic['inputs']:
             if inp not in prev_layers:
-                raise LayerParsingError("Layer '%s': input layer '%s' not defined" % (name, inp))
+                raise LayerParsingError("Layer '{}': input layer '{}' not defined".format(name, inp))
             
         dic['inputLayers'] = [prev_layers[inp] for inp in dic['inputs']]
         dic['gpu'] = mcp.safe_get_int_list(name, 'gpu', default=dic['inputLayers'][0]['gpu'])
@@ -411,7 +411,7 @@ class LayerWithInputParser(LayerParser):
         dic['numReplicas'] = len(dic['gpu'])
         
         if len(set(dic['gpu'])) != len(dic['gpu']):
-            raise LayerParsingError("Layer '%s': all replicas must run on different GPUs." % (name))
+            raise LayerParsingError("Layer '{}': all replicas must run on different GPUs.".format(name))
         
         for inp in dic['inputs']:
             # Data layers do not explicitly define how many replicas they have.
@@ -421,21 +421,21 @@ class LayerWithInputParser(LayerParser):
             if inpl['type'] == 'data':
                 inpl['numReplicas'] = dic['numReplicas']
             if inpl['numReplicas'] % dic['numReplicas'] != 0:
-                raise LayerParsingError("Layer '%s': number of replicas (%d) must divide number of replicas in all input layers (input %s has %d replicas)." % (name, dic['numReplicas'], inpl['name'], inpl['numReplicas']))
+                raise LayerParsingError("Layer '{}': number of replicas ({:%d}) must divide number of replicas in all input layers (input {} has {:%d} replicas).".format(name, dic['numReplicas'], inpl['name'], inpl['numReplicas']))
         if len(set(inp['numReplicas'] for inp in dic['inputLayers'])) != 1:
-            raise LayerParsingError("Layer '%s': all input layers must have equal numbers of replicas." % (name))
+            raise LayerParsingError("Layer '{}': all input layers must have equal numbers of replicas.".format(name))
 
         # Need to also assert that all *next* layers have equal number of replicas but this is hard so it's done in Layer.optimize
         for inp in dic['inputLayers']:
             if inp['outputs'] == 0:
-                raise LayerParsingError("Layer '%s': input layer '%s' does not produce any output" % (name, inp['name']))
+                raise LayerParsingError("Layer '{}': input layer '{}' does not produce any output".format(name, inp['name']))
         dic['numInputs'] = [inp['outputs'] for inp in dic['inputLayers']]
         
         # Layers can declare a neuron activation function to apply to their output, as a shortcut
         # to avoid declaring a separate neuron layer above themselves.
         dic['neuron'] = mcp.safe_get(name, 'neuron', default="")
         if self.num_inputs > 0 and len(dic['numInputs']) != self.num_inputs:
-            raise LayerParsingError("Layer '%s': number of inputs must be %d" % (name, self.num_inputs))
+            raise LayerParsingError("Layer '{}': number of inputs must be {:%d}".format(name, self.num_inputs))
         
         if model:
             self.verify_all_ints_in(dic['gpu'], 'gpu', range(len(model.op.get_value('gpu'))))
@@ -444,7 +444,7 @@ class LayerWithInputParser(LayerParser):
     def verify_img_size(self):
         dic = self.dic
         if dic['numInputs'][0] % dic['imgPixels'] != 0 or dic['imgSize'] * dic['imgSize'] != dic['imgPixels']:
-            raise LayerParsingError("Layer '%s': has %-d dimensional input, not interpretable as %d-channel images" % (dic['name'], dic['numInputs'][0], dic['channels']))
+            raise LayerParsingError("Layer '{}': has {:%d} dimensional input, not interpretable as {:%d}-channel images".format(dic['name'], dic['numInputs'][0], dic['channels']))
     
     @staticmethod
     def grad_consumers_below(dic):
@@ -455,7 +455,7 @@ class LayerWithInputParser(LayerParser):
         
     def verify_no_grads(self):
         if LayerWithInputParser.grad_consumers_below(self.dic):
-            raise LayerParsingError("Layer '%s': layers of type '%s' cannot propagate gradient and must not be placed over layers with parameters." % (self.dic['name'], self.dic['type']))
+            raise LayerParsingError("Layer '{}': layers of type '{}' cannot propagate gradient and must not be placed over layers with parameters.".format(self.dic['name'], self.dic['type']))
 
 class NailbedLayerParser(LayerWithInputParser):
     def __init__(self):
@@ -483,7 +483,7 @@ class NailbedLayerParser(LayerWithInputParser):
         
         self.verify_img_size()
         
-        print "Initialized bed-of-nails layer '%s' on GPUs %s, producing %dx%d %d-channel output" % (name, dic['gpus'], dic['outputsX'], dic['outputsX'], dic['channels'])
+        print("Initialized bed-of-nails layer '{}' on GPUs {}, producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['gpus'], dic['outputsX'], dic['outputsX'], dic['channels']))
         return dic
     
 class GaussianBlurLayerParser(LayerWithInputParser):
@@ -513,9 +513,9 @@ class GaussianBlurLayerParser(LayerWithInputParser):
         self.verify_img_size()
         
         if dic['filterSize'] > dic['imgSize']:
-            raise LayerParsingError("Later '%s': filter size (%d) must be smaller than image size (%d)." % (dic['name'], dic['filterSize'], dic['imgSize']))
+            raise LayerParsingError("Later '{}': filter size ({:%d}) must be smaller than image size ({:%d}).".format(dic['name'], dic['filterSize'], dic['imgSize']))
         
-        print "Initialized Gaussian blur layer '%s', producing %dx%d %d-channel output" % (name, dic['imgSize'], dic['imgSize'], dic['channels'])
+        print("Initialized Gaussian blur layer '{}', producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['imgSize'], dic['imgSize'], dic['channels']))
         
         return dic
     
@@ -535,7 +535,7 @@ class HorizontalReflectionLayerParser(LayerWithInputParser):
         dic['imgSize'] = int(n.sqrt(dic['imgPixels']))
         self.verify_img_size()
         
-        print "Initialized horizontal reflection layer '%s', producing %dx%d %d-channel output" % (name, dic['imgSize'], dic['imgSize'], dic['channels'])
+        print("Initialized horizontal reflection layer '{}', producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['imgSize'], dic['imgSize'], dic['channels']))
         
         return dic
     
@@ -565,7 +565,7 @@ class ResizeLayerParser(LayerWithInputParser):
         self.verify_img_size()
         self.verify_no_grads()
         
-        print "Initialized resize layer '%s', producing %dx%d %d-channel output" % (name, dic['tgtSize'], dic['tgtSize'], dic['channels'])
+        print("Initialized resize layer '{}', producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['tgtSize'], dic['tgtSize'], dic['channels']))
         
         return dic
     
@@ -591,9 +591,9 @@ class RandomScaleLayerParser(LayerWithInputParser):
         min_size = int(floor(dic['imgSize'] / dic['maxScale']))
         max_size = dic['imgSize'] #int(floor(dic['imgSize'] * dic['maxScale']))
         if dic['tgtSize'] < min_size:
-            raise LayerParsingError("Layer '%s': target size must be greater than minimum image size after rescaling (%d)" % (name, min_size))
+            raise LayerParsingError("Layer '{}': target size must be greater than minimum image size after rescaling ({:%d})".format(name, min_size))
         if dic['tgtSize'] > max_size:
-            raise LayerParsingError("Layer '%s': target size must be smaller than maximum image size after rescaling (%d)" % (name, max_size))
+            raise LayerParsingError("Layer '{}': target size must be smaller than maximum image size after rescaling ({:%d})".format(name, max_size))
         dic['tgtPixels'] = dic['tgtSize']**2
         
         self.verify_float_range(dic['maxScale'], 'maxScale', 1, 2) 
@@ -603,7 +603,7 @@ class RandomScaleLayerParser(LayerWithInputParser):
         self.verify_img_size()
         self.verify_no_grads()
         
-        print "Initialized random scale layer '%s', producing %dx%d %d-channel output" % (name, dic['tgtSize'], dic['tgtSize'], dic['channels'])
+        print("Initialized random scale layer '{}', producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['tgtSize'], dic['tgtSize'], dic['channels']))
         
         return dic
     
@@ -636,9 +636,9 @@ class CropLayerParser(LayerWithInputParser):
         self.verify_no_grads()
         
         if dic['startX'] + dic['sizeX'] > dic['imgSize']:
-            raise LayerParsingError("Layer '%s': startX (%d) + sizeX (%d) > imgSize (%d)" % (name, dic['startX'], dic['sizeX'], dic['imgSize']))
+            raise LayerParsingError("Layer '{}': startX ({:%d}) + sizeX ({:%d}) > imgSize ({:%d})".format(name, dic['startX'], dic['sizeX'], dic['imgSize']))
         
-        print "Initialized cropping layer '%s', producing %dx%d %d-channel output" % (name, dic['sizeX'], dic['sizeX'], dic['channels'])
+        print("Initialized cropping layer '{}', producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['sizeX'], dic['sizeX'], dic['channels']))
         
         return dic
     
@@ -669,7 +669,7 @@ class RGBToYUVLayerParser(ColorTransformLayerParser):
         
     def parse(self, name, mcp, prev_layers, model=None):
         dic = ColorTransformLayerParser.parse(self, name, mcp, prev_layers, model)
-        print "Initialized RGB --> YUV layer '%s', producing %dx%d %d-channel output" % (name, dic['imgSize'], dic['imgSize'], dic['channels'])
+        print("Initialized RGB --> YUV layer '{}', producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['imgSize'], dic['imgSize'], dic['channels']))
         return dic
     
 class RGBToLABLayerParser(ColorTransformLayerParser):
@@ -679,7 +679,7 @@ class RGBToLABLayerParser(ColorTransformLayerParser):
     def parse(self, name, mcp, prev_layers, model=None):
         dic = ColorTransformLayerParser.parse(self, name, mcp, prev_layers, model)
         dic['center'] = mcp.safe_get_bool(name, 'center', default=False)
-        print "Initialized RGB --> LAB layer '%s', producing %dx%d %d-channel output" % (name, dic['imgSize'], dic['imgSize'], dic['channels'])
+        print("Initialized RGB --> LAB layer '{}', producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['imgSize'], dic['imgSize'], dic['channels']))
         return dic
 
 class NeuronLayerParser(LayerWithInputParser):
@@ -713,7 +713,7 @@ class NeuronLayerParser(LayerWithInputParser):
         fnames = [OptionsParser._bold(colnames[1])] + [n.func_str for n in neuron_parsers]
         usage_lines = NL.join(ntype + fname for ntype,fname in zip(ntypes, fnames))
         
-        raise LayerParsingError("Layer '%s': unable to parse neuron type '%s'. Valid neuron types: %sWhere neurons have parameters, they must be floats." % (self.dic['name'], neuron_str, NL + usage_lines + NL))
+        raise LayerParsingError("Layer '{}': unable to parse neuron type '{}'. Valid neuron types: {} Where neurons have parameters, they must be floats.".format(self.dic['name'], neuron_str, NL + usage_lines + NL))
     
     def detach_neuron_layer(self, src_name, layers):
         dic = self.dic
@@ -740,7 +740,7 @@ class NeuronLayerParser(LayerWithInputParser):
         dic['outputs'] = dic['numInputs'][0]
         self.parse_neuron(dic['neuron'])
         dic['forceOwnActs'] = False
-        print "Initialized neuron layer '%s' on GPUs %s, producing %d outputs" % (name, dic['gpus'], dic['outputs'])
+        print("Initialized neuron layer '{}' on GPUs {}, producing {} outputs".format(name, dic['gpus'], dic['outputs']))
         return dic
 
 class EltwiseSumLayerParser(LayerWithInputParser):
@@ -756,14 +756,14 @@ class EltwiseSumLayerParser(LayerWithInputParser):
         dic = LayerWithInputParser.parse(self, name, mcp, prev_layers, model)
         
         if len(set(dic['numInputs'])) != 1:
-            raise LayerParsingError("Layer '%s': all inputs must have the same dimensionality. Got dimensionalities: %s" % (name, ", ".join(str(s) for s in dic['numInputs'])))
+            raise LayerParsingError("Layer '{}': all inputs must have the same dimensionality. Got dimensionalities: {}".format(name, ", ".join(str(s) for s in dic['numInputs'])))
         dic['outputs'] = dic['numInputs'][0]
         dic['usesInputs'] = False
         dic['usesActs'] = False
         dic['forceOwnActs'] = False
         dic['requiresParams'] = True        
         
-        print "Initialized elementwise sum layer '%s' on GPUs %s, producing %d outputs" % (name, dic['gpus'], dic['outputs'])
+        print("Initialized elementwise sum layer '{}' on GPUs {}, producing {:%d} outputs".format(name, dic['gpus'], dic['outputs']))
         return dic
     
 class EltwiseMaxLayerParser(LayerWithInputParser):
@@ -773,12 +773,12 @@ class EltwiseMaxLayerParser(LayerWithInputParser):
     def parse(self, name, mcp, prev_layers, model):
         dic = LayerWithInputParser.parse(self, name, mcp, prev_layers, model)
         if len(dic['inputs']) < 2:
-            raise LayerParsingError("Layer '%s': elementwise max layer must have at least 2 inputs, got %d." % (name, len(dic['inputs'])))
+            raise LayerParsingError("Layer '{}': elementwise max layer must have at least 2 inputs, got {:%d}.".format(name, len(dic['inputs'])))
         if len(set(dic['numInputs'])) != 1:
-            raise LayerParsingError("Layer '%s': all inputs must have the same dimensionality. Got dimensionalities: %s" % (name, ", ".join(str(s) for s in dic['numInputs'])))
+            raise LayerParsingError("Layer '{}': all inputs must have the same dimensionality. Got dimensionalities: {}".format(name, ", ".join(str(s) for s in dic['numInputs'])))
         dic['outputs'] = dic['numInputs'][0]
 
-        print "Initialized elementwise max layer '%s' on GPUs %s, producing %d outputs" % (name, dic['gpus'], dic['outputs'])
+        print("Initialized elementwise max layer '{}' on GPUs {}, producing {:%d} outputs".format(name, dic['gpus'], dic['outputs']))
         return dic
     
 class SumLayerParser(LayerWithInputParser):
@@ -792,7 +792,7 @@ class SumLayerParser(LayerWithInputParser):
         self.verify_divisible(dic['numInputs'][0], dic['stride'], 'input dimensionality', 'stride')
         dic['outputs'] = dic['numInputs'][0] / dic['stride']
     
-        print "Initialized sum layer '%s' on GPUs %s, producing %d outputs" % (name, dic['gpus'], dic['outputs'])
+        print("Initialized sum layer '{}' on GPUs {}, producing {:%d} outputs".format(name, dic['gpus'], dic['outputs']))
         return dic
     
 class DropoutLayerParser(LayerWithInputParser):
@@ -813,7 +813,7 @@ class DropoutLayerParser(LayerWithInputParser):
         dic['forceOwnActs'] = False
         dic['outputs'] = dic['numInputs'][0]
 
-        print "Initialized %s layer '%s' on GPUs %s, producing %d outputs" % (dic['type'], name, dic['gpus'], dic['outputs'])
+        print("Initialized %s layer '{}' on GPUs {}, producing {:%d} outputs".format(dic['type'], name, dic['gpus'], dic['outputs']))
         return dic
     
 class Dropout2LayerParser(DropoutLayerParser):
@@ -874,9 +874,9 @@ class WeightLayerParser(LayerWithInputParser):
                     layer['weightSourceMatrixIndices'][i] = -1
                     layer['weights'][i] = layer['weights'][i].copy()
                     layer['weightsInc'][i] = n.zeros_like(layer['weights'][i])
-                    print "Unshared weight matrix %s[%d] from %s[%d]." % (layer['name'], i, layer['weightSourceLayers'][i], src_matrix_idx)
+                    print("Unshared weight matrix {}[{:%d}] from {}[{:%d}].".format(layer['name'], i, layer['weightSourceLayers'][i], src_matrix_idx))
                 else:
-                    print "Weight matrix %s[%d] already unshared." % (layer['name'], i)
+                    print("Weight matrix {}[{:%d}] already unshared.".format(layer['name'], i))
         if 'weightSourceLayers' in layer:
             unshare(layer, layers, range(len(layer['inputs'])) if matrix_idx is None else [matrix_idx])
 
@@ -886,14 +886,14 @@ class WeightLayerParser(LayerWithInputParser):
         func_pat = re.compile('^([^\.]+)\.([^\(\)]+)\s*(?:\(([^,]+(?:,[^,]+)*)\))?$')
         m = func_pat.match(dic[param_name])
         if not m:
-            raise LayerParsingError("Layer '%s': '%s' parameter must have format 'moduleName.functionName(param1,param2,...)'; got: %s." % (dic['name'], param_name, dic['initWFunc']))
+            raise LayerParsingError("Layer '{}': '{}' parameter must have format 'moduleName.functionName(param1,param2,...)'; got: {}.".format(dic['name'], param_name, dic['initWFunc']))
         module, func = m.group(1), m.group(2)
         params = m.group(3).split(',') if m.group(3) is not None else []
         try:
             mod = __import__(module)
             return getattr(mod, func)(dic['name'], input_idx, shapes, params=params) if input_idx >= 0 else getattr(mod, func)(dic['name'], shapes, params=params)
         except (ImportError, AttributeError, TypeError), e:
-            raise LayerParsingError("Layer '%s': %s." % (dic['name'], e))
+            raise LayerParsingError("Layer '{}': {}.".format(dic['name'], e))
         
     def make_weights(self, initW, rows, cols, order='C'):
         dic = self.dic
@@ -905,15 +905,15 @@ class WeightLayerParser(LayerWithInputParser):
                 dic['weights'] += [self.call_init_func('initWFunc', (rows[i], cols[i]), input_idx=i)]
 
                 if type(dic['weights'][i]) != n.ndarray:
-                    raise LayerParsingError("Layer '%s[%d]': weight initialization function %s must return numpy.ndarray object. Got: %s." % (dic['name'], i, dic['initWFunc'], type(dic['weights'][i])))
+                    raise LayerParsingError("Layer '{}[{:%d}]': weight initialization function {} must return numpy.ndarray object. Got: {}.".format(dic['name'], i, dic['initWFunc'], type(dic['weights'][i])))
                 if dic['weights'][i].dtype != n.float32:
-                    raise LayerParsingError("Layer '%s[%d]': weight initialization function %s must weight matrices consisting of single-precision floats. Got: %s." % (dic['name'], i, dic['initWFunc'], dic['weights'][i].dtype))
+                    raise LayerParsingError("Layer '{}[{:%d}]': weight initialization function {} must weight matrices consisting of single-precision floats. Got: {}.".format(dic['name'], i, dic['initWFunc'], dic['weights'][i].dtype))
                 if dic['weights'][i].shape != (rows[i], cols[i]):
-                    raise LayerParsingError("Layer '%s[%d]': weight matrix returned by weight initialization function %s has wrong shape. Should be: %s; got: %s." % (dic['name'], i, dic['initWFunc'], (rows[i], cols[i]), dic['weights'][i].shape))
+                    raise LayerParsingError("Layer '{}[{:%d}]': weight matrix returned by weight initialization function {} has wrong shape. Should be: %s; got: {}.".format(dic['name'], i, dic['initWFunc'], (rows[i], cols[i]), dic['weights'][i].shape))
                 # Convert to desired order
                 dic['weights'][i] = n.require(dic['weights'][i], requirements=order)
                 dic['weightsInc'] += [n.zeros_like(dic['weights'][i])]
-                print "Layer '%s[%d]' initialized weight matrices from function %s" % (dic['name'], i, dic['initWFunc'])
+                print("Layer '{}[{:%d}]' initialized weight matrices from function {}".format(dic['name'], i, dic['initWFunc']))
         else:
             for i in xrange(len(dic['inputs'])):
                 if dic['weightSourceLayers'][i] != '': # Shared weight matrix
@@ -921,9 +921,9 @@ class WeightLayerParser(LayerWithInputParser):
                     dic['weights'] += [src_layer['weights'][dic['weightSourceMatrixIndices'][i]]]
                     dic['weightsInc'] += [src_layer['weightsInc'][dic['weightSourceMatrixIndices'][i]]]
                     if dic['weights'][i].shape != (rows[i], cols[i]):
-                        raise LayerParsingError("Layer '%s': weight sharing source matrix '%s' has shape %dx%d; should be %dx%d." 
-                                                % (dic['name'], dic['weightSource'][i], dic['weights'][i].shape[0], dic['weights'][i].shape[1], rows[i], cols[i]))
-                    print "Layer '%s' initialized weight matrix %d from %s" % (dic['name'], i, dic['weightSource'][i])
+                        raise LayerParsingError("Layer '{}': weight sharing source matrix '{}' has shape {:%d}x{:%d}; should be {:%d}x{:%d}.".format( 
+                                                dic['name'], dic['weightSource'][i], dic['weights'][i].shape[0], dic['weights'][i].shape[1], rows[i], cols[i]))
+                    print("Layer '{}' initialized weight matrix {:%d} from {}".format(dic['name'], i, dic['weightSource'][i]))
                 else:
                     dic['weights'] += [n.array(initW[i] * nr.randn(rows[i], cols[i]), dtype=n.single, order=order)]
                     dic['weightsInc'] += [n.zeros_like(dic['weights'][i])]
@@ -933,14 +933,14 @@ class WeightLayerParser(LayerWithInputParser):
         if dic['initBFunc']:
             dic['biases'] = self.call_init_func('initBFunc', (rows, cols))
             if type(dic['biases']) != n.ndarray:
-                raise LayerParsingError("Layer '%s': bias initialization function %s must return numpy.ndarray object. Got: %s." % (dic['name'], dic['initBFunc'], type(dic['biases'])))
+                raise LayerParsingError("Layer '{}': bias initialization function {} must return numpy.ndarray object. Got: {}.".format(dic['name'], dic['initBFunc'], type(dic['biases'])))
             if dic['biases'].dtype != n.float32:
-                raise LayerParsingError("Layer '%s': bias initialization function %s must return numpy.ndarray object consisting of single-precision floats. Got: %s." % (dic['name'], dic['initBFunc'], dic['biases'].dtype))
+                raise LayerParsingError("Layer '{}': bias initialization function {} must return numpy.ndarray object consisting of single-precision floats. Got: {}.".format(dic['name'], dic['initBFunc'], dic['biases'].dtype))
             if dic['biases'].shape != (rows, cols):
-                raise LayerParsingError("Layer '%s': bias vector returned by bias initialization function %s has wrong shape. Should be: %s; got: %s." % (dic['name'], dic['initBFunc'], (rows, cols), dic['biases'].shape))
+                raise LayerParsingError("Layer '{}': bias vector returned by bias initialization function {} has wrong shape. Should be: {}; got: {}.".format(dic['name'], dic['initBFunc'], (rows, cols), dic['biases'].shape))
 
             dic['biases'] = n.require(dic['biases'], requirements=order)
-            print "Layer '%s' initialized bias vector from function %s" % (dic['name'], dic['initBFunc'])
+            print("Layer '{}' initialized bias vector from function {}".format(dic['name'], dic['initBFunc']))
         else:
             dic['biases'] = dic['initB'] * n.ones((rows, cols), order=order, dtype=n.single)
         dic['biasesInc'] = n.zeros_like(dic['biases'])
@@ -969,23 +969,23 @@ class WeightLayerParser(LayerWithInputParser):
             if src_name != '':
                 src_layer_match = WeightLayerParser.get_layer_name(src_name)
                 if src_layer_match is None:
-                    raise LayerParsingError("Layer '%s': unable to parse weight sharing source '%s'. Format is layer[idx] or just layer, in which case idx=0 is used." % (name, src_name))
+                    raise LayerParsingError("Layer '{}': unable to parse weight sharing source '{}'. Format is layer[idx] or just layer, in which case idx=0 is used.".format(name, src_name))
                 src_layer_name = src_layer_match[0]
                 src_layer_matrix_idx = int(src_layer_match[1]) if src_layer_match[1] is not None else 0
 
                 if src_layer_name not in prev_layers and src_layer_name != name:
-                    raise LayerParsingError("Layer '%s': weight sharing source layer '%s' does not exist." % (name, src_layer_name))
+                    raise LayerParsingError("Layer '{}': weight sharing source layer '{}' does not exist.".format(name, src_layer_name))
                 
 #                src_layer_idx = prev_names.index(src_layer_name) if src_layer_name != name else len(prev_names)
                 src_layer = prev_layers[src_layer_name] if src_layer_name != name else dic
                 if src_layer['gpu'] != dic['gpu']:
-                    raise LayerParsingError("Layer '%s': weight sharing source layer '%s' runs on GPUs %s, while '%s' runs on GPUs %s." % (name, src_layer_name, src_layer['gpu'], name, dic['gpu']))
+                    raise LayerParsingError("Layer '{}': weight sharing source layer '{}' runs on GPUs {}, while '{}' runs on GPUs {}.".format(name, src_layer_name, src_layer['gpu'], name, dic['gpu']))
                 if src_layer['type'] != dic['type']:
-                    raise LayerParsingError("Layer '%s': weight sharing source layer '%s' is of type '%s'; should be '%s'." % (name, src_layer_name, src_layer['type'], dic['type']))
+                    raise LayerParsingError("Layer '{}': weight sharing source layer '{}' is of type '{}'; should be '{}'.".format(name, src_layer_name, src_layer['type'], dic['type']))
                 if src_layer_name != name and len(src_layer['weights']) <= src_layer_matrix_idx:
-                    raise LayerParsingError("Layer '%s': weight sharing source layer '%s' has %d weight matrices, but '%s[%d]' requested." % (name, src_layer_name, len(src_layer['weights']), src_name, src_layer_matrix_idx))
+                    raise LayerParsingError("Layer '{}': weight sharing source layer '{}' has {:%d} weight matrices, but '{}[{:%d}]' requested.".format(name, src_layer_name, len(src_layer['weights']), src_name, src_layer_matrix_idx))
                 if src_layer_name == name and src_layer_matrix_idx >= i:
-                    raise LayerParsingError("Layer '%s': weight sharing source '%s[%d]' not defined yet." % (name, name, src_layer_matrix_idx))
+                    raise LayerParsingError("Layer '{}': weight sharing source '{}[{:%d}]' not defined yet.".format(name, name, src_layer_matrix_idx))
 
             dic['weightSourceLayers'] += [src_layer_name]
             dic['weightSourceMatrixIndices'] += [src_layer_matrix_idx]
@@ -1005,7 +1005,7 @@ class FCLayerParser(WeightLayerParser):
         self.make_weights(dic['initW'], dic['numInputs'], [dic['outputs']] * len(dic['numInputs']), order='F')
         self.make_biases(1, dic['outputs'], order='F')
 
-        print "Initialized fully-connected layer '%s' on GPUs %s, producing %d outputs" % (name, dic['gpus'], dic['outputs'])
+        print("Initialized fully-connected layer '{}' on GPUs {}, producing {:%d} outputs".format(name, dic['gpus'], dic['outputs']))
         return dic
     
 class SplitFCLayerParser(WeightLayerParser):
@@ -1025,7 +1025,7 @@ class SplitFCLayerParser(WeightLayerParser):
         for i in xrange(len(dic['numInputs'])):
             self.verify_divisible(dic['numInputs'][i], dic['parts'], 'numInputs', 'parts', input_idx=i)
             
-        print "Initialized split fully-connected layer '%s' on GPUs %s, producing %d outputs in %d parts" % (name, dic['gpus'], dic['outputs'], dic['parts'])
+        print("Initialized split fully-connected layer '{}' on GPUs {}, producing {:%d} outputs in {:%d} parts".format(name, dic['gpus'], dic['outputs'], dic['parts']))
         return dic
     
 class LocalLayerParser(WeightLayerParser):
@@ -1055,7 +1055,7 @@ class LocalLayerParser(WeightLayerParser):
                 layer['biases'] = n.require(n.repeat(layer['biases'], layer['modules'], axis=0), requirements='C')
                 layer['biasesInc'] = n.zeros_like(layer['biases'])
             
-            print "Converted layer '%s' from convolutional to unshared, locally-connected" % layer['name']
+            print("Converted layer '{}' from convolutional to unshared, locally-connected".format(layer['name']))
             
             # Also call this function on any layers sharing my weights
             for l in layers:
@@ -1105,7 +1105,7 @@ class LocalLayerParser(WeightLayerParser):
         dic['filterChannels'] = [channels/groups for channels,groups in zip(dic['channels'], dic['groups'])]
         
         if len(set(dic['modulesX'])) != 1 or len(set(dic['filters'])) != 1:
-            raise LayerParsingError("Layer '%s': all inputs must produce equally-dimensioned output. Dimensions are: %s." % (name, ", ".join("%dx%dx%d" % (filters, modulesX, modulesX) for filters,modulesX in zip(dic['filters'], dic['modulesX']))))
+            raise LayerParsingError("Layer '{}': all inputs must produce equally-dimensioned output. Dimensions are: {}.".format(name, ", ".join("{:%d}x{:%d}x{:%d}".format(filters, modulesX, modulesX) for filters,modulesX in zip(dic['filters'], dic['modulesX']))))
 
         dic['modulesX'] = dic['modulesX'][0]
         dic['modules'] = dic['modulesX']**2
@@ -1114,13 +1114,13 @@ class LocalLayerParser(WeightLayerParser):
 #        dic['filterConns'] = [[]] * len(dic['inputs'])
         for i in xrange(len(dic['inputs'])):
             if dic['numInputs'][i] % dic['imgPixels'][i] != 0 or dic['imgSize'][i] * dic['imgSize'][i] != dic['imgPixels'][i]:
-                raise LayerParsingError("Layer '%s[%d]': has %-d dimensional input, not interpretable as square %d-channel images" % (name, i, dic['numInputs'][i], dic['channels'][i]))
+                raise LayerParsingError("Layer '{}[{:%d}]': has {:%d} dimensional input, not interpretable as square {:%d}-channel images".format(name, i, dic['numInputs'][i], dic['channels'][i]))
             if dic['channels'][i] > 3 and dic['channels'][i] % 4 != 0:
-                raise LayerParsingError("Layer '%s[%d]': number of channels must be smaller than 4 or divisible by 4" % (name, i))
+                raise LayerParsingError("Layer '{}[{:%d}]': number of channels must be smaller than 4 or divisible by 4".format(name, i))
 #            if dic['filterSize'][i] > totalPadding[i] + dic['imgSize'][i]:
 #                raise LayerParsingError("Layer '%s[%d]': filter size (%d) greater than image size + padding (%d)" % (name, i, dic['filterSize'][i], dic['padding'][i] + dic['imgSize'][i]))
             if -dic['padding'][i] + dic['stride'][i] * (dic['modulesX'] - 1) + dic['filterSize'][i] < dic['imgSize'][i]:
-                raise LayerParsingError("Layer '%s[%d]': %dx%d output map with padding=%d, stride=%d does not cover entire input image." % (name, i, dic['modulesX'], dic['outputsX'], dic['padding'][i], dic['stride'][i]))
+                raise LayerParsingError("Layer '{}[{:%d}]': {:%d}x{:%d} output map with padding={:%d}, stride={:%d} does not cover entire input image.".format(name, i, dic['modulesX'], dic['outputsX'], dic['padding'][i], dic['stride'][i]))
 
             if dic['groups'][i] > 1:
                 self.verify_divisible(dic['channels'][i], 4*dic['groups'][i], 'channels', '4 * groups', input_idx=i)
@@ -1146,7 +1146,7 @@ class ConvLayerParser(LocalLayerParser):
         self.verify_num_params(['wcNormMax', 'wcNormMin'])
         for min,max in zip(self.dic['wcNormMin'], self.dic['wcNormMax']):
             if min > max:
-                raise LayerParsingError("Layer '%s': wcNormMin must be <= wcNormMax." % (self.dic['name']))
+                raise LayerParsingError("Layer '{}': wcNormMin must be <= wcNormMax.".format(self.dic['name']))
         
     def parse(self, name, mcp, prev_layers, model):
         dic = LocalLayerParser.parse(self, name, mcp, prev_layers, model)
@@ -1160,7 +1160,7 @@ class ConvLayerParser(LocalLayerParser):
         self.make_weights(dic['initW'], eltmult(dic['filterPixels'], dic['filterChannels']), [dic['filters']] * len(dic['inputs']), order='C')
         self.make_biases(num_biases, 1, order='C')
 
-        print "Initialized convolutional layer '%s' on GPUs %s, producing %dx%d %d-channel output" % (name, dic['gpus'], dic['modulesX'], dic['modulesX'], dic['filters'])
+        print("Initialized convolutional layer '{}' on GPUs {}, producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['gpus'], dic['modulesX'], dic['modulesX'], dic['filters']))
         return dic    
     
 class LocalUnsharedLayerParser(LocalLayerParser):
@@ -1174,7 +1174,7 @@ class LocalUnsharedLayerParser(LocalLayerParser):
         self.make_weights(dic['initW'], scmult(dic['modules'], eltmult(dic['filterPixels'], dic['filterChannels'])), [dic['filters']] * len(dic['inputs']), order='C')
         self.make_biases(dic['modules'] * dic['filters'], 1, order='C')
         
-        print "Initialized locally-connected layer '%s' on GPUs %s, producing %dx%d %d-channel output" % (name, dic['gpus'], dic['modulesX'], dic['modulesX'], dic['filters'])
+        print("Initialized locally-connected layer '{}' on GPUs {}, producing {:%d}x{:%d} {:%d}-channel output".format(name, dic['gpus'], dic['modulesX'], dic['modulesX'], dic['filters']))
         return dic  
     
 class DataLayerParser(LayerParser):
@@ -1188,7 +1188,7 @@ class DataLayerParser(LayerParser):
         dic['end'] = mcp.safe_get_int(name, 'end', default=model.train_data_provider.get_data_dims(idx=dic['dataIdx']))
         dic['outputs'] = dic['end'] - dic['start']
 #        dic['usesActs'] = False
-        print "Initialized data layer '%s', producing %d outputs" % (name, dic['outputs'])
+        print("Initialized data layer '{}', producing {:%d} outputs".format(name, dic['outputs']))
         return dic
 
 class SoftmaxLayerParser(LayerWithInputParser):
@@ -1198,7 +1198,7 @@ class SoftmaxLayerParser(LayerWithInputParser):
     def parse(self, name, mcp, prev_layers, model):
         dic = LayerWithInputParser.parse(self, name, mcp, prev_layers, model)
         dic['outputs'] = dic['inputLayers'][0]['outputs']
-        print "Initialized softmax layer '%s' on GPUs %s, producing %d outputs" % (name, dic['gpus'], dic['outputs'])
+        print("Initialized softmax layer '{}' on GPUs {}, producing {:%d} outputs".format(name, dic['gpus'], dic['outputs']))
         return dic
     
 class ConcatentionLayerParser(LayerWithInputParser):
@@ -1209,7 +1209,7 @@ class ConcatentionLayerParser(LayerWithInputParser):
         dic = LayerWithInputParser.parse(self, name, mcp, prev_layers, model)
         dic['outputs'] = sum(l['outputs'] for l in dic['inputLayers'])
         dic['copyOffsets'] = [sum(dic['inputLayers'][j]['outputs'] for j in xrange(i)) for i in xrange(len(dic['inputLayers']))]
-        print "Initialized concatenation layer '%s' on GPUs %s, producing %d outputs" % (name, dic['gpus'], dic['outputs'])
+        print("Initialized concatenation layer '{}' on GPUs {}, producing {:%d} outputs".format(name, dic['gpus'], dic['outputs']))
         return dic
     
 class PassThroughLayerParser(LayerWithInputParser):
@@ -1224,14 +1224,14 @@ class PassThroughLayerParser(LayerWithInputParser):
 #        if len(dic['inputLayers']) == 1:
 #            raise LayerParsingError("Layer %s: pass-through layer must have more than one input." % dic['name'])
         if len(dic['gpu']) != len(dic['inputLayers'][0]['gpu']):
-            raise LayerParsingError("Layer '%s': number of replicas in pass-through layer must be equivalent to number of replicas in input layers." % dic['name'])
+            raise LayerParsingError("Layer '{}': number of replicas in pass-through layer must be equivalent to number of replicas in input layers.".format(dic['name']))
         for inp in dic['inputLayers']:
             conflicting_layers = [l for l in prev_layers.values() if l['type'] == 'pass' and inp['name'] in l['inputs'] and len(set(dic['gpu']).intersection(set(l['gpu']))) > 0]
             if len(conflicting_layers) > 0:
-                raise LayerParsingError("Layer '%s' conflicts with layer '%s'. Both pass-through layers take layer '%s' as input and operate on an overlapping set of GPUs." % (dic['name'], conflicting_layers[0]['name'], inp['name']))
+                raise LayerParsingError("Layer '{}' conflicts with layer '{}'. Both pass-through layers take layer '{}' as input and operate on an overlapping set of GPUs.".format(dic['name'], conflicting_layers[0]['name'], inp['name']))
         dic['outputs'] = sum(l['outputs'] for l in dic['inputLayers'])
 #        dic['copyOffsets'] = [sum(dic['inputLayers'][j]['outputs'] for j in xrange(i)) for i in xrange(len(dic['inputLayers']))]
-        print "Initialized pass-through layer '%s' on GPUs %s, producing %d outputs" % (name, dic['gpus'], dic['outputs'])
+        print("Initialized pass-through layer '{}' on GPUs {}, producing {} outputs".format(name, dic['gpus'], dic['outputs']))
         return dic
 
 class PoolLayerParser(LayerWithInputParser):
@@ -1276,7 +1276,7 @@ class PoolLayerParser(LayerWithInputParser):
             dic['outputsX'] = int(ceil((dic['imgSize'] - dic['start'] - dic['sizeX']) / float(dic['stride']))) + 1;
         dic['outputs'] = dic['outputsX']**2 * dic['channels']
         
-        print "Initialized %s-pooling layer '%s' on GPUs %s, producing %dx%d %d-channel output" % (dic['pool'], name, dic['gpus'], dic['outputsX'], dic['outputsX'], dic['channels'])
+        print("Initialized {}-pooling layer '{}' on GPUs {}, producing {:%d}x{:%d} {:%d}-channel output".format(dic['pool'], name, dic['gpus'], dic['outputsX'], dic['outputsX'], dic['channels']))
         return dic
     
 
@@ -1313,10 +1313,10 @@ class CrossMapPoolLayerParser(LayerWithInputParser):
         
         covered_chans = dic['start'] + (dic['outputChannels'] - 1) * dic['stride'] + dic['size']
         if covered_chans < dic['channels']:
-            raise LayerParsingError("Layer '%s': cross-map pooling with start=%d, stride=%d, size=%d, outputs=%d covers only %d of %d input channels." % \
-                                    (name, dic['start'], dic['stride'], dic['size'], dic['outputChannels'], covered_chans, dic['channels']))
+            raise LayerParsingError("Layer '{}': cross-map pooling with start={:%d}, stride={:%d}, size={:%d}, outputs={:%d} covers only {:%d} of {:%d} input channels.".format(
+                                    name, dic['start'], dic['stride'], dic['size'], dic['outputChannels'], covered_chans, dic['channels']))
         
-        print "Initialized cross-map %s-pooling layer '%s' on GPUs %s, producing %dx%d %d-channel output" % (dic['pool'], name, dic['gpus'], dic['imgSize'], dic['imgSize'], dic['outputChannels'])
+            print("Initialized cross-map {}-pooling layer '{}' on GPUs {}, producing {:%d}x{:%d} {:%d}-channel output".format(dic['pool'], name, dic['gpus'], dic['imgSize'], dic['imgSize'], dic['outputChannels']))
         return dic
     
 class NormLayerParser(LayerWithInputParser):
@@ -1353,17 +1353,17 @@ class NormLayerParser(LayerWithInputParser):
         if self.norm_type == self.CROSSMAP_RESPONSE_NORM: 
             self.verify_num_range(dic['size'], 'size', 2, dic['channels'])
             if dic['channels'] % 16 != 0:
-                raise LayerParsingError("Layer '%s': number of channels must be divisible by 16 when using crossMap" % name)
+                raise LayerParsingError("Layer '{}': number of channels must be divisible by 16 when using crossMap".format(name))
         else:
             self.verify_num_range(dic['size'], 'size', 1, dic['imgSize'])
         
         if self.norm_type != self.CROSSMAP_RESPONSE_NORM and dic['channels'] > 3 and dic['channels'] % 4 != 0:
-            raise LayerParsingError("Layer '%s': number of channels must be smaller than 4 or divisible by 4" % name)
+            raise LayerParsingError("Layer '{}': number of channels must be smaller than 4 or divisible by 4".format(name))
 
         self.verify_img_size()
 
         dic['outputs'] = dic['imgPixels'] * dic['channels']
-        print "Initialized %s-normalization layer '%s' on GPUs %s, producing %dx%d %d-channel output" % (self.norm_type, name, dic['gpus'], dic['imgSize'], dic['imgSize'], dic['channels'])
+        print("Initialized {}-normalization layer '{}' on GPUs {}, producing {:%d}x{:%d} {:%d}-channel output".format(self.norm_type, name, dic['gpus'], dic['imgSize'], dic['imgSize'], dic['channels']))
         return dic
 
 class CostParser(LayerWithInputParser):
@@ -1379,9 +1379,9 @@ class CostParser(LayerWithInputParser):
         # Aggregated costs only produce outputs which are additive.
         for c in dic['children']:
             if c not in prev_layers:
-                raise LayerParsingError("Layer '%s': child cost layer '%s' not defined" % (name, c))
+                raise LayerParsingError("Layer '{}': child cost layer '{}' not defined".format(name, c))
             if prev_layers[c]['type'] != dic['type']:
-                raise LayerParsingError("Layer '%s': child cost layer '%s' must have same type as parent" % (name, c))
+                raise LayerParsingError("Layer '{}': child cost layer '{}' must have same type as parent".format(name, c))
             prev_layers[c]['aggregated'] = 1
         dic['aggregated'] = dic['children'] != []
         del dic['neuron']
@@ -1400,14 +1400,14 @@ class CrossEntCostParser(CostParser):
     def parse(self, name, mcp, prev_layers, model):
         dic = CostParser.parse(self, name, mcp, prev_layers, model)
         if dic['numInputs'][0] != model.train_data_provider.get_num_classes(): # first input must be labels
-            raise LayerParsingError("Layer '%s': Dimensionality of first input must be equal to number of labels" % name)
+            raise LayerParsingError("Layer '{}': Dimensionality of first input must be equal to number of labels".format(name))
         if dic['inputLayers'][1]['type'] != 'softmax':
-            raise LayerParsingError("Layer '%s': Second input must be softmax layer" % name)
+            raise LayerParsingError("Layer '{}': Second input must be softmax layer".format(name))
         if dic['numInputs'][1] != model.train_data_provider.get_num_classes():
-            raise LayerParsingError("Layer '%s': Softmax input '%s' must produce %d outputs, because that is the number of classes in the dataset" \
-                                    % (name, dic['inputs'][1], model.train_data_provider.get_num_classes()))
+            raise LayerParsingError("Layer '{}': Softmax input '{}' must produce {:%d} outputs, because that is the number of classes in the dataset".format(
+                                    name, dic['inputs'][1], model.train_data_provider.get_num_classes()))
         
-        print "Initialized cross-entropy cost '%s' on GPUs %s" % (name, dic['gpus'])
+        print("Initialized cross-entropy cost '{}' on GPUs {}".format(name, dic['gpus']))
         return dic
     
 class LogregCostParser(CostParser):
@@ -1425,14 +1425,14 @@ class LogregCostParser(CostParser):
         dic = CostParser.parse(self, name, mcp, prev_layers, model)
         dic['requiresParams'] = True
         if dic['numInputs'][0] != 1: # first input must be labels
-            raise LayerParsingError("Layer '%s': dimensionality of first input must be 1" % name)
+            raise LayerParsingError("Layer '{}': dimensionality of first input must be 1".format(name))
         if dic['inputLayers'][1]['type'] != 'softmax':
-            raise LayerParsingError("Layer '%s': second input must be softmax layer" % name)
+            raise LayerParsingError("Layer '{}': second input must be softmax layer".format(name))
         if dic['numInputs'][1] != model.train_data_provider.get_num_classes():
-            raise LayerParsingError("Layer '%s': softmax input '%s' must produce %d outputs, because that is the number of classes in the dataset" \
-                                    % (name, dic['inputs'][1], model.train_data_provider.get_num_classes()))
+            raise LayerParsingError("Layer '{}': softmax input '{}' must produce {:%d} outputs, because that is the number of classes in the dataset".format(
+                                    name, dic['inputs'][1], model.train_data_provider.get_num_classes()))
             
-        print "Initialized logistic regression cost '%s' on GPUs %s" % (name, dic['gpus'])
+        print("Initialized logistic regression cost '{}' on GPUs {}".format(name, dic['gpus']))
         return dic
     
 class BinomialCrossEntCostParser(CostParser):
@@ -1447,13 +1447,13 @@ class BinomialCrossEntCostParser(CostParser):
         dic = CostParser.parse(self, name, mcp, prev_layers, model)
 
         if dic['numInputs'][0] != dic['numInputs'][1]:
-            raise LayerParsingError("Layer '%s': both inputs must produce the same number of outputs" % (name))
+            raise LayerParsingError("Layer '{}': both inputs must produce the same number of outputs".format(name))
 
         if 'neuron' not in dic['inputLayers'][1] or dic['inputLayers'][1]['neuron'] != 'logistic':
-            print "WARNING: Layer '%s': input '%s' is not logistic, results may not be what you intend." % (dic['name'], dic['inputs'][1])
+            print("WARNING: Layer '{}': input '{}' is not logistic, results may not be what you intend.".format(dic['name'], dic['inputs'][1]))
         
         if dic['type'] == 'cost.bce':
-            print "Initialized binomial cross-entropy cost '%s' on GPUs %s" % (name, dic['gpus'])
+            print("Initialized binomial cross-entropy cost '{}' on GPUs {}".format(name, dic['gpus']))
         
         
         dic['computeSoftmaxErrorRate'] = True
@@ -1466,11 +1466,11 @@ class DetectionCrossEntCostParser(BinomialCrossEntCostParser):
     def parse(self, name, mcp, prev_layers, model):
         dic = BinomialCrossEntCostParser.parse(self, name, mcp, prev_layers, model)
         if dic['numInputs'][0] != model.train_data_provider.get_num_classes(): # first input must be labels
-            raise LayerParsingError("Layer '%s': Dimensionality of first input must be equal to number of labels" % name)
+            raise LayerParsingError("Layer '{}': Dimensionality of first input must be equal to number of labels".format(name))
         dic['computeSoftmaxErrorRate'] = False
         dic['outputFilter'] = 'lambda costs,num_cases: [c/num_cases for c in costs[:2]] + [(class_cost[2] / class_cost[j] if class_cost[j] > 0 else n.inf) for class_cost in [costs[2:][i*3:(i+1)*3] for i in range(len(costs[2:])/3)] for j in range(2)]'
-        dic['outputFilterFormatter'] = 'lambda self,costs: "(crossent) %.6f, (err) %.6f, " % (costs[0], costs[1]) + ", ".join("(%s) %.6f, %.6f" % (self.train_data_provider.batch_meta["label_names"][i/2-1],costs[i],costs[i+1]) for i in xrange(2, len(costs), 2))'
-        print "Initialized detection cross-entropy cost '%s' on GPUs %s" % (name, dic['gpus'])
+        dic['outputFilterFormatter'] = 'lambda self,costs: "(crossent) %{:.6f}, (err) {%:.6f}, ".format(costs[0], costs[1]) + ", ".join("({}) {:%.6f}, {:%.6f}".format(self.train_data_provider.batch_meta["label_names"][i/2-1],costs[i],costs[i+1]) for i in xrange(2, len(costs), 2))'
+        print("Initialized detection cross-entropy cost '{}' on GPUs {}".format(name, dic['gpus']))
         return dic
     
 class SumOfSquaresCostParser(CostParser):
@@ -1479,7 +1479,7 @@ class SumOfSquaresCostParser(CostParser):
         
     def parse(self, name, mcp, prev_layers, model):
         dic = CostParser.parse(self, name, mcp, prev_layers, model)
-        print "Initialized sum-of-squares cost '%s' on GPUs %s" % (name, dic['gpus'])
+        print("Initialized sum-of-squares cost '{}' on GPUs {}".format(name, dic['gpus']))
         return dic
     
 # All the layer parsers
