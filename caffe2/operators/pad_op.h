@@ -34,15 +34,16 @@ enum class PadMode {
 
 PadMode StringToPadMode(const string&);
 
-template <typename T, class Context>
+template <typename Types, class Context>
 class PadImageOp final : public ConvPoolOpBase<Context> {
  public:
   USE_CONV_POOL_BASE_FUNCTIONS(Context);
+  USE_DISPATCH_HELPER;
   PadImageOp(const OperatorDef& operator_def, Workspace* ws)
       : ConvPoolOpBase<Context>(operator_def, ws),
         mode_(StringToPadMode(
             OperatorBase::GetSingleArgument<string>("mode", "constant"))),
-        value_(static_cast<T>(
+        value_(static_cast<float>(
             OperatorBase::GetSingleArgument<float>("value", 0.0))) {
     CAFFE_ENFORCE(
         legacy_pad_ == LegacyPadding::NOTSET,
@@ -59,8 +60,12 @@ class PadImageOp final : public ConvPoolOpBase<Context> {
   }
   ~PadImageOp() {}
 
-  bool RunOnDeviceWithOrderNCHW() override;
-  bool RunOnDeviceWithOrderNHWC() override;
+  bool RunOnDeviceWithOrderNCHW() override {
+    return DispatchHelper<Types>::call(this, Input(0));
+  }
+  bool RunOnDeviceWithOrderNHWC() override {
+    return DispatchHelper<Types>::call(this, Input(0));
+  }
 
   static std::vector<TensorShape> PadTensorInference(
       const OperatorDef& def,
@@ -68,16 +73,28 @@ class PadImageOp final : public ConvPoolOpBase<Context> {
 
  private:
   PadMode mode_;
-  T value_;
+  float value_;  // we only specialize for float16 and float for now
+
+  template <typename T> bool DoRunWithType() {
+    if (order_ == StorageOrder::NCHW) {
+      return DoRunWithTypeWithOrderNCHW<T>();
+    } else {
+      return DoRunWithTypeWithOrderNHWC<T>();
+    }
+  }
+
+  template <typename T> bool DoRunWithTypeWithOrderNCHW();
+  template <typename T> bool DoRunWithTypeWithOrderNHWC();
 
   // Input: X
   // Output: Y
 };
 
-template <typename T, class Context>
+template <typename Types, class Context>
 class PadImageGradientOp final : public ConvPoolOpBase<Context> {
  public:
   USE_CONV_POOL_BASE_FUNCTIONS(Context);
+  USE_DISPATCH_HELPER;
   PadImageGradientOp(const OperatorDef& operator_def, Workspace* ws)
       : ConvPoolOpBase<Context>(operator_def, ws),
         mode_(StringToPadMode(
@@ -94,11 +111,36 @@ class PadImageGradientOp final : public ConvPoolOpBase<Context> {
   }
   ~PadImageGradientOp() {}
 
-  bool RunOnDeviceWithOrderNCHW() override;
-  bool RunOnDeviceWithOrderNHWC() override;
+  bool RunOnDeviceWithOrderNCHW() override {
+    return DispatchHelper<Types>::call(this, Input(0));
+  }
+  bool RunOnDeviceWithOrderNHWC() override {
+    return DispatchHelper<Types>::call(this, Input(0));
+  }
 
  private:
   PadMode mode_;
+
+  template <typename T> bool DoRunWithType() {
+    if (order_ == StorageOrder::NCHW) {
+      return DoRunWithTypeWithOrderNCHW<T>();
+    } else {
+      return DoRunWithTypeWithOrderNHWC<T>();
+    }
+  }
+
+  template <typename Dummy=void> // must be a template
+  bool DoRunWithOtherType() {
+    CAFFE_THROW(
+        "PadImageGradient is not implemented on tensor of type ",
+        Input(0).meta().name(),
+        " Note that fp16 is not yet implemented - there are some complications "
+        "with atomicAdd, feel free to add it");
+  }
+
+  template <typename T> bool DoRunWithTypeWithOrderNCHW();
+  template <typename T> bool DoRunWithTypeWithOrderNHWC();
+
   // Input: dY
   // Output: dX
 };

@@ -16,10 +16,15 @@
 
 #include <algorithm>
 
-#include "caffe2/core/context_gpu.h"
 #include "caffe2/operators/pad_op.h"
 
+#include "caffe2/core/context_gpu.h"
+#include "caffe2/utils/conversions.h"
+
 namespace caffe2 {
+
+using CUDATypes = TensorTypes<float, float16>;
+using CUDAGradTypes = TensorTypes<float, GenericTensorImplementation>;
 
 namespace {
 template <typename T>
@@ -156,7 +161,9 @@ __global__ void PadImageGradientConstNCHW(
     const int ph = nc % height + pad_t;
     nc /= height;
     bottom_diff[index] =
-        top_diff[(nc * padded_height + ph) * padded_width + pw];
+        (ph < 0 || pw < 0 || ph >= padded_height || pw >= padded_width)
+            ? 0
+            : top_diff[(nc * padded_height + ph) * padded_width + pw];
   }
 }
 
@@ -212,7 +219,11 @@ __global__ void PadImageGradientConstNHWC(
     const int ph = n % height + pad_t;
     n /= height;
     bottom_diff[index] =
-        top_diff[((n * padded_height + ph) * padded_width + pw) * channels + c];
+        (ph < 0 || pw < 0 || ph >= padded_height || pw >= padded_width)
+            ? 0
+            : top_diff[((n * padded_height + ph) * padded_width + pw) *
+                           channels +
+                       c];
   }
 }
 
@@ -265,7 +276,8 @@ __global__ void PadImageGradientEdgeNHWC(
 }  // namespace
 
 template <>
-bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
+template <typename T>
+bool PadImageOp<CUDATypes, CUDAContext>::DoRunWithTypeWithOrderNCHW() {
   auto& X = Input(0);
   auto* Y = Output(0);
   const int num = X.dim32(0);
@@ -276,12 +288,12 @@ bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
   const int output_size = Y->size();
   const int padded_height = Y->dim32(2);
   const int padded_width = Y->dim32(3);
-  const float* Xdata = X.data<float>();
-  float* Ydata = Y->mutable_data<float>();
+  const T* Xdata = X.data<T>();
+  T* Ydata = Y->mutable_data<T>();
 
   switch (mode_) {
     case PadMode::CONSTANT:
-      PadImageConstNCHW<float><<<
+      PadImageConstNCHW<T><<<
           CAFFE_GET_BLOCKS(output_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -296,11 +308,11 @@ bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
           padded_width,
           pad_t(),
           pad_l(),
-          value_,
+          convert::To<float, T>(value_),
           Ydata);
       break;
     case PadMode::REFLECT:
-      PadImageReflectNCHW<float><<<
+      PadImageReflectNCHW<T><<<
           CAFFE_GET_BLOCKS(output_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -318,7 +330,7 @@ bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
           Ydata);
       break;
     case PadMode::EDGE:
-      PadImageEdgeNCHW<float><<<
+      PadImageEdgeNCHW<T><<<
           CAFFE_GET_BLOCKS(output_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -341,7 +353,8 @@ bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
 }
 
 template<>
-bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
+template<typename T>
+bool PadImageOp<CUDATypes, CUDAContext>::DoRunWithTypeWithOrderNHWC() {
   auto& X = Input(0);
   auto* Y = Output(0);
   const int num = X.dim32(0);
@@ -352,12 +365,12 @@ bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
   const int output_size = Y->size();
   const int padded_height = Y->dim32(1);
   const int padded_width = Y->dim32(2);
-  const float* Xdata = X.data<float>();
-  float* Ydata = Y->mutable_data<float>();
+  const T* Xdata = X.data<T>();
+  T* Ydata = Y->mutable_data<T>();
 
   switch (mode_) {
     case PadMode::CONSTANT:
-      PadImageConstNHWC<float><<<
+      PadImageConstNHWC<T><<<
           CAFFE_GET_BLOCKS(output_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -372,11 +385,11 @@ bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
           padded_width,
           pad_t(),
           pad_l(),
-          value_,
+          convert::To<float, T>(value_),
           Ydata);
       break;
     case PadMode::REFLECT:
-      PadImageReflectNHWC<float><<<
+      PadImageReflectNHWC<T><<<
           CAFFE_GET_BLOCKS(output_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -394,7 +407,7 @@ bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
           Ydata);
       break;
     case PadMode::EDGE:
-      PadImageEdgeNHWC<float><<<
+      PadImageEdgeNHWC<T><<<
           CAFFE_GET_BLOCKS(output_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -417,7 +430,8 @@ bool PadImageOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
 }
 
 template<>
-bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
+template<typename T>
+bool PadImageGradientOp<CUDAGradTypes, CUDAContext>::DoRunWithTypeWithOrderNCHW() {
   auto& dY = Input(0);
   auto* dX = Output(0);
   dX->Resize(
@@ -433,13 +447,13 @@ bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
   const int channels = dX->dim32(1);
   const int height = dX->dim32(2);
   const int width = dX->dim32(3);
-  const float* dYdata = dY.data<float>();
-  float* dXdata = dX->mutable_data<float>();
-  math::Set<float, CUDAContext>(output_size, 0, dXdata, &context_);
+  const T* dYdata = dY.data<T>();
+  T* dXdata = dX->mutable_data<T>();
+  math::Set<T, CUDAContext>(output_size, 0, dXdata, &context_);
 
   switch (mode_) {
     case PadMode::CONSTANT:
-      PadImageGradientConstNCHW<float><<<
+      PadImageGradientConstNCHW<T><<<
           CAFFE_GET_BLOCKS(output_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -457,7 +471,7 @@ bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
           dXdata);
       break;
     case PadMode::REFLECT:
-      PadImageGradientReflectNCHW<float><<<
+      PadImageGradientReflectNCHW<T><<<
           CAFFE_GET_BLOCKS(input_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -475,7 +489,7 @@ bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
           dXdata);
       break;
     case PadMode::EDGE:
-      PadImageGradientEdgeNCHW<float><<<
+      PadImageGradientEdgeNCHW<T><<<
           CAFFE_GET_BLOCKS(input_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -498,7 +512,8 @@ bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNCHW() {
 }
 
 template<>
-bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
+template<typename T>
+bool PadImageGradientOp<CUDAGradTypes, CUDAContext>::DoRunWithTypeWithOrderNHWC() {
   auto& dY = Input(0);
   auto* dX = Output(0);
   dX->Resize(
@@ -514,13 +529,13 @@ bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
   const int height = dX->dim32(1);
   const int width = dX->dim32(2);
   const int channels = dX->dim32(3);
-  const float* dYdata = dY.data<float>();
-  float* dXdata = dX->mutable_data<float>();
-  math::Set<float, CUDAContext>(output_size, 0, dXdata, &context_);
+  const T* dYdata = dY.data<T>();
+  T* dXdata = dX->mutable_data<T>();
+  math::Set<T, CUDAContext>(output_size, 0, dXdata, &context_);
 
   switch (mode_) {
     case PadMode::CONSTANT:
-      PadImageGradientConstNHWC<float><<<
+      PadImageGradientConstNHWC<T><<<
           CAFFE_GET_BLOCKS(output_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -538,7 +553,7 @@ bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
           dXdata);
       break;
     case PadMode::REFLECT:
-      PadImageGradientReflectNHWC<float><<<
+      PadImageGradientReflectNHWC<T><<<
           CAFFE_GET_BLOCKS(input_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -556,7 +571,7 @@ bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
           dXdata);
       break;
     case PadMode::EDGE:
-      PadImageGradientEdgeNHWC<float><<<
+      PadImageGradientEdgeNHWC<T><<<
           CAFFE_GET_BLOCKS(input_size),
           CAFFE_CUDA_NUM_THREADS,
           0,
@@ -579,7 +594,7 @@ bool PadImageGradientOp<float, CUDAContext>::RunOnDeviceWithOrderNHWC() {
 }
 
 
-REGISTER_CUDA_OPERATOR(PadImage, PadImageOp<float, CUDAContext>);
+REGISTER_CUDA_OPERATOR(PadImage, PadImageOp<CUDATypes, CUDAContext>);
 REGISTER_CUDA_OPERATOR(PadImageGradient,
-                       PadImageGradientOp<float, CUDAContext>);
+                       PadImageGradientOp<CUDAGradTypes, CUDAContext>);
 }  // namespace caffe2

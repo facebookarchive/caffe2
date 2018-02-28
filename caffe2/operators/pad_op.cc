@@ -35,8 +35,11 @@ PadMode StringToPadMode(const string& mode) {
 using std::min;
 using std::max;
 
+using CPUTypes = TensorTypes<float>;
+
 template <>
-bool PadImageOp<float, CPUContext>::RunOnDeviceWithOrderNCHW() {
+template <typename T>
+bool PadImageOp<CPUTypes, CPUContext>::DoRunWithTypeWithOrderNCHW() {
   auto& X = Input(0);
   auto* Y = Output(0);
   int channels = X.dim32(1);
@@ -44,8 +47,8 @@ bool PadImageOp<float, CPUContext>::RunOnDeviceWithOrderNCHW() {
   int width = X.dim32(3);
   ConvPoolOpBase::SetOutputSize(X, Y, channels);
 
-  const float* Xdata = X.data<float>();
-  float* Ydata = Y->mutable_data<float>();
+  const T* Xdata = X.data<T>();
+  T* Ydata = Y->mutable_data<T>();
   // The main loop
   int padded_height = Y->dim32(2);
   int padded_width = Y->dim32(3);
@@ -78,7 +81,7 @@ bool PadImageOp<float, CPUContext>::RunOnDeviceWithOrderNCHW() {
             // i.e. Y[n][c][pad_t:pad_t+h][pad_l:pad_l+w]
             auto* Ystart = Ydata + pad_t() * padded_width + pad_l();
             math::CopyMatrix<CPUContext>(
-                sizeof(float),
+                sizeof(T),
                 height,
                 width,
                 Xdata,
@@ -174,15 +177,16 @@ bool PadImageOp<float, CPUContext>::RunOnDeviceWithOrderNCHW() {
 }
 
 template <>
-bool PadImageOp<float, CPUContext>::RunOnDeviceWithOrderNHWC() {
+template <typename T>
+bool PadImageOp<CPUTypes, CPUContext>::DoRunWithTypeWithOrderNHWC() {
   auto& X = Input(0);
   auto* Y = Output(0);
   int height = X.dim32(1);
   int width = X.dim32(2);
   int channels = X.dim32(3);
   ConvPoolOpBase::SetOutputSize(X, Y, channels);
-  const float* Xdata = X.data<float>();
-  float* Ydata = Y->mutable_data<float>();
+  const T* Xdata = X.data<T>();
+  T* Ydata = Y->mutable_data<T>();
 
   // The main loop
   int padded_height = Y->dim32(1);
@@ -260,7 +264,8 @@ bool PadImageOp<float, CPUContext>::RunOnDeviceWithOrderNHWC() {
 }
 
 template <>
-bool PadImageGradientOp<float, CPUContext>::RunOnDeviceWithOrderNCHW() {
+template <typename T>
+bool PadImageGradientOp<CPUTypes, CPUContext>::DoRunWithTypeWithOrderNCHW() {
   auto& dY = Input(0);
   auto* dX = Output(0);
   dX->Resize(
@@ -274,9 +279,9 @@ bool PadImageGradientOp<float, CPUContext>::RunOnDeviceWithOrderNCHW() {
   int height = dX->dim32(2);
   int width = dX->dim32(3);
 
-  const float* dYdata = dY.data<float>();
-  float* dXdata = dX->mutable_data<float>();
-  math::Set<float, CPUContext>(dX->size(), 0, dXdata, &context_);
+  const T* dYdata = dY.data<T>();
+  T* dXdata = dX->mutable_data<T>();
+  math::Set<T, CPUContext>(dX->size(), 0, dXdata, &context_);
   // The main loop
   switch (mode_) {
     case PadMode::CONSTANT:
@@ -340,7 +345,8 @@ bool PadImageGradientOp<float, CPUContext>::RunOnDeviceWithOrderNCHW() {
 }
 
 template <>
-bool PadImageGradientOp<float, CPUContext>::RunOnDeviceWithOrderNHWC() {
+template <typename T>
+bool PadImageGradientOp<CPUTypes, CPUContext>::DoRunWithTypeWithOrderNHWC() {
   auto& dY = Input(0);
   auto* dX = Output(0);
   dX->Resize(
@@ -354,9 +360,9 @@ bool PadImageGradientOp<float, CPUContext>::RunOnDeviceWithOrderNHWC() {
   int height = dX->dim32(1);
   int width = dX->dim32(2);
 
-  const float* dYdata = dY.data<float>();
-  float* dXdata = dX->mutable_data<float>();
-  math::Set<float, CPUContext>(dX->size(), 0, dXdata, &context_);
+  const T* dYdata = dY.data<T>();
+  T* dXdata = dX->mutable_data<T>();
+  math::Set<T, CPUContext>(dX->size(), 0, dXdata, &context_);
 
   switch (mode_) {
     case PadMode::CONSTANT:
@@ -426,20 +432,20 @@ bool PadImageGradientOp<float, CPUContext>::RunOnDeviceWithOrderNHWC() {
   return true;
 }
 
-template <>
-std::vector<TensorShape> PadImageOp<float, CPUContext>::PadTensorInference(
+template<>
+std::vector<TensorShape> PadImageOp<CPUTypes, CPUContext>::PadTensorInference(
     const OperatorDef& def,
     const vector<TensorShape>& in) {
   return ConvPoolOpBase::TensorInferenceForPool(def, in);
 }
 
-REGISTER_CPU_OPERATOR(PadImage, PadImageOp<float, CPUContext>);
-REGISTER_CPU_OPERATOR(PadImageGradient, PadImageGradientOp<float, CPUContext>);
+REGISTER_CPU_OPERATOR(PadImage, PadImageOp<CPUTypes, CPUContext>);
+REGISTER_CPU_OPERATOR(PadImageGradient, PadImageGradientOp<CPUTypes, CPUContext>);
 
 OPERATOR_SCHEMA(PadImage)
     .NumInputs(1)
     .NumOutputs(1)
-    .TensorInferenceFunction(PadImageOp<float, CPUContext>::PadTensorInference)
+    .TensorInferenceFunction(PadImageOp<CPUTypes, CPUContext>::PadTensorInference)
     .SetDoc(R"DOC(
 PadImage pads values around the boundary of an image according to the pad
 values and stride sizes defined by the ConvPoolOpBase operator.
