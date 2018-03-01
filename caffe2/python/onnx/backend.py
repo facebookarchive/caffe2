@@ -383,6 +383,10 @@ class Caffe2Backend(Backend):
             prev = prev[0]
             if prev.op_type == n.op_type:
                 return prev.attrs['hidden_size']
+            if prev.op_type == 'Transpose':
+                for x in pred_model.graph.input:
+                    if x.name == prev.inputs[0]:
+                        return x.type.tensor_type.shape.dim[2].dim_value
             curr = prev
 
     @classmethod
@@ -450,7 +454,7 @@ class Caffe2Backend(Backend):
                 input_size,
                 hidden_size,
                 name,
-                drop_states=True,
+                drop_states=False,
                 forward_only=True,
                 activation=activation
             )
@@ -473,7 +477,11 @@ class Caffe2Backend(Backend):
             pred_mh.net.Concat([hidden_t_all_f, hidden_t_all_b],
                                [n.outputs[0], dummy_name()], axis=2)
             pred_mh.net.Concat([hidden_t_last_f, hidden_t_last_b],
-                               [n.outputs[1], dummy_name()], axis=2)
+                               [n.outputs[1], dummy_name()], axis=0)
+
+        if sequence_lens is not None:
+            pred_mh.net.VariableLengthSequencePadding(
+                [n.outputs[0], sequence_lens], [n.outputs[0]])
 
         return Caffe2Ops(list(pred_mh.Proto().op),
                          list(init_net.Proto().op),
@@ -553,7 +561,7 @@ class Caffe2Backend(Backend):
             else:
                 input = input_blob
 
-            hidden_t_all, hidden_t_last, _, _, params = rnn_cell.LSTM(
+            hidden_t_all, hidden_t_last, _, cell_last, params = rnn_cell.LSTM(
                 pred_mh,
                 input,
                 sequence_lens,
@@ -561,7 +569,7 @@ class Caffe2Backend(Backend):
                 input_size,
                 hidden_size,
                 name,
-                drop_states=True,
+                drop_states=False,
                 forward_only=True,
                 return_params=True
             )
@@ -570,21 +578,29 @@ class Caffe2Backend(Backend):
                 hidden_t_all = pred_mh.net.ReversePackedSegs(
                     [hidden_t_all, sequence_lens], name + "/output-reversed")
 
-            return hidden_t_all, hidden_t_last
+            return hidden_t_all, hidden_t_last, cell_last
 
         if direction == 'forward':
-            hidden_t_all, hidden_t_last = make_lstm(0)
+            hidden_t_all, hidden_t_last, cell_last = make_lstm(0)
             pred_mh.net = pred_mh.net.Clone(
                 "dummy-clone-net",
-                blob_remap={ hidden_t_all: n.outputs[0], hidden_t_last: n.outputs[1] }
+                blob_remap={hidden_t_all: n.outputs[0],
+                            hidden_t_last: n.outputs[1],
+                            cell_last: n.outputs[2]}
             )
         elif direction == 'bidirectional':
-            hidden_t_all_f, hidden_t_last_f = make_lstm(0)
-            hidden_t_all_b, hidden_t_last_b = make_lstm(1)
+            hidden_t_all_f, hidden_t_last_f, cell_last_f = make_lstm(0)
+            hidden_t_all_b, hidden_t_last_b, cell_last_b = make_lstm(1)
             pred_mh.net.Concat([hidden_t_all_f, hidden_t_all_b],
                                [n.outputs[0], dummy_name()], axis=2)
             pred_mh.net.Concat([hidden_t_last_f, hidden_t_last_b],
-                               [n.outputs[1], dummy_name()], axis=2)
+                               [n.outputs[1], dummy_name()], axis=0)
+            pred_mh.net.Concat([cell_last_f, cell_last_b],
+                               [n.outputs[2], dummy_name()], axis=0)
+
+        if sequence_lens is not None:
+            pred_mh.net.VariableLengthSequencePadding(
+                [n.outputs[0], sequence_lens], [n.outputs[0]])
 
         return Caffe2Ops(list(pred_mh.Proto().op),
                          list(init_net.Proto().op),
@@ -670,7 +686,7 @@ class Caffe2Backend(Backend):
                 input_size,
                 hidden_size,
                 name,
-                drop_states=True,
+                drop_states=False,
                 forward_only=True,
                 linear_before_reset=linear_before_reset
             )
@@ -693,7 +709,11 @@ class Caffe2Backend(Backend):
             pred_mh.net.Concat([hidden_t_all_f, hidden_t_all_b],
                                [n.outputs[0], dummy_name()], axis=2)
             pred_mh.net.Concat([hidden_t_last_f, hidden_t_last_b],
-                               [n.outputs[1], dummy_name()], axis=2)
+                               [n.outputs[1], dummy_name()], axis=0)
+
+        if sequence_lens is not None:
+            pred_mh.net.VariableLengthSequencePadding(
+                [n.outputs[0], sequence_lens], [n.outputs[0]])
 
         return Caffe2Ops(list(pred_mh.Proto().op),
                          list(init_net.Proto().op),

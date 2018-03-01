@@ -82,18 +82,12 @@ set_property(
     TARGET caffe2::cuda PROPERTY INTERFACE_INCLUDE_DIRECTORIES
     ${CUDA_INCLUDE_DIRS})
 
-# cudart. CUDA_LIBRARIES is actually a list, so we will do a little bit of
-# trick to get it in place.
-add_library(caffe2::cudart UNKNOWN IMPORTED)
-set(__tmp ${CUDA_LIBRARIES})
-list(GET __tmp 0 __cudart_file)
-set_property(
-    TARGET caffe2::cudart PROPERTY IMPORTED_LOCATION
-    ${__cudart_file})
-list(REMOVE_AT __tmp 0)
+# cudart. CUDA_LIBRARIES is actually a list, so we will make an interface
+# library.
+add_library(caffe2::cudart INTERFACE IMPORTED)
 set_property(
     TARGET caffe2::cudart PROPERTY INTERFACE_LINK_LIBRARIES
-    ${__tmp})
+    ${CUDA_LIBRARIES})
 set_property(
     TARGET caffe2::cudart PROPERTY INTERFACE_INCLUDE_DIRECTORIES
     ${CUDA_INCLUDE_DIRS})
@@ -116,10 +110,11 @@ set_property(
     TARGET caffe2::curand PROPERTY INTERFACE_INCLUDE_DIRECTORIES
     ${CUDA_INCLUDE_DIRS})
 
-# cublas
-add_library(caffe2::cublas UNKNOWN IMPORTED)
+# cublas. CUDA_CUBLAS_LIBRARIES is actually a list, so we will make an
+# interface library similar to cudart.
+add_library(caffe2::cublas INTERFACE IMPORTED)
 set_property(
-    TARGET caffe2::cublas PROPERTY IMPORTED_LOCATION
+    TARGET caffe2::cublas PROPERTY INTERFACE_LINK_LIBRARIES
     ${CUDA_CUBLAS_LIBRARIES})
 set_property(
     TARGET caffe2::cublas PROPERTY INTERFACE_INCLUDE_DIRECTORIES
@@ -137,10 +132,6 @@ set_property(
 # Note: in theory, we can add similar dependent library wrappers. For
 # now, Caffe2 only uses the above libraries, so we will only wrap
 # these.
-# A helper variable recording the list of Caffe2 dependent librareis
-set(Caffe2_CUDA_DEPENDENCY_LIBS
-    caffe2::cuda caffe2::cudart caffe2::curand
-    caffe2::cublas caffe2::cudnn caffe2::nvrtc)
 
 # ---[ Cuda flags
 

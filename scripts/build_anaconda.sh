@@ -14,17 +14,14 @@ if [[ "$PYTHON_FULL_VERSION" == *3.6* ]]; then
   CONDA_BUILD_ARGS+=(" --python 3.6")
 fi
 
-# The 'full' build requests openmpi, which is only in conda-forge
+# openmpi is only available in conda-forge (for linux), so conda-forge has to
+# be added as a channel for this 'full' build. This causes the default opencv
+# to be pulled from conda-forge, which will break with a "can't find
+# libopencv_highgui.so", so we also pin opencv version to 3.3.0 to avoid that
+# issue
 #if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
-#  CONDA_BUILD_ARGS+=("-c conda-forge")
+#  CONDA_BUILD_ARGS+=(" -c conda-forge")
 #fi
-
-
-# Upload to Anaconda.org if needed
-if [ -n "$UPLOAD_TO_CONDA" ]; then
-  CONDA_BUILD_ARGS+=(" --user ${ANACONDA_USERNAME}")
-  CONDA_BUILD_ARGS+=(" --token ${CAFFE2_ANACONDA_ORG_ACCESS_TOKEN}")
-fi
 
 # Reinitialize submodules
 git submodule update --init
@@ -41,9 +38,10 @@ fi
 
 # Change the package name for CUDA builds to have the specific CUDA and cuDNN
 # version in them
+CAFFE2_PACKAGE_NAME="caffe2"
 if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
   # Build name of package
-  CAFFE2_PACKAGE_NAME="caffe2-cuda${CAFFE2_CUDA_VERSION}-cudnn${CAFFE2_CUDNN_VERSION}"
+  CAFFE2_PACKAGE_NAME="${CAFFE2_PACKAGE_NAME}-cuda${CAFFE2_CUDA_VERSION}-cudnn${CAFFE2_CUDNN_VERSION}"
   if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
     CAFFE2_PACKAGE_NAME="${CAFFE2_PACKAGE_NAME}-full"
   fi
@@ -54,7 +52,35 @@ if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
   # take the CUDA and cuDNN versions that it finds in the build environment,
   # and manually set the package name ourself.
   # WARNING: This does not work on mac.
-  sed -i "s/caffe2-cuda/${CAFFE2_PACKAGE_NAME}/" "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+  sed -i "s/caffe2-cuda\$/${CAFFE2_PACKAGE_NAME}/" "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
 fi
 
+# If skipping tests, remove the test related lines from the meta.yaml
+if [ -n "$SKIP_CONDA_TESTS" ]; then
+
+  if [ "$(uname)" == 'Darwin' ]; then
+    sed -i '' '/test:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '' '/imports:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '' '/caffe2.python.core/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+  else
+    sed -i '/test:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '/imports:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+    sed -i '/caffe2.python.core/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+  fi
+
+elif [ -n "$UPLOAD_TO_CONDA" ]; then
+  # Upload to Anaconda.org if needed. This is only allowed if testing is
+  # enabled
+  CONDA_BUILD_ARGS+=(" --user ${ANACONDA_USERNAME}")
+  CONDA_BUILD_ARGS+=(" --token ${CAFFE2_ANACONDA_ORG_ACCESS_TOKEN}")
+fi
+
+# Build Caffe2 with conda-build
+# If --user and --token are set, then this will also upload the built package
+# to Anaconda.org, provided there were no failures and all the tests passed
 conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
+
+# Install Caffe2 from the built package into the local conda environment
+if [ -n "$CONDA_INSTALL_LOCALLY" ]; then
+  conda install -y "${CAFFE2_PACKAGE_NAME}" --use-local
+fi
