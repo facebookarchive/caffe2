@@ -109,16 +109,17 @@ Inheritance diagram for caffe2::NetBase:</div>
  <div class="center">
   <img src="classcaffe2_1_1_net_base.png" usemap="#caffe2::NetBase_map" alt=""/>
   <map id="caffe2::NetBase_map" name="caffe2::NetBase_map">
-<area href="classcaffe2_1_1_observable.html" alt="caffe2::Observable&lt; NetBase &gt;" shape="rect" coords="608,0,902,24"/>
+<area href="classcaffe2_1_1_observable.html" alt="caffe2::Observable&lt; NetBase &gt;" shape="rect" coords="760,0,1054,24"/>
 <area href="classcaffe2_1_1_async_net_base.html" alt="caffe2::AsyncNetBase" shape="rect" coords="152,112,446,136"/>
 <area href="classcaffe2_1_1_async_simple_net.html" alt="caffe2::AsyncSimpleNet" shape="rect" coords="456,112,750,136"/>
 <area href="classcaffe2_1_1_d_a_g_net_base.html" alt="caffe2::DAGNetBase" shape="rect" coords="760,112,1054,136"/>
-<area href="classcaffe2_1_1_simple_net.html" alt="caffe2::SimpleNet" shape="rect" coords="1216,112,1510,136"/>
+<area href="classcaffe2_1_1_g_l_net.html" alt="caffe2::GLNet" shape="rect" coords="1064,112,1358,136"/>
+<area href="classcaffe2_1_1_simple_net.html" alt="caffe2::SimpleNet" shape="rect" coords="1368,112,1662,136"/>
 <area href="classcaffe2_1_1_async_polling_net.html" alt="caffe2::AsyncPollingNet" shape="rect" coords="0,168,294,192"/>
 <area href="classcaffe2_1_1_async_scheduling_net.html" alt="caffe2::AsyncSchedulingNet" shape="rect" coords="304,168,598,192"/>
 <area href="classcaffe2_1_1_async_d_a_g_net.html" alt="caffe2::AsyncDAGNet" shape="rect" coords="608,168,902,192"/>
 <area href="classcaffe2_1_1_d_a_g_net.html" alt="caffe2::DAGNet" shape="rect" coords="912,168,1206,192"/>
-<area href="classcaffe2_1_1gpu__single__thread_1_1_single_thread_async_net.html" alt="caffe2::gpu_single_thread::SingleThreadAsyncNet" shape="rect" coords="1216,168,1510,192"/>
+<area href="classcaffe2_1_1gpu__single__thread_1_1_single_thread_async_net.html" alt="caffe2::gpu_single_thread::SingleThreadAsyncNet" shape="rect" coords="1368,168,1662,192"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -263,7 +264,7 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>Observer</b> = <a cl
 <p>Benchmarks a network. </p>
 <p>This function returns a vector of float recording the number of milli- seconds spent during the benchmark. The 0-th item is the time spent per each network run, and if a net instantiation supports run_individual, the remainder of the vector returns the number of milliseconds spent per opeartor. </p>
 
-<p>Reimplemented in <a class="el" href="classcaffe2_1_1_d_a_g_net_base.html#a6d325ca3e2e4557bee26b773757465e3">caffe2::DAGNetBase</a>, <a class="el" href="classcaffe2_1_1_async_simple_net.html#a1766f137a639177634af5de98d8f60e7">caffe2::AsyncSimpleNet</a>, and <a class="el" href="classcaffe2_1_1_simple_net.html#a130a5cdba80ddb6e52bd45c0da276e26">caffe2::SimpleNet</a>.</p>
+<p>Reimplemented in <a class="el" href="classcaffe2_1_1_d_a_g_net_base.html#a6d325ca3e2e4557bee26b773757465e3">caffe2::DAGNetBase</a>, <a class="el" href="classcaffe2_1_1_g_l_net.html#a81ffaab5835f98682674b5e4f8e57a20">caffe2::GLNet</a>, <a class="el" href="classcaffe2_1_1_async_simple_net.html#a1766f137a639177634af5de98d8f60e7">caffe2::AsyncSimpleNet</a>, and <a class="el" href="classcaffe2_1_1_simple_net.html#a130a5cdba80ddb6e52bd45c0da276e26">caffe2::SimpleNet</a>.</p>
 
 <p>Definition at line <a class="el" href="net_8h_source.html#l00093">93</a> of file <a class="el" href="net_8h_source.html">net.h</a>.</p>
 
@@ -277,7 +278,7 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>Observer</b> = <a cl
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Feb 23 2018 13:03:35 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Mar 1 2018 00:37:46 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

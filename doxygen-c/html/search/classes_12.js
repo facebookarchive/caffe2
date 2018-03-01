@@ -26,6 +26,7 @@ var searchData=
   ['seluop',['SeluOp',['../classcaffe2_1_1_selu_op.html',1,'caffe2']]],
   ['sequencemaskop',['SequenceMaskOp',['../classcaffe2_1_1_sequence_mask_op.html',1,'caffe2']]],
   ['shapeop',['ShapeOp',['../classcaffe2_1_1_shape_op.html',1,'caffe2']]],
+  ['shapeparams',['ShapeParams',['../structcaffe2_1_1lc__op__util_1_1_shape_params.html',1,'caffe2::lc_op_util']]],
   ['sharedtensorvectorptrdeserializer',['SharedTensorVectorPtrDeserializer',['../classcaffe2_1_1dataset__ops_1_1_shared_tensor_vector_ptr_deserializer.html',1,'caffe2::dataset_ops']]],
   ['sharedtensorvectorptrserializer',['SharedTensorVectorPtrSerializer',['../classcaffe2_1_1dataset__ops_1_1_shared_tensor_vector_ptr_serializer.html',1,'caffe2::dataset_ops']]],
   ['sigmoidcpufunctor',['SigmoidCPUFunctor',['../structcaffe2_1_1_sigmoid_c_p_u_functor.html',1,'caffe2']]],

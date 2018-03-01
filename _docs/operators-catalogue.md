@@ -4343,11 +4343,11 @@ Given DATA tensor of rank 1, and RANGES tensor of rank 3, gather corresponding r
 ## GatherRangesToDense
 
 
-Given DATA tensor of rank 1, and RANGES tensor of rank 3, gather values corresponding to each range into a separate output tensor.
- RANGES dimentions description: 1: represents list of examples within a batch 2: represents list features 3: two values which are start and length or a range (to be applied on DATA)  Each feature has fixed lengths which are passed as lengths argument and a separate tensor will be produced for each feature.
+Given DATA tensor of rank 1, and RANGES tensor of rank 3, gather values corresponding to each range into a separate output tensor. If the optional input KEY tensor is also given, the output will be sorted by KEY for each example.
+ RANGES dimensions description: 1: represents list of examples within a batch 2: represents list features 3: two values which are start and length or a range (to be applied on DATA)  Each feature has fixed lengths which are passed as lengths argument and a separate tensor will be produced for each feature.
 i.e. DATA.dim(1) = len(lengths) = NumOuptuts.
  Missing features (represented by empty ranges) filled with default_value.
- Example:  
+ Example 1:  
 
 ```
   DATA  = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -4364,8 +4364,35 @@ i.e. DATA.dim(1) = len(lengths) = NumOuptuts.
   lengths = [4, 2]
   OUTPUT[0] = [[3, 4, 5, 6], [0, 0, 0, 0]]
   OUTPUT[1] = [[1, 2], [7, 8]]
+
 ```
 
+ Example 2 (with KEY): DATA 
+
+```
+  = [1, 2, 3, 4, 5, 6, 7, 8]
+```
+
+ KEY  
+
+```
+  = [0, 1, 3, 2, 1, 0, 1, 0]
+```
+
+ RANGES = [  
+
+```
+  [
+    [2, 4],
+    [0, 2],
+  ],
+  [
+    [0, 0],
+    [6, 2],
+  ]
+```
+
+ ] lengths = [4, 2] OUTPUT[0] = [[6, 5, 4, 3], [0, 0, 0, 0]] OUTPUT[1] = [[1, 2], [8, 7]]  Contrast Example 2 with Example 1. For each data point per feature, the values are sorted by the corresponding KEY.
 
 
 
@@ -4378,6 +4405,7 @@ i.e. DATA.dim(1) = len(lengths) = NumOuptuts.
 *Inputs* | 
 `DATA` | Tensor of rank 1.
 `RANGES` | Tensor of int32/int64 ranges, of dims (N, M, 2). Where N is number of examples and M is a size of each example. Last dimention represents a range in the format (start, lengths)
+`KEY` | Tensor of rank 1 and type int64.
 *Outputs* | 
 `OUTPUT` | 1-D tensor of size sum of range lengths
 
@@ -5667,6 +5695,56 @@ No documentation yet.
 
 
 [caffe2/operators/listwise_l2r_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/listwise_l2r_op.cc)
+
+---
+
+
+
+## Lars
+
+
+Implement Layer-wise Adaptive Rate Scaling (LARS) as in  [https://arxiv.org/abs/1708.03888.](https://arxiv.org/abs/1708.03888.)  Without weight decay, given a global learning rate lr, parameter tensor X and its gradient dX, the local learning rate for X will be   
+
+```
+    local_lr = lr * norm(X) / ( norm(dX) + offset * norm(X) )
+
+```
+
+   
+
+```
+            = lr  / ( norm(dX) / norm(X) + offset ),
+
+```
+
+ where offset is a preset hyper-parameter to avoid numerical issue.
+In this implementation, we uses l2 norm and output the rescaling factor   
+
+```
+    1 / ( norm(dX) / norm(X) + offset ).
+
+```
+
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`offset` | rescaling offset parameter
+*Inputs* | 
+`X` | Parameter tensor
+`dX` | Gradient tensor
+*Outputs* | 
+`lr_rescale` | Local learning rate rescaling factor
+
+
+### Code
+
+
+[caffe2/sgd/lars_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/sgd/lars_op.cc)
 
 ---
 
@@ -13482,6 +13560,23 @@ No documentation yet.
 
 
 [caffe2/operators/segment_reduction_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/segment_reduction_op.cc)
+
+---
+
+
+
+## VariableLengthSequencePadding
+
+
+Super special-case operator. Used to pad a tensor to mimic pytorch's pad_packed_sequence.
+ Given an input tensor INPUT of size NxBxM and an input tensor LENS of size B, where  N = maximum sequence length B = batch size M = hidden size  set each element of INPUT to zero if it is is past the end of the corresponding sequence (i.e. if LENS[j] > i for an index (i,j,k)).
+ 
+
+
+### Code
+
+
+[caffe2/operators/variable_length_sequence_padding.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/variable_length_sequence_padding.cc)
 
 ---
 

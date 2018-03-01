@@ -109,7 +109,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>The CPU Context, representing the bare minimum of what a Context class in Caffe2 should implement.  
  <a href="classcaffe2_1_1_c_p_u_context.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="context_8h_source.html">context.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="core_2context_8h_source.html">context.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
@@ -197,7 +197,7 @@ static CAFFE2_API <a class="el" href="classcaffe2_1_1_memory_allocation_reporter
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The CPU Context, representing the bare minimum of what a Context class in Caffe2 should implement. </p>
-<p>See <a class="el" href="operator_8h_source.html">operator.h</a>, especially Operator&lt;Context&gt;, for how Context are used in actual operator implementations that are associated with specific devices. In general, the Context class is passed in as a template argument, and the operator can use the functions defined in the context to execute whatever computation it has.</p>
+<p>See operator.h, especially Operator&lt;Context&gt;, for how Context are used in actual operator implementations that are associated with specific devices. In general, the Context class is passed in as a template argument, and the operator can use the functions defined in the context to execute whatever computation it has.</p>
 <p>A Context defines all the necessities to run an operator on a specific device. Specific Context classes have the freedom to choose what functions it implements, but there are a few functions that you should consider implementing if you want to write your own context class:</p><ul>
 <li>void SwitchToDevice(): any necessary code to switch to the device before running anything.</li>
 <li>void WaitEvent(const Event&amp; ev): make the current context to wait on an event. For example, for cuda, this is the equivalent of cudaStreamWaitEvent. For CPU context, it essentially synchronizes the event.</li>
@@ -209,9 +209,9 @@ static CAFFE2_API <a class="el" href="classcaffe2_1_1_memory_allocation_reporter
 </ul>
 <p>We intentionally did not create a base class for the various possible Context classes there might be, since they are intended to be specified during compile time using templates rather than via polymorphism. You should also not have classes derived from existing context classes. </p>
 
-<p>Definition at line <a class="el" href="context_8h_source.html#l00082">82</a> of file <a class="el" href="context_8h_source.html">context.h</a>.</p>
+<p>Definition at line <a class="el" href="core_2context_8h_source.html#l00082">82</a> of file <a class="el" href="core_2context_8h_source.html">context.h</a>.</p>
 </div><hr/>The documentation for this class was generated from the following files:<ul>
-<li>caffe2/core/<a class="el" href="context_8h_source.html">context.h</a></li>
+<li>caffe2/core/<a class="el" href="core_2context_8h_source.html">context.h</a></li>
 <li>caffe2/core/<a class="el" href="allocator_8cc_source.html">allocator.cc</a></li>
 <li>caffe2/core/<a class="el" href="context__gpu_8h_source.html">context_gpu.h</a></li>
 </ul>
@@ -219,7 +219,7 @@ static CAFFE2_API <a class="el" href="classcaffe2_1_1_memory_allocation_reporter
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Feb 23 2018 13:03:33 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Mar 1 2018 00:37:45 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

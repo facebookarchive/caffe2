@@ -30,6 +30,7 @@ var searchData=
   ['operator',['Operator',['../classcaffe2_1_1_operator.html',1,'caffe2']]],
   ['operator_3c_20cpucontext_20_3e',['Operator&lt; CPUContext &gt;',['../classcaffe2_1_1_operator.html',1,'caffe2']]],
   ['operator_3c_20cudacontext_20_3e',['Operator&lt; CUDAContext &gt;',['../classcaffe2_1_1_operator.html',1,'caffe2']]],
+  ['operator_3c_20glcontext_20_3e',['Operator&lt; GLContext &gt;',['../classcaffe2_1_1_operator.html',1,'caffe2']]],
   ['operator_3d',['operator=',['../classcaffe2_1_1_type_meta.html#a4d678bbf36ec9008965f680ba54b12b2',1,'caffe2::TypeMeta']]],
   ['operatorattachingnetobserver',['OperatorAttachingNetObserver',['../classcaffe2_1_1_operator_attaching_net_observer.html',1,'caffe2']]],
   ['operatorattachingnetobserver_3c_20runcountoperatorobserver_2c_20runcountnetobserver_20_3e',['OperatorAttachingNetObserver&lt; RunCountOperatorObserver, RunCountNetObserver &gt;',['../classcaffe2_1_1_operator_attaching_net_observer.html',1,'caffe2']]],

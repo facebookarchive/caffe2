@@ -6,6 +6,7 @@ var searchData=
   ['labelcrossentropyop',['LabelCrossEntropyOp',['../classcaffe2_1_1_label_cross_entropy_op.html',1,'caffe2']]],
   ['lambdarankndcggradientop',['LambdaRankNdcgGradientOp',['../classcaffe2_1_1_lambda_rank_ndcg_gradient_op.html',1,'caffe2']]],
   ['lambdarankndcgop',['LambdaRankNdcgOp',['../classcaffe2_1_1_lambda_rank_ndcg_op.html',1,'caffe2']]],
+  ['larsop',['LarsOp',['../classcaffe2_1_1_lars_op.html',1,'caffe2']]],
   ['layernormgradientop',['LayerNormGradientOp',['../classcaffe2_1_1_layer_norm_gradient_op.html',1,'caffe2']]],
   ['layernormop',['LayerNormOp',['../classcaffe2_1_1_layer_norm_op.html',1,'caffe2']]],
   ['layoutwrapper',['LayoutWrapper',['../classcaffe2_1_1mkl_1_1_layout_wrapper.html',1,'caffe2::mkl']]],

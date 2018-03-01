@@ -35,6 +35,7 @@ var searchData=
   ['setmaxparalleltimesteps',['SetMaxParallelTimesteps',['../classcaffe2_1_1_recurrent_network_executor_base.html#a92884a1f63551cd49a56973df5fabe0e',1,'caffe2::RecurrentNetworkExecutorBase']]],
   ['setusagemessage',['SetUsageMessage',['../namespacecaffe2.html#ace7137b079a7505ca39c44d7441c3296',1,'caffe2']]],
   ['shapeop',['ShapeOp',['../classcaffe2_1_1_shape_op.html',1,'caffe2']]],
+  ['shapeparams',['ShapeParams',['../structcaffe2_1_1lc__op__util_1_1_shape_params.html',1,'caffe2::lc_op_util']]],
   ['sharedata',['ShareData',['../classcaffe2_1_1_tensor.html#a6af983391893a6f6db43004cae62ce0d',1,'caffe2::Tensor']]],
   ['sharedtensorvectorptrdeserializer',['SharedTensorVectorPtrDeserializer',['../classcaffe2_1_1dataset__ops_1_1_shared_tensor_vector_ptr_deserializer.html',1,'caffe2::dataset_ops']]],
   ['sharedtensorvectorptrserializer',['SharedTensorVectorPtrSerializer',['../classcaffe2_1_1dataset__ops_1_1_shared_tensor_vector_ptr_serializer.html',1,'caffe2::dataset_ops']]],
