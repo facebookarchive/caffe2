@@ -31,3 +31,7 @@ rm ~/anaconda.sh
 
 export PATH="/opt/conda/bin:$PATH"
 echo 'export PATH=/opt/conda/bin:$PATH' > ~/.bashrc
+
+# One of the conda builds needs openmpi and can't use the conda-version, so we
+# install it here on only the conda images
+apt-get install -y openmpi
