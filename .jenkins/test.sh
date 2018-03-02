@@ -77,6 +77,7 @@ for test in ./test/*; do
     mkl_utils_test)
       continue
       ;;
+    # TODO investigate conv_op_test failures when using MKL
     conv_op_test)
       continue
       ;;
