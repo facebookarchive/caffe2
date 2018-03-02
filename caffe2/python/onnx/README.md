@@ -1,6 +1,5 @@
-onnx-caffe2
+Caffe2 implementation of Open Neural Network Exchange (ONNX)
 ========
-Caffe2 implementation of Open Neural Network Exchange (ONNX).
 
 # Usage
 
