@@ -34,6 +34,18 @@ have the same shape and data type.
     .Input(0, "data_0", "First of the input tensors. Can be inplace.")
     .Output(0, "mean", "Output tensor. Same dimension as inputs.");
 
-GRADIENT_NOT_IMPLEMENTED_YET(Mean);
+class GetMeanGradient : public GradientMakerBase {
+  using GradientMakerBase::GradientMakerBase;
+  vector<OperatorDef> GetGradientDefs() override {
+    Argument scale = MakeArgument<float>("scale", 1.0f / def_.input_size());
+    return SingleGradientDef(
+        "Scale",
+        "",
+        std::vector<string>{GO(0)},
+        std::vector<string>{GI(0)},
+        std::vector<Argument>{scale});
+  }
+};
+REGISTER_GRADIENT(Mean, GetMeanGradient);
 
 } // namespace caffe2

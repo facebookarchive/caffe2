@@ -29,26 +29,51 @@ import unittest
 
 class TestMean(hu.HypothesisTestCase):
     @given(
-        inputs=hu.tensors(n=2, min_dim=2, max_dim=2),
+        k=st.integers(1, 5),
+        n=st.integers(1, 10),
+        m=st.integers(1, 10),
+        in_place=st.booleans(),
         engine=st.sampled_from(["", "CUDNN"]),
-        **hu.gcs)
-    def test_mean(self, inputs, gc, dc, engine):
-        X, Y = inputs
+        **hu.gcs
+    )
+    def test_mean(self, k, n, m, in_place, engine, gc, dc):
+        input_names = []
+        input_vars = []
 
-        def mean_ref(X, Y):
-            return np.mean([X, Y], axis=0)
+        for i in range(k):
+            X_name = 'X' + str(i)
+            input_names.append(X_name)
+            var = np.random.randn(n, m).astype(np.float32)
+            input_vars.append(var)
 
-        op = core.CreateOperator("Mean", ["X", "Y"], ["Result"], engine=engine)
-        self.ws.create_blob("X").feed(X)
-        self.ws.create_blob("Y").feed(Y)
-        self.ws.run(op)
+        def mean_ref(*args):
+            return [np.mean(args, axis=0)]
 
-        op_output = self.ws.blobs["Result"].fetch()
-        ref_output = mean_ref(X, Y)
-        np.testing.assert_allclose(op_output, ref_output, atol=1e-4, rtol=1e-4)
+        op = core.CreateOperator(
+            "Mean",
+            input_names,
+            ['Y' if not in_place else 'X0'],
+            engine=engine,
+        )
 
-        self.assertDeviceChecks(dc, op, [X, Y], [0])
+        self.assertReferenceChecks(
+            device_option=gc,
+            op=op,
+            inputs=input_vars,
+            reference=mean_ref,
+        )
+
+        self.assertGradientChecks(
+            device_option=gc,
+            op=op,
+            inputs=input_vars,
+            outputs_to_check=0,
+            outputs_with_grads=[0],
+        )
+
+        self.assertDeviceChecks(dc, op, input_vars, [0])
 
 
 if __name__ == "__main__":
     unittest.main()
+

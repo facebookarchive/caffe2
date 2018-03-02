@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CAFFE2_OPERATORS_MINMAX_OPS_H_
-#define CAFFE2_OPERATORS_MINMAX_OPS_H_
+#ifndef CAFFE2_OPERATORS_MEAN_OPS_H_
+#define CAFFE2_OPERATORS_MEAN_OPS_H_
 
 #include "caffe2/core/common_omp.h"
 #include "caffe2/core/context.h"
@@ -93,4 +93,5 @@ class MeanOp final : public Operator<Context> {
 
 } // namespace caffe2
 
-#endif // CAFFE2_OPERATORS_MINMAX_OPS_H_
+#endif // CAFFE2_OPERATORS_MEAN_OPS_H_
+

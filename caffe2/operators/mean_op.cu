@@ -1,5 +1,4 @@
-/**
- * Copyright (c) 2016-present, Facebook, Inc.
+ /* Copyright (c) 2016-present, Facebook, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +19,5 @@
 namespace caffe2 {
 
 REGISTER_CUDA_OPERATOR(Mean, MeanOp<CUDAContext>);
-
-template <>
-bool MeanOp<CUDAContext>::RunOnDevice() {
-  if (Input(0).IsType<float>()) {
-    return DoRunWithType<float>();
-  } else {
-    CAFFE_THROW("Unsupported inputs");
-  }
-  return false;
-}
 
 } // namespace caffe2
