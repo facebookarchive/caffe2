@@ -32,9 +32,11 @@ parser.add_argument("--third_party_root", default="", help="caffe2 third_party")
 args, _ = parser.parse_known_args()
 
 if args.third_party_root:
-    sys.path.append(os.path.join(args.third_party_root, "aten"))
+    sys.path.append(os.path.join(args.third_party_root, "aten/src/ATen"))
+    from code_template import CodeTemplate as CT
+else:
+    from src.ATen.code_template import CodeTemplate as CT
 
-from src.ATen.code_template import CodeTemplate as CT
 OP_TEMPLATE = CT.from_file(
     os.path.join(args.template_dir, 'aten_op_template.h'))
 
