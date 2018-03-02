@@ -113,88 +113,6 @@ function(caffe_parse_header_single_define LIBNAME HDR_PATH VARNAME)
   endif()
 endfunction()
 
-########################################################################################################
-# An option that the user can select. Can accept condition to control when option is available for user.
-# Usage:
-#   caffe_option(<option_variable> "doc string" <initial value or boolean expression> [IF <condition>])
-function(caffe_option variable description value)
-  set(__value ${value})
-  set(__condition "")
-  set(__varname "__value")
-  foreach(arg ${ARGN})
-    if(arg STREQUAL "IF" OR arg STREQUAL "if")
-      set(__varname "__condition")
-    else()
-      list(APPEND ${__varname} ${arg})
-    endif()
-  endforeach()
-  unset(__varname)
-  if("${__condition}" STREQUAL "")
-    set(__condition 2 GREATER 1)
-  endif()
-
-  if(${__condition})
-    if("${__value}" MATCHES ";")
-      if(${__value})
-        option(${variable} "${description}" ON)
-      else()
-        option(${variable} "${description}" OFF)
-      endif()
-    elseif(DEFINED ${__value})
-      if(${__value})
-        option(${variable} "${description}" ON)
-      else()
-        option(${variable} "${description}" OFF)
-      endif()
-    else()
-      option(${variable} "${description}" ${__value})
-    endif()
-  else()
-    unset(${variable} CACHE)
-  endif()
-endfunction()
-
-##############################################################################
-# Helper function to add as-needed flag around a library.
-function(caffe_add_as_needed_flag lib output_var)
-  if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    # TODO: Clang seems to not need this flag. Double check.
-    set(${output_var} ${lib} PARENT_SCOPE)
-  elseif(MSVC)
-    # TODO: check what is the behavior of MSVC.
-    # In MSVC, we will add whole archive in default.
-    set(${output_var} ${lib} PARENT_SCOPE)
-  else()
-    # Assume everything else is like gcc: we will need as-needed flag.
-    set(${output_var} -Wl,--no-as-needed ${lib} -Wl,--as-needed PARENT_SCOPE)
-  endif()
-endfunction()
-
-##############################################################################
-# Helper function to add whole_archive flag around a library.
-function(caffe_add_whole_archive_flag lib output_var)
-  if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(${output_var} -Wl,-force_load,$<TARGET_FILE:${lib}> PARENT_SCOPE)
-  elseif(MSVC)
-    # In MSVC, we will add whole archive in default.
-    set(${output_var} -WHOLEARCHIVE:$<TARGET_FILE:${lib}> PARENT_SCOPE)
-  else()
-    # Assume everything else is like gcc
-    set(${output_var} -Wl,--whole-archive $<TARGET_FILE:${lib}> -Wl,--no-whole-archive PARENT_SCOPE)
-  endif()
-endfunction()
-
-##############################################################################
-# Helper function to add either as-needed, or whole_archive flag around a library.
-function(caffe_add_linker_flag lib output_var)
-  if (BUILD_SHARED_LIBS)
-    caffe_add_as_needed_flag(${lib} tmp)
-  else()
-    caffe_add_whole_archive_flag(${lib} tmp)
-  endif()
-  set(${output_var} ${tmp} PARENT_SCOPE)
-endfunction()
-
 ##############################################################################
 # Helper function to automatically generate __init__.py files where python
 # sources reside but there are no __init__.py present.
@@ -243,47 +161,16 @@ function(caffe2_binary_target target_name_or_src)
     prepend(__srcs "${CMAKE_CURRENT_SOURCE_DIR}/" "${target_name_or_src}")
   endif()
   add_executable(${__target} ${__srcs})
-  add_dependencies(${__target} ${Caffe2_MAIN_LIBS_ORDER})
-  target_link_libraries(${__target} ${Caffe2_MAIN_LIBS} ${Caffe2_DEPENDENCY_LIBS})
+  target_link_libraries(${__target} ${Caffe2_MAIN_LIBS})
+  # For binaries, some of the code actually directly call the dependent
+  # libraries even if they are not part of the public dependency libs. As a
+  # result, we will explicitly link the test against the Caffe2 dependency
+  # libs. This should be changed in a future cleanup.
+  target_link_libraries(${__target} ${Caffe2_DEPENDENCY_LIBS})
+  if (USE_CUDA)
+    target_link_libraries(${__target} ${Caffe2_CUDA_DEPENDENCY_LIBS})   
+  endif()
   install(TARGETS ${__target} DESTINATION bin)
-endfunction()
-
-##############################################################################
-# Helper function to add paths to system include directories.
-#
-# Anaconda distributions typically contain a lot of packages and some
-# of those can conflict with headers/libraries that must be sourced
-# from elsewhere. This helper ensures that Anaconda paths are always
-# added BEFORE other include paths. This prevents a common case where
-# libraries and binaries are linked from Anaconda but headers are
-# included from system packages, since system include directories come
-# before Anaconda include directories by default. 
-#
-# This is just a heuristic and does not have any guarantees. We can
-# add other corner cases here (as long as they are generic enough).
-# A complete include path cross checker is a final resort if this
-# hacky approach proves insufficient.
-#
-function(caffe2_include_directories)
-  foreach(path IN LISTS ARGN)
-    if (${DEPRIORITIZE_ANACONDA})
-      # When not preferring anaconda, always search system header files before
-      # anaconda include directories
-      if (${path} MATCHES "/anaconda")
-        include_directories(AFTER ${path})
-      else()
-        include_directories(BEFORE ${path})
-      endif()
-    else()
-      # When prefering Anaconda, always search anaconda for header files before
-      # system include directories
-      if (${path} MATCHES "/anaconda")
-        include_directories(BEFORE ${path})
-      else()
-        include_directories(AFTER ${path})
-      endif()
-    endif()
-  endforeach()
 endfunction()
 
 

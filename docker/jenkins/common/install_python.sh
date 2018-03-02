@@ -129,16 +129,17 @@ pip install -U setuptools
 # defaults installs the most recent networkx version, so we install this lower
 # version explicitly before scikit-image pulls it in as a dependency
 pip install networkx==2.0
+
 pip install --no-cache-dir \
     click \
     future \
     hypothesis \
     jupyter \
     numpy \
-    onnx \
     protobuf \
     pytest \
     scipy==0.19.1 \
     scikit-image \
     tabulate \
     virtualenv
+
