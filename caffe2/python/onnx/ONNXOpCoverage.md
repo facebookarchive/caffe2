@@ -17,7 +17,7 @@ This doc keeps tracking why operators are not covered by the testcases.
 |AveragePool||OK|&#x1F49A;OK|
 |BatchNormalization||OK|&#x1F49A;OK|
 |Cast|Yes||&#x1F494;Need extendtion|
-|Ceil|Yes||&#x1F494;OK|
+|Ceil|Yes||&#x1F49A;OK|
 |Clip|Yes|OK|&#x1F49A;OK|
 |Concat|Yes|OK|&#x1F49A;OK|
 |Constant|Yes|OK|&#x1F49B;Special handling|
@@ -30,14 +30,14 @@ This doc keeps tracking why operators are not covered by the testcases.
 |Equal|Yes|OK|&#x1F49A;OK|
 |Exp|Yes|OK|&#x1F49A;OK|
 |Flatten|Yes|OK|&#x1F49A;OK|
-|Floor|Yes||&#x1F494;OK|
+|Floor|Yes||&#x1F49A;OK|
 |GRU|||&#x1F49B;Under development|
 |Gather|Yes|OK|&#x1F49B;C2 only support axis=0 or 1, under development|
 |Gemm|Yes|OK|&#x1F49B;C2 use FC or MatMul + Add|
 |GlobalAveragePool|Yes|No direct mapping|&#x1F49A;OK|
 |GlobalLpPool|||&#x1F494;No op|
 |GlobalMaxPool|||&#x1F49A;OK|
-|Greater|Yes||&#x1F49A;|
+|Greater|Yes||&#x1F49A;OK|
 |HardSigmoid|Yes||&#x1F494;No op|
 |Hardmax|Yes||&#x1F494;No op|
 |InstanceNormalization|||&#x1F49A;OK|
@@ -61,7 +61,7 @@ This doc keeps tracking why operators are not covered by the testcases.
 |Or|Yes||&#x1F49A;OK|
 |PRelu|Yes|OK|&#x1F49A;OK|
 |Pad|Yes|OK|&#x1F49A;OK|
-|Pow|Yes|OK|&#x1F49A;|
+|Pow|Yes|OK|&#x1F49A;OK|
 |RNN|||&#x1F49B;Under development|
 |RandomNormal|||&#x1F494;No op|
 |RandomNormalLike|||&#x1F494;No op|
@@ -85,15 +85,15 @@ This doc keeps tracking why operators are not covered by the testcases.
 |Slice|Yes|OK|&#x1F494;ScatterAssign + Cast, very hacky implementaion, Slice in C2 only supports one dimension|
 |Softmax|Yes|OK|&#x1F494;Axis and dim has different semantics|
 |Softplus|Yes|OK|&#x1F49A;OK|
-|Softsign|Yes||&#x1F49A;OK, no tests|
+|Softsign|Yes||&#x1F49A;OK|
 |SpaceToDepth|||&#x1F49B;Should be SpaceToBatch, no tests|
 |Split|Yes|OK|&#x1F49A;OK|
-|Sqrt|Yes||&#x1F49A;|
+|Sqrt|Yes||&#x1F49A;OK|
 |Squeeze|Yes||&#x1F49A;OK|
 |Sub|Yes|OK|&#x1F49A;OK|
 |Sum|Yes|OK|&#x1F49A;OK|
 |Tanh|Yes|OK|&#x1F49A;OK|
-|Tile|||&#x1F49A;OK, no tests|
+|Tile|||&#x1F49B;OK, no tests|
 |Transpose|Yes|OK|&#x1F49A;OK|
 |Xor|Yes||&#x1F49A;OK|
 |experimental ATen|||&#x1F49A;OK|
@@ -109,5 +109,5 @@ This doc keeps tracking why operators are not covered by the testcases.
 |experimental ParametricSoftplus|||&#x1F494;No op|
 |experimental Scale|||&#x1F49A;OK|
 |experimental ScaledTanh|||&#x1F494;No op|
-|experimental ThresholdedRelu|||&#x1F494;No op|
+|experimental ThresholdedRelu|Yes||&#x1F49A;OK|
 |experimental Upsample|||&#x1F494;No bilinear|
