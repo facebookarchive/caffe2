@@ -42,6 +42,7 @@ fi
 
 CMAKE_ARGS=("-DBUILD_BINARY=ON")
 CMAKE_ARGS+=("-DBUILD_OBSERVERS=ON")
+CMAKE_ARGS+=("-DUSE_OBSERVERS=ON")
 CMAKE_ARGS+=("-DUSE_ZSTD=ON")
 
 # Run build script from scripts if applicable
