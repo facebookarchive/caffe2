@@ -19,6 +19,7 @@
 namespace caffe2 {
 
 REGISTER_CPU_OPERATOR(Mean, MeanOp<CPUContext>);
+REGISTER_CPU_OPERATOR(MeanGradient, MeanGradientOp<CPUContext>);
 
 OPERATOR_SCHEMA(Mean)
     .NumInputs(1, INT_MAX)
@@ -37,15 +38,20 @@ have the same shape and data type.
 class GetMeanGradient : public GradientMakerBase {
   using GradientMakerBase::GradientMakerBase;
   vector<OperatorDef> GetGradientDefs() override {
-    Argument scale = MakeArgument<float>("scale", 1.0f / def_.input_size());
+    auto outputs = std::vector<string>();
+    for (int i = 0; i < def_.input_size(); i++) {
+      outputs.push_back(GI(i));
+    }
     return SingleGradientDef(
-        "Scale",
-        "",
-        std::vector<string>{GO(0)},
-        std::vector<string>{GI(0)},
-        std::vector<Argument>{scale});
+        "MeanGradient", "", std::vector<string>{GO(0)}, outputs);
   }
 };
+
 REGISTER_GRADIENT(Mean, GetMeanGradient);
+
+OPERATOR_SCHEMA(MeanGradient)
+    .NumInputs(1)
+    .NumOutputs(1, INT_MAX)
+    .AllowInplace({{0, 0}});
 
 } // namespace caffe2

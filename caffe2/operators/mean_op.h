@@ -91,6 +91,51 @@ class MeanOp final : public Operator<Context> {
   }
 };
 
+template <class Context>
+class MeanGradientOp : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+
+  MeanGradientOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<Context>(operator_def, ws) {}
+
+  template <typename T>
+  bool DoRunWithType() {
+    auto& dY = Input(0);
+    const auto* dY_data = dY.template data<T>();
+    int size = dY.size();
+
+    int num_inputs = OutputSize();
+    float scale = 1.0f / num_inputs;
+
+    // dX0 = scale * dY
+    auto* dX0 = Output(0);
+    dX0->ResizeLike(dY);
+    math::Scale(
+        size, scale, dY_data, dX0->template mutable_data<T>(), &context_);
+
+    // Copy the rest dX
+    for (int i = 1; i < num_inputs; i++) {
+      auto* cur_dX = Output(i);
+      cur_dX->ResizeLike(dY);
+      cur_dX->CopyFrom(*dX0, &context_);
+    }
+
+    return true;
+  }
+
+  bool RunOnDevice() override {
+    if (Input(0).template IsType<float>()) {
+      return DoRunWithType<float>();
+    } else {
+      CAFFE_THROW(
+          "Mean operator only supports 32-bit float, but",
+          " input was of type ",
+          Input(0).meta().name());
+    }
+  }
+};
+
 } // namespace caffe2
 
 #endif // CAFFE2_OPERATORS_MEAN_OPS_H_

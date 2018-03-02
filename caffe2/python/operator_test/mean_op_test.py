@@ -29,14 +29,16 @@ import unittest
 
 class TestMean(hu.HypothesisTestCase):
     @given(
-        k=st.integers(1, 5),
-        n=st.integers(1, 10),
-        m=st.integers(1, 10),
+        k=st.integers(2, 2),
+        n=st.integers(1, 1),
+        m=st.integers(1, 3),
         in_place=st.booleans(),
         engine=st.sampled_from(["", "CUDNN"]),
+        seed=st.integers(0, 2**32 - 1),
         **hu.gcs
     )
-    def test_mean(self, k, n, m, in_place, engine, gc, dc):
+    def test_mean(self, k, n, m, in_place, engine, seed, gc, dc):
+        np.random.seed(seed)
         input_names = []
         input_vars = []
 
