@@ -128,10 +128,8 @@ class TestElementwiseOps(hu.HypothesisTestCase):
         self.assertGradientChecks(
             gc, op, [X], 0, [0], stepsize=1e-4, threshold=1e-2)
 
-    @given(n=st.integers(5, 6), m=st.integers(4, 6), **hu.gcs)
-    def test_sqrt(self, n, m, gc, dc):
-        X = np.random.rand(n, m).astype(np.float32)
-
+    @given(X=hu.tensor(elements=st.floats(0.02, 1)), **hu.gcs)
+    def test_sqrt(self, X, gc, dc):
         def sqrt_op(X):
             return [np.sqrt(X)]
 
@@ -147,13 +145,12 @@ class TestElementwiseOps(hu.HypothesisTestCase):
             inputs=[X],
             reference=sqrt_op,
         )
-
+        self.assertDeviceChecks(dc, op, [X], [0])
         self.assertGradientChecks(
             gc, op, [X], 0, [0], stepsize=1e-4, threshold=1e-2)
 
-    @given(n=st.integers(5, 6), m=st.integers(4, 6), **hu.gcs)
-    def test_sqrt_inplace(self, n, m, gc, dc):
-        X = np.random.rand(n, m).astype(np.float32)
+    @given(X=hu.tensor(elements=st.floats(0.02,1)), **hu.gcs)
+    def test_sqrt_inplace(self, X, gc, dc):
 
         def sqrt_op(X):
             return [np.sqrt(X)]
@@ -170,6 +167,9 @@ class TestElementwiseOps(hu.HypothesisTestCase):
             inputs=[X],
             reference=sqrt_op,
         )
+        self.assertDeviceChecks(dc, op, [X], [0])
+        self.assertGradientChecks(
+            gc, op, [X], 0, [0], stepsize=1e-4, threshold=1e-2)
 
     @given(n=st.integers(5, 6), m=st.integers(4, 6), **hu.gcs)
     def test_swish(self, n, m, gc, dc):

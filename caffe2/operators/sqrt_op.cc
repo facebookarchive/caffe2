@@ -30,7 +30,7 @@ struct SqrtCPUFunctor {
 
 REGISTER_CPU_OPERATOR(
   Sqrt, UnaryElementwiseOp<
-      TensorTypes<float, double, int, long>, CPUContext, SqrtCPUFunctor>);
+      TensorTypes<float>, CPUContext, SqrtCPUFunctor>);
 // Input: X, output: Y
 OPERATOR_SCHEMA(Sqrt)
   .NumInputs(1)
