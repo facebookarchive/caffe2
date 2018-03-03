@@ -161,6 +161,7 @@ TEST(GraphTest, TestReusedInputs) {
   AddOp(&netdef, "GraphDummyOp3", {"mid1", "mid2"}, {"in"});
   AddOp(&netdef, "GraphDummyOp2", {"in"}, {"mid1"});
   AddOp(&netdef, "GraphDummyOp2", {"in"}, {"mid2"});
+  // This is the same as defined in line: 161, not sure what it should be.
   AddOp(&netdef, "GraphDummyOp3", {"mid1", "mid2"}, {"in"});
 
   Graph g(netdef);

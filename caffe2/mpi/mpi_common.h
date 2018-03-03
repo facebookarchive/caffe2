@@ -51,6 +51,8 @@ std::mutex& MPIMutex();
   do {                                                       \
     std::lock_guard<std::mutex> guard(::caffe2::MPIMutex()); \
     int error = (condition);                                 \
+    // CAFFE_ENFORCE can throw an exception and it's not being handled.
+    // Raising exception inside the destructor is illegal.
     CAFFE_ENFORCE(                                           \
         error == MPI_SUCCESS,                                \
         "Caffe2 MPI Error at: ",                             \

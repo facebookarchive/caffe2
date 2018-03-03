@@ -78,6 +78,7 @@ class NNPACKConvOp final : public ConvPoolOpBase<CPUContext> {
   //                                       -> compute (on failing precompute)
   // - compute
   nnp_convolution_transform_strategy transformStrategy_;
+  // ws_ overwrites field in base class ConvPoolOpBase
   Workspace* ws_;
   // Per-group transformed filters
   std::vector<TensorCPU*> transformedFilters_;
