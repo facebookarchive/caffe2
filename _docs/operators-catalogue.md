@@ -6460,7 +6460,7 @@ Applies 'WeightedSum' to each segment of the input tensor. Segments are defined 
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
 *Inputs* | 
 `DATA` | Input tensor for the summation
-`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
+`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the number of slices
 `LENGTHS` | Vector with the same sum of elements as the first dimension of DATA
 *Outputs* | 
 `OUTPUT` | Aggregated output tensor. Has the first dimension of len(LENGTHS) 
@@ -7088,6 +7088,46 @@ No documentation yet.
 
 
 [caffe2/operators/pool_gradient_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/pool_gradient_op.cc)
+
+---
+
+
+
+## Mean
+
+
+Element-wise mean of each of the input tensors. The first input tensor can be used in-place as the output tensor, in which case the mean will be done in place and results will be accumulated in input0. All inputs and outputs must have the same shape and data type.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`data_0` | First of the input tensors. Can be inplace.
+*Outputs* | 
+`mean` | Output tensor. Same dimension as inputs.
+
+
+### Code
+
+
+[caffe2/operators/mean_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/mean_op.cc)
+
+---
+
+
+
+## MeanGradient
+
+No documentation yet.
+
+
+### Code
+
+
+[caffe2/operators/mean_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/mean_op.cc)
 
 ---
 
@@ -8849,7 +8889,7 @@ Reduces the input tensor along the first dimension of the input tensor by applyi
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
 *Inputs* | 
 `DATA` | Input tensor for the summation
-`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
+`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the number of slices
 *Outputs* | 
 `OUTPUT` | Aggregated tensor
 
@@ -10844,7 +10884,7 @@ Applies 'WeightedSum' to each segment of input tensor. Segments need to be sorte
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
 *Inputs* | 
 `DATA` | Input tensor for the summation
-`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
+`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the number of slices
 `SEGMENT_IDS` | Vector with the same length as the first dimension of DATA and values in the range 0..K-1 and in increasing order that maps each slice of DATA to one of the segments
 *Outputs* | 
 `OUTPUT` | Aggregated output tensor. Has the first dimension of K (the number of segments).
@@ -11275,7 +11315,7 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Weig
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
 *Inputs* | 
 `DATA` | Input tensor for the summation
-`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
+`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the number of slices
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `LENGTHS` | Non negative vector with sum of elements equal to INDICES length
 *Outputs* | 
@@ -11558,7 +11598,7 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Weig
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
 *Inputs* | 
 `DATA` | Input tensor for the summation
-`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
+`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the number of slices
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `SEGMENT_IDS` | Vector with the same length as INDICES and values in the range 0..K-1 and in increasing order that maps each slice of DATA referenced by INDICES to one of the segments
 *Outputs* | 
@@ -11798,7 +11838,7 @@ Pulls in slices of the input tensor, groups them into segments and applies 'Weig
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
 *Inputs* | 
 `DATA` | Input tensor for the summation
-`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
+`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the number of slices
 `INDICES` | Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated
 `SEGMENT_IDS` | Integer vector with the same length as INDICES that maps each slice of DATA referenced by INDICES to one of the segments
 *Outputs* | 
@@ -11991,6 +12031,32 @@ Square (x^2) the elements of the input
 
 
 [caffe2/operators/math_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/math_ops.cc)
+
+---
+
+
+
+## Sqrt
+
+
+Computes the element-wise sqrt of the input.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`X` | ND input tensor
+*Outputs* | 
+`Y` | ND input tensor
+
+
+### Code
+
+
+[caffe2/operators/sqrt_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/sqrt_op.cc)
 
 ---
 
@@ -13536,7 +13602,7 @@ Applies 'WeightedSum' to each segment of input tensor. Segments ids can appear i
 `grad_on_weights` | Produce also gradient for `weights`. For now it's only supported in `Lengths`-based operators
 *Inputs* | 
 `DATA` | Input tensor for the summation
-`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the first dimension of DATA
+`SCALARS` | Scalar multipliers for the input slices. Must be a vector with the length matching the number of slices
 `SEGMENT_IDS` | Integer vector with the same length as the first dimension of DATA that maps each slice of DATA to one of the segments
 *Outputs* | 
 `OUTPUT` | Aggregated output tensor. Has the first dimension of equal to the number of segments.

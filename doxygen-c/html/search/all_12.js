@@ -114,6 +114,7 @@ var searchData=
   ['spatialsoftmaxwithlossop',['SpatialSoftmaxWithLossOp',['../classcaffe2_1_1_spatial_softmax_with_loss_op.html',1,'caffe2']]],
   ['splitop',['SplitOp',['../classcaffe2_1_1_split_op.html',1,'caffe2']]],
   ['sqrcpufunctor',['SqrCPUFunctor',['../structcaffe2_1_1_sqr_c_p_u_functor.html',1,'caffe2']]],
+  ['sqrtcpufunctor',['SqrtCPUFunctor',['../structcaffe2_1_1_sqrt_c_p_u_functor.html',1,'caffe2']]],
   ['squaredl2distancegradientop',['SquaredL2DistanceGradientOp',['../classcaffe2_1_1_squared_l2_distance_gradient_op.html',1,'caffe2']]],
   ['squaredl2distanceop',['SquaredL2DistanceOp',['../classcaffe2_1_1_squared_l2_distance_op.html',1,'caffe2']]],
   ['squarerootdivideop',['SquareRootDivideOp',['../classcaffe2_1_1_square_root_divide_op.html',1,'caffe2']]],

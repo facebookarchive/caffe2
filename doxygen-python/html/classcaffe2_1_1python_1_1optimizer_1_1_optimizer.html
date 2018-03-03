@@ -140,9 +140,9 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>get_gpu_blob_name</b> 
 <tr class="memitem:a0cda23e72c327be407b5e8a23db6c282"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0cda23e72c327be407b5e8a23db6c282"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>build_lr</b> (self, net, param_init_net, base_learning_rate, learning_rate_blob=None, policy=&quot;fixed&quot;, iter_val=0, kwargs)</td></tr>
 <tr class="separator:a0cda23e72c327be407b5e8a23db6c282"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0ab1e271e8f6b88931278855fd9565f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0ab1e271e8f6b88931278855fd9565f"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>add_lr_multiplier</b> (self, lr_multiplier)</td></tr>
-<tr class="separator:ad0ab1e271e8f6b88931278855fd9565f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73be4507eadb6d90e9f3ab521b4c5527"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a73be4507eadb6d90e9f3ab521b4c5527"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>add_lr_multiplier</b> (self, lr_multiplier, is_gpu_blob=False)</td></tr>
+<tr class="separator:a73be4507eadb6d90e9f3ab521b4c5527"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc95d8cd959f46d0a7cd48880f196288"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1python_1_1optimizer_1_1_optimizer.html#adc95d8cd959f46d0a7cd48880f196288">get_auxiliary_parameters</a> (self)</td></tr>
 <tr class="separator:adc95d8cd959f46d0a7cd48880f196288"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3f2e7b48f282eb60d159df4abfa5e17"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3f2e7b48f282eb60d159df4abfa5e17"></a>
@@ -189,7 +189,7 @@ Returns:
     an example, the iteration parameter is a shared parameter, because
     all the learning rates share the same iteration parameter.
 </pre> 
-<p>Definition at line <a class="el" href="optimizer_8py_source.html#l00155">155</a> of file <a class="el" href="optimizer_8py_source.html">optimizer.py</a>.</p>
+<p>Definition at line <a class="el" href="optimizer_8py_source.html#l00164">164</a> of file <a class="el" href="optimizer_8py_source.html">optimizer.py</a>.</p>
 
 </div>
 </div>
@@ -219,7 +219,7 @@ Returns:
 <pre class="fragment">Returns a blob name that will be unique to the current device
 and optimizer instance.
 </pre> 
-<p>Definition at line <a class="el" href="optimizer_8py_source.html#l00080">80</a> of file <a class="el" href="optimizer_8py_source.html">optimizer.py</a>.</p>
+<p>Definition at line <a class="el" href="optimizer_8py_source.html#l00081">81</a> of file <a class="el" href="optimizer_8py_source.html">optimizer.py</a>.</p>
 
 </div>
 </div>
@@ -230,7 +230,7 @@ and optimizer instance.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Mar 2 2018 13:03:33 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Mar 3 2018 13:03:31 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
