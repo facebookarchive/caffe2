@@ -11,8 +11,10 @@
 #include "caffe2/utils/string_utils.h"
 #include "observers/observer_config.h"
 
+#if MOBILE_OPENGL_BACKEND
 #if CAFFE2_MOBILE && (CAFFE2_ANDROID || CAFFE2_IOS)
 #include "caffe2/mobile/contrib/opengl/core/rewrite_net.h"
+#endif
 #endif
 
 CAFFE2_DEFINE_string(
@@ -179,6 +181,7 @@ int main(int argc, char** argv) {
 
   if (caffe2::FLAGS_backend != "builtin") {
     if (caffe2::FLAGS_backend == "opengl") {
+#if MOBILE_OPENGL_BACKEND
 #if CAFFE2_MOBILE && (CAFFE2_ANDROID || CAFFE2_IOS)
       caffe2::NetDef opengl_net_def;
       if (caffe2::tryConvertToOpenGL(init_net_def, net_def, &opengl_net_def)) {
@@ -192,8 +195,7 @@ int main(int argc, char** argv) {
         LOG(ERROR)
           << "Net cannot be converted to OpenGL format, use original model instead";
       }
-#else
-      LOG(ERROR) << "OpenGL build can only be used in mobile platform";
+#endif
 #endif
     } else {
       std::string engine = caffe2::FLAGS_backend == "nnpack" ? "NNPACK" :
