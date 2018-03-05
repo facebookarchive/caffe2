@@ -91,18 +91,16 @@ void RunHeapSelectionImpl(
   constexpr int smem = kNumWarps * kHeapSize * (sizeof(T) + sizeof(TIndex));
   constexpr T kInitVal = kSelectMax ? std::numeric_limits<T>::lowest()
                                     : std::numeric_limits<T>::max();
-  do {
-    selectRowsViaHeap<T, TIndex, TIndex, kBlockSize, kHeapSize, kSelectMax>
-        <<<outer_size, kBlockSize, smem, context->cuda_stream()>>>(
-            input,
-            values,
-            indices,
-            kInitVal,
-            std::numeric_limits<TIndex>::max(),
-            outer_size,
-            inner_size,
-            k);
-  } while (false);
+  selectRowsViaHeap<T, TIndex, TIndex, kBlockSize, kHeapSize, kSelectMax>
+      <<<outer_size, kBlockSize, smem, context->cuda_stream()>>>(
+          input,
+          values,
+          indices,
+          kInitVal,
+          std::numeric_limits<TIndex>::max(),
+          outer_size,
+          inner_size,
+          k);
 }
 
 template <typename T, bool kSelectMax = true>
