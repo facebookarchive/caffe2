@@ -329,11 +329,10 @@ if(USE_CUDA)
   include(cmake/public/cuda.cmake)
   if(CAFFE2_FOUND_CUDA)
     # A helper variable recording the list of Caffe2 dependent librareis
-    # caffe2::cuda is dealt with separately, due to CUDA_ADD_LIBRARY
+    # caffe2::cudart is dealt with separately, due to CUDA_ADD_LIBRARY
     # design reason (it adds CUDA_LIBRARIES itself).
     set(Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS
-        caffe2::cudart caffe2::curand
-        caffe2::cublas caffe2::cudnn caffe2::nvrtc)
+        caffe2::cuda caffe2::curand caffe2::cublas caffe2::cudnn caffe2::nvrtc)
   else()
     message(WARNING
         "Not compiling with CUDA. Suppress this warning with "
@@ -442,15 +441,6 @@ if (USE_ACL)
     if (CMAKE_SYSTEM_PROCESSOR MATCHES "^armv")
       # 32-bit ARM (armv7, armv7-a, armv7l, etc)
       set(ACL_ARCH "armv7a")
-      # Compilers for 32-bit ARM need extra flags to enable NEON-FP16
-      add_definitions("-mfpu=neon-fp16")
-
-      include(CheckCCompilerFlag)
-      CHECK_C_COMPILER_FLAG(
-          -mfp16-format=ieee CAFFE2_COMPILER_SUPPORTS_FP16_FORMAT)
-      if (CAFFE2_COMPILER_SUPPORTS_FP16_FORMAT)
-        add_definitions("-mfp16-format=ieee")
-      endif()
     elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm64|aarch64)$")
       # 64-bit ARM
       set(ACL_ARCH "arm64-v8a")
