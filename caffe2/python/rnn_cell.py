@@ -105,7 +105,7 @@ class RNNCell(object):
                                     "or initializer have to be set")
                 initial_states = self.initializer.create_states(model)
 
-        preprocessed_inputs = self.prepare_input(model, inputs)
+        preprocessed_inputs = self._prepare_input(model, inputs)
         step_model = ModelHelper(name=self.name, param_model=model)
         input_t, timestep = step_model.net.AddScopedExternalInputs(
             'input_t',
@@ -158,7 +158,7 @@ class RNNCell(object):
         return output, states_for_all_steps
 
     def apply(self, model, input_t, seq_lengths, states, timestep):
-        input_t = self.prepare_input(model, input_t)
+        input_t = self._prepare_input(model, input_t)
         states = self._apply(
             model, input_t, seq_lengths, states, timestep)
         output = self._prepare_output(model, states)
@@ -228,7 +228,15 @@ class RNNCell(object):
         '''
         raise NotImplementedError('Abstract method')
 
-    def prepare_input(self, model, input_blob):
+    def _prepare_input(self, model, input_blob):
+        '''
+        This  method uses prepare_input_override provided by a custom cell.
+        It takes care of applying self.scope() to input_blob.
+        '''
+        return self.prepare_input_override(model, _RectifyName(input_blob))
+
+
+    def prepare_input_override(self, model, input_blob):
         '''
         If some operations in _apply method depend only on the input,
         not on recurrent states, they could be computed in advance.
@@ -392,7 +400,7 @@ class BasicRNNCell(RNNCell):
                     [hidden_valid, hidden_invalid], hidden_t)
         return (hidden_t,)
 
-    def prepare_input(self, model, input_blob):
+    def prepare_input_override(self, model, input_blob):
         return brew.fc(
             model,
             input_blob,
@@ -496,7 +504,7 @@ class LSTMCell(RNNCell):
             'biases': self.scope('gates_t') + '_b',
         }
 
-    def prepare_input(self, model, input_blob):
+    def prepare_input_override(self, model, input_blob):
         return brew.fc(
             model,
             input_blob,
@@ -606,7 +614,7 @@ class LayerNormLSTMCell(RNNCell):
             'biases': self.scope('i2h') + '_b',
         }
 
-    def prepare_input(self, model, input_blob):
+    def prepare_input_override(self, model, input_blob):
         return brew.fc(
             model,
             input_blob,
@@ -848,7 +856,7 @@ class DropoutCell(RNNCell):
         self.use_cudnn = use_cudnn
         super(DropoutCell, self).__init__(**kwargs)
 
-        self.prepare_input = internal_cell.prepare_input
+        self.prepare_input_override = internal_cell.prepare_input_override
         self.get_output_state_index = internal_cell.get_output_state_index
         self.get_state_names = internal_cell.get_state_names
         self.get_output_dim = internal_cell.get_output_dim
@@ -946,7 +954,7 @@ class MultiRNNCell(RNNCell):
         be added elementwise to their output elementwise. (It is the
         responsibility of the client code to ensure shape compatibility.)
         Note that layer 0 (zero) cannot have residual output because of the
-        timing of prepare_input().
+        timing of prepare_input_override().
 
         forward_only: used to construct inference-only network.
         '''
@@ -991,10 +999,9 @@ class MultiRNNCell(RNNCell):
             return "{}/layer_{}/{}".format(self.name, layer_id, name)
         return helper
 
-    def prepare_input(self, model, input_blob):
-        input_blob = _RectifyName(input_blob)
+    def prepare_input_override(self, model, input_blob):
         with core.NameScope(self.name or ''):
-            return self.cells[0].prepare_input(model, input_blob)
+            return self.cells[0].prepare_input_override(model, input_blob)
 
     def _apply(
         self,
@@ -1031,7 +1038,7 @@ class MultiRNNCell(RNNCell):
                 states_index += num_states
 
                 if i > 0:
-                    prepared_input = layer_cell.prepare_input(
+                    prepared_input = layer_cell._prepare_input(
                         model, layer_input)
                 else:
                     prepared_input = layer_input
@@ -1277,7 +1284,7 @@ class AttentionCell(RNNCell):
         # [batch_size, encoder_length, 1]
         return self.attention_weights_3d
 
-    def prepare_input(self, model, input_blob):
+    def prepare_input_override(self, model, input_blob):
         if self.encoder_outputs_transposed is None:
             self.encoder_outputs_transposed = brew.transpose(
                 model,
@@ -1298,7 +1305,7 @@ class AttentionCell(RNNCell):
                 axis=2,
             )
 
-        return self.decoder_cell.prepare_input(model, input_blob)
+        return self.decoder_cell.prepare_input_override(model, input_blob)
 
     def build_initial_coverage(self, model):
         """
@@ -1616,7 +1623,7 @@ class UnrolledCell(RNNCell):
         initial_states,
         outputs_with_grads=None,
     ):
-        inputs = self.cell.prepare_input(model, inputs)
+        inputs = self.cell.prepare_input_override(model, inputs)
 
         # Now they are blob references - outputs of splitting the input sequence
         split_inputs = model.net.Split(
