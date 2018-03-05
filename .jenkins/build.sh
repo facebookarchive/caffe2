@@ -51,9 +51,20 @@ if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   exit 0
 fi
 if [[ "${BUILD_ENVIRONMENT}" == conda* ]]; then
+  # SKIP_CONDA_TESTS refers to only the 'test' section of the meta.yaml
   export SKIP_CONDA_TESTS=1
   export CONDA_INSTALL_LOCALLY=1
   "${ROOT_DIR}/scripts/build_anaconda.sh" "$@"
+
+  # The tests all need hypothesis, which isn't included in the conda packages
+  conda install -y hypothesis
+
+  # This build will be tested against onnx tests, which needs onnx installed.
+  # Onnx should be built against the same protobuf that Caffe2 uses, which is
+  # only installed in the conda environment when Caffe2 is.
+  # This path comes from install_anaconda.sh which installs Anaconda into the
+  # docker image
+  PROTOBUF_INCDIR=/opt/conda/include pip install "${ROOT_DIR}/third_party/onnx"
   exit 0
 fi
 

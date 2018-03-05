@@ -17,6 +17,8 @@ INSTALL_PREFIX="/usr/local/caffe2"
 
 # Anaconda builds have a special install prefix and python
 if [[ "$BUILD_ENVIRONMENT" == conda* ]]; then
+  # This path comes from install_anaconda.sh which installs Anaconda into the
+  # docker image
   PYTHON="/opt/conda/bin/python"
   INSTALL_PREFIX="/opt/conda"
 fi
