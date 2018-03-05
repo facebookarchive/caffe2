@@ -540,15 +540,6 @@ TEST(TensorTest, Tensor64BitDimension) {
   EXPECT_EQ(tensor.size(), large_number);
   try {
     EXPECT_TRUE(tensor.mutable_data<char>() != nullptr);
-    EXPECT_EQ(tensor.nbytes(), large_number * sizeof(char));
-    EXPECT_EQ(tensor.itemsize(), sizeof(char));
-    // Try to go even larger, but this time we will not do mutable_data because we
-    // do not have a large enough memory.
-    tensor.Resize(large_number, 100);
-    EXPECT_EQ(tensor.ndim(), 2);
-    EXPECT_EQ(tensor.dim(0), large_number);
-    EXPECT_EQ(tensor.dim(1), 100);
-    EXPECT_EQ(tensor.size(), large_number * 100);
   } catch (const EnforceNotMet& e) {
     string msg = e.what();
     size_t found = msg.find("posix_memalign");
@@ -556,10 +547,20 @@ TEST(TensorTest, Tensor64BitDimension) {
       msg = msg.substr(0, msg.find('\n'));
       LOG(WARNING) << msg;
       LOG(WARNING) << "Out of memory issue with posix_memalign;\n";
+      return;
     } else {
       throw e; 
     }
   }
+  EXPECT_EQ(tensor.nbytes(), large_number * sizeof(char));
+  EXPECT_EQ(tensor.itemsize(), sizeof(char));
+  // Try to go even larger, but this time we will not do mutable_data because we
+  // do not have a large enough memory.
+  tensor.Resize(large_number, 100);
+  EXPECT_EQ(tensor.ndim(), 2);
+  EXPECT_EQ(tensor.dim(0), large_number);
+  EXPECT_EQ(tensor.dim(1), 100);
+  EXPECT_EQ(tensor.size(), large_number * 100);
 }
 
 TEST(TensorDeathTest, CannotCastDownLargeDims) {
