@@ -15,6 +15,8 @@ var searchData=
   ['batchsparsetodenseop',['BatchSparseToDenseOp',['../classcaffe2_1_1_batch_sparse_to_dense_op.html',1,'caffe2']]],
   ['batchtospaceop',['BatchToSpaceOp',['../classcaffe2_1_1_batch_to_space_op.html',1,'caffe2']]],
   ['bboxtransformop',['BBoxTransformOp',['../classcaffe2_1_1_b_box_transform_op.html',1,'caffe2']]],
+  ['bernoullijsdgradientop',['BernoulliJSDGradientOp',['../classcaffe2_1_1_bernoulli_j_s_d_gradient_op.html',1,'caffe2']]],
+  ['bernoullijsdop',['BernoulliJSDOp',['../classcaffe2_1_1_bernoulli_j_s_d_op.html',1,'caffe2']]],
   ['binaryelementwiseop',['BinaryElementwiseOp',['../classcaffe2_1_1_binary_elementwise_op.html',1,'caffe2']]],
   ['binding',['binding',['../struct_g_l_filter_1_1binding.html',1,'GLFilter']]],
   ['blob',['Blob',['../classcaffe2_1_1_blob.html',1,'caffe2']]],

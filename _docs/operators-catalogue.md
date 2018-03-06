@@ -1189,6 +1189,46 @@ With in each batch,  `indices`  should not have duplicate number.
 
 
 
+## BernoulliJSD
+
+
+Computes the Jensen-Shannon divergence (JSD) between two Bernoulli distributions where each is parametrized by a single probability.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`T` | array of probabilities for target
+*Outputs* | 
+`L` | array of JSD losses
+
+
+### Code
+
+
+[caffe2/operators/jsd_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/jsd_op.cc)
+
+---
+
+
+
+## BernoulliJSDGradient
+
+No documentation yet.
+
+
+### Code
+
+
+[caffe2/operators/jsd_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/jsd_op.cc)
+
+---
+
+
+
 ## BooleanMask
 
 
@@ -1341,7 +1381,7 @@ Apply NMS to each class (except background) and limit the number of returned box
 
 ---------- | ----------
 *Arguments* | 
-`score_thres` | (float) TEST.SCORE_THRES
+`score_thresh` | (float) TEST.SCORE_THRESH
 `nms` | (float) TEST.NMS
 `detections_per_im` | (int) TEST.DEECTIONS_PER_IM
 `soft_nms_enabled` | (bool) TEST.SOFT_NMS.ENABLED
@@ -1675,6 +1715,46 @@ No documentation yet.
 
 
 [caffe2/operators/clip_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/clip_op.cc)
+
+---
+
+
+
+## ClipTensorByScaling
+
+
+ 
+
+```
+    Clips the input tensor by scaling based on the input value and the threshold.
+    The value is usually the (pre-computed) norm of the tensor. If the value is
+    larger than the threshold, scaling would be performed in this way:
+
+          tensor *= (threshold / value).
+
+    This op could be used for gradient clipping.
+```
+
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`threshold` | Threshold to determine whether to scale down the tensor
+*Inputs* | 
+`input_tensor` | Tensor of floats to be clipped.
+`val` | Value to be compared against the threshold
+*Outputs* | 
+`clipped` | Tensor of floats, which is the same size as the input tensor, representing the clipped tensor.
+
+
+### Code
+
+
+[caffe2/sgd/clip_tensor_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/sgd/clip_tensor_op.cc)
 
 ---
 

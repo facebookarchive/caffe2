@@ -55,6 +55,7 @@ var searchData=
   ['cl_5fushort8',['cl_ushort8',['../unioncl__ushort8.html',1,'']]],
   ['clipgradientop',['ClipGradientOp',['../classcaffe2_1_1_clip_gradient_op.html',1,'caffe2']]],
   ['clipop',['ClipOp',['../classcaffe2_1_1_clip_op.html',1,'caffe2']]],
+  ['cliptensorbyscalingop',['ClipTensorByScalingOp',['../classcaffe2_1_1_clip_tensor_by_scaling_op.html',1,'caffe2']]],
   ['closeblobsqueueop',['CloseBlobsQueueOp',['../classcaffe2_1_1_close_blobs_queue_op.html',1,'caffe2']]],
   ['closerebatchingqueueop',['CloseRebatchingQueueOp',['../classcaffe2_1_1_close_rebatching_queue_op.html',1,'caffe2']]],
   ['col2imop',['Col2ImOp',['../classcaffe2_1_1_col2_im_op.html',1,'caffe2']]],

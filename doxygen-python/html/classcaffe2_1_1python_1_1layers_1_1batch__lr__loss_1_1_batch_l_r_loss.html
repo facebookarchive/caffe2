@@ -114,9 +114,9 @@ Inheritance diagram for caffe2.python.layers.batch_lr_loss.BatchLRLoss:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3cfcf54af8038a712a35faaf7faaac25"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3cfcf54af8038a712a35faaf7faaac25"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, model, input_record, name='batch_lr_loss', average_loss=True, kwargs)</td></tr>
-<tr class="separator:a3cfcf54af8038a712a35faaf7faaac25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77f95b7b75a7289cc0fe145de9bc357b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a77f95b7b75a7289cc0fe145de9bc357b"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, model, input_record, name='batch_lr_loss', average_loss=True, jsd_weight=0.0, kwargs)</td></tr>
+<tr class="separator:a77f95b7b75a7289cc0fe145de9bc357b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab408853698ad28265c3c1dea0df9df56"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab408853698ad28265c3c1dea0df9df56"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>add_ops</b> (self, net)</td></tr>
 <tr class="separator:ab408853698ad28265c3c1dea0df9df56"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -126,6 +126,15 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a8eb06b48b9b2f6cbc708b7e30e5ac005"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8eb06b48b9b2f6cbc708b7e30e5ac005"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>average_loss</b></td></tr>
 <tr class="separator:a8eb06b48b9b2f6cbc708b7e30e5ac005"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22f2ce47dd05bc233cdfed1f890e25c8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a22f2ce47dd05bc233cdfed1f890e25c8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>jsd_weight</b></td></tr>
+<tr class="separator:a22f2ce47dd05bc233cdfed1f890e25c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94ae09d325c966d58b20a91c0346b0c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a94ae09d325c966d58b20a91c0346b0c5"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>jsd_weight_const</b></td></tr>
+<tr class="separator:a94ae09d325c966d58b20a91c0346b0c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff319c7c8e9f0833c09361fa581321df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff319c7c8e9f0833c09361fa581321df"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>xent_weight_const</b></td></tr>
+<tr class="separator:aff319c7c8e9f0833c09361fa581321df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a02eeb03ed5fff3f6e63f7aa2a15d601f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a02eeb03ed5fff3f6e63f7aa2a15d601f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>output_schema</b></td></tr>
 <tr class="separator:a02eeb03ed5fff3f6e63f7aa2a15d601f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,7 +149,7 @@ Public Attributes</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 5 2018 13:03:31 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 6 2018 13:03:32 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -16,7 +16,7 @@ var searchData=
   ['singlegradientdef',['SingleGradientDef',['../classcaffe2_1_1_gradient_maker_base.html#a44d7fb1a86d355a0d057648443f2d1f7',1,'caffe2::GradientMakerBase']]],
   ['size',['size',['../classcaffe2_1_1_tensor.html#a87087b9548e9bad215d663389abda32e',1,'caffe2::Tensor::size()'],['../classcaffe2_1_1mkl_1_1_m_k_l_memory.html#ab203f62d8ad712b00e805950e5707ca7',1,'caffe2::mkl::MKLMemory::size()'],['../classcaffe2_1_1_m_p_i_common_world_wrapper.html#a41eb6825cb0a9ee8289aa63aee73bfd4',1,'caffe2::MPICommonWorldWrapper::size()']]],
   ['size_5ffrom_5fdim',['size_from_dim',['../classcaffe2_1_1_q_tensor.html#a78b830a655c43f44cb2486b02d1d904f',1,'caffe2::QTensor']]],
-  ['size_5ffrom_5fdim_5f',['size_from_dim_',['../namespacecaffe2.html#a57dab6c8becb4bb52f6e74e5c1063487',1,'caffe2']]],
+  ['size_5ffrom_5fdim_5f',['size_from_dim_',['../namespacecaffe2.html#add14fa17af46b7f9a8a81cd9651456d6',1,'caffe2']]],
   ['size_5fto_5fdim',['size_to_dim',['../classcaffe2_1_1_q_tensor.html#a3e470cada271884aabc964b36287a635',1,'caffe2::QTensor']]],
   ['start',['Start',['../classcaffe2_1_1_timer.html#a2cd2082f328f09afdae05de39ccb04f0',1,'caffe2::Timer']]],
   ['streamindex',['streamIndex',['../classcaffe2_1_1_params.html#ace6a51cd483e13c2c2016b877ef69fd5',1,'caffe2::Params']]],

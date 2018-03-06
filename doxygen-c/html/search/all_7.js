@@ -16,6 +16,7 @@ var searchData=
   ['getbatchgathergradient',['GetBatchGatherGradient',['../classcaffe2_1_1_get_batch_gather_gradient.html',1,'caffe2']]],
   ['getbatchpermutationgradient',['GetBatchPermutationGradient',['../classcaffe2_1_1_get_batch_permutation_gradient.html',1,'caffe2']]],
   ['getbatchtospacegradient',['GetBatchToSpaceGradient',['../classcaffe2_1_1_get_batch_to_space_gradient.html',1,'caffe2']]],
+  ['getbernoullijsdgradient',['GetBernoulliJSDGradient',['../classcaffe2_1_1_get_bernoulli_j_s_d_gradient.html',1,'caffe2']]],
   ['getblob',['GetBlob',['../classcaffe2_1_1_workspace.html#aeae0d3e73cf44e447b034d2f0bbd4c6b',1,'caffe2::Workspace::GetBlob(const string &amp;name) const '],['../classcaffe2_1_1_workspace.html#a5ace110b4af72d7be5db1a483688c344',1,'caffe2::Workspace::GetBlob(const string &amp;name)']]],
   ['getcastgradient',['GetCastGradient',['../classcaffe2_1_1_get_cast_gradient.html',1,'caffe2']]],
   ['getchannelshufflegradient',['GetChannelShuffleGradient',['../classcaffe2_1_1_get_channel_shuffle_gradient.html',1,'caffe2']]],

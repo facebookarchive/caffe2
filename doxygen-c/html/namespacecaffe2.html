@@ -250,6 +250,10 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_b_box_transform_op.html">BBoxTransformOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_bernoulli_j_s_d_gradient_op.html">BernoulliJSDGradientOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_bernoulli_j_s_d_op.html">BernoulliJSDOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_binary_elementwise_op.html">BinaryElementwiseOp</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs a binary operation (e.g.  <a href="classcaffe2_1_1_binary_elementwise_op.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -305,6 +309,8 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_clip_gradient_op.html">ClipGradientOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_clip_op.html">ClipOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_clip_tensor_by_scaling_op.html">ClipTensorByScalingOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_close_blobs_queue_op.html">CloseBlobsQueueOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -671,6 +677,8 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_get_batch_permutation_gradient.html">GetBatchPermutationGradient</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_get_batch_to_space_gradient.html">GetBatchToSpaceGradient</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_get_bernoulli_j_s_d_gradient.html">GetBernoulliJSDGradient</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_get_cast_gradient.html">GetCastGradient</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2155,6 +2163,11 @@ Enumerations</h2></td></tr>
 <b>NCHW</b> = 2
  }</td></tr>
 <tr class="separator:aa25e17b4d7a08766797f73811bf8fd21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f2d911d4adc1f538c19797d44660e7d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f2d911d4adc1f538c19797d44660e7d"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>ALGO_FWD</b> = 0, 
+<b>ALGO_WGRAD</b> = 1, 
+<b>ALGO_DGRAD</b> = 2
+ }</td></tr>
+<tr class="separator:a1f2d911d4adc1f538c19797d44660e7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18517bbe9b4899f83107e74f7a8e7544"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18517bbe9b4899f83107e74f7a8e7544"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>PadMode</b> { <b>CONSTANT</b> = 0, 
 <b>REFLECT</b> = 1, 
 <b>EDGE</b> = 2
@@ -2615,9 +2628,9 @@ unique_ptr&lt; <a class="el" href="classcaffe2_1_1_net_base.html">NetBase</a> &g
 <tr class="memitem:a525018a21de8af6d36e5ca1f9a50b71e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a525018a21de8af6d36e5ca1f9a50b71e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_REGISTER_CREATOR</b> (ThreadPoolRegistry, CPU, AsyncNetCPUThreadPoolCreator)</td></tr>
 <tr class="separator:a525018a21de8af6d36e5ca1f9a50b71e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af0492aa3379333362248027ee03e6b3f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af0492aa3379333362248027ee03e6b3f"></a>
-std::shared_ptr&lt; <a class="el" href="classcaffe2_1_1_task_thread_pool.html">TaskThreadPool</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetAsyncNetCPUThreadPool</b> ()</td></tr>
-<tr class="separator:af0492aa3379333362248027ee03e6b3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac045377eef49487e3e7456afbbfae9c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac045377eef49487e3e7456afbbfae9c3"></a>
+std::shared_ptr&lt; <a class="el" href="classcaffe2_1_1_task_thread_pool.html">TaskThreadPool</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetAsyncNetCPUThreadPool</b> (int numa_node_id)</td></tr>
+<tr class="separator:ac045377eef49487e3e7456afbbfae9c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1768f50803e433c71e4f974d176fcb75"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1768f50803e433c71e4f974d176fcb75"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_DECLARE_SHARED_REGISTRY</b> (ThreadPoolRegistry, <a class="el" href="classcaffe2_1_1_task_thread_pool.html">TaskThreadPool</a>, const DeviceOption &amp;)</td></tr>
 <tr class="separator:a1768f50803e433c71e4f974d176fcb75"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2645,6 +2658,24 @@ std::shared_ptr&lt; <a class="el" href="classcaffe2_1_1_task_thread_pool.html">T
 <tr class="memitem:ab5898a33286d03553bcc1b2076a35998"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab5898a33286d03553bcc1b2076a35998"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_NET</b> (async_simple, <a class="el" href="classcaffe2_1_1_async_simple_net.html">AsyncSimpleNet</a>)</td></tr>
 <tr class="separator:ab5898a33286d03553bcc1b2076a35998"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4246ecacbc1eca9eddbe8dc3c2f65ac2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4246ecacbc1eca9eddbe8dc3c2f65ac2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsNUMAEnabled</b> ()</td></tr>
+<tr class="separator:a4246ecacbc1eca9eddbe8dc3c2f65ac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae190af34adf46c3aea00a96f41ce045e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae190af34adf46c3aea00a96f41ce045e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>NUMABind</b> (int numa_node_id)</td></tr>
+<tr class="separator:ae190af34adf46c3aea00a96f41ce045e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5c9beec93e2aaa0f5e03ef0e2c6cd5e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5c9beec93e2aaa0f5e03ef0e2c6cd5e"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>GetNUMANode</b> (const void *ptr)</td></tr>
+<tr class="separator:aa5c9beec93e2aaa0f5e03ef0e2c6cd5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7754607c8d5e11fae9c28bada38e3f4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad7754607c8d5e11fae9c28bada38e3f4"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>GetNumNUMANodes</b> ()</td></tr>
+<tr class="separator:ad7754607c8d5e11fae9c28bada38e3f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d86f6a19ca640011886d4608cf93585"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d86f6a19ca640011886d4608cf93585"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>NUMAMove</b> (void *ptr, size_t size, int numa_node_id)</td></tr>
+<tr class="separator:a2d86f6a19ca640011886d4608cf93585"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aece30635af176262e2fa4e8d51b8b154"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aece30635af176262e2fa4e8d51b8b154"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>GetCurrentNUMANode</b> ()</td></tr>
+<tr class="separator:aece30635af176262e2fa4e8d51b8b154"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58edd0227c0c3e3d7dbe86941a1ef5a2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58edd0227c0c3e3d7dbe86941a1ef5a2"></a>
 const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>OpRegistryKey</b> (const std::string &amp;op_type, const std::string &amp;engine)</td></tr>
 <tr class="separator:a58edd0227c0c3e3d7dbe86941a1ef5a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2767,16 +2798,16 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>RegisterTensorInfoFun
 vector&lt; TIndex &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecaffe2.html#a591122a8091d7c58df32810129874cb2">ToVectorTIndex</a> (const std::vector&lt; int &gt; &amp;src)</td></tr>
 <tr class="memdesc:a591122a8091d7c58df32810129874cb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">A utility function to convert vector&lt;int&gt; to vector&lt;TIndex&gt;. <br /></td></tr>
 <tr class="separator:a591122a8091d7c58df32810129874cb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a57dab6c8becb4bb52f6e74e5c1063487"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a57dab6c8becb4bb52f6e74e5c1063487"></a>
-TIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecaffe2.html#a57dab6c8becb4bb52f6e74e5c1063487">size_from_dim_</a> (int k, vector&lt; TIndex &gt; dims)</td></tr>
-<tr class="memdesc:a57dab6c8becb4bb52f6e74e5c1063487"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return product of all dimensions starting from K. <br /></td></tr>
-<tr class="separator:a57dab6c8becb4bb52f6e74e5c1063487"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71c6b41b31c43fa77ab0789b98170249"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a71c6b41b31c43fa77ab0789b98170249"></a>
-TIndex&#160;</td><td class="memItemRight" valign="bottom"><b>size_to_dim_</b> (int k, vector&lt; TIndex &gt; dims)</td></tr>
-<tr class="separator:a71c6b41b31c43fa77ab0789b98170249"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e9762eaebb9597fdc834d073eeefee6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8e9762eaebb9597fdc834d073eeefee6"></a>
-TIndex&#160;</td><td class="memItemRight" valign="bottom"><b>size_between_dim_</b> (int k, int l, vector&lt; TIndex &gt; dims)</td></tr>
-<tr class="separator:a8e9762eaebb9597fdc834d073eeefee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add14fa17af46b7f9a8a81cd9651456d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="add14fa17af46b7f9a8a81cd9651456d6"></a>
+TIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecaffe2.html#add14fa17af46b7f9a8a81cd9651456d6">size_from_dim_</a> (int k, const vector&lt; TIndex &gt; &amp;dims)</td></tr>
+<tr class="memdesc:add14fa17af46b7f9a8a81cd9651456d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return product of all dimensions starting from K. <br /></td></tr>
+<tr class="separator:add14fa17af46b7f9a8a81cd9651456d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a098d3bdc9ea3c61153eda4324dbbcc54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a098d3bdc9ea3c61153eda4324dbbcc54"></a>
+TIndex&#160;</td><td class="memItemRight" valign="bottom"><b>size_to_dim_</b> (int k, const vector&lt; TIndex &gt; &amp;dims)</td></tr>
+<tr class="separator:a098d3bdc9ea3c61153eda4324dbbcc54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec10f0de76fa6db703e61baa25c3ac24"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aec10f0de76fa6db703e61baa25c3ac24"></a>
+TIndex&#160;</td><td class="memItemRight" valign="bottom"><b>size_between_dim_</b> (int k, int l, const vector&lt; TIndex &gt; &amp;dims)</td></tr>
+<tr class="separator:aec10f0de76fa6db703e61baa25c3ac24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a355be215dea0c5371219749fa6f79801"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a355be215dea0c5371219749fa6f79801"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>canonical_axis_index_</b> (int axis_index, int ndims)</td></tr>
 <tr class="separator:a355be215dea0c5371219749fa6f79801"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5146,6 +5177,21 @@ Pointer to an <a class="el" href="structcaffe2_1_1_index.html">Index</a> instanc
 <tr class="memitem:aef0af483cee269a5f5ff6b50caff6943"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef0af483cee269a5f5ff6b50caff6943"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (InstanceNorm, <a class="el" href="classcaffe2_1_1_instance_norm_op.html">InstanceNormOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:aef0af483cee269a5f5ff6b50caff6943"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0bffc30682c0843d52223564efd877d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0bffc30682c0843d52223564efd877d5"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (BernoulliJSD, <a class="el" href="classcaffe2_1_1_bernoulli_j_s_d_op.html">BernoulliJSDOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a0bffc30682c0843d52223564efd877d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad22303aabd08a7b7706a69d39d0ba4ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad22303aabd08a7b7706a69d39d0ba4ba"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (BernoulliJSDGradient, <a class="el" href="classcaffe2_1_1_bernoulli_j_s_d_gradient_op.html">BernoulliJSDGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:ad22303aabd08a7b7706a69d39d0ba4ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a858776ce1f1216c2df4ec19bc9e893fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a858776ce1f1216c2df4ec19bc9e893fe"></a>
+array of probabilities for prediction&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;T&quot;,&quot;array of probabilities for target&quot;).Output(0</td></tr>
+<tr class="separator:a858776ce1f1216c2df4ec19bc9e893fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06016ba6fc7a7bf51db1eb204a5da628"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a06016ba6fc7a7bf51db1eb204a5da628"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (BernoulliJSDGradient).NumInputs(3).NumOutputs(1)</td></tr>
+<tr class="separator:a06016ba6fc7a7bf51db1eb204a5da628"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82708cc86adbd368c6a760f95f786292"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a82708cc86adbd368c6a760f95f786292"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (BernoulliJSD, <a class="el" href="classcaffe2_1_1_get_bernoulli_j_s_d_gradient.html">GetBernoulliJSDGradient</a>)</td></tr>
+<tr class="separator:a82708cc86adbd368c6a760f95f786292"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12265f745d3c059e7cfe2869bf6ac786"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a12265f745d3c059e7cfe2869bf6ac786"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (KeySplit, <a class="el" href="classcaffe2_1_1_key_split_op.html">KeySplitOp</a>&lt; int64_t, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a12265f745d3c059e7cfe2869bf6ac786"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6053,9 +6099,9 @@ NumInputs(1).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classcaff
 <tr class="memitem:ad53172da9ec90ca49ea4ffc41ac7010e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad53172da9ec90ca49ea4ffc41ac7010e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NumOutputs</b> (1).Arg(&quot;exponent&quot;</td></tr>
 <tr class="separator:ad53172da9ec90ca49ea4ffc41ac7010e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a24208f42353b7aa829fcd2ae080c1b05"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a24208f42353b7aa829fcd2ae080c1b05"></a>
-The exponent of the power function&#160;</td><td class="memItemRight" valign="bottom"><b>AllowInplace</b> ({{0, 0},{1, 0}}).SetDoc(R&quot;DOC( Pow takes input data (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) and an argument exponent</td></tr>
-<tr class="separator:a24208f42353b7aa829fcd2ae080c1b05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a458ed24e64fa02b3f92f618907a3981b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a458ed24e64fa02b3f92f618907a3981b"></a>
+The exponent of the power function&#160;</td><td class="memItemRight" valign="bottom"><b>AllowInplace</b> ({{0, 0},{1, 0}}).IdenticalTypeAndShapeOfInput(0).SetDoc(R&quot;DOC( Pow takes input data (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) and an argument exponent</td></tr>
+<tr class="separator:a458ed24e64fa02b3f92f618907a3981b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae519015529c49ba9edba9b9afcf109a6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae519015529c49ba9edba9b9afcf109a6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (PRelu, <a class="el" href="classcaffe2_1_1_p_relu_op.html">PReluOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ae519015529c49ba9edba9b9afcf109a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7903,6 +7949,29 @@ template&lt;typename Context &gt; </td></tr>
 template&lt;typename Context &gt; </td></tr>
 <tr class="memitem:a13a21d356a425abb26679238d3e423d3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>adam_compute</b> (int N, const float *w, const float *g, const float *m, const float *v, float *nw, float *nm, float *nv, float beta1, float beta2, float eps_hat, float correction, const float *lr, Context *)</td></tr>
 <tr class="separator:a13a21d356a425abb26679238d3e423d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3b355dd533c36c687f287ab1211c154"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af3b355dd533c36c687f287ab1211c154"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ClipTensorByScaling, <a class="el" href="classcaffe2_1_1_clip_tensor_by_scaling_op.html">ClipTensorByScalingOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:af3b355dd533c36c687f287ab1211c154"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7aa8b8843f0956388393b9df504a200"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7aa8b8843f0956388393b9df504a200"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+    Clips the input tensor by scaling based on the input value and the threshold.
+    The value is usually the (pre-computed) norm of the tensor. If the value is
+    larger than the threshold, scaling would be performed in this way:
+
+          tensor *= (threshold / value).
+
+    This op could be used for gradient clipping.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:af7aa8b8843f0956388393b9df504a200"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e50d5c049486ecba611e8bd50381a19"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6e50d5c049486ecba611e8bd50381a19"></a>
+<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a> of floats to be clipped&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;val&quot;,&quot;Value to be compared against the threshold&quot;).Arg(&quot;threshold&quot;</td></tr>
+<tr class="separator:a6e50d5c049486ecba611e8bd50381a19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a341bc37efeb388a6a70bf48a7cddfc94"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a341bc37efeb388a6a70bf48a7cddfc94"></a>
+<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a> of floats to be clipped Threshold to determine whether to scale down the tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;clipped&quot;,&quot;<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a> of floats, which is the same size as the input tensor, &quot;&quot;representing the clipped tensor.&quot;)</td></tr>
+<tr class="separator:a341bc37efeb388a6a70bf48a7cddfc94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4c9b48563b67fdf64af6fe535c797dd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae4c9b48563b67fdf64af6fe535c797dd"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (ClipTensorByScaling)</td></tr>
+<tr class="separator:ae4c9b48563b67fdf64af6fe535c797dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add629e670381f07181b2d11b67f60159"><td class="memTemplParams" colspan="2"><a class="anchor" id="add629e670381f07181b2d11b67f60159"></a>
 template&lt;class Context &gt; </td></tr>
 <tr class="memitem:add629e670381f07181b2d11b67f60159"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>fp16_momentum_sgd_update</b> (int N, const float16 *g, const float16 *m, float16 *ng, float16 *nm, const float *lr, float momentum, bool nesterov, float weight_decay, bool fp32_update, float16 *param, Context *)</td></tr>
@@ -9159,6 +9228,12 @@ Pointer to an <a class="el" href="structcaffe2_1_1_index.html">Index</a> instanc
 <tr class="memitem:ac7960ab3a5bdbf445c0cc1ea8bc90bb6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac7960ab3a5bdbf445c0cc1ea8bc90bb6"></a>
 the first element of the output tensor will be element of index DOC&#160;</td><td class="memItemRight" valign="bottom"><b>items</b></td></tr>
 <tr class="separator:ac7960ab3a5bdbf445c0cc1ea8bc90bb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af745269a12adbef5b49b2a3fdb4d8833"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af745269a12adbef5b49b2a3fdb4d8833"></a>
+array of probabilities for prediction&#160;</td><td class="memItemRight" valign="bottom"><b>L</b></td></tr>
+<tr class="separator:af745269a12adbef5b49b2a3fdb4d8833"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acaf33db75d197b55ae0da48da1e4cde0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acaf33db75d197b55ae0da48da1e4cde0"></a>
+array of probabilities for prediction array of JSD&#160;</td><td class="memItemRight" valign="bottom"><b>losses</b></td></tr>
+<tr class="separator:acaf33db75d197b55ae0da48da1e4cde0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96c21a1fa027620da6bc066dfabde121"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96c21a1fa027620da6bc066dfabde121"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>INT_MAX</b></td></tr>
 <tr class="separator:a96c21a1fa027620da6bc066dfabde121"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9274,6 +9349,9 @@ D float i batch size D is number of possible classes labels&#160;</td><td class=
 <tr class="memitem:a8bcd9c1d66f538e1000206e7b9b26574"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8bcd9c1d66f538e1000206e7b9b26574"></a>
 axis to&#160;</td><td class="memItemRight" valign="bottom"><b>normalize</b></td></tr>
 <tr class="separator:a8bcd9c1d66f538e1000206e7b9b26574"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55438bb35c148586d1a3bbad6869aa4a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a55438bb35c148586d1a3bbad6869aa4a"></a>
+enum caffe2:: { ... } &#160;</td><td class="memItemRight" valign="bottom"><b>algoIndex_t</b></td></tr>
+<tr class="separator:a55438bb35c148586d1a3bbad6869aa4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6c795ac7b5679d106913d1e43f1ede8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af6c795ac7b5679d106913d1e43f1ede8"></a>
 d int long tensor contains the length in each of the output&#160;</td><td class="memItemRight" valign="bottom"><b>packed_tensor</b></td></tr>
 <tr class="separator:af6c795ac7b5679d106913d1e43f1ede8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9625,6 +9703,9 @@ Parameters to be updated Second moment history learning rate Updated parameters&
 <tr class="memitem:ac2e4129a5ffe6e161591d258fbcac7f7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac2e4129a5ffe6e161591d258fbcac7f7"></a>
 Parameters to be updated Second moment history Gradient computed&#160;</td><td class="memItemRight" valign="bottom"><b>iter</b></td></tr>
 <tr class="separator:ac2e4129a5ffe6e161591d258fbcac7f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad245dfe6cdb3e86167608f294ea0d02d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad245dfe6cdb3e86167608f294ea0d02d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>input_tensor</b></td></tr>
+<tr class="separator:ad245dfe6cdb3e86167608f294ea0d02d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32eefe979dd1aa0a3bcffe5bae25b2e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a32eefe979dd1aa0a3bcffe5bae25b2e3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>mutex</b></td></tr>
 <tr class="separator:a32eefe979dd1aa0a3bcffe5bae25b2e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10737,7 +10818,7 @@ Resource Acquisition" idiom. </p>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">=</div><div class="line">              <a class="code" href="namespacecaffe2.html#a57dab6c8becb4bb52f6e74e5c1063487">size_from_dim_</a>(canonical_axis, GetDimsVector(logits))</div><div class="ttc" id="namespacecaffe2_html_a57dab6c8becb4bb52f6e74e5c1063487"><div class="ttname"><a href="namespacecaffe2.html#a57dab6c8becb4bb52f6e74e5c1063487">caffe2::size_from_dim_</a></div><div class="ttdeci">TIndex size_from_dim_(int k, vector&lt; TIndex &gt; dims)</div><div class="ttdoc">Return product of all dimensions starting from K. </div><div class="ttdef"><b>Definition:</b> <a href="tensor_8h_source.html#l00056">tensor.h:56</a></div></div>
+<b>Initial value:</b><div class="fragment"><div class="line">=</div><div class="line">              <a class="code" href="namespacecaffe2.html#add14fa17af46b7f9a8a81cd9651456d6">size_from_dim_</a>(canonical_axis, GetDimsVector(logits))</div><div class="ttc" id="namespacecaffe2_html_add14fa17af46b7f9a8a81cd9651456d6"><div class="ttname"><a href="namespacecaffe2.html#add14fa17af46b7f9a8a81cd9651456d6">caffe2::size_from_dim_</a></div><div class="ttdeci">TIndex size_from_dim_(int k, const vector&lt; TIndex &gt; &amp;dims)</div><div class="ttdoc">Return product of all dimensions starting from K. </div><div class="ttdef"><b>Definition:</b> <a href="tensor_8h_source.html#l00056">tensor.h:56</a></div></div>
 </div><!-- fragment -->
 <p>Definition at line <a class="el" href="softmax__with__loss__op_8cc_source.html#l00044">44</a> of file <a class="el" href="softmax__with__loss__op_8cc_source.html">softmax_with_loss_op.cc</a>.</p>
 
@@ -10902,7 +10983,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 5 2018 13:03:43 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 6 2018 13:03:43 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

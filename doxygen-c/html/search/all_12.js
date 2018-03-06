@@ -65,7 +65,7 @@ var searchData=
   ['sinusoidpositionencodingop',['SinusoidPositionEncodingOp',['../classcaffe2_1_1_sinusoid_position_encoding_op.html',1,'caffe2']]],
   ['size',['size',['../classcaffe2_1_1_tensor.html#a87087b9548e9bad215d663389abda32e',1,'caffe2::Tensor::size()'],['../classcaffe2_1_1mkl_1_1_m_k_l_memory.html#ab203f62d8ad712b00e805950e5707ca7',1,'caffe2::mkl::MKLMemory::size()'],['../classcaffe2_1_1_m_p_i_common_world_wrapper.html#a41eb6825cb0a9ee8289aa63aee73bfd4',1,'caffe2::MPICommonWorldWrapper::size()']]],
   ['size_5ffrom_5fdim',['size_from_dim',['../classcaffe2_1_1_q_tensor.html#a78b830a655c43f44cb2486b02d1d904f',1,'caffe2::QTensor']]],
-  ['size_5ffrom_5fdim_5f',['size_from_dim_',['../namespacecaffe2.html#a57dab6c8becb4bb52f6e74e5c1063487',1,'caffe2']]],
+  ['size_5ffrom_5fdim_5f',['size_from_dim_',['../namespacecaffe2.html#add14fa17af46b7f9a8a81cd9651456d6',1,'caffe2']]],
   ['size_5fto_5fdim',['size_to_dim',['../classcaffe2_1_1_q_tensor.html#a3e470cada271884aabc964b36287a635',1,'caffe2::QTensor']]],
   ['sizeop',['SizeOp',['../classcaffe2_1_1_size_op.html',1,'caffe2']]],
   ['skipindices',['SkipIndices',['../classcaffe2_1_1_skip_indices.html',1,'caffe2']]],

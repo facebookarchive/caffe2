@@ -61,6 +61,7 @@ var searchData=
   ['cl_5fushort8',['cl_ushort8',['../unioncl__ushort8.html',1,'']]],
   ['clipgradientop',['ClipGradientOp',['../classcaffe2_1_1_clip_gradient_op.html',1,'caffe2']]],
   ['clipop',['ClipOp',['../classcaffe2_1_1_clip_op.html',1,'caffe2']]],
+  ['cliptensorbyscalingop',['ClipTensorByScalingOp',['../classcaffe2_1_1_clip_tensor_by_scaling_op.html',1,'caffe2']]],
   ['close',['Close',['../classcaffe2_1_1db_1_1_mini_d_b.html#a5537426b78bc8127b2f77c27c977200c',1,'caffe2::db::MiniDB::Close()'],['../classcaffe2_1_1db_1_1_d_b.html#a6a2712b4b207c43758463040b07e127e',1,'caffe2::db::DB::Close()'],['../classcaffe2_1_1db_1_1_level_d_b.html#a43066abfe5f137c3dafa105c53067c14',1,'caffe2::db::LevelDB::Close()'],['../classcaffe2_1_1db_1_1_l_m_d_b.html#a0f15c5aec9e023a96b966e9458fe4abb',1,'caffe2::db::LMDB::Close()'],['../classcaffe2_1_1db_1_1_proto_d_b.html#a58dff678e08681abe6dd94c49c0ce0d9',1,'caffe2::db::ProtoDB::Close()'],['../classcaffe2_1_1db_1_1_zmq_d_b.html#ad89dfdb09cc9d35a250afbbb6d301ba2',1,'caffe2::db::ZmqDB::Close()'],['../classcaffe2_1_1db_1_1_blobs_queue_d_b.html#a2344d3fb5c6fb1bdddd2854ecd0497b5',1,'caffe2::db::BlobsQueueDB::Close()'],['../classcaffe2_1_1db_1_1_rocks_d_b.html#a7729f06e07cdd4623850c5ccb7a74613',1,'caffe2::db::RocksDB::Close()']]],
   ['closeblobsqueueop',['CloseBlobsQueueOp',['../classcaffe2_1_1_close_blobs_queue_op.html',1,'caffe2']]],
   ['closerebatchingqueueop',['CloseRebatchingQueueOp',['../classcaffe2_1_1_close_rebatching_queue_op.html',1,'caffe2']]],
