@@ -3,8 +3,8 @@ include("cmake/ProtoBuf.cmake")
 
 # ---[ Threads
 if(USE_THREADS)
-  find_package(Threads REQUIRED)
-  list(APPEND Caffe2_DEPENDENCY_LIBS ${CMAKE_THREAD_LIBS_INIT})
+  include(cmake/public/threads.cmake)
+  list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS Threads::Threads)
 endif()
 
 # ---[ protobuf
