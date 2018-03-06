@@ -56,8 +56,9 @@ if [[ "${BUILD_ENVIRONMENT}" == conda* ]]; then
   export CONDA_INSTALL_LOCALLY=1
   "${ROOT_DIR}/scripts/build_anaconda.sh" "$@"
 
-  # The tests all need hypothesis, which isn't included in the conda packages
-  conda install -y hypothesis
+  # The tests all need hypothesis and tabulate, which aren't included in the
+  # conda packages
+  conda install -y hypothesis tabulate
 
   # This build will be tested against onnx tests, which needs onnx installed.
   # Onnx should be built against the same protobuf that Caffe2 uses, which is
