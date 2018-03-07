@@ -41,6 +41,16 @@ enforce_version () {
   portable_sed "s/- ${1}.*/- ${1} ==${2}/" "${META_YAML}"
 }
 
+# Find which ABI to build for
+if [ "$(uname)" != 'Darwin' -a -z "${GCC_USE_C11}" ]; then
+  GCC_VERSION="$(gcc --version | grep --only-matching '[0-9]\.[0-9]\.[0-9]*' | head -1)"
+  if [[ "$GCC_VERSION" == 4* ]]; then
+    GCC_USE_C11=0
+  else
+    GCC_USE_C11=1
+  fi
+fi
+
 CAFFE2_ROOT="$( cd "$(dirname "$0")"/.. ; pwd -P)"
 CONDA_BUILD_ARGS=()
 CMAKE_BUILD_ARGS=()
@@ -101,7 +111,7 @@ elif [ -n "$UPLOAD_TO_CONDA" ]; then
 fi
 
 # Change flags based on target gcc ABI
-if [ "$(uname)" == 'Darwin' -a -z "$USE_OLD_GCC_ABI" ]; then
+if [ "$(uname)" != 'Darwin' -a "$GCC_USE_C11" -eq 0 ]; then
   CMAKE_BUILD_ARGS+=("-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0")
   # Default conda channels use gcc 7.2 (for recent packages), conda-forge uses
   # gcc 4.8.5
