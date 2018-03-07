@@ -1,10 +1,49 @@
 #!/bin/bash
-#
+
+# NOTE: All parameters to this function are forwared directly to conda-build
+# and so will never be seen by the build.sh
 
 set -ex
 
+# portable_sed: A wrapper around sed that works on both mac and linux, used to
+# alter conda-build files such as the meta.yaml
+portable_sed () {
+  if [ -z "$1" ]; then
+    echo "Programmer error: No regex passed to portable_sed"
+    exit 1
+  fi
+  if [ -z "$2" ]; then
+    echo "Programmer error: No file passed to portable_sed"
+    exit 1
+  fi
+  if [ "$(uname)" == 'Darwin' ]; then
+    sed -i '' "$1" "$2"
+  else
+    sed -i "$1" "$2"
+  fi
+}
+
+# enforce_version: Takes a package name and a version and finagles the
+# meta.yaml to ask for that version specifically. If the package was specified 
+# with a different version in the meta.yaml (or unspecified) then the
+# specification will be changed to be exactly the given version
+# TODO make this work when the package wasn't in meta.yaml to start with
+# NOTE: this assumes that $META_YAML has already been set
+enforce_version () {
+  if [ -z "$1" ]; then
+    echo "Programmer error: No package name passed to enforce_version"
+    exit 1
+  fi
+  if [ -z "$2" ]; then
+    echo "Programmer error: No version string passed to enforce_version"
+    exit 1
+  fi
+  portable_sed "s/- ${1}.*/- ${1} ==${2}/" "${META_YAML}"
+}
+
 CAFFE2_ROOT="$( cd "$(dirname "$0")"/.. ; pwd -P)"
 CONDA_BUILD_ARGS=()
+CMAKE_BUILD_ARGS=()
 
 # Build for Python 3.6
 # Specifically 3.6 because the latest Anaconda version is 3.6, and so it's site
@@ -13,15 +52,6 @@ PYTHON_FULL_VERSION="$(python --version 2>&1)"
 if [[ "$PYTHON_FULL_VERSION" == *3.6* ]]; then
   CONDA_BUILD_ARGS+=(" --python 3.6")
 fi
-
-# openmpi is only available in conda-forge (for linux), so conda-forge has to
-# be added as a channel for this 'full' build. This causes the default opencv
-# to be pulled from conda-forge, which will break with a "can't find
-# libopencv_highgui.so", so we also pin opencv version to 3.3.0 to avoid that
-# issue
-#if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
-#  CONDA_BUILD_ARGS+=(" -c conda-forge")
-#fi
 
 # Reinitialize submodules
 git submodule update --init
@@ -35,6 +65,7 @@ elif [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
 else
   CAFFE2_CONDA_BUILD_DIR="${CAFFE2_CONDA_BUILD_DIR}/no_cuda"
 fi
+META_YAML="${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
 
 # Change the package name for CUDA builds to have the specific CUDA and cuDNN
 # version in them
@@ -52,21 +83,15 @@ if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
   # take the CUDA and cuDNN versions that it finds in the build environment,
   # and manually set the package name ourself.
   # WARNING: This does not work on mac.
-  sed -i "s/caffe2-cuda\$/${CAFFE2_PACKAGE_NAME}/" "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+  sed -i "s/caffe2-cuda\$/${CAFFE2_PACKAGE_NAME}/" "${META_YAML}"
 fi
 
-# If skipping tests, remove the test related lines from the meta.yaml
+# If skipping tests, remove the test related lines from the meta.yaml and don't
+# upload to Anaconda.org
 if [ -n "$SKIP_CONDA_TESTS" ]; then
-
-  if [ "$(uname)" == 'Darwin' ]; then
-    sed -i '' '/test:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
-    sed -i '' '/imports:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
-    sed -i '' '/caffe2.python.core/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
-  else
-    sed -i '/test:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
-    sed -i '/imports:/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
-    sed -i '/caffe2.python.core/d' "${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
-  fi
+  portable_sed '/test:/d' "${META_YAML}"
+  portable_sed '/imports:/d' "${META_YAML}"
+  portable_sed '/caffe2.python.core/d' "${META_YAML}"
 
 elif [ -n "$UPLOAD_TO_CONDA" ]; then
   # Upload to Anaconda.org if needed. This is only allowed if testing is
@@ -75,10 +100,23 @@ elif [ -n "$UPLOAD_TO_CONDA" ]; then
   CONDA_BUILD_ARGS+=(" --token ${CAFFE2_ANACONDA_ORG_ACCESS_TOKEN}")
 fi
 
+# Change flags based on target gcc ABI
+if [ "$(uname)" == 'Darwin' -a -z "$USE_OLD_GCC_ABI" ]; then
+  CMAKE_BUILD_ARGS+=("-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0")
+  # Default conda channels use gcc 7.2 (for recent packages), conda-forge uses
+  # gcc 4.8.5
+  CONDA_BUILD_ARGS+=(" -c conda-forge")
+
+  # gflags 2.2.1 uses the new ABI. Note this sed call won't work on mac
+  # opencv 3.3.1 has a dependency on opencv_highgui that breaks
+  enforce_version 'gflags' '2.2.0'
+  enforce_version 'opencv' '3.3.0'
+fi
+
 # Build Caffe2 with conda-build
 # If --user and --token are set, then this will also upload the built package
 # to Anaconda.org, provided there were no failures and all the tests passed
-conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
+CONDA_CMAKE_BUILD_ARGS="$CMAKE_BUILD_ARGS" conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
 
 # Install Caffe2 from the built package into the local conda environment
 if [ -n "$CONDA_INSTALL_LOCALLY" ]; then

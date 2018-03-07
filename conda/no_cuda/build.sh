@@ -42,7 +42,7 @@ CMAKE_ARGS+=("-DCMAKE_PREFIX_PATH=$PREFIX")
 
 mkdir -p build
 cd build
-cmake "${CMAKE_ARGS[@]}"  $CONDA_CMAKE_ARGS $PYTHON_ARGS ..
+cmake "${CMAKE_ARGS[@]}"  $CONDA_CMAKE_BUILD_ARGS $PYTHON_ARGS ..
 if [ "$(uname)" == 'Darwin' ]; then
   make "-j$(sysctl -n hw.ncpu)"
 else
