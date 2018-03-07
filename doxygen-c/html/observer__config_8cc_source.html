@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Caffe2 - C++ API: caffe2/share/contrib/observers/observer_config.cc Source File</title>
+<title>Caffe2 - C++ API: modules/observers/observer_config.cc Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link rel="icon" href="/static/favicon.png" type="image/x-icon">
 <script type="text/javascript" src="jquery.js"></script>
@@ -89,7 +89,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_20697b8f204bdfcab31e6b1a416f3ab8.html">caffe2</a></li><li class="navelem"><a class="el" href="dir_63b5f3ea69620fb1b63ebf030f020636.html">share</a></li><li class="navelem"><a class="el" href="dir_b78d82c2730892257c03d27ae269072a.html">contrib</a></li><li class="navelem"><a class="el" href="dir_c2a09dadd2f2988628fc9ab4533dc007.html">observers</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_e05d7e2b1ecd646af5bb94391405f3b5.html">modules</a></li><li class="navelem"><a class="el" href="dir_e2c831f8f0fe01113a84e612ab52d6c5.html">observers</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -97,12 +97,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">observer_config.cc</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;caffe2/share/contrib/observers/observer_config.h&quot;</span></div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacecaffe2.html">caffe2</a> {</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keywordtype">int</span> ObserverConfig::netInitSampleRate_ = 0;</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keywordtype">int</span> ObserverConfig::netFollowupSampleRate_ = 0;</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keywordtype">int</span> ObserverConfig::netFollowupSampleCount_ = 0;</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keywordtype">int</span> ObserverConfig::operatorNetSampleRatio_ = 0;</div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keywordtype">int</span> ObserverConfig::skipIters_ = 0;</div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;unique_ptr&lt;NetObserverReporter&gt; ObserverConfig::reporter_ = <span class="keyword">nullptr</span>;</div><div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keywordtype">int</span> ObserverConfig::marker_ = -1;</div><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;}</div><div class="ttc" id="namespacecaffe2_html"><div class="ttname"><a href="namespacecaffe2.html">caffe2</a></div><div class="ttdoc">Copyright (c) 2016-present, Facebook, Inc. </div><div class="ttdef"><b>Definition:</b> <a href="convert__encoded__to__raw__leveldb_8cc_source.html#l00047">convert_encoded_to_raw_leveldb.cc:47</a></div></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;observers/observer_config.h&quot;</span></div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacecaffe2.html">caffe2</a> {</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keywordtype">int</span> ObserverConfig::netInitSampleRate_ = 0;</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keywordtype">int</span> ObserverConfig::netFollowupSampleRate_ = 0;</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keywordtype">int</span> ObserverConfig::netFollowupSampleCount_ = 0;</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keywordtype">int</span> ObserverConfig::operatorNetSampleRatio_ = 0;</div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keywordtype">int</span> ObserverConfig::skipIters_ = 0;</div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;unique_ptr&lt;NetObserverReporter&gt; ObserverConfig::reporter_ = <span class="keyword">nullptr</span>;</div><div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keywordtype">int</span> ObserverConfig::marker_ = -1;</div><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;}</div><div class="ttc" id="namespacecaffe2_html"><div class="ttname"><a href="namespacecaffe2.html">caffe2</a></div><div class="ttdoc">Copyright (c) 2016-present, Facebook, Inc. </div><div class="ttdef"><b>Definition:</b> <a href="convert__encoded__to__raw__leveldb_8cc_source.html#l00047">convert_encoded_to_raw_leveldb.cc:47</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 6 2018 13:03:43 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 7 2018 13:03:44 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
