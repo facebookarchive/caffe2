@@ -121,8 +121,10 @@ if [[ "$(uname)" != 'Darwin' ]]; then
     # opencv 3.3.1 has a dependency on opencv_highgui that breaks
     add_package 'gflags' '2.2.1'
     add_package 'opencv' '3.1.0'
+
+    # "Note that pip requirements are not supported in conda-build meta.yaml"
     remove_package 'glog'
-    add_package 'glog=0.3.5=hf484d3e_1'
+    conda install -y glog=0.3.5=hf484d3e_1
   fi
 fi
 
