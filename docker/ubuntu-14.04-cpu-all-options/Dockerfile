@@ -35,7 +35,7 @@ RUN pip install --no-cache-dir \
     scikit-image \
     scipy \
     setuptools \
-    tornado<5.0
+    'tornado<5'
 
 ########## INSTALLATION STEPS ###################
 RUN cd caffe2 && mkdir build && cd build \
