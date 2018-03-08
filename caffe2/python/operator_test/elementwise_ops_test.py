@@ -109,6 +109,7 @@ class TestElementwiseOps(hu.HypothesisTestCase):
 
     @given(n=st.integers(5, 6), m=st.integers(4, 6), seed=st.integers(0, 1000), **hu.gcs)
     def test_sqr(self, n, m, gc, dc, seed):
+        np.random.seed(seed)
         X = np.random.rand(n, m).astype(np.float32)
 
         def sqr_op(X):
