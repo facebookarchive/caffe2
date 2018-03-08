@@ -56,6 +56,8 @@ class ConvPoolOpBase : public Operator<Context> {
         dilation_(OperatorBase::GetRepeatedArgument<int>("dilations")),
         stride_(OperatorBase::GetRepeatedArgument<int>("strides")),
         pads_(OperatorBase::GetRepeatedArgument<int>("pads")),
+        float16_compute_(
+            OperatorBase::GetSingleArgument<bool>("float16_compute", false)),
         group_(OperatorBase::GetSingleArgument<int>("group", 1)),
         order_(StringToStorageOrder(
             OperatorBase::GetSingleArgument<string>("order", "NCHW"))),
@@ -348,8 +350,22 @@ class ConvPoolOpBase : public Operator<Context> {
   }
 
   void SetDeviceTensor(const std::vector<int>& data, Tensor<Context>* tensor) {
+    bool reset_tensor_device_ = false;
+
     if (tensor->size() != data.size()) {
       tensor->Resize(data.size());
+      reset_tensor_device_ = true;
+    } else {
+      const int* tensor_data = tensor->template data<int>();
+      for (int d_i = 0; d_i < data.size(); ++d_i) {
+        if (tensor_data[d_i] != data[d_i]) {
+          reset_tensor_device_ = true;
+          break;
+        }
+      }
+    }
+
+    if (reset_tensor_device_) {
       context_.template Copy<int, CPUContext, Context>(
           data.size(), data.data(), tensor->template mutable_data<int>());
     }
@@ -570,6 +586,8 @@ class ConvPoolOpBase : public Operator<Context> {
   vector<int> dilation_;
   vector<int> stride_;
   vector<int> pads_;
+
+  bool float16_compute_;
 
   // We need the above parameters to be available for the devices.
   Tensor<Context> kernel_device_;

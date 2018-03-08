@@ -3,8 +3,8 @@ include("cmake/ProtoBuf.cmake")
 
 # ---[ Threads
 if(USE_THREADS)
-  find_package(Threads REQUIRED)
-  list(APPEND Caffe2_DEPENDENCY_LIBS ${CMAKE_THREAD_LIBS_INIT})
+  include(cmake/public/threads.cmake)
+  list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS Threads::Threads)
 endif()
 
 # ---[ protobuf
@@ -75,10 +75,6 @@ if(USE_NNPACK)
     message(WARNING "Not compiling with NNPACK. Suppress this warning with -DUSE_NNPACK=OFF")
     set(USE_NNPACK OFF)
   endif()
-endif()
-
-if(USE_OBSERVERS)
-  list(APPEND Caffe2_DEPENDENCY_LIBS Caffe2_CPU_OBSERVER)
 endif()
 
 # ---[ On Android, Caffe2 uses cpufeatures library in the thread pool
@@ -178,6 +174,23 @@ if(USE_LEVELDB)
   else()
     message(WARNING "Not compiling with LevelDB. Suppress this warning with -DUSE_LEVELDB=OFF")
     set(USE_LEVELDB OFF)
+  endif()
+endif()
+
+# ---[ NUMA
+if(USE_NUMA)
+  if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    message(WARNING "NUMA is currently only supported under Linux.")
+    set(USE_NUMA OFF)
+  else()
+    find_package(Numa)
+    if(NUMA_FOUND)
+      include_directories(${Numa_INCLUDE_DIR})
+      list(APPEND Caffe2_DEPENDENCY_LIBS ${Numa_LIBRARIES})
+    else()
+      message(WARNING "Not compiling with NUMA. Suppress this warning with -DUSE_NUMA=OFF")
+      set(USE_NUMA OFF)
+    endif()
   endif()
 endif()
 
