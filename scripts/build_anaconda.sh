@@ -19,24 +19,23 @@ remove_package () {
   portable_sed "/$1/d" "${META_YAML}"
 }
 
-# enforce_version: Takes a package name and a version and finagles the
-# meta.yaml to ask for that version specifically. If the package was specified 
-# with a different version in the meta.yaml (or unspecified) then the
-# specification will be changed to be exactly the given version
-# TODO make this work when the package wasn't in meta.yaml to start with
+# add_package: Takes a package name and a version and finagles the
+# meta.yaml to ask for that version specifically.
 # NOTE: this assumes that $META_YAML has already been set
 add_package () {
-  if [ -n "$2" ]; then
-    local VER_STR=" ==$2"
-  fi
   remove_package $1
-  # This magic string is in the requirements sections of the meta.yaml
+  # This magic string _M_STR is in the requirements sections of the meta.yaml
   # The \\"$'\n' is a properly escaped new line
-  # Those 4 spaces are used to properly indent the comment
+  # Those 4 spaces are there to properly indent the comment
   local _M_STR='# other packages here'
-  portable_sed "s/$_M_STR/- ${1} ${VER_STR}\\"$'\n'"    $_M_STR/" "${META_YAML}"
+  portable_sed "s/$_M_STR/- ${1} ${2}\\"$'\n'"    $_M_STR/" "${META_YAML}"
 }
 
+CAFFE2_ROOT="$( cd "$(dirname "$0")"/.. ; pwd -P)"
+CONDA_BUILD_ARGS=()
+CMAKE_BUILD_ARGS=()
+
+# Read gcc and Python versions
 # Find which ABI to build for
 if [ "$(uname)" != 'Darwin' -a -z "${GCC_USE_C11}" ]; then
   GCC_VERSION="$(gcc --version | grep --only-matching '[0-9]\.[0-9]\.[0-9]*' | head -1)"
@@ -46,16 +45,12 @@ if [ "$(uname)" != 'Darwin' -a -z "${GCC_USE_C11}" ]; then
     GCC_USE_C11=1
   fi
 fi
-
-CAFFE2_ROOT="$( cd "$(dirname "$0")"/.. ; pwd -P)"
-CONDA_BUILD_ARGS=()
-CMAKE_BUILD_ARGS=()
-
-# Build for Python 3.6
 # Specifically 3.6 because the latest Anaconda version is 3.6, and so it's site
 # packages have 3.6 in the name
-PYTHON_FULL_VERSION="$(python --version 2>&1)"
-if [[ "$PYTHON_FULL_VERSION" == *3.6* ]]; then
+PYTHON_VERSION="$(python --version 2>&1 | grep --only-matching '[0-9]\.[0-9]\.[0-9]*')"
+if [[ "$PYTHON_VERSION" == 3.6* ]]; then
+  # This is needed or else conda tries to move packages to python3/site-packages
+  # isntead of python3.6/site-packages
   CONDA_BUILD_ARGS+=(" --python 3.6")
 fi
 
@@ -115,16 +110,21 @@ if [[ "$(uname)" != 'Darwin' ]]; then
     CONDA_BUILD_ARGS+=(" -c conda-forge")
 
   else
-    # opencv 3.3.1 requires protobuf 3.2.0
     # gflags 2.2.1 is built against the new ABI but gflags 2.2.0 is not
-    # glog 0.3.5=0 is built againt old ABI, but 0.3.5=hf484d3e_1 is not
-    # opencv 3.3.1 has a dependency on opencv_highgui that breaks
-    add_package 'gflags' '2.2.1'
-    add_package 'opencv' '3.1.0'
+    add_package 'gflags' '==2.2.1'
 
+    # opencv 3.3.1 requires protobuf 3.2.0 explicitly, so we use opencv 3.1.0
+    # since protobuf 3.2.0 is not in conda
+    add_package 'opencv' '==3.1.0'
+    if [[ "$PYTHON_VERSION" == 3.* ]]; then
+      # opencv 3.1.0 for python 3 requires numpy 1.12
+      add_package 'numpy' '>1.11'
+    fi
+
+    # glog 0.3.5=0 is built againt old ABI, but 0.3.5=hf484d3e_1 is not
     # "Note that pip requirements are not supported in conda-build meta.yaml"
     remove_package 'glog'
-    conda install -y glog=0.3.5=hf484d3e_1
+    conda install -y 'glog=0.3.5=hf484d3e_1'
   fi
 fi
 
