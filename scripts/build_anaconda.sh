@@ -8,19 +8,15 @@ set -ex
 # portable_sed: A wrapper around sed that works on both mac and linux, used to
 # alter conda-build files such as the meta.yaml
 portable_sed () {
-  if [ -z "$1" ]; then
-    echo "Programmer error: No regex passed to portable_sed"
-    exit 1
-  fi
-  if [ -z "$2" ]; then
-    echo "Programmer error: No file passed to portable_sed"
-    exit 1
-  fi
   if [ "$(uname)" == 'Darwin' ]; then
     sed -i '' "$1" "$2"
   else
     sed -i "$1" "$2"
   fi
+}
+
+remove_package () {
+  portable_sed "/$1/d" "${META_YAML}"
 }
 
 # enforce_version: Takes a package name and a version and finagles the
@@ -29,16 +25,16 @@ portable_sed () {
 # specification will be changed to be exactly the given version
 # TODO make this work when the package wasn't in meta.yaml to start with
 # NOTE: this assumes that $META_YAML has already been set
-enforce_version () {
-  if [ -z "$1" ]; then
-    echo "Programmer error: No package name passed to enforce_version"
-    exit 1
+add_package () {
+  if [ -n "$2" ]; then
+    local VER_STR=" ==$2"
   fi
-  if [ -z "$2" ]; then
-    echo "Programmer error: No version string passed to enforce_version"
-    exit 1
-  fi
-  portable_sed "s/- ${1}.*/- ${1} ==${2}/" "${META_YAML}"
+  remove_package $1
+  # This magic string is in the requirements sections of the meta.yaml
+  # The \\"$'\n' is a properly escaped new line
+  # Those 4 spaces are used to properly indent the comment
+  local _M_STR='# other packages here'
+  portable_sed "s/$_M_STR/- ${1} ${VER_STR}\\"$'\n'"    $_M_STR/" "${META_YAML}"
 }
 
 # Find which ABI to build for
@@ -111,22 +107,24 @@ elif [ -n "$UPLOAD_TO_CONDA" ]; then
 fi
 
 # Change flags based on target gcc ABI
-if [ "$(uname)" != 'Darwin' -a "$GCC_USE_C11" -eq 0 ]; then
-  CMAKE_BUILD_ARGS+=("-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0")
-  # Default conda channels use gcc 7.2 (for recent packages), conda-forge uses
-  # gcc 4.8.5
-  CONDA_BUILD_ARGS+=(" -c conda-forge")
+if [[ "$(uname)" != 'Darwin' ]]; then
+  if [ "$GCC_USE_C11" -eq 0 ]; then
+    CMAKE_BUILD_ARGS+=("-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0")
+    # Default conda channels use gcc 7.2 (for recent packages), conda-forge uses
+    # gcc 4.8.5
+    CONDA_BUILD_ARGS+=(" -c conda-forge")
 
-  # gflags 2.2.1 uses the new ABI. Note this sed call won't work on mac
-  # opencv 3.3.1 has a dependency on opencv_highgui that breaks
-  enforce_version 'gflags' '2.2.0'
-  enforce_version 'opencv' '3.3.0'
+    # gflags 2.2.1 uses the new ABI. Note this sed call won't work on mac
+    # opencv 3.3.1 has a dependency on opencv_highgui that breaks
+    add_package 'gflags' '2.2.0'
+    add_package 'opencv' '3.3.0'
+  fi
 fi
 
 # Build Caffe2 with conda-build
 # If --user and --token are set, then this will also upload the built package
 # to Anaconda.org, provided there were no failures and all the tests passed
-CONDA_CMAKE_BUILD_ARGS="$CMAKE_BUILD_ARGS" conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
+#CONDA_CMAKE_BUILD_ARGS="$CMAKE_BUILD_ARGS" conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
 
 # Install Caffe2 from the built package into the local conda environment
 if [ -n "$CONDA_INSTALL_LOCALLY" ]; then
