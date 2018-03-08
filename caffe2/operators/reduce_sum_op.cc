@@ -31,7 +31,7 @@ OPERATOR_SCHEMA(ReduceSum)
     .Arg("axes", "A list of integers, along which to reduce.")
     .Arg(
         "keepdims",
-        "Keep the reduced dimension or not, default 1 sum keep reduced dimension.")
+        "Keep the reduced dimension or not, default 1 indicates keep reduced dimension.")
     .Input(0, "data", "An input tensor.")
     .Output(0, "reduced", "Reduced output tensor.");
 

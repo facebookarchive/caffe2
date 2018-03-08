@@ -34,9 +34,6 @@ class ReduceMeanOp final : public Operator<Context> {
 
   ReduceMeanOp(const OperatorDef& operator_def, Workspace* ws)
       : Operator<Context>(operator_def, ws) {
-    CAFFE_ENFORCE(
-        OperatorBase::HasArgument("axes"), "Argument `axes` is missing.");
-
     axes_ = OperatorBase::GetRepeatedArgument<int>("axes");
     keepdims_ = OperatorBase::GetSingleArgument<int>("keepdims", 1);
   }
@@ -48,11 +45,16 @@ class ReduceMeanOp final : public Operator<Context> {
     vector<TIndex> dims = input.dims();
     int ndim = input.ndim();
 
-    std::sort(axes_.begin(), axes_.end());
-    CAFFE_ENFORCE(axes_.front() >= 0, "Axes ids must be non-negative.");
-    CAFFE_ENFORCE(
-        axes_.back() < ndim,
-        "Axes ids must be smaller than the dimensions of input.");
+    if (axes_.empty()) {
+      axes_.resize(ndim);
+      std::iota(axes_.begin(), axes_.end(), 0);
+    } else {
+      std::sort(axes_.begin(), axes_.end());
+      CAFFE_ENFORCE(axes_.front() >= 0, "Axes ids must be non-negative.");
+      CAFFE_ENFORCE(
+          axes_.back() < ndim,
+          "Axes ids must be smaller than the dimensions of input.");
+    }
 
     auto* output = Output(0);
     output->ResizeLike(input);
