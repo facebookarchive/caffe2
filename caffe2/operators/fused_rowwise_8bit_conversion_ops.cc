@@ -49,7 +49,7 @@ De-quantizes the result of the
 FloatToFused8BitRowwiseQuantized operator. The input is expected to
 encode the scale as a 32-bit float in the second to the last 4 bytes of each
 row, followed by the bias as a 32-bit float in the next 4 bytes, and the
-quantized values in the preceding remaining bytes of the row. The output is a
+quantized values in the preceding bytes of the row. The output is a
 matrix containing only the values, but de-quantized. De-quantization is
 performed by multiplying each value by its row's scale and bias
 parameters. The de-quantized values will thus not be exactly equal to
