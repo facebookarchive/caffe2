@@ -57,12 +57,12 @@ install_centos() {
   case "$PYTHON_VERSION" in
     2*)
       yum install -y \
-          python-devel \
+          python-devel
       PYTHON=python2
       ;;
     3.4)
       yum install -y \
-          python34-devel \
+          python34-devel
       PYTHON=python3
       ;;
     *)
