@@ -7,8 +7,8 @@ OPERATOR_SCHEMA(GatherFused8BitRowwise)
     .NumOutputs(1)
     .SetDoc(R"DOC(
 Perform the same operation as Gather, but operating on 8-bit rowwise quantized
-matrices with fused storage (where each row stores the scale, offset and then
-quantized values).
+matrices with fused storage (where each row stores quantized values, and then
+the scale and offset).
 )DOC")
     .Input(
         0,
