@@ -114,17 +114,22 @@ if [[ "$(uname)" != 'Darwin' ]]; then
     # gcc 4.8.5
     CONDA_BUILD_ARGS+=(" -c conda-forge")
 
-    # gflags 2.2.1 uses the new ABI. Note this sed call won't work on mac
+  else
+    # opencv 3.3.1 requires protobuf 3.2.0
+    # gflags 2.2.1 is built against the new ABI but gflags 2.2.0 is not
+    # glog 0.3.5=0 is built againt old ABI, but 0.3.5=hf484d3e_1 is not
     # opencv 3.3.1 has a dependency on opencv_highgui that breaks
-    add_package 'gflags' '2.2.0'
-    add_package 'opencv' '3.3.0'
+    add_package 'gflags' '2.2.1'
+    add_package 'opencv' '3.1.0'
+    remove_package 'glog'
+    add_package 'glog=0.3.5=hf484d3e_1'
   fi
 fi
 
 # Build Caffe2 with conda-build
 # If --user and --token are set, then this will also upload the built package
 # to Anaconda.org, provided there were no failures and all the tests passed
-#CONDA_CMAKE_BUILD_ARGS="$CMAKE_BUILD_ARGS" conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
+CONDA_CMAKE_BUILD_ARGS="$CMAKE_BUILD_ARGS" conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
 
 # Install Caffe2 from the built package into the local conda environment
 if [ -n "$CONDA_INSTALL_LOCALLY" ]; then
