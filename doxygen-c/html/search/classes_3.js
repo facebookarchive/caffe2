@@ -83,6 +83,7 @@ var searchData=
   ['convtransposeunpoolbase',['ConvTransposeUnpoolBase',['../classcaffe2_1_1_conv_transpose_unpool_base.html',1,'caffe2']]],
   ['convtransposeunpoolbase_3c_20cpucontext_20_3e',['ConvTransposeUnpoolBase&lt; CPUContext &gt;',['../classcaffe2_1_1_conv_transpose_unpool_base.html',1,'caffe2']]],
   ['convtransposeunpoolbase_3c_20cudacontext_20_3e',['ConvTransposeUnpoolBase&lt; CUDAContext &gt;',['../classcaffe2_1_1_conv_transpose_unpool_base.html',1,'caffe2']]],
+  ['copyfromglop',['CopyFromGLOp',['../classcaffe2_1_1_copy_from_g_l_op.html',1,'caffe2']]],
   ['copyfromopenglop',['CopyFromOpenGLOp',['../classcaffe2_1_1_copy_from_open_g_l_op.html',1,'caffe2']]],
   ['copyondevicelikeop',['CopyOnDeviceLikeOp',['../classcaffe2_1_1_copy_on_device_like_op.html',1,'caffe2']]],
   ['copyondevicelikeop_3c_20cudacontext_2c_20cudacontext_2c_20cudacontext_20_3e',['CopyOnDeviceLikeOp&lt; CUDAContext, CUDAContext, CUDAContext &gt;',['../classcaffe2_1_1_copy_on_device_like_op_3_01_c_u_d_a_context_00_01_c_u_d_a_context_00_01_c_u_d_a_context_01_4.html',1,'caffe2']]],

@@ -811,11 +811,12 @@ Transform proposal bounding boxes to target bounding box using bounding box
 `apply_scale` | bool (default true), transform the boxes to the scaled image space after applying the bbox deltas.Set to false to match the detectron code, set to true for keypoint models and for backward compatibility
 `correct_transform_coords` | bool (default false), Correct bounding box transform coordates, see bbox_transform() in boxes.py Set to true to match the detectron code, set to false for backward compatibility
 *Inputs* | 
-`rois` | Bounding box proposals in pixel coordinates, Size (M, 4), format [x1, y1, x2, y2], orSize (M, 5), format [img_index_IGNORED, x1, y1, x2, y2]
+`rois` | Bounding box proposals in pixel coordinates, Size (M, 4), format [x1, y1, x2, y2], orSize (M, 5), format [batch_index, x1, y1, x2, y2]. If proposals from multiple images in a batch are present, they should be grouped sequentially and in incremental order.
 `deltas` | bounding box translations and scales,size (M, 4*K), format [dx, dy, dw, dh], K = # classes
-`im_info` | Image dimensions, size (1, 3), format [img_height, img_width, img_scale_IGNORED]
+`im_info` | Image dimensions, size (batch_size, 3), format [img_height, img_width, img_scale]
 *Outputs* | 
 `box_out` | Pixel coordinates of the transformed bounding boxes,Size (M, 4*K), format [x1, y1, x2, y2]
+`roi_batch_splits` | Tensor of shape (batch_size) with each element denoting the number of RoIs belonging to the corresponding image in batch
 
 
 ### Code
@@ -1391,10 +1392,12 @@ Apply NMS to each class (except background) and limit the number of returned box
 *Inputs* | 
 `scores` | Scores, size (count, num_classes)
 `boxes` | Bounding box for each class, size (count, num_classes * 4)
+`batch_splits` | Tensor of shape (batch_size) with each element denoting the number of RoIs/boxes belonging to the corresponding image in batch. Sum should add up to total count of scores/boxes.
 *Outputs* | 
 `scores` | Filtered scores, size (n)
 `boxes` | Filtered boxes, size (n, 4)
 `classes` | Class id for each filtered score/box, size (n)
+`batch_splits` | Output batch splits for scores/boxes after applying NMS
 `keeps` | Optional filtered indices, size (n)
 `keeps_size` | Optional number of filtered indices per class, size (num_classes)
 
@@ -9475,7 +9478,7 @@ Region of Interest (RoI) align operation as used in Mask R-CNN.
 `sampling_ratio` | (int) default -1; number of sampling points in the interpolation grid used to compute the output value of each pooled output bin. If > 0, then exactly sampling_ratio x sampling_ratio grid points are used. If <= 0, then an adaptive number of grid points are used (computed as ceil(roi_width / pooled_w), and likewise for height).
 *Inputs* | 
 `X` | 4D feature map input of shape (N, C, H, W).
-`RoIs` | 2D input of shape (R, 5) specifying R RoIs with five columns representing: batch index in [0, N - 1], x1, y1, x2, y2. The RoI coordinates are in the coordinate system of the input image.
+`RoIs` | 2D input of shape (R, 4 or 5) specifying R RoIs representing: batch index in [0, N - 1], x1, y1, x2, y2. The RoI coordinates are in the coordinate system of the input image. For inputs corresponding to a single image, batch index can be excluded to have just 4 columns.
 *Outputs* | 
 `Y` | 4D output of shape (R, C, pooled_h, pooled_w). The r-th batch element is a pooled feature map cooresponding to the r-th RoI.
 

@@ -198,6 +198,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>DoRunAsync</b> () ove
 <tr class="memitem:aa3aeba331a5779d20344e43a22194daa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa3aeba331a5779d20344e43a22194daa"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>RunAt</b> (int chain_id, const std::vector&lt; int &gt; &amp;chain)=0</td></tr>
 <tr class="separator:aa3aeba331a5779d20344e43a22194daa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d1247ee3826976f0a03cc978b95d24d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d1247ee3826976f0a03cc978b95d24d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>HandleException</b> (int operator_idx, const std::string &amp;exception_str)</td></tr>
+<tr class="separator:a1d1247ee3826976f0a03cc978b95d24d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb9e6787513b62f55ff84addb89d9c11"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adb9e6787513b62f55ff84addb89d9c11"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>DISABLE_COPY_AND_ASSIGN</b> (<a class="el" href="classcaffe2_1_1_d_a_g_net_base.html">DAGNetBase</a>)</td></tr>
 <tr class="separator:adb9e6787513b62f55ff84addb89d9c11"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -235,6 +238,9 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>remaining_ops_</b></td
 <tr class="memitem:ae2b9e8ee52bf887e87411d6a1f1bc210"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2b9e8ee52bf887e87411d6a1f1bc210"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>success_</b></td></tr>
 <tr class="separator:ae2b9e8ee52bf887e87411d6a1f1bc210"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5a7992f5403181e790b5b461e59a7ef"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae5a7992f5403181e790b5b461e59a7ef"></a>
+std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>caught_exception_yet_</b></td></tr>
+<tr class="separator:ae5a7992f5403181e790b5b461e59a7ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6edaf3ac62dec962429b10155088dcd9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6edaf3ac62dec962429b10155088dcd9"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>iter_</b></td></tr>
 <tr class="separator:a6edaf3ac62dec962429b10155088dcd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -328,7 +334,7 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>Observer</b> = <a cl
 
 <p>Reimplemented from <a class="el" href="classcaffe2_1_1_net_base.html#a69aed01ddcd98e7fa13b174c4cd134a8">caffe2::NetBase</a>.</p>
 
-<p>Definition at line <a class="el" href="net__dag_8cc_source.html#l00273">273</a> of file <a class="el" href="net__dag_8cc_source.html">net_dag.cc</a>.</p>
+<p>Definition at line <a class="el" href="net__dag_8cc_source.html#l00314">314</a> of file <a class="el" href="net__dag_8cc_source.html">net_dag.cc</a>.</p>
 
 </div>
 </div>
@@ -340,7 +346,7 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>Observer</b> = <a cl
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Mar 7 2018 13:03:45 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Mar 8 2018 13:05:19 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

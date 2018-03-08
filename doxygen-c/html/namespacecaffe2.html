@@ -347,6 +347,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_conv_transpose_unpool_base.html">ConvTransposeUnpoolBase</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_copy_from_g_l_op.html">CopyFromGLOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_copy_from_open_g_l_op.html">CopyFromOpenGLOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_copy_on_device_like_op.html">CopyOnDeviceLikeOp</a></td></tr>
@@ -3204,6 +3206,9 @@ template&lt;typename T_IN , typename T_OUT , class Context &gt; </td></tr>
 <tr class="memitem:aa309f220397b78b27d6c820fe78d9dd6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa309f220397b78b27d6c820fe78d9dd6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_KNOWN_TYPE</b> (<a class="el" href="classcaffe2_1_1_g_l_tensor.html">GLTensor</a>&lt; half &gt;)</td></tr>
 <tr class="separator:aa309f220397b78b27d6c820fe78d9dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae55d7ff6a7f56cf1c0d73befe1874d81"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae55d7ff6a7f56cf1c0d73befe1874d81"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_KNOWN_TYPE</b> (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; <a class="el" href="classcaffe2_1_1_g_l_context.html">GLContext</a> &gt;)</td></tr>
+<tr class="separator:ae55d7ff6a7f56cf1c0d73befe1874d81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc477cee826d3073dca18cb5322f31e8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc477cee826d3073dca18cb5322f31e8"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>EventCreateOPENGL</b> (const DeviceOption &amp;, <a class="el" href="classcaffe2_1_1_event.html">Event</a> *)</td></tr>
 <tr class="separator:abc477cee826d3073dca18cb5322f31e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3234,6 +3239,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EventResetOPENGL</b> 
 <tr class="memitem:acdb9a5dc875d8d2d98baa309a669be17"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acdb9a5dc875d8d2d98baa309a669be17"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_EVENT_RESET_FUNCTION</b> (OPENGL, EventResetOPENGL)</td></tr>
 <tr class="separator:acdb9a5dc875d8d2d98baa309a669be17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac13b531b1ace7f9c33e24c22f232a72d"><td class="memTemplParams" colspan="2"><a class="anchor" id="ac13b531b1ace7f9c33e24c22f232a72d"></a>
+template&lt;typename T  = half&gt; </td></tr>
+<tr class="memitem:ac13b531b1ace7f9c33e24c22f232a72d"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>getTensorCPU</b> (const <a class="el" href="classcaffe2_1_1_g_l_tensor.html">GLTensor</a>&lt; T &gt; &amp;g_, <a class="el" href="classcaffe2_1_1_tensor.html">TensorCPU</a> &amp;g)</td></tr>
+<tr class="separator:ac13b531b1ace7f9c33e24c22f232a72d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68cb6402154080fe0d33c880e9ac9a4b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68cb6402154080fe0d33c880e9ac9a4b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_NET</b> (opengl, <a class="el" href="classcaffe2_1_1_g_l_net.html">GLNet</a>)</td></tr>
 <tr class="separator:a68cb6402154080fe0d33c880e9ac9a4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3258,6 +3267,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EventResetOPENGL</b> 
 <tr class="memitem:ae8a5ba42a4ca69c4975ec21ae3d31e3d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8a5ba42a4ca69c4975ec21ae3d31e3d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GL_OPERATOR</b> (Conv, <a class="el" href="classcaffe2_1_1_g_l_conv_op.html">GLConvOp</a>&lt; DataType &gt;)</td></tr>
 <tr class="separator:ae8a5ba42a4ca69c4975ec21ae3d31e3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39061ec2e68aca300e6dc4c35113fff0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39061ec2e68aca300e6dc4c35113fff0"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GL_OPERATOR</b> (CopyFromGL, <a class="el" href="classcaffe2_1_1_copy_from_g_l_op.html">CopyFromGLOp</a>&lt; half &gt;)</td></tr>
+<tr class="separator:a39061ec2e68aca300e6dc4c35113fff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a191752618f73a9f7e381553895180718"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a191752618f73a9f7e381553895180718"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GL_OPERATOR</b> (Sum, <a class="el" href="classcaffe2_1_1_g_l_sum_op.html">GLSumOp</a>&lt; DataType &gt;)</td></tr>
 <tr class="separator:a191752618f73a9f7e381553895180718"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4021,9 +4033,9 @@ to equal sized parts.
 <tr class="memitem:ae017fde139e10a65c01f6e754c230455"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae017fde139e10a65c01f6e754c230455"></a>
 Which axis to concat on&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;order&quot;,&quot;Either NHWC or NCHW, will concat on C axis, defaults to NCHW&quot;).Arg(&quot;add_axis&quot;</td></tr>
 <tr class="separator:ae017fde139e10a65c01f6e754c230455"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93bbab1a66df8cc0fc30dcfe6a7af08a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a93bbab1a66df8cc0fc30dcfe6a7af08a"></a>
-Which axis to concat on Pass to add the axis specified in arg axis to all input tensors&#160;</td><td class="memItemRight" valign="bottom"><b>TensorInferenceFunction</b> ([](const OperatorDef &amp;def, const vector&lt; TensorShape &gt; &amp;in){<a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a> helper(def);const int axis=helper.HasArgument(&quot;axis&quot;)?helper.GetSingleArgument&lt; int &gt;(&quot;axis&quot;,-1):GetDimFromOrderString(helper.GetSingleArgument&lt; string &gt;(&quot;order&quot;,&quot;NCHW&quot;));bool add_axis=helper.GetSingleArgument&lt; int &gt;(&quot;add_axis&quot;, 0)!=0;const int canonical_axis=canonical_axis_index_(axis, in[0].dims_size());CAFFE_ENFORCE_GT(in.size(), 0);vector&lt; int &gt; split_shape(1, in.size());vector&lt; int &gt; out_shape(in[0].dims().begin(), in[0].dims().end());if(add_axis){out_shape.insert(out_shape.begin()+canonical_axis, in.size());}else{for(int i=1;i&lt; in.size();++i){out_shape[canonical_axis]+=in[i].dims(canonical_axis);}}if(def.output_size()==1){return vector&lt; TensorShape &gt;{CreateTensorShape(out_shape, in[0].data_type())};}return vector&lt; TensorShape &gt;{CreateTensorShape(out_shape, in[0].data_type()), CreateTensorShape(split_shape, TensorProto::INT32)};}).CostInferenceFunction(CostInferenceForConcat).SetDoc(&quot;Concatenate a list of tensors into a single tensor&quot;).Output(0</td></tr>
-<tr class="separator:a93bbab1a66df8cc0fc30dcfe6a7af08a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9a148fcea0d59568230560038b517d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9a148fcea0d59568230560038b517d6"></a>
+Which axis to concat on Pass to add the axis specified in arg axis to all input tensors&#160;</td><td class="memItemRight" valign="bottom"><b>TensorInferenceFunction</b> ([](const OperatorDef &amp;def, const vector&lt; TensorShape &gt; &amp;in){<a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a> helper(def);const int axis=helper.HasArgument(&quot;axis&quot;)?helper.GetSingleArgument&lt; int &gt;(&quot;axis&quot;,-1):GetDimFromOrderString(helper.GetSingleArgument&lt; string &gt;(&quot;order&quot;,&quot;NCHW&quot;));bool add_axis=helper.GetSingleArgument&lt; int &gt;(&quot;add_axis&quot;, 0)!=0;const int canonical_axis=canonical_axis_index_(axis, in[0].dims_size());CAFFE_ENFORCE_GT(in.size(), 0);vector&lt; int &gt; split_shape(1, in.size());vector&lt; int &gt; out_shape(in[0].dims().begin(), in[0].dims().end());if(add_axis){for(int i=1;i&lt; in.size();++i){CAFFE_ENFORCE_EQ(in[0].dims().size(), in[i].dims().size(),&quot;All inputs of Concat should have same dims when add_axis = 1. &quot;&quot;Got different sizes for inputs 0 and &quot;, i);for(int j=0;j&lt; in[0].dims().size();++j){CAFFE_ENFORCE_EQ(in[0].dims(j), in[i].dims(j),&quot;All inputs of Concat should have same dims when add_axis = 1. &quot;&quot;Got different dims for inputs 0 and &quot;, i,&quot;. At dim: &quot;, j);}}out_shape.insert(out_shape.begin()+canonical_axis, in.size());}else{for(int i=1;i&lt; in.size();++i){CAFFE_ENFORCE_EQ(in[0].dims().size(), in[i].dims().size(),&quot;All inputs of Concat should have same dims except &quot;&quot;canonical_axis dim that is equal to &quot;, canonical_axis,&quot;Got different sizes for inputs 0 and &quot;, i);for(int j=0;j&lt; in[0].dims().size();++j){if(j==canonical_axis){continue;}CAFFE_ENFORCE_EQ(in[0].dims(j), in[i].dims(j),&quot;All inputs of Concat should have same dims except &quot;&quot;canonical_axis dim that is equal to &quot;, canonical_axis,&quot;Got different dims for inputs 0 and &quot;, i,&quot;. At dim: &quot;, j);}}for(int i=1;i&lt; in.size();++i){out_shape[canonical_axis]+=in[i].dims(canonical_axis);}}if(def.output_size()==1){return vector&lt; TensorShape &gt;{CreateTensorShape(out_shape, in[0].data_type())};}return vector&lt; TensorShape &gt;{CreateTensorShape(out_shape, in[0].data_type()), CreateTensorShape(split_shape, TensorProto::INT32)};}).CostInferenceFunction(CostInferenceForConcat).SetDoc(&quot;Concatenate a list of tensors into a single tensor&quot;).Output(0</td></tr>
+<tr class="separator:af9a148fcea0d59568230560038b517d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa217105861d43ed90b662b103097e203"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa217105861d43ed90b662b103097e203"></a>
 Which axis to concat on Pass to add the axis specified in arg axis to all input tensors Concatenated tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (1,&quot;split_info&quot;,&quot;The dimensions of the inputs.&quot;)</td></tr>
 <tr class="separator:aa217105861d43ed90b662b103097e203"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10986,7 +10998,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Mar 7 2018 13:03:44 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Mar 8 2018 13:05:18 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

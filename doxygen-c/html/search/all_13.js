@@ -2,8 +2,8 @@ var searchData=
 [
   ['tanhcpufunctor',['TanhCPUFunctor',['../structcaffe2_1_1_tanh_c_p_u_functor.html',1,'caffe2']]],
   ['tanhgradientcpufunctor',['TanhGradientCPUFunctor',['../structcaffe2_1_1_tanh_gradient_c_p_u_functor.html',1,'caffe2']]],
-  ['task',['Task',['../structcaffe2_1_1_task.html',1,'caffe2']]],
   ['task',['Task',['../structcaffe2_1_1gpu__single__thread_1_1_task.html',1,'caffe2::gpu_single_thread']]],
+  ['task',['Task',['../structcaffe2_1_1_task.html',1,'caffe2']]],
   ['taskthreadpool',['TaskThreadPool',['../classcaffe2_1_1_task_thread_pool.html',1,'caffe2']]],
   ['tensor',['Tensor',['../classcaffe2_1_1_tensor.html',1,'caffe2']]],
   ['tensor',['Tensor',['../struct_tensor.html',1,'Tensor'],['../classcaffe2_1_1_tensor.html#a813559c5a8dbcdb7743d333d24f05481',1,'caffe2::Tensor::Tensor()'],['../classcaffe2_1_1_tensor.html#a4033b18347ac94c18f80d7b2a1d2cb16',1,'caffe2::Tensor::Tensor(const vector&lt; TIndex &gt; &amp;dims)'],['../classcaffe2_1_1_tensor.html#a553e23abde50c8573ef0bc467876ebb7',1,'caffe2::Tensor::Tensor(const Tensor&lt; SrcContext &gt; &amp;src, ContextForCopy *context)'],['../classcaffe2_1_1_tensor.html#a43bdfe596b5a6dfcf5232adf9972c5ad',1,'caffe2::Tensor::Tensor(const Tensor&lt; SrcContext &gt; &amp;src)'],['../classcaffe2_1_1_tensor.html#ad17896c358189b7a0ef67fffd62663e9',1,'caffe2::Tensor::Tensor(const vector&lt; TIndex &gt; &amp;dims, const vector&lt; T &gt; &amp;values, Context *context)'],['../classcaffe2_1_1_tensor.html#a02d3a30f2343c0ec0a8af285807ad984',1,'caffe2::Tensor::Tensor(const T &amp;value, Context *context)']]],

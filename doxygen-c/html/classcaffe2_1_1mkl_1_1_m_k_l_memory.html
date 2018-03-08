@@ -123,6 +123,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> (const size
 template&lt;typename IndexType &gt; </td></tr>
 <tr class="memitem:ab78aae3882b62a4b18f52504a3569549"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Reset</b> (const vector&lt; IndexType &gt; &amp;dims, const dnnPrimitive_t primitive=nullptr, const dnnResourceType_t type=dnnResourceNumber, bool share_mem_if_possible=false)</td></tr>
 <tr class="separator:ab78aae3882b62a4b18f52504a3569549"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80f5269e812bf4d32950fa87f23aa7cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80f5269e812bf4d32950fa87f23aa7cb"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> ()</td></tr>
+<tr class="separator:a80f5269e812bf4d32950fa87f23aa7cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0beaf56414f73aabac95fac6e1ac1aa"><td class="memTemplParams" colspan="2">template&lt;typename IndexType &gt; </td></tr>
 <tr class="memitem:aa0beaf56414f73aabac95fac6e1ac1aa"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1mkl_1_1_m_k_l_memory.html#aa0beaf56414f73aabac95fac6e1ac1aa">Reshape</a> (const vector&lt; IndexType &gt; &amp;dims)</td></tr>
 <tr class="memdesc:aa0beaf56414f73aabac95fac6e1ac1aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resizes the tensor without touching underlying storage.  <a href="#aa0beaf56414f73aabac95fac6e1ac1aa">More...</a><br /></td></tr>
@@ -193,7 +196,7 @@ class caffe2::mkl::MKLMemory&lt; T &gt;</h3>
 <p>A wrapper around an opaque MKL internal resource that has certain layouts and convertion primitives set up. </p>
 <p>Most of the <a class="el" href="classcaffe2_1_1mkl_1_1_m_k_l_memory.html" title="A wrapper around an opaque MKL internal resource that has certain layouts and convertion primitives s...">MKLMemory</a> functions are not thread safe. </p>
 
-<p>Definition at line <a class="el" href="mkl__memory_8h_source.html#l00153">153</a> of file <a class="el" href="mkl__memory_8h_source.html">mkl_memory.h</a>.</p>
+<p>Definition at line <a class="el" href="mkl__memory_8h_source.html#l00167">167</a> of file <a class="el" href="mkl__memory_8h_source.html">mkl_memory.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="ad5702260a1fce3219b5a8a6427ed99e6"></a>
 <div class="memitem">
@@ -222,7 +225,7 @@ template&lt;typename T&gt; </div>
 <p>Returns the i-th dimension of the tensor. </p>
 <p>Note that the passed in index must be between 0 (inclusive) and the number of dimensions, otherwise this function will produce a fatal message. </p>
 
-<p>Definition at line <a class="el" href="mkl__memory_8h_source.html#l00474">474</a> of file <a class="el" href="mkl__memory_8h_source.html">mkl_memory.h</a>.</p>
+<p>Definition at line <a class="el" href="mkl__memory_8h_source.html#l00498">498</a> of file <a class="el" href="mkl__memory_8h_source.html">mkl_memory.h</a>.</p>
 
 </div>
 </div>
@@ -255,7 +258,7 @@ template&lt;typename IndexType &gt; </div>
 <p>Resizes the tensor without touching underlying storage. </p>
 <p>This requires the total size of the tensor to remains constant. </p>
 
-<p>Definition at line <a class="el" href="mkl__memory_8h_source.html#l00259">259</a> of file <a class="el" href="mkl__memory_8h_source.html">mkl_memory.h</a>.</p>
+<p>Definition at line <a class="el" href="mkl__memory_8h_source.html#l00283">283</a> of file <a class="el" href="mkl__memory_8h_source.html">mkl_memory.h</a>.</p>
 
 </div>
 </div>
@@ -266,7 +269,7 @@ template&lt;typename IndexType &gt; </div>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Mar 7 2018 13:03:48 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Mar 8 2018 13:05:26 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

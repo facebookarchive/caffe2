@@ -96,6 +96,7 @@ var searchData=
   ['copy',['copy',['../classcaffe2_1_1_type_meta.html#ac8dd4e4823774c12643659bc4acf9872',1,'caffe2::TypeMeta']]],
   ['copyforwardedtensors',['CopyForwardedTensors',['../classcaffe2_1_1_workspace.html#a7babdb407d47f7d588973d2ab80e5e37',1,'caffe2::Workspace']]],
   ['copyfrom',['CopyFrom',['../classcaffe2_1_1_tensor.html#a8882e06c5240e1705fd00a535834a245',1,'caffe2::Tensor::CopyFrom(const Tensor&lt; SrcContext &gt; &amp;src, ContextForCopy *context)'],['../classcaffe2_1_1_tensor.html#a5cbee7d7cd88ebb963f75582e14cf92e',1,'caffe2::Tensor::CopyFrom(const Tensor&lt; SrcContext &gt; &amp;src)']]],
+  ['copyfromglop',['CopyFromGLOp',['../classcaffe2_1_1_copy_from_g_l_op.html',1,'caffe2']]],
   ['copyfromopenglop',['CopyFromOpenGLOp',['../classcaffe2_1_1_copy_from_open_g_l_op.html',1,'caffe2']]],
   ['copyondevicelikeop',['CopyOnDeviceLikeOp',['../classcaffe2_1_1_copy_on_device_like_op.html',1,'caffe2']]],
   ['copyondevicelikeop_3c_20cudacontext_2c_20cudacontext_2c_20cudacontext_20_3e',['CopyOnDeviceLikeOp&lt; CUDAContext, CUDAContext, CUDAContext &gt;',['../classcaffe2_1_1_copy_on_device_like_op_3_01_c_u_d_a_context_00_01_c_u_d_a_context_00_01_c_u_d_a_context_01_4.html',1,'caffe2']]],
@@ -167,11 +168,11 @@ var searchData=
   ['cudnntypewrapper_3c_20float_20_3e',['cudnnTypeWrapper&lt; float &gt;',['../classcaffe2_1_1cudnn_type_wrapper_3_01float_01_4.html',1,'caffe2']]],
   ['cudnntypewrapper_3c_20float16_20_3e',['cudnnTypeWrapper&lt; float16 &gt;',['../classcaffe2_1_1cudnn_type_wrapper_3_01float16_01_4.html',1,'caffe2']]],
   ['cudnnworkspace',['CuDNNWorkspace',['../structcaffe2_1_1_cu_d_n_n_workspace.html',1,'caffe2']]],
-  ['cudnnwrapper',['CuDNNWrapper',['../classcaffe2_1_1_cu_d_n_n_wrapper.html#a0efa9399b67e409f822eb979d61e0824',1,'caffe2::CuDNNWrapper']]],
   ['cudnnwrapper',['CuDNNWrapper',['../classcaffe2_1_1_cu_d_n_n_wrapper.html',1,'caffe2']]],
+  ['cudnnwrapper',['CuDNNWrapper',['../classcaffe2_1_1_cu_d_n_n_wrapper.html#a0efa9399b67e409f822eb979d61e0824',1,'caffe2::CuDNNWrapper']]],
   ['curandgeterrorstring',['curandGetErrorString',['../namespacecaffe2.html#a8cd40a0417e6ec30c62f7fb8b49aa031',1,'caffe2']]],
   ['currentmodules',['CurrentModules',['../namespacecaffe2.html#a2015a66b1fe9fccf95985a1b9de6d31c',1,'caffe2']]],
-  ['cursor',['Cursor',['../classcaffe2_1_1db_1_1_cursor.html',1,'caffe2::db']]],
   ['cursor',['cursor',['../classcaffe2_1_1db_1_1_d_b_reader.html#a67e032b62adfa1eeeb2ad24613b46bf8',1,'caffe2::db::DBReader']]],
+  ['cursor',['Cursor',['../classcaffe2_1_1db_1_1_cursor.html',1,'caffe2::db']]],
   ['enforce_5fdetail',['enforce_detail',['../namespacecaffe2_1_1enforce__detail.html',1,'caffe2']]]
 ];
