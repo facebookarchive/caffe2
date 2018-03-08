@@ -56,7 +56,7 @@ OPERATOR_SCHEMA(SparseLengthsWeightedSumFused8BitRowwise)
     .SetDoc(R"DOC(
 Performs the same operation as SparseLengthsWeightedSum,
 but operating on 8-bit rowwise quantized matrices with fused storage
-(where each row stores quantized values, and then the scale and bias).
+(where each row stores quantized values, and then 4-byte scale and 4-byte bias).
 )DOC")
     .Input(
         0,
@@ -92,7 +92,7 @@ OPERATOR_SCHEMA(SparseLengthsMeanFused8BitRowwise)
     .SetDoc(R"DOC(
 Performs the same operation as SparseLengthsMean, but
 operating on 8-bit rowwise quantized matrices with fused storage
-(where each row stores quantized values, and then the scale and bias).
+(where each row stores quantized values, and then 4-byte scale and 4-byte bias).
 )DOC")
     .Input(
         0,
