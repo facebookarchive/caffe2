@@ -20,12 +20,12 @@ install_ubuntu() {
   case "$PYTHON_VERSION" in
     2*)
       apt-get install -y --no-install-recommends \
-              python-dev \
+              python-dev
       PYTHON=python2
       ;;
     3.5)
       apt-get install -y --no-install-recommends \
-              python3-dev \
+              python3-dev
       PYTHON=python3.5
       ;;
     3.6)
