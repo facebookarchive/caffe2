@@ -41,7 +41,6 @@ if [ -z "${SCCACHE}" ] && which ccache > /dev/null; then
 fi
 
 CMAKE_ARGS=("-DBUILD_BINARY=ON")
-CMAKE_ARGS+=("-DBUILD_OBSERVERS=ON")
 CMAKE_ARGS+=("-DUSE_OBSERVERS=ON")
 CMAKE_ARGS+=("-DUSE_ZSTD=ON")
 
