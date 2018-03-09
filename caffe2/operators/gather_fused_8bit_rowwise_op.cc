@@ -9,11 +9,12 @@ OPERATOR_SCHEMA(GatherFused8BitRowwise)
 Perform the same operation as Gather, but operating on 8-bit rowwise quantized
 matrices with fused storage (where each row stores quantized values, and then
 the scale and offset).
+DATA needs to have rank 2 and INDICES needs to have rank 1.
 )DOC")
     .Input(
         0,
         "DATA",
-        "uint8 tensor obtained with operator FloatToFused8BitRowwiseQuantized")
+        "uint8 tensor with rank 2 obtained with operator FloatToFused8BitRowwiseQuantized")
     .Input(
         1,
         "INDICES",
