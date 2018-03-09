@@ -183,15 +183,6 @@ class CudnnConvOpBase : public ConvPoolOpBase<CUDAContext> {
       int dilation_height = 0;
       int dilation_width = 0;
 
-      CUDNN_ENFORCE(cudnnGetConvolution2dDescriptor(
-          input,
-          &pad_height,
-          &pad_width,
-          &stride_height,
-          &stride_width,
-          &dilation_height,
-          &dilation_width,
-          &mode
 #if CUDNN_VERSION_MIN(6, 0, 0)
       CUDNN_ENFORCE(cudnnGetConvolution2dDescriptor(
           input,
