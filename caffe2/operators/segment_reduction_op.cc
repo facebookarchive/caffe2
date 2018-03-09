@@ -18,7 +18,7 @@
 
 namespace caffe2 {
 
-// registering 4 input gradient with main output
+// registering 5 input gradient with main output
 // gradient of SparseLengthsWeightedSum
 OPERATOR_SCHEMA(SparseLengthsIndicesInGradientWeightedSumWithMainInputGradient)
     .NumInputs(5)
