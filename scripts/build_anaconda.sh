@@ -121,10 +121,15 @@ if [[ "$(uname)" != 'Darwin' ]]; then
       add_package 'numpy' '>1.11'
     fi
 
-    # glog 0.3.5=0 is built againt old ABI, but 0.3.5=hf484d3e_1 is not
+    # glog 0.3.5=0 is built against old ABI, but 0.3.5=hf484d3e_1 is not
     # "Note that pip requirements are not supported in conda-build meta.yaml"
     remove_package 'glog'
     conda install -y 'glog=0.3.5=hf484d3e_1'
+
+    # leveldb=1.20 is built against old ABI, but 1.20=hf484d3e_1 is built
+    # against the new one
+    remove_package 'leveldb'
+    conda install -y 'leveldb=1.20=hf484d3e_1'
   fi
 fi
 

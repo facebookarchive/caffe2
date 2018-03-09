@@ -19,6 +19,7 @@ requirements:
     - future
     - gflags
     - glog
+    - leveldb
     - lmdb
     - mkl
     - mkl-include
@@ -32,6 +33,7 @@ requirements:
     - future
     - gflags
     - glog
+    - leveldb
     - lmdb
     - mkl
     - mkl-include

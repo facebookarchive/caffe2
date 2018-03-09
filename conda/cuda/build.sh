@@ -25,7 +25,6 @@ CMAKE_ARGS=()
 
 # Build with minimal required libraries
 # Add CMAKE flags here
-CMAKE_ARGS+=("-DUSE_LEVELDB=OFF")
 CMAKE_ARGS+=("-DUSE_MPI=OFF")
 
 # Build with CUDA

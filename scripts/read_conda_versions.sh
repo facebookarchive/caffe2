@@ -12,7 +12,12 @@ if [ -z "$1" ]; then
 fi
 PKG_NAME="$1"
 
+if [ -n "$2" ]; then
+  echo "Searching in channel $2"
+fi
+
 # These are the packages of interest to search the dependencies for
+# TODO use this
 PACKAGES_OF_INTEREST=( libgcc-ng libprotobuf numpy )
 
 # We only care about shared/dynamic libraries
@@ -25,7 +30,7 @@ fi
 # Split the output from conda search into an array, one line per package (plus
 # the header)
 conda_search_packages=()
-while read -r line; do conda_search_packages+=("$line"); done <<< "$(conda search "$1")"
+while read -r line; do conda_search_packages+=("$line"); done <<< "$(conda search "$1" "$2")"
 
 ### Typical `conda search` output looks like
 ###   Loading channels: done
@@ -66,6 +71,12 @@ while read -r line; do conda_search_packages+=("$line"); done <<< "$(conda searc
 ###       python >=3.6,<3.7.0a0
 ###       six
 
+# Echo what packages we'll look through.
+echo "Processing these packages:"
+for pkg in "${conda_search_packages[@]:2}"; do
+  echo "  $pkg"
+done
+
 
 # Redirect all `conda install` and `conda uninstall` output to a separate file
 # cause it's so noisy
@@ -88,7 +99,7 @@ for pkg in "${conda_search_packages[@]:2}"; do
 
   # Split the output of conda_info into an array of lines
   pkg_dependencies=()
-  while read -r line; do pkg_dependencies+=("$line"); done <<< "$(conda info "$PKG_SPEC")"  
+  while read -r line; do pkg_dependencies+=("$line"); done <<< "$(conda info "$PKG_SPEC" "$2")"
 
   # List all the listed dependencies in `conda info`
   echo "  Listed dependencies:"
@@ -101,12 +112,12 @@ for pkg in "${conda_search_packages[@]:2}"; do
   # We install this exact package, and then grep the exported symbols for signs
   # of cxx11
   conda uninstall -y "$PKG_NAME" --quiet > $CONDA_INSTALL_LOG 2>&1
-  conda install -y "$PKG_SPEC" --quiet > $CONDA_INSTALL_LOG 2>&1
+  conda install -y "$PKG_SPEC" --quiet "$2" > $CONDA_INSTALL_LOG 2>&1
   if [ $? -eq 0 ]; then
 
     MENTIONS_CXX11="$(nm "$CONDA_ROOT/lib/lib${PKG_NAME}${LIB_SUFFIX}" | grep cxx11 | wc -l)"
     if [ $MENTIONS_CXX11 -gt 0 ]; then
-      echo "  This package is built against the recent gcc ABI \($MENTIONS_CXX11 mentions of cxx11\)"
+      echo "  This package is built against the recent gcc ABI ($MENTIONS_CXX11 mentions of cxx11)"
     fi
   else
     echo "Error installing $PKG_SPEC , continuing"
