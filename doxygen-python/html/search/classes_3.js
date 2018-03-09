@@ -12,6 +12,8 @@ var searchData=
   ['cnnmodelhelper',['CNNModelHelper',['../classcaffe2_1_1python_1_1cnn_1_1_c_n_n_model_helper.html',1,'caffe2::python::cnn']]],
   ['collectivesconcurrencycontrol',['CollectivesConcurrencyControl',['../classcaffe2_1_1python_1_1data__parallel__model_1_1_collectives_concurrency_control.html',1,'caffe2::python::data_parallel_model']]],
   ['compiledrunnable',['CompiledRunnable',['../classcaffe2_1_1python_1_1session_1_1_compiled_runnable.html',1,'caffe2::python::session']]],
+  ['computenormforblobs',['ComputeNormForBlobs',['../classcaffe2_1_1python_1_1modeling_1_1compute__norm__for__blobs_1_1_compute_norm_for_blobs.html',1,'caffe2::python::modeling::compute_norm_for_blobs']]],
+  ['computestatisticsforblobs',['ComputeStatisticsForBlobs',['../classcaffe2_1_1python_1_1modeling_1_1compute__statistics__for__blobs_1_1_compute_statistics_for_blobs.html',1,'caffe2::python::modeling::compute_statistics_for_blobs']]],
   ['concat',['Concat',['../classcaffe2_1_1python_1_1layers_1_1concat_1_1_concat.html',1,'caffe2::python::layers::concat']]],
   ['constantnorm',['ConstantNorm',['../classcaffe2_1_1python_1_1regularizer_1_1_constant_norm.html',1,'caffe2::python::regularizer']]],
   ['contextinfo',['ContextInfo',['../classcaffe2_1_1python_1_1context_1_1_context_info.html',1,'caffe2::python::context']]],

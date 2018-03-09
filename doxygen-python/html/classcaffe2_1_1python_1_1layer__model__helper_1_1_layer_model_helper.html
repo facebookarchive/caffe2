@@ -147,6 +147,12 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>add_layer</b> (self, l
 <tr class="memitem:a7af09cfe06a30ab9ea7d83aedbeb44fc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7af09cfe06a30ab9ea7d83aedbeb44fc"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_parameter_blobs</b> (self)</td></tr>
 <tr class="separator:a7af09cfe06a30ab9ea7d83aedbeb44fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a26074abb7e6d55119fd09c523b8f41"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8a26074abb7e6d55119fd09c523b8f41"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>add_post_grad_net_modifiers</b> (self, modifier)</td></tr>
+<tr class="separator:a8a26074abb7e6d55119fd09c523b8f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50b9ed238c9a21991f07e5a20777132b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a50b9ed238c9a21991f07e5a20777132b"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>add_final_net_modifiers</b> (self, modifier)</td></tr>
+<tr class="separator:a50b9ed238c9a21991f07e5a20777132b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ce76418076f0fc84829d142f9e5b486"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ce76418076f0fc84829d142f9e5b486"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>seed</b> (self)</td></tr>
 <tr class="separator:a3ce76418076f0fc84829d142f9e5b486"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -203,6 +209,12 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_regularizers_on_
 <tr class="memitem:af345df3a26a8ed6cee099e8a5c8778a9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af345df3a26a8ed6cee099e8a5c8778a9"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_regularizers_after_optimizer</b> (self, train_net, train_init_net, grad_map, blob_to_device=None)</td></tr>
 <tr class="separator:af345df3a26a8ed6cee099e8a5c8778a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b01402fb4da17a960f97e8a2f10c4e7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7b01402fb4da17a960f97e8a2f10c4e7"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_post_grad_net_modifiers</b> (self, trainer_net, trainer_init_net, grad_map, blob_to_device=None)</td></tr>
+<tr class="separator:a7b01402fb4da17a960f97e8a2f10c4e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34f37332cf7e9aaaae7bdb491d41eedb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a34f37332cf7e9aaaae7bdb491d41eedb"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_final_net_modifiers</b> (self, trainer_net, trainer_init_net, grad_map, blob_to_device=None)</td></tr>
+<tr class="separator:a34f37332cf7e9aaaae7bdb491d41eedb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a460da1bd475fbbb2f924f0a7d943354d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a460da1bd475fbbb2f924f0a7d943354d"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>apply_optimizers</b> (self, train_net, train_init_net, grad_map, blob_to_device=None)</td></tr>
 <tr class="separator:a460da1bd475fbbb2f924f0a7d943354d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -344,7 +356,7 @@ As an example: one can easily instantiate predict and train nets from
 the same set of layers, where predict net will have subset of the
 operators from train net.
 </pre> 
-<p>Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00043">43</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
+<p>Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00045">45</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a84a2fc3eabbda2db3a76e071116f6912"></a>
 <div class="memitem">
@@ -389,7 +401,7 @@ operators from train net.
 </div><div class="memdoc">
 <pre class="fragment">TODO(amalevich): more documnetation on input args
 </pre> 
-<p>Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00056">56</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
+<p>Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00058">58</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
 
 </div>
 </div>
@@ -413,7 +425,7 @@ metric reporting.
 During the training/evaluation this schema will be appended to the
 schema that represents model output.
 </pre> 
-<p>Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00360">360</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
+<p>Definition at line <a class="el" href="layer__model__helper_8py_source.html#l00379">379</a> of file <a class="el" href="layer__model__helper_8py_source.html">layer_model_helper.py</a>.</p>
 
 </div>
 </div>
@@ -424,7 +436,7 @@ schema that represents model output.
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Mar 8 2018 13:05:07 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Mar 9 2018 13:03:31 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

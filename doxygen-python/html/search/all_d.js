@@ -12,6 +12,7 @@ var searchData=
   ['netbuilder',['NetBuilder',['../classcaffe2_1_1python_1_1net__builder_1_1_net_builder.html',1,'caffe2::python::net_builder']]],
   ['netdefnode',['NetDefNode',['../class_sparse_transformer_1_1_net_def_node.html',1,'SparseTransformer']]],
   ['netgradientchecker',['NetGradientChecker',['../classcaffe2_1_1python_1_1gradient__checker_1_1_net_gradient_checker.html',1,'caffe2::python::gradient_checker']]],
+  ['netmodifier',['NetModifier',['../classcaffe2_1_1python_1_1modeling_1_1net__modifier_1_1_net_modifier.html',1,'caffe2::python::modeling::net_modifier']]],
   ['netprocessor',['NetProcessor',['../classcaffe2_1_1python_1_1pipeline_1_1_net_processor.html',1,'caffe2::python::pipeline']]],
   ['nextblob',['NextBlob',['../classcaffe2_1_1python_1_1core_1_1_net.html#af311dda28d4ae0f49feef9bd10fed65a',1,'caffe2::python::core::Net']]],
   ['nextname',['NextName',['../classcaffe2_1_1python_1_1core_1_1_net.html#a305bd1b0120f20c54f4e508b526cac49',1,'caffe2::python::core::Net']]],
