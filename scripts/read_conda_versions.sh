@@ -1,9 +1,14 @@
 # Simple script used to easily search all packages in conda for their
 # dependency requirements
 
+if [ -z "$CONDA_ROOT" ]; then
+  echo "Please set CONDA_ROOT so that I know where to search for conda libraries"
+  exit 1
+fi
+
 if [ -z "$1" ]; then
   echo "Please give me a package name to search for"
-  return 0
+  exit 1
 fi
 PKG_NAME="$1"
 

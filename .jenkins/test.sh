@@ -23,7 +23,7 @@ if [[ "$BUILD_ENVIRONMENT" == conda* ]]; then
   # env before installing with conda
   PYTHON="/opt/conda/bin/python"
   INSTALL_PREFIX="/opt/conda/envs/testenv"
-  conda activate testenv
+  source activate testenv
 fi
 
 # Add the site-packages in the caffe2 install prefix to the PYTHONPATH
