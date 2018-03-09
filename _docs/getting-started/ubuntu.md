@@ -14,13 +14,15 @@ If you do not have a GPU:
 conda install -c caffe2 caffe2
 ```
 
-For Caffe2 with CUDA 9 and cuDNN 7 support:
+For GPU support you will need [CUDA](https://developer.nvidia.com/cuda-downloads), [CuDNN](https://developer.nvidia.com/cudnn), and [NCCL](https://developer.nvidia.com/nccl). These must be installed from Nvidia's website. 
+
+For Caffe2 with CUDA 9 and CuDNN 7 support:
 
 ```bash
 conda install -c caffe2 caffe2-cuda9.0-cudnn7
 ```
 
-For Caffe2 with CUDA 8 and cuDNN 7 support:
+For Caffe2 with CUDA 8 and CuDNN 7 support:
 
 ```bash
 conda install -c caffe2 caffe2-cuda8.0-cudnn7
