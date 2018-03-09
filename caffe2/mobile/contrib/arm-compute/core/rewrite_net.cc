@@ -62,7 +62,7 @@ static void insertCopyFromGLOp(NetDef& predictNet, const std::string& cpu_blob) 
   auto* op = predictNet.add_op();
   op->set_name("CopyFromGL");
   op->set_type("CopyFromGL");
-  op->add_input(cpu_blob);
+  op->add_input(cpu_blob + "_M");
   op->add_output(cpu_blob);
 }
 
@@ -117,15 +117,33 @@ static NetDef insertInputOutputCopyOps(const NetDef& def, std::unordered_set<std
         cpu_blobs[output].insert(version);
       }
     } else {
-
       // OpenGL Op
       auto* op = mdef.add_op();
       op->CopyFrom(currentOp);
+
+     for (auto j = 0; j < op->input_size(); j++) {
+        auto* input = op->mutable_input(j);
+        auto version = analysis.ssa[i].inVersions[*input];
+        if (gpu_blobs[*input].count(version) > 0) {
+          *input = *input + "_M";
+        }
+      }
 
       for (auto j = 0; j < currentOp.output_size(); j++) {
         auto& output = currentOp.output(j);
         auto version = analysis.ssa[i].outVersions[output];
         gpu_blobs[output].insert(version);
+        // add _M to intermediate OpenGL op outputs
+        auto* output_ = op->mutable_output(j);
+        bool inter = true;
+        for(auto k = 0; k < def.external_output_size(); k++) {
+          if (*output_ == def.external_output(k)) {
+            inter = false;
+          }
+        }
+        if (inter) {
+          *output_ = *output_ + "_M";
+        }
       }
     }
   }
@@ -226,18 +244,19 @@ NetDef rewritePredictNetForOpenGL(const NetDef& predictNet, bool runFusion, std:
   NetDef net;
   net.CopyFrom(predictNet);
 
-    for (auto i = 0; i < net.op().size(); ++i) {
-      auto op = net.mutable_op(i);
-      if (std::find(cpuOps.begin(), cpuOps.end(), op->type()) == cpuOps.end()) {
-        op->mutable_device_option()->set_device_type(OPENGL);
-      }
-    }
   // if (runFusion) {
   //   net = runOpenGLFusion(net, openGLOps);
   // }
 
   net = insertInputOutputCopyOps(net, cpuOps);
   net.set_type("opengl");
+
+  for (auto i = 0; i < net.op().size(); ++i) {
+    auto op = net.mutable_op(i);
+    if (std::find(cpuOps.begin(), cpuOps.end(), op->type()) == cpuOps.end()) {
+      op->mutable_device_option()->set_device_type(OPENGL);
+    }
+  }
 
   return net;
 }
