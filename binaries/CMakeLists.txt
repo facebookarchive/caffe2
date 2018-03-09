@@ -46,12 +46,9 @@ endif()
 
 if (USE_OBSERVERS)
   caffe2_binary_target("caffe2_benchmark.cc")
-if (USE_MOBILE_OPENGL)
-  add_definitions("-DMOBILE_OPENGL_BACKEND")
-endif()
-if (NOT ANDROID)
-  target_link_libraries(caffe2_benchmark ${Caffe2_DEPENDENCY_LIBS})
-endif()
+  if (USE_MOBILE_OPENGL)
+    add_definitions("-DMOBILE_OPENGL_BACKEND")
+  endif()
 endif()
 
 # ---[ tutorials
