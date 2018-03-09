@@ -503,7 +503,7 @@ def TranslateCrop(layer, pretrained_blobs, is_test, **kwargs):
     caffe_op = BaseTranslate(layer, "Slice")
     input_1 = caffe_op.input[1]
     if input_1 != 'data':
-	    input_1_dim = dim_map[input_1]
+        input_1_dim = dim_map[input_1]
     else:
         input_1_dim = data_dims
     starts, ends = [], []
