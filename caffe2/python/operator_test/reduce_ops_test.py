@@ -24,6 +24,54 @@ from hypothesis import given
 import caffe2.python.hypothesis_test_util as hu
 import hypothesis.strategies as st
 import numpy as np
+import functools
+import itertools as it
+
+
+class TestReduceOps(hu.HypothesisTestCase):
+
+    def reduce_op_test(self, op_name, op_ref, data, axes, keepdims, device):
+        op = core.CreateOperator(
+            op_name,
+            ["data"],
+            ["Y"],
+            axes=axes,
+            keepdims=keepdims,
+        )
+
+        self.assertReferenceChecks(
+            device, op, [data],
+            functools.partial(
+                op_ref, axis=axes, keepdims=keepdims
+            )
+        )
+
+    @given(
+        d0=st.integers(1, 5),
+        d1=st.integers(1, 5),
+        d2=st.integers(1, 5),
+        d3=st.integers(1, 5),
+        keepdims=st.integers(0, 1),
+        seed=st.integers(0, 2**32 - 1),
+        **hu.gcs_cpu_only
+    )
+    def test_reduce_sum_mean(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
+        np.random.seed(seed)
+
+        def reduce_mean_ref(data, axis, keepdims):
+            return [np.mean(data, axis=axis, keepdims=keepdims)]
+
+        def reduce_sum_ref(data, axis, keepdims):
+            return [np.sum(data, axis=axis, keepdims=keepdims)]
+
+        for axes in it.combinations(range(4), 2):
+            data = np.random.randn(d0, d1, d2, d3).astype(np.float32)
+            self.reduce_op_test(
+                "ReduceMean", reduce_mean_ref, data, axes, keepdims, gc
+            )
+            self.reduce_op_test(
+                "ReduceSum", reduce_sum_ref, data, axes, keepdims, gc
+            )
 
 
 class TestReduceFrontReductions(hu.HypothesisTestCase):
