@@ -7,12 +7,12 @@ var searchData=
   ['parametertype',['ParameterType',['../classcaffe2_1_1python_1_1modeling_1_1parameter__info_1_1_parameter_type.html',1,'caffe2::python::modeling::parameter_info']]],
   ['parser',['Parser',['../classparser_1_1_parser.html',1,'parser']]],
   ['patchvisualizer',['PatchVisualizer',['../classcaffe2_1_1python_1_1visualize_1_1_patch_visualizer.html',1,'caffe2::python::visualize']]],
-  ['pfp16initializer',['pFP16Initializer',['../classcaffe2_1_1python_1_1modeling_1_1initializers_1_1p_f_p16_initializer.html',1,'caffe2::python::modeling::initializers']]],
   ['pipe',['Pipe',['../classcaffe2_1_1python_1_1dataio_1_1_pipe.html',1,'caffe2::python::dataio']]],
   ['pipedreaderbuilder',['PipedReaderBuilder',['../classcaffe2_1_1python_1_1dataio_1_1_piped_reader_builder.html',1,'caffe2::python::dataio']]],
   ['plan',['Plan',['../classcaffe2_1_1python_1_1core_1_1_plan.html',1,'caffe2::python::core']]],
   ['positionweighted',['PositionWeighted',['../classcaffe2_1_1python_1_1layers_1_1position__weighted_1_1_position_weighted.html',1,'caffe2::python::layers::position_weighted']]],
   ['predictorexportmeta',['PredictorExportMeta',['../classcaffe2_1_1python_1_1predictor_1_1predictor__exporter_1_1_predictor_export_meta.html',1,'caffe2::python::predictor::predictor_exporter']]],
   ['printer',['Printer',['../classcaffe2_1_1python_1_1net__printer_1_1_printer.html',1,'caffe2::python::net_printer']]],
-  ['processingreader',['ProcessingReader',['../classcaffe2_1_1python_1_1pipeline_1_1_processing_reader.html',1,'caffe2::python::pipeline']]]
+  ['processingreader',['ProcessingReader',['../classcaffe2_1_1python_1_1pipeline_1_1_processing_reader.html',1,'caffe2::python::pipeline']]],
+  ['pseudofp16initializer',['PseudoFP16Initializer',['../classcaffe2_1_1python_1_1modeling_1_1initializers_1_1_pseudo_f_p16_initializer.html',1,'caffe2::python::modeling::initializers']]]
 ];

@@ -652,6 +652,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_gather_by_key_op.html">GatherByKeyOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_gather_fused8_bit_rowwise_op.html">GatherFused8BitRowwiseOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_gather_op.html">GatherOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_gather_padding_op.html">GatherPaddingOp</a></td></tr>
@@ -3255,6 +3257,15 @@ template&lt;typename T  = half&gt; </td></tr>
 <tr class="memitem:a3d78525fee9e0264e7e76de984bb4fc7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3d78525fee9e0264e7e76de984bb4fc7"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_DECLARE_REGISTRY</b> (GLOperatorRegistry, <a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a>, const OperatorDef &amp;, <a class="el" href="classcaffe2_1_1_workspace.html">Workspace</a> *)</td></tr>
 <tr class="separator:a3d78525fee9e0264e7e76de984bb4fc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae502118ed31ba84378019d9569a62dcf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae502118ed31ba84378019d9569a62dcf"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>dumpDefForOpenGL</b> (const NetDef &amp;d)</td></tr>
+<tr class="separator:ae502118ed31ba84378019d9569a62dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10edc482cc8349e5a832edde86785572"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a10edc482cc8349e5a832edde86785572"></a>
+NetDef&#160;</td><td class="memItemRight" valign="bottom"><b>rewritePredictNetForOpenGL</b> (const NetDef &amp;predictNet, bool runFusion, std::unordered_set&lt; std::string &gt; cpuOps)</td></tr>
+<tr class="separator:a10edc482cc8349e5a832edde86785572"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40fba5b1e4639c36a5bd8afb428bb0b1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a40fba5b1e4639c36a5bd8afb428bb0b1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>tryConvertToOpenGL</b> (const NetDef &amp;predictNet, NetDef *glPredictNet, bool runFusion, std::unordered_set&lt; std::string &gt; cpuOps)</td></tr>
+<tr class="separator:a40fba5b1e4639c36a5bd8afb428bb0b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3851f3d184880dd2bf3f35ab0f1c70d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3851f3d184880dd2bf3f35ab0f1c70d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GL_OPERATOR</b> (Relu, <a class="el" href="classcaffe2_1_1_g_l_relu_op.html">GLReluOp</a>&lt; half &gt;)</td></tr>
 <tr class="separator:ae3851f3d184880dd2bf3f35ab0f1c70d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3267,9 +3278,9 @@ template&lt;typename T  = half&gt; </td></tr>
 <tr class="memitem:ae8a5ba42a4ca69c4975ec21ae3d31e3d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8a5ba42a4ca69c4975ec21ae3d31e3d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GL_OPERATOR</b> (Conv, <a class="el" href="classcaffe2_1_1_g_l_conv_op.html">GLConvOp</a>&lt; DataType &gt;)</td></tr>
 <tr class="separator:ae8a5ba42a4ca69c4975ec21ae3d31e3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39061ec2e68aca300e6dc4c35113fff0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39061ec2e68aca300e6dc4c35113fff0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GL_OPERATOR</b> (CopyFromGL, <a class="el" href="classcaffe2_1_1_copy_from_g_l_op.html">CopyFromGLOp</a>&lt; half &gt;)</td></tr>
-<tr class="separator:a39061ec2e68aca300e6dc4c35113fff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf7139309d3762c206cd6dd682a4fed1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf7139309d3762c206cd6dd682a4fed1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GL_OPERATOR</b> (CopyFromGL, <a class="el" href="classcaffe2_1_1_copy_from_g_l_op.html">CopyFromGLOp</a>&lt; DataType &gt;)</td></tr>
+<tr class="separator:aaf7139309d3762c206cd6dd682a4fed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a191752618f73a9f7e381553895180718"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a191752618f73a9f7e381553895180718"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GL_OPERATOR</b> (Sum, <a class="el" href="classcaffe2_1_1_g_l_sum_op.html">GLSumOp</a>&lt; DataType &gt;)</td></tr>
 <tr class="separator:a191752618f73a9f7e381553895180718"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3300,9 +3311,9 @@ template&lt;typename T  = half&gt; </td></tr>
 <tr class="memitem:ae36c4ec2a16cb6787c267be89d15e648"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae36c4ec2a16cb6787c267be89d15e648"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GL_OPERATOR</b> (SpatialBN, <a class="el" href="classcaffe2_1_1_g_l_spatial_b_n_op.html">GLSpatialBNOp</a>&lt; DataType &gt;)</td></tr>
 <tr class="separator:ae36c4ec2a16cb6787c267be89d15e648"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed7eb55805641140b33767a7240d5b54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed7eb55805641140b33767a7240d5b54"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>benchmarkModel</b> (std::string init_net_pb, std::string predict_net_pb, std::string input_name, std::vector&lt; int &gt; input_dims, std::string net_name=&quot;benchmark_net&quot;, std::vector&lt; std::string &gt; cpu_ops={})</td></tr>
-<tr class="separator:aed7eb55805641140b33767a7240d5b54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8242bf745a4cc5affeaacd377a911218"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8242bf745a4cc5affeaacd377a911218"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>benchmarkModel</b> (std::string init_net_pb, std::string predict_net_pb, std::string input_name, std::vector&lt; int &gt; input_dims, std::string net_name=&quot;benchmark_net&quot;, std::unordered_set&lt; std::string &gt; cpu_ops=std::unordered_set&lt; std::string &gt;({}))</td></tr>
+<tr class="separator:a8242bf745a4cc5affeaacd377a911218"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a146280ebd64449949f8da763cf79682f"><td class="memTemplParams" colspan="2"><a class="anchor" id="a146280ebd64449949f8da763cf79682f"></a>
 template&lt;typename T  = float&gt; </td></tr>
 <tr class="memitem:a146280ebd64449949f8da763cf79682f"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>PopulateCPUBlob</b> (<a class="el" href="classcaffe2_1_1_workspace.html">Workspace</a> *ws, bool random, std::string name, std::vector&lt; int &gt; dims, int val=1, int dist_shift=0, float variance=1)</td></tr>
@@ -3374,9 +3385,6 @@ template&lt;class T &gt; </td></tr>
 <tr class="memitem:a7774d202f45f941a142e798aeb4b4177"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7774d202f45f941a142e798aeb4b4177"></a>
 const NetDef&#160;</td><td class="memItemRight" valign="bottom"><b>create_gl_run_net</b> (const NetDef &amp;init_net, const NetDef &amp;run_net, bool use_texture_input)</td></tr>
 <tr class="separator:a7774d202f45f941a142e798aeb4b4177"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae502118ed31ba84378019d9569a62dcf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae502118ed31ba84378019d9569a62dcf"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>dumpDefForOpenGL</b> (const NetDef &amp;d)</td></tr>
-<tr class="separator:ae502118ed31ba84378019d9569a62dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a425fe9208a6165ffab7cc3581c71157c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a425fe9208a6165ffab7cc3581c71157c"></a>
 NetDef&#160;</td><td class="memItemRight" valign="bottom"><b>rewritePredictNetForOpenGL</b> (const NetDef &amp;predictNet, bool useTextureInput, bool useTiling, bool runFusion)</td></tr>
 <tr class="separator:a425fe9208a6165ffab7cc3581c71157c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4936,12 +4944,24 @@ and then scaling each element to an bit number between and To later de quantize 
 <tr class="memitem:a0a656421d800b4418bd6e118c9ec7245"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a656421d800b4418bd6e118c9ec7245"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Fused8BitRowwiseQuantizedToFloat, <a class="el" href="classcaffe2_1_1_fused8_bit_rowwise_quantized_to_float_op.html">Fused8BitRowwiseQuantizedToFloatOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a0a656421d800b4418bd6e118c9ec7245"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47a11ee6a43b5b29a79d0a95f257d0ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47a11ee6a43b5b29a79d0a95f257d0ba"></a>
-followed by the bias as a bit float in the next followed by the quantized values in the remaining bytes of the row The output is a matrix containing only the but de quantized De quantization is performed by multiplying each value by its row s scale and bias parameters The de quantized values will thus not be exactly equal to the un quantized floating <a class="el" href="structpoint.html">point</a> values DOC&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;scale_bias_quantized_input&quot;,&quot;Fused scale, bias and quantized data&quot;).Output(0</td></tr>
-<tr class="separator:a47a11ee6a43b5b29a79d0a95f257d0ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96ed90c60adac7cd45f8dd558ef9d896"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96ed90c60adac7cd45f8dd558ef9d896"></a>
+followed by the bias as a bit float in the next and the quantized values in the preceding bytes of the row The output is a matrix containing only the but de quantized De quantization is performed by multiplying each value by its row s scale and bias parameters The de quantized values will thus not be exactly equal to the un quantized floating <a class="el" href="structpoint.html">point</a> values DOC&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;scale_bias_quantized_input&quot;,&quot;Fused scale, bias and quantized data&quot;).Output(0</td></tr>
+<tr class="separator:a96ed90c60adac7cd45f8dd558ef9d896"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8052dfa230a77350a00706311fea6754"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8052dfa230a77350a00706311fea6754"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NO_GRADIENT</b> (Fused8BitRowwiseQuantizedToFloat)</td></tr>
 <tr class="separator:a8052dfa230a77350a00706311fea6754"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a40c8ce51b9de6c5ad61dc047b829e6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1a40c8ce51b9de6c5ad61dc047b829e6"></a>
+but operating on bit rowwise quantized matrices with fused&#160;</td><td class="memItemRight" valign="bottom"><b>storage</b> (where each row stores quantized values, and then the scale and offset).DATA needs to have rank 2 and INDICES needs to have rank 1.) DOC&quot;) .Input( 0</td></tr>
+<tr class="separator:a1a40c8ce51b9de6c5ad61dc047b829e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf8d016e6881e2c8aba2c83145db0608"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abf8d016e6881e2c8aba2c83145db0608"></a>
+but operating on bit rowwise quantized matrices with fused uint8 tensor with rank obtained with&#160;</td><td class="memItemRight" valign="bottom"><b>operator FloatToFused8BitRowwiseQuantized&quot;) .Input</b> (1,&quot;INDICES&quot;,&quot;Integer vector containing indices of the first dimension of DATA for&quot;&quot;the rows that are being gathered&quot;).Output(0</td></tr>
+<tr class="separator:abf8d016e6881e2c8aba2c83145db0608"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7e5fb4372ed6660a3a98ea0690043ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7e5fb4372ed6660a3a98ea0690043ff"></a>
+but operating on bit rowwise quantized matrices with fused uint8 tensor with rank obtained with output&#160;</td><td class="memItemRight" valign="bottom"><b>TensorInferenceFunction</b> ([](const OperatorDef &amp;def, const vector&lt; TensorShape &gt; &amp;in){vector&lt; TensorShape &gt; out(1);for(auto d:in[1].dims()){out[0].add_dims(d);}for(int i=1;i&lt; in[0].dims_size();++i){out[0].add_dims(in[0].dims(i));}out[0].set_data_type(in[0].data_type());return out;})</td></tr>
+<tr class="separator:af7e5fb4372ed6660a3a98ea0690043ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac60efa88d8e5c2b93818ae8da725a4db"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac60efa88d8e5c2b93818ae8da725a4db"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (GatherFused8BitRowwise, <a class="el" href="classcaffe2_1_1_gather_fused8_bit_rowwise_op.html">GatherFused8BitRowwiseOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:ac60efa88d8e5c2b93818ae8da725a4db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f785a1ae552fd2ae17d62a2820a585d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7f785a1ae552fd2ae17d62a2820a585d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (GivenTensorFill, <a class="el" href="classcaffe2_1_1_given_tensor_fill_op.html">GivenTensorFillOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a7f785a1ae552fd2ae17d62a2820a585d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5283,9 +5303,9 @@ Coefficient of default value is and produces one output&#160;</td><td class="mem
 <tr class="memitem:a91d8b5ff322dc32ea156dd89fbd0218c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a91d8b5ff322dc32ea156dd89fbd0218c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SparseLengthsSumFused8BitRowwise, <a class="el" href="classcaffe2_1_1_sparse_lengths_fused8_bit_rowwise_op.html">SparseLengthsFused8BitRowwiseOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a91d8b5ff322dc32ea156dd89fbd0218c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a346dcc4e58cd7ad96276bc468584336f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a346dcc4e58cd7ad96276bc468584336f"></a>
-but operating on bit rowwise quantized matrices with fused&#160;</td><td class="memItemRight" valign="bottom"><b>storage</b> (where each row stores the scale, bias and then quantized values).) DOC&quot;) .Input( 0</td></tr>
-<tr class="separator:a346dcc4e58cd7ad96276bc468584336f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17803b531d555dad8af3e8c4eff1c09d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a17803b531d555dad8af3e8c4eff1c09d"></a>
+but operating on bit rowwise quantized matrices with fused&#160;</td><td class="memItemRight" valign="bottom"><b>storage</b> (where each row stores quantized values, and then 4-byte scale and 4-byte bias).) DOC&quot;) .Input( 0</td></tr>
+<tr class="separator:a17803b531d555dad8af3e8c4eff1c09d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11f2a281250120560f5d496cc13b14c0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a11f2a281250120560f5d496cc13b14c0"></a>
 but operating on bit rowwise quantized matrices with fused uint8 tensor obtained with&#160;</td><td class="memItemRight" valign="bottom"><b>operator FloatToFused8BitRowwiseQuantized&quot;) .Input</b> (1,&quot;INDICES&quot;,&quot;Integer vector containing indices of the first &quot;&quot;dimension of DATA for the slices that are being aggregated&quot;).Input(2</td></tr>
 <tr class="separator:a11f2a281250120560f5d496cc13b14c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9150,12 +9170,15 @@ and then scaling each element to an bit number between and To later de quantize&
 <tr class="memitem:abfddc6c3e9720eb694c857749deb64a2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abfddc6c3e9720eb694c857749deb64a2"></a>
 followed by the bias as a bit float in the next&#160;</td><td class="memItemRight" valign="bottom"><b>bytes</b></td></tr>
 <tr class="separator:abfddc6c3e9720eb694c857749deb64a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3af7ef273440bbbc5b84a1cfd0194e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3af7ef273440bbbc5b84a1cfd0194e3"></a>
-followed by the bias as a bit float in the next followed by the quantized values in the remaining bytes of the row The output is a matrix containing only the but de quantized De quantization is performed by multiplying each value by its row s scale and bias parameters The de quantized values will thus not be exactly equal to the&#160;</td><td class="memItemRight" valign="bottom"><b>original</b></td></tr>
-<tr class="separator:ae3af7ef273440bbbc5b84a1cfd0194e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a96a1b8db013eea3f08fc707e26c5470e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96a1b8db013eea3f08fc707e26c5470e"></a>
-followed by the bias as a bit float in the next followed by the quantized values in the remaining bytes of the row The output is a matrix containing only the but de quantized De quantization is performed by multiplying each value by its row s scale and bias parameters The de quantized values will thus not be exactly equal to the un quantized floating <a class="el" href="structpoint.html">point</a> values DOC&#160;</td><td class="memItemRight" valign="bottom"><b>float_input</b></td></tr>
-<tr class="separator:a96a1b8db013eea3f08fc707e26c5470e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdaa1a8b69205d13e0eda1ec90db6569"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acdaa1a8b69205d13e0eda1ec90db6569"></a>
+followed by the bias as a bit float in the next and the quantized values in the preceding bytes of the row The output is a matrix containing only the but de quantized De quantization is performed by multiplying each value by its row s scale and bias parameters The de quantized values will thus not be exactly equal to the&#160;</td><td class="memItemRight" valign="bottom"><b>original</b></td></tr>
+<tr class="separator:acdaa1a8b69205d13e0eda1ec90db6569"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb6b07879f028da4a9ae9d43ebe1d343"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb6b07879f028da4a9ae9d43ebe1d343"></a>
+followed by the bias as a bit float in the next and the quantized values in the preceding bytes of the row The output is a matrix containing only the but de quantized De quantization is performed by multiplying each value by its row s scale and bias parameters The de quantized values will thus not be exactly equal to the un quantized floating <a class="el" href="structpoint.html">point</a> values DOC&#160;</td><td class="memItemRight" valign="bottom"><b>float_input</b></td></tr>
+<tr class="separator:acb6b07879f028da4a9ae9d43ebe1d343"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d15ce97d784d0f058e0e4e8918a096b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9d15ce97d784d0f058e0e4e8918a096b"></a>
+but operating on bit rowwise quantized matrices with fused uint8 tensor with rank obtained with&#160;</td><td class="memItemRight" valign="bottom"><b>OUTPUT</b></td></tr>
+<tr class="separator:a9d15ce97d784d0f058e0e4e8918a096b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f6983994631763a3136899aae48027a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0f6983994631763a3136899aae48027a"></a>
 in a sequence length aware fashion&#160;</td><td class="memItemRight" valign="bottom"><b>Concretely</b></td></tr>
 <tr class="separator:a0f6983994631763a3136899aae48027a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10998,7 +11021,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Mar 9 2018 13:03:42 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Mar 10 2018 13:03:49 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

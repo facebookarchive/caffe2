@@ -28,7 +28,7 @@ var searchData=
   ['reset',['reset',['../classcaffe2_1_1python_1_1dataio_1_1_reader.html#a3e24214ecea0850be812df3296b3796b',1,'caffe2::python::dataio::Reader']]],
   ['resnet',['resnet',['../namespaceresnet.html',1,'']]],
   ['resnetbuilder',['ResNetBuilder',['../classcaffe2_1_1python_1_1models_1_1resnet_1_1_res_net_builder.html',1,'caffe2::python::models::resnet']]],
-  ['reversepfp16initializer',['ReversepFP16Initializer',['../classcaffe2_1_1python_1_1modeling_1_1initializers_1_1_reversep_f_p16_initializer.html',1,'caffe2::python::modeling::initializers']]],
+  ['reversepseudofp16initializer',['ReversePseudoFP16Initializer',['../classcaffe2_1_1python_1_1modeling_1_1initializers_1_1_reverse_pseudo_f_p16_initializer.html',1,'caffe2::python::modeling::initializers']]],
   ['rmspropoptimizer',['RmsPropOptimizer',['../classcaffe2_1_1python_1_1optimizer_1_1_rms_prop_optimizer.html',1,'caffe2::python::optimizer']]],
   ['rnn_5fcell',['rnn_cell',['../namespacernn__cell.html',1,'']]],
   ['rnncell',['RNNCell',['../classcaffe2_1_1python_1_1rnn__cell_1_1_r_n_n_cell.html',1,'caffe2::python::rnn_cell']]],

@@ -1,6 +1,7 @@
 var searchData=
 [
   ['gatherbykeyop',['GatherByKeyOp',['../classcaffe2_1_1_gather_by_key_op.html',1,'caffe2']]],
+  ['gatherfused8bitrowwiseop',['GatherFused8BitRowwiseOp',['../classcaffe2_1_1_gather_fused8_bit_rowwise_op.html',1,'caffe2']]],
   ['gatherop',['GatherOp',['../classcaffe2_1_1_gather_op.html',1,'caffe2']]],
   ['gatherpaddingop',['GatherPaddingOp',['../classcaffe2_1_1_gather_padding_op.html',1,'caffe2']]],
   ['gatherrangesop',['GatherRangesOp',['../classcaffe2_1_1_gather_ranges_op.html',1,'caffe2']]],

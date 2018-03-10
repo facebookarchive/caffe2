@@ -1,6 +1,7 @@
 var searchData=
 [
   ['gatherbykeyop',['GatherByKeyOp',['../classcaffe2_1_1_gather_by_key_op.html',1,'caffe2']]],
+  ['gatherfused8bitrowwiseop',['GatherFused8BitRowwiseOp',['../classcaffe2_1_1_gather_fused8_bit_rowwise_op.html',1,'caffe2']]],
   ['gatherop',['GatherOp',['../classcaffe2_1_1_gather_op.html',1,'caffe2']]],
   ['gatherpaddingop',['GatherPaddingOp',['../classcaffe2_1_1_gather_padding_op.html',1,'caffe2']]],
   ['gatherrangesop',['GatherRangesOp',['../classcaffe2_1_1_gather_ranges_op.html',1,'caffe2']]],
@@ -129,8 +130,8 @@ var searchData=
   ['glaveragepoolop',['GLAveragePoolOp',['../classcaffe2_1_1_g_l_average_pool_op.html',1,'caffe2']]],
   ['glconcat',['GLConcat',['../class_g_l_concat.html',1,'']]],
   ['glconcatop',['GLConcatOp',['../classcaffe2_1_1_g_l_concat_op.html',1,'caffe2']]],
-  ['glcontext',['GLContext',['../class_g_l_context.html',1,'']]],
   ['glcontext',['GLContext',['../classcaffe2_1_1_g_l_context.html',1,'caffe2']]],
+  ['glcontext',['GLContext',['../class_g_l_context.html',1,'']]],
   ['glconvolution',['GLConvolution',['../class_g_l_convolution.html',1,'']]],
   ['glconvop',['GLConvOp',['../classcaffe2_1_1_g_l_conv_op.html',1,'caffe2']]],
   ['glfilter',['GLFilter',['../class_g_l_filter.html',1,'GLFilter'],['../class_g_l_filter.html#a568160a4205e7dcfb458ee7b84fd0bc6',1,'GLFilter::GLFilter()']]],

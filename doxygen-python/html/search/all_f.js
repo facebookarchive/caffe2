@@ -9,7 +9,6 @@ var searchData=
   ['parser',['parser',['../namespaceparser.html',1,'']]],
   ['parser',['Parser',['../classparser_1_1_parser.html',1,'parser']]],
   ['patchvisualizer',['PatchVisualizer',['../classcaffe2_1_1python_1_1visualize_1_1_patch_visualizer.html',1,'caffe2::python::visualize']]],
-  ['pfp16initializer',['pFP16Initializer',['../classcaffe2_1_1python_1_1modeling_1_1initializers_1_1p_f_p16_initializer.html',1,'caffe2::python::modeling::initializers']]],
   ['pipe',['Pipe',['../classcaffe2_1_1python_1_1dataio_1_1_pipe.html',1,'caffe2::python::dataio']]],
   ['pipedreaderbuilder',['PipedReaderBuilder',['../classcaffe2_1_1python_1_1dataio_1_1_piped_reader_builder.html',1,'caffe2::python::dataio']]],
   ['pipeline',['pipeline',['../namespacepipeline.html',1,'']]],
@@ -26,5 +25,6 @@ var searchData=
   ['prepare_5finput',['prepare_input',['../classcaffe2_1_1python_1_1rnn__cell_1_1_r_n_n_cell.html#afffe344f800408f1337f28c19b19bddc',1,'caffe2::python::rnn_cell::RNNCell']]],
   ['printer',['Printer',['../classcaffe2_1_1python_1_1net__printer_1_1_printer.html',1,'caffe2::python::net_printer']]],
   ['processingreader',['ProcessingReader',['../classcaffe2_1_1python_1_1pipeline_1_1_processing_reader.html',1,'caffe2::python::pipeline']]],
+  ['pseudofp16initializer',['PseudoFP16Initializer',['../classcaffe2_1_1python_1_1modeling_1_1initializers_1_1_pseudo_f_p16_initializer.html',1,'caffe2::python::modeling::initializers']]],
   ['python',['Python',['../classcaffe2_1_1python_1_1core_1_1_net.html#a8a94d8a37f8450ed870839668f76f40f',1,'caffe2::python::core::Net']]]
 ];
