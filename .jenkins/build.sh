@@ -72,6 +72,10 @@ if [[ "${BUILD_ENVIRONMENT}" == py3* ]]; then
   CMAKE_ARGS+=("-DPYTHON_EXECUTABLE=${PYTHON}")
 fi
 
+# Build with -werror for sanity
+CMAKE_ARGS+=("-DCMAKE_C_FLAGS=-Werror")
+CMAKE_ARGS+=("-DCMAKE_CXX_FLAGS=-Werror")
+
 case "${BUILD_ENVIRONMENT}" in
   *-mkl*)
     CMAKE_ARGS+=("-DBLAS=MKL")

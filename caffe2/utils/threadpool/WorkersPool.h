@@ -54,7 +54,8 @@ struct AllocAligned {
 #elif defined(_MSC_VER)
     p = _aligned_malloc(sizeof(T), kGEMMLOWPCacheLineSize);
 #else
-    posix_memalign((void**)&p, kGEMMLOWPCacheLineSize, sizeof(T));
+    int rv = posix_memalign((void**)&p, kGEMMLOWPCacheLineSize, sizeof(T));
+    CAFFE_ENFORCE_EQ(rv, 0, "posix_memalign: ", strerror(errno));
 #endif
 
     if (p) {
