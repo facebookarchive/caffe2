@@ -48,6 +48,11 @@ cd $BUILD_ROOT
 
 CMAKE_ARGS=()
 
+# If Ninja is installed, prefer it to Make
+if [ -x "$(command -v ninja)" ]; then
+  CMAKE_ARGS+=("-GNinja")
+fi
+
 # Use locally built protoc because we'll build libprotobuf for the
 # target architecture and need an exact version match.
 CMAKE_ARGS+=("-DCAFFE2_CUSTOM_PROTOC_EXECUTABLE=$CAFFE2_ROOT/build_host_protoc/bin/protoc")
@@ -77,6 +82,7 @@ fi
 
 # Android specific flags
 CMAKE_ARGS+=("-DANDROID_NDK=$ANDROID_NDK")
+CMAKE_ARGS+=("-DANDROID_ABI=armeabi-v7a with NEON")
 CMAKE_ARGS+=("-DANDROID_NATIVE_API_LEVEL=21")
 CMAKE_ARGS+=("-DANDROID_CPP_FEATURES=rtti exceptions")
 # TODO: As the toolchain file doesn't support NEON-FP16 extension,

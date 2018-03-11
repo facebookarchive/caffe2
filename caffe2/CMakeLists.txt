@@ -78,6 +78,7 @@ install(FILES ${PROJECT_BINARY_DIR}/caffe2/core/macros.h
 
 # Compile exposed libraries.
 add_library(caffe2 ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
+add_dependencies(caffe2 Caffe_PROTO Caffe2_PROTO)
 target_link_libraries(caffe2 PUBLIC ${Caffe2_PUBLIC_DEPENDENCY_LIBS})
 target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_LIBS})
 target_include_directories(caffe2 INTERFACE $<INSTALL_INTERFACE:include>)
@@ -102,7 +103,6 @@ if(USE_CUDA)
 
   target_include_directories(
       caffe2_gpu INTERFACE $<INSTALL_INTERFACE:include>)
-  add_dependencies(caffe2_gpu Caffe2_PROTO)
   target_link_libraries(
       caffe2_gpu PUBLIC caffe2 ${Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS})
   target_link_libraries(
@@ -126,11 +126,9 @@ if (BUILD_TEST)
     # libraries even if they are not part of the public dependency libs. As a
     # result, we will explicitly link the test against the Caffe2 dependency
     # libs.
-    target_link_libraries(${test_name} ${Caffe2_MAIN_LIBS})
-    target_link_libraries(${test_name} gtest_main)
-    target_link_libraries(${test_name} ${Caffe2_DEPENDENCY_LIBS})
+    target_link_libraries(${test_name} ${Caffe2_MAIN_LIBS} gtest_main)
     if (USE_CUDA)
-      target_link_libraries(${test_name} ${Caffe2_CUDA_DEPENDENCY_LIBS})   
+      target_link_libraries(${test_name} ${Caffe2_CUDA_DEPENDENCY_LIBS})
     endif()
     if (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
       target_compile_features(${test_name} PRIVATE cxx_range_for)
@@ -230,7 +228,7 @@ if (BUILD_PYTHON)
   file(GLOB_RECURSE PYTHON_SRCS RELATIVE ${PROJECT_SOURCE_DIR}
        "${PROJECT_SOURCE_DIR}/caffe2/*.py")
   add_custom_target(python_copy_files ALL)
-  if(MSVC AND CMAKE_GENERATOR MATCHES "Ninja")
+  if(MSVC OR CMAKE_GENERATOR MATCHES "Ninja")
     # ninja fails when the command line is too long so we split
     # the target into several. This would be beneficial for VS also
     # since it build targets in parallel but not custom commands
@@ -265,15 +263,7 @@ if (BUILD_PYTHON)
           FILES_MATCHING PATTERN "*.py")
 endif()
 
+# Finally, set the Caffe2_MAIN_LIBS variable in the parent scope.
+set(Caffe2_MAIN_LIBS ${Caffe2_MAIN_LIBS} PARENT_SCOPE)
 
-# ---[ Any builds that should happen after the main targets should be added here.
-# Binaries
-if (BUILD_BINARY)
-  add_subdirectory(binaries)
-  # Benchmarking binaries require observers included in the build
-  # There is a linking issue that happens in some of the Windows builds.
-  # TODO(Yangqing): after the module redesign, enable this back.
-  if (BUILD_OBSERVERS AND NOT MSVC)
-    add_subdirectory(share/contrib/binaries)
-  endif()
-endif()
+

@@ -25,7 +25,7 @@ import numpy as np
 from caffe2.python import brew, core, workspace, cnn, optimizer
 from caffe2.proto import caffe2_pb2
 from caffe2.python.modeling.initializers import (
-        Initializer, pFP16Initializer)
+    Initializer, PseudoFP16Initializer)
 
 from caffe2.python.model_helper import ModelHelper
 
@@ -41,13 +41,14 @@ class OptimizerTestBase(object):
         perfect_model = np.array([2, 6, 5, 0, 1]).astype(np.float32)
         np.random.seed(123)  # make test deterministic
         numpy_dtype = np.float32 if dtype == core.DataType.FLOAT else np.float16
-        initializer = Initializer if dtype == core.DataType.FLOAT else pFP16Initializer
+        initializer = Initializer if dtype == core.DataType.FLOAT else \
+            PseudoFP16Initializer
         data = np.random.randint(
             2,
             size=(20, perfect_model.size)).astype(numpy_dtype)
         label = np.dot(data, perfect_model)[:, np.newaxis]
 
-        model = ModelHelper(name="test", arg_scope={'order':'NCHW'})
+        model = ModelHelper(name="test", arg_scope={'order': 'NCHW'})
         out = brew.fc(
             model,
             'data', 'fc', perfect_model.size, 1, ('ConstantFill', {}),
@@ -109,7 +110,6 @@ class OptimizerTestBase(object):
         workspace.RunNetOnce(model.param_init_net)
         workspace.CreateNet(model.net, True)
         workspace.RunNet(model.net.Proto().name)
-
 
     def testSparse(self):
         # to test duplicated indices we assign two indices to each weight and

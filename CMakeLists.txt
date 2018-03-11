@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 #cmake_policy(SET CMP0022 NEW)
 #cmake_policy(SET CMP0023 NEW)
 
@@ -32,7 +32,6 @@ option(BUILD_SHARED_LIBS "Build libcaffe2.so" ON)
 cmake_dependent_option(
     CAFFE2_USE_MSVC_STATIC_RUNTIME "Using MSVC static runtime libraries" ON
     "NOT BUILD_SHARED_LIBS" OFF)
-option(BUILD_OBSERVERS "Build performance observers/loggers in caffe2/share/observers directory" OFF)
 option(BUILD_TEST "Build C++ test binaries (need gtest and gbenchmark)" ON)
 option(USE_ACL "Use ARM Compute Library" OFF)
 option(USE_ASAN "Use Address Sanitizer" OFF)
@@ -53,7 +52,8 @@ option(USE_NCCL "Use NCCL" ON)
 option(USE_NERVANA_GPU "Use Nervana GPU backend" OFF)
 option(USE_NNAPI "Use NNAPI" OFF)
 option(USE_NNPACK "Use NNPACK" ON)
-option(USE_OBSERVERS "Use Observer Library" OFF)
+option(USE_NUMA "Use NUMA (only available on Linux)" ON)
+option(USE_OBSERVERS "Use observers module." OFF)
 option(USE_OPENCV "Use openCV" ON)
 option(USE_OPENMP "Use OpenMP for parallel code" OFF)
 option(USE_PROF "Use profiling" OFF)
@@ -110,9 +110,10 @@ if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8.0
 endif()
 
 # ---[ Build flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
 if(NOT MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -fPIC")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -fPIC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
   # Eigen fails to build with some versions, so convert this to a warning
   # Details at http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1459
@@ -132,6 +133,14 @@ else()
     endif()
     set(${flag_var} "${${flag_var}} /MP /bigobj")
   endforeach(flag_var)
+endif()
+
+if(ANDROID)
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
+  else()
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
+  endif()
 endif()
 
 if(NOT APPLE AND UNIX)
@@ -245,6 +254,7 @@ if (BUILD_SHARED_LIBS)
       ${PROJECT_SOURCE_DIR}/cmake/public/glog.cmake
       ${PROJECT_SOURCE_DIR}/cmake/public/gflags.cmake
       ${PROJECT_SOURCE_DIR}/cmake/public/protobuf.cmake
+      ${PROJECT_SOURCE_DIR}/cmake/public/threads.cmake
       ${PROJECT_SOURCE_DIR}/cmake/public/utils.cmake
       DESTINATION share/cmake/Caffe2/public
       COMPONENT dev)
@@ -259,6 +269,16 @@ endif()
 
 # ---[ Modules
 add_subdirectory(modules)
+
+# ---[ Binaries
+# Binaries will be built after the Caffe2 main libraries and the modules
+# are built. For the binaries, they will be linked to the Caffe2 main
+# libraries, as well as all the modules that are built with Caffe2 (the ones
+# built in the previous Modules section above).
+
+if (BUILD_BINARY)
+  add_subdirectory(binaries)
+endif()
 
 include(cmake/Summary.cmake)
 caffe2_print_configuration_summary()
