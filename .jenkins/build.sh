@@ -53,6 +53,11 @@ fi
 if [[ "${BUILD_ENVIRONMENT}" == conda* ]]; then
   conda create -yn testenv
   source activate testenv
+
+  # click (required by onnx) wants these set
+  export LANG=C.UTF-8
+  export LC_ALL=C.UTF-8
+
   # SKIP_CONDA_TESTS refers to only the 'test' section of the meta.yaml
   export SKIP_CONDA_TESTS=1
   export CONDA_INSTALL_LOCALLY=1
