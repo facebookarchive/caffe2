@@ -34,7 +34,6 @@
 #include "caffe2/onnx/backend.h"
 #include "caffe2/utils/cpuid.h"
 #include "caffe2/utils/string_utils.h"
-#include "caffe2/utils/workspace_utils.h"
 #include "google/protobuf/io/coded_stream.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 
@@ -1383,7 +1382,7 @@ void addGlobalMethods(py::module& m) {
           if (args.empty()) {
             return onnx_caffe2::DummyName::NewDummyName();
           } else {
-            return onnx_caffe2::DummyName::Reset(args);
+            return "";
           }
         });
 

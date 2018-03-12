@@ -9,15 +9,15 @@ class DummyName {
   public:
     static std::string NewDummyName();
 
-    static std::string Reset(const std::unordered_set<std::string>& used_names);
+    static void Reset(const std::unordered_set<std::string>& used_names);
 
     static void AddName(const std::string& new_used) {
-      used_names_.insert(new_used);
+      get_used_names().insert(new_used);
     }
 
    private:
-    static std::unordered_set<std::string> used_names_;
-    static size_t counter_;
+     static std::unordered_set<std::string>& get_used_names();
+     static size_t counter_;
 };
 
 }

@@ -223,7 +223,7 @@ class Caffe2Backend(Backend):
 
             ops = []
             cbackend = C.Caffe2Backend()
-            ops_str = cbackend.convert_node(node.SerializeToString(), opset_version or cls._known_opset_version)
+            ops_str = cbackend.convert_node(node.SerializeToString(), opset_version)
             for s in ops_str:
                 op = caffe2_pb2.OperatorDef()
                 op.ParseFromString(s)
@@ -1021,7 +1021,7 @@ class Caffe2Backend(Backend):
         # Build the C++ backend
         # TODO: build a predictor that supports GPU
         #       And for RNN nets, we need to avoid adding init_net
-        if device == 'CPU' and len(rnn_nodes) == 0:
+        if device == 'CPU' and not rnn_nodes:
             c2_rnn_ops = []
             if rnn_nodes:
                 init_model = ModelProto()

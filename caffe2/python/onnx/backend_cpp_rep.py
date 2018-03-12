@@ -22,7 +22,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from onnx.backend.base import BackendRep, namedtupledict
-import caffe2.python._import_c_extension as C
 
 # This is a wrapper around C++ Caffe2BackendRep,
 # mainly to handle the different input and output types for convenience of Python

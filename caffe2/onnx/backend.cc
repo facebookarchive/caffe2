@@ -3,7 +3,6 @@
 #include "helper.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/core/operator.h"
-#include "caffe2/utils/workspace_utils.h"
 #include "onnx/optimizer/optimize.h"
 #include "onnx/defs/schema.h"
 #include "onnx/checker.h"
