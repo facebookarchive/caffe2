@@ -28,6 +28,14 @@ else
   LIB_SUFFIX='.so'
 fi
 
+# Some packages, such as libprotobuf, do not have an additional 'lib' prepended
+# to them when they are installed
+if [[ $PKG_NAME == lib* ]]; then
+  PKG_INSTALLED_LIB="${PKG_NAME}${LIB_SUFFIX}"
+else
+  PKG_INSTALLED_LIB="lib${PKG_NAME}${LIB_SUFFIX}"
+fi
+
 # Split the output from conda search into an array, one line per package (plus
 # the header)
 conda_search_packages=()
@@ -122,7 +130,7 @@ for pkg in "${conda_search_packages[@]:2}"; do
   conda install -y "$PKG_SPEC" --quiet $CONDA_CHANNEL > $CONDA_INSTALL_LOG 2>&1
   if [ $? -eq 0 ]; then
 
-    MENTIONS_CXX11="$(nm "$CONDA_ROOT/lib/lib${PKG_NAME}${LIB_SUFFIX}" | grep cxx11 | wc -l)"
+    MENTIONS_CXX11="$(nm "$CONDA_ROOT/lib/$PKG_INSTALLED_LIB" | grep cxx11 | wc -l)"
     if [ $MENTIONS_CXX11 -gt 0 ]; then
       echo "  This package is built against the recent gcc ABI ($MENTIONS_CXX11 mentions of cxx11)"
     fi
