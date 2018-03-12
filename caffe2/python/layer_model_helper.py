@@ -349,6 +349,10 @@ class LayerModelHelper(model_helper.ModelHelper):
     def seed(self):
         return self._seed
 
+    @property
+    def sequence_seed(self):
+        return self._sequence_seed
+
     def store_seed(self, seed, sequence_seed=True):
         # Store seed config that will be applied to each op in the net.
         self._seed = seed
