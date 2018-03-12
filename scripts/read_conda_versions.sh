@@ -3,6 +3,8 @@
 
 if [ -z "$CONDA_ROOT" ]; then
   echo "Please set CONDA_ROOT so that I know where to search for conda libraries"
+  echo "I expect CONDA_ROOT to be the path to the current conda environment."
+  echo "Also FYI I will probably mess up the current conda environment."
   exit 1
 fi
 
@@ -21,20 +23,43 @@ fi
 # TODO use this
 PACKAGES_OF_INTEREST=( libgcc-ng libprotobuf numpy )
 
-# We only care about shared/dynamic libraries
-if [[ "$(uname)" == 'Darwin' ]]; then
-  LIB_SUFFIX='.dylib'
-else
-  LIB_SUFFIX='.so'
+# We will run `conda install` and `conda uninstall` a lot, but we don't want
+# this very noisy output to clutter the user experience
+VERBOSE_LOG='read_conda_versions.log'
+echo "Conda install/uninstall log for $PKG_NAME" > $VERBOSE_LOG
+
+
+
+#
+# Build up the name of the installed library to call `nm` on
+#
+PKG_INSTALLED_LIB="$PKG_NAME"
+
+# opencv installs a bunch of libraries. We'll just check libopencv_core
+if [[ $PKG_NAME == opencv ]]; then
+  PKG_INSTALLED_LIB="${PKG_INSTALLED_LIB}_core"
 fi
 
-# Some packages, such as libprotobuf, do not have an additional 'lib' prepended
-# to them when they are installed
-if [[ $PKG_NAME == lib* ]]; then
-  PKG_INSTALLED_LIB="${PKG_NAME}${LIB_SUFFIX}"
-else
-  PKG_INSTALLED_LIB="lib${PKG_NAME}${LIB_SUFFIX}"
+# Most packages prepend a 'lib' to the package name, but libprotobuf is an
+# exception
+if [[ $PKG_NAME != lib* ]]; then
+  PKG_INSTALLED_LIB="lib${PKG_INSTALLED_LIB}"
 fi
+
+# The shared library suffix differs on macOS an Linux
+if [[ "$(uname)" == Darwin ]]; then
+  PKG_INSTALLED_LIB="${PKG_INSTALLED_LIB}.dylib"
+else
+  PKG_INSTALLED_LIB="${PKG_INSTALLED_LIB}.so"
+fi
+echo "Determined the library name of $PKG_NAME to be $PKG_INSTALLED_LIB"
+echo "Determined the library name of $PKG_NAME to be $PKG_INSTALLED_LIB" >> $VERBOSE_LOG
+
+
+
+#
+# Get all available packages with conda-search
+#
 
 # Split the output from conda search into an array, one line per package (plus
 # the header)
@@ -57,7 +82,8 @@ while read -r line; do conda_search_packages+=("$line"); done <<< "$(conda searc
 ###                              3.5.1            py36h0a44026_0  defaults
 ##
 ### Typical `conda info` output looks like
-###   protobuf 3.5.1 py36h0a44026_0 #     -----------------------------
+###   protobuf 3.5.1 py36h0a44026_0
+###     -----------------------------
 ###   file name   : protobuf-3.5.1-py36h0a44026_0.tar.bz2
 ###   name        : protobuf
 ###   version     : 3.5.1
@@ -87,16 +113,16 @@ for pkg in "${conda_search_packages[@]:2}"; do
 done
 
 
-# Redirect all `conda install` and `conda uninstall` output to a separate file
-# cause it's so noisy
-CONDA_INSTALL_LOG='OUT_read_conda_versions.txt'
-echo "Conda install/uninstall log for $PKG_NAME" > $CONDA_INSTALL_LOG
 
-# Look up each package in conda info
+#
+# Look up each package in conda info, then install it and search the exported
+# symbols for signs of cxx11
+#
 for pkg in "${conda_search_packages[@]:2}"; do
+  echo "Processing $pkg" >> $VERBOSE_LOG
 
   # Split each line into an array and build the package specification
-  # <package_name on 1st line only>  maj.min.patch  build_string  channel_name
+  # <package_name (1st line only)>  maj.min.patch  build_string  channel_name
   line_parts=( $pkg )
   if [[ ${line_parts[0]} == $PKG_NAME ]]; then
     # First line of output
@@ -111,30 +137,42 @@ for pkg in "${conda_search_packages[@]:2}"; do
   # Output current pkg spec
   echo
   echo "${PKG_SPEC}:"
+  echo "Determined that the package spec is $PKG_SPEC" >> $VERBOSE_LOG
 
   # Split the output of conda_info into an array of lines
   pkg_dependencies=()
   while read -r line; do pkg_dependencies+=("$line"); done <<< "$(conda info "$PKG_SPEC" $CONDA_CHANNEL)"
 
   # List all the listed dependencies in `conda info`
-  echo "  Listed dependencies:"
-  for pkg_dependency in "${pkg_dependencies[@]:20}"; do
-    echo "    $PKG_SPEC is $pkg_dependency"
-  done
+  if [ "${#pkg_dependencies[@]}" -gt 19 ]; then
+    echo "  Listed dependencies:"
+    echo "  Listed dependencies:" >> $VERBOSE_LOG
+    for pkg_dependency in "${pkg_dependencies[@]:20}"; do
+      echo "    $pkg_dependency"
+      echo "    $pkg_dependency" >> $VERBOSE_LOG
+    done
+  else
+    echo "  No listed dependencies in conda-info" >> $VERBOSE_LOG
+  fi
 
   # But sometimes (a lot of the time) the gcc with which a package was built
   # against is not listed in dependencies. So we try to figure it out manually
   # We install this exact package, and then grep the exported symbols for signs
   # of cxx11
-  conda uninstall -y "$PKG_NAME" --quiet > $CONDA_INSTALL_LOG 2>&1
-  conda install -y "$PKG_SPEC" --quiet $CONDA_CHANNEL > $CONDA_INSTALL_LOG 2>&1
+  echo "Calling conda-uninstall on $PKG_NAME" >> $VERBOSE_LOG
+  conda uninstall -y "$PKG_NAME" --quiet >> $VERBOSE_LOG 2>&1
+  echo "Calling conda-install on $PKG_SPEC" >> $VERBOSE_LOG
+  conda install -y "$PKG_SPEC" --quiet $CONDA_CHANNEL >> $VERBOSE_LOG 2>&1
   if [ $? -eq 0 ]; then
+    # Only grep the exported symbols if the library was installed correctly
 
     MENTIONS_CXX11="$(nm "$CONDA_ROOT/lib/$PKG_INSTALLED_LIB" | grep cxx11 | wc -l)"
     if [ $MENTIONS_CXX11 -gt 0 ]; then
       echo "  This package is built against the recent gcc ABI ($MENTIONS_CXX11 mentions of cxx11)"
+      echo "$CONDA_ROOT/lib/$PKG_INSTALLED_LIB mentions cxx11 $MENTIONS_CXX11 times" >> $VERBOSE_LOG
     fi
   else
     echo "Error installing $PKG_SPEC , continuing"
+    echo "Error installing $PKG_SPEC , continuing" >> $VERBOSE_LOG
   fi
 done
