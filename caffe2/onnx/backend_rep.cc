@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-namespace onnx_caffe2 {
+namespace caffe2 { namespace onnx {
 
 void Caffe2BackendRep::CheckInit() {
   if (!predictor_) {
@@ -28,4 +28,4 @@ void Caffe2BackendRep::RunMap(
   predictor_->run_map(inputs, outputs);
 }
 
-} // namespace onnx_caffe2
+}}

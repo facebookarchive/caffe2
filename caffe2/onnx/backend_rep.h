@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace onnx_caffe2 {
+namespace caffe2 { namespace onnx {
 class Caffe2BackendRep {
  public:
   void Run(
@@ -45,4 +45,4 @@ class Caffe2BackendRep {
   std::vector<std::string> uninitialized_inputs_;
   std::unique_ptr<caffe2::Predictor> predictor_{nullptr};
 };
-} // namespace onnx_caffe2
+}}

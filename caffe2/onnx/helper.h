@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_set>
 
-namespace onnx_caffe2 {
+namespace caffe2 { namespace onnx {
 class DummyName {
   public:
     static std::string NewDummyName();
@@ -20,4 +20,4 @@ class DummyName {
      static size_t counter_;
 };
 
-}
+}}

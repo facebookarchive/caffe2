@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace onnx_caffe2 {
+namespace caffe2 { namespace onnx {
 
 using ONNX_NAMESPACE::AttributeProto;
 using ONNX_NAMESPACE::NodeProto;
@@ -218,4 +218,4 @@ class Caffe2Backend {
   get_special_operators() const;
 };
 
-} // namespace onnx_caffe2
+}}

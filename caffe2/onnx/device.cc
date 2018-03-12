@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <unordered_map>
 
-namespace onnx_caffe2 {
+namespace caffe2 { namespace onnx {
 static const std::unordered_map<std::string, DeviceType> kDeviceMap = {
   {"CPU", DeviceType::CPU},
   {"CUDA", DeviceType::CUDA}
@@ -14,6 +14,5 @@ Device::Device(const std::string &spec) {
   type = kDeviceMap.at(spec.substr(0, pos - 1));
   device_id = atoi(spec.substr(pos + 1).c_str());
 }
-}
-
+}}
 

@@ -17,9 +17,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace onnx_caffe2 {
+namespace caffe2 { namespace onnx {
 
-namespace detail {
+namespace {
 
 constexpr static int kKnownOpsetVersion = 4;
 
@@ -171,9 +171,7 @@ void CopyOnnxAttrValueToCaffe2Arg(
         caffe2::MakeString("Unsupported ONNX attribute: ", attr.name()));
   }
 }
-} // namespace detail
-
-using namespace onnx_caffe2::detail;
+} // namespace
 
 OnnxAttributes::OnnxAttributes(const NodeProto &node) {
   for(const auto& attr: node.attribute()) {
@@ -1206,4 +1204,4 @@ void Caffe2Backend::BuildTensorFillingOp(caffe2::OperatorDef *c2_op,
   c2_op->add_output(fill_name);
 }
 
-}
+}}

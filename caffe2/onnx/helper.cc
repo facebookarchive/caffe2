@@ -3,7 +3,7 @@
 #include "caffe2/core/logging.h"
 #include "caffe2/core/operator.h"
 
-namespace onnx_caffe2 {
+namespace caffe2 { namespace onnx  {
 
 size_t DummyName::counter_ = 0;
 
@@ -28,4 +28,4 @@ void DummyName::Reset(const std::unordered_set<std::string> &used_names) {
   counter_ = 0;
 }
 
-}
+}}

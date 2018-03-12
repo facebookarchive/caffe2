@@ -613,11 +613,11 @@ void addObjectMethods(py::module& m) {
       .def_property_readonly("description", &OpSchema::Argument::description)
       .def_property_readonly("required", &OpSchema::Argument::is_required);
 
-  py::class_<onnx_caffe2::Caffe2Ops>(m, "Caffe2Ops")
+  py::class_<caffe2::onnx::Caffe2Ops>(m, "Caffe2Ops")
       .def(py::init([](const std::vector<py::bytes>& init_ops,
                        const std::vector<py::bytes>& ops,
                        const std::vector<std::string>& interface_blobs) {
-        auto* c2ops = new onnx_caffe2::Caffe2Ops();
+        auto* c2ops = new caffe2::onnx::Caffe2Ops();
         for (const auto& s : init_ops) {
           ParseProtobufFromLargeString(
               s.cast<std::string>(), c2ops->init_ops.Add());
@@ -632,11 +632,11 @@ void addObjectMethods(py::module& m) {
         return c2ops;
       }));
 
-  py::class_<onnx_caffe2::Caffe2BackendRep>(m, "Caffe2BackenRep")
+  py::class_<caffe2::onnx::Caffe2BackendRep>(m, "Caffe2BackenRep")
       .def(py::init<>())
       .def(
           "init_net",
-          [](onnx_caffe2::Caffe2BackendRep& instance) {
+          [](caffe2::onnx::Caffe2BackendRep& instance) {
             const auto& init_net = instance.init_net();
             std::string out;
             init_net.SerializeToString(&out);
@@ -645,7 +645,7 @@ void addObjectMethods(py::module& m) {
 
       .def(
           "pred_net",
-          [](onnx_caffe2::Caffe2BackendRep& instance) {
+          [](caffe2::onnx::Caffe2BackendRep& instance) {
             const auto& pred_net = instance.pred_net();
             std::string out;
             pred_net.SerializeToString(&out);
@@ -653,7 +653,7 @@ void addObjectMethods(py::module& m) {
           })
       .def(
           "external_outputs",
-          [](onnx_caffe2::Caffe2BackendRep& instance) {
+          [](caffe2::onnx::Caffe2BackendRep& instance) {
             std::vector<std::string> outputs;
             for (const auto& o : instance.pred_net().external_output()) {
               outputs.emplace_back(o);
@@ -662,7 +662,7 @@ void addObjectMethods(py::module& m) {
           })
       .def(
           "external_inputs",
-          [](onnx_caffe2::Caffe2BackendRep& instance) {
+          [](caffe2::onnx::Caffe2BackendRep& instance) {
             std::vector<std::string> inputs;
             for (const auto& o : instance.pred_net().external_input()) {
               inputs.emplace_back(o);
@@ -671,12 +671,12 @@ void addObjectMethods(py::module& m) {
           })
       .def(
           "uninitialized_inputs",
-          [](onnx_caffe2::Caffe2BackendRep& instance) {
+          [](caffe2::onnx::Caffe2BackendRep& instance) {
             return instance.uninitialized_inputs();
           })
       .def(
           "run",
-          [](onnx_caffe2::Caffe2BackendRep& instance,
+          [](caffe2::onnx::Caffe2BackendRep& instance,
              std::map<std::string, py::object> inputs)
               -> std::vector<py::object> {
             Predictor::TensorMap tensors;
@@ -706,7 +706,7 @@ void addObjectMethods(py::module& m) {
           })
       .def(
           "run",
-          [](onnx_caffe2::Caffe2BackendRep& instance,
+          [](caffe2::onnx::Caffe2BackendRep& instance,
              std::vector<py::object> inputs)
               -> std::vector<py::object> {
             Predictor::TensorVector tensors;
@@ -732,18 +732,18 @@ void addObjectMethods(py::module& m) {
             return pyout;
           });
 
-  py::class_<onnx_caffe2::Caffe2Backend>(m, "Caffe2Backend")
+  py::class_<caffe2::onnx::Caffe2Backend>(m, "Caffe2Backend")
       .def(py::init<>())
       .def("prepare",
-           [](onnx_caffe2::Caffe2Backend &instance,
+           [](caffe2::onnx::Caffe2Backend &instance,
               const py::bytes &onnx_model_str, const std::string &device,
-              const std::vector<onnx_caffe2::Caffe2Ops> &extras) {
+              const std::vector<caffe2::onnx::Caffe2Ops> &extras) {
              auto *rep = instance.Prepare(onnx_model_str.cast<std::string>(),
                                           device, extras);
              return rep;
            })
       .def("convert_node",
-           [](onnx_caffe2::Caffe2Backend &instance, const py::bytes &node_str,
+           [](caffe2::onnx::Caffe2Backend &instance, const py::bytes &node_str,
               int opset_version) -> std::vector<py::bytes> {
              auto c2ops = instance.ConvertNode(node_str.cast<std::string>(),
                                                opset_version);
@@ -1380,7 +1380,7 @@ void addGlobalMethods(py::module& m) {
   m.def("make_dummy",
         [](const std::unordered_set<std::string> &args) -> std::string {
           if (args.empty()) {
-            return onnx_caffe2::DummyName::NewDummyName();
+            return caffe2::onnx::DummyName::NewDummyName();
           } else {
             return "";
           }
