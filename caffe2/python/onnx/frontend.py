@@ -583,11 +583,10 @@ class Caffe2Frontend(object):
 
     @classmethod
     def caffe2_net_to_onnx_model(cls, *args, **kwargs):
-        model = make_model(cls.caffe2_net_to_onnx_graph(*args, **kwargs))
         opset_id = OperatorSetIdProto()
         opset_id.domain = ''  # ONNX
         opset_id.version = cls._target_opset_version
-        model.opset_import.extend([opset_id])
+        model = make_model(cls.caffe2_net_to_onnx_graph(*args, **kwargs), opset_imports=[opset_id])
         checker.check_model(model)
         return model
 
