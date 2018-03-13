@@ -51,7 +51,7 @@ class Caffe2Frontend(object):
     # ONNX makes a BC breaking change to semantics of operators, having this set
     # to an accurate number will prevent our models form exporting.  However,
     # we should strive to keep this up-to-date as much as possible.
-    _target_opset_version = 3
+    target_opset_version = 3
 
     _renamed_operators = {
         'SpatialBN': 'BatchNormalization',
@@ -585,7 +585,7 @@ class Caffe2Frontend(object):
     def caffe2_net_to_onnx_model(cls, *args, **kwargs):
         opset_id = OperatorSetIdProto()
         opset_id.domain = ''  # ONNX default domain
-        opset_id.version = cls._target_opset_version
+        opset_id.version = cls.target_opset_version
         model = make_model(cls.caffe2_net_to_onnx_graph(*args, **kwargs), opset_imports=[opset_id])
         checker.check_model(model)
         return model

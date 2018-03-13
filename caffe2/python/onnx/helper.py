@@ -58,10 +58,12 @@ dummy_name = _DummyNameFactory.dummy_name
 
 def make_model(graph, **kwargs):
     kwargs.setdefault('producer_name', 'onnx-caffe2')
-    opset_id = OperatorSetIdProto()
-    opset_id.domain = ''  # ONNX default domain
-    opset_id.version = 1
-    kwargs.setdefault('opset_imports', [opset_id])
+    if 'opset_imports' not in kwargs:
+        from caffe2.python.onnx.frontend import Caffe2Frontend
+        opset_id = OperatorSetIdProto()
+        opset_id.domain = ''  # ONNX default domain
+        opset_id.version = Caffe2Frontend.target_opset_version
+        kwargs['opset_imports'] = [opset_id]
     return helper.make_model(graph=graph, **kwargs)
 
 
