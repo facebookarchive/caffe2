@@ -58,7 +58,10 @@
 # In[1]:
 
 
-from __future__ import print_function,division,absolute_import,unicode_literals
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 from caffe2.proto import caffe2_pb2
 import numpy as np
 import skimage.io
@@ -79,7 +82,7 @@ print("Required modules imported.")
 
 
 # Configuration --- Change to your setup and preferences!
-# This directory should contain the models downloaded from the modelzoo. To run this 
+# This directory should contain the models downloaded from the model zoo. To run this 
 #   tutorial, make sure there is a 'squeezenet' directory at this location that 
 #   contains both the 'init_net.pb' and 'predict_net.pb'
 CAFFE_MODELS = "~/caffe2/caffe2/python/models"

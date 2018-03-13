@@ -18,7 +18,7 @@
 # 
 # $$y = \beta_2x^2 + \beta_1x + \beta_0$$
 # 
-# For this tutorial, we will generate and format an arbitrary set of input data that posses a strong second order polynomial relationship. We will then construct the model, specify the training algorithm, perform the training, and finally look at the results.
+# For this tutorial, we will generate and format an arbitrary set of input data that possess a strong second order polynomial relationship. We will then construct the model, specify the training algorithm, perform the training, and finally look at the results.
 
 # In[1]:
 
