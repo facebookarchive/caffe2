@@ -21,7 +21,7 @@ if [[ "$BUILD_ENVIRONMENT" == conda* ]]; then
   # docker image
   # The name for 'testenv' comes from .jenkins/build.sh, which activates that
   # env before installing with conda
-  PYTHON="/opt/conda/bin/python"
+  PYTHON="/opt/conda/envs/testenv/bin/python"
   INSTALL_PREFIX="/opt/conda/envs/testenv"
   source activate testenv
 fi

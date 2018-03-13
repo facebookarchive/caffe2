@@ -121,15 +121,18 @@ if [[ "$(uname)" != 'Darwin' ]]; then
       add_package 'numpy' '>1.11'
     fi
 
+    # These calls won't work since
+    #  - these package requirements can't be put in meta.yaml (no support yet)
+    #  - if they're put here then they won't be installed at test or install
+    #      time
     # glog 0.3.5=0 is built against old ABI, but 0.3.5=hf484d3e_1 is not
-    # "Note that pip requirements are not supported in conda-build meta.yaml"
-    remove_package 'glog'
-    conda install -y 'glog=0.3.5=hf484d3e_1'
+    #remove_package 'glog'
+    #conda install -y 'glog=0.3.5=hf484d3e_1'
 
     # leveldb=1.20 is built against old ABI, but 1.20=hf484d3e_1 is built
     # against the new one
-    remove_package 'leveldb'
-    conda install -y 'leveldb=1.20=hf484d3e_1'
+    #remove_package 'leveldb'
+    #conda install -y 'leveldb=1.20=hf484d3e_1'
   fi
 fi
 

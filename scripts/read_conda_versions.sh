@@ -160,9 +160,12 @@ for pkg in "${conda_search_packages[@]:2}"; do
   # We install this exact package, and then grep the exported symbols for signs
   # of cxx11
   echo "Calling conda-uninstall on $PKG_NAME" >> $VERBOSE_LOG
+  echo "conda uninstall -y $PKG_NAME --quiet" >> $VERBOSE_LOG
   conda uninstall -y "$PKG_NAME" --quiet >> $VERBOSE_LOG 2>&1
+
   echo "Calling conda-install on $PKG_SPEC" >> $VERBOSE_LOG
-  conda install -y "$PKG_SPEC" --quiet $CONDA_CHANNEL >> $VERBOSE_LOG 2>&1
+  echo "conda install -y $PKG_SPEC --quiet --no-deps $CONDA_CHANNEL" >> $VERBOSE_LOG
+  conda install -y "$PKG_SPEC" --quiet --no-deps $CONDA_CHANNEL >> $VERBOSE_LOG 2>&1
   if [ $? -eq 0 ]; then
     # Only grep the exported symbols if the library was installed correctly
 
