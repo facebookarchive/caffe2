@@ -18,6 +18,9 @@
 
 namespace caffe2 {
 
+// For a Tensor X of n dimensions (dims[0], ..., dims[ndim-1]), given index
+// is converted to corresponding n-dimensional index, e.g. for X.shape = (2,
+// 3, 4) the linear index 12 maps to 3-dimensional index (1, 0, 0).
 vector<TIndex> ConvertFromInputIndex(TIndex index, vector<TIndex>& dims) {
   TIndex ndim = dims.size();
   vector<TIndex> nd_idx(ndim);
@@ -29,45 +32,44 @@ vector<TIndex> ConvertFromInputIndex(TIndex index, vector<TIndex>& dims) {
   return nd_idx;
 }
 
+// For given n-dimensional index (nd_idx[0], ..., nd_idx[dims.size()-1]) and
+// reduction axes, map the n-dimensional index to the corresponding linear
+// index in the reduced tensor.
 TIndex ConvertToOutputIndex(
     const vector<int>& axes,
     const vector<TIndex>& nd_idx,
     vector<TIndex>& dims) {
   TIndex index = 0;
-  TIndex mul = 1;
-
+  TIndex multiplier = 1;
   for (TIndex i = dims.size() - 1, j = axes.size() - 1; i >= 0; i--) {
     if (j >= 0 && axes[j] == i) {
       j--;
     } else {
-      index += nd_idx[i] * mul;
-      mul *= dims[i];
+      index += nd_idx[i] * multiplier;
+      multiplier *= dims[i];
     }
   }
   return index;
 }
 
+template <typename T>
+inline T Add(T x, T y) {
+  return (x + y);
+}
+
 template <typename T, class Context>
-void ComputeSum(
+void ComputeOp(
     const T* X_data,
     const TIndex X_size,
     vector<TIndex>& dims,
     T* Y_data,
     vector<int>& axes,
-    int keepdims) {
-  for (TIndex X_idx = 0; X_idx < X_size; X_idx++) {
-    vector<TIndex> nd_idx = ConvertFromInputIndex(X_idx, dims);
-    TIndex Y_idx = ConvertToOutputIndex(axes, nd_idx, dims);
-    Y_data[Y_idx] += X_data[X_idx];
-  }
-
-  for (TIndex id = axes.size() - 1; id >= 0; id--) {
-    TIndex reduced_axis = axes[id];
-    if (keepdims) {
-      dims[reduced_axis] = 1;
-    } else {
-      dims.erase(dims.begin() + reduced_axis);
-    }
+    int keepdims,
+    T (*binary_op)(T, T)) {
+  for (TIndex x_idx = 0; x_idx < X_size; x_idx++) {
+    vector<TIndex> nd_idx = ConvertFromInputIndex(x_idx, dims);
+    TIndex y_idx = ConvertToOutputIndex(axes, nd_idx, dims);
+    Y_data[y_idx] = binary_op(Y_data[y_idx], X_data[x_idx]);
   }
 }
 
@@ -77,11 +79,11 @@ bool ReduceSumOp<T, Context>::Compute(
     const TIndex X_size,
     vector<TIndex>& dims,
     T* Y_data,
+    const TIndex Y_size,
     vector<int>& axes,
     int keepdims) {
-  math::Set<T, Context>(X_size, 0.f, Y_data, &context_);
-  ComputeSum<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims);
-  Output(0)->Resize(dims);
+  math::Set<T, Context>(Y_size, 0.f, Y_data, &context_);
+  ComputeOp<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims, Add);
   return true;
 }
 
@@ -91,12 +93,11 @@ bool ReduceMeanOp<T, Context>::Compute(
     const TIndex X_size,
     vector<TIndex>& dims,
     T* Y_data,
+    const TIndex Y_size,
     vector<int>& axes,
     int keepdims) {
-  math::Set<T, Context>(X_size, 0.f, Y_data, &context_);
-  ComputeSum<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims);
-  Output(0)->Resize(dims);
-  TIndex Y_size = Output(0)->size();
+  math::Set<T, Context>(Y_size, 0.f, Y_data, &context_);
+  ComputeOp<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims, Add);
   math::Scale(
       Y_size, static_cast<T>(Y_size) / X_size, Y_data, Y_data, &context_);
 

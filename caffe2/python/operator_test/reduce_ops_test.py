@@ -29,23 +29,6 @@ import itertools as it
 
 
 class TestReduceOps(hu.HypothesisTestCase):
-
-    def reduce_op_test(self, op_name, op_ref, data, axes, keepdims, device):
-        op = core.CreateOperator(
-            op_name,
-            ["data"],
-            ["Y"],
-            axes=axes,
-            keepdims=keepdims,
-        )
-
-        self.assertReferenceChecks(
-            device, op, [data],
-            functools.partial(
-                op_ref, axis=axes, keepdims=keepdims
-            )
-        )
-
     @given(
         d0=st.integers(1, 5),
         d1=st.integers(1, 5),
@@ -53,29 +36,41 @@ class TestReduceOps(hu.HypothesisTestCase):
         d3=st.integers(1, 5),
         keepdims=st.integers(0, 1),
         seed=st.integers(0, 2**32 - 1),
-        **hu.gcs_cpu_only
-    )
+        **hu.gcs_cpu_only)
     def test_reduce_sum_mean(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
-        np.random.seed(seed)
-
         def reduce_mean_ref(data, axis, keepdims):
             return [np.mean(data, axis=axis, keepdims=keepdims)]
 
         def reduce_sum_ref(data, axis, keepdims):
             return [np.sum(data, axis=axis, keepdims=keepdims)]
 
+        def reduce_op_test(op_name, op_ref, data, axes, keepdims, device):
+            op = core.CreateOperator(
+                op_name,
+                ["data"],
+                ["Y"],
+                axes=axes,
+                keepdims=keepdims,
+            )
+
+            self.assertReferenceChecks(device, op, [data],
+                                       functools.partial(
+                                           op_ref,
+                                           axis=axes,
+                                           keepdims=keepdims))
+
+        np.random.seed(seed)
         for axes in it.combinations(range(4), 2):
             data = np.random.randn(d0, d1, d2, d3).astype(np.float32)
-            self.reduce_op_test(
-                "ReduceMean", reduce_mean_ref, data, axes, keepdims, gc
-            )
-            self.reduce_op_test(
-                "ReduceSum", reduce_sum_ref, data, axes, keepdims, gc
-            )
+
+            reduce_op_test("ReduceMean", reduce_mean_ref, data, axes, keepdims,
+                           gc)
+
+            reduce_op_test("ReduceSum", reduce_sum_ref, data, axes, keepdims,
+                           gc)
 
 
 class TestReduceFrontReductions(hu.HypothesisTestCase):
-
     def grad_variant_input_test(self, grad_op_name, X, ref, num_reduce_dim):
         workspace.ResetWorkspace()
 
@@ -88,18 +83,11 @@ class TestReduceFrontReductions(hu.HypothesisTestCase):
         workspace.FeedBlob("shape", shape)
 
         grad_op = core.CreateOperator(
-            grad_op_name,
-            ["dY", "X"],
-            ["dX"],
-            num_reduce_dim=num_reduce_dim
-        )
+            grad_op_name, ["dY", "X"], ["dX"], num_reduce_dim=num_reduce_dim)
 
         grad_op1 = core.CreateOperator(
-            grad_op_name,
-            ["dY", "shape"],
-            ["dX1"],
-            num_reduce_dim=num_reduce_dim
-        )
+            grad_op_name, ["dY", "shape"], ["dX1"],
+            num_reduce_dim=num_reduce_dim)
 
         workspace.RunOperatorOnce(grad_op)
         workspace.RunOperatorOnce(grad_op1)
@@ -344,3 +332,4 @@ class TestReduceFrontReductions(hu.HypothesisTestCase):
         self.reduce_op_test(
             "ReduceBackMean", ref_mean, [X, lengths], ["input", "lengths"],
             num_reduce_dim, gc)
+

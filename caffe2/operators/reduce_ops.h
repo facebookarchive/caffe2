@@ -53,13 +53,26 @@ class ReduceOpBase : public Operator<Context> {
 
     auto& X = Input(0);
     auto* Y = Output(0);
-    Y->ResizeLike(X);
+
+    vector<TIndex> y_dims = X.dims();
+    TIndex Y_size = X.size();
+    for (TIndex id = axes_.size() - 1; id >= 0; id--) {
+      TIndex reduced_axis = axes_[id];
+      Y_size /= y_dims[reduced_axis];
+      if (keepdims_) {
+        y_dims[reduced_axis] = 1;
+      } else {
+        y_dims.erase(y_dims.begin() + reduced_axis);
+      }
+    }
+    Y->Resize(y_dims);
 
     return this->Compute(
         X.template data<T>(),
         X.size(),
         const_cast<vector<TIndex>&>(X.dims()),
         Y->template mutable_data<T>(),
+        Y_size,
         axes_,
         keepdims_);
   }
@@ -70,6 +83,7 @@ class ReduceOpBase : public Operator<Context> {
       const TIndex X_size,
       vector<TIndex>& dims,
       T* Y_data,
+      const TIndex Y_size,
       vector<int>& axes,
       int keepdims) = 0;
 
@@ -92,6 +106,7 @@ class ReduceSumOp : public ReduceOpBase<T, Context> {
       const TIndex X_size,
       vector<TIndex>& dims,
       T* Y_data,
+      const TIndex Y_size,
       vector<int>& axes,
       int keepdims) override;
 };
@@ -110,6 +125,7 @@ class ReduceMeanOp : public ReduceOpBase<T, Context> {
       const TIndex X_size,
       vector<TIndex>& dims,
       T* Y_data,
+      const TIndex Y_size,
       vector<int>& axes,
       int keepdims) override;
 };
