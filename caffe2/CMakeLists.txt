@@ -18,6 +18,7 @@ add_subdirectory(mkl)
 add_subdirectory(mobile)
 add_subdirectory(mpi)
 add_subdirectory(observers)
+add_subdirectory(onnx)
 add_subdirectory(operators)
 add_subdirectory(perfkernels)
 add_subdirectory(python)
@@ -78,8 +79,10 @@ install(FILES ${PROJECT_BINARY_DIR}/caffe2/core/macros.h
 
 # Compile exposed libraries.
 add_library(caffe2 ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
+add_dependencies(caffe2 Caffe_PROTO Caffe2_PROTO)
 target_link_libraries(caffe2 PUBLIC ${Caffe2_PUBLIC_DEPENDENCY_LIBS})
 target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_LIBS})
+target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_WHOLE_LINK_LIBS})
 target_include_directories(caffe2 INTERFACE $<INSTALL_INTERFACE:include>)
 target_compile_options(caffe2 INTERFACE "-std=c++11")
 target_compile_options(caffe2 PRIVATE "-DCAFFE2_BUILD_MAIN_LIB")
@@ -227,7 +230,7 @@ if (BUILD_PYTHON)
   file(GLOB_RECURSE PYTHON_SRCS RELATIVE ${PROJECT_SOURCE_DIR}
        "${PROJECT_SOURCE_DIR}/caffe2/*.py")
   add_custom_target(python_copy_files ALL)
-  if(MSVC AND CMAKE_GENERATOR MATCHES "Ninja")
+  if(MSVC OR CMAKE_GENERATOR MATCHES "Ninja")
     # ninja fails when the command line is too long so we split
     # the target into several. This would be beneficial for VS also
     # since it build targets in parallel but not custom commands
@@ -262,15 +265,7 @@ if (BUILD_PYTHON)
           FILES_MATCHING PATTERN "*.py")
 endif()
 
+# Finally, set the Caffe2_MAIN_LIBS variable in the parent scope.
+set(Caffe2_MAIN_LIBS ${Caffe2_MAIN_LIBS} PARENT_SCOPE)
 
-# ---[ Any builds that should happen after the main targets should be added here.
-# Binaries
-if (BUILD_BINARY)
-  add_subdirectory(binaries)
-  # Benchmarking binaries require observers included in the build
-  # There is a linking issue that happens in some of the Windows builds.
-  # TODO(Yangqing): after the module redesign, enable this back.
-  if (BUILD_OBSERVERS AND NOT MSVC)
-    add_subdirectory(share/contrib/binaries)
-  endif()
-endif()
+

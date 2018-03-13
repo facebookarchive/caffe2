@@ -31,7 +31,7 @@ from caffe2.python import timeout_guard, model_helper, brew
 from caffe2.proto import caffe2_pb2
 
 import caffe2.python.models.resnet as resnet
-from caffe2.python.modeling.initializers import Initializer, pFP16Initializer
+from caffe2.python.modeling.initializers import Initializer, PseudoFP16Initializer
 import caffe2.python.predictor.predictor_exporter as pred_exp
 import caffe2.python.predictor.predictor_py_utils as pred_utils
 from caffe2.python.predictor_constants import predictor_constants as predictor_constants
@@ -340,7 +340,7 @@ def Train(args):
 
     # Model building functions
     def create_resnet50_model_ops(model, loss_scale):
-        initializer = (pFP16Initializer if args.dtype == 'float16'
+        initializer = (PseudoFP16Initializer if args.dtype == 'float16'
                        else Initializer)
 
         with brew.arg_scope([brew.conv, brew.fc],
@@ -614,7 +614,7 @@ def main():
                         help='Data type used for training')
     parser.add_argument('--float16_compute', action='store_true',
                         help="Use float 16 compute, if available")
-    parser.add_argument('--enable-tensor-core', action='store_true',
+    parser.add_argument('--enable_tensor_core', action='store_true',
                         help='Enable Tensor Core math for Conv and FC ops')
     parser.add_argument("--distributed_transport", type=str, default="tcp",
                         help="Transport to use for distributed run [tcp|ibverbs]")

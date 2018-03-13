@@ -3,8 +3,8 @@ include("cmake/ProtoBuf.cmake")
 
 # ---[ Threads
 if(USE_THREADS)
-  find_package(Threads REQUIRED)
-  list(APPEND Caffe2_DEPENDENCY_LIBS ${CMAKE_THREAD_LIBS_INIT})
+  include(cmake/public/threads.cmake)
+  list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS Threads::Threads)
 endif()
 
 # ---[ protobuf
@@ -60,6 +60,12 @@ else()
   message(FATAL_ERROR "Unrecognized blas option:" ${BLAS})
 endif()
 
+# Directory where NNPACK and cpuinfo will download and build all dependencies
+set(CONFU_DEPENDENCIES_SOURCE_DIR ${PROJECT_BINARY_DIR}/confu-srcs
+  CACHE PATH "Confu-style dependencies source directory")
+set(CONFU_DEPENDENCIES_BINARY_DIR ${PROJECT_BINARY_DIR}/confu-deps
+  CACHE PATH "Confu-style dependencies binary directory")
+
 # ---[ NNPACK
 if(USE_NNPACK)
   include("cmake/External/nnpack.cmake")
@@ -77,21 +83,25 @@ if(USE_NNPACK)
   endif()
 endif()
 
-if(USE_OBSERVERS)
-  list(APPEND Caffe2_DEPENDENCY_LIBS Caffe2_CPU_OBSERVER)
-endif()
-
-# ---[ On Android, Caffe2 uses cpufeatures library in the thread pool
-if (ANDROID)
-  if (NOT TARGET cpufeatures)
-    add_library(cpufeatures STATIC
-        "${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c")
-    target_include_directories(cpufeatures
-        PUBLIC "${ANDROID_NDK}/sources/android/cpufeatures")
-    target_link_libraries(cpufeatures PUBLIC dl)
+# ---[ Caffe2 uses cpuinfo library in the thread pool
+if (NOT TARGET cpuinfo)
+  if (NOT DEFINED CPUINFO_SOURCE_DIR)
+    set(CPUINFO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/third_party/cpuinfo" CACHE STRING "cpuinfo source directory")
   endif()
-  list(APPEND Caffe2_DEPENDENCY_LIBS cpufeatures)
+
+  set(CPUINFO_BUILD_TOOLS OFF CACHE BOOL "")
+  set(CPUINFO_BUILD_UNIT_TESTS OFF CACHE BOOL "")
+  set(CPUINFO_BUILD_MOCK_TESTS OFF CACHE BOOL "")
+  set(CPUINFO_BUILD_BENCHMARKS OFF CACHE BOOL "")
+  set(CPUINFO_LIBRARY_TYPE "static" CACHE STRING "")
+  add_subdirectory(
+    "${CPUINFO_SOURCE_DIR}"
+    "${CONFU_DEPENDENCIES_BINARY_DIR}/cpuinfo")
+  # We build static version of cpuinfo but link
+  # them into a shared library for Caffe2, so they need PIC.
+  set_property(TARGET cpuinfo PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()
+list(APPEND Caffe2_DEPENDENCY_LIBS cpuinfo)
 
 # ---[ gflags
 if(USE_GFLAGS)
@@ -178,6 +188,23 @@ if(USE_LEVELDB)
   else()
     message(WARNING "Not compiling with LevelDB. Suppress this warning with -DUSE_LEVELDB=OFF")
     set(USE_LEVELDB OFF)
+  endif()
+endif()
+
+# ---[ NUMA
+if(USE_NUMA)
+  if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    message(WARNING "NUMA is currently only supported under Linux.")
+    set(USE_NUMA OFF)
+  else()
+    find_package(Numa)
+    if(NUMA_FOUND)
+      include_directories(${Numa_INCLUDE_DIR})
+      list(APPEND Caffe2_DEPENDENCY_LIBS ${Numa_LIBRARIES})
+    else()
+      message(WARNING "Not compiling with NUMA. Suppress this warning with -DUSE_NUMA=OFF")
+      set(USE_NUMA OFF)
+    endif()
   endif()
 endif()
 
@@ -526,3 +553,21 @@ if (USE_ZSTD)
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/zstd/build/cmake)
   set_property(TARGET libzstd_static PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()
+
+# ---[ Onnx
+SET(ONNX_NAMESPACE "onnx_c2")
+if(EXISTS "${CAFFE2_CUSTOM_PROTOC_EXECUTABLE}")
+  set(ONNX_CUSTOM_PROTOC_EXECUTABLE ${CAFFE2_CUSTOM_PROTOC_EXECUTABLE})
+endif()
+set(TEMP_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+# We will build onnx as static libs and embed it directly into the binary.
+set(BUILD_SHARED_LIBS OFF)
+set(ONNX_USE_MSVC_STATIC_RUNTIME ${CAFFE2_USE_MSVC_STATIC_RUNTIME})
+add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/onnx)
+include_directories(${ONNX_INCLUDE_DIRS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DONNX_NAMESPACE=${ONNX_NAMESPACE}")
+caffe2_interface_library(onnx onnx_library)
+list(APPEND Caffe2_DEPENDENCY_WHOLE_LINK_LIBS onnx_library)
+# Recover the build shared libs option.
+set(BUILD_SHARED_LIBS ${TEMP_BUILD_SHARED_LIBS})
+

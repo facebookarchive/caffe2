@@ -135,10 +135,15 @@ class SparseLookup(ModelLayer):
     def get_fp16_compatible_parameters(self):
         return [self.w]
 
-    def get_8bits_compatible_parameters(self, fused=True):
+    def support_8bit(self):
         # Rowwise quantization makes sense only if shape it's 2D matrix with
         # second dimension >= 8
         if len(self.shape) != 2 or self.shape[1] < 8:
+            return False
+        return True
+
+    def get_8bits_compatible_parameters(self, fused=True):
+        if not self.support_8bit():
             return []
         if fused:
             RowwiseQuantized8BitsWeight = collections.namedtuple(
@@ -189,13 +194,12 @@ class SparseLookup(ModelLayer):
         layer_name = 'SparseLengths' + reducer
 
         if version in ['fp32', 'fp16']:
-            # SparseLengths* Ops with engine='fp16' will accept either
-            # fp16 or fp32 embedding matrix and output fp32 pooled embedding
+            # SparseLengths* Ops will accept either fp16 or fp32 embedding
+            # matrix and output fp32 pooled embedding
             net.__getattr__(layer_name)(
                 op_input,
                 self.output_schema.field_blobs(),
                 grad_on_weights=grad_on_weights,
-                engine='fp16',
             )
         elif version == 'uint8rowwise':
             op_input.insert(len(op_input), self.scale_bias)
@@ -228,12 +232,11 @@ class SparseLookup(ModelLayer):
 
             layer_name = 'SparseLengths' + self.reducer
             if version in ['fp32', 'fp16']:
-                # SparseLengths* Ops with engine='fp16' will accept either
-                # fp16 or fp32 embedding matrix and output fp32 pooled embedding
+                # SparseLengths* Ops will accept either fp16 or fp32 embedding
+                # matrix and output fp32 pooled embedding
                 net.__getattr__(layer_name)(
                     op_input,
                     self.output_schema.field_blobs(),
-                    engine='fp16',
                 )
             elif version == 'uint8rowwise':
                 op_input.insert(len(op_input), self.scale_bias)
@@ -273,7 +276,6 @@ class SparseLookup(ModelLayer):
             net.__getattr__('SortedSegmentRange' + self.reducer)(
                 [table_rows, segment_ids],
                 self.output_schema.field_blobs(),
-                engine='fp16',
             )
 
     # deal with sparse features of id_score_list type
@@ -298,7 +300,6 @@ class SparseLookup(ModelLayer):
                 net.__getattr__(layer_name)(
                     op_input,
                     self.output_schema.field_blobs(),
-                    engine='fp16',
                 )
             elif version == 'uint8rowwise':
                 net.__getattr__(layer_name + '8BitsRowwise')(
@@ -330,6 +331,12 @@ class SparseLookup(ModelLayer):
         version = get_sparse_lookup_predictor_version(
             **cur_scope.get(get_sparse_lookup_predictor_version.__name__,
                             {'version': 'fp32'}))
+
+        # TODO(amalevich): Layer should not be responsible for decision about
+        # quantization.
+        if not self.support_8bit() and version in {'uint8rowwise',
+                                                   'fused_uint8rowwise'}:
+            version = 'fp32'
 
         if _is_id_list(self.input_record):
             self._add_ops_id_list(net, version=version)
