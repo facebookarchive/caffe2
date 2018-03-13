@@ -23,6 +23,11 @@
 # In[1]:
 
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import skimage
 import skimage.io as io
 import skimage.transform 
@@ -36,7 +41,7 @@ print("Required modules imported.")
 
 # ## Test an Image
 # 
-# In the code block below use IMAGE_LOCATION to load what you would like to test. Just change the comment flags to go through each round of the Tutorial. In this way, you'll get to see what happens with a variety of image formats and some tips on how you might preprocess them. If you want to try your own image, drop it in the images folder or use a remote URL. When you pick a remote URL, make it easy on yourself and try to find a URL that points to a common image file type and extension versus some long identifier or query string which might just break this next step.
+# In the code block below use `IMAGE_LOCATION` to load what you would like to test. Just change the comment flags to go through each round of the Tutorial. In this way, you'll get to see what happens with a variety of image formats and some tips on how you might preprocess them. If you want to try your own image, drop it in the images folder or use a remote URL. When you pick a remote URL, make it easy on yourself and try to find a URL that points to a common image file type and extension versus some long identifier or query string which might just break this next step.
 # 
 # ## Color Issues
 # 
@@ -102,7 +107,7 @@ pyplot.title('OpenCV, Caffe2 = BGR')
 # 
 # You may ask why! And the reason points to cuDNN which is what helps accelerate processing on GPUs. It uses only CHW, and we'll sum it up by saying it is faster. 
 # 
-# Give these two transformations, you might think that's enough, but it isn't. We still need to resize and/or crop and potentially look at things like orientation (rotation) and mirroring.
+# Given these two transformations, you might think that's enough, but it isn't. We still need to resize and/or crop and potentially look at things like orientation (rotation) and mirroring.
 # 
 # ## Rotation and Mirroring
 # 
@@ -170,7 +175,7 @@ pyplot.title('Mirror image')
 
 
 # Run me to rotate the image 90 degrees
-imgRotated = np.rot90(imgRotated)
+imgRotated = np.rot90(imgRotated, 3)
 pyplot.figure()
 pyplot.imshow(imgRotated)
 pyplot.axis('off')
@@ -187,16 +192,23 @@ pyplot.title('Rotated image')
 
 
 # Model is expecting 224 x 224, so resize/crop needed.
-# Here are the steps we use to preprocess the image.
-# (1) Resize the image to 256*256, and crop out the center.
+# First, let's resize the image to 256*256
+orig_h, orig_w, _ = img.shape
+print("Original image's shape is {}x{}".format(orig_h, orig_w))
 input_height, input_width = 224, 224
-print("Model's input shape is %dx%d") % (input_height, input_width)
-#print("Original image is %dx%d") % (skimage.)
+print("Model's input shape is {}x{}".format(input_height, input_width))
 img256 = skimage.transform.resize(img, (256, 256))
-pyplot.figure()
-pyplot.imshow(img256)
-pyplot.axis('on')
-pyplot.title('Resized image to 256x256')
+
+# Plot original and resized images for comparison
+f, axarr = pyplot.subplots(1,2)
+axarr[0].imshow(img)
+axarr[0].set_title("Original Image (" + str(orig_h) + "x" + str(orig_w) + ")")
+axarr[0].axis('on')
+axarr[1].imshow(img256)
+axarr[1].axis('on')
+axarr[1].set_title('Resized image to 256x256')
+pyplot.tight_layout()
+
 print("New image shape:" + str(img256.shape))
 
 
@@ -217,7 +229,7 @@ print("New image shape:" + str(img256.shape))
 
 
 print("Original image shape:" + str(img.shape) + " and remember it should be in H, W, C!")
-print("Model's input shape is %dx%d") % (input_height, input_width)
+print("Model's input shape is {}x{}".format(input_height, input_width))
 aspect = img.shape[1]/float(img.shape[0])
 print("Orginal aspect ratio: " + str(aspect))
 if(aspect>1):
@@ -284,6 +296,8 @@ pyplot.imshow(imgScaledCenter)
 pyplot.axis('on')
 pyplot.title('Scaled')
 
+pyplot.tight_layout()
+
 
 # As you can see that didn't work out so well, except for maybe the last one. The middle one may be just fine too, but you won't know until you try on the model and test a lot of candidate images.
 # At this point we can look at the difference we have, split it in half and remove some pixels from each side. This does have a drawback, however, as an off-center subject of interest would get clipped.
@@ -307,9 +321,9 @@ pyplot.title('Scaled')
 
 imgTiny = "images/Cellsx128.png"
 imgTiny = skimage.img_as_float(skimage.io.imread(imgTiny)).astype(np.float32)
-print "Original image shape: ", imgTiny.shape
+print("Original image shape: ", imgTiny.shape)
 imgTiny224 = skimage.transform.resize(imgTiny, (224, 224))
-print "Upscaled image shape: ", imgTiny224.shape
+print("Upscaled image shape: ", imgTiny224.shape)
 # Plot original
 pyplot.figure()
 pyplot.subplot(1, 2, 1)
@@ -323,9 +337,9 @@ pyplot.axis('on')
 pyplot.title('224x224')
 
 
-# Great, it worked!. You can see in the shape outputs that you had (128, 128, 4) and you received (224, 224, 4). Wait a minute! 4? In every example so far the last value in shape has been 3! When we used a png file we entered a new reality; one where transparency is possible. This 4th value describes opacity, or transparency, depending if you're a half-glass-empty type. Anyway, we can handle it just fine, but keep an eye on that number.
+# Great, it worked!. You can see in the shape outputs that you had (128, 128, 4) and you received (224, 224, 4). Wait a minute! 4? In every example so far the last value in shape has been 3! When we used a png file we entered a new reality; one where transparency is possible. This 4th value describes opacity, or transparency, depending if you're a glass-half-empty type. Anyway, we can handle it just fine, but keep an eye on that number.
 # 
-# It's appropriate to put this discussion towards the end, but before we do further manipulations to the image, it's data order, and its overall payload. You can really mess up your data and the image if you do a simple resample on the image in its current format. Remember that it is currently a cube of data and that there's more going on in there right now than just Red, Green, and Blue (and opacity). Depending on when you decide to resize you'll have to account for that extra data.
+# It's important to know that before we do further manipulations to the image, it's data order, and its overall payload,  you can really mess up your data and the image if you do a simple resample on the image in its current format. Remember that it is currently a cube of data and that there's more going on in there right now than just Red, Green, and Blue (and opacity). Depending on when you decide to resize you'll have to account for that extra data.
 # 
 # Let's break stuff! Try upscaling the image after you've switched the image to CHW.
 
@@ -334,13 +348,13 @@ pyplot.title('224x224')
 
 imgTiny = "images/Cellsx128.png"
 imgTiny = skimage.img_as_float(skimage.io.imread(imgTiny)).astype(np.float32)
-print "Image shape before HWC --> CHW conversion: ", imgTiny.shape
+print("Image shape before HWC --> CHW conversion: ", imgTiny.shape)
 # swapping the axes to go from HWC to CHW
 # uncomment the next line and run this block!
 imgTiny = imgTiny.swapaxes(1, 2).swapaxes(0, 1)
-print "Image shape after HWC --> CHW conversion: ", imgTiny.shape
+print("Image shape after HWC --> CHW conversion: ", imgTiny.shape)
 imgTiny224 = skimage.transform.resize(imgTiny, (224, 224))
-print "Image shape after resize: ", imgTiny224.shape
+print("Image shape after resize: ", imgTiny224.shape)
 # we know this is going to go wrong, so...
 try:
     # Plot original
@@ -350,7 +364,7 @@ try:
     pyplot.axis('on')
     pyplot.title('128x128')
 except:
-    print "Here come bad things!"
+    print("Here come bad things!")
     # hands up if you want to see the error (uncomment next line)
     #raise 
 
@@ -380,9 +394,9 @@ pyplot.imshow(imgTinySlice)
 pyplot.axis('on')
 pyplot.title('128x56')
 # Upscale?
-print "Slice image shape: ", imgTinySlice.shape
+print("Slice image shape: ", imgTinySlice.shape)
 imgTiny224 = skimage.transform.resize(imgTinySlice, (224, 224))
-print "Upscaled slice image shape: ", imgTiny224.shape
+print("Upscaled slice image shape: ", imgTiny224.shape)
 # Plot upscaled
 pyplot.subplot(2, 2, 2)
 pyplot.imshow(imgTiny224)
@@ -403,31 +417,32 @@ pyplot.title('224x224')
 # In[12]:
 
 
-# this next line helps with being able to rerun this section
+# This next line helps with being able to rerun this section
 # if you want to try the outputs of the different crop strategies above
 # swap out imgScaled with img (original) or img256 (squeezed)
 imgCropped = crop_center(imgScaled,224,224)
-print "Image shape before HWC --> CHW conversion: ", imgCropped.shape
+print("Image shape before HWC --> CHW conversion: ", imgCropped.shape)
 # (1) Since Caffe expects CHW order and the current image is HWC,
 #     we will need to change the order.
 imgCropped = imgCropped.swapaxes(1, 2).swapaxes(0, 1)
-print "Image shape after HWC --> CHW conversion: ", imgCropped.shape
+print("Image shape after HWC --> CHW conversion: ", imgCropped.shape)
 
 pyplot.figure()
 for i in range(3):
     # For some reason, pyplot subplot follows Matlab's indexing
     # convention (starting with 1). Well, we'll just follow it...
     pyplot.subplot(1, 3, i+1)
-    pyplot.imshow(imgCropped[i])
+    pyplot.imshow(imgCropped[i], cmap=pyplot.cm.gray)
     pyplot.axis('off')
     pyplot.title('RGB channel %d' % (i+1))
 
 # (2) Caffe uses a BGR order due to legacy OpenCV issues, so we
 #     will change RGB to BGR.
 imgCropped = imgCropped[(2, 1, 0), :, :]
-print "Image shape after BGR conversion: ", imgCropped.shape
+print("Image shape after BGR conversion: ", imgCropped.shape)
+
 # for discussion later - not helpful at this point
-# (3) We will subtract the mean image. Note that skimage loads
+# (3) (Optional) We will subtract the mean image. Note that skimage loads
 #     image in the [0, 1] range so we multiply the pixel values
 #     first to get them into [0, 255].
 #mean_file = os.path.join(CAFFE_ROOT, 'python/caffe/imagenet/ilsvrc_2012_mean.npy')
@@ -439,15 +454,15 @@ for i in range(3):
     # For some reason, pyplot subplot follows Matlab's indexing
     # convention (starting with 1). Well, we'll just follow it...
     pyplot.subplot(1, 3, i+1)
-    pyplot.imshow(imgCropped[i])
+    pyplot.imshow(imgCropped[i], cmap=pyplot.cm.gray)
     pyplot.axis('off')
     pyplot.title('BGR channel %d' % (i+1))
-# (4) finally, since caffe2 expect the input to have a batch term
+# (4) Finally, since caffe2 expect the input to have a batch term
 #     so we can feed in multiple images, we will simply prepend a
 #     batch dimension of size 1. Also, we will make sure image is
 #     of type np.float32.
 imgCropped = imgCropped[np.newaxis, :, :, :].astype(np.float32)
-print 'Final input shape is:', imgCropped.shape
+print('Final input shape is:', imgCropped.shape)
 
 
 # In the output above you should note these alterations:
