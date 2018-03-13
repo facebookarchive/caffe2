@@ -25,6 +25,7 @@ var searchData=
   ['deserialize',['Deserialize',['../classcaffe2_1_1_blob.html#a77fd09388bb320062d332394be9b80cf',1,'caffe2::Blob']]],
   ['detachobserver',['DetachObserver',['../classcaffe2_1_1_observable.html#a8a7aa9d4c9479361db9928eff232979d',1,'caffe2::Observable']]],
   ['detailedexportedstat',['DetailedExportedStat',['../classcaffe2_1_1_detailed_exported_stat.html',1,'caffe2']]],
+  ['device',['Device',['../structcaffe2_1_1onnx_1_1_device.html',1,'caffe2::onnx']]],
   ['deviceguard',['DeviceGuard',['../classcaffe2_1_1_device_guard.html',1,'caffe2']]],
   ['deviceinferencefunctiontype',['DeviceInferenceFunctionType',['../classcaffe2_1_1_op_schema.html#a37f1a10889ea9b1f4c07ae647d1d1e56',1,'caffe2::OpSchema']]],
   ['devicequery',['DeviceQuery',['../namespacecaffe2.html#adc3575c7b3b60d12fd9323082093708d',1,'caffe2']]],
@@ -51,5 +52,6 @@ var searchData=
   ['dotproductwithpaddingop',['DotProductWithPaddingOp',['../classcaffe2_1_1_dot_product_with_padding_op.html',1,'caffe2']]],
   ['dropoutgradientop',['DropoutGradientOp',['../classcaffe2_1_1_dropout_gradient_op.html',1,'caffe2']]],
   ['dropoutop',['DropoutOp',['../classcaffe2_1_1_dropout_op.html',1,'caffe2']]],
-  ['dtor',['dtor',['../classcaffe2_1_1_type_meta.html#a1940d08ff9fe5b33c7d61228d851b125',1,'caffe2::TypeMeta']]]
+  ['dtor',['dtor',['../classcaffe2_1_1_type_meta.html#a1940d08ff9fe5b33c7d61228d851b125',1,'caffe2::TypeMeta']]],
+  ['dummyname',['DummyName',['../classcaffe2_1_1onnx_1_1_dummy_name.html',1,'caffe2::onnx']]]
 ];

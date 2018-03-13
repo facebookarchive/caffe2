@@ -115,9 +115,9 @@ Inheritance diagram for caffe2.python.optimizer.AdagradOptimizer:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a029cee1ff4b463e5615e3a717490ad07"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a029cee1ff4b463e5615e3a717490ad07"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, alpha=0.01, epsilon=1e-4, decay=1, policy=&quot;fixed&quot;, sparse_dedup_aggregator=None, rowWise=False, engine='', kwargs)</td></tr>
-<tr class="separator:a029cee1ff4b463e5615e3a717490ad07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af96c4a70470cee654fab3cc8b812377b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af96c4a70470cee654fab3cc8b812377b"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, alpha=0.01, epsilon=1e-4, decay=1, policy=&quot;fixed&quot;, sparse_dedup_aggregator=None, rowWise=False, engine='', lars=None, kwargs)</td></tr>
+<tr class="separator:af96c4a70470cee654fab3cc8b812377b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35e82188cb3ea2b2a405bca41bd79268"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35e82188cb3ea2b2a405bca41bd79268"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>scale_learning_rate</b> (self, scale)</td></tr>
 <tr class="separator:a35e82188cb3ea2b2a405bca41bd79268"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -165,15 +165,18 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ac52edfb82cc82e3a7be069d58b268868"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac52edfb82cc82e3a7be069d58b268868"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>sparse_dedup_aggregator</b></td></tr>
 <tr class="separator:ac52edfb82cc82e3a7be069d58b268868"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3fab8d69c79f51e5d11de7ebf8998eac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3fab8d69c79f51e5d11de7ebf8998eac"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>engine</b></td></tr>
-<tr class="separator:a3fab8d69c79f51e5d11de7ebf8998eac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a692fc1172df095d00f3bad88c4f73f29"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a692fc1172df095d00f3bad88c4f73f29"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>init_kwargs</b></td></tr>
-<tr class="separator:a692fc1172df095d00f3bad88c4f73f29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8243bb8e41e10eed3684cd8f2c760ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af8243bb8e41e10eed3684cd8f2c760ba"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>rowWise</b></td></tr>
 <tr class="separator:af8243bb8e41e10eed3684cd8f2c760ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3fab8d69c79f51e5d11de7ebf8998eac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3fab8d69c79f51e5d11de7ebf8998eac"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>engine</b></td></tr>
+<tr class="separator:a3fab8d69c79f51e5d11de7ebf8998eac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdf00d2bcd46220167c51033a6db2453"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acdf00d2bcd46220167c51033a6db2453"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>lars</b></td></tr>
+<tr class="separator:acdf00d2bcd46220167c51033a6db2453"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a692fc1172df095d00f3bad88c4f73f29"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a692fc1172df095d00f3bad88c4f73f29"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>init_kwargs</b></td></tr>
+<tr class="separator:a692fc1172df095d00f3bad88c4f73f29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -192,7 +195,7 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>dedup</b> (net, sparse
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 12 2018 13:03:45 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 13 2018 13:04:01 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

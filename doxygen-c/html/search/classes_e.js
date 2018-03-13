@@ -9,6 +9,8 @@ var searchData=
   ['observerconfig',['ObserverConfig',['../classcaffe2_1_1_observer_config.html',1,'caffe2']]],
   ['offsetalias',['OffsetAlias',['../structcaffe2_1_1detail_1_1_offset_alias.html',1,'caffe2::detail']]],
   ['onehotop',['OneHotOp',['../classcaffe2_1_1_one_hot_op.html',1,'caffe2']]],
+  ['onnxattributes',['OnnxAttributes',['../classcaffe2_1_1onnx_1_1_onnx_attributes.html',1,'caffe2::onnx']]],
+  ['onnxnode',['OnnxNode',['../structcaffe2_1_1onnx_1_1_onnx_node.html',1,'caffe2::onnx']]],
   ['onnxwhileop',['ONNXWhileOp',['../classcaffe2_1_1_o_n_n_x_while_op.html',1,'caffe2']]],
   ['opengladdop',['OpenGLAddOp',['../classcaffe2_1_1_open_g_l_add_op.html',1,'caffe2']]],
   ['openglconcatop',['OpenGLConcatOp',['../classcaffe2_1_1_open_g_l_concat_op.html',1,'caffe2']]],

@@ -1,10 +1,13 @@
 var searchData=
 [
   ['caffe2',['caffe2',['../namespacecaffe2.html',1,'']]],
+  ['caffe2backend',['Caffe2Backend',['../classcaffe2_1_1onnx_1_1_caffe2_backend.html',1,'caffe2::onnx']]],
+  ['caffe2backendrep',['Caffe2BackendRep',['../classcaffe2_1_1onnx_1_1_caffe2_backend_rep.html',1,'caffe2::onnx']]],
   ['caffe2flagparser',['Caffe2FlagParser',['../classcaffe2_1_1_caffe2_flag_parser.html',1,'caffe2']]],
   ['caffe2initializeregistry',['Caffe2InitializeRegistry',['../classcaffe2_1_1internal_1_1_caffe2_initialize_registry.html',1,'caffe2::internal']]],
   ['caffe2iospredictor',['Caffe2IOSPredictor',['../class_caffe2_i_o_s_predictor.html',1,'']]],
   ['caffe2moduletestdynamicdummyop',['Caffe2ModuleTestDynamicDummyOp',['../classcaffe2_1_1_caffe2_module_test_dynamic_dummy_op.html',1,'caffe2']]],
+  ['caffe2ops',['Caffe2Ops',['../structcaffe2_1_1onnx_1_1_caffe2_ops.html',1,'caffe2::onnx']]],
   ['caffe_5fget_5fblocks',['CAFFE_GET_BLOCKS',['../namespacecaffe2.html#afa7bf47b9067ef9d15605a5d8746fddd',1,'caffe2']]],
   ['caffecudagetdevice',['CaffeCudaGetDevice',['../namespacecaffe2.html#af6850a4a5f4298a5c825238cfb0de688',1,'caffe2']]],
   ['caffecudasetdevice',['CaffeCudaSetDevice',['../namespacecaffe2.html#aff145698c872153a4e117f0e2101f09a',1,'caffe2']]],
@@ -168,8 +171,8 @@ var searchData=
   ['cudnntypewrapper_3c_20float_20_3e',['cudnnTypeWrapper&lt; float &gt;',['../classcaffe2_1_1cudnn_type_wrapper_3_01float_01_4.html',1,'caffe2']]],
   ['cudnntypewrapper_3c_20float16_20_3e',['cudnnTypeWrapper&lt; float16 &gt;',['../classcaffe2_1_1cudnn_type_wrapper_3_01float16_01_4.html',1,'caffe2']]],
   ['cudnnworkspace',['CuDNNWorkspace',['../structcaffe2_1_1_cu_d_n_n_workspace.html',1,'caffe2']]],
-  ['cudnnwrapper',['CuDNNWrapper',['../classcaffe2_1_1_cu_d_n_n_wrapper.html',1,'caffe2']]],
   ['cudnnwrapper',['CuDNNWrapper',['../classcaffe2_1_1_cu_d_n_n_wrapper.html#a0efa9399b67e409f822eb979d61e0824',1,'caffe2::CuDNNWrapper']]],
+  ['cudnnwrapper',['CuDNNWrapper',['../classcaffe2_1_1_cu_d_n_n_wrapper.html',1,'caffe2']]],
   ['curandgeterrorstring',['curandGetErrorString',['../namespacecaffe2.html#a8cd40a0417e6ec30c62f7fb8b49aa031',1,'caffe2']]],
   ['currentmodules',['CurrentModules',['../namespacecaffe2.html#a2015a66b1fe9fccf95985a1b9de6d31c',1,'caffe2']]],
   ['cursor',['cursor',['../classcaffe2_1_1db_1_1_d_b_reader.html#a67e032b62adfa1eeeb2ad24613b46bf8',1,'caffe2::db::DBReader']]],

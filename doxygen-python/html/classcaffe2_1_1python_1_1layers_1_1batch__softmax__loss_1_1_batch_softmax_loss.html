@@ -115,9 +115,15 @@ Inheritance diagram for caffe2.python.layers.batch_softmax_loss.BatchSoftmaxLoss
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a88d7b9f1b0dc3688a4dac40ae4a98db7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a88d7b9f1b0dc3688a4dac40ae4a98db7"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, model, input_record, name='batch_softmax_loss', kwargs)</td></tr>
-<tr class="separator:a88d7b9f1b0dc3688a4dac40ae4a98db7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1581a5550e5edb0be76c6f00c19c9ac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae1581a5550e5edb0be76c6f00c19c9ac"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, model, input_record, name='batch_softmax_loss', label_smoothing_matrix=None, kwargs)</td></tr>
+<tr class="separator:ae1581a5550e5edb0be76c6f00c19c9ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dd64fd7ef9400a60131b6998a9e3e28"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2dd64fd7ef9400a60131b6998a9e3e28"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>initialize_label_smoothing_constants</b> (self)</td></tr>
+<tr class="separator:a2dd64fd7ef9400a60131b6998a9e3e28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab505923906adaa44b1b16f96a1c0f0c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab505923906adaa44b1b16f96a1c0f0c3"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>compute_smoothed_label</b> (self, net)</td></tr>
+<tr class="separator:ab505923906adaa44b1b16f96a1c0f0c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35fe36e58d9cf93ac343dc5a6198ccce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35fe36e58d9cf93ac343dc5a6198ccce"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>add_ops</b> (self, net)</td></tr>
 <tr class="separator:a35fe36e58d9cf93ac343dc5a6198ccce"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -187,9 +193,18 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>export_params_for_metr
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:a75aa529ccd0528a90c66b82f6ac59d9e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a75aa529ccd0528a90c66b82f6ac59d9e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>label_prob</b></td></tr>
+<tr class="separator:a75aa529ccd0528a90c66b82f6ac59d9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a196e342a51161df60f6c003d8741a7fb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a196e342a51161df60f6c003d8741a7fb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>label_smoothing_matrix</b></td></tr>
+<tr class="separator:a196e342a51161df60f6c003d8741a7fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75fb612559866e69bce7bb7bb9b845fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a75fb612559866e69bce7bb7bb9b845fe"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>output_schema</b></td></tr>
 <tr class="separator:a75fb612559866e69bce7bb7bb9b845fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab50577661946ace1f3e958d3fbb8396"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab50577661946ace1f3e958d3fbb8396"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>label_dim</b></td></tr>
+<tr class="separator:aab50577661946ace1f3e958d3fbb8396"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classcaffe2_1_1python_1_1layers_1_1layers_1_1_model_layer"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classcaffe2_1_1python_1_1layers_1_1layers_1_1_model_layer')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classcaffe2_1_1python_1_1layers_1_1layers_1_1_model_layer.html">caffe2.python.layers.layers.ModelLayer</a></td></tr>
 <tr class="memitem:aa7d55878786e169cf119a49ed5a62d30 inherit pub_attribs_classcaffe2_1_1python_1_1layers_1_1layers_1_1_model_layer"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa7d55878786e169cf119a49ed5a62d30"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
@@ -223,7 +238,7 @@ Public Attributes</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Mar 12 2018 13:03:45 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 13 2018 13:04:01 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

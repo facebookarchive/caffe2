@@ -19,6 +19,7 @@ var searchData=
   ['descriptor',['descriptor',['../struct_g_l_convolution_1_1descriptor.html',1,'GLConvolution']]],
   ['descriptor',['descriptor',['../struct_g_l_pool_1_1descriptor.html',1,'GLPool']]],
   ['detailedexportedstat',['DetailedExportedStat',['../classcaffe2_1_1_detailed_exported_stat.html',1,'caffe2']]],
+  ['device',['Device',['../structcaffe2_1_1onnx_1_1_device.html',1,'caffe2::onnx']]],
   ['deviceguard',['DeviceGuard',['../classcaffe2_1_1_device_guard.html',1,'caffe2']]],
   ['devicetyperegisterer',['DeviceTypeRegisterer',['../structcaffe2_1_1_device_type_registerer.html',1,'caffe2']]],
   ['diagonalfillop',['DiagonalFillOp',['../classcaffe2_1_1_diagonal_fill_op.html',1,'caffe2']]],
@@ -33,5 +34,6 @@ var searchData=
   ['dotproductwithpaddinggradientop',['DotProductWithPaddingGradientOp',['../classcaffe2_1_1_dot_product_with_padding_gradient_op.html',1,'caffe2']]],
   ['dotproductwithpaddingop',['DotProductWithPaddingOp',['../classcaffe2_1_1_dot_product_with_padding_op.html',1,'caffe2']]],
   ['dropoutgradientop',['DropoutGradientOp',['../classcaffe2_1_1_dropout_gradient_op.html',1,'caffe2']]],
-  ['dropoutop',['DropoutOp',['../classcaffe2_1_1_dropout_op.html',1,'caffe2']]]
+  ['dropoutop',['DropoutOp',['../classcaffe2_1_1_dropout_op.html',1,'caffe2']]],
+  ['dummyname',['DummyName',['../classcaffe2_1_1onnx_1_1_dummy_name.html',1,'caffe2::onnx']]]
 ];
