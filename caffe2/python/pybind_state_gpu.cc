@@ -13,6 +13,10 @@
 #include "caffe2/core/common_cudnn.h"
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/operators/operator_fallback_gpu.h"
+#include "caffe2/trt/tensorrt_tranformer.h"
+
+#include "google/protobuf/io/coded_stream.h"
+#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 
 namespace caffe2 {
 namespace python {
@@ -32,6 +36,14 @@ REGISTER_BLOB_FEEDER(CUDA, TensorFeeder<CUDAContext>);
 
 namespace py = pybind11;
 
+static bool ParseProtobufFromLargeString(const string& str, Message* proto) {
+  ::google::protobuf::io::ArrayInputStream input_stream(str.data(), str.size());
+  ::google::protobuf::io::CodedInputStream coded_stream(&input_stream);
+  // Set PlanDef message size limit to 1G.
+  coded_stream.SetTotalBytesLimit(1024LL << 20, 512LL << 20);
+  return proto->ParseFromCodedStream(&coded_stream);
+}
+
 void addCUDAGlobalMethods(py::module& m) {
   m.def("num_cuda_devices", &NumCudaDevices);
   m.def("get_cuda_version", &CudaVersion);
@@ -50,6 +62,48 @@ void addCUDAGlobalMethods(py::module& m) {
     obj["totalGlobalMem"] = py::cast(prop.totalGlobalMem);
     return obj;
   });
+  m.def(
+      "onnx_to_trt_op",
+      [](const py::bytes& onnx_model_str,
+         const std::unordered_map<std::string, std::vector<int>>&
+             output_size_hints) -> py::bytes {
+        TensorRTTransformer t;
+        auto op_def =
+            t.BuildTrtOp(onnx_model_str.cast<std::string>(), output_size_hints);
+        std::string out;
+        op_def.SerializeToString(&out);
+        return py::bytes(out);
+      });
+  m.def(
+      "transform_trt",
+      [](const py::bytes& init_net_str,
+         const py::bytes& pred_net_str,
+         const std::unordered_map<std::string, std::vector<int>>& shapes)
+          -> std::vector<py::bytes> {
+        caffe2::NetDef init_net;
+        if(!ParseProtobufFromLargeString(
+            init_net_str.cast<std::string>(), &init_net)) {
+          LOG(ERROR) << "broken init_net protobuf";
+        }
+        caffe2::NetDef pred_net;
+        if(!ParseProtobufFromLargeString(
+            pred_net_str.cast<std::string>(), &pred_net)) {
+          LOG(ERROR) << "broken pred_net protobuf";
+        }
+        std::unordered_map<std::string, TensorShape> tensor_shapes;
+        for (const auto& it: shapes) {
+          tensor_shapes.emplace(
+              it.first, CreateTensorShape(it.second, TensorProto::FLOAT));
+        }
+        TensorRTTransformer ts;
+        //ts.LoadNets(init_net, pred_net);
+        ts.TransformSimple(&init_net, &pred_net, tensor_shapes);
+        std::string init_net_str2;
+        std::string pred_net_str2;
+        init_net.SerializeToString(&init_net_str2);
+        pred_net.SerializeToString(&pred_net_str2);
+        return {py::bytes(init_net_str2), py::bytes(pred_net_str2)};
+      });
 };
 
 void addCUDAObjectMethods(py::module& m) {
