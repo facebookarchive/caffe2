@@ -265,7 +265,7 @@ class TranslatorRegistry(object):
                             .format(layer.name))
                 continue
             if layer.type == 'Input':
-			    data_layer = layer
+                data_layer = layer
             log.info('Translate layer {}'.format(layer.name))
             # Get pretrained one
             pretrained_layers = (
