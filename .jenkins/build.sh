@@ -51,8 +51,6 @@ if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   exit 0
 fi
 if [[ "${BUILD_ENVIRONMENT}" == conda* ]]; then
-  conda create -yn testenv
-  source activate testenv
 
   # click (required by onnx) wants these set
   export LANG=C.UTF-8

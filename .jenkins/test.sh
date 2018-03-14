@@ -19,11 +19,8 @@ INSTALL_PREFIX="/usr/local/caffe2"
 if [[ "$BUILD_ENVIRONMENT" == conda* ]]; then
   # This path comes from install_anaconda.sh which installs Anaconda into the
   # docker image
-  # The name for 'testenv' comes from .jenkins/build.sh, which activates that
-  # env before installing with conda
-  PYTHON="/opt/conda/envs/testenv/bin/python"
-  INSTALL_PREFIX="/opt/conda/envs/testenv"
-  source activate testenv
+  PYTHON="/opt/conda/bin/python"
+  INSTALL_PREFIX="/opt/conda/"
 fi
 
 # Add the site-packages in the caffe2 install prefix to the PYTHONPATH
