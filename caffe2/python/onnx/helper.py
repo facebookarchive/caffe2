@@ -21,7 +21,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from caffe2.proto import caffe2_pb2
-from onnx import helper, OperatorSetIdProto
 from onnx.backend.base import namedtupledict
 
 from caffe2.python.onnx.workspace import Workspace
@@ -54,17 +53,6 @@ class _DummyNameFactory(object):
                     return name
 
 dummy_name = _DummyNameFactory.dummy_name
-
-
-def make_model(graph, **kwargs):
-    kwargs.setdefault('producer_name', 'onnx-caffe2')
-    if 'opset_imports' not in kwargs:
-        from caffe2.python.onnx.frontend import Caffe2Frontend
-        opset_id = OperatorSetIdProto()
-        opset_id.domain = ''  # ONNX default domain
-        opset_id.version = Caffe2Frontend.target_opset_version
-        kwargs['opset_imports'] = [opset_id]
-    return helper.make_model(graph=graph, **kwargs)
 
 
 def c2_native_run_op(op_def, inputs):

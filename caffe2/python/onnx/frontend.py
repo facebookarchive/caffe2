@@ -36,10 +36,10 @@ from caffe2.proto import caffe2_legacy_pb2
 from enum import Enum
 from onnx import (defs, checker, helper, numpy_helper, mapping,
                   ModelProto, GraphProto, NodeProto, AttributeProto, TensorProto, OperatorSetIdProto)
-from onnx.helper import make_tensor, make_tensor_value_info, make_attribute
+from onnx.helper import make_tensor, make_tensor_value_info, make_attribute, make_model
 import numpy as np
 
-from caffe2.python.onnx.helper import make_model, c2_native_run_net, dummy_name
+from caffe2.python.onnx.helper import c2_native_run_net, dummy_name
 from caffe2.python.onnx.error import Unsupported
 
 logging.basicConfig(level=logging.INFO)
@@ -586,7 +586,10 @@ class Caffe2Frontend(object):
         opset_id = OperatorSetIdProto()
         opset_id.domain = ''  # ONNX default domain
         opset_id.version = cls.target_opset_version
-        model = make_model(cls.caffe2_net_to_onnx_graph(*args, **kwargs), opset_imports=[opset_id])
+        model = make_model(cls.caffe2_net_to_onnx_graph(*args, **kwargs),
+                           opset_imports=[opset_id],  # current supported opset version
+                           producer_name='onnx-caffe2',  # producer name
+                           )
         checker.check_model(model)
         return model
 
