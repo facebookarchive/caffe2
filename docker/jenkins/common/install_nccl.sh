@@ -40,5 +40,5 @@ if [ -n "$NCCL_UBUNTU_VER" ]; then
     NCCL_LIB_VERSION="2.1.2-1+cuda${CUDA_VERSION:0:3}"
   fi
   apt update
-  apt install libnccl2=$NCCL_LIB_VERSION libnccl-dev=$NCCL_LIB_VERSION
+  apt install -y libnccl2=$NCCL_LIB_VERSION libnccl-dev=$NCCL_LIB_VERSION
 fi
