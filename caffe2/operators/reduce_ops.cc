@@ -99,7 +99,7 @@ bool ReduceMeanOp<T, Context>::Compute(
   math::Set<T, Context>(Y_size, 0.f, Y_data, &context_);
   ComputeOp<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims, Add);
   math::Scale(
-      Y_size, (float)Y_size / X_size, Y_data, Y_data, &context_);
+      Y_size, static_cast<float>(Y_size) / X_size, Y_data, Y_data, &context_);
 
   return true;
 }
