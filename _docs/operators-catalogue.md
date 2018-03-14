@@ -8765,7 +8765,8 @@ Does a reduce operation from every node to the root node. Currently only Sum is 
 ## ReduceBackMax
 
 
-Reduces the input tensor along the last dimension of the input tensor by applying 'Max' 
+Reduces the input tensor along the last dimension of the input tensor by applying 'Max'. When lengths is given, max is only computed with subsets of elements correspondingly.
+
 
 
 ### Interface
@@ -8774,6 +8775,9 @@ Reduces the input tensor along the last dimension of the input tensor by applyin
 ---------- | ----------
 *Arguments* | 
 `num_reduce_dims` | Number of dimensions to reduce
+*Inputs* | 
+`data_in` | (T<D1..., Dn>) Input data.
+`lengths` | Num of elements in each sample, should have size D1 x D2 x ... x D(n-1).
 
 
 ### Code
@@ -8802,7 +8806,8 @@ No documentation yet.
 ## ReduceBackMean
 
 
-Reduces the input tensor along the last dimension of the input tensor by applying 'Mean' 
+Reduces the input tensor along the last dimension of the input tensor by applying 'Mean'. When lengths is given, mean is only computed with subsets of elements correspondingly.
+
 
 
 ### Interface
@@ -8810,7 +8815,10 @@ Reduces the input tensor along the last dimension of the input tensor by applyin
 
 ---------- | ----------
 *Arguments* | 
-`num_reduce_dims` | Number of dimensions to reduce
+`num_reduce_dims` | Number of dimensions to reduce.
+*Inputs* | 
+`data_in` | (T<D1..., Dn>) Input data.
+`lengths` | Num of elements in each sample, should have size D1 x D2 x ... x D(n-1).
 
 
 ### Code
@@ -8839,7 +8847,14 @@ No documentation yet.
 ## ReduceBackSum
 
 
-Reduces the input tensor along the last dimension of the input tensor by applying 'Sum' 
+Reduces the input tensor along the last dimension of the input tensor by applying 'Sum'. 
+
+```
+  When lengths is given, sum is only computed
+```
+
+ with subsets of elements correspondingly.
+
 
 
 ### Interface
@@ -8847,7 +8862,10 @@ Reduces the input tensor along the last dimension of the input tensor by applyin
 
 ---------- | ----------
 *Arguments* | 
-`num_reduce_dims` | Number of dimensions to reduce
+`num_reduce_dims` | Number of dimensions to reduce.
+*Inputs* | 
+`data_in` | (T<D1..., Dn>) Input data.
+`lengths` | Num of elements in each sample, should have size D1 x D2 x ... x D(n-1).
 
 
 ### Code
@@ -8876,7 +8894,8 @@ No documentation yet.
 ## ReduceFrontMax
 
 
-Reduces the input tensor along the first dimension of the input tensor by applying 'Max' 
+Reduces the input tensor along the first dimension of the input tensor by applying 'Max'. When lengths is given, max is only computed with subsets of elements correspondingly.
+
 
 
 ### Interface
@@ -8885,6 +8904,9 @@ Reduces the input tensor along the first dimension of the input tensor by applyi
 ---------- | ----------
 *Arguments* | 
 `num_reduce_dims` | Number of dimensions to reduce
+*Inputs* | 
+`data_in` | (T<D1..., Dn>) Input data.
+`lengths` | Num of elements in each sample, should have size D2 x D3 ... x Dn.
 
 
 ### Code
@@ -8913,7 +8935,8 @@ No documentation yet.
 ## ReduceFrontMean
 
 
-Reduces the input tensor along the first dimension of the input tensor by applying 'Mean' 
+Reduces the input tensor along the first dimension of the input tensor by applying 'Mean'. When lengths is given, mean is only computed with subsets of elements correspondingly.
+
 
 
 ### Interface
@@ -8921,7 +8944,10 @@ Reduces the input tensor along the first dimension of the input tensor by applyi
 
 ---------- | ----------
 *Arguments* | 
-`num_reduce_dims` | Number of dimensions to reduce
+`num_reduce_dims` | Number of dimensions to reduce.
+*Inputs* | 
+`data_in` | (T<D1..., Dn>) Input data.
+`lengths` | Num of elements in each sample, should have size D2 x D3 x ... x Dn.
 
 
 ### Code
@@ -8950,7 +8976,14 @@ No documentation yet.
 ## ReduceFrontSum
 
 
-Reduces the input tensor along the first dimension of the input tensor by applying 'Sum' 
+Reduces the input tensor along the first dimension of the input tensor by applying 'Sum'. 
+
+```
+  When lengths is given, sum is only computed
+```
+
+ with subsets of elements correspondingly.
+
 
 
 ### Interface
@@ -8958,7 +8991,10 @@ Reduces the input tensor along the first dimension of the input tensor by applyi
 
 ---------- | ----------
 *Arguments* | 
-`num_reduce_dims` | Number of dimensions to reduce
+`num_reduce_dims` | Number of dimensions to reduce.
+*Inputs* | 
+`data_in` | (T<D1..., Dn>) Input data.
+`lengths` | Num of elements in each sample, should have size D2 x D3 x ... x Dn.
 
 
 ### Code
@@ -9028,6 +9064,42 @@ No documentation yet.
 
 
 
+## ReduceMean
+
+
+ 
+
+```
+      Computes the mean of the input tensor's element along the provided axes.
+      The resulted tensor has the same rank as the input if keepdims equal 1.
+      If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
+```
+
+     
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`axes` | A list of integers, along which to reduce.
+`keepdims` | Keep the reduced dimension(s) or not, default 1 keeps the reduced dimension(s).
+*Inputs* | 
+`data` | An input tensor.
+*Outputs* | 
+`reduced` | Reduced output tensor.
+
+
+### Code
+
+
+[caffe2/operators/reduce_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/reduce_ops.cc)
+
+---
+
+
+
 ## ReduceScatter
 
 
@@ -9050,6 +9122,42 @@ Does reduce-scatter operation among the nodes. Currently only Sum is supported.
 
 
 [caffe2/operators/communicator_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/communicator_op.cc)
+
+---
+
+
+
+## ReduceSum
+
+
+ 
+
+```
+  Computes the sum of the input tensor's element along the provided axes.
+  The resulted tensor has the same rank as the input if keepdims equal 1.
+  If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
+```
+
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`axes` | A list of integers, along which to reduce.
+`keepdims` | Keep the reduced dimension(s) or not, default 1 keeps the reduced dimension(s).
+*Inputs* | 
+`data` | An input tensor.
+*Outputs* | 
+`reduced` | Reduced output tensor.
+
+
+### Code
+
+
+[caffe2/operators/reduce_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/reduce_ops.cc)
 
 ---
 

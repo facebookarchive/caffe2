@@ -291,17 +291,17 @@ Data Fields</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a701c324426611657e787504235a07b42"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a701c324426611657e787504235a07b42"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Compute</b> (int rows, int cols, const float *dYdata, const float *Xdata, const float *Ydata, float *dXdata)</td></tr>
-<tr class="separator:a701c324426611657e787504235a07b42"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66c879890f49349cb918550350d5c0f6"><td class="memTemplParams" colspan="2"><a class="anchor" id="a66c879890f49349cb918550350d5c0f6"></a>
+<tr class="memitem:af8aeac604a8d2b769c82f456ca632ab3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af8aeac604a8d2b769c82f456ca632ab3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Compute</b> (int rows, int cols, const float *dYdata, const float *Xdata, const float *Ydata, const int32_t *lengths_data, float *dXdata)</td></tr>
+<tr class="separator:af8aeac604a8d2b769c82f456ca632ab3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b36e04d3062cf92b7df6537052a9e73"><td class="memTemplParams" colspan="2"><a class="anchor" id="a0b36e04d3062cf92b7df6537052a9e73"></a>
 template&lt;&gt; </td></tr>
-<tr class="memitem:a66c879890f49349cb918550350d5c0f6"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Compute</b> (int rows, int cols, const float *dYdata, const float *Xdata, const float *Ydata, float *dXdata)</td></tr>
-<tr class="separator:a66c879890f49349cb918550350d5c0f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39962be643b7f9aed672f4eb8fd65920"><td class="memTemplParams" colspan="2"><a class="anchor" id="a39962be643b7f9aed672f4eb8fd65920"></a>
+<tr class="memitem:a0b36e04d3062cf92b7df6537052a9e73"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Compute</b> (int rows, int cols, const float *dYdata, const float *Xdata, const float *Ydata, const int32_t *lengths_data, float *dXdata)</td></tr>
+<tr class="separator:a0b36e04d3062cf92b7df6537052a9e73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91666e71b4322bdd71b85416e04335dd"><td class="memTemplParams" colspan="2"><a class="anchor" id="a91666e71b4322bdd71b85416e04335dd"></a>
 template&lt;&gt; </td></tr>
-<tr class="memitem:a39962be643b7f9aed672f4eb8fd65920"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Compute</b> (int rows, int cols, const float *dYdata, const float *Xdata, const float *Ydata, float *dXdata)</td></tr>
-<tr class="separator:a39962be643b7f9aed672f4eb8fd65920"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91666e71b4322bdd71b85416e04335dd"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Compute</b> (int rows, int cols, const float *dYdata, const float *Xdata, const float *Ydata, const int32_t *lengths_data, float *dXdata)</td></tr>
+<tr class="separator:a91666e71b4322bdd71b85416e04335dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classcaffe2_1_1_operator"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classcaffe2_1_1_operator')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classcaffe2_1_1_operator.html">caffe2::Operator&lt; Context &gt;</a></td></tr>
 <tr class="memitem:abb6b26b9d6d77aa5ac1db7d5b2d50ce5 inherit pro_methods_classcaffe2_1_1_operator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb6b26b9d6d77aa5ac1db7d5b2d50ce5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecordEvent</b> (const char *err_msg=nullptr) final</td></tr>
@@ -348,7 +348,7 @@ static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kNoNe
 class caffe2::MaxReduceDimsGradientOp&lt; T, Context, FIRSTDIMS &gt;</h3>
 
 
-<p>Definition at line <a class="el" href="reduction__front__back__ops_8h_source.html#l00189">189</a> of file <a class="el" href="reduction__front__back__ops_8h_source.html">reduction_front_back_ops.h</a>.</p>
+<p>Definition at line <a class="el" href="reduction__front__back__ops_8h_source.html#l00244">244</a> of file <a class="el" href="reduction__front__back__ops_8h_source.html">reduction_front_back_ops.h</a>.</p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/operators/<a class="el" href="reduction__front__back__ops_8h_source.html">reduction_front_back_ops.h</a></li>
 </ul>
@@ -356,7 +356,7 @@ class caffe2::MaxReduceDimsGradientOp&lt; T, Context, FIRSTDIMS &gt;</h3>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 13 2018 13:03:54 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 14 2018 13:04:15 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

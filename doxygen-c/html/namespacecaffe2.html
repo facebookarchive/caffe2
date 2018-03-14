@@ -1414,6 +1414,12 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_redis_store_handler_create_op.html">RedisStoreHandlerCreateOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_reduce_mean_op.html">ReduceMeanOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_reduce_op_base.html">ReduceOpBase</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_reduce_sum_op.html">ReduceSumOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_reduce_tail_sum_op.html">ReduceTailSumOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_registerer.html">Registerer</a></td></tr>
@@ -6312,6 +6318,41 @@ R recurrent or input R <a class="el" href="classcaffe2_1_1_blob.html">Blob</a> h
 <tr class="memitem:a620fcbf44947b5e8e7b6aa94843a479d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a620fcbf44947b5e8e7b6aa94843a479d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Recurrent, <a class="el" href="structcaffe2_1_1_get_recurrent_gradient.html">GetRecurrentGradient</a>)</td></tr>
 <tr class="separator:a620fcbf44947b5e8e7b6aa94843a479d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28927e72ddbb35e18d61c3d96d77ed73"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a28927e72ddbb35e18d61c3d96d77ed73"></a>
+vector&lt; TIndex &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ConvertFromInputIndex</b> (TIndex index, vector&lt; TIndex &gt; &amp;dims)</td></tr>
+<tr class="separator:a28927e72ddbb35e18d61c3d96d77ed73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b52b14de47cdf8fe0b2b0e745d922cd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b52b14de47cdf8fe0b2b0e745d922cd"></a>
+TIndex&#160;</td><td class="memItemRight" valign="bottom"><b>ConvertToOutputIndex</b> (const vector&lt; int &gt; &amp;axes, const vector&lt; TIndex &gt; &amp;nd_idx, vector&lt; TIndex &gt; &amp;dims)</td></tr>
+<tr class="separator:a2b52b14de47cdf8fe0b2b0e745d922cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe4b2ff2f35539b3c8d4570fc8f8cad4"><td class="memTemplParams" colspan="2"><a class="anchor" id="abe4b2ff2f35539b3c8d4570fc8f8cad4"></a>
+template&lt;typename T &gt; </td></tr>
+<tr class="memitem:abe4b2ff2f35539b3c8d4570fc8f8cad4"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Add</b> (T x, T y)</td></tr>
+<tr class="separator:abe4b2ff2f35539b3c8d4570fc8f8cad4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f935214e3df0ed4aa58f06801f52fa2"><td class="memTemplParams" colspan="2"><a class="anchor" id="a7f935214e3df0ed4aa58f06801f52fa2"></a>
+template&lt;typename T , class Context &gt; </td></tr>
+<tr class="memitem:a7f935214e3df0ed4aa58f06801f52fa2"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ComputeOp</b> (const T *X_data, const TIndex X_size, vector&lt; TIndex &gt; &amp;dims, T *Y_data, vector&lt; int &gt; &amp;axes, int keepdims, T(*binary_op)(T, T))</td></tr>
+<tr class="separator:a7f935214e3df0ed4aa58f06801f52fa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba42c9689c3f90bd1db675d227307d3f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba42c9689c3f90bd1db675d227307d3f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ReduceSum, <a class="el" href="classcaffe2_1_1_reduce_sum_op.html">ReduceSumOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:aba42c9689c3f90bd1db675d227307d3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afaecc95064114b16aa09f4a3c9860a2f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afaecc95064114b16aa09f4a3c9860a2f"></a>
+then the resulted tensor have the reduced dimension pruned DOC&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;axes&quot;,&quot;A list of integers, along which to reduce.&quot;).Arg(&quot;keepdims&quot;</td></tr>
+<tr class="separator:afaecc95064114b16aa09f4a3c9860a2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0f38a161462365ae6bc3dec5431a646"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0f38a161462365ae6bc3dec5431a646"></a>
+then the resulted tensor have the reduced dimension pruned DOC Keep the reduced&#160;</td><td class="memItemRight" valign="bottom"><b>dimension</b> (s) or not</td></tr>
+<tr class="separator:ab0f38a161462365ae6bc3dec5431a646"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af80384666b5c26e1c7bb9a5cf5a8d634"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af80384666b5c26e1c7bb9a5cf5a8d634"></a>
+then the resulted tensor have the reduced dimension pruned DOC Keep the reduced default keeps the reduced An input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;reduced&quot;,&quot;Reduced output tensor.&quot;)</td></tr>
+<tr class="separator:af80384666b5c26e1c7bb9a5cf5a8d634"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36197ac4865f5e6df4adfac239ab3c08"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a36197ac4865f5e6df4adfac239ab3c08"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>GRADIENT_NOT_IMPLEMENTED_YET</b> (ReduceSum)</td></tr>
+<tr class="separator:a36197ac4865f5e6df4adfac239ab3c08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3d17c90d75cf98a9dfd3cf4b8a074cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3d17c90d75cf98a9dfd3cf4b8a074cb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ReduceMean, <a class="el" href="classcaffe2_1_1_reduce_mean_op.html">ReduceMeanOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:ae3d17c90d75cf98a9dfd3cf4b8a074cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a664f73abb054f8caf96f34f2868a53f6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a664f73abb054f8caf96f34f2868a53f6"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>GRADIENT_NOT_IMPLEMENTED_YET</b> (ReduceMean)</td></tr>
+<tr class="separator:a664f73abb054f8caf96f34f2868a53f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a943b5dba8b06a474f736631f78ca3b77"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a943b5dba8b06a474f736631f78ca3b77"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ReduceFrontSum, <a class="el" href="classcaffe2_1_1_sum_reduce_dims_op.html">SumReduceDimsOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, true, false &gt;)</td></tr>
 <tr class="separator:a943b5dba8b06a474f736631f78ca3b77"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6330,24 +6371,32 @@ R recurrent or input R <a class="el" href="classcaffe2_1_1_blob.html">Blob</a> h
 <tr class="memitem:acbf18ca8ca4422f8813c2e004b56badf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acbf18ca8ca4422f8813c2e004b56badf"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ReduceBackSum, <a class="el" href="classcaffe2_1_1_get_reduce_back_sum_gradient.html">GetReduceBackSumGradient</a>)</td></tr>
 <tr class="separator:acbf18ca8ca4422f8813c2e004b56badf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acae190efacf6695e69d764dac5cd6007"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acae190efacf6695e69d764dac5cd6007"></a>
+<tr class="memitem:ae515e98f801280840c503b013334132f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae515e98f801280840c503b013334132f"></a>
 Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 Reduces the input tensor along the first dimension of the input
-tensor by applying 'Sum'
-)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
-<tr class="separator:acae190efacf6695e69d764dac5cd6007"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a58264bb40fc4b27c9aec7f9732e2d0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8a58264bb40fc4b27c9aec7f9732e2d0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceFrontSumGradient).NumInputs(2).NumOutputs(1)</td></tr>
-<tr class="separator:a8a58264bb40fc4b27c9aec7f9732e2d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ac335e9dd430108d1f0e7ee35c550b9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7ac335e9dd430108d1f0e7ee35c550b9"></a>
+tensor by applying 'Sum'.  When lengths is given, sum is only computed
+with subsets of elements correspondingly.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:ae515e98f801280840c503b013334132f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f9169f4bc0b971ab25b6c8fcc34da67"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3f9169f4bc0b971ab25b6c8fcc34da67"></a>
+Number of dimensions to reduce T&lt; D1..., Dn &gt; Input data&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;lengths&quot;,&quot;Num of elements in each sample, should have size D2 x D3 x ... x Dn.&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
+<tr class="separator:a3f9169f4bc0b971ab25b6c8fcc34da67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cbbb22736815aa01eb2f8240d589cbd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6cbbb22736815aa01eb2f8240d589cbd"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceFrontSumGradient).NumInputs(2</td></tr>
+<tr class="separator:a6cbbb22736815aa01eb2f8240d589cbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3ee971e654197e1ef794accf0f1a202"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac3ee971e654197e1ef794accf0f1a202"></a>
 Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 Reduces the input tensor along the last dimension of the
-input tensor by applying 'Sum'
-)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
-<tr class="separator:a7ac335e9dd430108d1f0e7ee35c550b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7eeabe746137ba44ac37c426cec413f1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7eeabe746137ba44ac37c426cec413f1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackSumGradient).NumInputs(2).NumOutputs(1)</td></tr>
-<tr class="separator:a7eeabe746137ba44ac37c426cec413f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+input tensor by applying 'Sum'.  When lengths is given, sum is only computed
+with subsets of elements correspondingly.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:ac3ee971e654197e1ef794accf0f1a202"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa60a40b7c63d4343575e644bf944784d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa60a40b7c63d4343575e644bf944784d"></a>
+Number of dimensions to reduce T&lt; D1..., Dn &gt; Input data&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;lengths&quot;,&quot;Num of elements in each sample, should have size D1 x D2 x ... x D(n-1).&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
+<tr class="separator:aa60a40b7c63d4343575e644bf944784d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69573d15fc52659310df054bb8afb432"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69573d15fc52659310df054bb8afb432"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackSumGradient).NumInputs(2</td></tr>
+<tr class="separator:a69573d15fc52659310df054bb8afb432"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9583603fed1bf04f85e3e8f9bdcb77a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac9583603fed1bf04f85e3e8f9bdcb77a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ReduceFrontMean, <a class="el" href="classcaffe2_1_1_sum_reduce_dims_op.html">SumReduceDimsOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, true, true &gt;)</td></tr>
 <tr class="separator:ac9583603fed1bf04f85e3e8f9bdcb77a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6357,15 +6406,16 @@ input tensor by applying 'Sum'
 <tr class="memitem:abe10cbb7b5f5e42e3c1e1497bdfe0f34"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe10cbb7b5f5e42e3c1e1497bdfe0f34"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ReduceFrontMean, <a class="el" href="classcaffe2_1_1_get_reduce_front_mean_gradient.html">GetReduceFrontMeanGradient</a>)</td></tr>
 <tr class="separator:abe10cbb7b5f5e42e3c1e1497bdfe0f34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab469953ffa522a35c91406c17d8adf44"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab469953ffa522a35c91406c17d8adf44"></a>
+<tr class="memitem:ae54e7ede314e92f2fa5e2c84ff5b6999"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae54e7ede314e92f2fa5e2c84ff5b6999"></a>
 Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 Reduces the input tensor along the first dimension of the input
-tensor by applying 'Mean'
-)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
-<tr class="separator:ab469953ffa522a35c91406c17d8adf44"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8cf80f72400b359c840622a040f36d68"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8cf80f72400b359c840622a040f36d68"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceFrontMeanGradient).NumInputs(2).NumOutputs(1)</td></tr>
-<tr class="separator:a8cf80f72400b359c840622a040f36d68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+tensor by applying 'Mean'. When lengths is given, mean is only computed
+with subsets of elements correspondingly.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:ae54e7ede314e92f2fa5e2c84ff5b6999"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72a2dce69c37fc1b425507d18b2df2eb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a72a2dce69c37fc1b425507d18b2df2eb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceFrontMeanGradient).NumInputs(2</td></tr>
+<tr class="separator:a72a2dce69c37fc1b425507d18b2df2eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac80a72437b9367a546c067b14280097"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac80a72437b9367a546c067b14280097"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ReduceBackMean, <a class="el" href="classcaffe2_1_1_sum_reduce_dims_op.html">SumReduceDimsOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, false, true &gt;)</td></tr>
 <tr class="separator:aac80a72437b9367a546c067b14280097"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6375,15 +6425,16 @@ tensor by applying 'Mean'
 <tr class="memitem:a8114f3254d4db8752ebef20359b59ad4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8114f3254d4db8752ebef20359b59ad4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ReduceBackMean, <a class="el" href="classcaffe2_1_1_get_reduce_back_mean_gradient.html">GetReduceBackMeanGradient</a>)</td></tr>
 <tr class="separator:a8114f3254d4db8752ebef20359b59ad4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ffc115a7f920c23f3dfd18913188174"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6ffc115a7f920c23f3dfd18913188174"></a>
+<tr class="memitem:a29f00ee2e4a242223fa2ce91f57aa287"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29f00ee2e4a242223fa2ce91f57aa287"></a>
 Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-Reduces the input tensor along the last dimension of the
-input tensor by applying 'Mean'
-)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
-<tr class="separator:a6ffc115a7f920c23f3dfd18913188174"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb70f9d66a3e7d7fb90db5f903d2982b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afb70f9d66a3e7d7fb90db5f903d2982b"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackMeanGradient).NumInputs(2).NumOutputs(1)</td></tr>
-<tr class="separator:afb70f9d66a3e7d7fb90db5f903d2982b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+Reduces the input tensor along the last dimension of the input
+tensor by applying 'Mean'. When lengths is given, mean is only computed
+with subsets of elements correspondingly.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:a29f00ee2e4a242223fa2ce91f57aa287"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7ec7c840a102af1eeffe9aad0ae5d26"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac7ec7c840a102af1eeffe9aad0ae5d26"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackMeanGradient).NumInputs(2</td></tr>
+<tr class="separator:ac7ec7c840a102af1eeffe9aad0ae5d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afed56e9829c1e22e77294b665ebbf64a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afed56e9829c1e22e77294b665ebbf64a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ReduceFrontMax, <a class="el" href="classcaffe2_1_1_max_reduce_dims_op.html">MaxReduceDimsOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, true &gt;)</td></tr>
 <tr class="separator:afed56e9829c1e22e77294b665ebbf64a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6402,24 +6453,29 @@ input tensor by applying 'Mean'
 <tr class="memitem:a92bf96ee5953a075f8a573fda63fc280"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92bf96ee5953a075f8a573fda63fc280"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (ReduceBackMax, <a class="el" href="classcaffe2_1_1_get_reduce_back_max_gradient.html">GetReduceBackMaxGradient</a>)</td></tr>
 <tr class="separator:a92bf96ee5953a075f8a573fda63fc280"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9960f8b8cdafbc058a99e6fab135b92"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae9960f8b8cdafbc058a99e6fab135b92"></a>
+<tr class="memitem:aa7293f27261cd47ac11a73025319a5e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa7293f27261cd47ac11a73025319a5e3"></a>
 Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 Reduces the input tensor along the first dimension of the input
-tensor by applying 'Max'
-)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
-<tr class="separator:ae9960f8b8cdafbc058a99e6fab135b92"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca78a46214042913c52193473f088dc2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca78a46214042913c52193473f088dc2"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceFrontMaxGradient).NumInputs(3).NumOutputs(1)</td></tr>
-<tr class="separator:aca78a46214042913c52193473f088dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52013b117d756434028017dabf14373a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a52013b117d756434028017dabf14373a"></a>
+tensor by applying 'Max'. When lengths is given, max is only computed
+with subsets of elements correspondingly.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:aa7293f27261cd47ac11a73025319a5e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ce0b70735694942a06cea61b8a677a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4ce0b70735694942a06cea61b8a677a3"></a>
+Number of dimensions to reduce T&lt; D1..., Dn &gt; Input data&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;lengths&quot;,&quot;Num of elements in each sample, should have size D2 x D3 ... x Dn.&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
+<tr class="separator:a4ce0b70735694942a06cea61b8a677a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3503ff5b19f5457596c80501539c581"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af3503ff5b19f5457596c80501539c581"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceFrontMaxGradient).NumInputs(3</td></tr>
+<tr class="separator:af3503ff5b19f5457596c80501539c581"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32ad9079d9cbe4e6c61dc5714c819730"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a32ad9079d9cbe4e6c61dc5714c819730"></a>
 Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 Reduces the input tensor along the last dimension of the
-input tensor by applying 'Max'
-)DOC&quot;).TensorInferenceFunction([](const OperatorDef &amp;def</td></tr>
-<tr class="separator:a52013b117d756434028017dabf14373a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af84b91040d8030b7c034ad88b5ce1fe1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af84b91040d8030b7c034ad88b5ce1fe1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackMaxGradient).NumInputs(3).NumOutputs(1)</td></tr>
-<tr class="separator:af84b91040d8030b7c034ad88b5ce1fe1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+input tensor by applying 'Max'. When lengths is given, max is only computed
+with subsets of elements correspondingly.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:a32ad9079d9cbe4e6c61dc5714c819730"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a894154296882db4ec24f4f643669701f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a894154296882db4ec24f4f643669701f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (ReduceBackMaxGradient).NumInputs(3</td></tr>
+<tr class="separator:a894154296882db4ec24f4f643669701f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd2303e6bcba9a25f5d4e40f0e0d37e2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd2303e6bcba9a25f5d4e40f0e0d37e2"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SumElements, <a class="el" href="classcaffe2_1_1_sum_elements_op.html">SumElementsOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:acd2303e6bcba9a25f5d4e40f0e0d37e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9475,6 +9531,9 @@ the implementation takes an the hidden state the cell and a weight the final hid
 <tr class="memitem:a4fb5b511557f03896c001185e3672999"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4fb5b511557f03896c001185e3672999"></a>
 R recurrent or input R&#160;</td><td class="memItemRight" valign="bottom"><b>all_params</b></td></tr>
 <tr class="separator:a4fb5b511557f03896c001185e3672999"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64e0ab7bd353bf53fdb04b239c3ec035"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64e0ab7bd353bf53fdb04b239c3ec035"></a>
+Number of dimensions to reduce&#160;</td><td class="memItemRight" valign="bottom"><b>data_in</b></td></tr>
+<tr class="separator:a64e0ab7bd353bf53fdb04b239c3ec035"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed098459630802109ed29afd323aec5b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed098459630802109ed29afd323aec5b"></a>
 the value to replace&#160;</td><td class="memItemRight" valign="bottom"><b>NaN</b></td></tr>
 <tr class="separator:aed098459630802109ed29afd323aec5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9522,9 +9581,6 @@ default the scale to&#160;</td><td class="memItemRight" valign="bottom"><b>apply
 <tr class="memitem:a76dde945e8c293e42578695bb73fa128"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76dde945e8c293e42578695bb73fa128"></a>
 affects the activation function itself This should go with the weight initialization in the paper See&#160;</td><td class="memItemRight" valign="bottom"><b>https</b></td></tr>
 <tr class="separator:a76dde945e8c293e42578695bb73fa128"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64e0ab7bd353bf53fdb04b239c3ec035"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64e0ab7bd353bf53fdb04b239c3ec035"></a>
-Number of copies of padding to add around each range&#160;</td><td class="memItemRight" valign="bottom"><b>data_in</b></td></tr>
-<tr class="separator:a64e0ab7bd353bf53fdb04b239c3ec035"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9a79f074ae71be18c7b8ea3cf43ce9b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a79f074ae71be18c7b8ea3cf43ce9b7"></a>
 Number of copies of padding to add around each range T&lt; N, D1..., Dn &gt; Input data&#160;</td><td class="memItemRight" valign="bottom"><b>start_padding</b></td></tr>
 <tr class="separator:a9a79f074ae71be18c7b8ea3cf43ce9b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -11021,7 +11077,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 13 2018 13:03:52 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 14 2018 13:04:13 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
