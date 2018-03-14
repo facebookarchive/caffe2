@@ -190,6 +190,7 @@ class Caffe2Backend(Backend):
         'GlobalMaxPool': '_create_conv_pool_op_base',
         'MaxPool': '_create_conv_pool_op_base',
         'Reshape': '_create_reshape',
+        'ReshapeDynamic': '_create_reshape',
         'Gather': '_create_gather',
         'Gemm': '_create_gemm',
         'Pad': '_create_pad',
