@@ -290,7 +290,6 @@ Caffe2Backend::get_renamed_operators() const {
       {"Neg", "Negative"},
       {"BatchNormalization", "SpatialBN"},
       {"InstanceNormalization", "InstanceNorm"},
-      {"MatMul", "BatchMatMul"},
       {"Upsample", "ResizeNearest"},
       {"Identity", "Copy"},
       {"InstanceNormalization", "InstanceNorm"},
@@ -345,7 +344,8 @@ Caffe2Backend::get_special_operators() const {
               {"LogSoftmax", &Caffe2Backend::CreateLogSoftmax},
               {"Slice", &Caffe2Backend::CreateSlice},
               {"Sqrt", &Caffe2Backend::CreateSqrt},
-              {"Reciprocal", &Caffe2Backend::CreateReciprocal}};
+              {"Reciprocal", &Caffe2Backend::CreateReciprocal},
+              {"MatMul", &Caffe2Backend::CreateMatMul}};
   return kSpecialOperators;
 }
 
@@ -798,6 +798,34 @@ Caffe2Ops Caffe2Backend::CreateSlice(const ModelProto &init_model,
   for (const auto& kv: args) {
     c2_op->add_arg()->CopyFrom(*kv.second);
   }
+
+  return ret;
+}
+
+Caffe2Ops Caffe2Backend::CreateMatMul(
+    const ModelProto& init_model,
+    const ModelProto& pred_model,
+    OnnxNode* onnx_node,
+    int opset_version) {
+  const auto& node = onnx_node->node;
+  if (node.input_size() != 2) {
+    throw std::runtime_error("MatMul should have 2 inputs");
+  }
+
+  Caffe2Ops ret;
+  auto *c2_op = ret.ops.Add();
+
+  std::vector<std::string> inputs;
+  inputs.emplace_back(node.input(0));
+  inputs.emplace_back(node.input(1));
+  std::vector<std::string> outputs;
+  outputs.emplace_back(node.output(0));
+
+
+  caffe2::Argument broadcast;
+  broadcast.set_name("broadcast");
+  broadcast.set_i(1);
+  BuildOperator(c2_op, "BatchMatMul", inputs, outputs, {broadcast});
 
   return ret;
 }
