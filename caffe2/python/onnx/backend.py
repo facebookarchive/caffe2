@@ -159,6 +159,7 @@ class Caffe2Backend(Backend):
         'Neg':                   'Negative',
         'BatchNormalization':    'SpatialBN',
         'InstanceNormalization': 'InstanceNorm',
+        'MatMul':                'BatchMatMul',
         'Upsample':              'ResizeNearest',
         'Identity':              'Copy',
         'InstanceNormalization': 'InstanceNorm',
@@ -962,8 +963,11 @@ class Caffe2Backend(Backend):
 
     @classmethod
     def _create_matmul(cls, init_model, pred_model, n, opset_version):
-        n.attrs['broadcast'] = 1
-        return cls._common_onnx_node_to_caffe2_op(init_model, pred_model, n, opset_version)
+        op = cls._common_onnx_node_to_caffe2_op(init_model, pred_model, n, opset_version)
+        broadcast_arg = op.arg.add()
+        broadcast_arg.name = "broadcast"
+        broadcast_arg.i = 1
+        return op
 
     @classmethod
     def _direct_initialize_parameters(cls, initializer, ws, device_option):

@@ -290,6 +290,7 @@ Caffe2Backend::get_renamed_operators() const {
       {"Neg", "Negative"},
       {"BatchNormalization", "SpatialBN"},
       {"InstanceNormalization", "InstanceNorm"},
+      {"MatMul", "BatchMatMul"},
       {"Upsample", "ResizeNearest"},
       {"Identity", "Copy"},
       {"InstanceNormalization", "InstanceNorm"},
@@ -812,22 +813,15 @@ Caffe2Ops Caffe2Backend::CreateMatMul(
     throw std::runtime_error("MatMul should have 2 inputs");
   }
 
-  Caffe2Ops ret;
-  auto *c2_op = ret.ops.Add();
+  auto c2_op = CommonOnnxNodeToCaffe2Ops(init_model, pred_model, onnx_node,
+                                         opset_version);
+  assert(c2_op.ops.size() == 1);
+  auto* op = c2_op.ops.Mutable(0);
+  auto* broadcast_arg = op->add_arg();
+  broadcast_arg->set_name("broadcast");
+  broadcast_arg->set_i(1);
 
-  std::vector<std::string> inputs;
-  inputs.emplace_back(node.input(0));
-  inputs.emplace_back(node.input(1));
-  std::vector<std::string> outputs;
-  outputs.emplace_back(node.output(0));
-
-
-  caffe2::Argument broadcast;
-  broadcast.set_name("broadcast");
-  broadcast.set_i(1);
-  BuildOperator(c2_op, "BatchMatMul", inputs, outputs, {broadcast});
-
-  return ret;
+  return c2_op;
 }
 
 //==============================================
