@@ -520,7 +520,6 @@ class Caffe2Frontend(object):
             for name in predict_net.external_output
             if name in all_output)
 
-        cls._annotate_consumed(graph_def)
         checker.check_graph(graph_def)
         return graph_def
 
@@ -557,24 +556,6 @@ class Caffe2Frontend(object):
                 raw=raw,
             ))
         return initializer
-
-    @classmethod
-    def _annotate_consumed(cls, graph_def):
-        for node in graph_def.node:
-            schema = defs.get_schema(node.op_type)
-            consumes = []
-            for i, _input_name in enumerate(node.input):
-                consume_type, output_idx = schema.consumed(i)
-                if consume_type == defs.OpSchema.UseType.CONSUME_ENFORCED:
-                    consumes.append(1)
-                else:
-                    consumes.append(0)
-
-            if any(consumes):
-                node.attribute.extend([helper.make_attribute(
-                    'consumed_inputs',
-                    consumes,
-                )])
 
     @classmethod
     def _filter_fake_init(cls, init_net, value_info):
