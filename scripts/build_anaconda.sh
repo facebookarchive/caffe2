@@ -35,8 +35,19 @@ CAFFE2_ROOT="$( cd "$(dirname "$0")"/.. ; pwd -P)"
 CONDA_BUILD_ARGS=()
 CMAKE_BUILD_ARGS=()
 
-# Read gcc and Python versions
-# Find which ABI to build for
+# Reinitialize submodules
+git submodule update --init
+
+
+#
+# Read python and gcc version
+#
+
+# Read the gcc version to see what ABI to build for
+if [[ $BUILD_ENVIRONMENT == *gcc4.8* ]]; then
+  GCC_USE_C11=0
+  GCC_VERSION='4.8'
+fi
 if [ "$(uname)" != 'Darwin' -a -z "${GCC_USE_C11}" ]; then
   GCC_VERSION="$(gcc --version | grep --only-matching '[0-9]\.[0-9]\.[0-9]*' | head -1)"
   if [[ "$GCC_VERSION" == 4* ]]; then
@@ -45,6 +56,8 @@ if [ "$(uname)" != 'Darwin' -a -z "${GCC_USE_C11}" ]; then
     GCC_USE_C11=1
   fi
 fi
+
+# Read the python version
 # Specifically 3.6 because the latest Anaconda version is 3.6, and so it's site
 # packages have 3.6 in the name
 PYTHON_VERSION="$(python --version 2>&1 | grep --only-matching '[0-9]\.[0-9]\.[0-9]*')"
@@ -54,10 +67,10 @@ if [[ "$PYTHON_VERSION" == 3.6* ]]; then
   CONDA_BUILD_ARGS+=(" --python 3.6")
 fi
 
-# Reinitialize submodules
-git submodule update --init
 
-# Pick correct conda-build folder
+#
+# Pick the correct conda-build folder
+#
 CAFFE2_CONDA_BUILD_DIR="${CAFFE2_ROOT}/conda"
 if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
   CAFFE2_CONDA_BUILD_DIR="${CAFFE2_CONDA_BUILD_DIR}/cuda_full"
@@ -68,25 +81,32 @@ else
 fi
 META_YAML="${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
 
-# Change the package name for CUDA builds to have the specific CUDA and cuDNN
-# version in them
-CAFFE2_PACKAGE_NAME="caffe2"
-if [[ "${BUILD_ENVIRONMENT}" == *cuda* ]]; then
-  # Build name of package
-  CAFFE2_PACKAGE_NAME="${CAFFE2_PACKAGE_NAME}-cuda${CAFFE2_CUDA_VERSION}-cudnn${CAFFE2_CUDNN_VERSION}"
-  if [[ "${BUILD_ENVIRONMENT}" == *full* ]]; then
-    CAFFE2_PACKAGE_NAME="${CAFFE2_PACKAGE_NAME}-full"
-  fi
 
+#
+# Build the name of the package depending on CUDA and gcc
+#
+CAFFE2_PACKAGE_NAME="caffe2"
+if [[ $BUILD_ENVIRONMENT == *cuda* ]]; then
   # CUDA 9.0 and 9.1 are not in conda, and cuDNN is not in conda, so instead of
   # pinning CUDA and cuDNN versions in the conda_build_config and then setting
   # the package name in meta.yaml based off of these values, we let Caffe2
   # take the CUDA and cuDNN versions that it finds in the build environment,
   # and manually set the package name ourself.
-  # WARNING: This does not work on mac.
-  sed -i "s/caffe2-cuda\$/${CAFFE2_PACKAGE_NAME}/" "${META_YAML}"
+  CAFFE2_PACKAGE_NAME="${CAFFE2_PACKAGE_NAME}-cuda${CAFFE2_CUDA_VERSION}-cudnn${CAFFE2_CUDNN_VERSION}"
 fi
+if [[ -z GCC_USE_C11 ]]; then
+  # gcc compatibility is not tracked by conda-forge, so we track it ourselves
+  CAFFE2_PACKAGE_NAME="${CAFFE2_PACKAGE_NAME}-gcc${GCC_VERSION:0:3}"
+fi
+if [[ $BUILD_ENVIRONMENT == *full* ]]; then
+  CAFFE2_PACKAGE_NAME="${CAFFE2_PACKAGE_NAME}-full"
+fi
+portable_sed "s/name: caffe2.*\$/name: ${CAFFE2_PACKAGE_NAME}/" "${META_YAML}"
 
+
+#
+# Handle skipping tests and uploading
+#
 # If skipping tests, remove the test related lines from the meta.yaml and don't
 # upload to Anaconda.org
 if [ -n "$SKIP_CONDA_TESTS" ]; then
@@ -101,7 +121,10 @@ elif [ -n "$UPLOAD_TO_CONDA" ]; then
   CONDA_BUILD_ARGS+=(" --token ${CAFFE2_ANACONDA_ORG_ACCESS_TOKEN}")
 fi
 
+
+#
 # Change flags based on target gcc ABI
+#
 if [[ "$(uname)" != 'Darwin' ]]; then
   if [ "$GCC_USE_C11" -eq 0 ]; then
     CMAKE_BUILD_ARGS+=("-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0")
@@ -136,7 +159,10 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   fi
 fi
 
+
+#
 # Build Caffe2 with conda-build
+#
 # If --user and --token are set, then this will also upload the built package
 # to Anaconda.org, provided there were no failures and all the tests passed
 CONDA_CMAKE_BUILD_ARGS="$CMAKE_BUILD_ARGS" conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
