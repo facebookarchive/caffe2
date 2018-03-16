@@ -24,6 +24,7 @@ import json
 import tempfile
 import textwrap
 import traceback
+import unittest
 
 from caffe2.proto import caffe2_pb2
 from caffe2.python import brew, core
@@ -151,6 +152,7 @@ class TestConversion(TestCase):
                                   for init_op in caffe2_init_net.op], [])),
                          {'W'})
 
+    @unittest.skip
     def test_convert_end2end(self):
         predict_net_f = tempfile.NamedTemporaryFile()
         init_net_f = tempfile.NamedTemporaryFile()
