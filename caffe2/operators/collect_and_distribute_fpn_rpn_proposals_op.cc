@@ -109,15 +109,17 @@ void RowsWhereRoILevelEquals(Eigen::Ref<const ERArrXXf> rois,
   CAFFE_ENFORCE(out_filtered != nullptr, "Output filtered required");
   CAFFE_ENFORCE(out_indices != nullptr, "Output indices required");
   CAFFE_ENFORCE(rois.rows() == lvls.rows(), "RoIs and lvls count mismatch");
-  out_filtered->conservativeResize(out_filtered->rows(), rois.cols());
-  for (int i = 0; i < rois.rows(); i++) {
-    auto roi_row = rois.row(i);
+  // Calculate how many rows we need
+  int filtered_size = (lvls == lvl).rowwise().any().count();
+  // Fill in the rows and indices
+  out_filtered->resize(filtered_size, rois.cols());
+  out_indices->resize(filtered_size);
+  for (int i = 0, filtered_idx = 0; i < rois.rows(); i++) {
     auto lvl_row = lvls.row(i);
     if ((lvl_row == lvl).any()) {
-      out_filtered->conservativeResize(out_filtered->rows() + 1, rois.cols());
-      out_filtered->row(out_filtered->rows() - 1) = roi_row;
-      out_indices->conservativeResize(out_indices->size() + 1);
-      (*out_indices)(out_indices->size() - 1) = i;
+      out_filtered->row(filtered_idx) = rois.row(i);
+      (*out_indices)(filtered_idx) = i;
+      filtered_idx++;
     }
   }
 }
