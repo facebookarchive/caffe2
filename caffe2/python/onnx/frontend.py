@@ -502,7 +502,7 @@ class Caffe2Frontend(object):
             nodes, const_tensors = cls.caffe2_op_to_onnx_node(op, shapes=shapes)
             graph_def.node.extend(nodes)
             graph_def.initializer.extend(const_tensors)
-            graph_def.input.extend(cls._extract_value_info(tensor) for tensor in const_tensors)
+            graph_def.input.extend([cls._extract_value_info(tensor) for tensor in const_tensors])
 
         all_output = set(sum((list(node.output) for node in graph_def.node),
                              [init.name for init in graph_def.initializer]))
