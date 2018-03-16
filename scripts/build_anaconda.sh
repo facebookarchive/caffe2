@@ -2,11 +2,15 @@
 
 # NOTE: All parameters to this function are forwared directly to conda-build
 # and so will never be seen by the build.sh
+# TODO change arguments to go to cmake by default
+# TODO handle setting flags in build.sh too
 
 set -ex
 
 # portable_sed: A wrapper around sed that works on both mac and linux, used to
-# alter conda-build files such as the meta.yaml
+# alter conda-build files such as the meta.yaml. It always adds the inplace
+# flag
+#   portable_sed <full regex string> <file>
 portable_sed () {
   if [ "$(uname)" == 'Darwin' ]; then
     sed -i '' "$1" "$2"
@@ -15,6 +19,8 @@ portable_sed () {
   fi
 }
 
+# remove_package: Given a package name, removes any line that mentions that
+# file from the meta.yaml
 remove_package () {
   portable_sed "/$1/d" "${META_YAML}"
 }
@@ -80,6 +86,7 @@ else
   CAFFE2_CONDA_BUILD_DIR="${CAFFE2_CONDA_BUILD_DIR}/no_cuda"
 fi
 META_YAML="${CAFFE2_CONDA_BUILD_DIR}/meta.yaml"
+CONDA_BUILD_CONFIG_YAML="${CAFFE2_CONDA_BUILD_DIR}/conda_build_config.yaml"
 
 
 #
@@ -130,7 +137,15 @@ if [[ "$(uname)" != 'Darwin' ]]; then
     CMAKE_BUILD_ARGS+=("-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0")
     # Default conda channels use gcc 7.2 (for recent packages), conda-forge uses
     # gcc 4.8.5
-    CONDA_BUILD_ARGS+=(" -c conda-forge")
+    # TODO don't do this if user also specified a channel
+    CAFFE2_CONDA_CHANNEL='-c conda-forge'
+
+    # opencv 3.3.1 in conda-forge doesn't have imgcodecs
+    add_package 'opencv' '==3.1.0'
+    if [[ "$PYTHON_VERSION" == 3.* ]]; then
+      # opencv 3.1.0 for python 3 requires numpy 1.12
+      add_package 'numpy' '>1.11'
+    fi
 
   else
     # gflags 2.2.1 is built against the new ABI but gflags 2.2.0 is not
@@ -157,6 +172,10 @@ if [[ "$(uname)" != 'Darwin' ]]; then
     #remove_package 'leveldb'
     #conda install -y 'leveldb=1.20=hf484d3e_1'
   fi
+else
+  # On macOS opencv 3.3.1 (there's only 3.3.1 and 2.4.8) requires protobuf
+  # 3.4
+  portable_sed "s/3.5.1/3.4.1/" "${CONDA_BUILD_CONFIG_YAML}"
 fi
 
 
@@ -165,9 +184,9 @@ fi
 #
 # If --user and --token are set, then this will also upload the built package
 # to Anaconda.org, provided there were no failures and all the tests passed
-CONDA_CMAKE_BUILD_ARGS="$CMAKE_BUILD_ARGS" conda build "${CAFFE2_CONDA_BUILD_DIR}" ${CONDA_BUILD_ARGS[@]} "$@"
+CONDA_CMAKE_BUILD_ARGS="$CMAKE_BUILD_ARGS" conda build "${CAFFE2_CONDA_BUILD_DIR}" $CAFFE2_CONDA_CHANNEL ${CONDA_BUILD_ARGS[@]} "$@"
 
 # Install Caffe2 from the built package into the local conda environment
 if [ -n "$CONDA_INSTALL_LOCALLY" ]; then
-  conda install -y "${CAFFE2_PACKAGE_NAME}" --use-local
+  conda install -y $CAFFE2_CONDA_CHANNEL "${CAFFE2_PACKAGE_NAME}" --use-local
 fi
