@@ -286,7 +286,7 @@ OPERATOR_SCHEMA(ReduceMax)
     .NumInputs(1)
     .NumOutputs(1)
     .SetDoc(R"DOC(
-      Computes the minimum of the input tensor's element along the provided axes.
+      Computes the maximum of the input tensor's element along the provided axes.
       The resulted tensor has the same rank as the input if keepdims equal 1.
       If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
     )DOC")
@@ -306,7 +306,7 @@ OPERATOR_SCHEMA(ReduceSumSquare)
     .NumInputs(1)
     .NumOutputs(1)
     .SetDoc(R"DOC(
-      Computes the minimum of the input tensor's element along the provided axes.
+      Computes the sum square of the input tensor's element along the provided axes.
       The resulted tensor has the same rank as the input if keepdims equal 1.
       If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
     )DOC")
@@ -326,7 +326,7 @@ OPERATOR_SCHEMA(ReduceLogSum)
     .NumInputs(1)
     .NumOutputs(1)
     .SetDoc(R"DOC(
-      Computes the minimum of the input tensor's element along the provided axes.
+      Computes the log sum of the input tensor's element along the provided axes.
       The resulted tensor has the same rank as the input if keepdims equal 1.
       If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
     )DOC")
