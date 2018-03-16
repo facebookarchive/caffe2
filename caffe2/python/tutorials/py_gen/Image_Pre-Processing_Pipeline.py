@@ -116,16 +116,6 @@ pyplot.title('OpenCV, Caffe2 = BGR')
 # In many ways this is the first thing you need to evaluate in your pipeline, then look at sizing (described below), then figure out the color situation. If you're developing for iOS, then you're in luck, it's going to be relatively easy. If you're a super-hacker wizard developer with lead-lined shorts and developing for Android, then at least you have lead-lined shorts. 
 # 
 # The variability in the Android marketplace is wonderful and horrifying. In an ideal world, you could rely on the EXIF data in pictures coming from any camera and use that to decide orientation and mirroring and you'd have one simple case function to handle your transformations. No such luck, but you're not alone. Many have come before you and suffered for you.
-# 
-# ### Library for Handling Mobile Images
-# 
-# Hooray! We're going to give you something to ease your pain. These are not full-proof. Users can and will defy you and every other developers' best attempts to handle their images. Here we'll link to some resources that can be used depending on the platform.
-# 
-# Image Preprocessing Libraries and/or Snippits
-# - [iOS](#)
-# - [Android](#)
-# - [Python](#)
-# In the meantime though, let's play with some images and show the basics for manipulations that you might need to do.
 
 # In[3]:
 
