@@ -15,6 +15,7 @@
  */
 
 #include "caffe2/operators/reduce_ops.h"
+#include "float.h"
 
 namespace caffe2 {
 
@@ -125,7 +126,6 @@ bool ReduceMeanOp<T, Context>::Compute(
   ComputeOp<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims, Add);
   math::Scale(
       Y_size, static_cast<float>(Y_size) / X_size, Y_data, Y_data, &context_);
-
   return true;
 }
 
