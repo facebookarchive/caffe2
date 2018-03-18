@@ -14,7 +14,7 @@
 # 
 # For our model, we will be constructing the [LeNet model](http://yann.lecun.com/exdb/lenet/) with the sigmoid activations replaced with [ReLUs](http://www.cs.toronto.edu/~fritz/absps/reluICML.pdf). This tutorial will also give the option to use a simple Multi-layer Perceptron (MLP) model which does not include any convolutional operators. You may select the desired model via the *USE_LENET_MODEL* flag below.
 # 
-# Before we start, note that we will be using *ModelHelper* class in this tutorial. This class helps us deal with parameter initialization naturally, and relieves us from having to maintain the param_init_net and net objects separately.
+# Before we start, note that we will be using *ModelHelper* class in this tutorial. This class helps us deal with parameter initialization naturally and relieves us from having to maintain the param_init_net and net objects separately.
 # 
 # Before we start, let's import the necessities.
 
@@ -199,7 +199,7 @@ def AddInput(model, batch_size, db, db_type):
 # - The FC operator is added to `model.net` by calling `model.net.FC([layer, W, b], ...)`
 # - The initializations for $W$ and $b$ are added to the `model.param_init_net`
 # 
-# Hopefully, this makes the convenience of brew is clear! 
+# Hopefully, this makes the convenience of brew is clearer! 
 
 # In[4]:
 
@@ -482,7 +482,7 @@ pyplot.legend(('Loss', 'Accuracy'), loc='upper right')
 
 # ## Visualize Results
 # 
-# Now that our model is trained we can visualize the results of our labors. But first, check out what was printed during the training run above. In the first iteration, the training accuracy for batch 0 was 3.1%, but it quickly converged to mid-nineties by the 100th iteration. The plot is also shows this trend. 
+# Now that our model is trained we can visualize the results of our labors. But first, check out what was printed during the training run above. In the first iteration, the training accuracy for batch 0 was 3.1%, but it quickly converged to mid-nineties by the 100th iteration. The plot also shows this trend. 
 # 
 # This is a good sign!
 
@@ -497,7 +497,7 @@ data = workspace.FetchBlob('data')
 # Use visualize module to show the examples from the last batch that was fed to the model
 _ = visualize.NCHW.ShowMultiple(data)
 
-### Lets visualize the softmax result
+### Let's visualize the softmax result
 pyplot.figure()
 pyplot.title('Softmax Prediction for the first image above')
 pyplot.ylabel('Confidence')
@@ -589,7 +589,7 @@ print("Deploy model saved to: " + root_folder + "/mnist_model.minidb")
 # 
 # Note: For the sake of the tutorial we will do this here, but this section represents how we can load a model that was trained and saved at another time, in a different place.
 # 
-# Lets load the saved deploy model from the previous step and rerun our tests for verification.
+# Let's load the saved deploy model from the previous step and rerun our tests for verification.
 
 # In[19]:
 

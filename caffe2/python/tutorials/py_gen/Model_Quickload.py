@@ -10,7 +10,7 @@
 
 # # Model Quickload
 # 
-# This notebook will show you how you can very quickly load a pretrained SqueezeNet model and test it on images of your choice in four main steps. 
+# This notebook will show you how to quickly load a pretrained SqueezeNet model and test it on images of your choice in four main steps. 
 # 
 # 1. Load the model
 # 2. Format the input
