@@ -2620,9 +2620,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 <tr class="memitem:a751c59304364bbaa259c9b30b3294da8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a751c59304364bbaa259c9b30b3294da8"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CAFFE_DEFINE_REGISTRY</b> (NetRegistry, <a class="el" href="classcaffe2_1_1_net_base.html">NetBase</a>, const std::shared_ptr&lt; const NetDef &gt; &amp;, <a class="el" href="classcaffe2_1_1_workspace.html">Workspace</a> *)</td></tr>
 <tr class="separator:a751c59304364bbaa259c9b30b3294da8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a697f38e38b51fbbda15ef83ab230e4c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a697f38e38b51fbbda15ef83ab230e4c3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetGlobalNetObserverCreator</b> (NetObserverCreator creator)</td></tr>
-<tr class="separator:a697f38e38b51fbbda15ef83ab230e4c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8579560764a8c73026602ff1b919a1ce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8579560764a8c73026602ff1b919a1ce"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddGlobalNetObserverCreator</b> (NetObserverCreator creator)</td></tr>
+<tr class="separator:a8579560764a8c73026602ff1b919a1ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9463003c6ef9000d089ffeaf9296c05"><td class="memItemLeft" align="right" valign="top">unique_ptr&lt; <a class="el" href="classcaffe2_1_1_net_base.html">NetBase</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacecaffe2.html#aa9463003c6ef9000d089ffeaf9296c05">CreateNet</a> (const NetDef &amp;net_def, <a class="el" href="classcaffe2_1_1_workspace.html">Workspace</a> *ws)</td></tr>
 <tr class="memdesc:aa9463003c6ef9000d089ffeaf9296c05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a network, accessing / creating blobs in the given workspace.  <a href="#aa9463003c6ef9000d089ffeaf9296c05">More...</a><br /></td></tr>
 <tr class="separator:aa9463003c6ef9000d089ffeaf9296c05"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10023,7 +10023,7 @@ template&lt;typename InputTypes , class Context , class Functor , class OutputTy
 <p>Creates a network, accessing / creating blobs in the given workspace. </p>
 <p>Note that this is different from <a class="el" href="classcaffe2_1_1_workspace.html#ac8c465ceb6cecbd5a2311f3d5bf4c35e" title="Creates a network with the given NetDef, and returns the pointer to the network. ">Workspace::CreateNet</a>. The latter adds the created net object to the workspace's net map, while this function returns a standalone net object. </p>
 
-<p>Definition at line <a class="el" href="net_8cc_source.html#l00117">117</a> of file <a class="el" href="net_8cc_source.html">net.cc</a>.</p>
+<p>Definition at line <a class="el" href="net_8cc_source.html#l00119">119</a> of file <a class="el" href="net_8cc_source.html">net.cc</a>.</p>
 
 </div>
 </div>
@@ -11077,7 +11077,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Mar 18 2018 13:03:54 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Mar 19 2018 13:12:26 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
