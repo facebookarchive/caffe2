@@ -263,6 +263,13 @@ Merge RPN proposals generated at multiple FPN levels and then
 distribute those proposals to their appropriate FPN levels for Faster RCNN.
 An anchor at one FPN level may predict an RoI that will map to another level,
 hence the need to redistribute the proposals.
+
+Only inference is supported. To train, please use the original Python
+operator in Detectron.
+
+Inputs and outputs are examples only; if min/max levels change,
+the number of inputs and outputs, as well as their level numbering,
+will change.
 )DOC")
     .Arg("roi_canonical_scale", "(int) ROI_CANONICAL_SCALE")
     .Arg("roi_canonical_level", "(int) ROI_CANONICAL_LEVEL")
