@@ -10,9 +10,8 @@
 
 # # MNIST Dataset & Database
 # 
-# In the [MNIST tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/MNIST.ipynb) we use a lmdb database. You can also use leveldb or even minidb by changing the type reference when you get ready to read from the db's.
-# 
-# 
+# In the [MNIST tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/MNIST.ipynb) we use an lmdb database. You can also use leveldb or even minidb by changing the type reference when you get ready to read from the dbs. In this tutorial, we will go over how to download, extract, and generate lmdb and leveldb variants of the MNIST dataset.
+
 # ## Dataset:
 # 
 # You can download the raw [MNIST dataset](https://download.caffe2.ai/datasets/mnist/mnist.zip), g/unzip the dataset and labels, and make the database yourself. 
@@ -42,36 +41,20 @@
 # ```
 # Note leveldb can get deadlocked if more than one user attempts to open the leveldb at the same time. This is why there is logic in the Python below to delete LOCK files if they're found.
 # 
-# TODO: it would be great to extend this binary to create other database formats 
 # 
 # ### Python script
 # 
-# You can use the Python in the code block below to download the dataset with `DownloadResource`, call the `make_mnist_db` binary, and generate your database with `GenerateDB`. 
+# You can use the Python in the code blocks below to download and extract the dataset with `DownloadResource`, call the `make_mnist_db` binary, and generate your database with `GenerateDB`. 
 # 
-# The `DownloadResource` function can also download and extract a database for you.
-# 
-# 
-# **Downloads and extracts the MNIST dataset**
-# The sample function below will download and extract the dataset for you.
-# ```python
-# DownloadResource("http://download.caffe2.ai/datasets/mnist/mnist.zip", data_folder)
-# ```
-# 
-# **Downloads and extracts the lmdb databases of MNIST images - both test and train**
-# ```python
-# DownloadResource("http://download.caffe2.ai/databases/mnist-lmdb.zip", data_folder)
-# ```
-# 
-# **(Re)generate the leveldb database (it can get locked with multi-user setups or abandoned threads)**
-# Requires the download of the dataset (mnist.zip) - see above.
-# 
-# ```python
-# GenerateDB(image_file_train, label_file_train, "mnist-train-nchw-leveldb")
-# GenerateDB(image_file_test, label_file_test, "mnist-test-nchw-leveldb")
-# ```
+# First, we will define our functions.
 
-# In[ ]:
+# In[1]:
 
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 
@@ -88,28 +71,62 @@ def DownloadResource(url, path):
 def GenerateDB(image, label, name):
     '''Calls the make_mnist_db binary to generate a leveldb from a mnist dataset'''
     name = os.path.join(data_folder, name)
-    print 'DB: ', name
+    print('DB: ', name)
     if not os.path.exists(name):
         syscall = "/usr/local/bin/make_mnist_db --channel_first --db leveldb --image_file " + image + " --label_file " + label + " --output_file " + name
         # print "Creating database with: ", syscall
         os.system(syscall)
     else:
-        print "Database exists already. Delete the folder if you have issues/corrupted DB, then rerun this."
+        print("Database exists already. Delete the folder if you have issues/corrupted DB, then rerun this.")
         if os.path.exists(os.path.join(name, "LOCK")):
             # print "Deleting the pre-existing lock file"
             os.remove(os.path.join(name, "LOCK"))
 
-            
+
+# Now that we have our functions for loading, extracting, and generating our dbs, we will put these functions to use and generate the MNIST data in both lmdb and leveldb formats (if they do not already exist).
+# 
+# First, we **download and extract the MNIST dataset (train and test) in lmdb format** using:
+# 
+# ```python
+# DownloadResource("http://download.caffe2.ai/databases/mnist-lmdb.zip", data_folder)
+# ```
+# 
+# 
+# Next, we focus on **downloading, extracting, and generating MNIST train and test leveldbs**. We start by downloading and extracting the raw MNIST dataset (in ubyte format). This will ultimately extract four files, consisting of training images and labels, and testing images and labels.
+# 
+# ```python
+# DownloadResource("http://download.caffe2.ai/datasets/mnist/mnist.zip", data_folder)
+# ```
+# 
+# 
+# Finally, we **generate the leveldb train and test databases** (or regenerate; it can get locked with multi-user setups or abandoned threads). We do this by passing our `GenerateDB` function the names of the corresponding ubyte files along with an output file name.
+# 
+# ```python
+# GenerateDB(image_file_train, label_file_train, "mnist-train-nchw-leveldb")
+# GenerateDB(image_file_test, label_file_test, "mnist-test-nchw-leveldb")
+# ```
+
+# In[ ]:
+
+
 current_folder = os.path.join(os.path.expanduser('~'), 'caffe2_notebooks')
 data_folder = os.path.join(current_folder, 'tutorial_data', 'mnist')
+
+# If the data_folder does not already exist, create it
+if not os.path.exists(data_folder):
+    os.makedirs(data_folder)   
 
 # Downloads and extracts the lmdb databases of MNIST images - both test and train
 if not os.path.exists(os.path.join(data_folder,"mnist-train-nchw-lmdb")):
     DownloadResource("http://download.caffe2.ai/databases/mnist-lmdb.zip", data_folder)
+else:
+    print("mnist-lmdb already downloaded and extracted")
 
 # Downloads and extracts the MNIST data set
 if not os.path.exists(os.path.join(data_folder, "train-images-idx3-ubyte")):
     DownloadResource("http://download.caffe2.ai/datasets/mnist/mnist.zip", data_folder)
+else:
+    print("Raw mnist ubyte data already downloaded and extracted")
 
 # (Re)generate the leveldb database (it can get locked with multi-user setups or abandoned threads)
 # Requires the download of the dataset (mnist.zip) - see DownloadResource above.
