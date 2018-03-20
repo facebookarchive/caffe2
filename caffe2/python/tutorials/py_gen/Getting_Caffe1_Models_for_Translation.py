@@ -10,7 +10,7 @@
 
 # # Getting Caffe1 Models and Datasets
 # 
-# This tutorial will help you acquire a variety of models and datasets and put them into places that the other tutorials will expect. We will primarily utilize Caffe's pre-trained models and the scripts that come in that repo. If you don't already have it, then clone it like so:
+# This tutorial will help you acquire a variety of pre-trained models from the original Caffe repo, and translate these models to a format that Caffe2 expects. If you don't already have the Caffe repo, then clone it like so:
 # 
 # ```
 # git clone https://github.com/BVLC/caffe.git
@@ -21,11 +21,16 @@
 # In[ ]:
 
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import os
 print("Required modules imported.")
 
 
-# Now you can setup your root folder for Caffe below if you put it somewhere else. You should only be changing the path that's being set for CAFFE_ROOT.
+# Now you can setup your root folder for Caffe below if you put it somewhere else. You should only be changing the path that's being set for `CAFFE_ROOT`.
 
 # In[ ]:
 
@@ -35,6 +40,7 @@ print("Required modules imported.")
 # change the CAFFE_ROOT directory below accordingly
 CAFFE_ROOT = os.path.expanduser('~/caffe')
 
+# Make sure Caffe exists where you specified
 if not os.path.exists(CAFFE_ROOT):
     print("Houston, you may have a problem.") 
     print("Did you change CAFFE_ROOT to point to your local Caffe repo?")
@@ -48,14 +54,28 @@ if not os.path.exists(CAFFE_ROOT):
 
 # Pick a model, and if you don't have it, it will be downloaded
 # format below is the model's folder, model's dataset inside that folder
+
 #MODEL = 'bvlc_alexnet', 'bvlc_alexnet.caffemodel' 
 #MODEL = 'bvlc_googlenet', 'bvlc_googlenet.caffemodel'
 #MODEL = 'finetune_flickr_style', 'finetune_flickr_style.caffemodel'
 #MODEL = 'bvlc_reference_caffenet', 'bvlc_reference_caffenet.caffemodel'
 MODEL = 'bvlc_reference_rcnn_ilsvrc13', 'bvlc_reference_rcnn_ilsvrc13.caffemodel'
 
-# scripts to download the models reside here (~/caffe/models)
-# after downloading the data will exist with the script
+
+# As a reminder, in Caffe, the deploy model is saved in two parts:
+# 
+#     1) deploy.prototxt: contained the network architecture in human-readable protobuf format
+#     2) .caffemodel file: contained the model weights and parameters for loading
+# 
+# Therefore, to translate the model to Caffe2, we need both of these files. We already have the `deploy.prototxt` files for all of the models in `~/caffe/models`, so we need the learned weights.
+# 
+# Below, we'll check to see if the `.caffemodel` file from the last model that we uncommented above already exists. If it does not already exist in the location that we specify, we will download it using the `download_model_binary.py` script in the Caffe repo. **Note that .caffemodel files are typically fairly large files, so downloading one will take a few moments.** We will be sure to print a message so we know when we can continue.
+
+# In[ ]:
+
+
+# Scripts to download the models reside here (~/caffe/models)
+# After downloading the data will exist with the script
 CAFFE_MODELS = os.path.join(CAFFE_ROOT, 'models')
 
 # this is like: ~/caffe/models/bvlc_alexnet/deploy.prototxt
@@ -63,21 +83,61 @@ CAFFE_MODEL_FILE = os.path.join(CAFFE_MODELS, MODEL[0], 'deploy.prototxt')
 # this is like: ~/caffe/models/bvlc_alexnet/bvlc_alexnet.caffemodel
 CAFFE_PRETRAINED = os.path.join(CAFFE_MODELS, MODEL[0], MODEL[1])
     
-# if the model folder doesn't have the goods, then download it
-# this is usually a pretty big file with the .caffemodel extension
+# If the model folder doesn't have the goods, then download it
+# This is usually a pretty big file with the .caffemodel extension
 if not os.path.exists(CAFFE_PRETRAINED):
-    print(CAFFE_PRETRAINED + " not found. Attempting download. Be patient...")
+    print(CAFFE_PRETRAINED + " not found. Attempting download. Be patient...\n")
     os.system(
         os.path.join(CAFFE_ROOT, 'scripts/download_model_binary.py') +
         ' ' +
         os.path.join(CAFFE_ROOT, 'models', MODEL[0]))
 else:
-    print("You already have " + CAFFE_PRETRAINED)
+    print("You already have " + CAFFE_PRETRAINED + ", skipping download...\n")
 
-# if the .prototxt file was missing then you're in trouble; cannot continue
+# If the .prototxt file was missing then you're in trouble; cannot continue
 if not os.path.exists(CAFFE_MODEL_FILE):
     print("Caffe model file, " + CAFFE_MODEL_FILE + " was not found!")
 else:
-    print("Now we can test the model!")
+    print("Both the deploy.prototxt and .caffemodel files were found, ready to continue!")
+    # Now we have init net and predict net .pb files to use
 
+
+# Now that we have both the `deploy.prototxt` and `.caffemodel` files, we can translate the model to the Caffe2 saved model format, which consists of two serialized protobuf files:
+# 
+#     1) init_net.pb
+#     2) predict_net.pb
+#     
+# To do this, we will use Caffe2's translator script at `~/caffe2/caffe2/python/caffe_translator.py`.
+# 
+# **Again, depending on the size of the model, this may take a minute or two**
+
+# In[ ]:
+
+
+# Set the CAFFE2_ROOT
+CAFFE2_ROOT = os.path.expanduser('~/caffe2')
+init_net_out = os.path.join(CAFFE_MODELS, MODEL[0], 'init_net.pb')
+predict_net_out = os.path.join(CAFFE_MODELS, MODEL[0], 'predict_net.pb')
+
+# Run the caffe_translator.py script to translate to Caffe2 if files do not already exist
+if (not os.path.exists(init_net_out)) or (not os.path.exists(predict_net_out)):
+    print("Protobuf files not found. Running translation. Be patient...\n")
+    os.system(
+        'python' + ' ' + os.path.join(CAFFE2_ROOT, 'caffe2/python/caffe_translator.py') +
+        ' ' + CAFFE_MODEL_FILE + ' ' + CAFFE_PRETRAINED + ' ' + 
+        '--init_net' + ' ' + init_net_out + ' ' +
+        '--predict_net' + ' ' + predict_net_out
+    )
+else:
+    print("You already have both .pb files, skipping translation...\n")    
+
+# Print if files are where they are expected to be
+if (not os.path.exists(init_net_out)) or (not os.path.exists(predict_net_out)):
+    print(init_net_out + " and/or " + predict_net_out + " was NOT FOUND!")
+else:
+    print("Protobuf files can be found at: \n", 
+              os.path.join(CAFFE_MODELS, MODEL[0])), "!"
+
+
+# At this point, we have translated the model from Caffe to a format that Caffe2 can use. Have a look at our other tutorials, such as *Loading Pretrained Models* to see an example of how to use these .pb files for inference.
 

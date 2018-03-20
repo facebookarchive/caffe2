@@ -27,6 +27,8 @@ from caffe2.python.modeling.parameter_info import (
 from caffe2.python.modeling.parameter_sharing import (
     parameter_sharing_context,
 )
+from caffe2.python.modeling.net_modifier import NetModifier
+
 from caffe2.python.optimizer import get_param_device
 from caffe2.python.regularizer import Regularizer
 from caffe2.python.layers import layers
@@ -74,6 +76,9 @@ class LayerModelHelper(model_helper.ModelHelper):
         self._loss = None
         self._output_schema = None
 
+        self._post_grad_net_modifiers = []
+        self._final_net_modifiers = []
+
         # breakdown map; breakdown features are categorical (like dense) but not
         # necessarily used to represent data for training
         self._breakdown_map = None
@@ -90,6 +95,8 @@ class LayerModelHelper(model_helper.ModelHelper):
             trainer_extra_schema
         ) if not keep_blobs else trainer_extra_schema.clone()
         self._metrics_schema = schema.Struct()
+
+        self._preproc_output_schema = None
 
         self._init_global_constants()
         self.param_init_net = self.create_init_net('param_init_net')
@@ -171,6 +178,18 @@ class LayerModelHelper(model_helper.ModelHelper):
         # To ad hoc add new global constants without duplication
         # if the name was already registered in global_constants, it will not be
         # added even if the intended value is different from its original value
+
+        def op_equal(operator1, operator2):
+            o1 = copy.deepcopy(operator1)
+            o2 = copy.deepcopy(operator2)
+            # debug_info is supposed to be different, and we don't need to
+            # compare debug_info
+            if hasattr(o1, 'debug_info'):
+                o1.debug_info = ''
+            if hasattr(o2, 'debug_info'):
+                o2.debug_info = ''
+            return o1 == o2
+
         if name in self.global_constants:
             blob_name = self.global_constants[name]
             initializer_op = \
@@ -179,8 +198,8 @@ class LayerModelHelper(model_helper.ModelHelper):
                 )
             # check if the original initializer is the same as the one intended
             # now
-            assert initializer_op == \
-                self.global_constant_initializers[blob_name], \
+            assert op_equal(initializer_op,
+                            self.global_constant_initializers[blob_name]), \
                 "conflict initializers for global constant %s, " \
                 "previous %s, now %s" % (
                     blob_name, str(initializer_op),
@@ -314,9 +333,27 @@ class LayerModelHelper(model_helper.ModelHelper):
 
         return param_blobs
 
+    def add_post_grad_net_modifiers(self, modifier):
+        assert modifier not in self._post_grad_net_modifiers,\
+            "{0} is already in {1}".format(modifier, self._post_grad_net_modifiers)
+        assert isinstance(modifier, NetModifier),\
+            "{} has to be a NetModifier instance".format(modifier)
+        self._post_grad_net_modifiers.append(modifier)
+
+    def add_final_net_modifiers(self, modifier):
+        assert modifier not in self._final_net_modifiers,\
+            "{0} is already in {1}".format(modifier, self._final_net_modifiers)
+        assert isinstance(modifier, NetModifier),\
+            "{} has to be a NetModifier instance".format(modifier)
+        self._final_net_modifiers.append(modifier)
+
     @property
     def seed(self):
         return self._seed
+
+    @property
+    def sequence_seed(self):
+        return self._sequence_seed
 
     def store_seed(self, seed, sequence_seed=True):
         # Store seed config that will be applied to each op in the net.
@@ -366,6 +403,16 @@ class LayerModelHelper(model_helper.ModelHelper):
         self._output_schema = schema
 
     @property
+    def preproc_output_schema(self):
+        assert self._preproc_output_schema is not None
+        return self._preproc_output_schema
+
+    @preproc_output_schema.setter
+    def preproc_output_schema(self, schema):
+        assert self._preproc_output_schema is None
+        self._preproc_output_schema = schema
+
+    @property
     def loss(self):
         assert self._loss is not None
         return self._loss
@@ -394,6 +441,21 @@ class LayerModelHelper(model_helper.ModelHelper):
                 index += 1
             loss_struct = schema.Struct((prefix, loss))
             self._loss = self._loss + loss_struct
+
+    def add_output_schema(self, name, value):
+        assert value is not None, \
+            'Added output schema {} should not be None'.format(name)
+        assert isinstance(value, schema.Scalar) or \
+            isinstance(value, schema.Struct), \
+            'Added output schema {} should be a scalar or a struct.\n\
+            Now it is {}.'.format(name, type(value))
+        if self._output_schema is None:  # be the first field
+            self._output_schema = schema.Struct((name, value))
+        else:  # merge with other fields
+            assert name not in self._output_schema.fields, \
+                'Output Schema Field {} already exists'.format(name)
+            self._output_schema = \
+                self._output_schema + schema.Struct((name, value))
 
     def add_trainer_extra_schema(self, trainer_extra_schema):
         trainer_extra_record = schema.NewRecord(self.net, trainer_extra_schema)
@@ -475,6 +537,28 @@ class LayerModelHelper(model_helper.ModelHelper):
             assert isinstance(regularizer, Regularizer)
             regularizer(
                 train_net, train_init_net, param, grad_map.get(str(param)))
+
+    def apply_post_grad_net_modifiers(
+        self,
+        trainer_net,
+        trainer_init_net,
+        grad_map,
+        blob_to_device=None,
+    ):
+        for modifier in self._post_grad_net_modifiers:
+            modifier(trainer_net, trainer_init_net, grad_map,
+                     blob_to_device=blob_to_device)
+
+    def apply_final_net_modifiers(
+        self,
+        trainer_net,
+        trainer_init_net,
+        grad_map,
+        blob_to_device=None,
+    ):
+        for modifier in self._final_net_modifiers:
+            modifier(trainer_net, trainer_init_net, grad_map,
+                     blob_to_device=blob_to_device)
 
     def apply_optimizers(
         self,

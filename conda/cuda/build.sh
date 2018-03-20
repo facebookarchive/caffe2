@@ -20,11 +20,16 @@ set -ex
 
 echo "Installing caffe2 to ${PREFIX}"
 
+# This is needed for build variants (packages with multiple variants in 
+# conda_build_config.yaml) to remove any files that cmake cached, since
+# conda-build uses the same environment for all the build variants
+rm -rf build
+
 PYTHON_ARGS="$(python ./scripts/get_python_cmake_flags.py)"
 CMAKE_ARGS=()
 
 # Build with minimal required libraries
-CMAKE_ARGS+=("-DUSE_LEVELDB=OFF")
+# Add CMAKE flags here
 CMAKE_ARGS+=("-DUSE_MPI=OFF")
 
 # Build with CUDA
@@ -37,7 +42,7 @@ CMAKE_ARGS+=("-DCMAKE_PREFIX_PATH=$PREFIX")
 
 mkdir -p build
 cd build
-cmake "${CMAKE_ARGS[@]}"  $CONDA_CMAKE_ARGS $PYTHON_ARGS ..
+cmake "${CMAKE_ARGS[@]}"  $CONDA_CMAKE_BUILD_ARGS $PYTHON_ARGS ..
 make "-j$(nproc)"
 
 make install/fast
