@@ -194,7 +194,7 @@ float OnnxAttributes::get(const std::string& key) const {
 
 template <> const std::string*
 OnnxAttributes::get(const std::string &key) const {
-  const std::string* value;
+  const std::string* value = nullptr;
   const auto it = onnx_attrs_.find(key);
   if (it != onnx_attrs_.end()) {
     const AttributeProto &attr = *it->second;
@@ -312,7 +312,7 @@ Caffe2Backend::get_renamed_operators() const {
 const std::unordered_map<std::string, std::string>&
 Caffe2Backend::get_renamed_attrs() const {
   const static std::unordered_map<std::string, std::string> kRenamedAttrs{
-      {"kernel_shape", "kernels"}, {"auto_pad", ""}};
+      {"kernel_shape", "kernels"}};
   return kRenamedAttrs;
 }
 
@@ -417,6 +417,7 @@ Caffe2Ops Caffe2Backend::CreateConvPoolOpBase(
 
   if (attributes.HasAttribute("auto_pad")) {
     auto auto_pad = attributes.get<const std::string*>("auto_pad");
+    attributes.remove("auto_pad");
     if (*auto_pad == "VALID") {
       auto* attr = attributes.AddRewrittenAttibute("legacy_pad");
       attr->set_i(LegacyPadding::VALID);
