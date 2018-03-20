@@ -5,6 +5,8 @@
 #include "caffe2/onnx/helper.h"
 #include "caffe2/utils/map_utils.h"
 #include "caffe2/utils/proto_utils.h"
+#include "caffe2/proto/caffe2_legacy.pb.h"
+#include "onnx/defs/schema.h"
 
 #if !CAFFE2_MOBILE
 #include "onnx/checker.h"
@@ -190,6 +192,17 @@ float OnnxAttributes::get(const std::string& key) const {
   return value;
 }
 
+template <> const std::string*
+OnnxAttributes::get(const std::string &key) const {
+  const std::string* value;
+  const auto it = onnx_attrs_.find(key);
+  if (it != onnx_attrs_.end()) {
+    const AttributeProto &attr = *it->second;
+    value = &attr.s();
+  }
+  return value;
+}
+
 template <>
 ::google::protobuf::RepeatedPtrField<std::string> OnnxAttributes::get(
     const std::string& key) const {
@@ -235,6 +248,9 @@ OnnxAttributes::OnnxAttrToCaffe2Arg(
     const auto& attr = rewritten_onnx_attrs_.count(kv.first)
         ? rewritten_onnx_attrs_.at(kv.first)
         : (*kv.second);
+    if (mapper(attr.name()).empty()) {
+      continue;
+    }
     auto* arg = args.Add();
     arg->set_name(mapper(attr.name()));
     CopyOnnxAttrValueToCaffe2Arg(arg, attr);
@@ -296,7 +312,7 @@ Caffe2Backend::get_renamed_operators() const {
 const std::unordered_map<std::string, std::string>&
 Caffe2Backend::get_renamed_attrs() const {
   const static std::unordered_map<std::string, std::string> kRenamedAttrs{
-      {"kernel_shape", "kernels"}};
+      {"kernel_shape", "kernels"}, {"auto_pad", ""}};
   return kRenamedAttrs;
 }
 
@@ -397,6 +413,23 @@ Caffe2Ops Caffe2Backend::CreateConvPoolOpBase(
   if (node.op_type().find("Global") == 0) {
     auto* attr = attributes.AddRewrittenAttibute("global_pooling");
     attr->set_i(1);
+  }
+
+  if (attributes.HasAttribute("auto_pad")) {
+    auto auto_pad = attributes.get<const std::string*>("auto_pad");
+    if (*auto_pad == "VALID") {
+      auto* attr = attributes.AddRewrittenAttibute("legacy_pad");
+      attr->set_i(LegacyPadding::VALID);
+    } else if (*auto_pad == "SAME_LOWER") {
+      throw std::runtime_error("SAME_LOWER is not supported by Caffe2.");
+    } else if (*auto_pad == "SAME_UPPER") {
+      auto* attr = attributes.AddRewrittenAttibute("legacy_pad");
+      attr->set_i(LegacyPadding::SAME);
+    } else {
+      throw std::runtime_error(
+          "auto_pad should be one of VALID, SAME_LOWER, SAME_UPPER, unrecognized: " +
+          *auto_pad);
+    }
   }
 
   if (attributes.HasAttribute("kernel_shape") &&

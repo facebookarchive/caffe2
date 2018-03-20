@@ -81,6 +81,8 @@ template <>
 int64_t OnnxAttributes::get(const std::string& key) const;
 template <>
 float OnnxAttributes::get(const std::string& key) const;
+template <>
+const std::string* OnnxAttributes::get(const std::string& key) const;
 
 template <>
 ::google::protobuf::RepeatedPtrField<std::string> OnnxAttributes::get(
