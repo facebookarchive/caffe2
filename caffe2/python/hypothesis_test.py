@@ -1723,10 +1723,18 @@ class TestOperators(hu.HypothesisTestCase):
             np.asarray([initial_iters]).astype(np.int64))
         concurrent_steps = core.ExecutionStep("concurrent_steps",
                                               num_iter=num_iters)
+        sre_ops = []
         for i in range(num_nets):
             net = core.Net("net_{}".format(i))
             net.AtomicIter([iter_mutex, "iter"], ["iter"])
             step = core.ExecutionStep("step", [net])
+            sre_op = net.StatRegistryExport(
+                [], [
+                    "stat_key_{}".format(i), "stat_value_{}".format(i),
+                    "stat_ts_{}".format(i)
+                ]
+            )
+            sre_ops.append(sre_op)
             concurrent_steps.AddSubstep(step)
 
         concurrent_steps.SetConcurrentSubsteps(True)
