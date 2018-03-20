@@ -11,17 +11,17 @@
 # # CIFAR-10: Part 1
 # In this two-part tutorial, we present an end-to-end example of training and using a convolutional neural network for a classic image recognition problem. We will use the CIFAR-10 benchmark dataset, which is a 10-class dataset consisting of 60,000 color images of size 32x32. We will use a .png version of the dataset to emulate the use of a custom dataset that you might find in the wild. The specific items that this tutorial will cover are as follows:
 # 
-# ### Part 1:
+# **Part 1:**
 # - Download dataset
 # - Write images to lmdbs
 # - Define and train a model with checkpoints
 # - Save the trained model
 # 
-# ### Part 2:
+# **Part 2:**
 # - Load pre-trained model from Part 1
 # - Run inference on testing lmdb
-# - Run inference on single .png image
-# - Continue training from checkpoint
+# - Continue training to improve test accuracy
+# - Test the retrained model
 # 
 # 
 # Let's start with some necessary imports.
@@ -188,7 +188,7 @@ print("classes:", classes)
 # 
 # To help get a relatively even distribution of each class of image in the training and validation sets, we first read all of the images (full paths) from the training directory into an array called `imgs`, and shuffle this list before iterating over it to write our label files.
 
-# In[5]:
+# In[ ]:
 
 
 from random import shuffle
@@ -316,7 +316,7 @@ image_channels = 3              # input image channels (3 for RGB)
 num_classes = 10                # number of image classes
 
 # Training params
-training_iters = 5000           # total training iterations
+training_iters = 2000           # total training iterations
 training_net_batch_size = 100   # batch size for training
 validation_images = 6000        # total number of validation images
 validation_interval = 100       # validate every <validation_interval> training iterations
@@ -613,6 +613,7 @@ for i in range(training_iters):
 plt.title("Training Loss vs. Validation Accuracy")
 plt.plot(iteration_list, loss, 'b')
 plt.plot(iteration_list, val_accuracy, 'r')
+plt.xlabel("Training iteration")
 plt.legend(('Loss', 'Validation Accuracy'), loc='upper right')
 
 
@@ -644,7 +645,7 @@ with open(full_predict_net_out, 'wb') as f:
 print("Model saved as " + full_init_net_out + " and " + full_predict_net_out)
 
 
-# **Congratulations!** You have made it through Part 1 of the tutorial. In Part 2, we will load the model that we just trained and do all sorts of fun things like running inference on our testing LMDB, running inference on a given .png, and continuing training from one of our checkpoint outputs.
+# **Congratulations!** You have made it through Part 1 of the tutorial. In Part 2, we will load the model that we just trained and do all sorts of fun things like running inference on our testing LMDB, running inference on a given .png, and continuing training for increased performance.
 # 
 # Thanks, and see you at Part 2!
 
