@@ -13,6 +13,8 @@ permalink: /docs/faq.html
 * [Why isn't Caffe2 working as expected in Anaconda?](#why-is-caffe2-not-working-as-expected-in-anaconda)
 * [How do I fix error messages that are protobuf related?](#how-do-i-fix-error-messages-that-are-protobuf-related)
 * [How can I find a file, library, or package on my computer?](#how-can-i-find-a-file-library-or-package-on-my-computer)
+* [How can I find what dependencies my Caffe2 library (or other library) has?](#how-can-i-find-what-dependencies-my-caffe2-library-or-other-library-has)
+* [The source directory does not contain a CMakeLists.txt file](#the-source-directory-does-not-contain-a-cmakeliststxt-file)
 * [No module named caffe2_pybind11_state_gpu](#no-module-named-caffe2pybind11stategpu)
 * [My python kernel keeps crashing when using Jupyter](#my-python-kernel-keeps-crashing-when-using-jupyter)
 * [I still have a question, where can I get more help?](#i-still-have-a-question-where-can-i-get-more-help)
@@ -223,9 +225,15 @@ $ otool -l ~/anaconda3/envs/my_caffe2_env/lib/libcaffe2.dylib | grep LC_RPATH -A
 In this example, `@rpath` will evaluate to `@loader_path`, which is essentially the location of the library that you ran otool on (see [dyld](https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/dyld.1.html)). So, in this example, libcaffe2.dylib will look for libgflags.2.2.dylib in the same folder that libcaffe2.dylib is in.
 
 
+## The source directory does not contain a CMakeLists.txt file
+
+You need to run `git submodule update` in the Caffe2 root directory.
+
+
 ## No module named caffe2_pybind11_state_gpu
 
 If you are not building for GPU then ignore this. If you are building for GPU, then make sure CUDA was found correctly in the output of the `cmake` command that was run to build Caffe2.
+
 
 ## My python kernel keeps crashing when using Jupyter
 
