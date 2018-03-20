@@ -31,7 +31,7 @@ Caffe2 is tested on
 
 ## What languages does Caffe2 support?
 
-Caffe2 is written in c++ with a Python frontend. You can find all of the code on our [Github page](https://github.com/caffe2/caffe2).
+Caffe2 is written in C++ with a Python frontend. You can find all of the code on our [Github page](https://github.com/caffe2/caffe2).
 
 ## How do I use Caffe2 with my GPU?
 
@@ -39,10 +39,10 @@ Many of Caffe2's operators have CUDA implementations, allowing you to use Caffe2
 
 ## What are all of these optional libraries used for?
 
-Caffe2 can has many optional dependencies, which add features to Caffe2's core functionality.
+Caffe2 can has many optional dependencies, which extend Caffe2's core functionality.
 
 ----|-----
-[cuDNN](https://developer.nvidia.com/cudnn) | if using GPU, this is needed for Caffe2's cuDNN operators
+[cuDNN](https://developer.nvidia.com/cudnn) | If using GPU, this is needed for Caffe2's cuDNN operators
 [Eigen 3](http://eigen.tuxfamily.org/) | The default BLAS backend
 [LevelDB](https://github.com/google/leveldb) | One of the DB options for storing Caffe2 models
 [Nvidia CUDA](https://developer.nvidia.com/cuda-zone) | v6.5 or greater
@@ -52,7 +52,7 @@ Caffe2 can has many optional dependencies, which add features to Caffe2's core f
 [ZeroMQ](http://zeromq.org/) | needed for Caffe2's ZmqDB IO backend (serving data through a socket)
 [Graphviz](http://www.graphviz.org/) | Used for plotting in the Jupyter Notebook Tutorials
 [Hypothesis](https://hypothesis.readthedocs.io/) | Used in all of the tests
-[Jupyter](https://ipython.org/) | Used for interactive python notebooks.
+[Jupyter](https://ipython.org/) | Used for interactive python notebooks
 [LevelDB](https://github.com/google/leveldb) | One of the DB options for storing Caffe2 models
 [lmdb](https://lmdb.readthedocs.io/en/release/) | One of the DB options for storing Caffe2 models
 [Matplotlib](http://matplotlib.org/) | Used for plotting in the Jupyter Notebook Tutorials
@@ -225,7 +225,7 @@ In this example, `@rpath` will evaluate to `@loader_path`, which is essentially 
 
 ## No module named caffe2_pybind11_state_gpu
 
-If you are not building for GPU then ignore this. If you are building for GPU, then make sure CUDA was found correctly in the output of the `cmake` command that was run to build Caffe2..
+If you are not building for GPU then ignore this. If you are building for GPU, then make sure CUDA was found correctly in the output of the `cmake` command that was run to build Caffe2.
 
 ## My python kernel keeps crashing when using Jupyter
 
