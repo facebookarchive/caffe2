@@ -43,6 +43,7 @@ class Optimizer(object):
         self._instance_num = _optimizer_instance_count[self.__class__.__name__]
         _optimizer_instance_count[self.__class__.__name__] += 1
         self._lr_multiplier = None
+        self._lr_multiplier_on_gpu = False
 
     '''
     Adds optimization operators to the net for given parameter and its gradient
@@ -128,9 +129,17 @@ class Optimizer(object):
             lr = net.GetBlobRef(learning_rate_blob)
 
         if self._lr_multiplier is not None:
-            lr_multiplier = net.CopyFromCPUInput(
-                self._lr_multiplier, self.make_unique_blob_name('lr_multiplier')
-            )
+            current_scope = scope.CurrentDeviceScope()
+            if (current_scope is not None
+                    and current_scope.device_type == caffe2_pb2.CUDA
+                    and not self._lr_multiplier_on_gpu):
+                lr_multiplier = net.CopyFromCPUInput(
+                    self._lr_multiplier,
+                    self.make_unique_blob_name('lr_multiplier')
+                )
+            else:
+                lr_multiplier = self._lr_multiplier
+
             scaled_lr = net.Mul(
                 [lr, lr_multiplier],
                 self.make_unique_blob_name('scaled_lr'),
@@ -140,8 +149,9 @@ class Optimizer(object):
 
         return lr, iteration
 
-    def add_lr_multiplier(self, lr_multiplier):
+    def add_lr_multiplier(self, lr_multiplier, is_gpu_blob=False):
         self._lr_multiplier = lr_multiplier
+        self._lr_multiplier_on_gpu = is_gpu_blob
 
     @staticmethod
     def dedup(net, sparse_dedup_aggregator, grad):
@@ -187,15 +197,15 @@ class Optimizer(object):
 
 class SgdOptimizer(Optimizer):
     def __init__(self, base_learning_rate=0.01, policy='fixed',
-                 momentum=0.0, nesterov=1, lars=None,
-                 sparse_dedup_aggregator=None, **kwargs):
+                 momentum=0.0, nesterov=1, sparse_dedup_aggregator=None,
+                 lars=None, **kwargs):
         super(SgdOptimizer, self).__init__()
         self.base_learning_rate = base_learning_rate
         self.policy = policy
         self.momentum = momentum
         self.nesterov = nesterov
-        self.lars = lars
         self.sparse_dedup_aggregator = sparse_dedup_aggregator
+        self.lars = lars
         self.init_kwargs = kwargs
 
     def _run(self, net, param_init_net, param_info):
@@ -212,7 +222,12 @@ class SgdOptimizer(Optimizer):
                 [param, grad],
                 self.make_unique_blob_name(str(param) + "_lars"),
                 offset=self.lars)
-            self.add_lr_multiplier(lr_lars_multiplier)
+            current_scope = scope.CurrentDeviceScope()
+            self.add_lr_multiplier(
+                lr_lars_multiplier,
+                is_gpu_blob=(current_scope is not None
+                    and current_scope.device_type == caffe2_pb2.CUDA),
+            )
 
         # We need negative sign for LR when used directly with WeightedSum
         # below.
@@ -457,17 +472,18 @@ class WeightDecayBuilder(Optimizer):
 
 class AdagradOptimizer(Optimizer):
     def __init__(self, alpha=0.01, epsilon=1e-4, decay=1, policy="fixed",
-                 sparse_dedup_aggregator=None, rowWise=False,
-                 engine='', **kwargs):
+                 sparse_dedup_aggregator=None, rowWise=False, engine='',
+                 lars=None, **kwargs):
         super(AdagradOptimizer, self).__init__()
         self.alpha = alpha
         self.epsilon = epsilon
         self.decay = decay
         self.policy = policy
         self.sparse_dedup_aggregator = sparse_dedup_aggregator
-        self.engine = engine
-        self.init_kwargs = kwargs
         self.rowWise = rowWise
+        self.engine = engine
+        self.lars = lars
+        self.init_kwargs = kwargs
 
     def _run(self, net, param_init_net, param_info):
         param = param_info.blob
@@ -475,6 +491,19 @@ class AdagradOptimizer(Optimizer):
 
         if self.alpha <= 0:
             return
+
+        if self.lars is not None and not isinstance(grad, core.GradientSlice):
+            assert self.lars >= 0, 'Lars offset must be nonnegative.'
+            lr_lars_multiplier = net.Lars(
+                [param, grad],
+                self.make_unique_blob_name(str(param) + "_lars"),
+                offset=self.lars)
+            current_scope = scope.CurrentDeviceScope()
+            self.add_lr_multiplier(
+                lr_lars_multiplier,
+                is_gpu_blob=(current_scope is not None
+                    and current_scope.device_type == caffe2_pb2.CUDA),
+            )
 
         lr, _ = self.build_lr(
             net, param_init_net,

@@ -32,8 +32,12 @@ tests_require = []
 # Pre Check
 ################################################################################
 
-assert find_executable('cmake'), 'Could not find "cmake" executable!'
-assert find_executable('make'), 'Could not find "make" executable!'
+CMAKE = find_executable('cmake')
+assert CMAKE, 'Could not find "cmake" executable!'
+NINJA = find_executable('ninja')
+MAKE = find_executable('make')
+assert NINJA or MAKE, \
+    'Could not find neither "ninja" nor "make" executable!'
 
 ################################################################################
 # utils functions
@@ -99,11 +103,12 @@ class cmake_build(Caffe2Command):
     environment variable. E.g. to build without cuda support run:
         `CMAKE_ARGS=-DUSE_CUDA=Off python setup.py build`
 
-    The number of CPUs used by `make` can be specified by passing `-j<ncpus>`
-    to `setup.py build`.  By default all CPUs are used.
+    The number of CPUs used by `make`/`ninja` can be specified by passing
+    `-j<ncpus>` to `setup.py build`.  By default all CPUs are used.
     """
     user_options = [
-        (str('jobs='), str('j'), str('Specifies the number of jobs to use with make'))
+        (str('jobs='), str('j'),
+            str('Specifies the number of jobs to use with make or ninja'))
     ]
 
     built = False
@@ -133,6 +138,8 @@ class cmake_build(Caffe2Command):
                 '-DBUILD_BENCHMARK=OFF',
                 '-DBUILD_BINARY=OFF',
             ]
+            if NINJA:
+                cmake_args.extend(['-G', 'Ninja'])
             if 'CMAKE_ARGS' in os.environ:
                 extra_cmake_args = shlex.split(os.environ['CMAKE_ARGS'])
                 # prevent crossfire with downstream scripts
@@ -141,7 +148,7 @@ class cmake_build(Caffe2Command):
             cmake_args.append(TOP_DIR)
             subprocess.check_call(cmake_args)
 
-            build_args = [find_executable('make')]
+            build_args = [NINJA or MAKE]
             # control the number of concurrent jobs
             if self.jobs is not None:
                 build_args.extend(['-j', str(self.jobs)])

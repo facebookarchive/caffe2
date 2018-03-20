@@ -36,6 +36,7 @@ import pickle
 import numpy as np
 import sys
 import traceback
+import os
 
 # Mac os specific message
 if (sys.platform == 'darwin' and 'leveldb' in C.registered_dbs()):
@@ -322,8 +323,9 @@ def CreateOperator(
     registered with Caffe2.
     """
     operator = caffe2_pb2.OperatorDef()
-    stack = traceback.format_stack()
-    operator.debug_info = "".join(stack[:-1])
+    if (os.environ.get('CAFFE2_DEBUG')):
+        stack = traceback.format_stack()
+        operator.debug_info = "".join(stack[:-1])
 
     operator.type = operator_type
     operator.name = name
@@ -2781,18 +2783,18 @@ def _extract_stacktrace():
     The reason for file system access avoidance is that
     if code is located on an NFS, file access might be slow
 
-    Function returns a list of tuples (file_name, line_number)
+    Function returns a list of tuples (file_name, line_number, function)
     '''
 
-    current_file_name = __name__.replace('.', '/') + ".py"
     result = []
-    frame = sys._getframe(1)
+    # Ignore top 3 layers of stack: this function, _CreateAndAddToSelf, and
+    # whatever calls _CreateAndAddToSelf (either __getattr__ or Python)
+    frame = sys._getframe(3)
     # We just go down the frame stack in a loop
     while frame:
-        if current_file_name not in frame.f_code.co_filename:
-            # Its important to extract information from the frame here
-            # as frame's current line most probably will change later.
-            result.append((frame.f_code.co_filename, frame.f_lineno))
+        # Its important to extract information from the frame here
+        # as frame's current line most probably will change later.
+        result.append((frame.f_code.co_filename, frame.f_lineno, frame.f_code.co_name))
         frame = frame.f_back
     return result
 

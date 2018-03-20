@@ -170,9 +170,13 @@ unique_ptr<OperatorBase> _CreateOperator(
     } else {
       // If the above fails, we will just return the normal case with the
       // default implementation.
-      LOG(INFO) << "Operator with engine " << engine
-                << " is not available for operator " << op_type << ".";
+      VLOG(1) << "Engine " << engine
+              << " is not available for operator " << op_type << ".";
     }
+  }
+  if (operator_def.engine().size() && !VLOG_IS_ON(1)) {
+    LOG(INFO) << "Engine " << operator_def.engine()
+              << " is not available for operator " << op_type << ".";
   }
   VLOG(1) << "Using default implementation.";
 
@@ -611,6 +615,21 @@ std::map<string, std::pair<DeviceOption, DeviceOption>> ValidateTensorDevices(
     Check(*op.OutputBlob(i), op_def.output(i));
   }
   return mismatches;
+}
+
+std::set<std::string> GetRegisteredOperators() {
+  std::set<std::string> all_keys;
+
+  // CPU operators
+  for (const auto& name : CPUOperatorRegistry()->Keys()) {
+    all_keys.emplace(name);
+  }
+  // CUDA operators
+  for (const auto& name : CUDAOperatorRegistry()->Keys()) {
+    all_keys.emplace(name);
+  }
+
+  return all_keys;
 }
 
 }  // namespace caffe2
