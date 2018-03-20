@@ -1685,17 +1685,8 @@ class TestOperators(hu.HypothesisTestCase):
                                               num_iter=num_iters)
         for i in range(num_nets):
             net = core.Net("net_{}".format(i))
-            # clear stats from global stats registry
-            net.StatRegistryExport(
-                [], ["_k{}".format(i), "_v{}".format(i), "_t{}".format(i)])
             net.AtomicIter([iter_mutex, "iter"], ["iter"])
             step = core.ExecutionStep("step", [net])
-            net.StatRegistryExport(
-                [], [
-                    "stat_key_{}".format(i), "stat_value_{}".format(i),
-                    "stat_ts_{}".format(i)
-                ]
-            )
             concurrent_steps.AddSubstep(step)
 
         concurrent_steps.SetConcurrentSubsteps(True)
