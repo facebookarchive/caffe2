@@ -2,6 +2,7 @@
   items:
   - id: caffe-migration
   - id: getting-started
+  - id: faq
 - title: Learn
   items:
   - id: operators

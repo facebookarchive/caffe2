@@ -14,6 +14,7 @@ To run the tutorials you will need some third-party libraries, including [ipytho
 > Anaconda users: If you're using Anaconda, use `conda install` instead of `pip install`.
 
 ```bash
+pip install -U pip setuptools
 pip install \
     graphviz \
     hypothesis \
