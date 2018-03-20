@@ -62,6 +62,7 @@ var searchData=
   ['closeblobsqueueop',['CloseBlobsQueueOp',['../classcaffe2_1_1_close_blobs_queue_op.html',1,'caffe2']]],
   ['closerebatchingqueueop',['CloseRebatchingQueueOp',['../classcaffe2_1_1_close_rebatching_queue_op.html',1,'caffe2']]],
   ['col2imop',['Col2ImOp',['../classcaffe2_1_1_col2_im_op.html',1,'caffe2']]],
+  ['collectanddistributefpnrpnproposalsop',['CollectAndDistributeFpnRpnProposalsOp',['../classcaffe2_1_1_collect_and_distribute_fpn_rpn_proposals_op.html',1,'caffe2']]],
   ['commonsubexpressioneliminationtransform',['CommonSubexpressionEliminationTransform',['../classcaffe2_1_1_common_subexpression_elimination_transform.html',1,'caffe2']]],
   ['compute_5f1d_5ftiled_5fcontext',['compute_1d_tiled_context',['../structcompute__1d__tiled__context.html',1,'']]],
   ['compute_5f2d_5fcontext',['compute_2d_context',['../structcompute__2d__context.html',1,'']]],

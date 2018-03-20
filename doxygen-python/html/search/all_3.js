@@ -25,6 +25,7 @@ var searchData=
   ['collectivesconcurrencycontrol',['CollectivesConcurrencyControl',['../classcaffe2_1_1python_1_1data__parallel__model_1_1_collectives_concurrency_control.html',1,'caffe2::python::data_parallel_model']]],
   ['commit',['commit',['../classcaffe2_1_1python_1_1dataio_1_1_writer.html#a7fb018f843ba304edbd23f0e82328ece',1,'caffe2.python.dataio.Writer.commit()'],['../classcaffe2_1_1python_1_1dataset_1_1___dataset_writer.html#ad48c6cd89bb95709ba769073badf22e5',1,'caffe2.python.dataset._DatasetWriter.commit()']]],
   ['compiledrunnable',['CompiledRunnable',['../classcaffe2_1_1python_1_1session_1_1_compiled_runnable.html',1,'caffe2::python::session']]],
+  ['computehistogramforblobs',['ComputeHistogramForBlobs',['../classcaffe2_1_1python_1_1modeling_1_1compute__histogram__for__blobs_1_1_compute_histogram_for_blobs.html',1,'caffe2::python::modeling::compute_histogram_for_blobs']]],
   ['computenormforblobs',['ComputeNormForBlobs',['../classcaffe2_1_1python_1_1modeling_1_1compute__norm__for__blobs_1_1_compute_norm_for_blobs.html',1,'caffe2::python::modeling::compute_norm_for_blobs']]],
   ['computestatisticsforblobs',['ComputeStatisticsForBlobs',['../classcaffe2_1_1python_1_1modeling_1_1compute__statistics__for__blobs_1_1_compute_statistics_for_blobs.html',1,'caffe2::python::modeling::compute_statistics_for_blobs']]],
   ['concat',['Concat',['../classcaffe2_1_1python_1_1layers_1_1concat_1_1_concat.html',1,'caffe2::python::layers::concat']]],

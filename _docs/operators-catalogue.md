@@ -1841,6 +1841,57 @@ No documentation yet.
 
 
 
+## CollectAndDistributeFpnRpnProposals
+
+
+Merge RPN proposals generated at multiple FPN levels and then distribute those proposals to their appropriate FPN levels for Faster RCNN.
+An anchor at one FPN level may predict an RoI that will map to another level, hence the need to redistribute the proposals.
+ Only inference is supported. To train, please use the original Python operator in Detectron.
+ Inputs and outputs are examples only; if min/max levels change, the number of inputs and outputs, as well as their level numbering, will change.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`roi_canonical_scale` | (int) ROI_CANONICAL_SCALE
+`roi_canonical_level` | (int) ROI_CANONICAL_LEVEL
+`roi_max_level` | (int) ROI_MAX_LEVEL
+`roi_min_level` | (int) ROI_MIN_LEVEL
+`rpn_max_level` | (int) RPN_MAX_LEVEL
+`rpn_min_level` | (int) RPN_MIN_LEVEL
+`rpn_post_nms_topN` | (int) RPN_POST_NMS_TOP_N
+*Inputs* | 
+`rpn_rois_fpn2` | RPN proposals for FPN level 2, size (n x 5), format (image_index, x1, y1, x2, y2). See rpn_rois documentation from GenerateProposals.
+`rpn_rois_fpn3` | RPN proposals for FPN level 3, size (n x 5), format (image_index, x1, y1, x2, y2). See rpn_rois documentation from GenerateProposals.
+`rpn_rois_fpn4` | RPN proposals for FPN level 4, size (n x 5), format (image_index, x1, y1, x2, y2). See rpn_rois documentation from GenerateProposals.
+`rpn_rois_fpn5` | RPN proposals for FPN level 5, size (n x 5), format (image_index, x1, y1, x2, y2). See rpn_rois documentation from GenerateProposals.
+`rpn_rois_fpn6` | RPN proposals for FPN level 6, size (n x 5), format (image_index, x1, y1, x2, y2). See rpn_rois documentation from GenerateProposals.
+`rpn_roi_probs_fpn2` | RPN objectness probabilities for FPN level 2, size (n). See rpn_roi_probs documentation from GenerateProposals.
+`rpn_roi_probs_fpn3` | RPN objectness probabilities for FPN level 3, size (n). See rpn_roi_probs documentation from GenerateProposals.
+`rpn_roi_probs_fpn4` | RPN objectness probabilities for FPN level 4, size (n). See rpn_roi_probs documentation from GenerateProposals.
+`rpn_roi_probs_fpn5` | RPN objectness probabilities for FPN level 5, size (n). See rpn_roi_probs documentation from GenerateProposals.
+`rpn_roi_probs_fpn6` | RPN objectness probabilities for FPN level 6, size (n). See rpn_roi_probs documentation from GenerateProposals.
+*Outputs* | 
+`rois` | Top proposals limited to rpn_post_nms_topN total, size (n x 5), format (image_index, x1, y1, x2, y2)
+`rois_fpn2` | RPN proposals for ROI level 2, size (n x 5), format (image_index, x1, y1, x2, y2)
+`rois_fpn3` | RPN proposals for ROI level 3, size (n x 5), format (image_index, x1, y1, x2, y2)
+`rois_fpn4` | RPN proposals for ROI level 4, size (n x 5), format (image_index, x1, y1, x2, y2)
+`rois_fpn5` | RPN proposals for ROI level 5, size (n x 5), format (image_index, x1, y1, x2, y2)
+`rois_idx_restore` | Permutation on the concatenation of all rois_fpni, i=min...max, such that when applied the RPN RoIs are restored to their original order in the input blobs.
+
+
+### Code
+
+
+[caffe2/operators/collect_and_distribute_fpn_rpn_proposals_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/collect_and_distribute_fpn_rpn_proposals_op.cc)
+
+---
+
+
+
 ## CollectTensor
 
 
