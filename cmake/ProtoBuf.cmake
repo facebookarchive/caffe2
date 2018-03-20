@@ -4,6 +4,7 @@ macro(custom_protobuf_find)
   message(STATUS "Use custom protobuf build.")
   option(protobuf_BUILD_TESTS "" OFF)
   option(protobuf_BUILD_EXAMPLES "" OFF)
+  option(protobuf_WITH_ZLIB "" OFF)
   if (APPLE)
     # Protobuf generated files triggers a deprecated atomic operation warning
     # so we turn it off here.
@@ -26,14 +27,24 @@ macro(custom_protobuf_find)
 
   if (${CAFFE2_LINK_LOCAL_PROTOBUF})
     # We will need to build protobuf with -fPIC.
-    set(__caffe2_protobuf_cmake_fpic ${CMAKE_POSITION_INDEPENDENT_CODE})
+    set(__caffe2_CMAKE_POSITION_INDEPENDENT_CODE ${CMAKE_POSITION_INDEPENDENT_CODE})
+    set(__caffe2_CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ${CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS})
+    set(__caffe2_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS OFF)
+    set(BUILD_SHARED_LIBS OFF)
+    if (${COMPILER_SUPPORTS_HIDDEN_VISIBILITY})
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+    endif()
   endif()
 
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/protobuf/cmake)
 
   if (${CAFFE2_LINK_LOCAL_PROTOBUF})
-    set(CMAKE_POSITION_INDEPENDENT_CODE ${__caffe2_protobuf_cmake_fpic})
+    set(CMAKE_POSITION_INDEPENDENT_CODE ${__caffe2_CMAKE_POSITION_INDEPENDENT_CODE})
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ${__caffe2_CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS})
+    set(BUILD_SHARED_LIBS ON)
+    set(CMAKE_CXX_FLAGS ${__caffe2_CMAKE_CXX_FLAGS})
   endif()
 
   # Protobuf "namespaced" target is only added post protobuf 3.5.1. As a
@@ -94,7 +105,7 @@ endif()
 # convention we will use SYSTEM inclusion path.
 get_target_property(__tmp protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
 message(STATUS "Caffe2 protobuf include directory: " ${__tmp})
-include_directories(SYSTEM ${__tmp})
+include_directories(BEFORE SYSTEM ${__tmp})
 
 # If Protobuf_VERSION is known (true in most cases, false if we are building
 # local protobuf), then we will add a protobuf version check in
