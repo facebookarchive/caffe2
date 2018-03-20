@@ -14,14 +14,12 @@ To run the tutorials you will need some third-party libraries, including [ipytho
 > Anaconda users: If you're using Anaconda, use `conda install` instead of `pip install`.
 
 ```bash
+pip install -U pip setuptools
 pip install \
-    flask \
     graphviz \
     hypothesis \
     ipython \
     jupyter \
-    leveldb \
-    lmdb \
     matplotlib \
     notebook \
     pydot \
@@ -29,8 +27,7 @@ pip install \
     pyyaml \
     requests \
     scikit-image \
-    scipy \
-    six
+    scipy
 ```
 
 Some of the tutorials also use these packages that are not in pip. 
