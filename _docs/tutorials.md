@@ -15,13 +15,10 @@ To run the tutorials you will need some third-party libraries, including [ipytho
 
 ```bash
 pip install \
-    flask \
     graphviz \
     hypothesis \
     ipython \
     jupyter \
-    leveldb \
-    lmdb \
     matplotlib \
     notebook \
     pydot \
@@ -29,8 +26,7 @@ pip install \
     pyyaml \
     requests \
     scikit-image \
-    scipy \
-    six
+    scipy
 ```
 
 Some of the tutorials also use these packages that are not in pip. 

@@ -6,13 +6,17 @@ We only support Anaconda packages at the moment. If you do not wish to use Anaco
 
 ### Anaconda packages
 
-We build Mac packages without CUDA support for both Python 2.7 and Python 3.6. To install Caffe2 with Anaconda, simply activate your desired conda environment and then run one of the following commands:
+We build Mac packages without CUDA support for both Python 2.7 and Python 3.6. To install Caffe2 with Anaconda, simply activate your desired conda environment and run the following command.
 
 ```bash
 conda install -c caffe2 caffe2
 ```
 
-To see what packages these pre-built binaries are built against, see `conda/cuda/meta.yaml` for the CUDA builds and `conda/no_cuda/meta.yaml` for the CPU only build. If you want different libraries then you must build from  source.
+> This does NOT include libraries that are necessary to run the tutorials, such as jupyter. See the [tutorials](https://caffe2.ai/docs/tutorials) page for the list of required packages needed to run the tutorials.
+
+NOTE: This will install Caffe2 and all of its required dependencies into the current conda environment. We strongly suggest that you create a new conda environment and install Caffe2 into that. A conda environment is like its own python installation that won't have library version problems with your other conda environments. You can learn more about conda environments [here](https://conda.io/docs/user-guide/tasks/manage-environments.html).
+
+To see what libraries these Caffe2 conda packages are built against, see `conda/no_cuda/meta.yaml`. If you want to use different libraries then you must build from  source.
 
 ### Prebuilt Caffe2 Python Wheel
 
@@ -29,22 +33,21 @@ There are three ways to install on Mac, with [Anaconda and conda](#anaconda-inst
 
 ```bash
 git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
-conda build conda/no_cuda
-conda install caffe2 --use-local
+CONDA_INSTALL_LOCALLY=1 ./scripts/build_anaconda.sh
 ```
 
-This will build Caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/no_cuda/build.sh` and the packages specified in `conda/no_cuda/meta.yaml`. `conda build` will create a conda package (tarball) on your machine called `caffe2`, which `conda install` then installs in the current conda environment. To build Caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/no_cuda/build.sh` and run the build and install commands again. Note that this will create a new ephemeral conda environment on every build, so it'll be slower than the [Custom Anaconda Installation](#custom-anaconda-install) approach below.
+This will build Caffe2 using [conda build](https://conda.io/docs/user-guide/tasks/build-packages/recipe.html), with the flags specified in `conda/no_cuda/build.sh` and the packages specified in `conda/no_cuda/meta.yaml`. To build Caffe2 with different settings, change the dependencies in `meta.yaml` and the `CMAKE_ARGS` flags in `conda/no_cuda/build.sh` and run script again. Note that this will create a new ephemeral conda environment on every build, so it'll be slower than the [Custom Anaconda Installation](#custom-anaconda-install) approach below.
 
 ### Optional GPU Support
 
-In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries. If you want to use `conda-build` then use the `conda/cuda` folder, e.g. `conda build conda/cuda && conda install caffe2-cuda --use-local`. 
+In the instance that you have a NVIDIA supported GPU in your Mac, then you should visit the NVIDIA website for [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn) and install the provided binaries. If you want to use `conda-build` then use `CONDA_INSTALL_LOCALLY=1 BUILD_ENVIRONMENT=cuda ./scripts/build_anaconda.sh` instead.
 
 ## Custom Anaconda Install
 
-If you plan to change the source code of Caffe2 frequently and don't want to wait for a full conda build and install cycle, you may want to bypass conda and call Cmake manually. The following commands will build Caffe2 in a directory called `build` under your Caffe2 root and install Caffe2 in a conda env. In this example Anaconda is installed in `~/anaconda2`.
+If you plan to change the source code of Caffe2 frequently and don't want to wait for a full conda build and install cycle, you may want to bypass conda and call Cmake manually. The following commands will build Caffe2 in a directory called `build` under your Caffe2 root and install Caffe2 in a conda env. **In this example Anaconda is installed in `~/anaconda2`,** if your Anaconda has a different root directory then change that in the code below.
 
 ```bash
-# Create a conda environment (optional)
+# Create a conda environment
 conda create -n my_caffe2_env && source activate my_caffe2_env
 
 # Install required packages
@@ -67,7 +70,7 @@ cd ~ && git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
 
 # Make Caffe2 in a separate folder to avoid polluting the Caffe2 source tree.
 # This can be anywhere you want it
-mkdir build && cd build
+rm -rf build && mkdir build && cd build
 
 # Add flags to this command to control which packages you want to use. The
 # options to use are at the top of CMakeLists.txt in the topmost Caffe2
@@ -76,7 +79,7 @@ cmake -DUSE_CUDA=OFF -DUSE_LEVELDB=OFF -DCMAKE_PREFIX_PATH=~/anaconda2/envs/my_c
 make install
 ```
 
-The flag `CMAKE_PREFIX_PATH` tells Cmake to look for packages in your conda environment before looking in system install locations (like `/usr/local`); you almost certainly want to set this flag. `CMAKE_INSTALL_PREFIX` tells Cmake where to install Caffe2 binaries such as `libcaffe2.dylib` after Caffe2 has been successfully built; the default is `/usr/local`.
+The flag `CMAKE_PREFIX_PATH` tells Cmake to look for packages in your conda environment before looking in system install locations (like `/usr/local`); you almost certainly want to set this flag, since `conda install` installs into the activated conda environment. `CMAKE_INSTALL_PREFIX` tells Cmake where to install Caffe2 binaries such as `libcaffe2.dylib` after Caffe2 has been successfully built; the default is `/usr/local` (which probably isn't what you want).
 
 If you do this, know that Cmake will cache things in this build folder, so you may want to remove it before rebuilding.
 

@@ -52,11 +52,11 @@ Strictly speaking, the core dependencies above are all you need to run the core 
 | Optional System Dependencies
 ----|-----
 [cuDNN](https://developer.nvidia.com/cudnn) | if using GPU, this is needed for Caffe2's cuDNN operators
-[Eigen 3](http://eigen.tuxfamily.org/) |
-[LevelDB](https://github.com/google/leveldb) |
+[Eigen 3](http://eigen.tuxfamily.org/) | The default BLAS backend
+[LevelDB](https://github.com/google/leveldb) | One of the DB options for storing Caffe2 models
 [Nvidia CUDA](https://developer.nvidia.com/cuda-zone) | v6.5 or greater
 [OpenCV](http://opencv.org/) | for image-related operations; requires leveldb <= v1.19
-[OpenMPI](http://www.open-mpi.org/) | for MPI-related Caffe2 operators
+[OpenMPI](http://www.open-mpi.org/) | for MPI-related Caffe2 operators, which are used for distributed training
 [RocksdB](http://rocksdb.org) | for Caffe2's RocksDB IO backend
 [ZeroMQ](http://zeromq.org/) | needed for Caffe2's ZmqDB IO backend (serving data through a socket)
 
@@ -64,18 +64,16 @@ Strictly speaking, the core dependencies above are all you need to run the core 
 | Python Optional Dependencies
 ----|-----
 There are also various Python libraries that will be valuable in your experience with Caffe2. Many of these are required to run the tutorials. |
-[Flask](http://flask.pocoo.org/) |
 [Graphviz](http://www.graphviz.org/) | Used for plotting in the Jupyter Notebook Tutorials
-[Hypothesis](https://hypothesis.readthedocs.io/) |
-[Jupyter](https://ipython.org/) | Used for some some interactive tutorials
-[LevelDB](https://github.com/google/leveldb) |
-[lmdb](https://lmdb.readthedocs.io/en/release/) |
+[Hypothesis](https://hypothesis.readthedocs.io/) | Used in all of the tests
+[Jupyter](https://ipython.org/) | Used for interactive python notebooks.
+[LevelDB](https://github.com/google/leveldb) | One of the DB options for storing Caffe2 models
+[lmdb](https://lmdb.readthedocs.io/en/release/) | One of the DB options for storing Caffe2 models
 [Matplotlib](http://matplotlib.org/) | Used for plotting in the Jupyter Notebook Tutorials
 [Pydot](https://pypi.python.org/pypi/pydot) | Used for plotting in the Jupyter Notebook Tutorials
 [Python-nvd3](https://pypi.python.org/pypi/python-nvd3/) |
-[pyyaml](http://pyyaml.org/) |
+[pyyaml](http://pyyaml.org/) | Used in the MNIST tutorial
 [requests](http://docs.python-requests.org/en/master/) | Used in the MNIST tutorial to download the dataset
 [Scikit-Image](http://scikit-image.org/) |
 [SciPy](https://www.scipy.org/) |
-[setuptools](https://pypi.python.org/pypi/setuptools) |
-[ZeroMQ](http://zeromq.org/) |
+[ZeroMQ](http://zeromq.org/) | needed for Caffe2's ZmqDB IO backend (serving data through a socket)

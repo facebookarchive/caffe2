@@ -8,6 +8,8 @@ We only support Anaconda packages at the moment. If you do not wish to use Anaco
 
 We build Linux packages without CUDA support, with CUDA 9.0 support, and with CUDA 8.0 support, for both Python 2.7 and Python 3.6. These packages are built on Ubuntu 16.04, but they will probably work on Ubuntu14.04 as well (if they do not, please tell us by creating an issue on our [Github page](https://github.com/caffe2/caffe2/issues)). To install Caffe2 with Anaconda, simply activate your desired conda environment and then run one of the following commands:
 
+> If your gcc version is older than 5 (you can run ```gcc --version``` to find out), then append '-gcc4.8' to the package name. For example, run `conda install -c caffe2 caffe2-gcc4.8` instead of what's below. (The command you run should always start with `conda install -c caffe2`)
+
 If you do not have a GPU:
 
 ```bash
@@ -28,7 +30,11 @@ For Caffe2 with CUDA 8 and CuDNN 7 support:
 conda install -c caffe2 caffe2-cuda8.0-cudnn7
 ```
 
-To see what packages these pre-built binaries are built against, see `conda/cuda/meta.yaml` for the CUDA builds and `conda/no_cuda/meta.yaml` for the CPU only build. If you want different libraries then you must build from  source.
+> This does NOT include libraries that are necessary to run the tutorials, such as jupyter. See the [tutorials](https://caffe2.ai/docs/tutorials) page for the list of required packages needed to run the tutorials.
+
+NOTE: This will install Caffe2 and all of its required dependencies into the current conda environment. We strongly suggest that you create a new conda environment and install Caffe2 into that. A conda environment is like its own python installation that won't have library version problems with your other conda environments. You can learn more about conda environments [here](https://conda.io/docs/user-guide/tasks/manage-environments.html).
+
+To see what libraries these Caffe2 conda packages are built against, see `conda/cuda/meta.yaml` for the CUDA builds and `conda/no_cuda/meta.yaml` for the CPU only build. If you want to use different libraries then you must build from  source.
 
 
 <block class="ubuntu cloud" />
