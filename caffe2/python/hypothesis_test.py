@@ -1671,6 +1671,34 @@ class TestOperators(hu.HypothesisTestCase):
         self.assertEqual(iters.dtype, np.int64)
         self.assertEqual(iters[0], initial_iters + num_iters)
 
+<<<<<<< 1f41d798d15acf8a213034bb9c603cdcc11ddedd
+=======
+    @given(num_iters=st.integers(0,100))
+    def test_atomic_iter_stats(self, num_iters):
+        init_net = core.Net("init_net")
+        iter_mutex = init_net.CreateMutex([], ["iter_mutex"])
+        self.ws.create_blob("iter").feed(np.asarray([0]).astype(np.int64))
+
+        net = core.Net("net")
+        net.AtomicIter([iter_mutex, "iter"], ["iter"])
+        step = core.ExecutionStep("step", [net])
+        step.SetIter(num_iters)
+        plan = core.Plan("plan")
+        plan.AddStep(step)
+
+        stat_net = core.Net("stat_net")
+        stat_net.StatRegistryExport([], ["k", "v", "t"])
+
+        self.ws.run(init_net)
+        self.ws.run(plan)
+        self.ws.run(stat_net)
+
+        stat_key = self.ws.blobs[("k")].fetch()
+        self.assertEqual(b'atomic_iter/stats/iter/num_iter', stat_key[0])
+        stat_val = self.ws.blobs[("v")].fetch()
+        self.assertEqual(num_iters, stat_val[0])
+
+>>>>>>> Exported AtomicIterOp count
 
     @given(initial_iters=st.integers(0, 100),
            num_iters=st.integers(0, 100),
@@ -1685,17 +1713,8 @@ class TestOperators(hu.HypothesisTestCase):
                                               num_iter=num_iters)
         for i in range(num_nets):
             net = core.Net("net_{}".format(i))
-            # clear stats from global stats registry
-            net.StatRegistryExport(
-                [], ["_k{}".format(i), "_v{}".format(i), "_t{}".format(i)])
             net.AtomicIter([iter_mutex, "iter"], ["iter"])
             step = core.ExecutionStep("step", [net])
-            net.StatRegistryExport(
-                [], [
-                    "stat_key_{}".format(i), "stat_value_{}".format(i),
-                    "stat_ts_{}".format(i)
-                ]
-            )
             concurrent_steps.AddSubstep(step)
 
         concurrent_steps.SetConcurrentSubsteps(True)
