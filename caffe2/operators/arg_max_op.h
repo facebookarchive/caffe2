@@ -14,35 +14,28 @@
  * limitations under the License.
  */
 
-#ifndef CHANNEL_BACKPROP_STATS_OP_H
-#define CHANNEL_BACKPROP_STATS_OP_H
+#ifndef CAFFE2_OPERATORS_ARG_MAX_OP_H_
+#define CAFFE2_OPERATORS_ARG_MAX_OP_H_
 
 #include "caffe2/core/context.h"
 #include "caffe2/core/operator.h"
-#include "caffe2/utils/math.h"
 
 namespace caffe2 {
 
 template <class Context>
-class ChannelBackpropStatsOp : public Operator<Context> {
+class RowWiseArgMaxOp : public Operator<Context> {
  public:
+  RowWiseArgMaxOp(const OperatorDef& def, Workspace* ws)
+      : Operator<Context>(def, ws) {}
   USE_OPERATOR_CONTEXT_FUNCTIONS;
-  ChannelBackpropStatsOp(const OperatorDef& operator_def, Workspace* ws)
-      : Operator<Context>(operator_def, ws) {}
-  ~ChannelBackpropStatsOp() {}
 
-  bool RunOnDevice() override {
-    return true;
-  }
+  bool RunOnDevice() override;
 
  protected:
-  INPUT_TAGS(INPUT, SAVED_MEAN, SAVED_INV_STDDEV, OUTPUT_GRAD);
-  OUTPUT_TAGS(SCALE_GRAD, BIAS_GRAD);
-
-  Tensor<Context> dBiasScratch_;
-  Tensor<Context> dScaleScratch_;
+  INPUT_TAGS(X_IN);
+  OUTPUT_TAGS(ROWWISE_ARGMAX_OUT);
 };
 
 } // namespace caffe2
 
-#endif
+#endif // CAFFE2_OPERATORS_DISTANCE_OP_H_

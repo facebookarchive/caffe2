@@ -99,6 +99,12 @@ class OperatorBase : public Observable<OperatorBase> {
     return outputs_.at(idx)->template GetMutable<T>();
   }
 
+  template <typename T>
+  inline T* Output(int idx, T* allocated) {
+    outputs_.at(idx)->Reset(allocated);
+    return allocated;
+  }
+
   inline const Blob& InputBlob(int idx) {
     return *inputs_.at(idx);
   }
@@ -117,8 +123,12 @@ class OperatorBase : public Observable<OperatorBase> {
     return outputs_.at(idx)->template IsType<T>();
   }
 
-  inline int InputSize() { return inputs_.size(); }
-  inline int OutputSize() { return outputs_.size(); }
+  inline int InputSize() const {
+    return inputs_.size();
+  }
+  inline int OutputSize() const {
+    return outputs_.size();
+  }
   inline const vector<const Blob*>& Inputs() const { return inputs_; }
   inline const vector<Blob*>& Outputs() { return outputs_; }
   vector<TensorShape> InputTensorShapes();
