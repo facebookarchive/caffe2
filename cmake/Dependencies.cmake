@@ -2,9 +2,12 @@
 include("cmake/ProtoBuf.cmake")
 
 # ---[ Threads
-if(USE_THREADS)
-  include(cmake/public/threads.cmake)
+include(cmake/public/threads.cmake)
+if (TARGET Threads::Threads)
   list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS Threads::Threads)
+else()
+  message(FATAL_ERROR
+      "Cannot find threading library. Caffe2 requires Threads to compile.")
 endif()
 
 # ---[ protobuf
@@ -553,3 +556,21 @@ if (USE_ZSTD)
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/zstd/build/cmake)
   set_property(TARGET libzstd_static PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()
+
+# ---[ Onnx
+SET(ONNX_NAMESPACE "onnx_c2")
+if(EXISTS "${CAFFE2_CUSTOM_PROTOC_EXECUTABLE}")
+  set(ONNX_CUSTOM_PROTOC_EXECUTABLE ${CAFFE2_CUSTOM_PROTOC_EXECUTABLE})
+endif()
+set(TEMP_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+# We will build onnx as static libs and embed it directly into the binary.
+set(BUILD_SHARED_LIBS OFF)
+set(ONNX_USE_MSVC_STATIC_RUNTIME ${CAFFE2_USE_MSVC_STATIC_RUNTIME})
+add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/onnx)
+include_directories(${ONNX_INCLUDE_DIRS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DONNX_NAMESPACE=${ONNX_NAMESPACE}")
+caffe2_interface_library(onnx onnx_library)
+list(APPEND Caffe2_DEPENDENCY_WHOLE_LINK_LIBS onnx_library)
+# Recover the build shared libs option.
+set(BUILD_SHARED_LIBS ${TEMP_BUILD_SHARED_LIBS})
+
