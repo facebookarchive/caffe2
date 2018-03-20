@@ -15,6 +15,7 @@
  */
 
 #include "caffe2/operators/reduce_ops.h"
+#include "float.h"
 
 namespace caffe2 {
 
@@ -55,6 +56,31 @@ TIndex ConvertToOutputIndex(
 template <typename T>
 inline T Add(T x, T y) {
   return (x + y);
+}
+
+template <typename T>
+inline T Product(T x, T y) {
+  return (x * y);
+}
+
+template <typename T>
+inline T Min(T x, T y) {
+  return (x < y ? x : y);
+}
+
+template <typename T>
+inline T Max(T x, T y) {
+  return (x > y ? x : y);
+}
+
+template <typename T>
+inline T SumSquare(T x, T y) {
+  return (x + y * y);
+}
+
+template <typename T>
+inline T LogSum(T x, T y) {
+  return (x + std::log(y));
 }
 
 template <typename T, class Context>
@@ -100,7 +126,77 @@ bool ReduceMeanOp<T, Context>::Compute(
   ComputeOp<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims, Add);
   math::Scale(
       Y_size, static_cast<float>(Y_size) / X_size, Y_data, Y_data, &context_);
+  return true;
+}
 
+template <typename T, class Context>
+bool ReduceProductOp<T, Context>::Compute(
+    const T* X_data,
+    const TIndex X_size,
+    vector<TIndex>& dims,
+    T* Y_data,
+    const TIndex Y_size,
+    vector<int>& axes,
+    int keepdims) {
+  math::Set<T, Context>(Y_size, 1.f, Y_data, &context_);
+  ComputeOp<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims, Product);
+  return true;
+}
+
+template <typename T, class Context>
+bool ReduceMinOp<T, Context>::Compute(
+    const T* X_data,
+    const TIndex X_size,
+    vector<TIndex>& dims,
+    T* Y_data,
+    const TIndex Y_size,
+    vector<int>& axes,
+    int keepdims) {
+  math::Set<T, Context>(Y_size, FLT_MAX, Y_data, &context_);
+  ComputeOp<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims, Min);
+  return true;
+}
+
+template <typename T, class Context>
+bool ReduceMaxOp<T, Context>::Compute(
+    const T* X_data,
+    const TIndex X_size,
+    vector<TIndex>& dims,
+    T* Y_data,
+    const TIndex Y_size,
+    vector<int>& axes,
+    int keepdims) {
+  math::Set<T, Context>(Y_size, -FLT_MAX, Y_data, &context_);
+  ComputeOp<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims, Max);
+  return true;
+}
+
+template <typename T, class Context>
+bool ReduceSumSquareOp<T, Context>::Compute(
+    const T* X_data,
+    const TIndex X_size,
+    vector<TIndex>& dims,
+    T* Y_data,
+    const TIndex Y_size,
+    vector<int>& axes,
+    int keepdims) {
+  math::Set<T, Context>(Y_size, 0.f, Y_data, &context_);
+  ComputeOp<T, Context>(
+      X_data, X_size, dims, Y_data, axes, keepdims, SumSquare);
+  return true;
+}
+
+template <typename T, class Context>
+bool ReduceLogSumOp<T, Context>::Compute(
+    const T* X_data,
+    const TIndex X_size,
+    vector<TIndex>& dims,
+    T* Y_data,
+    const TIndex Y_size,
+    vector<int>& axes,
+    int keepdims) {
+  math::Set<T, Context>(Y_size, 0.f, Y_data, &context_);
+  ComputeOp<T, Context>(X_data, X_size, dims, Y_data, axes, keepdims, LogSum);
   return true;
 }
 
@@ -143,5 +239,105 @@ OPERATOR_SCHEMA(ReduceMean)
 
 // TODO: Write gradient for this when needed
 GRADIENT_NOT_IMPLEMENTED_YET(ReduceMean);
+
+REGISTER_CPU_OPERATOR(ReduceProduct, ReduceProductOp<float, CPUContext>);
+
+OPERATOR_SCHEMA(ReduceProduct)
+    .NumInputs(1)
+    .NumOutputs(1)
+    .SetDoc(R"DOC(
+      Computes the product of the input tensor's element along the provided axes.
+      The resulted tensor has the same rank as the input if keepdims equal 1.
+      If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
+    )DOC")
+    .Arg("axes", "A list of integers, along which to reduce.")
+    .Arg(
+        "keepdims",
+        "Keep the reduced dimension(s) or not, default 1 keeps the reduced dimension(s).")
+    .Input(0, "data", "An input tensor.")
+    .Output(0, "reduced", "Reduced output tensor.");
+
+// TODO: Write gradient for this when needed
+GRADIENT_NOT_IMPLEMENTED_YET(ReduceProduct);
+
+REGISTER_CPU_OPERATOR(ReduceMin, ReduceMinOp<float, CPUContext>);
+
+OPERATOR_SCHEMA(ReduceMin)
+    .NumInputs(1)
+    .NumOutputs(1)
+    .SetDoc(R"DOC(
+      Computes the minimum of the input tensor's element along the provided axes.
+      The resulted tensor has the same rank as the input if keepdims equal 1.
+      If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
+    )DOC")
+    .Arg("axes", "A list of integers, along which to reduce.")
+    .Arg(
+        "keepdims",
+        "Keep the reduced dimension(s) or not, default 1 keeps the reduced dimension(s).")
+    .Input(0, "data", "An input tensor.")
+    .Output(0, "reduced", "Reduced output tensor.");
+
+// TODO: Write gradient for this when needed
+GRADIENT_NOT_IMPLEMENTED_YET(ReduceMin);
+
+REGISTER_CPU_OPERATOR(ReduceMax, ReduceMaxOp<float, CPUContext>);
+
+OPERATOR_SCHEMA(ReduceMax)
+    .NumInputs(1)
+    .NumOutputs(1)
+    .SetDoc(R"DOC(
+      Computes the maximum of the input tensor's element along the provided axes.
+      The resulted tensor has the same rank as the input if keepdims equal 1.
+      If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
+    )DOC")
+    .Arg("axes", "A list of integers, along which to reduce.")
+    .Arg(
+        "keepdims",
+        "Keep the reduced dimension(s) or not, default 1 keeps the reduced dimension(s).")
+    .Input(0, "data", "An input tensor.")
+    .Output(0, "reduced", "Reduced output tensor.");
+
+// TODO: Write gradient for this when needed
+GRADIENT_NOT_IMPLEMENTED_YET(ReduceMax);
+
+REGISTER_CPU_OPERATOR(ReduceSumSquare, ReduceSumSquareOp<float, CPUContext>);
+
+OPERATOR_SCHEMA(ReduceSumSquare)
+    .NumInputs(1)
+    .NumOutputs(1)
+    .SetDoc(R"DOC(
+      Computes the sum square of the input tensor's element along the provided axes.
+      The resulted tensor has the same rank as the input if keepdims equal 1.
+      If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
+    )DOC")
+    .Arg("axes", "A list of integers, along which to reduce.")
+    .Arg(
+        "keepdims",
+        "Keep the reduced dimension(s) or not, default 1 keeps the reduced dimension(s).")
+    .Input(0, "data", "An input tensor.")
+    .Output(0, "reduced", "Reduced output tensor.");
+
+// TODO: Write gradient for this when needed
+GRADIENT_NOT_IMPLEMENTED_YET(ReduceSumSquare);
+
+REGISTER_CPU_OPERATOR(ReduceLogSum, ReduceLogSumOp<float, CPUContext>);
+
+OPERATOR_SCHEMA(ReduceLogSum)
+    .NumInputs(1)
+    .NumOutputs(1)
+    .SetDoc(R"DOC(
+      Computes the log sum of the input tensor's element along the provided axes.
+      The resulted tensor has the same rank as the input if keepdims equal 1.
+      If keepdims equal 0, then the resulted tensor have the reduced dimension pruned.
+    )DOC")
+    .Arg("axes", "A list of integers, along which to reduce.")
+    .Arg(
+        "keepdims",
+        "Keep the reduced dimension(s) or not, default 1 keeps the reduced dimension(s).")
+    .Input(0, "data", "An input tensor.")
+    .Output(0, "reduced", "Reduced output tensor.");
+
+// TODO: Write gradient for this when needed
+GRADIENT_NOT_IMPLEMENTED_YET(ReduceLogSum);
 
 } // namespace caffe2

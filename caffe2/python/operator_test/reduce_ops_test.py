@@ -37,37 +37,207 @@ class TestReduceOps(hu.HypothesisTestCase):
         keepdims=st.integers(0, 1),
         seed=st.integers(0, 2**32 - 1),
         **hu.gcs_cpu_only)
-    def test_reduce_sum_mean(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
-        def reduce_mean_ref(data, axis, keepdims):
-            return [np.mean(data, axis=axis, keepdims=keepdims)]
-
+    def test_reduce_sum(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
         def reduce_sum_ref(data, axis, keepdims):
             return [np.sum(data, axis=axis, keepdims=keepdims)]
 
-        def reduce_op_test(op_name, op_ref, data, axes, keepdims, device):
+        np.random.seed(seed)
+        for axes in it.combinations(range(4), 2):
+            data = np.random.randn(d0, d1, d2, d3).astype(np.float32)
+
             op = core.CreateOperator(
-                op_name,
+                "ReduceSum",
                 ["data"],
                 ["Y"],
                 axes=axes,
                 keepdims=keepdims,
             )
 
-            self.assertReferenceChecks(device, op, [data],
+            self.assertReferenceChecks(gc, op, [data],
                                        functools.partial(
-                                           op_ref,
+                                           reduce_sum_ref,
                                            axis=axes,
                                            keepdims=keepdims))
+
+    @given(
+        d0=st.integers(1, 5),
+        d1=st.integers(1, 5),
+        d2=st.integers(1, 5),
+        d3=st.integers(1, 5),
+        keepdims=st.integers(0, 1),
+        seed=st.integers(0, 2**32 - 1),
+        **hu.gcs_cpu_only)
+    def test_reduce_mean(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
+        def reduce_mean_ref(data, axis, keepdims):
+            return [np.mean(data, axis=axis, keepdims=keepdims)]
 
         np.random.seed(seed)
         for axes in it.combinations(range(4), 2):
             data = np.random.randn(d0, d1, d2, d3).astype(np.float32)
 
-            reduce_op_test("ReduceMean", reduce_mean_ref, data, axes, keepdims,
-                           gc)
+            op = core.CreateOperator(
+                "ReduceMean",
+                ["data"],
+                ["Y"],
+                axes=axes,
+                keepdims=keepdims,
+            )
 
-            reduce_op_test("ReduceSum", reduce_sum_ref, data, axes, keepdims,
-                           gc)
+            self.assertReferenceChecks(gc, op, [data],
+                                       functools.partial(
+                                           reduce_mean_ref,
+                                           axis=axes,
+                                           keepdims=keepdims))
+
+    @given(
+        d0=st.integers(1, 5),
+        d1=st.integers(1, 5),
+        d2=st.integers(1, 5),
+        d3=st.integers(1, 5),
+        keepdims=st.integers(0, 1),
+        seed=st.integers(0, 2**32 - 1),
+        **hu.gcs_cpu_only)
+    def test_reduce_product(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
+        def reduce_product_ref(data, axis, keepdims):
+            return [np.prod(data, axis=axis, keepdims=keepdims)]
+
+        np.random.seed(seed)
+        for axes in it.combinations(range(4), 2):
+            data = np.random.randn(d0, d1, d2, d3).astype(np.float32)
+
+            op = core.CreateOperator(
+                "ReduceProduct",
+                ["data"],
+                ["Y"],
+                axes=axes,
+                keepdims=keepdims,
+            )
+
+            self.assertReferenceChecks(gc, op, [data],
+                                       functools.partial(
+                                           reduce_product_ref,
+                                           axis=axes,
+                                           keepdims=keepdims))
+
+    @given(
+        d0=st.integers(1, 5),
+        d1=st.integers(1, 5),
+        d2=st.integers(1, 5),
+        d3=st.integers(1, 5),
+        keepdims=st.integers(0, 1),
+        seed=st.integers(0, 2**32 - 1),
+        **hu.gcs_cpu_only)
+    def test_reduce_min(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
+        def reduce_min_ref(data, axis, keepdims):
+            return [np.min(data, axis=axis, keepdims=keepdims)]
+
+        np.random.seed(seed)
+        for axes in it.combinations(range(4), 2):
+            data = np.random.randn(d0, d1, d2, d3).astype(np.float32)
+
+            op = core.CreateOperator(
+                "ReduceMin",
+                ["data"],
+                ["Y"],
+                axes=axes,
+                keepdims=keepdims,
+            )
+
+            self.assertReferenceChecks(gc, op, [data],
+                                       functools.partial(
+                                           reduce_min_ref,
+                                           axis=axes,
+                                           keepdims=keepdims))
+
+    @given(
+        d0=st.integers(1, 5),
+        d1=st.integers(1, 5),
+        d2=st.integers(1, 5),
+        d3=st.integers(1, 5),
+        keepdims=st.integers(0, 1),
+        seed=st.integers(0, 2**32 - 1),
+        **hu.gcs_cpu_only)
+    def test_reduce_max(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
+        def reduce_max_ref(data, axis, keepdims):
+            return [np.max(data, axis=axis, keepdims=keepdims)]
+
+        np.random.seed(seed)
+        for axes in it.combinations(range(4), 2):
+            data = np.random.randn(d0, d1, d2, d3).astype(np.float32)
+
+            op = core.CreateOperator(
+                "ReduceMax",
+                ["data"],
+                ["Y"],
+                axes=axes,
+                keepdims=keepdims,
+            )
+
+            self.assertReferenceChecks(gc, op, [data],
+                                       functools.partial(
+                                           reduce_max_ref,
+                                           axis=axes,
+                                           keepdims=keepdims))
+
+    @given(
+        d0=st.integers(1, 5),
+        d1=st.integers(1, 5),
+        d2=st.integers(1, 5),
+        d3=st.integers(1, 5),
+        keepdims=st.integers(0, 1),
+        seed=st.integers(0, 2**32 - 1),
+        **hu.gcs_cpu_only)
+    def test_reduce_sum_square(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
+        def reduce_sum_square_ref(data, axis, keepdims):
+            return [np.sum(data**2, axis=axis, keepdims=keepdims)]
+
+        np.random.seed(seed)
+        for axes in it.combinations(range(4), 2):
+            data = np.random.randn(d0, d1, d2, d3).astype(np.float32)
+
+            op = core.CreateOperator(
+                "ReduceSumSquare",
+                ["data"],
+                ["Y"],
+                axes=axes,
+                keepdims=keepdims,
+            )
+
+            self.assertReferenceChecks(gc, op, [data],
+                                       functools.partial(
+                                           reduce_sum_square_ref,
+                                           axis=axes,
+                                           keepdims=keepdims))
+
+    @given(
+        d0=st.integers(1, 5),
+        d1=st.integers(1, 5),
+        d2=st.integers(1, 5),
+        d3=st.integers(1, 5),
+        keepdims=st.integers(0, 1),
+        seed=st.integers(0, 2**32 - 1),
+        **hu.gcs_cpu_only)
+    def test_reduce_log_sum(self, d0, d1, d2, d3, keepdims, seed, gc, dc):
+        def reduce_log_sum_ref(data, axis, keepdims):
+            return [np.sum(np.log(data), axis=axis, keepdims=keepdims)]
+
+        np.random.seed(seed)
+        for axes in it.combinations(range(4), 2):
+            data = np.random.randn(d0, d1, d2, d3).astype(np.float32)
+
+            op = core.CreateOperator(
+                "ReduceLogSum",
+                ["data"],
+                ["Y"],
+                axes=axes,
+                keepdims=keepdims,
+            )
+
+            self.assertReferenceChecks(gc, op, [data],
+                                       functools.partial(
+                                           reduce_log_sum_ref,
+                                           axis=axes,
+                                           keepdims=keepdims))
 
 
 class TestReduceFrontReductions(hu.HypothesisTestCase):
@@ -332,4 +502,3 @@ class TestReduceFrontReductions(hu.HypothesisTestCase):
         self.reduce_op_test(
             "ReduceBackMean", ref_mean, [X, lengths], ["input", "lengths"],
             num_reduce_dim, gc)
-

@@ -130,6 +130,102 @@ class ReduceMeanOp : public ReduceOpBase<T, Context> {
       int keepdims) override;
 };
 
+
+template <typename T, class Context>
+class ReduceProductOp : public ReduceOpBase<T, Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+
+  ReduceProductOp(const OperatorDef& operator_def, Workspace* ws)
+      : ReduceOpBase<T, Context>(operator_def, ws) {}
+
+ protected:
+  bool Compute(
+      const T* X_data,
+      const TIndex X_size,
+      vector<TIndex>& dims,
+      T* Y_data,
+      const TIndex Y_size,
+      vector<int>& axes,
+      int keepdims) override;
+};
+
+template <typename T, class Context>
+class ReduceMinOp : public ReduceOpBase<T, Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+
+  ReduceMinOp(const OperatorDef& operator_def, Workspace* ws)
+      : ReduceOpBase<T, Context>(operator_def, ws) {}
+
+ protected:
+  bool Compute(
+      const T* X_data,
+      const TIndex X_size,
+      vector<TIndex>& dims,
+      T* Y_data,
+      const TIndex Y_size,
+      vector<int>& axes,
+      int keepdims) override;
+};
+
+template <typename T, class Context>
+class ReduceMaxOp : public ReduceOpBase<T, Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+
+  ReduceMaxOp(const OperatorDef& operator_def, Workspace* ws)
+      : ReduceOpBase<T, Context>(operator_def, ws) {}
+
+ protected:
+  bool Compute(
+      const T* X_data,
+      const TIndex X_size,
+      vector<TIndex>& dims,
+      T* Y_data,
+      const TIndex Y_size,
+      vector<int>& axes,
+      int keepdims) override;
+};
+
+template <typename T, class Context>
+class ReduceSumSquareOp : public ReduceOpBase<T, Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+
+  ReduceSumSquareOp(const OperatorDef& operator_def, Workspace* ws)
+      : ReduceOpBase<T, Context>(operator_def, ws) {}
+
+ protected:
+  bool Compute(
+      const T* X_data,
+      const TIndex X_size,
+      vector<TIndex>& dims,
+      T* Y_data,
+      const TIndex Y_size,
+      vector<int>& axes,
+      int keepdims) override;
+};
+
+template <typename T, class Context>
+class ReduceLogSumOp : public ReduceOpBase<T, Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+
+  ReduceLogSumOp(const OperatorDef& operator_def, Workspace* ws)
+      : ReduceOpBase<T, Context>(operator_def, ws) {}
+
+ protected:
+  bool Compute(
+      const T* X_data,
+      const TIndex X_size,
+      vector<TIndex>& dims,
+      T* Y_data,
+      const TIndex Y_size,
+      vector<int>& axes,
+      int keepdims) override;
+};
+
 } // namespace caffe2
 
 #endif // CAFFE2_OPERATORS_REDUCE_OPS_H_
