@@ -157,7 +157,7 @@ Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">Operations to be used in the context of a NetBuilder.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00218">218</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00220">220</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a15d67da257b0ea85a92dc599f197e656"></a>
 <div class="memitem">
@@ -184,7 +184,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <pre class="fragment">Adds an operator call to the currently active Net.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00239">239</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00241">241</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -213,7 +213,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <pre class="fragment">Loop's condition, executed within WhileNet context
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00371">371</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00373">373</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -247,7 +247,7 @@ with ops.IfNet(ops.LT([x, y])):
 with ops.Else():
     ...
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00354">354</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00356">356</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -289,7 +289,7 @@ with ops.If(ops.Const(False)):
     ops.Print(ops.Const('Wont print'))
     The example will print 'Will print' once.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00335">335</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00337">337</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -324,7 +324,7 @@ with ops.If(ops.Const(False)):
 </div><div class="memdoc">
 <pre class="fragment">Same as If, but uses 'If' operator instead of execution step logic
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00348">348</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00350">350</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -355,7 +355,7 @@ with ops.If(ops.Const(False)):
 after all tasks of the group finished execution.
 This will run only once on each node.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00457">457</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00459">459</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -377,7 +377,7 @@ before any task of the group starts executing. This will run only
 once on each node, before initialization of any task, so it can be
 used e.g. to initialize blobs shared across tasks.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00446">446</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00448">448</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -414,7 +414,7 @@ used e.g. to initialize blobs shared across tasks.
 will run repeatedly for as long as any of the tasks in the current
 TaskGroup have not finished.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00480">480</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00482">482</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -469,7 +469,7 @@ with ops.loop(x) as loop:
     ops.LogInfo(loop.iter())
     This will print the numbers from 0 to 19.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00287">287</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00289">289</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -510,7 +510,7 @@ Args:
    it the new current net of the active builder. Cannot
    be provided if net is provided.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00222">222</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00224">224</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -534,7 +534,7 @@ ops.stop()
 ops.Print(b, 0)
     In the example, 'b' will never be printed.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00263">263</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00265">265</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -584,7 +584,7 @@ ops.Print(sg2.has_stopped(), [])
     In the example, 'did not stop' will be printed once,
     followed by True and False.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00313">313</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00315">315</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -620,7 +620,7 @@ ops.Print(b, 0)
     In the example, 'b' will only be printed if the value of scalar
     tensor 'x' lower or equal to 0.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00274">274</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00276">276</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -651,7 +651,7 @@ def read_queue(queue):
         queue.close(ops.net())
     return queue.read(ops.net())
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00401">401</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00403">403</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -671,7 +671,7 @@ def read_queue(queue):
 <pre class="fragment">Creates a local task group which will execute as the next step of
 the current NetBuilder.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00250">250</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00252">252</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -704,7 +704,7 @@ def my_processor(rec):
     return Tuple(
         ops.Add(rec[0](), zero), ops.Add(rec[1](), two))
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00379">379</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00381">381</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -727,7 +727,7 @@ instance of a task. This can be seen as "thread_local" finalization.
 This shutdown will be run concurrently for each instance of a task.
 For global task shutdown, use `task_exit` instead.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00434">434</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00436">436</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -751,7 +751,7 @@ It is guaranteed to run only after all `task_init` logic finishes.
 This setup will be run concurrently for each instance of a task.
 For global task initialization, use `task_init` instead.
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00421">421</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00423">423</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -793,7 +793,7 @@ finished.
 with ops.task_reporter(interval_ms=10000):
     ops.LogInfo('10s elapsed')
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00467">467</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00469">469</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -822,7 +822,7 @@ with ops.task_reporter(interval_ms=10000):
 </div><div class="memdoc">
 <pre class="fragment">NetBuilder for 'While' control operator
 </pre> 
-<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00365">365</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
+<p>Definition at line <a class="el" href="net__builder_8py_source.html#l00367">367</a> of file <a class="el" href="net__builder_8py_source.html">net_builder.py</a>.</p>
 
 </div>
 </div>
@@ -833,7 +833,7 @@ with ops.task_reporter(interval_ms=10000):
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:37 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

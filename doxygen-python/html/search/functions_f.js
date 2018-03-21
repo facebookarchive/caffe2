@@ -8,6 +8,7 @@ var searchData=
   ['set_5fruntime_5fargs',['set_runtime_args',['../classcaffe2_1_1python_1_1experiment__util_1_1_external_logger.html#ac13b37637fdcf5c84a65f05d4fc5950a',1,'caffe2::python::experiment_util::ExternalLogger']]],
   ['set_5fvalue',['set_value',['../classcaffe2_1_1python_1_1schema_1_1_scalar.html#a5382dc46cd8932dae8af5fb4ca9c92e6',1,'caffe2::python::schema::Scalar']]],
   ['setreportnet',['SetReportNet',['../classcaffe2_1_1python_1_1core_1_1_execution_step.html#a81ab583a329825b27811081f7d06de69',1,'caffe2::python::core::ExecutionStep']]],
+  ['setup',['setup',['../classcaffe2_1_1python_1_1dataio_1_1_reader_builder.html#a45191bc578de11a88715b49faec44d03',1,'caffe2::python::dataio::ReaderBuilder']]],
   ['setup_5fex',['setup_ex',['../classcaffe2_1_1python_1_1dataio_1_1_reader.html#a8d8909ca962957a5eb60f9d4007ef745',1,'caffe2.python.dataio.Reader.setup_ex()'],['../classcaffe2_1_1python_1_1dataio_1_1_writer.html#a3e270a50d9e2d65db196cddc56132c00',1,'caffe2.python.dataio.Writer.setup_ex()']]],
   ['setup_5fexample',['setup_example',['../classcaffe2_1_1python_1_1layer__test__util_1_1_layers_test_case.html#a22f99ab5eab7cdbae7eca644c43926ce',1,'caffe2::python::layer_test_util::LayersTestCase']]],
   ['setup_5flimiter',['setup_limiter',['../classcaffe2_1_1python_1_1dataio_1_1_reader_with_limit_base.html#a969c829309710eced9c46c7372267f43',1,'caffe2::python::dataio::ReaderWithLimitBase']]],

@@ -2,6 +2,7 @@ var searchData=
 [
   ['adagradoptimizer',['AdagradOptimizer',['../classcaffe2_1_1python_1_1optimizer_1_1_adagrad_optimizer.html',1,'caffe2::python::optimizer']]],
   ['adamoptimizer',['AdamOptimizer',['../classcaffe2_1_1python_1_1optimizer_1_1_adam_optimizer.html',1,'caffe2::python::optimizer']]],
+  ['adaptiveweight',['AdaptiveWeight',['../classcaffe2_1_1python_1_1layers_1_1adaptive__weight_1_1_adaptive_weight.html',1,'caffe2::python::layers::adaptive_weight']]],
   ['add_5fattribute',['add_attribute',['../classcaffe2_1_1python_1_1core_1_1_net.html#aa5ffba5942e8b5d16ad2b088af16c5a5',1,'caffe2::python::core::Net']]],
   ['add_5fbias',['add_bias',['../namespaceadd__bias.html',1,'']]],
   ['add_5finit_5fparams',['add_init_params',['../classcaffe2_1_1python_1_1layers_1_1layers_1_1_model_layer.html#ac831c2a2b5dbe98f413a6ad1c06af5e8',1,'caffe2::python::layers::layers::ModelLayer']]],

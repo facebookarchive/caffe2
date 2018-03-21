@@ -147,7 +147,7 @@ static constexpr const char *&#160;</td><td class="memItemRight" valign="bottom"
 struct caffe2::AbstractSparseLengthsDef&lt; T, SIndex, Context, ReducerDef, GradientNeedIndices &gt;</h3>
 
 
-<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01986">1986</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
+<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01988">1988</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a class="anchor" id="a72d7cf61ac7bd49b3439997e1ec34135"></a>
 <div class="memitem">
@@ -169,7 +169,7 @@ template&lt;typename T , typename SIndex , typename Context , typename ReducerDe
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= R<span class="stringliteral">&quot;DOC(</span></div><div class="line"><span class="stringliteral">Pulls in slices of the input tensor, groups them into segments and applies</span></div><div class="line"><span class="stringliteral">&#39;{op}&#39; to each segment. Segments are defined by their LENGTHS.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">This op is basically Gather and Lengths{op} fused together.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">INDICES should contain integers in range 0..N-1 where N is the first dimension</span></div><div class="line"><span class="stringliteral">of DATA. INDICES represent which slices of DATA need to be pulled in.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">LENGTHS is a vector that defines slice sizes by first dimention of DATA. Values</span></div><div class="line"><span class="stringliteral">belonging to the same segment are aggregated together. sum(LENGTHS) has</span></div><div class="line"><span class="stringliteral">to match INDICES size.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">The first dimension of the output is equal to the number of input segment,</span></div><div class="line"><span class="stringliteral">i.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">{op_doc}</span></div><div class="line"><span class="stringliteral">  )DOC&quot;</span></div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01989">1989</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
+<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01991">1991</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
 
 </div>
 </div>
@@ -180,7 +180,7 @@ template&lt;typename T , typename SIndex , typename Context , typename ReducerDe
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:11 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

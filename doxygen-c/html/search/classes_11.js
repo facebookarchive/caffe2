@@ -49,6 +49,7 @@ var searchData=
   ['roipoolop',['RoIPoolOp',['../classcaffe2_1_1_ro_i_pool_op.html',1,'caffe2']]],
   ['rowmulop',['RowMulOp',['../classcaffe2_1_1_row_mul_op.html',1,'caffe2']]],
   ['rowwise8bitquantizedtofloatop',['Rowwise8BitQuantizedToFloatOp',['../classcaffe2_1_1_rowwise8_bit_quantized_to_float_op.html',1,'caffe2']]],
+  ['rowwiseargmaxop',['RowWiseArgMaxOp',['../classcaffe2_1_1_row_wise_arg_max_op.html',1,'caffe2']]],
   ['rowwisesparseadagradop',['RowWiseSparseAdagradOp',['../classcaffe2_1_1_row_wise_sparse_adagrad_op.html',1,'caffe2']]],
   ['rowwisesparseadamop',['RowWiseSparseAdamOp',['../classcaffe2_1_1_row_wise_sparse_adam_op.html',1,'caffe2']]],
   ['runcountnetobserver',['RunCountNetObserver',['../classcaffe2_1_1_run_count_net_observer.html',1,'caffe2']]],

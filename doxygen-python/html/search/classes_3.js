@@ -18,6 +18,7 @@ var searchData=
   ['computestatisticsforblobs',['ComputeStatisticsForBlobs',['../classcaffe2_1_1python_1_1modeling_1_1compute__statistics__for__blobs_1_1_compute_statistics_for_blobs.html',1,'caffe2::python::modeling::compute_statistics_for_blobs']]],
   ['concat',['Concat',['../classcaffe2_1_1python_1_1layers_1_1concat_1_1_concat.html',1,'caffe2::python::layers::concat']]],
   ['constantnorm',['ConstantNorm',['../classcaffe2_1_1python_1_1regularizer_1_1_constant_norm.html',1,'caffe2::python::regularizer']]],
+  ['constantweight',['ConstantWeight',['../classcaffe2_1_1python_1_1layers_1_1constant__weight_1_1_constant_weight.html',1,'caffe2::python::layers::constant_weight']]],
   ['contextinfo',['ContextInfo',['../classcaffe2_1_1python_1_1context_1_1_context_info.html',1,'caffe2::python::context']]],
   ['contextmanager',['ContextManager',['../classcaffe2_1_1python_1_1context_1_1_context_manager.html',1,'caffe2::python::context']]],
   ['conv',['Conv',['../classcaffe2_1_1python_1_1layers_1_1conv_1_1_conv.html',1,'caffe2::python::layers::conv']]],

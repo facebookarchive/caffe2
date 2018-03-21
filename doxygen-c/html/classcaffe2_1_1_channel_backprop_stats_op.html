@@ -98,7 +98,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Data Fields</a> &#124;
-<a href="#pro-methods">Protected Member Functions</a>  </div>
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">caffe2::ChannelBackpropStatsOp&lt; Context &gt; Class Template Reference</div>  </div>
 </div><!--header-->
@@ -186,6 +187,10 @@ template&lt;typename T &gt; </td></tr>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a08832a753a297fe95ca095cd7696532f inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memTemplItemLeft" align="right" valign="top">T *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Output</b> (int idx)</td></tr>
 <tr class="separator:a08832a753a297fe95ca095cd7696532f inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae310ebe834186c7f4b886b85fa144c97 inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memTemplParams" colspan="2"><a class="anchor" id="ae310ebe834186c7f4b886b85fa144c97"></a>
+template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ae310ebe834186c7f4b886b85fa144c97 inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memTemplItemLeft" align="right" valign="top">T *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Output</b> (int idx, T *allocated)</td></tr>
+<tr class="separator:ae310ebe834186c7f4b886b85fa144c97 inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47873956fbdb29d5532c331c012d3b3f inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47873956fbdb29d5532c331c012d3b3f"></a>
 const <a class="el" href="classcaffe2_1_1_blob.html">Blob</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>InputBlob</b> (int idx)</td></tr>
 <tr class="separator:a47873956fbdb29d5532c331c012d3b3f inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -312,16 +317,14 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>getErrorMsg</b
 &#160;</td><td class="memItemRight" valign="bottom"><b>DISABLE_COPY_AND_ASSIGN</b> (<a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a>)</td></tr>
 <tr class="separator:ab8f85e9bb2251c93454bbd403c357aa9 inherit pro_methods_classcaffe2_1_1_operator_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pub_types_classcaffe2_1_1_observable"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classcaffe2_1_1_observable')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classcaffe2_1_1_observable.html">caffe2::Observable&lt; OperatorBase &gt;</a></td></tr>
-<tr class="memitem:abb49f4db328e1b117e3999f29459def5 inherit pub_types_classcaffe2_1_1_observable"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb49f4db328e1b117e3999f29459def5"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>Observer</b> = <a class="el" href="classcaffe2_1_1_observer_base.html">ObserverBase</a>&lt; <a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> &gt;</td></tr>
-<tr class="separator:abb49f4db328e1b117e3999f29459def5 inherit pub_types_classcaffe2_1_1_observable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_static_attribs_classcaffe2_1_1_operator_base"><td colspan="2" onclick="javascript:toggleInherit('pub_static_attribs_classcaffe2_1_1_operator_base')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classcaffe2_1_1_operator_base.html">caffe2::OperatorBase</a></td></tr>
-<tr class="memitem:a6469b8d61dc1107bc3c649ac47bbd24d inherit pub_static_attribs_classcaffe2_1_1_operator_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6469b8d61dc1107bc3c649ac47bbd24d"></a>
-static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kNoNetPositionSet</b> = -1</td></tr>
-<tr class="separator:a6469b8d61dc1107bc3c649ac47bbd24d inherit pub_static_attribs_classcaffe2_1_1_operator_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:acf7cf70677c514f24452447fd4751cb2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf7cf70677c514f24452447fd4751cb2"></a>
+<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; Context &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>dBiasScratch_</b></td></tr>
+<tr class="separator:acf7cf70677c514f24452447fd4751cb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e4e76750e1cef0a1323fd15733837f9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1e4e76750e1cef0a1323fd15733837f9"></a>
+<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; Context &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>dScaleScratch_</b></td></tr>
+<tr class="separator:a1e4e76750e1cef0a1323fd15733837f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classcaffe2_1_1_operator"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classcaffe2_1_1_operator')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classcaffe2_1_1_operator.html">caffe2::Operator&lt; Context &gt;</a></td></tr>
 <tr class="memitem:af4c08188782db9c1461a50a20923a3b9 inherit pro_attribs_classcaffe2_1_1_operator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af4c08188782db9c1461a50a20923a3b9"></a>
 Context&#160;</td><td class="memItemRight" valign="bottom"><b>context_</b></td></tr>
@@ -334,6 +337,17 @@ std::unique_ptr&lt; <a class="el" href="classcaffe2_1_1_event.html">Event</a> &g
 <tr class="memitem:a1c0e56e277283cc9990397cfde2358d9 inherit pro_attribs_classcaffe2_1_1_observable"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1c0e56e277283cc9990397cfde2358d9"></a>
 std::vector&lt; std::unique_ptr&lt; <a class="el" href="classcaffe2_1_1_observer_base.html">Observer</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>observers_list_</b></td></tr>
 <tr class="separator:a1c0e56e277283cc9990397cfde2358d9 inherit pro_attribs_classcaffe2_1_1_observable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_types_classcaffe2_1_1_observable"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classcaffe2_1_1_observable')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classcaffe2_1_1_observable.html">caffe2::Observable&lt; OperatorBase &gt;</a></td></tr>
+<tr class="memitem:abb49f4db328e1b117e3999f29459def5 inherit pub_types_classcaffe2_1_1_observable"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb49f4db328e1b117e3999f29459def5"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Observer</b> = <a class="el" href="classcaffe2_1_1_observer_base.html">ObserverBase</a>&lt; <a class="el" href="classcaffe2_1_1_operator_base.html">OperatorBase</a> &gt;</td></tr>
+<tr class="separator:abb49f4db328e1b117e3999f29459def5 inherit pub_types_classcaffe2_1_1_observable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_attribs_classcaffe2_1_1_operator_base"><td colspan="2" onclick="javascript:toggleInherit('pub_static_attribs_classcaffe2_1_1_operator_base')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classcaffe2_1_1_operator_base.html">caffe2::OperatorBase</a></td></tr>
+<tr class="memitem:a6469b8d61dc1107bc3c649ac47bbd24d inherit pub_static_attribs_classcaffe2_1_1_operator_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6469b8d61dc1107bc3c649ac47bbd24d"></a>
+static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>kNoNetPositionSet</b> = -1</td></tr>
+<tr class="separator:a6469b8d61dc1107bc3c649ac47bbd24d inherit pub_static_attribs_classcaffe2_1_1_operator_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;class Context&gt;<br />
@@ -348,7 +362,7 @@ class caffe2::ChannelBackpropStatsOp&lt; Context &gt;</h3>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:12 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

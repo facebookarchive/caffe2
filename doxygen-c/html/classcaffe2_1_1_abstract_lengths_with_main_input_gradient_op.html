@@ -204,6 +204,10 @@ template&lt;typename T &gt; </td></tr>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a08832a753a297fe95ca095cd7696532f inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memTemplItemLeft" align="right" valign="top">T *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Output</b> (int idx)</td></tr>
 <tr class="separator:a08832a753a297fe95ca095cd7696532f inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae310ebe834186c7f4b886b85fa144c97 inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memTemplParams" colspan="2"><a class="anchor" id="ae310ebe834186c7f4b886b85fa144c97"></a>
+template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ae310ebe834186c7f4b886b85fa144c97 inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memTemplItemLeft" align="right" valign="top">T *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Output</b> (int idx, T *allocated)</td></tr>
+<tr class="separator:ae310ebe834186c7f4b886b85fa144c97 inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47873956fbdb29d5532c331c012d3b3f inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47873956fbdb29d5532c331c012d3b3f"></a>
 const <a class="el" href="classcaffe2_1_1_blob.html">Blob</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>InputBlob</b> (int idx)</td></tr>
 <tr class="separator:a47873956fbdb29d5532c331c012d3b3f inherit pub_methods_classcaffe2_1_1_operator_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -350,7 +354,7 @@ std::vector&lt; std::unique_ptr&lt; <a class="el" href="classcaffe2_1_1_observer
 class caffe2::AbstractLengthsWithMainInputGradientOp&lt; T, TLengths, Context, ReducerGradient, SparseFused, GradientNeedIndices &gt;</h3>
 
 
-<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01639">1639</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
+<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01641">1641</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a class="anchor" id="a006cdc2ee15c2dfecd468c1020cd2677"></a>
 <div class="memitem">
@@ -372,7 +376,7 @@ template&lt;typename T , typename TLengths , class Context , class ReducerGradie
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= ReducerGradient::originalInputs().size() +</div><div class="line">      3 + (SparseFused ? 1 : 0) + (GradientNeedIndices ? 1 : 0)</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01738">1738</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
+<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01740">1740</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
 
 </div>
 </div>
@@ -383,7 +387,7 @@ template&lt;typename T , typename TLengths , class Context , class ReducerGradie
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:11 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

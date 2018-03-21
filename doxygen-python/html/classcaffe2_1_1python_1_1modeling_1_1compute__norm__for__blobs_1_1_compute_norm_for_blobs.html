@@ -114,9 +114,9 @@ Inheritance diagram for caffe2.python.modeling.compute_norm_for_blobs.ComputeNor
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a754915d8b000fdaf8070a69a7845ff7b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a754915d8b000fdaf8070a69a7845ff7b"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, blobs, logging_frequency, p=2)</td></tr>
-<tr class="separator:a754915d8b000fdaf8070a69a7845ff7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7e5698ec7c66fd24aeb15f615d146d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae7e5698ec7c66fd24aeb15f615d146d5"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, blobs, logging_frequency, p=2, compute_averaged_norm=False)</td></tr>
+<tr class="separator:ae7e5698ec7c66fd24aeb15f615d146d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefa8af1270539e7fb6c170e4c9a52c9a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefa8af1270539e7fb6c170e4c9a52c9a"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>modify_net</b> (self, net, init_net=None, grad_map=None, blob_to_device=None)</td></tr>
 <tr class="separator:aefa8af1270539e7fb6c170e4c9a52c9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,6 +142,7 @@ Args:
     blobs: list of blobs to compute norm for
     logging_frequency: frequency for printing norms to logs
     p: type of norm. Currently it supports p=1 or p=2
+    compute_averaged_norm: norm or averaged_norm (averaged_norm = norm/size)
 </pre> 
 <p>Definition at line <a class="el" href="compute__norm__for__blobs_8py_source.html#l00027">27</a> of file <a class="el" href="compute__norm__for__blobs_8py_source.html">compute_norm_for_blobs.py</a>.</p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
@@ -151,7 +152,7 @@ Args:
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:37 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

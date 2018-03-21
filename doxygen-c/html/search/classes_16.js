@@ -1,6 +1,7 @@
 var searchData=
 [
   ['wallclocktimeop',['WallClockTimeOp',['../classcaffe2_1_1_wall_clock_time_op.html',1,'caffe2']]],
+  ['weightedmultisamplingop',['WeightedMultiSamplingOp',['../classcaffe2_1_1_weighted_multi_sampling_op.html',1,'caffe2']]],
   ['weightedsampledequeueblobsop',['WeightedSampleDequeueBlobsOp',['../classcaffe2_1_1_weighted_sample_dequeue_blobs_op.html',1,'caffe2']]],
   ['weightedsampleop',['WeightedSampleOp',['../classcaffe2_1_1_weighted_sample_op.html',1,'caffe2']]],
   ['weightedsigmoidcrossentropywithlogitsgradientop',['WeightedSigmoidCrossEntropyWithLogitsGradientOp',['../classcaffe2_1_1_weighted_sigmoid_cross_entropy_with_logits_gradient_op.html',1,'caffe2']]],

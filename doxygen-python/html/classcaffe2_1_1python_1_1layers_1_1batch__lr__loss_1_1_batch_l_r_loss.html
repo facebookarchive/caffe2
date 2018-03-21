@@ -114,9 +114,15 @@ Inheritance diagram for caffe2.python.layers.batch_lr_loss.BatchLRLoss:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a9458822139c07a11ac278588252ee8d3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9458822139c07a11ac278588252ee8d3"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, model, input_record, name='batch_lr_loss', average_loss=True, jsd_weight=0.0, pos_label_target=1.0, neg_label_target=0.0, kwargs)</td></tr>
-<tr class="separator:a9458822139c07a11ac278588252ee8d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8967928cb6c54a95741ad51790d298e8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8967928cb6c54a95741ad51790d298e8"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b> (self, model, input_record, name='batch_lr_loss', average_loss=True, jsd_weight=0.0, pos_label_target=1.0, neg_label_target=0.0, homotopy_weighting=False, kwargs)</td></tr>
+<tr class="separator:a8967928cb6c54a95741ad51790d298e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a136fc828b9555fa0400c8ee94b660ea5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a136fc828b9555fa0400c8ee94b660ea5"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>init_weight</b> (self, jsd_weight, homotopy_weighting)</td></tr>
+<tr class="separator:a136fc828b9555fa0400c8ee94b660ea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52d0081b0a69a04349e9d1f46f870ca9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a52d0081b0a69a04349e9d1f46f870ca9"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>update_weight</b> (self, net)</td></tr>
+<tr class="separator:a52d0081b0a69a04349e9d1f46f870ca9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab408853698ad28265c3c1dea0df9df56"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab408853698ad28265c3c1dea0df9df56"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>add_ops</b> (self, net)</td></tr>
 <tr class="separator:ab408853698ad28265c3c1dea0df9df56"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -126,15 +132,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a8eb06b48b9b2f6cbc708b7e30e5ac005"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8eb06b48b9b2f6cbc708b7e30e5ac005"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>average_loss</b></td></tr>
 <tr class="separator:a8eb06b48b9b2f6cbc708b7e30e5ac005"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22f2ce47dd05bc233cdfed1f890e25c8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a22f2ce47dd05bc233cdfed1f890e25c8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>jsd_weight</b></td></tr>
-<tr class="separator:a22f2ce47dd05bc233cdfed1f890e25c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94ae09d325c966d58b20a91c0346b0c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a94ae09d325c966d58b20a91c0346b0c5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>jsd_weight_const</b></td></tr>
-<tr class="separator:a94ae09d325c966d58b20a91c0346b0c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff319c7c8e9f0833c09361fa581321df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff319c7c8e9f0833c09361fa581321df"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>xent_weight_const</b></td></tr>
-<tr class="separator:aff319c7c8e9f0833c09361fa581321df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80fe904a769428f415be6f0959637264"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80fe904a769428f415be6f0959637264"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>jsd_fuse</b></td></tr>
+<tr class="separator:a80fe904a769428f415be6f0959637264"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a762ffcdae7efefe047fab90a2930fb4d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a762ffcdae7efefe047fab90a2930fb4d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>homotopy_weighting</b></td></tr>
+<tr class="separator:a762ffcdae7efefe047fab90a2930fb4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab2557b19a24a54f57c65162f645015c4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2557b19a24a54f57c65162f645015c4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>pos_label_target</b></td></tr>
 <tr class="separator:ab2557b19a24a54f57c65162f645015c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,6 +147,18 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a02eeb03ed5fff3f6e63f7aa2a15d601f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a02eeb03ed5fff3f6e63f7aa2a15d601f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>output_schema</b></td></tr>
 <tr class="separator:a02eeb03ed5fff3f6e63f7aa2a15d601f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19e73a0ace99afa7bb82ad4d206dc4aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a19e73a0ace99afa7bb82ad4d206dc4aa"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>mutex</b></td></tr>
+<tr class="separator:a19e73a0ace99afa7bb82ad4d206dc4aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae803e04dc90858e756f3bf7298c40f47"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae803e04dc90858e756f3bf7298c40f47"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>counter</b></td></tr>
+<tr class="separator:ae803e04dc90858e756f3bf7298c40f47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6294075629fe4470eb0679051f84619c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6294075629fe4470eb0679051f84619c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>xent_weight</b></td></tr>
+<tr class="separator:a6294075629fe4470eb0679051f84619c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22f2ce47dd05bc233cdfed1f890e25c8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a22f2ce47dd05bc233cdfed1f890e25c8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>jsd_weight</b></td></tr>
+<tr class="separator:a22f2ce47dd05bc233cdfed1f890e25c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
@@ -155,7 +170,7 @@ Public Attributes</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:37 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -126,8 +126,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>reset_model</b> (self,
 <tr class="memitem:af22d60ff1dde44cf52ceba939ed9f0b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af22d60ff1dde44cf52ceba939ed9f0b8"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>new_record</b> (self, schema_obj)</td></tr>
 <tr class="separator:af22d60ff1dde44cf52ceba939ed9f0b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af95034f46a7f2b9a86163d9eb607c3fa"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1python_1_1layer__test__util_1_1_layers_test_case.html#af95034f46a7f2b9a86163d9eb607c3fa">get_training_nets</a> (self)</td></tr>
-<tr class="separator:af95034f46a7f2b9a86163d9eb607c3fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afebb7ffb7d506d5da37d239fafd25944"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1python_1_1layer__test__util_1_1_layers_test_case.html#afebb7ffb7d506d5da37d239fafd25944">get_training_nets</a> (self, add_constants=False)</td></tr>
+<tr class="separator:afebb7ffb7d506d5da37d239fafd25944"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68e3d22ae13db7292d81fe5138d86354"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68e3d22ae13db7292d81fe5138d86354"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>get_eval_net</b> (self)</td></tr>
 <tr class="separator:a68e3d22ae13db7292d81fe5138d86354"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -205,7 +205,7 @@ Public Attributes</h2></td></tr>
 then no assertion is performed. The elements of the list can be None,
 in that case, it means that position will not be checked.
 </pre> 
-<p>Definition at line <a class="el" href="layer__test__util_8py_source.html#l00108">108</a> of file <a class="el" href="layer__test__util_8py_source.html">layer_test_util.py</a>.</p>
+<p>Definition at line <a class="el" href="layer__test__util_8py_source.html#l00111">111</a> of file <a class="el" href="layer__test__util_8py_source.html">layer_test_util.py</a>.</p>
 
 </div>
 </div>
@@ -240,11 +240,11 @@ in that case, it means that position will not be checked.
 </div><div class="memdoc">
 <pre class="fragment">Given a net and a list of OpSpec's, check that the net match the spec
 </pre> 
-<p>Definition at line <a class="el" href="layer__test__util_8py_source.html#l00137">137</a> of file <a class="el" href="layer__test__util_8py_source.html">layer_test_util.py</a>.</p>
+<p>Definition at line <a class="el" href="layer__test__util_8py_source.html#l00140">140</a> of file <a class="el" href="layer__test__util_8py_source.html">layer_test_util.py</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="af95034f46a7f2b9a86163d9eb607c3fa"></a>
+<a class="anchor" id="afebb7ffb7d506d5da37d239fafd25944"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -252,8 +252,18 @@ in that case, it means that position will not be checked.
           <td class="memname">def caffe2.python.layer_test_util.LayersTestCase.get_training_nets </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em></td><td>)</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>add_constants</em> = <code>False</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -293,7 +303,7 @@ https://github.com/HypothesisWorks/hypothesis-python/issues/59
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:37 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -117,24 +117,54 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a53cde95ee613d88ef30d2cd7fdccb774"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a53cde95ee613d88ef30d2cd7fdccb774"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>schema</b> (self)</td></tr>
 <tr class="separator:a53cde95ee613d88ef30d2cd7fdccb774"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7dc8a56c4833652843c1b7ea3e85d1c6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7dc8a56c4833652843c1b7ea3e85d1c6"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>splits</b> (self, net)</td></tr>
-<tr class="separator:a7dc8a56c4833652843c1b7ea3e85d1c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af584ec090fed7f2c7669b943e0f69160"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af584ec090fed7f2c7669b943e0f69160"></a>
-def&#160;</td><td class="memItemRight" valign="bottom"><b>new_reader</b> (self, split_reader=None, kwargs)</td></tr>
-<tr class="separator:af584ec090fed7f2c7669b943e0f69160"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45191bc578de11a88715b49faec44d03"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1python_1_1dataio_1_1_reader_builder.html#a45191bc578de11a88715b49faec44d03">setup</a> (self, kwargs)</td></tr>
+<tr class="separator:a45191bc578de11a88715b49faec44d03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81629e68938ff5624f6862f37afab1c9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a81629e68938ff5624f6862f37afab1c9"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>new_reader</b> (self, kwargs)</td></tr>
+<tr class="separator:a81629e68938ff5624f6862f37afab1c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">Allow usage of a reader in distributed fashion. </pre> 
 <p>Definition at line <a class="el" href="dataio_8py_source.html#l00224">224</a> of file <a class="el" href="dataio_8py_source.html">dataio.py</a>.</p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a45191bc578de11a88715b49faec44d03"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def caffe2.python.dataio.ReaderBuilder.setup </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>kwargs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Optionally, perform one-time setup before calling new_reader().
+Subclass should make sure this function is only called once.
+</pre> 
+<p>Definition at line <a class="el" href="dataio_8py_source.html#l00229">229</a> of file <a class="el" href="dataio_8py_source.html">dataio.py</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>caffe2/python/<a class="el" href="dataio_8py_source.html">dataio.py</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:18 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:37 for Caffe2 - Python API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -65,6 +65,7 @@ var searchData=
   ['rootfolder',['RootFolder',['../classcaffe2_1_1_workspace.html#a2d62f3cb10bc581e9eab50755df72b9b',1,'caffe2::Workspace']]],
   ['rowmulop',['RowMulOp',['../classcaffe2_1_1_row_mul_op.html',1,'caffe2']]],
   ['rowwise8bitquantizedtofloatop',['Rowwise8BitQuantizedToFloatOp',['../classcaffe2_1_1_rowwise8_bit_quantized_to_float_op.html',1,'caffe2']]],
+  ['rowwiseargmaxop',['RowWiseArgMaxOp',['../classcaffe2_1_1_row_wise_arg_max_op.html',1,'caffe2']]],
   ['rowwisesparseadagradop',['RowWiseSparseAdagradOp',['../classcaffe2_1_1_row_wise_sparse_adagrad_op.html',1,'caffe2']]],
   ['rowwisesparseadamop',['RowWiseSparseAdamOp',['../classcaffe2_1_1_row_wise_sparse_adam_op.html',1,'caffe2']]],
   ['run',['Run',['../classcaffe2_1_1_threaded_recurrent_network_executor.html#a06af0d2de0163650d34831056ecf018e',1,'caffe2::ThreadedRecurrentNetworkExecutor']]],

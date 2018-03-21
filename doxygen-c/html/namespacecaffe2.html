@@ -1478,6 +1478,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_rowwise8_bit_quantized_to_float_op.html">Rowwise8BitQuantizedToFloatOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_row_wise_arg_max_op.html">RowWiseArgMaxOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_row_wise_sparse_adagrad_op.html">RowWiseSparseAdagradOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_row_wise_sparse_adam_op.html">RowWiseSparseAdamOp</a></td></tr>
@@ -1876,6 +1878,8 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcaffe2_1_1_video_meta.html">VideoMeta</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_wall_clock_time_op.html">WallClockTimeOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_weighted_multi_sampling_op.html">WeightedMultiSamplingOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_weighted_sample_dequeue_blobs_op.html">WeightedSampleDequeueBlobsOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3661,6 +3665,18 @@ we first initialize the output tensor to all and then do accumulation Any furthe
 <tr class="memitem:ade465a1be9535ecde85ef986fd6433d4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ade465a1be9535ecde85ef986fd6433d4"></a>
 NumInputs(2).NumOutputs(1).ScalarType(TensorProto&#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (Accuracy)</td></tr>
 <tr class="separator:ade465a1be9535ecde85ef986fd6433d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b36f8d0063185b9f6e2b563037d8ef0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b36f8d0063185b9f6e2b563037d8ef0"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (RowWiseArgMax, <a class="el" href="classcaffe2_1_1_row_wise_arg_max_op.html">RowWiseArgMaxOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a4b36f8d0063185b9f6e2b563037d8ef0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa87c31986dbdbc7c590efe254b91e3aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa87c31986dbdbc7c590efe254b91e3aa"></a>
+this&#160;</td><td class="memItemRight" valign="bottom"><b>operator returns a 2D</b> (N X 1) output tensor with with the index of the maximum value in each row.If there are duplicate max values in a row the index of the first occurence is returned.) DOC&quot;) .Input(0</td></tr>
+<tr class="separator:aa87c31986dbdbc7c590efe254b91e3aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9424659b08d3994cc62222fd0febb63"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad9424659b08d3994cc62222fd0febb63"></a>
+this N X D input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;Z&quot;,&quot;2D (N X 1) output tensor&quot;)</td></tr>
+<tr class="separator:ad9424659b08d3994cc62222fd0febb63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59a41d651fce739d7e69aa1693868be0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a59a41d651fce739d7e69aa1693868be0"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NO_GRADIENT</b> (RowWiseArgMax)</td></tr>
+<tr class="separator:a59a41d651fce739d7e69aa1693868be0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1935fbf87dd5962a9730b559808baa0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab1935fbf87dd5962a9730b559808baa0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Assert, <a class="el" href="classcaffe2_1_1_assert_op.html">AssertOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ab1935fbf87dd5962a9730b559808baa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4026,9 +4042,6 @@ The common world An int CPUtensor of size specifying the rank If this overrides 
 <tr class="memitem:a9f36c0089fc94b6017420b6e513ea631"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9f36c0089fc94b6017420b6e513ea631"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Split, <a class="el" href="classcaffe2_1_1_split_op.html">SplitOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a9f36c0089fc94b6017420b6e513ea631"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a96dadc37c106c87f6b5a4f1fa50260d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96dadc37c106c87f6b5a4f1fa50260d6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Concat, <a class="el" href="classcaffe2_1_1_concat_op.html">ConcatOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
-<tr class="separator:a96dadc37c106c87f6b5a4f1fa50260d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2796d3e2dd75c75b4dcc84d8d912b044"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2796d3e2dd75c75b4dcc84d8d912b044"></a>
 INT_MAX&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;input&quot;,&quot;The tensor to split&quot;).Input(1</td></tr>
 <tr class="separator:a2796d3e2dd75c75b4dcc84d8d912b044"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4038,23 +4051,21 @@ INT_MAX Optional list of output&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a7017a1ace23b0e8e35ef3af2d36cda93"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7017a1ace23b0e8e35ef3af2d36cda93"></a>
 INT_MAX Optional list of output Which axis to split on&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;split&quot;,&quot;length of each output&quot;).Arg(&quot;order&quot;</td></tr>
 <tr class="separator:a7017a1ace23b0e8e35ef3af2d36cda93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44a680c2a03838257983454ef3df8ac8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a44a680c2a03838257983454ef3df8ac8"></a>
-INT_MAX Optional list of output Which axis to split on Either NHWC or will split on C defaults to NCHW&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
-Split a tensor into a list of tensors, along the specified
-'axis'. The lengths of the split can be specified using argument 'axis' or
-optional second input blob to the operator. Otherwise, the tensor is split
-to equal sized parts.
-)DOC&quot;)</td></tr>
-<tr class="separator:a44a680c2a03838257983454ef3df8ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88a409bc3607084de788367e2eec1043"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a88a409bc3607084de788367e2eec1043"></a>
+INT_MAX Optional list of output Which axis to split on Either NHWC or will split on C defaults to NCHW&#160;</td><td class="memItemRight" valign="bottom"><b>DeviceInferenceFunction</b> (splitOpDevInfer).SetDoc(R&quot;DOC( Split a tensor into a list of tensors</td></tr>
+<tr class="separator:a88a409bc3607084de788367e2eec1043"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96dadc37c106c87f6b5a4f1fa50260d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96dadc37c106c87f6b5a4f1fa50260d6"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Concat, <a class="el" href="classcaffe2_1_1_concat_op.html">ConcatOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a96dadc37c106c87f6b5a4f1fa50260d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8476fd5adf9b91b80df1a23c791fc736"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8476fd5adf9b91b80df1a23c791fc736"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NumInputs</b> (1, INT_MAX).NumOutputs(2).Arg(&quot;axis&quot;</td></tr>
 <tr class="separator:a8476fd5adf9b91b80df1a23c791fc736"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae017fde139e10a65c01f6e754c230455"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae017fde139e10a65c01f6e754c230455"></a>
 Which axis to concat on&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;order&quot;,&quot;Either NHWC or NCHW, will concat on C axis, defaults to NCHW&quot;).Arg(&quot;add_axis&quot;</td></tr>
 <tr class="separator:ae017fde139e10a65c01f6e754c230455"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af9a148fcea0d59568230560038b517d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9a148fcea0d59568230560038b517d6"></a>
-Which axis to concat on Pass to add the axis specified in arg axis to all input tensors&#160;</td><td class="memItemRight" valign="bottom"><b>TensorInferenceFunction</b> ([](const OperatorDef &amp;def, const vector&lt; TensorShape &gt; &amp;in){<a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a> helper(def);const int axis=helper.HasArgument(&quot;axis&quot;)?helper.GetSingleArgument&lt; int &gt;(&quot;axis&quot;,-1):GetDimFromOrderString(helper.GetSingleArgument&lt; string &gt;(&quot;order&quot;,&quot;NCHW&quot;));bool add_axis=helper.GetSingleArgument&lt; int &gt;(&quot;add_axis&quot;, 0)!=0;const int canonical_axis=canonical_axis_index_(axis, in[0].dims_size());CAFFE_ENFORCE_GT(in.size(), 0);vector&lt; int &gt; split_shape(1, in.size());vector&lt; int &gt; out_shape(in[0].dims().begin(), in[0].dims().end());if(add_axis){for(int i=1;i&lt; in.size();++i){CAFFE_ENFORCE_EQ(in[0].dims().size(), in[i].dims().size(),&quot;All inputs of Concat should have same dims when add_axis = 1. &quot;&quot;Got different sizes for inputs 0 and &quot;, i);for(int j=0;j&lt; in[0].dims().size();++j){CAFFE_ENFORCE_EQ(in[0].dims(j), in[i].dims(j),&quot;All inputs of Concat should have same dims when add_axis = 1. &quot;&quot;Got different dims for inputs 0 and &quot;, i,&quot;. At dim: &quot;, j);}}out_shape.insert(out_shape.begin()+canonical_axis, in.size());}else{for(int i=1;i&lt; in.size();++i){CAFFE_ENFORCE_EQ(in[0].dims().size(), in[i].dims().size(),&quot;All inputs of Concat should have same dims except &quot;&quot;canonical_axis dim that is equal to &quot;, canonical_axis,&quot;Got different sizes for inputs 0 and &quot;, i);for(int j=0;j&lt; in[0].dims().size();++j){if(j==canonical_axis){continue;}CAFFE_ENFORCE_EQ(in[0].dims(j), in[i].dims(j),&quot;All inputs of Concat should have same dims except &quot;&quot;canonical_axis dim that is equal to &quot;, canonical_axis,&quot;Got different dims for inputs 0 and &quot;, i,&quot;. At dim: &quot;, j);}}for(int i=1;i&lt; in.size();++i){out_shape[canonical_axis]+=in[i].dims(canonical_axis);}}if(def.output_size()==1){return vector&lt; TensorShape &gt;{CreateTensorShape(out_shape, in[0].data_type())};}return vector&lt; TensorShape &gt;{CreateTensorShape(out_shape, in[0].data_type()), CreateTensorShape(split_shape, TensorProto::INT32)};}).CostInferenceFunction(CostInferenceForConcat).SetDoc(&quot;Concatenate a list of tensors into a single tensor&quot;).Output(0</td></tr>
-<tr class="separator:af9a148fcea0d59568230560038b517d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aafb5dab2ac241667768726e353bd19c1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aafb5dab2ac241667768726e353bd19c1"></a>
+Which axis to concat on Pass to add the axis specified in arg axis to all input tensors&#160;</td><td class="memItemRight" valign="bottom"><b>TensorInferenceFunction</b> ([](const OperatorDef &amp;def, const vector&lt; TensorShape &gt; &amp;in){<a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a> helper(def);const int axis=helper.HasArgument(&quot;axis&quot;)?helper.GetSingleArgument&lt; int &gt;(&quot;axis&quot;,-1):GetDimFromOrderString(helper.GetSingleArgument&lt; string &gt;(&quot;order&quot;,&quot;NCHW&quot;));bool add_axis=helper.GetSingleArgument&lt; int &gt;(&quot;add_axis&quot;, 0)!=0;const int canonical_axis=canonical_axis_index_(axis, in[0].dims_size());CAFFE_ENFORCE_GT(in.size(), 0);vector&lt; int &gt; split_shape(1, in.size());vector&lt; int &gt; out_shape(in[0].dims().begin(), in[0].dims().end());if(add_axis){for(int i=1;i&lt; in.size();++i){CAFFE_ENFORCE_EQ(in[0].dims().size(), in[i].dims().size(),&quot;All inputs of Concat should have same dims when add_axis = 1. &quot;&quot;Got different sizes for inputs 0 and &quot;, i);for(int j=0;j&lt; in[0].dims().size();++j){CAFFE_ENFORCE_EQ(in[0].dims(j), in[i].dims(j),&quot;All inputs of Concat should have same dims when add_axis = 1. &quot;&quot;Got different dims for inputs 0 and &quot;, i,&quot;. At dim: &quot;, j);}}out_shape.insert(out_shape.begin()+canonical_axis, in.size());}else{for(int i=1;i&lt; in.size();++i){CAFFE_ENFORCE_EQ(in[0].dims().size(), in[i].dims().size(),&quot;All inputs of Concat should have same dims except &quot;&quot;canonical_axis dim that is equal to &quot;, canonical_axis,&quot;Got different sizes for inputs 0 and &quot;, i);for(int j=0;j&lt; in[0].dims().size();++j){if(j==canonical_axis){continue;}CAFFE_ENFORCE_EQ(in[0].dims(j), in[i].dims(j),&quot;All inputs of Concat should have same dims except &quot;&quot;canonical_axis dim that is equal to &quot;, canonical_axis,&quot;Got different dims for inputs 0 and &quot;, i,&quot;. At dim: &quot;, j);}}for(int i=1;i&lt; in.size();++i){out_shape[canonical_axis]+=in[i].dims(canonical_axis);}}if(def.output_size()==1){return vector&lt; TensorShape &gt;{CreateTensorShape(out_shape, in[0].data_type())};}return vector&lt; TensorShape &gt;{CreateTensorShape(out_shape, in[0].data_type()), CreateTensorShape(split_shape, TensorProto::INT32)};}).CostInferenceFunction(CostInferenceForConcat).DeviceInferenceFunction(concatOpDevInfer).SetDoc(&quot;Concatenate a list of tensors into a single tensor&quot;).Output(0</td></tr>
+<tr class="separator:aafb5dab2ac241667768726e353bd19c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa217105861d43ed90b662b103097e203"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa217105861d43ed90b662b103097e203"></a>
 Which axis to concat on Pass to add the axis specified in arg axis to all input tensors Concatenated tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (1,&quot;split_info&quot;,&quot;The dimensions of the inputs.&quot;)</td></tr>
 <tr class="separator:aa217105861d43ed90b662b103097e203"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7609,6 +7620,36 @@ corresponding sequence (i.e. if LENS[j] &gt; i for an index (i,j,k)).
 
 )DOC&quot;)</td></tr>
 <tr class="separator:aa6925ed9748e4f3062b408f893bc0205"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afad0b20587ea19821f71ff78b4ee9707"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afad0b20587ea19821f71ff78b4ee9707"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (WeightedMultiSampling, <a class="el" href="classcaffe2_1_1_weighted_multi_sampling_op.html">WeightedMultiSamplingOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:afad0b20587ea19821f71ff78b4ee9707"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08b4e04261d6a611479b92006dadf105"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a08b4e04261d6a611479b92006dadf105"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>if</b> (in[0].dims(0)==0)</td></tr>
+<tr class="separator:a08b4e04261d6a611479b92006dadf105"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa62dc5a68b84ad9578676a013ebb1ed4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa62dc5a68b84ad9578676a013ebb1ed4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>if</b> (args.HasArgument(&quot;num_samples&quot;))</td></tr>
+<tr class="separator:aa62dc5a68b84ad9578676a013ebb1ed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac60716d123a0ddfffdd9c08d854d0011"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac60716d123a0ddfffdd9c08d854d0011"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
+The operator performs sampling based on the input sampling weights.
+All weights are cummulative probability thus sorted. The output is
+a 1-D tensor (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;int&gt;). If two inputs are given, the second input
+is used to provide shape of the output sample tensor. Otherwise, we use
+argument `num_samples` to determine the number of samples to generate.
+)DOC&quot;).Input(0</td></tr>
+<tr class="separator:ac60716d123a0ddfffdd9c08d854d0011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad77c6aa6bb788a82377ebba72e2bd5c7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad77c6aa6bb788a82377ebba72e2bd5c7"></a>
+An optional D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; float &gt; Input cumulative sampling&#160;</td><td class="memItemRight" valign="bottom"><b>probability</b> (such as[0.2, 0.5, 0.8, 1.5]).&quot; &quot;All weights must be non-negative numbers.Note that the last value of&quot; &quot;CDF is not necessary 1.If the last value is not 1</td></tr>
+<tr class="separator:ad77c6aa6bb788a82377ebba72e2bd5c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a154ad0714f0275955f682080ec436af3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a154ad0714f0275955f682080ec436af3"></a>
+An optional D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; float &gt; Input cumulative sampling all values in sampling_cdf will be scaled by this number&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (1,&quot;shape_tensor (optional)&quot;,&quot;<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a> whose shape will be applied to output.&quot;).Output(0</td></tr>
+<tr class="separator:a154ad0714f0275955f682080ec436af3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ca06c5ee6ce928d7742bd9951d1dd06"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9ca06c5ee6ce928d7742bd9951d1dd06"></a>
+An optional D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; float &gt; Input cumulative sampling all values in sampling_cdf will be scaled by this number The output tensor contains indices sampled from distribution given by the weight vector in the input tensor The output is a D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; int &gt; of size determined by argument num_samples or the second input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;num_samples&quot;,&quot;number of samples to sample from the input data&quot;)</td></tr>
+<tr class="separator:a9ca06c5ee6ce928d7742bd9951d1dd06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab55f00e812cdf720a689b464f6f28f33"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab55f00e812cdf720a689b464f6f28f33"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SHOULD_NOT_DO_GRADIENT</b> (WeightedMultiSample)</td></tr>
+<tr class="separator:ab55f00e812cdf720a689b464f6f28f33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab079c71ac67fe9eb47f08939c74314cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab079c71ac67fe9eb47f08939c74314cb"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (WeightedSample, <a class="el" href="classcaffe2_1_1_weighted_sample_op.html">WeightedSampleOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ab079c71ac67fe9eb47f08939c74314cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8936,6 +8977,9 @@ we first initialize the output tensor to all and then do accumulation Any furthe
 <tr class="memitem:a5c76ef55e49cc26412c5c8d03a357a38"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c76ef55e49cc26412c5c8d03a357a38"></a>
 we first initialize the output tensor to all and then do accumulation Any further calls to the The input tensor that has to be accumulated to the output tensor If the output size is not the same as input the output tensor is first reshaped and initialized to and only&#160;</td><td class="memItemRight" valign="bottom"><b>then</b></td></tr>
 <tr class="separator:a5c76ef55e49cc26412c5c8d03a357a38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b8760abd825f0c98fc16dae30030eb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b8760abd825f0c98fc16dae30030eb3"></a>
+this&#160;</td><td class="memItemRight" valign="bottom"><b>X</b> = in[0]</td></tr>
+<tr class="separator:a9b8760abd825f0c98fc16dae30030eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9a323067eaaeed246ded875e236e7044"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a323067eaaeed246ded875e236e7044"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ints</b></td></tr>
 <tr class="separator:a9a323067eaaeed246ded875e236e7044"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8950,9 +8994,9 @@ or long longs and checks if all values are true when coerced into a boolean In o
 <tr class="memitem:a361340ae951d832bd229b551db6d686c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a361340ae951d832bd229b551db6d686c"></a>
 <a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a>&#160;</td><td class="memItemRight" valign="bottom"><b>helper</b> (def)</td></tr>
 <tr class="separator:a361340ae951d832bd229b551db6d686c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af91681eb0a87ce99272cd3d0f1116c19"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af91681eb0a87ce99272cd3d0f1116c19"></a>
-vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>output_dims</b></td></tr>
-<tr class="separator:af91681eb0a87ce99272cd3d0f1116c19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a821f8391013a3a007990bc7ac6772f2a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a821f8391013a3a007990bc7ac6772f2a"></a>
+vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>output_dims</b> = GetDimsVector(in[1])</td></tr>
+<tr class="separator:a821f8391013a3a007990bc7ac6772f2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a33ba257bf31ceca956d71205df79f53c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a33ba257bf31ceca956d71205df79f53c"></a>
 const auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>data_dims</b> = GetDimsVector(in[0])</td></tr>
 <tr class="separator:a33ba257bf31ceca956d71205df79f53c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9020,9 +9064,6 @@ reconstruct values together according to masks A comprehensive False False True 
 <tr class="memitem:a5205e5927822adb8687a095d5b80dc40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5205e5927822adb8687a095d5b80dc40"></a>
 The data type to which the elements of the input tensor are cast Strictly must be one of the types from DataType enum in TensorProto Output tensor with the same shape as input with type specified by the to&#160;</td><td class="memItemRight" valign="bottom"><b>argument</b></td></tr>
 <tr class="separator:a5205e5927822adb8687a095d5b80dc40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b8760abd825f0c98fc16dae30030eb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b8760abd825f0c98fc16dae30030eb3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>X</b> = in[0]</td></tr>
-<tr class="separator:a9b8760abd825f0c98fc16dae30030eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc83acec950979e55215b3ead8ff3c93"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc83acec950979e55215b3ead8ff3c93"></a>
 the gradient for the output of SpatialBN and the per channel mean and inverse std var vectors for the computes the per channel bias and scale gradient to be used during the backward pass for subsequent spatial batch normalization gradient calculation&#160;</td><td class="memItemRight" valign="bottom"><b>Typically</b></td></tr>
 <tr class="separator:afc83acec950979e55215b3ead8ff3c93"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9748,15 +9789,21 @@ weight tensor pairs Input should be in the form&#160;</td><td class="memItemRigh
 <tr class="memitem:a4d06086ac8ff6ede90d0b42dad0812ce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4d06086ac8ff6ede90d0b42dad0812ce"></a>
 const char&#160;</td><td class="memItemRight" valign="bottom"><b>kPrintFileExtension</b> [] = &quot;.log&quot;</td></tr>
 <tr class="separator:a4d06086ac8ff6ede90d0b42dad0812ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa03ec354315c7cd6f4105cfaab761172"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa03ec354315c7cd6f4105cfaab761172"></a>
+const <a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a>&#160;</td><td class="memItemRight" valign="bottom"><b>args</b> (def)</td></tr>
+<tr class="separator:aa03ec354315c7cd6f4105cfaab761172"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ecb9de2e3cdf593d3742e73af7fa8d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5ecb9de2e3cdf593d3742e73af7fa8d8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>sampling_cdf</b></td></tr>
+<tr class="separator:a5ecb9de2e3cdf593d3742e73af7fa8d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a406ef28a36a9790780d452793b48b5fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a406ef28a36a9790780d452793b48b5fe"></a>
+An optional D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; float &gt; Input cumulative sampling all values in sampling_cdf will be scaled by this number&#160;</td><td class="memItemRight" valign="bottom"><b>sampled_indexes</b></td></tr>
+<tr class="separator:a406ef28a36a9790780d452793b48b5fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a496eed23a8db93ec6c2fe45c5af8ce33"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a496eed23a8db93ec6c2fe45c5af8ce33"></a>
 an index is randomly sampled from the distribution given by the weights of the corresponding batch The output is a D&#160;</td><td class="memItemRight" valign="bottom"><b>sampling_weights</b></td></tr>
 <tr class="separator:a496eed23a8db93ec6c2fe45c5af8ce33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61df92065656c8bf671cdc692e34942b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a61df92065656c8bf671cdc692e34942b"></a>
 an index is randomly sampled from the distribution given by the weights of the corresponding batch The output is a D A D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; float &gt; of&#160;</td><td class="memItemRight" valign="bottom"><b>sampling_values</b></td></tr>
 <tr class="separator:a61df92065656c8bf671cdc692e34942b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae1b3412c235ff2351300e03a78bea2f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae1b3412c235ff2351300e03a78bea2f"></a>
-an index is randomly sampled from the distribution given by the weights of the corresponding batch The output is a D A D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; float &gt; of An optional D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; float &gt; of&#160;</td><td class="memItemRight" valign="bottom"><b>sampled_indexes</b></td></tr>
-<tr class="separator:aae1b3412c235ff2351300e03a78bea2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a140300568fdaa9c9051605cf9b123fe2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a140300568fdaa9c9051605cf9b123fe2"></a>
 an index is randomly sampled from the distribution given by the weights of the corresponding batch The output is a D A D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; float &gt; of An optional D <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; float &gt; of The output tensor contains&#160;</td><td class="memItemRight" valign="bottom"><b>sampled_values</b></td></tr>
 <tr class="separator:a140300568fdaa9c9051605cf9b123fe2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10691,7 +10738,7 @@ Resource Acquisition" idiom. </p>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=1</div><div class="line">  shape(A) = (2, 3, 2, 5)</div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="concat__split__op_8cc_source.html#l00029">29</a> of file <a class="el" href="concat__split__op_8cc_source.html">concat_split_op.cc</a>.</p>
+<p>Definition at line <a class="el" href="concat__split__op_8cc_source.html#l00045">45</a> of file <a class="el" href="concat__split__op_8cc_source.html">concat_split_op.cc</a>.</p>
 
 </div>
 </div>
@@ -11079,7 +11126,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:11 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

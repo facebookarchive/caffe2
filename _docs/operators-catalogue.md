@@ -6819,6 +6819,7 @@ Given one input float tensor X, and produces one output float tensor of the Lp n
 ---------- | ----------
 *Arguments* | 
 `p` | Order of the norm in p-norm
+`average` | whehther we calculate norm or averaged_norm.The Lp_averaged_norm(x) is defined asLp_averaged_norm(x) = LpNorm(x) / size(x)
 *Inputs* | 
 `X` | 1D input tensor
 *Outputs* | 
@@ -6847,6 +6848,7 @@ Given one input float tensor X, derivative dout, and produces one output float t
 ---------- | ----------
 *Arguments* | 
 `p` | Order of the norm in p-norm
+`average` | whehther we calculate norm or averaged_norm.The Lp_averaged_norm(x) is defined asLp_averaged_normgradient(x) = LpNormGradient(x) / size(x)
 *Inputs* | 
 `X` | 1D input tensor
 `dout` | 1D input tensor
@@ -9787,6 +9789,39 @@ Given a matrix A and column vector w, the output is the multiplication of row i 
 
 
 
+## RowWiseArgMax
+
+
+ 
+
+```
+    Given a 2D (N X D) input tensor, this operator returns a 2D (N X 1) output
+    tensor with with the index of the maximum value in each row. If there are
+    duplicate max values in a row the index of the first occurence is returned.
+```
+
+     
+
+
+### Interface
+
+
+---------- | ----------
+*Inputs* | 
+`X` | 2D (N X D) input tensor
+*Outputs* | 
+`Z` | 2D (N X 1) output tensor
+
+
+### Code
+
+
+[caffe2/operators/arg_max_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/arg_max_op.cc)
+
+---
+
+
+
 ## RowWiseSparseAdagrad
 
 
@@ -12256,7 +12291,7 @@ No documentation yet.
 ## Split
 
 
-Split a tensor into a list of tensors, along the specified 'axis'. The lengths of the split can be specified using argument 'axis' or optional second input blob to the operator. Otherwise, the tensor is split to equal sized parts.
+Split a tensor into a list of tensors, along the specified 'axis'. The lengths of the split can be specified using argument 'split' or optional second input blob to the operator. Otherwise, the tensor is split to equal sized parts.
 
 
 
@@ -13935,6 +13970,36 @@ Time since epoch in nanoseconds.
 
 
 [caffe2/operators/utility_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/utility_ops.cc)
+
+---
+
+
+
+## WeightedMultiSampling
+
+
+The operator performs sampling based on the input sampling weights.
+All weights are cummulative probability thus sorted. The output is a 1-D tensor (Tensor<int>). If two inputs are given, the second input is used to provide shape of the output sample tensor. Otherwise, we use argument  `num_samples`  to determine the number of samples to generate.
+
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`num_samples` | number of samples to sample from the input data
+*Inputs* | 
+`sampling_cdf` | An optional 1-D Tensor<float>.Input cumulative sampling probability (such as [0.2, 0.5, 0.8, 1.5]). All weights must be non-negative numbers. Note that the last value of CDF is not necessary 1. If the last value is not 1, all values in sampling_cdf will be scaled by this number.
+`shape_tensor (optional)` | Tensor whose shape will be applied to output.
+*Outputs* | 
+`sampled_indexes` | The output tensor contains indices sampled from distribution givenby the weight vector in the input tensorThe output is a 1-D Tensor<int> of size determined by argument`num_samples` or the second input tensor.
+
+
+### Code
+
+
+[caffe2/operators/weighted_multi_sampling_op.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/weighted_multi_sampling_op.cc)
 
 ---
 

@@ -150,7 +150,7 @@ static constexpr const char *&#160;</td><td class="memItemRight" valign="bottom"
 struct caffe2::AbstractLengthsDef&lt; T, SIndex, Context, ReducerDef, GradientNeedIndices &gt;</h3>
 
 
-<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01910">1910</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
+<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01912">1912</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a class="anchor" id="abc9cca1b908b79f80636705d60920502"></a>
 <div class="memitem">
@@ -172,7 +172,7 @@ template&lt;typename T , typename SIndex , typename Context , typename ReducerDe
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= R<span class="stringliteral">&quot;DOC(</span></div><div class="line"><span class="stringliteral">Applies &#39;{op}&#39; to each segment of the input tensor. Segments are defined</span></div><div class="line"><span class="stringliteral">by their LENGTHS.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">LENGTHS is a vector that maps each of the first dimension slices of the</span></div><div class="line"><span class="stringliteral">DATA to a particular group (segment). Values belonging to the same segment are</span></div><div class="line"><span class="stringliteral">aggregated together.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">For example LENGTHS = [2, 1] stands for segments DATA[0..1] and DATA[2]</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">The first dimension of the output is equal to the number of input segments,</span></div><div class="line"><span class="stringliteral">i.e. `len(LENGTHS)`. Other dimensions are inherited from the input tensor.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">{op_doc}</span></div><div class="line"><span class="stringliteral">  )DOC&quot;</span></div></div><!-- fragment -->
-<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01913">1913</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
+<p>Definition at line <a class="el" href="segment__reduction__op_8h_source.html#l01915">1915</a> of file <a class="el" href="segment__reduction__op_8h_source.html">segment_reduction_op.h</a>.</p>
 
 </div>
 </div>
@@ -183,7 +183,7 @@ template&lt;typename T , typename SIndex , typename Context , typename ReducerDe
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 20 2018 13:05:11 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 21 2018 13:11:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
