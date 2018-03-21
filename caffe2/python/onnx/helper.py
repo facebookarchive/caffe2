@@ -24,6 +24,7 @@ from caffe2.proto import caffe2_pb2
 from onnx.backend.base import namedtupledict
 
 from caffe2.python.onnx.workspace import Workspace
+import caffe2.python._import_c_extension as C
 
 import io
 import logging
@@ -33,12 +34,19 @@ import time
 log = logging.getLogger(__name__)
 
 
+#def dummy_name(used_names=None):
+#    if used_names is None:
+#        return C.new_dummy_name()
+#    else:
+#        C.reset_dummy_name(set(used_names))
+#        return None
 class _DummyNameFactory(object):
     used_names = set()
     counter = 0
 
     @classmethod
     def dummy_name(cls, used_names=None):
+        print("Dummy")
         if used_names is not None:
             cls.used_names.clear()
             cls.used_names.update(used_names)
@@ -53,7 +61,6 @@ class _DummyNameFactory(object):
                     return name
 
 dummy_name = _DummyNameFactory.dummy_name
-
 
 def c2_native_run_op(op_def, inputs):
     ws = Workspace()

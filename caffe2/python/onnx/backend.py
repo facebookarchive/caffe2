@@ -224,7 +224,7 @@ class Caffe2Backend(Backend):
             ops = []
             cbackend = C.Caffe2Backend()
             ops_str = cbackend.convert_node(node.SerializeToString(), opset_version)
-            for s in ops_str:
+            for s in ops_str[0] + ops_str[1]:
                 op = caffe2_pb2.OperatorDef()
                 op.ParseFromString(s)
                 op.device_option.CopyFrom(device_option)
@@ -1018,7 +1018,7 @@ class Caffe2Backend(Backend):
         # Build the C++ backend
         # TODO: build a predictor that supports GPU
         #       And for RNN nets, we need to avoid adding init_net
-        if device == 'CPU' and not rnn_nodes:
+        if False: #device == 'CPU' and not rnn_nodes:
             c2_rnn_ops = []
             if rnn_nodes:
                 init_model = ModelProto()
@@ -1036,7 +1036,7 @@ class Caffe2Backend(Backend):
             cbackend = C.Caffe2Backend()
             rep = cbackend.prepare(model.SerializeToString(), device, c2_rnn_ops)
             # For testing
-            # Dump the net descritpions to file for comparison with the Python ones
+            # Dump the net descripions to file for comparison with the Python ones
             if "ONNX_CAFFE2_DEBUG" in os.environ:
                 pred_net_str = rep.pred_net()
                 pn = caffe2_pb2.NetDef()
@@ -1082,6 +1082,24 @@ class Caffe2Backend(Backend):
     @classmethod
     # TODO: This method needs a refactor for clarity
     def _onnx_node_to_caffe2_op(cls, init_model, pred_model, node_def, opset_version):
+        cbackend = C.Caffe2Backend()
+        print("DDDDDDD")
+        if False: #cbackend.support_onnx_import(node_def.op_type):
+            op_strs = cbackend.convert_node(node_def.SerializeToString(), opset_version)
+            init_ops = []
+            for s in op_strs[0]:
+                op = caffe2_pb2.OperatorDef()
+                op.ParseFromString(s)
+                init_ops.append(op)
+            ops = []
+            for s in op_strs[1]:
+                op = caffe2_pb2.OperatorDef()
+                op.ParseFromString(s)
+                ops.append(op)
+            if node_def.op_type == "Reshape":
+                print("{}".format(ops))
+            return Caffe2Ops(ops, init_ops, [])
+
         if node_def.op_type in cls._special_operators:
             translator = getattr(cls, cls._special_operators[node_def.op_type])
         else:
@@ -1091,6 +1109,8 @@ class Caffe2Backend(Backend):
             return ops
         if not isinstance(ops, collections.Iterable):
             ops = [ops]
+        if node_def.op_type == "Reshape":
+            print("{}".format(ops))
         return Caffe2Ops(ops, [], [])
 
     @classmethod
