@@ -17,7 +17,7 @@ from subprocess import Popen, PIPE
 import caffe2
 from caffe2.python import core, workspace, rnn_cell, gru_cell
 from caffe2.python.model_helper import ModelHelper
-from caffe2.proto import caffe2_pb2
+from caffe2.proto import caffe2_pb2, caffe2_legacy_pb2
 import caffe2.python.utils
 import numpy as np
 import onnx
@@ -205,8 +205,15 @@ class Caffe2Backend(Backend):
                 ops2 = init_ops + ops2
                 for op in ops2:
                     op.device_option.CopyFrom(device_option)
+
+            # For testing
+            if 'ONNX_CAFFE2_DEBUG' in os.environ:
                 print("\nC++:\n{}\nPython:\n{}".format(ops, ops2))
-            workspace.RunOperatorsOnce(ops)
+
+            if 'ONNX_CAFFE2_PY' not in os.environ:
+                workspace.RunOperatorsOnce(ops)
+            else:
+                workspace.RunOperatorsOnce(ops2)
             output_values = [workspace.FetchBlob(name) for name in node.output]
             return namedtupledict('Outputs', node.output)(*output_values)
 
