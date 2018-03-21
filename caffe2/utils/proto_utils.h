@@ -31,6 +31,10 @@ namespace caffe2 {
 using std::string;
 using ::google::protobuf::MessageLite;
 
+// A wrapper function to shut down protobuf library (this is needed in ASAN
+// testing and valgrind cases to avoid protobuf appearing to "leak" memory).
+void ShutdownProtobufLibrary();
+
 // A wrapper function to return device name string for use in blob serialization
 // / deserialization. This should have one to one correspondence with
 // caffe2/proto/caffe2.proto: enum DeviceType.

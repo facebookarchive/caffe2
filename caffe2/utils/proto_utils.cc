@@ -34,6 +34,10 @@ using ::google::protobuf::MessageLite;
 
 namespace caffe2 {
 
+void ShutdownProtobufLibrary() {
+  ::google::protobuf::ShutdownProtobufLibrary();
+}
+
 std::string DeviceTypeName(const int32_t& d) {
   switch (d) {
     case CPU:
