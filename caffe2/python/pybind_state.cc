@@ -34,8 +34,6 @@
 #include "caffe2/onnx/backend.h"
 #include "caffe2/utils/cpuid.h"
 #include "caffe2/utils/string_utils.h"
-#include "google/protobuf/io/coded_stream.h"
-#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 
 namespace caffe2 {
 namespace python {
@@ -250,14 +248,6 @@ OPERATOR_SCHEMA(PythonDLPackGradient).AllowInplace([](int, int) {
   return true;
 });
 REGISTER_GRADIENT(PythonDLPack, GetPythonGradient);
-
-static bool ParseProtobufFromLargeString(const string& str, Message* proto) {
-  ::google::protobuf::io::ArrayInputStream input_stream(str.data(), str.size());
-  ::google::protobuf::io::CodedInputStream coded_stream(&input_stream);
-  // Set PlanDef message size limit to 1G.
-  coded_stream.SetTotalBytesLimit(1024LL << 20, 512LL << 20);
-  return proto->ParseFromCodedStream(&coded_stream);
-}
 
 void addObjectMethods(py::module& m) {
   py::class_<NetBase>(m, "Net").def("run", [](NetBase* net) {
