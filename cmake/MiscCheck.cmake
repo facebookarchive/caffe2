@@ -144,6 +144,10 @@ cmake_pop_check_state()
 
 # ---[ Checks if compiler supports -fvisibility=hidden
 check_cxx_compiler_flag("-fvisibility=hidden" COMPILER_SUPPORTS_HIDDEN_VISIBILITY)
+check_cxx_compiler_flag("-fvisibility-inlines-hidden" COMPILER_SUPPORTS_HIDDEN_INLINE_VISIBILITY)
+if (${COMPILER_SUPPORTS_HIDDEN_INLINE_VISIBILITY})
+  add_definitions("-fvisibility-inlines-hidden")
+endif()
 
 # ---[ If we are using msvc, set no warning flags
 # Note(jiayq): if you are going to add a warning flag, check if this is

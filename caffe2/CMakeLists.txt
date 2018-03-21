@@ -107,7 +107,7 @@ target_include_directories(caffe2_protos INTERFACE $<INSTALL_INTERFACE:include>)
 # (2) Developers: if one simply uses core caffe2 functionality without using protobuf,
 #     nothing changes. If one has a dependent library that uses protobuf, then one needs to
 #     have the right protobuf version as well as linking to libprotobuf.a.
-target_link_libraries(caffe2_protos PUBLIC protobuf::libprotobuf)
+target_link_libraries(caffe2_protos PRIVATE protobuf::libprotobuf)
 install(TARGETS caffe2_protos EXPORT Caffe2Targets DESTINATION lib)
 
 # Compile exposed libraries.
