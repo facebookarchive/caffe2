@@ -210,7 +210,7 @@ class Caffe2Backend(Backend):
             if 'ONNX_CAFFE2_DEBUG' in os.environ:
                 print("\nC++:\n{}\nPython:\n{}".format(ops, ops2))
 
-            if 'ONNX_CAFFE2_PY' not in os.environ:
+            if 'ONNX_CAFFE2_CPP' in os.environ:
                 workspace.RunOperatorsOnce(ops)
             else:
                 workspace.RunOperatorsOnce(ops2)
