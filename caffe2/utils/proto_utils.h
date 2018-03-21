@@ -65,6 +65,14 @@ inline void WriteProtoToBinaryFile(const MessageLite& proto,
 
 #ifdef CAFFE2_USE_LITE_PROTO
 
+namespace TextFormat {
+inline bool ParseFromString(const string& spec, MessageLite* proto) {
+  LOG(FATAL) << "If you are running lite version, you should not be "
+             << "calling any text-format protobuffers.";
+}
+} // namespace TextFormat
+
+
 inline string ProtoDebugString(const MessageLite& proto) {
   return proto.SerializeAsString();
 }
@@ -106,6 +114,10 @@ inline bool ReadProtoFromFile(const string& filename, MessageLite* proto) {
 #else  // CAFFE2_USE_LITE_PROTO
 
 using ::google::protobuf::Message;
+
+namespace TextFormat {
+bool ParseFromString(const string& spec, Message* proto);
+} // namespace TextFormat
 
 inline string ProtoDebugString(const Message& proto) {
   return proto.ShortDebugString();

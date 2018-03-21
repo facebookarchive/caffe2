@@ -29,7 +29,6 @@
 
 #include "caffe2/core/logging.h"
 
-using ::google::protobuf::Message;
 using ::google::protobuf::MessageLite;
 
 namespace caffe2 {
@@ -149,6 +148,13 @@ using ::google::protobuf::io::ZeroCopyInputStream;
 using ::google::protobuf::io::CodedInputStream;
 using ::google::protobuf::io::ZeroCopyOutputStream;
 using ::google::protobuf::io::CodedOutputStream;
+using ::google::protobuf::Message;
+
+namespace TextFormat {
+bool ParseFromString(const string& spec, Message* proto) {
+  ::google::protobuf::TextFormat::ParseFromString(spec, proto);
+}
+} // namespace TextFormat
 
 bool ReadProtoFromTextFile(const char* filename, Message* proto) {
   int fd = open(filename, O_RDONLY);
