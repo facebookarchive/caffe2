@@ -123,7 +123,7 @@ class IfstreamInputStream : public ::google::protobuf::io::CopyingInputStream {
 };
 }  // namespace
 
-bool ParseProtobufFromLargeString(const string& str, MessageLite* proto) {
+bool ParseProtoFromLargeString(const string& str, MessageLite* proto) {
   ::google::protobuf::io::ArrayInputStream input_stream(str.data(), str.size());
   ::google::protobuf::io::CodedInputStream coded_stream(&input_stream);
   // Set PlanDef message size limit to 1G.
@@ -166,7 +166,7 @@ bool ParseFromString(const string& spec, Message* proto) {
 }
 } // namespace TextFormat
 
-bool ParseProtobufFromLargeString(const string& str, Message* proto) {
+bool ParseProtoFromLargeString(const string& str, Message* proto) {
   ::google::protobuf::io::ArrayInputStream input_stream(str.data(), str.size());
   ::google::protobuf::io::CodedInputStream coded_stream(&input_stream);
   // Set PlanDef message size limit to 1G.
