@@ -36,6 +36,12 @@ macro(custom_protobuf_find)
     if (${COMPILER_SUPPORTS_HIDDEN_VISIBILITY})
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
     endif()
+    if (${COMPILER_SUPPORTS_HIDDEN_INLINE_VISIBILITY})
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
+    endif()
+    # When we are linking local protobuf, we will need to link it into
+    # libcaffe2_protos.so, so we will pass in the PROTOBUF_USE_DLLS macro.
+    set(CMAKE_CXX_FLAGS "-DPROTOBUF_USE_DLLS")
   endif()
 
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/protobuf/cmake)
