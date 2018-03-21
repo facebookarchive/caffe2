@@ -77,7 +77,7 @@ inline string ProtoDebugString(const MessageLite& proto) {
   return proto.SerializeAsString();
 }
 
-bool ParseProtobufFromLargeString(const string& str, MessageLite* proto);
+bool ParseProtoFromLargeString(const string& str, MessageLite* proto);
 
 // Text format MessageLite wrappers: these functions do nothing but just
 // allowing things to compile. It will produce a runtime error if you are using
@@ -121,7 +121,7 @@ namespace TextFormat {
 bool ParseFromString(const string& spec, Message* proto);
 } // namespace TextFormat
 
-bool ParseProtobufFromLargeString(const string& str, Message* proto);
+bool ParseProtoFromLargeString(const string& str, Message* proto);
 
 inline string ProtoDebugString(const Message& proto) {
   return proto.ShortDebugString();
