@@ -152,7 +152,7 @@ using ::google::protobuf::Message;
 
 namespace TextFormat {
 bool ParseFromString(const string& spec, Message* proto) {
-  ::google::protobuf::TextFormat::ParseFromString(spec, proto);
+  return ::google::protobuf::TextFormat::ParseFromString(spec, proto);
 }
 } // namespace TextFormat
 
