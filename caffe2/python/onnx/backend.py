@@ -744,7 +744,7 @@ class Caffe2Backend(Backend):
             cbackend = C.Caffe2Backend()
             rep = cbackend.prepare(model.SerializeToString(), device, c2_rnn_ops)
             # For testing
-            # Dump the net descripions to file for comparison with the Python ones
+            # Dump the net descriptions to file for comparison with the Python ones
             if "ONNX_CAFFE2_DEBUG" in os.environ:
                 pred_net_str = rep.pred_net()
                 pn = caffe2_pb2.NetDef()
