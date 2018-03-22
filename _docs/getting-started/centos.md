@@ -175,8 +175,9 @@ Almost done. Now you need to clone Caffe2 repo and build it (note: update the `-
 
 ```
 git clone --recursive https://github.com/caffe2/caffe2
-cd caffe2 && mkdir build
-cd build && cmake3 ..
+cd caffe2 && git submodule update --init
+mkdir build && cd build
+cmake3 ..
 sudo make -j8 install
 ```
 

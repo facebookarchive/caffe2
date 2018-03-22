@@ -96,6 +96,7 @@ sudo apt-get install -y --no-install-recommends libgflags-dev
 ```bash
 # Clone Caffe2's source code from our Github repository
 git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
+git submodule update --init
 
 # Create a directory to put Caffe2's build files in
 mkdir build && cd build

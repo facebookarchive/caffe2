@@ -37,6 +37,8 @@ For any problems, see our [troubleshooting guide](faq.html).
 
 [Anaconda](https://www.continuum.io/downloads) is the recommended install route.  The following commands will install Caffe2 wherever your other conda packages are installed.
 
+> If you download the zip file from Github instead of using `git clone`, then you must run `git submodule update` before building.
+
 ```bash
 git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
 CONDA_INSTALL_LOCALLY=1 ./scripts/build_anaconda.sh
@@ -87,6 +89,7 @@ sudo -H pip install \
 ```bash
 # Clone Caffe2's source code from our Github repository
 git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
+git submodule update --init
 
 # Create a directory to put Caffe2's build files in
 mkdir build && cd build
@@ -128,6 +131,7 @@ conda install -y \
 
 # Clone Caffe2's source code from our Github repository
 cd ~ && git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
+git submodule update --init
 
 # Create a directory to put Caffe2's build files in
 rm -rf build && mkdir build && cd build
