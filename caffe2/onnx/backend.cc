@@ -353,6 +353,7 @@ Caffe2Backend::get_special_operators() const {
               {"LogSoftmax", &Caffe2Backend::CreateLogSoftmax},
               {"Slice", &Caffe2Backend::CreateSlice},
               {"Reciprocal", &Caffe2Backend::CreateReciprocal},
+              {"BatchNormalization", &Caffe2Backend::CreateBatchNormalization},
               {"MatMul", &Caffe2Backend::CreateMatMul}};
   return kSpecialOperators;
 }
@@ -780,6 +781,17 @@ Caffe2Ops Caffe2Backend::CreateSlice(OnnxNode* onnx_node, int opset_version) {
   }
 
   return ret;
+}
+
+Caffe2Ops Caffe2Backend::CreateBatchNormalization(OnnxNode* onnx_node, int opset_version) {
+  const auto& node = onnx_node->node;
+  if (opset_version < 6) {
+    auto& attributes = onnx_node->attributes;
+    attributes.remove("consumed_inputs");
+  }
+
+  auto c2_op = CommonOnnxNodeToCaffe2Ops(onnx_node, opset_version);
+  return c2_op;
 }
 
 Caffe2Ops Caffe2Backend::CreateMatMul(OnnxNode* onnx_node, int opset_version) {
