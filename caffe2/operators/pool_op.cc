@@ -825,7 +825,8 @@ OPERATOR_SCHEMA(AveragePool1D)
     .NumInputs(1)
     .NumOutputs(1)
     .TensorInferenceFunction(ConvPoolOpBase<CPUContext>::TensorInferenceForPool)
-    .FillUsing(AveragePoolDocGenerator("1D"));
+    .FillUsing(AveragePoolDocGenerator("1D"))
+    .InheritOnnxSchema("AveragePool");
 
 REGISTER_CPU_OPERATOR(
     AveragePool2D,
@@ -835,7 +836,8 @@ OPERATOR_SCHEMA(AveragePool2D)
     .NumInputs(1)
     .NumOutputs(1)
     .TensorInferenceFunction(ConvPoolOpBase<CPUContext>::TensorInferenceForPool)
-    .FillUsing(AveragePoolDocGenerator("2D"));
+    .FillUsing(AveragePoolDocGenerator("2D"))
+    .InheritOnnxSchema("AveragePool");
 
 REGISTER_CPU_OPERATOR(
     AveragePool3D,
@@ -845,7 +847,8 @@ OPERATOR_SCHEMA(AveragePool3D)
     .NumInputs(1)
     .NumOutputs(1)
     .TensorInferenceFunction(ConvPoolOpBase<CPUContext>::TensorInferenceForPool)
-    .FillUsing(AveragePoolDocGenerator("3D"));
+    .FillUsing(AveragePoolDocGenerator("3D"))
+    .InheritOnnxSchema("AveragePool");
 
 REGISTER_CPU_OPERATOR(MaxPool, PoolOp<float, CPUContext, MaxPool<float>>);
 
@@ -862,7 +865,8 @@ OPERATOR_SCHEMA(MaxPool1D)
     .NumInputs(1)
     .NumOutputs(1)
     .TensorInferenceFunction(ConvPoolOpBase<CPUContext>::TensorInferenceForPool)
-    .FillUsing(MaxPoolDocGenerator("1D"));
+    .FillUsing(MaxPoolDocGenerator("1D"))
+    .InheritOnnxSchema("MaxPool");
 
 REGISTER_CPU_OPERATOR(MaxPool2D, PoolOp<float, CPUContext, MaxPool<float>>);
 
@@ -870,7 +874,8 @@ OPERATOR_SCHEMA(MaxPool2D)
     .NumInputs(1)
     .NumOutputs(1)
     .TensorInferenceFunction(ConvPoolOpBase<CPUContext>::TensorInferenceForPool)
-    .FillUsing(MaxPoolDocGenerator("2D"));
+    .FillUsing(MaxPoolDocGenerator("2D"))
+    .InheritOnnxSchema("MaxPool");
 
 REGISTER_CPU_OPERATOR(MaxPool3D, PoolOp<float, CPUContext, MaxPool<float>>);
 
@@ -878,5 +883,6 @@ OPERATOR_SCHEMA(MaxPool3D)
     .NumInputs(1)
     .NumOutputs(1)
     .TensorInferenceFunction(ConvPoolOpBase<CPUContext>::TensorInferenceForPool)
-    .FillUsing(MaxPoolDocGenerator("3D"));
+    .FillUsing(MaxPoolDocGenerator("3D"))
+    .InheritOnnxSchema("MaxPool");
 } // namespace caffe2
