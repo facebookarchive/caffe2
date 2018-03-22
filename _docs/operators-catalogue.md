@@ -502,6 +502,76 @@ All except the outer-most dimension must be the same between input 1 and 2.
 
 
 
+## ArgMax
+
+
+Retrive the argmax of the axis dimension. Given an input tensor of shape [a_0, a_1, ..., a_{n-1}] and two arguments axis as int and keepdims as bool, returns one output: - Index tensor which contains the indices of the largest element. It has the  
+
+```
+  same dims as X.dims() with the dimension along axis equals 1 when
+  keepdims == true otherwise removed.
+```
+
+     
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`axis` | The axis to get argmax.
+`keepdims` | Whether to keep the axis dim in the output.
+*Inputs* | 
+`X` | Tenor of shape [a_0, a_1, ..., a_{n-1}].
+*Outputs* | 
+`Indices` | Tensor of indices for the largest values.
+
+
+### Code
+
+
+[caffe2/operators/arg_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/arg_ops.cc)
+
+---
+
+
+
+## ArgMin
+
+
+Retrive the argmin of the axis dimension. Given an input tensor of shape [a_0, a_1, ..., a_{n-1}] and two arguments axis as int and keepdims as bool, returns one output: - Index tensor which contains the indices of the largest element. It has the  
+
+```
+  same dims as X.dims() with the dimension along axis equals 1 when
+  keepdims == true otherwise removed.
+```
+
+     
+
+
+### Interface
+
+
+---------- | ----------
+*Arguments* | 
+`axis` | The axis to get argmin.
+`keepdims` | Whether to keep the axis dim in the output.
+*Inputs* | 
+`X` | Tenor of shape [a_0, a_1, ..., a_{n-1}].
+*Outputs* | 
+`Indices` | Tensor of indices for the largest values.
+
+
+### Code
+
+
+[caffe2/operators/arg_ops.cc](https://github.com/caffe2/caffe2/blob/master/caffe2/operators/arg_ops.cc)
+
+---
+
+
+
 ## Assert
 
 

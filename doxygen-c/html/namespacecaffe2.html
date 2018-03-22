@@ -195,6 +195,12 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_a_p_meter_op.html">APMeterOp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_arg_max_op.html">ArgMaxOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_arg_min_op.html">ArgMinOp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_arg_op_base.html">ArgOpBase</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcaffe2_1_1_argument_helper.html">ArgumentHelper</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helper class to index into arguments.  <a href="classcaffe2_1_1_argument_helper.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3677,6 +3683,12 @@ this N X D input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Ou
 <tr class="memitem:a59a41d651fce739d7e69aa1693868be0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a59a41d651fce739d7e69aa1693868be0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>NO_GRADIENT</b> (RowWiseArgMax)</td></tr>
 <tr class="separator:a59a41d651fce739d7e69aa1693868be0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e597fab901c43df21596eace919c2eb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1e597fab901c43df21596eace919c2eb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ArgMax, <a class="el" href="classcaffe2_1_1_arg_max_op.html">ArgMaxOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:a1e597fab901c43df21596eace919c2eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0dfef4c3cacacb2dfb2a9027c6520c1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac0dfef4c3cacacb2dfb2a9027c6520c1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (ArgMin, <a class="el" href="classcaffe2_1_1_arg_min_op.html">ArgMinOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
+<tr class="separator:ac0dfef4c3cacacb2dfb2a9027c6520c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1935fbf87dd5962a9730b559808baa0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab1935fbf87dd5962a9730b559808baa0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Assert, <a class="el" href="classcaffe2_1_1_assert_op.html">AssertOp</a>&lt; <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ab1935fbf87dd5962a9730b559808baa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8397,6 +8409,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>MurmurHash3_x86_128</
 <tr class="memitem:ab5c9229fa909eeb94b774d82630ffc98"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab5c9229fa909eeb94b774d82630ffc98"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>MurmurHash3_x64_128</b> (const void *key, const int len, const uint32_t seed, void *out)</td></tr>
 <tr class="separator:ab5c9229fa909eeb94b774d82630ffc98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4dcb2830c974436ebdb6dfd7c246a01e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4dcb2830c974436ebdb6dfd7c246a01e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ShutdownProtobufLibrary</b> ()</td></tr>
+<tr class="separator:a4dcb2830c974436ebdb6dfd7c246a01e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a220c8114ce19cbe8d7aba391cc00a04b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a220c8114ce19cbe8d7aba391cc00a04b"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>DeviceTypeName</b> (const int32_t &amp;d)</td></tr>
 <tr class="separator:a220c8114ce19cbe8d7aba391cc00a04b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8409,6 +8424,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ReadStringFromFile</b
 <tr class="memitem:a1c5a6dab5657f189505350a0ea0f0253"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1c5a6dab5657f189505350a0ea0f0253"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>WriteStringToFile</b> (const string &amp;str, const char *filename)</td></tr>
 <tr class="separator:a1c5a6dab5657f189505350a0ea0f0253"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a433a22b7610841b1d70e74773db215f4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a433a22b7610841b1d70e74773db215f4"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>ParseProtoFromLargeString</b> (const string &amp;str, Message *proto)</td></tr>
+<tr class="separator:a433a22b7610841b1d70e74773db215f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9886fa046ce8a853ac6d8a8d1a77d2cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9886fa046ce8a853ac6d8a8d1a77d2cb"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>ReadProtoFromTextFile</b> (const char *filename, Message *proto)</td></tr>
 <tr class="separator:a9886fa046ce8a853ac6d8a8d1a77d2cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8980,6 +8998,9 @@ we first initialize the output tensor to all and then do accumulation Any furthe
 <tr class="memitem:a9b8760abd825f0c98fc16dae30030eb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b8760abd825f0c98fc16dae30030eb3"></a>
 this&#160;</td><td class="memItemRight" valign="bottom"><b>X</b> = in[0]</td></tr>
 <tr class="separator:a9b8760abd825f0c98fc16dae30030eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17d05f389efc66c7d248d04a1eaa968c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a17d05f389efc66c7d248d04a1eaa968c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>a_1</b></td></tr>
+<tr class="separator:a17d05f389efc66c7d248d04a1eaa968c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9a323067eaaeed246ded875e236e7044"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a323067eaaeed246ded875e236e7044"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ints</b></td></tr>
 <tr class="separator:a9a323067eaaeed246ded875e236e7044"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -11126,7 +11147,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Mar 21 2018 13:11:30 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Mar 22 2018 13:03:51 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
