@@ -42,6 +42,8 @@ import numpy as np
 from caffe2.python.onnx.helper import c2_native_run_net, dummy_name
 from caffe2.python.onnx.error import Unsupported
 
+import caffe2.python._import_c_extension as C
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -403,7 +405,21 @@ class Caffe2Frontend(object):
 
     @classmethod
     def caffe2_op_to_onnx_node(cls, op_def, shapes):
-        if op_def.type in cls._special_operators:
+        if C.support_onnx_export(op_def.type):
+            shape_list = list(shapes.values())
+            node_strs, tensor_strs = C.export_to_onnx(op_def.SerializeToString(), shapes)
+            nodes = []
+            for s in node_strs:
+                node = NodeProto()
+                node.ParseFromString(s)
+                nodes.append(node)
+            const_tensors = []
+            for s in tensor_strs:
+                tensor = TensorProto()
+                tensor.ParseFromString(s)
+                const_tensors.append(tensor)
+            return nodes, const_tensors
+        elif op_def.type in cls._special_operators:
             translator = getattr(cls, cls._special_operators[op_def.type])
         else:
             translator = cls._common_caffe2_op_to_onnx_node
