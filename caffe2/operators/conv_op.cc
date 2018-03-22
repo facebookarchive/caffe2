@@ -76,7 +76,8 @@ OPERATOR_SCHEMA(Conv)
     .TensorInferenceFunction(ConvPoolOpBase<CPUContext>::TensorInferenceForConv)
     .CostInferenceFunction(OpSchema::CostInferenceFunctionType(
         ConvPoolOpBase<CPUContext>::CostInferenceForConv))
-    .FillUsing(ConvDocGenerator(""));
+    .FillUsing(ConvDocGenerator(""))
+    .InheritOnnxSchema("Conv");
 
 REGISTER_CPU_OPERATOR(Conv1D, ConvOp<float, CPUContext>);
 
