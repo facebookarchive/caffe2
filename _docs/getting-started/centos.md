@@ -173,10 +173,13 @@ export LD_LIBRARY_PATH=/opt/nvidia/cuda/lib64:/usr/local/bin
 
 Almost done. Now you need to clone Caffe2 repo and build it (note: update the `-j8` with your system's number of processors; to check this, run `nproc` from the terminal.):
 
+> If you download the zip file from Github instead of using `git clone`, then you must run `git submodule update` before building.
+
 ```
 git clone --recursive https://github.com/caffe2/caffe2
-cd caffe2 && mkdir build
-cd build && cmake3 ..
+cd caffe2 && git submodule update --init
+mkdir build && cd build
+cmake3 ..
 sudo make -j8 install
 ```
 

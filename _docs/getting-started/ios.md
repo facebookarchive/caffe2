@@ -20,6 +20,7 @@ If you have not done so already, download the Caffe2 source code from GitHub
 
 ```
 git clone --recursive https://github.com/caffe2/caffe2.git
+git submodule update --init
 ```
 
 ## Run the Build Script

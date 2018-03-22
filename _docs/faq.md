@@ -227,7 +227,7 @@ In this example, `@rpath` will evaluate to `@loader_path`, which is essentially 
 
 ## The source directory does not contain a CMakeLists.txt file
 
-You need to run `git submodule update` in the Caffe2 root directory.
+You need to run `git submodule update --init` in the Caffe2 root directory.
 
 
 ## No module named caffe2_pybind11_state_gpu
