@@ -726,7 +726,7 @@ class Caffe2Backend(Backend):
         # Build the C++ backend
         # TODO: build a predictor that supports GPU
         #       And for RNN nets, we need to avoid adding init_net
-        if False: #device == 'CPU' and not rnn_nodes:
+        if device == 'CPU' and not rnn_nodes:
             c2_rnn_ops = []
             if rnn_nodes:
                 init_model = ModelProto()
