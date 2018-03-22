@@ -404,7 +404,7 @@ Caffe2Ops Caffe2Backend::CreateConstant(
 //  be tricked by the fact that Conv and ConvTranspose have similar
 //  parameters; they exercise different codepaths and need to be handled
 //  differently.
-Caffe2Ops Caffe2Backend::CreateConvePoolOpBase(
+Caffe2Ops Caffe2Backend::CreateConvPoolOpBase(
     OnnxNode* onnx_node,
     int opset_version) {
   const auto& node = onnx_node->node;

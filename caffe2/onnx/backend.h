@@ -133,7 +133,7 @@ class Caffe2Backend {
 
   Caffe2Ops CreateConstant(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateConvePoolOpBase(OnnxNode* onnx_node, int opset_version);
+  Caffe2Ops CreateConvPoolOpBase(OnnxNode* onnx_node, int opset_version);
 
   Caffe2Ops CreateReshape(OnnxNode* onnx_node, int opset_version);
 
@@ -149,7 +149,7 @@ class Caffe2Backend {
 
   Caffe2Ops CreateSlice(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateSqrt(OnnxNode* onnx_node, int opset_version);
+  Caffe2Ops CreateReciprocal(OnnxNode* onnx_node, int opset_version);
 
   Caffe2Ops CreateMatMul(OnnxNode* onnx_node, int opset_version);
 
