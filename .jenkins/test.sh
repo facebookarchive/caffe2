@@ -67,7 +67,7 @@ fi
 mkdir -p ./test/{cpp,python}
 TEST_DIR="$PWD/test"
 
-cd ${INSTALL_PREFIX}
+cd ${INSTALL_PREFIX}/caffe2
 
 # Commands below may exit with non-zero status
 set +e
