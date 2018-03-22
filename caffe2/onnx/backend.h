@@ -62,9 +62,14 @@ class OnnxAttributes {
     }
   }
 
-  bool remove(const std::string& key) {
-    if (onnx_attrs_.erase(key)) return true;
-    return false;
+  const AttributeProto* remove(const std::string& key) {
+    const AttributeProto* result = nullptr;
+    auto iter = onnx_attrs_.find(key);
+    if (iter != onnx_attrs_.end()) {
+      result = iter->second;
+      onnx_attrs_.erase(iter);
+    }
+    return result;
   }
 
  private:

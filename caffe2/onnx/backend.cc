@@ -790,8 +790,7 @@ Caffe2Ops Caffe2Backend::CreateBatchNormalization(OnnxNode* onnx_node, int opset
     attributes.remove("consumed_inputs");
   }
 
-  auto c2_op = CommonOnnxNodeToCaffe2Ops(onnx_node, opset_version);
-  return c2_op;
+  return CommonOnnxNodeToCaffe2Ops(onnx_node, opset_version);
 }
 
 Caffe2Ops Caffe2Backend::CreateMatMul(OnnxNode* onnx_node, int opset_version) {
