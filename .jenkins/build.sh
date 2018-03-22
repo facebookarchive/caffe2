@@ -86,7 +86,10 @@ INSTALL_PREFIX="/usr/local"
 CMAKE_ARGS+=("-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}")
 
 # Install ONNX
-sudo -H PATH="$PATH" "$PIP" install "${ROOT_DIR}/third_party/onnx"
+echo $USER
+echo "$(ls -lah /usr/local)"
+echo "$(ls -lah /usr/local/lib/python2.7)"
+"$PIP" install "${ROOT_DIR}/third_party/onnx"
 
 case "${BUILD_ENVIRONMENT}" in
   *-mkl*)
