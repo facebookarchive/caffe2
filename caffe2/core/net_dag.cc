@@ -16,6 +16,7 @@
 
 #include "caffe2/core/net_dag.h"
 
+#include <iostream>
 #include <set>
 #include <stack>
 #include <unordered_map>
@@ -42,7 +43,7 @@ namespace caffe2 {
 DAGNetBase::DAGNetBase(
     const std::shared_ptr<const NetDef>& net_def,
     Workspace* ws)
-    : NetBase(net_def, ws), iter_(0) {
+    : NetBase(net_def, ws), caught_exception_yet_(false), iter_(0) {
   // Blob creator allows us to track which operator created which blob.
   VLOG(1) << "Constructing DAGNet " << net_def->name();
 
@@ -160,6 +161,13 @@ bool DAGNetBase::DoRunAsync() {
     }
     workers_.clear();
     job_queue_.reset(nullptr);
+#ifdef CAFFE2_USE_EXCEPTION_PTR
+    if (caught_exception_) {
+      // Reset flag here in case Net gets run again
+      caught_exception_yet_ = false;
+      std::rethrow_exception(caught_exception_);
+    }
+#endif // CAFFE2_USE_EXCEPTION_PTR
     return success_;
   }
   VLOG(2) << "All ops finished running.";
@@ -176,6 +184,28 @@ bool DAGNetBase::DoRunAsync() {
   StopAllObservers();
   // If the above while loop finished, we know that the current run finished.
   return success_;
+}
+
+void DAGNetBase::HandleException(
+    int operator_idx,
+    const std::string& exception_str) {
+  const std::string& operator_name =
+      operator_nodes_[operator_idx].operator_->debug_def().name();
+  const std::string& operator_type =
+      operator_nodes_[operator_idx].operator_->debug_def().type();
+  const char* prefix = "Exception from operator '";
+#ifdef CAFFE2_USE_EXCEPTION_PTR
+  if (!caught_exception_yet_.exchange(true)) {
+    caught_exception_ = std::current_exception();
+  } else {
+    prefix = "Secondary exception from operator '";
+  }
+#endif // CAFFE2_USE_EXCEPTION_PTR
+  LOG(ERROR) << prefix << operator_name << "' (type '" << operator_type
+             << "'): " << exception_str << "\n";
+#ifndef CAFFE2_USE_EXCEPTION_PTR
+  throw; // Can't capture for dispatch to other thread, re-throw here
+#endif // CAFFE2_USE_EXCEPTION_PTR
 }
 
 void DAGNetBase::WorkerFunction() {
@@ -207,11 +237,23 @@ void DAGNetBase::WorkerFunction() {
         idx,
         ".");
     const auto& chain = execution_chains_[idx];
-    bool this_success = RunAt(idx, execution_chains_[idx]);
-    if (!this_success) {
-      LOG(ERROR) << "Operator chain failed: "
-                 << ProtoDebugString(
-                        operator_nodes_[idx].operator_->debug_def());
+    bool this_success = false;
+    try {
+      this_success = RunAt(idx, execution_chains_[idx]);
+
+      if (!this_success) {
+        // If an exception was thrown, the operator def will get printed
+        // by Operator::Run[Async], but if no exception occurs we print it here.
+        LOG(ERROR) << "Operator chain failed: "
+                   << ProtoDebugString(
+                          operator_nodes_[idx].operator_->debug_def());
+      }
+    } catch (std::exception& e) {
+      std::string exception_str = GetExceptionString(e);
+      HandleException(idx, exception_str);
+    } catch (...) {
+      std::string exception_str = "Unknown exception";
+      HandleException(idx, exception_str);
     }
 
     // Do book-keeping
@@ -274,8 +316,8 @@ vector<float> DAGNetBase::TEST_Benchmark(
     const int warmup_runs,
     const int main_runs,
     const bool run_individual) {
-  LOG(INFO) << "Starting benchmark.";
-  LOG(INFO) << "Running warmup runs.";
+  std::cout << "Starting benchmark." << std::endl;
+  std::cout << "Running warmup runs." << std::endl;
   CAFFE_ENFORCE(
       warmup_runs >= 0,
       "Number of warm up runs should be non negative, provided ",
@@ -285,7 +327,7 @@ vector<float> DAGNetBase::TEST_Benchmark(
     CAFFE_ENFORCE(Run(), "Warmup run ", i, " has failed.");
   }
 
-  LOG(INFO) << "Main runs.";
+  std::cout << "Main runs." << std::endl;
   CAFFE_ENFORCE(
       main_runs >= 0,
       "Number of main runs should be non negative, provided ",
@@ -296,13 +338,13 @@ vector<float> DAGNetBase::TEST_Benchmark(
     CAFFE_ENFORCE(Run(), "Main run ", i, " has failed.");
   }
   auto millis = timer.MilliSeconds();
-  LOG(INFO) << "Main run finished. Milliseconds per iter: "
+  std::cout << "Main run finished. Milliseconds per iter: "
             << millis / main_runs
-            << ". Iters per second: " << 1000.0 * main_runs / millis;
+            << ". Iters per second: " << 1000.0 * main_runs / millis << std::endl;
 
   if (run_individual) {
-    LOG(INFO) << "DAGNet does not do per-op benchmark. To do so, "
-                 "switch to a simple net type.";
+    std::cout << "DAGNet does not do per-op benchmark. To do so, "
+                 "switch to a simple net type." << std::endl;
   }
   return vector<float>{millis / main_runs};
 }

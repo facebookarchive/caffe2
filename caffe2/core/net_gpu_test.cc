@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <google/protobuf/text_format.h>
 #include <gtest/gtest.h>
 #include "caffe2/core/common_gpu.h"
 #include "caffe2/core/net.h"
@@ -93,7 +92,7 @@ void checkChainingAndRun(
   Workspace ws;
   ws.CreateBlob("in");
   NetDef net_def;
-  CAFFE_ENFORCE(google::protobuf::TextFormat::ParseFromString(spec, &net_def));
+  CAFFE_ENFORCE(TextFormat::ParseFromString(spec, &net_def));
   {
     net_def.set_num_workers(4);
     auto old = FLAGS_caffe2_disable_chaining;
@@ -104,12 +103,12 @@ void checkChainingAndRun(
     auto* dag = dynamic_cast_if_rtti<DAGNetBase*>(net.get());
     CHECK_NOTNULL(dag);
     const auto& chains = dag->TEST_execution_chains();
-    EXPECT_TRUE(chains == expected);
+    EXPECT_EQ(chains, expected);
     testExecution(net, net_def.op().size());
   }
 }
 
-TEST(NetTest, ChainingForDifferentDevices) {
+TEST(NetTest, DISABLED_ChainingForDifferentDevices) {
   const auto spec = R"DOC(
         name: "example"
         type: "dag"

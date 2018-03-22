@@ -1,6 +1,6 @@
 # ---[ RocksDB module
 # In addition to being a useful module itself, RocksDB is also an exemplar
-# case where show how one should built a Caffe2 module inside the Caffe2 
+# case where show how one should built a Caffe2 module inside the Caffe2
 # repository.
 #
 # This cmake file achieves two build modes:
@@ -64,5 +64,5 @@ install(TARGETS caffe2_rocksdb DESTINATION lib)
 # Note(jiayq): this also depends on a separate cmake move to reorg test builds
 # and binary builds after modules. When it is done, this note should be removed.
 if (CAFFE2_CMAKE_BUILDING_WITH_MAIN_REPO)
-  list(APPEND Caffe2_MAIN_LIBS caffe2_rocksdb)
+  set(Caffe2_MODULES ${Caffe2_MODULES} caffe2_rocksdb PARENT_SCOPE)
 endif()

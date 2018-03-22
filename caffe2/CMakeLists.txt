@@ -18,6 +18,7 @@ add_subdirectory(mkl)
 add_subdirectory(mobile)
 add_subdirectory(mpi)
 add_subdirectory(observers)
+add_subdirectory(onnx)
 add_subdirectory(operators)
 add_subdirectory(perfkernels)
 add_subdirectory(python)
@@ -75,14 +76,50 @@ install(FILES ${PROJECT_BINARY_DIR}/caffe2/core/macros.h
 
 
 # ---[ List of libraries to link with
+add_library(caffe2_protos $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
+add_dependencies(caffe2_protos Caffe_PROTO Caffe2_PROTO)
+# TODO: enable using lite protobuf.
+# If we are going to link protobuf locally inside caffe2 libraries, what we will do is
+# to create a helper static library that always contains libprotobuf source files, and
+# link the caffe2 related dependent libraries to it.
+target_include_directories(caffe2_protos INTERFACE $<INSTALL_INTERFACE:include>)
+# Reason for this public dependency is as follows:
+# (1) Strictly speaking, we should not expose any Protobuf related functions. We should
+#     only use function interfaces wrapped with our own public API, and link protobuf
+#     locally.
+# (2) However, currently across the Caffe2 codebase, we have extensive use of protobuf
+#     functionalities. For example, not only libcaffe2.so uses it, but also other
+#     binaries such as python extensions etc. As a result, we will have to have a
+#     transitive dependency to libprotobuf.
+#
+# Good thing is that, if we specify CAFFE2_LINK_LOCAL_PROTOBUF, then we do not need to
+# separately deploy protobuf binaries - libcaffe2.so will contain all functionalities
+# one needs. One can verify this via ldd.
+#
+# Todo item in the future includes:
+# (1) Properly define public API that do not directly depend on protobuf itself.
+# (2) expose the libprotobuf.a file for dependent libraries to link to.
+# (3) build libprotobuf with -fvisibility=hidden to avoid version conflicts.
+#
+# What it means for users/developers?
+# (1) Users: nothing affecting the users, other than the fact that CAFFE2_LINK_LOCAL_PROTOBUF
+#     avoids the need to deploy protobuf.
+# (2) Developers: if one simply uses core caffe2 functionality without using protobuf,
+#     nothing changes. If one has a dependent library that uses protobuf, then one needs to
+#     have the right protobuf version as well as linking to libprotobuf.a.
+target_link_libraries(caffe2_protos PUBLIC protobuf::libprotobuf)
+install(TARGETS caffe2_protos EXPORT Caffe2Targets DESTINATION lib)
 
 # Compile exposed libraries.
-add_library(caffe2 ${Caffe2_CPU_SRCS} $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
-target_link_libraries(caffe2 PUBLIC ${Caffe2_PUBLIC_DEPENDENCY_LIBS})
+add_library(caffe2 ${Caffe2_CPU_SRCS})
+target_link_libraries(caffe2 PUBLIC caffe2_protos ${Caffe2_PUBLIC_DEPENDENCY_LIBS})
 target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_LIBS})
+target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_WHOLE_LINK_LIBS})
 target_include_directories(caffe2 INTERFACE $<INSTALL_INTERFACE:include>)
 target_compile_options(caffe2 INTERFACE "-std=c++11")
 target_compile_options(caffe2 PRIVATE "-DCAFFE2_BUILD_MAIN_LIB")
+# Use -O2 for release builds (-O3 doesn't improve perf, and -Os results in perf regression)
+target_compile_options(caffe2 PRIVATE "$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-O2>")
 install(TARGETS caffe2 EXPORT Caffe2Targets DESTINATION lib)
 caffe2_interface_library(caffe2 caffe2_library)
 list(APPEND Caffe2_MAIN_LIBS caffe2_library)
@@ -102,7 +139,6 @@ if(USE_CUDA)
 
   target_include_directories(
       caffe2_gpu INTERFACE $<INSTALL_INTERFACE:include>)
-  add_dependencies(caffe2_gpu Caffe2_PROTO)
   target_link_libraries(
       caffe2_gpu PUBLIC caffe2 ${Caffe2_PUBLIC_CUDA_DEPENDENCY_LIBS})
   target_link_libraries(
@@ -228,7 +264,7 @@ if (BUILD_PYTHON)
   file(GLOB_RECURSE PYTHON_SRCS RELATIVE ${PROJECT_SOURCE_DIR}
        "${PROJECT_SOURCE_DIR}/caffe2/*.py")
   add_custom_target(python_copy_files ALL)
-  if(MSVC AND CMAKE_GENERATOR MATCHES "Ninja")
+  if(MSVC OR CMAKE_GENERATOR MATCHES "Ninja")
     # ninja fails when the command line is too long so we split
     # the target into several. This would be beneficial for VS also
     # since it build targets in parallel but not custom commands
@@ -263,15 +299,7 @@ if (BUILD_PYTHON)
           FILES_MATCHING PATTERN "*.py")
 endif()
 
+# Finally, set the Caffe2_MAIN_LIBS variable in the parent scope.
+set(Caffe2_MAIN_LIBS ${Caffe2_MAIN_LIBS} PARENT_SCOPE)
 
-# ---[ Any builds that should happen after the main targets should be added here.
-# Binaries
-if (BUILD_BINARY)
-  add_subdirectory(binaries)
-  # Benchmarking binaries require observers included in the build
-  # There is a linking issue that happens in some of the Windows builds.
-  # TODO(Yangqing): after the module redesign, enable this back.
-  if (BUILD_OBSERVERS AND NOT MSVC)
-    add_subdirectory(share/contrib/binaries)
-  endif()
-endif()
+

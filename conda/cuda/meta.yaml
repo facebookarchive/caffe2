@@ -11,7 +11,7 @@ build:
   number: 0
   skip: True  # [win]
   script_env:
-    - CONDA_CMAKE_ARGS
+    - CONDA_CMAKE_BUILD_ARGS
 
 requirements:
   build:
@@ -19,22 +19,26 @@ requirements:
     - future
     - glog
     - gflags
+    - leveldb
     - lmdb
     - numpy
     - opencv
     - python
     - protobuf {{ protobuf }}
     - six
+    # other packages here
   run:
     - future
     - glog
     - gflags
+    - leveldb
     - lmdb
     - numpy
     - opencv
     - protobuf
     - python
     - six
+    # other packages here
 
 test:
   imports:
