@@ -67,14 +67,14 @@ fi
 mkdir -p ./test/{cpp,python}
 TEST_DIR="$PWD/test"
 
-cd ${INSTALL_PREFIX}/caffe2
+cd ${INSTALL_PREFIX}
 
 # Commands below may exit with non-zero status
 set +e
 
 # C++ tests
 echo "Running C++ tests.."
-for test in ./test/*; do
+for test in ./test/caffe2/*; do
   # Skip tests we know are hanging or bad
   case "$(basename "$test")" in
     mkl_utils_test)
