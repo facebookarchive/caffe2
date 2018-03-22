@@ -39,9 +39,6 @@ macro(custom_protobuf_find)
     if (${COMPILER_SUPPORTS_HIDDEN_INLINE_VISIBILITY})
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
     endif()
-    # When we are linking local protobuf, we will need to link it into
-    # libcaffe2_protos.so, so we will pass in the PROTOBUF_USE_DLLS macro.
-    set(CMAKE_CXX_FLAGS "-DPROTOBUF_USE_DLLS")
   endif()
 
   add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/protobuf/cmake)
@@ -177,6 +174,10 @@ function(caffe2_protobuf_generate_cpp_py srcs_var hdrs_var python_var)
       COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}"
       COMMAND ${CAFFE2_PROTOC_EXECUTABLE} -I${PROJECT_SOURCE_DIR} --cpp_out=${DLLEXPORT_STR}${PROJECT_BINARY_DIR} ${abs_fil}
       COMMAND ${CAFFE2_PROTOC_EXECUTABLE} -I${PROJECT_SOURCE_DIR} --python_out "${PROJECT_BINARY_DIR}" ${abs_fil}
+      COMMAND sed -i "s/::google::protobuf::internal::GetEmptyStringAlreadyInited/GetEmptyStringAlreadyInited/" "${CMAKE_CURRENT_BINARY_DIR}/${fil_we}.pb.h"
+      COMMAND sed -i "s/namespace caffe2 {/namespace caffe2 { const ::std::string\\& GetEmptyStringAlreadyInited(); /" "${CMAKE_CURRENT_BINARY_DIR}/${fil_we}.pb.h"
+      COMMAND sed -i "s/namespace caffe {/namespace caffe { const ::std::string\\& GetEmptyStringAlreadyInited(); /" "${CMAKE_CURRENT_BINARY_DIR}/${fil_we}.pb.h"
+      
       DEPENDS ${CAFFE2_PROTOC_EXECUTABLE} ${abs_fil}
       COMMENT "Running C++/Python protocol buffer compiler on ${fil}" VERBATIM )
   endforeach()

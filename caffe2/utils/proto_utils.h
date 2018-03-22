@@ -73,9 +73,7 @@ inline bool ParseFromString(const string& spec, MessageLite* proto) {
 } // namespace TextFormat
 
 
-inline string ProtoDebugString(const MessageLite& proto) {
-  return proto.SerializeAsString();
-}
+string ProtoDebugString(const MessageLite& proto);
 
 bool ParseProtoFromLargeString(const string& str, MessageLite* proto);
 
@@ -123,9 +121,7 @@ bool ParseFromString(const string& spec, Message* proto);
 
 bool ParseProtoFromLargeString(const string& str, Message* proto);
 
-inline string ProtoDebugString(const Message& proto) {
-  return proto.ShortDebugString();
-}
+string ProtoDebugString(const Message& proto);
 
 bool ReadProtoFromTextFile(const char* filename, Message* proto);
 inline bool ReadProtoFromTextFile(const string filename, Message* proto) {
@@ -320,6 +316,7 @@ inline void AddArgument(const string& name, const T& value, OperatorDef* def) {
 bool inline operator==(const DeviceOption& dl, const DeviceOption& dr) {
   return IsSameDevice(dl, dr);
 }
+
 
 } // namespace caffe2
 
