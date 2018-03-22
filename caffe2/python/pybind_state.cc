@@ -743,6 +743,10 @@ void addObjectMethods(py::module& m) {
           [](caffe2::onnx::Caffe2Backend& instance,
              const py::bytes& node_str,
              int opset_version) -> std::vector<std::vector<py::bytes>> {
+            // Note that we return two lists of serialized ops. The first set is
+            // init_ops and the second set is ops for pred net. When converting
+            // RNN related op, it is possible that we will create ops in the
+            // init_net. Hence the return structure here
             auto c2ops = instance.ConvertNode(
                 node_str.cast<std::string>(), opset_version);
             std::vector<std::vector<py::bytes>> vals;

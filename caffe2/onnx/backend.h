@@ -19,6 +19,9 @@ using ONNX_NAMESPACE::ModelProto;
 using ONNX_NAMESPACE::NodeProto;
 using ONNX_NAMESPACE::TensorProto;
 
+// \brief This struct holds the converted ops after the onnx->c2 conversion.
+// Notice that for RNN ops, it may create ops in init_net. Hence we have the
+// `init_ops` field.
 struct Caffe2Ops {
   ::google::protobuf::RepeatedPtrField<caffe2::OperatorDef> init_ops;
   ::google::protobuf::RepeatedPtrField<caffe2::OperatorDef> ops;
