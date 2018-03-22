@@ -86,7 +86,7 @@ INSTALL_PREFIX="/usr/local"
 CMAKE_ARGS+=("-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}")
 
 # Install ONNX into a local directory. Do this for all Linux but not Android
-"$PIP" install "${ROOT_DIR}/third_party/onnx" -t "${CAFFE2_INSTALL_PATH}"
+sudo "$PIP" install "${ROOT_DIR}/third_party/onnx" -t "${CAFFE2_INSTALL_PATH}"
 
 case "${BUILD_ENVIRONMENT}" in
   *-mkl*)
@@ -132,7 +132,7 @@ cd ./build
 ${CMAKE_BINARY} "${ROOT_DIR}" ${CMAKE_ARGS[*]} "$@"
 
 # Build
-make "-j$(nproc)" install
+sudo make "-j$(nproc)" install
 
 # Now that we've installed Caffe2 libraries into /usr/local/lib, we will need
 # to add that to LD_LIBRARY_PATH
