@@ -183,24 +183,9 @@ class Caffe2Backend(Backend):
     # the value is an attribute of this class that is a
     # function from ToffeIR node_def to caffe2 op_def
     _special_operators = {
-        'Constant': '_create_constant',
-        'Conv': '_create_conv_pool_op_base',
-        'AveragePool': '_create_conv_pool_op_base',
-        'GlobalAveragePool': '_create_conv_pool_op_base',
-        'GlobalMaxPool': '_create_conv_pool_op_base',
-        'MaxPool': '_create_conv_pool_op_base',
-        'Reshape': '_create_reshape',
-        'Gather': '_create_gather',
-        'Gemm': '_create_gemm',
-        'Pad': '_create_pad',
-        'Concat': '_create_concat',
-        'LogSoftmax': '_create_logsoftmax',
-        'Slice': '_create_slice',
         'LSTM': '_create_lstm',
         'GRU': '_create_gru',
         'RNN': '_create_rnn',
-        'Reciprocal': '_create_reciprocal',
-        'MatMul': '_create_matmul',
     }
 
     # NB: By default, you will use the LATEST definition of the operator,
@@ -294,75 +279,6 @@ class Caffe2Backend(Backend):
         c2_op.output.append(name)
 
         return c2_op
-
-    @classmethod
-    def _create_constant(cls, init_model, pred_model, n, opset_version):
-        assert len(n.outputs) == 1
-        return cls._create_tensor_filling_op(n.attrs["value"], n.outputs[0])
-
-    @classmethod
-    def _create_gather(cls, init_model, pred_model, n, opset_version):
-        (A, B) = n.inputs
-        (Y, ) = n.outputs
-        axis = n.attrs.get('axis', 0)
-
-        if axis == 0:
-            return core.CreateOperator("Gather", [A, B], [Y])
-        elif axis == 1:
-            return core.CreateOperator("BatchGather", [A, B], [Y])
-        raise ValueError(
-            'Caffe2 only supports Gather with axis being 0 or 1,' +
-            'whereas axis is ' + str(axis))
-
-    @classmethod
-    def _create_logsoftmax(cls, init_model, pred_model, n, opset_version):
-        # NB: this implementation is not backward stable.
-        (A,) = n.inputs
-        (Y,) = n.outputs
-        axis = n.attrs.get('axis', 1)
-        ops = []
-        softmax_A = dummy_name()
-        ops.append(core.CreateOperator('Softmax', [A], [softmax_A], axis=axis))
-        ops.append(core.CreateOperator('Log', [softmax_A], [Y]))
-        return ops
-
-    @classmethod
-    def _create_gemm(cls, init_model, pred_model, n, opset_version):
-        (A, B, C) = n.inputs
-        (Y,) = n.outputs
-        alpha = n.attrs.get('alpha', 1.)
-        beta = n.attrs.get('beta', 1.)
-
-        ops = []
-        if alpha != 1:
-            scaled_A = dummy_name()
-            ops.append(core.CreateOperator('Scale', [A], [scaled_A], scale=alpha))
-            A = scaled_A
-        if beta != 1:
-            scaled_C = dummy_name()
-            ops.append(core.CreateOperator('Scale', [C], [scaled_C], scale=beta))
-            C = scaled_C
-
-        trans_a = n.attrs.get('transA', 0)
-        trans_b = n.attrs.get('transB', 0)
-        broadcast = n.attrs.get('broadcast', 0)
-        if not trans_a and trans_b and broadcast:
-            ops.append(core.CreateOperator('FC',
-                                           [A, B, C],
-                                           [Y]))
-        else:
-            AB = dummy_name()
-            ops.append(core.CreateOperator('MatMul',
-                                           [A, B],
-                                           [AB],
-                                           trans_a=trans_a,
-                                           trans_b=trans_b))
-            ops.append(core.CreateOperator('Add',
-                                           [AB, C],
-                                           [Y],
-                                           broadcast=broadcast))
-
-        return ops
 
     @classmethod
     def _rnn_shape_inference(cls, init_model, pred_model, n, input_blob, W):
@@ -750,6 +666,7 @@ class Caffe2Backend(Backend):
                          list(pred_mh.Proto().external_input))
 
     @classmethod
+<<<<<<< 5a54f0ecbc1dc2c20c8e2103f24c5d2ade44e12a
     def _create_pad(cls, init_model, pred_model, n, opset_version):
         if opset_version < 2:
             pads = n.attrs['paddings']
@@ -1083,8 +1000,7 @@ class Caffe2Backend(Backend):
     # TODO: This method needs a refactor for clarity
     def _onnx_node_to_caffe2_op(cls, init_model, pred_model, node_def, opset_version):
         cbackend = C.Caffe2Backend()
-        print("DDDDDDD")
-        if False: #cbackend.support_onnx_import(node_def.op_type):
+        if cbackend.support_onnx_import(node_def.op_type):
             op_strs = cbackend.convert_node(node_def.SerializeToString(), opset_version)
             init_ops = []
             for s in op_strs[0]:
@@ -1096,8 +1012,6 @@ class Caffe2Backend(Backend):
                 op = caffe2_pb2.OperatorDef()
                 op.ParseFromString(s)
                 ops.append(op)
-            if node_def.op_type == "Reshape":
-                print("{}".format(ops))
             return Caffe2Ops(ops, init_ops, [])
 
         if node_def.op_type in cls._special_operators:
@@ -1109,8 +1023,6 @@ class Caffe2Backend(Backend):
             return ops
         if not isinstance(ops, collections.Iterable):
             ops = [ops]
-        if node_def.op_type == "Reshape":
-            print("{}".format(ops))
         return Caffe2Ops(ops, [], [])
 
     @classmethod
