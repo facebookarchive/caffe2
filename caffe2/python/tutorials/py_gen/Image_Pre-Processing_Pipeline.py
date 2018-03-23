@@ -292,7 +292,7 @@ pyplot.tight_layout()
 # As you can see that didn't work out so well, except for maybe the last one. The middle one may be just fine too, but you won't know until you try on the model and test a lot of candidate images.
 # At this point we can look at the difference we have, split it in half and remove some pixels from each side. This does have a drawback, however, as an off-center subject of interest would get clipped.
 
-# If you've run this tutorial a few times now and are on Round 3, you'll notice a pretty big problem. You're missing astronaughts! You can still see the issue with the flower from Round 2 as well. Things are missing after the cropping and that could cause you problems. Think of it this way: if you don't know how the model you're using was prepared then you don't know how to conform your images, so take care to test results! If the model used a lot of different aspect ratio images and just squeezed them to conform to a square then there's a good chance that over time and lots of samples it "learned" what things look like squeezed and can make a match. However, if you're looking for details like facial features and landmarks, or really nuanced elements in any image, this could be dangerous and error-prone. 
+# If you've run this tutorial a few times now and are on Round 3, you'll notice a pretty big problem. You're missing astronauts! You can still see the issue with the flower from Round 2 as well. Things are missing after the cropping and that could cause you problems. Think of it this way: if you don't know how the model you're using was prepared then you don't know how to conform your images, so take care to test results! If the model used a lot of different aspect ratio images and just squeezed them to conform to a square then there's a good chance that over time and lots of samples it "learned" what things look like squeezed and can make a match. However, if you're looking for details like facial features and landmarks, or really nuanced elements in any image, this could be dangerous and error-prone. 
 # 
 # #### Further Strategies?
 # 
@@ -402,7 +402,7 @@ pyplot.title('224x224')
 # 
 # ### Final Preprocessing and the Batch Term
 # 
-# In the last steps below we are going to switch the image's data order to BGR, stuff that into the Color column, then reoder the columns for GPU processing (HCW-->CHW) and then add a fourth dimension (N) to the image to track the number of images. In theory, you can just keep adding dimensions to your data, but this one is required for Caffe2 as it relays to Caffe how many images to expect in this batch. We set it to one (1) to indicate there's only one image going into Caffe in this batch. Note that in the final output when we check `img.shape` the order is quite different. We've added N for number of images, and changed the order like so: `N, C, H, W`
+# In the last steps below we are going to switch the image's data order to BGR, stuff that into the Color column, then reorder the columns for GPU processing (HCW-->CHW) and then add a fourth dimension (N) to the image to track the number of images. In theory, you can just keep adding dimensions to your data, but this one is required for Caffe2 as it relays to Caffe how many images to expect in this batch. We set it to one (1) to indicate there's only one image going into Caffe in this batch. Note that in the final output when we check `img.shape` the order is quite different. We've added N for number of images, and changed the order like so: `N, C, H, W`
 
 # In[12]:
 
