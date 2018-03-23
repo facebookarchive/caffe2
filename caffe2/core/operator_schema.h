@@ -23,6 +23,7 @@
 #include <ostream>
 #include <set>
 #include <vector>
+#include <unordered_map>
 
 #include "caffe2/core/common.h"
 #include "caffe2/core/logging.h"
@@ -155,11 +156,18 @@ class OpSchema {
   typedef std::function<
       vector<TensorShape>(const OperatorDef&, const vector<TensorShape>&)>
       TensorInferenceFunctionType;
+
   /**
    * @brief Sets the tensor inference function, which is a std::function object
    * defined in operator_schema.h.
    */
   OpSchema& TensorInferenceFunction(TensorInferenceFunctionType function);
+
+  /**
+   * @brief Sets the corresponding onnx schema name
+   */
+  OpSchema& InheritOnnxSchema(const std::string& onnx_schema_name);
+
   /**
    * @brief Sets the tensor inference function to produce the same output as
    * the input.
@@ -175,7 +183,7 @@ class OpSchema {
    */
   inline vector<TensorShape> InferTensor(
       const OperatorDef& def,
-      const vector<TensorShape> input_type_shape) const {
+      const vector<TensorShape>& input_type_shape) const {
     return tensor_inference_function_(def, input_type_shape);
   }
 
@@ -284,6 +292,10 @@ class OpSchema {
    */
   int CalculateOutput(int num_input) const;
 
+  const std::string& onnx_schema() const {
+    return onnx_schema_;
+  }
+
   int min_input() const {
     return min_input_;
   }
@@ -355,6 +367,7 @@ class OpSchema {
  private:
   string file_;
   string doc_;
+  string onnx_schema_;
   std::vector<Argument> args_{};
   std::vector<std::pair<const char*, const char*>> input_desc_{};
   std::vector<std::pair<const char*, const char*>> output_desc_{};
@@ -407,8 +420,9 @@ class OpSchemaRegistry {
   static OpSchema&
   NewSchema(const string& key, const string& file, const int line) {
     auto& m = map();
-    if (m.count(key)) {
-      const auto& schema = m[key];
+    auto it = m.find(key);
+    if (it != m.end()) {
+      const auto& schema = it->second;
       std::ios_base::Init init;
       std::cerr << "Trying to register schema with name " << key
                 << " from file " << file << " line " << line
@@ -422,8 +436,9 @@ class OpSchemaRegistry {
 
   static const OpSchema* Schema(const string& key) {
     auto& m = map();
-    if (m.count(key)) {
-      return &m[key];
+    auto it = m.find(key);
+    if (it != m.end()) {
+      return &it->second;
     } else {
       return nullptr;
     }

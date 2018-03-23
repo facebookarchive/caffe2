@@ -12,8 +12,8 @@ This doc keeps tracking why operators are not covered by the testcases.
 |Abs|Yes|OK|&#x1F49A;OK|
 |Add|Yes|OK|&#x1F49A;OK|
 |And|Yes|Support int tensor, but no bool tensor|&#x1F49A;OK|
-|ArgMax|||&#x1F494;No op|
-|ArgMin|||&#x1F494;No op|
+|ArgMax|||&#x1F49B;About to land|
+|ArgMin|||&#x1F49B;About to land|
 |AveragePool||OK|&#x1F49A;OK|
 |BatchNormalization||OK|&#x1F49A;OK|
 |Cast|Yes||&#x1F494;Need extendtion|
@@ -23,7 +23,7 @@ This doc keeps tracking why operators are not covered by the testcases.
 |Constant|Yes|OK|&#x1F49B;Special handling|
 |Conv|Yes|OK|&#x1F49A;OK|
 |ConvTranspose|Yes||&#x1F49A;OK|
-|DepthToSpace|||&#x1F49B;Should be BatchToSpace, no tests|
+|DepthToSpace|Yes||&#x1F494;No op|
 |Div|Yes|OK|&#x1F49A;OK|
 |Dropout|Yes|OK|&#x1F49A;OK|
 |Elu|Yes|OK|&#x1F49A;OK|
@@ -53,7 +53,7 @@ This doc keeps tracking why operators are not covered by the testcases.
 |Max|Yes|OK|&#x1F49A;OK|
 |MaxPool||OK|&#x1F49A;OK|
 |MaxRoiPool|||&#x1F494;No op|
-|Mean|||&#x1F494;No op|
+|Mean|||&#x1F49A;OK|
 |Min|Yes|OK|&#x1F49A;OK|
 |Mul|Yes|OK|&#x1F49A;OK|
 |Neg|Yes|OK|&#x1F49A;OK|
@@ -86,7 +86,7 @@ This doc keeps tracking why operators are not covered by the testcases.
 |Softmax|Yes|OK|&#x1F494;Axis and dim has different semantics|
 |Softplus|Yes|OK|&#x1F49A;OK|
 |Softsign|Yes||&#x1F49A;OK|
-|SpaceToDepth|||&#x1F49B;Should be SpaceToBatch, no tests|
+|SpaceToDepth|||&#x1F494;No op|
 |Split|Yes|OK|&#x1F49A;OK|
 |Sqrt|Yes||&#x1F49A;OK|
 |Squeeze|Yes||&#x1F49A;OK|
