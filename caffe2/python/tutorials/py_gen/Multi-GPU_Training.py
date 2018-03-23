@@ -26,7 +26,7 @@
 # 
 # That's way too much space and way too long for a tutorial! If you happened to have that much space and 128 GPUs on the latest NVIDIA V100's then you're super awesome and you can replicate our recent results shown below. You might even be able to train ImageNet in under an hour. Given how this performance seems to scale, **maybe YOU can train ImageNet in a minute!** Think about all of the things you could accomplish... a model for millions of hours of video? Catalogue every cat video on YouTube? Look for your doppleganger on Imgur?
 # 
-# Instead of tons of GPUs and the full set of data, we're going to do this cooking show style. We're going to use a small batch images to train on, and show how you can scale that up. We chose a small slice of ImageNet: a set of 640 cars and 640 boats for our training set. We have 48 cars and 48 boats for our test set. This makes our database of images around 130 MB.
+# Instead of tons of GPUs and the full set of data, we're going to do this cooking show style. We're going to use a small batch of images to train on, and show how you can scale that up. We chose a small slice of ImageNet: a set of 640 cars and 640 boats for our training set. We have 48 cars and 48 boats for our test set. This makes our database of images around 130 MB.
 # 
 # ## ResNet-50 Model Training Overview
 # 
@@ -57,6 +57,11 @@
 
 # In[ ]:
 
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from caffe2.python import core, workspace, model_helper, net_drawer, memonger, brew
 from caffe2.python import data_parallel_model as dpm
@@ -391,7 +396,7 @@ def optimize_gradient_memory(model, loss):
 
 # ## Part 8: Training the Network with One GPU
 # 
-# Now that you've established be basic components to run ResNet-50, you can try it out on one GPU. Now, this could be a lot easier just going straight into the `data_parallel_model` and all of its optimizations, but to help explain the components needed and to build the helper functions to run `GPU_Parallelize`, we may as well start simple! 
+# Now that you've established the basic components to run ResNet-50, you can try it out on one GPU. Now, this could be a lot easier just going straight into the `data_parallel_model` and all of its optimizations, but to help explain the components needed and to build the helper functions to run `GPU_Parallelize`, we may as well start simple! 
 # 
 # If you're paying attention you might be wondering about the `gpus` array we made in the config and how that might throw things off. Also, when we looked at the config earlier you may have updated `gpus[0]` to have more than one GPU. That's fine. We can leave it like that for the next part because we will force our script to use just one GPU.
 # 
@@ -474,7 +479,7 @@ for epoch in range(num_epochs):
 # 
 # You get bonus points if you can say "getting parallelized" three times fast without messing up. You just saw some interesting numbers in the last step. Take note of those and see how things scale up when we use more GPUs. 
 # 
-# We're going to use Caffe2's `data_parallel_model` and its function called `Parallelize_GPU` to help us accomplish this task. The task to setup the parallel model, not to say it fast. Here's the spec on `Parallelize_GPU`:
+# We're going to use Caffe2's `data_parallel_model` and its function called `Parallelize_GPU` to help us accomplish this task. The task is to setup the parallel model, not to say it fast. Here's the spec on `Parallelize_GPU`:
 # 
 # ```python
 # Parallelize_GPU(
@@ -501,7 +506,7 @@ for epoch in range(num_epochs):
 # 
 # For the `param_update_builder_fun` we need a function to adjust the weights as the network runs. You already did this in Part 6! 
 # 
-# Let's stub out the `Parallelize_GPU` function with the parameters that we're going to use. Recall that in the setup we  `from caffe2.python import data_parallel_model as dpm`, so we can use `dpm.Parallelize_GPU()` to access the `Parallelize_GPU` function. First we'll stub out the three other functions to that this expects, add the params based on these functions names and our gpu count, then come back to the lab cell below to populate them with some logic and test them. Below is a reference implementation:
+# Let's stub out the `Parallelize_GPU` function with the parameters that we're going to use. Recall that in the setup we  `from caffe2.python import data_parallel_model as dpm`, so we can use `dpm.Parallelize_GPU()` to access the `Parallelize_GPU` function. First we'll stub out the three other functions that this expects, add the params based on these functions names and our gpu count, then come back to the lab cell below to populate them with some logic and test them. Below is a reference implementation:
 # 
 # ```python
 # dpm.Parallelize_GPU(
@@ -515,7 +520,7 @@ for epoch in range(num_epochs):
 # ```
 # 
 # ### Task: Make Your Helper Functions
-# You already did this the Parts 4 through 6 and in Part 7 you had to deal with gradient optimizations that are baked into `Parallelize_GPU`. The three helper function stubs below can be eliminated or if you want to see everything together go ahead and copy the functions there, so you can run them from the work area block below.
+# You already did this in Parts 4 through 6, and in Part 7 you had to deal with gradient optimizations that are baked into `Parallelize_GPU`. The three helper function stubs below can be eliminated, or if you want to see everything together go ahead and copy the functions there so you can run them.
 # 
 # ### Task: Parallelize!
 # Now you can stub out a call to `Parallelize_GPU`. Use the reference implementation above if you get stuck.
