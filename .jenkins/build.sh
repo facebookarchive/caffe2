@@ -86,9 +86,6 @@ INSTALL_PREFIX="/usr/local"
 CMAKE_ARGS+=("-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}")
 
 # Install ONNX
-echo $USER
-echo "$(ls -lah /usr/local)"
-echo "$(ls -lah /usr/local/lib/python2.7)"
 "$PIP" install "${ROOT_DIR}/third_party/onnx"
 
 case "${BUILD_ENVIRONMENT}" in
@@ -135,7 +132,7 @@ cd ./build
 ${CMAKE_BINARY} "${ROOT_DIR}" ${CMAKE_ARGS[*]} "$@"
 
 # Build
-sudo "PATH=$PATH" make "-j$(nproc)" install
+make "-j$(nproc)" install
 
 # Now that we've installed Caffe2 libraries into /usr/local/lib, we will need
 # to add that to LD_LIBRARY_PATH
