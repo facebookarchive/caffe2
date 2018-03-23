@@ -53,7 +53,7 @@ bool TryConvertingTensorRawValues(
   }
 
   size_t raw_size = onnx_tensor.raw_data().size();
-  CAFFE_ENFORCE(raw_size % sizeof(T) == 0);
+  CAFFE_ENFORCE_EQ(raw_size % sizeof(T), 0);
 
   size_t num_elements = raw_size / sizeof(T);
   const void* src_ptr = static_cast<const void*>(onnx_tensor.raw_data().data());
@@ -122,9 +122,7 @@ U LookUpWithDefault(
 
 const ::ONNX_NAMESPACE::OpSchema& GetOnnxSchema(const std::string& key) {
   const auto* schema = ::ONNX_NAMESPACE::OpSchemaRegistry::Schema(key);
-  if (!schema) {
-    CAFFE_THROW("No ONNX schema registered for '" + key + "'!");
-  }
+  CAFFE_ENFORCE(schema, "No ONNX schema registered for '" + key + "'!");
   return *schema;
 }
 
@@ -187,8 +185,7 @@ void CopyOnnxAttrValueToCaffe2Arg(
   } else if (attr.strings_size()) {
     arg->mutable_strings()->CopyFrom(attr.strings());
   } else {
-    CAFFE_THROW(
-        caffe2::MakeString("Unsupported ONNX attribute: ", attr.name()));
+    CAFFE_THROW("Unsupported ONNX attribute: ", attr.name());
   }
 }
 } // namespace
@@ -380,7 +377,7 @@ Caffe2Backend::get_special_operators() const {
 Caffe2Ops Caffe2Backend::CreateConstant(
     OnnxNode* onnx_node,
     int opset_version) {
-  CAFFE_ENFORCE(onnx_node->node.output_size() == 1);
+  CAFFE_ENFORCE_EQ(onnx_node->node.output_size(), 1);
 
   Caffe2Ops ret;
   auto* c2_op = ret.ops.Add();
@@ -453,7 +450,7 @@ Caffe2Ops Caffe2Backend::CreateConvPoolOpBase(
 
 Caffe2Ops Caffe2Backend::CreateReshape(OnnxNode* onnx_node, int opset_version) {
   auto c2_op = CommonOnnxNodeToCaffe2Ops(onnx_node, opset_version);
-  CAFFE_ENFORCE(c2_op.ops.size() == 1);
+  CAFFE_ENFORCE_EQ(c2_op.ops.size(), 1);
   auto* op = c2_op.ops.Mutable(0);
   op->add_output(DummyName::NewDummyName());
 
@@ -499,10 +496,10 @@ Caffe2Ops Caffe2Backend::CreateGather(OnnxNode* onnx_node, int opset_version) {
   } else if (axis == 1) {
     BuildOperator(c2_op, "BatchGather", inputs, outputs);
   } else {
-    CAFFE_THROW(caffe2::MakeString(
+    CAFFE_THROW(
         "Caffe2 only supports Gather with axis being 1 or 2, ",
         "whereas axis is ",
-        axis));
+        axis);
   }
 
   return ret;
@@ -591,8 +588,7 @@ Caffe2Ops Caffe2Backend::CreatePad(OnnxNode* onnx_node, int opset_version) {
   // Guard the invalid (negative) pads attribute.
   for (const auto i : pads) {
     if (i < 0) {
-      CAFFE_THROW(caffe2::MakeString(
-          "ONNX does not support negative pads in Pad, but get ", str));
+      CAFFE_THROW("ONNX does not support negative pads in Pad, but get ", str);
     }
   }
 
@@ -600,8 +596,8 @@ Caffe2Ops Caffe2Backend::CreatePad(OnnxNode* onnx_node, int opset_version) {
   // non-negative
   if (!(pads.size() == 8 &&
         (pads.Get(0) + pads.Get(1) + pads.Get(4) + pads.Get(5) == 0))) {
-    CAFFE_THROW(caffe2::MakeString(
-        "Caffe2 only supports padding 2D Tensor, whereas padding is ", str));
+    CAFFE_THROW(
+        "Caffe2 only supports padding 2D Tensor, whereas padding is ", str);
   }
 
   // rewrite the padding info
@@ -619,7 +615,7 @@ Caffe2Ops Caffe2Backend::CreatePad(OnnxNode* onnx_node, int opset_version) {
 // 1 output.
 Caffe2Ops Caffe2Backend::CreateConcat(OnnxNode* onnx_node, int opset_version) {
   auto c2_op = CommonOnnxNodeToCaffe2Ops(onnx_node, opset_version);
-  CAFFE_ENFORCE(c2_op.ops.size() == 1);
+  CAFFE_ENFORCE_EQ(c2_op.ops.size(), 1);
   auto* op = c2_op.ops.Mutable(0);
   op->add_output(DummyName::NewDummyName());
 
@@ -650,7 +646,7 @@ Caffe2Ops Caffe2Backend::CreateLogSoftmax(
 
 Caffe2Ops Caffe2Backend::CreateSlice(OnnxNode* onnx_node, int opset_version) {
   auto op_tmp = CommonOnnxNodeToCaffe2Ops(onnx_node, opset_version);
-  CAFFE_ENFORCE(op_tmp.ops.size() == 1);
+  CAFFE_ENFORCE_EQ(op_tmp.ops.size(), 1);
   auto* op = op_tmp.ops.Mutable(0);
   std::unordered_map<std::string, caffe2::Argument*> args;
   for (auto& arg : *op->mutable_arg()) {
@@ -692,7 +688,7 @@ Caffe2Ops Caffe2Backend::CreateSlice(OnnxNode* onnx_node, int opset_version) {
     }
   }
 
-  CAFFE_ENFORCE(op->input_size() >= 1);
+  CAFFE_ENFORCE_GE(op->input_size(), 1);
   auto data = op->input(0);
   auto shape_tensor = DummyName::NewDummyName();
   Caffe2Ops ret;
@@ -816,7 +812,7 @@ Caffe2Ops Caffe2Backend::CreateMatMul(OnnxNode* onnx_node, int opset_version) {
   }
 
   auto c2_op = CommonOnnxNodeToCaffe2Ops(onnx_node, opset_version);
-  CAFFE_ENFORCE(c2_op.ops.size() == 1);
+  CAFFE_ENFORCE_EQ(c2_op.ops.size(), 1);
   auto* op = c2_op.ops.Mutable(0);
   auto* broadcast_arg = op->add_arg();
   broadcast_arg->set_name("broadcast");
@@ -875,19 +871,19 @@ Caffe2Ops Caffe2Backend::CommonOnnxNodeToCaffe2Ops(
   auto broken_version = LookUpWithDefault(
       get_broken_operators(), onnx_op_type, std::numeric_limits<int>::max());
   if (broken_version <= opset_version) {
-    CAFFE_THROW(caffe2::MakeString(
+    CAFFE_THROW(
         "Don't know how to translate op ",
         onnx_op_type,
         " in ONNX operator set v",
         opset_version,
         " (I only support prior to v",
-        broken_version));
+        broken_version);
   }
   c2_op->set_type(
       LookUpWithDefault(get_renamed_operators(), onnx_op_type, onnx_op_type));
   if (!IsOperator(c2_op->type())) {
     CAFFE_THROW(
-        caffe2::MakeString("Don't know how to translate op ", onnx_op_type));
+        "Don't know how to translate op ", onnx_op_type);
   }
 
   auto mapper = [&, this](const std::string& k) {
@@ -991,10 +987,10 @@ void Caffe2Backend::OnnxToCaffe2(
           }
           net->mutable_external_input()->MergeFrom(c2ops.interface_blobs);
         } else {
-          CAFFE_THROW(caffe2::MakeString(
+          CAFFE_THROW(
               "Don't know how to convert ",
               node.op_type(),
-              " without enough extra preconverted string"));
+              " without enough extra preconverted string");
         }
       } else {
         auto onnx_node = OnnxNode(node);
@@ -1158,7 +1154,7 @@ void Caffe2Backend::BuildTensorFillingOp(
     strings->CopyFrom(onnx_tensor.string_data());
   } else {
     CAFFE_THROW(
-        "unrecognized tensor type: " +
+        "unrecognized tensor type: ",
         TensorProto::DataType_Name(onnx_tensor.data_type()));
   }
 
