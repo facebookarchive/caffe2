@@ -22,24 +22,25 @@
 #include <string>
 #include <unordered_set>
 
-namespace caffe2 { namespace onnx {
+namespace caffe2 {
+namespace onnx {
 
-using ONNX_NAMESPACE::NodeProto;
-using ONNX_NAMESPACE::AttributeProto;
+using ::ONNX_NAMESPACE::AttributeProto;
+using ::ONNX_NAMESPACE::NodeProto;
 
 class DummyName {
-  public:
-    static std::string NewDummyName();
+ public:
+  static std::string NewDummyName();
 
-    static void Reset(const std::unordered_set<std::string>& used_names);
+  static void Reset(const std::unordered_set<std::string>& used_names);
 
-    static void AddName(const std::string& new_used) {
-      get_used_names().insert(new_used);
-    }
+  static void AddName(const std::string& new_used) {
+    get_used_names().insert(new_used);
+  }
 
-   private:
-     static std::unordered_set<std::string>& get_used_names();
-     static size_t counter_;
+ private:
+  static std::unordered_set<std::string>& get_used_names();
+  static size_t counter_;
 };
 
 inline AttributeProto MakeAttribute(
@@ -47,16 +48,14 @@ inline AttributeProto MakeAttribute(
     const std::vector<int64_t>& vals) {
   AttributeProto attr;
   attr.set_name(name);
-  for (const auto v: vals) {
-   attr.add_ints(v);
+  for (const auto v : vals) {
+    attr.add_ints(v);
   }
   attr.set_type(AttributeProto::INTS);
   return attr;
 }
 
-inline AttributeProto MakeAttribute(
-    const std::string& name,
-    int64_t val) {
+inline AttributeProto MakeAttribute(const std::string& name, int64_t val) {
   AttributeProto attr;
   attr.set_name(name);
   attr.set_i(val);
@@ -89,4 +88,5 @@ inline NodeProto MakeNode(
   return MakeNode(type, inputs, outputs, {}, name);
 }
 
-}}
+} // namespace onnx
+} // namespace caffe2

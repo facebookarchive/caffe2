@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "onnx_exporter.h"
 #include "caffe2/core/logging.h"
+#include "caffe2/onnx/onnx_exporter.h"
 #include "caffe2/onnx/helper.h"
 #include "caffe2/proto/caffe2_legacy.pb.h"
 #include "caffe2/utils/map_utils.h"

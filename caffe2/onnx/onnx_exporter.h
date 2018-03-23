@@ -28,11 +28,11 @@ namespace caffe2 {
 namespace onnx {
 
 namespace {
-using ONNX_NAMESPACE::AttributeProto;
-using ONNX_NAMESPACE::GraphProto;
-using ONNX_NAMESPACE::ModelProto;
-using ONNX_NAMESPACE::NodeProto;
-using ONNX_NAMESPACE::TensorProto;
+using ::ONNX_NAMESPACE::AttributeProto;
+using ::ONNX_NAMESPACE::GraphProto;
+using ::ONNX_NAMESPACE::ModelProto;
+using ::ONNX_NAMESPACE::NodeProto;
+using ::ONNX_NAMESPACE::TensorProto;
 using ConvertedResult =
     std::pair<std::vector<NodeProto>, std::vector<TensorProto>>;
 } // namespace
