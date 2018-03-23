@@ -87,13 +87,7 @@ class Caffe2Frontend(object):
         'Transpose': {'axes': 'perm'},
     }
 
-    _special_operators = {
-        'ChannelShuffle': '_create_channel_shuffle',
-        'Concat': '_create_concat',
-        'LRN': '_create_lrn',
-        'Slice': '_create_slice',
-        'Reshape': '_create_reshape',
-    }
+    _special_operators = {}
 
     @classmethod
     def _common_caffe2_arg_to_onnx_attr(cls, op_def, arg):
@@ -146,112 +140,6 @@ class Caffe2Frontend(object):
         node_def.attribute.extend(attrs)
 
         return node_def
-
-    @classmethod
-    def _create_concat(cls, op_def, shapes):
-        node = cls._common_caffe2_op_to_onnx_node(op_def, shapes)
-        if len(node.output) == 2:
-            del node.output[1]
-        explicit_axis = any(arg.name == 'axis' for arg in op_def.arg)
-        if not explicit_axis:
-            node.attribute.extend([helper.make_attribute('axis', 1)])
-        return node
-
-    @classmethod
-    def _create_shape_tensor(cls, shape):
-        return make_tensor(name=dummy_name(),
-                           data_type=TensorProto.INT64,
-                           dims=[len(shape)],
-                           vals=np.asarray(shape, dtype=np.int64).tobytes(),
-                           raw=True)
-
-    @classmethod
-    def _create_reshape(cls, op_def, shapes):
-        node = cls._common_caffe2_op_to_onnx_node(op_def, shapes)
-        const_tensors = []
-
-        attrs = {attr.name: attr for attr in node.attribute}
-        if 'shape' in attrs:
-            shape = attrs.pop('shape').ints
-            shape_tensor = cls._create_shape_tensor(shape)
-            node.input.append(shape_tensor.name)
-            const_tensors.append(shape_tensor)
-        node.attribute[:] = attrs.values()
-
-        if len(node.output) == 2:
-            del node.output[1]
-        return node, const_tensors
-
-    @classmethod
-    def _create_lrn(cls, op_def, shapes):
-        node = cls._common_caffe2_op_to_onnx_node(op_def, shapes)
-        if len(node.output) == 2:
-            del node.output[1]
-        return node
-
-    @classmethod
-    def _create_slice(cls, op_def, shapes):
-        if len(op_def.input) > 1:
-            raise Unsupported(
-                'ONNX Slice operator does not support dynamic slice.')
-        node = cls._common_caffe2_op_to_onnx_node(op_def, shapes)
-        attrs = {attr.name: attr for attr in node.attribute}
-        ndims = len(attrs['starts'].ints)
-
-        node.attribute.extend([helper.make_attribute('axes', range(ndims))])
-
-        data, = node.input
-        shape = shapes[data]
-
-        ends = attrs['ends'].ints
-        for i, end in enumerate(ends):
-            if end >= 0:
-                continue
-            if end == -1:
-                end = shape[i]
-            else:
-                end = end + 1
-            ends[i] = end
-
-        return node
-
-    @classmethod
-    def _create_channel_shuffle(cls, op_def, shapes):
-        x, = op_def.input
-        y, = op_def.output
-        n, c, h, w = shapes[x]
-        args = {arg.name: arg for arg in op_def.arg}
-        g = args['group'].i
-        assert c % g == 0
-
-        nodes = []
-        const_tensors = []
-
-        tmp1 = dummy_name()
-        shape_tensor = cls._create_shape_tensor([n, g, c // g, h, w])
-        const_tensors.append(shape_tensor)
-        nodes.append(helper.make_node(
-            'Reshape',
-            inputs=[x, shape_tensor.name],
-            outputs=[tmp1],
-        ))
-
-        tmp2 = dummy_name()
-        nodes.append(helper.make_node(
-            'Transpose',
-            inputs=[tmp1],
-            outputs=[tmp2],
-            perm=[0, 2, 1, 3, 4],
-        ))
-
-        shape_tensor = cls._create_shape_tensor([n, c, h, w])
-        const_tensors.append(shape_tensor)
-        nodes.append(helper.make_node(
-            'Reshape',
-            inputs=[tmp2, shape_tensor.name],
-            outputs=[y],
-        ))
-        return nodes, const_tensors
 
     @classmethod
     def caffe2_op_to_onnx_node(cls, op_def, shapes):

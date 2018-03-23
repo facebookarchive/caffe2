@@ -149,6 +149,11 @@ OnnxExporter::get_special_operators() const {
         {"MaxPool", &OnnxExporter::CreateConvPoolNodes},
         {"AveragePool", &OnnxExporter::CreateConvPoolNodes},
         {"FC", &OnnxExporter::CreateGemmNodes},
+        {"Concat", &OnnxExporter::CreateConcatNodes},
+        {"LRN", &OnnxExporter::CreateLrnNodes},
+        {"Reshape", &OnnxExporter::CreateReshapeNodes},
+        {"Slice", &OnnxExporter::CreateSliceNodes},
+        {"ChannelShuffle",  &OnnxExporter::CreateChannelShuffleNodes}
       };
   return kSpecialOperators;
 }
@@ -340,12 +345,177 @@ ConvertedResult OnnxExporter::CreateConvPoolNodes(
   return result;
 }
 
+ConvertedResult OnnxExporter::CreateLrnNodes(
+    const caffe2::OperatorDef& def,
+    const std::unordered_map<std::string, caffe2::TensorShape>& shapes) {
+  auto result = CommonCaffe2OpToOnnxNodes(def);
+  auto& nodes = result.first;
+
+  CAFFE_ENFORCE_EQ(nodes.size(), 1);
+  auto& node = nodes.back();
+  if (node.output_size() == 2) {
+    node.mutable_output()->RemoveLast();
+  }
+
+  return result;
+}
+
+ConvertedResult OnnxExporter::CreateConcatNodes(
+    const caffe2::OperatorDef& def,
+    const std::unordered_map<std::string, caffe2::TensorShape>& shapes) {
+  auto result = CommonCaffe2OpToOnnxNodes(def);
+  auto& nodes = result.first;
+
+  CAFFE_ENFORCE_EQ(nodes.size(), 1);
+  auto& node = nodes.back();
+  if (node.output_size() == 2) {
+    node.mutable_output()->RemoveLast();
+  }
+
+  bool explicit_axis = false;
+  for (const auto& a: def.arg()) {
+    if (a.name() == "axis") {
+      explicit_axis = true;
+      break;
+    }
+  }
+  if (!explicit_axis) {
+    node.add_attribute()->CopyFrom(MakeAttribute("axis", 1L));
+  }
+
+  return result;
+}
+
+ConvertedResult OnnxExporter::CreateChannelShuffleNodes(
+    const caffe2::OperatorDef& def,
+    const std::unordered_map<std::string, caffe2::TensorShape>& shapes) {
+  const auto& x = def.input(0);
+  const auto& y = def.output(0);
+  const auto& x_shape = shapes.at(x);
+  CAFFE_ENFORCE_EQ(
+      x_shape.dims().size(),
+      4,
+      "Input shape of ChannelShuffle needs to be in NCHW format");
+  auto n = x_shape.dims(0);
+  auto c = x_shape.dims(1);
+  auto h = x_shape.dims(2);
+  auto w = x_shape.dims(3);
+  int64_t g = 0;
+  for (const auto& arg: def.arg()) {
+    if (arg.name() == "group") {
+      g = arg.i();
+      break;
+    }
+  }
+  CAFFE_ENFORCE(g && c % g == 0);
+  ConvertedResult result;
+  auto& nodes = result.first;
+  auto& const_tensors = result.second;
+
+  const auto tmp1 = DummyName::NewDummyName();
+  std::vector<int64_t> dims = {n, g, c / g, h, w};
+  const_tensors.emplace_back(CreateOnnxShapeTensor(dims));
+  nodes.emplace_back(
+      MakeNode("Reshape", {x, const_tensors.back().name()}, {tmp1}));
+
+  const auto tmp2 = DummyName::NewDummyName();
+  dims = {0, 2, 1, 3, 4};
+  nodes.emplace_back(
+      MakeNode("Transpose", {tmp1}, {tmp2}, {MakeAttribute("perm", dims)}));
+
+  dims = {n, c, h, w};
+  const_tensors.emplace_back(CreateOnnxShapeTensor(dims));
+  nodes.emplace_back(
+      MakeNode("Reshape", {tmp2, const_tensors.back().name()}, {y}));
+
+  return result;
+}
+
+ConvertedResult OnnxExporter::CreateSliceNodes(
+    const caffe2::OperatorDef& def,
+    const std::unordered_map<std::string, caffe2::TensorShape>& shapes) {
+  CAFFE_ENFORCE_EQ(
+      def.input_size(),
+      1,
+      "ONNX Slice operator does not support dynamic slice.");
+  auto result = CommonCaffe2OpToOnnxNodes(def);
+  auto& nodes = result.first;
+  CAFFE_ENFORCE_EQ(nodes.size(), 1);
+  auto& node = nodes.back();
+  const auto& shape = shapes.at(node.input(0));
+
+  std::vector<int64_t> dims;
+  for (auto& attr: *node.mutable_attribute()) {
+    if (attr.name() == "starts") {
+      auto len = attr.ints_size();
+      if (len) {
+        dims.resize(len);
+        std::iota(dims.begin(), dims.end(), 0);
+      }
+    } else if (attr.name() == "ends") {
+      for (int i = 0; i < attr.ints_size(); ++i) {
+        auto end = attr.ints(i);
+        if (end >=0) {
+          continue;
+        }
+        if (end == -1) {
+          end = shape.dims(i);
+        } else {
+          ++end;
+        }
+        attr.set_ints(i, end);
+      }
+    }
+  }
+  if (!dims.empty()) {
+    node.add_attribute()->CopyFrom(MakeAttribute("axes", dims));
+  }
+
+  return result;
+}
+
+ConvertedResult OnnxExporter::CreateReshapeNodes(
+    const caffe2::OperatorDef& def,
+    const std::unordered_map<std::string, caffe2::TensorShape>& shapes) {
+  auto result = CommonCaffe2OpToOnnxNodes(def);
+  auto& nodes = result.first;
+  auto& const_tensors = result.second;
+  CAFFE_ENFORCE_EQ(nodes.size(), 1);
+  auto& node = nodes.back();
+
+  int i = 0;
+  int attr_size = node.attribute_size();
+  for (; i < attr_size; ++i) {
+    const auto& attr = node.attribute(i);
+    if (attr.name() == "shape") {
+      std::vector<int64_t> shape;
+      for (const auto k: attr.ints()) {
+        shape.push_back(k);
+      }
+      const_tensors.emplace_back(CreateOnnxShapeTensor(shape));
+      node.add_input(const_tensors.back().name());
+      break;
+    }
+  }
+  if (i != attr_size) {
+    if (i != attr_size - 1) {
+      node.mutable_attribute()->SwapElements(i, attr_size - 1);
+    }
+    node.mutable_attribute()->RemoveLast();
+  }
+
+  if (node.output_size() == 2) {
+    node.mutable_output()->RemoveLast();
+  }
+
+  return result;
+}
 
 ConvertedResult OnnxExporter::CreateGemmNodes(
     const caffe2::OperatorDef& def,
     const std::unordered_map<std::string, caffe2::TensorShape>& shapes) {
-  CAFFE_ENFORCE(def.input_size() == 3);
-  CAFFE_ENFORCE(def.output_size() >= 1);
+  CAFFE_ENFORCE_EQ(def.input_size(), 3);
+  CAFFE_ENFORCE_GE(def.output_size(), 1);
   auto x = def.input(0);
   auto w = def.input(1);
   const auto& b = def.input(2);

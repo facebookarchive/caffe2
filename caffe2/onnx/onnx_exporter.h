@@ -58,6 +58,26 @@ class OnnxExporter {
       const caffe2::OperatorDef& def,
       const std::unordered_map<std::string, caffe2::TensorShape>& shapes);
 
+  ConvertedResult CreateReshapeNodes(
+      const caffe2::OperatorDef& def,
+      const std::unordered_map<std::string, caffe2::TensorShape>& shapes);
+
+  ConvertedResult CreateSliceNodes(
+      const caffe2::OperatorDef& def,
+      const std::unordered_map<std::string, caffe2::TensorShape>& shapes);
+
+  ConvertedResult CreateChannelShuffleNodes(
+      const caffe2::OperatorDef& def,
+      const std::unordered_map<std::string, caffe2::TensorShape>& shapes);
+
+  ConvertedResult CreateConcatNodes(
+      const caffe2::OperatorDef& def,
+      const std::unordered_map<std::string, caffe2::TensorShape>& shapes);
+
+  ConvertedResult CreateLrnNodes(
+      const caffe2::OperatorDef& def,
+      const std::unordered_map<std::string, caffe2::TensorShape>& shapes);
+
   // \brief Check black listed arguemnts where we won't pass down when
   // converting to ONNX node
   bool IsBlaskListed(const caffe2::Argument& arg);
