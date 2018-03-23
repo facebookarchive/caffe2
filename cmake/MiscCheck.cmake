@@ -142,6 +142,13 @@ if (CAFFE2_COMPILER_SUPPORTS_AVX2_EXTENSIONS)
 endif()
 cmake_pop_check_state()
 
+# ---[ Checks if compiler supports -fvisibility=hidden
+check_cxx_compiler_flag("-fvisibility=hidden" COMPILER_SUPPORTS_HIDDEN_VISIBILITY)
+check_cxx_compiler_flag("-fvisibility-inlines-hidden" COMPILER_SUPPORTS_HIDDEN_INLINE_VISIBILITY)
+if (${COMPILER_SUPPORTS_HIDDEN_INLINE_VISIBILITY})
+  add_definitions("-fvisibility-inlines-hidden")
+endif()
+
 # ---[ If we are using msvc, set no warning flags
 # Note(jiayq): if you are going to add a warning flag, check if this is
 # totally necessary, and only add when you see fit. If it is needed due to
@@ -252,6 +259,8 @@ if (MSVC)
   # We know that VS2017 needs the new FindCUDA functionality, so we will
   # simply enable it for the whole Windows build.
   set(CAFFE2_CMAKE_USE_LOCAL_FINDCUDA ON)
+elseif (${CMAKE_VERSION} VERSION_LESS 3.7 AND ${USE_CUDA})
+  set(CAFFE2_CMAKE_USE_LOCAL_FINDCUDA ON)  
 endif()
 
 if (${CAFFE2_CMAKE_USE_LOCAL_FINDCUDA})
