@@ -13,6 +13,7 @@ var searchData=
   ['weightedsumreducerdef',['WeightedSumReducerDef',['../structcaffe2_1_1_weighted_sum_reducer_def.html',1,'caffe2']]],
   ['weightedsumreducergradient',['WeightedSumReducerGradient',['../classcaffe2_1_1_weighted_sum_reducer_gradient.html',1,'caffe2']]],
   ['whereop',['WhereOp',['../classcaffe2_1_1_where_op.html',1,'caffe2']]],
+  ['while',['While',['../classnom_1_1repr_1_1_while.html',1,'nom::repr']]],
   ['whileop',['WhileOp',['../classcaffe2_1_1_while_op.html',1,'caffe2']]],
   ['withdefaultconstructor',['WithDefaultConstructor',['../structcaffe2_1_1_with_default_constructor.html',1,'caffe2']]],
   ['withoutbroadcast',['WithoutBroadcast',['../structcaffe2_1_1_without_broadcast.html',1,'caffe2']]],

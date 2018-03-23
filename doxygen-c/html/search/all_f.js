@@ -22,6 +22,7 @@ var searchData=
   ['perfnetobserver',['PerfNetObserver',['../classcaffe2_1_1_perf_net_observer.html',1,'caffe2']]],
   ['perfoperatorobserver',['PerfOperatorObserver',['../classcaffe2_1_1_perf_operator_observer.html',1,'caffe2']]],
   ['perplexityop',['PerplexityOp',['../classcaffe2_1_1_perplexity_op.html',1,'caffe2']]],
+  ['phi',['Phi',['../classnom_1_1repr_1_1_phi.html',1,'nom::repr']]],
   ['piecewiselineartransformop',['PiecewiseLinearTransformOp',['../classcaffe2_1_1_piecewise_linear_transform_op.html',1,'caffe2']]],
   ['pinnedcpuallocator',['PinnedCPUAllocator',['../structcaffe2_1_1_pinned_c_p_u_allocator.html',1,'caffe2']]],
   ['pixelformat',['pixelFormat',['../classcaffe2_1_1_params.html#a73390be3fa87f9a87aebee5e93fd9c36',1,'caffe2::Params']]],

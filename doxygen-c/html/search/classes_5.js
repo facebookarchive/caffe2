@@ -1,5 +1,7 @@
 var searchData=
 [
+  ['edge',['Edge',['../classnom_1_1_edge.html',1,'nom']]],
+  ['edgewrapper',['EdgeWrapper',['../struct_graph_wrapper_1_1_edge_wrapper.html',1,'GraphWrapper']]],
   ['eigenconvop',['EigenConvOp',['../classcaffe2_1_1_eigen_conv_op.html',1,'caffe2']]],
   ['eigenpowfunctor',['EigenPowFunctor',['../structcaffe2_1_1_eigen_pow_functor.html',1,'caffe2']]],
   ['elementwiselineargradientop',['ElementwiseLinearGradientOp',['../classcaffe2_1_1_elementwise_linear_gradient_op.html',1,'caffe2']]],

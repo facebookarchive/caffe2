@@ -3,6 +3,7 @@ var searchData=
   ['baseinputaccessor',['BaseInputAccessor',['../classcaffe2_1_1_base_input_accessor.html',1,'caffe2']]],
   ['basereducer',['BaseReducer',['../classcaffe2_1_1_base_reducer.html',1,'caffe2']]],
   ['basereducergradient',['BaseReducerGradient',['../classcaffe2_1_1_base_reducer_gradient.html',1,'caffe2']]],
+  ['basicblock',['BasicBlock',['../classnom_1_1repr_1_1_basic_block.html',1,'nom::repr']]],
   ['batchboxcoxop',['BatchBoxCoxOp',['../classcaffe2_1_1_batch_box_cox_op.html',1,'caffe2']]],
   ['batchbucketonehotop',['BatchBucketOneHotOp',['../classcaffe2_1_1_batch_bucket_one_hot_op.html',1,'caffe2']]],
   ['batchdensetosparseop',['BatchDenseToSparseOp',['../classcaffe2_1_1_batch_dense_to_sparse_op.html',1,'caffe2']]],
@@ -31,6 +32,7 @@ var searchData=
   ['booleanmaskop',['BooleanMaskOp',['../classcaffe2_1_1_boolean_mask_op.html',1,'caffe2']]],
   ['booleanunmaskop',['BooleanUnmaskOp',['../classcaffe2_1_1_boolean_unmask_op.html',1,'caffe2']]],
   ['boxwithnmslimitop',['BoxWithNMSLimitOp',['../classcaffe2_1_1_box_with_n_m_s_limit_op.html',1,'caffe2']]],
+  ['branch',['Branch',['../classnom_1_1repr_1_1_branch.html',1,'nom::repr']]],
   ['brgnchwctopackedint8bgrastylizerdeprocessop',['BRGNCHWCToPackedInt8BGRAStylizerDeprocessOp',['../classcaffe2_1_1_b_r_g_n_c_h_w_c_to_packed_int8_b_g_r_a_stylizer_deprocess_op.html',1,'caffe2']]],
   ['bufferedtokenizer',['BufferedTokenizer',['../classcaffe2_1_1_buffered_tokenizer.html',1,'caffe2']]]
 ];

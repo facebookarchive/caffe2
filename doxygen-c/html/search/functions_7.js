@@ -6,6 +6,7 @@ var searchData=
   ['getcudapeeraccesspattern',['GetCudaPeerAccessPattern',['../namespacecaffe2.html#a446da244aca2a8c6808963912cd5cdfc',1,'caffe2']]],
   ['getcudnntensorformat',['GetCudnnTensorFormat',['../namespacecaffe2.html#a87a6f5f6d9bed583a8e4db51d96c854b',1,'caffe2']]],
   ['getdeviceproperty',['GetDeviceProperty',['../namespacecaffe2.html#ad461b286b4d2322c82a6f43fa00c8034',1,'caffe2']]],
+  ['getedge',['getEdge',['../classnom_1_1_graph.html#adffee3cd40116e62950b4b2dc5e734ed',1,'nom::Graph']]],
   ['getgpuidforpointer',['GetGPUIDForPointer',['../namespacecaffe2.html#a47fded6ff24bcf074e5c78701ebe70f2',1,'caffe2']]],
   ['getgradientforop',['GetGradientForOp',['../namespacecaffe2.html#a7346efe7dfdcad2d65571bde97b3fc04',1,'caffe2']]],
   ['getmutable',['GetMutable',['../classcaffe2_1_1_blob.html#a355cff5bfcdfce83ac53ce2a2eef9ee4',1,'caffe2::Blob']]],

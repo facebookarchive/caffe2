@@ -12,6 +12,7 @@ var searchData=
   ['onnxattributes',['OnnxAttributes',['../classcaffe2_1_1onnx_1_1_onnx_attributes.html',1,'caffe2::onnx']]],
   ['onnxnode',['OnnxNode',['../structcaffe2_1_1onnx_1_1_onnx_node.html',1,'caffe2::onnx']]],
   ['onnxwhileop',['ONNXWhileOp',['../classcaffe2_1_1_o_n_n_x_while_op.html',1,'caffe2']]],
+  ['opcode',['Opcode',['../classnom_1_1repr_1_1_instruction.html#ad127bfb2f70e11e2b447d3fe1a6ea862',1,'nom::repr::Instruction']]],
   ['opengladdop',['OpenGLAddOp',['../classcaffe2_1_1_open_g_l_add_op.html',1,'caffe2']]],
   ['openglconcatop',['OpenGLConcatOp',['../classcaffe2_1_1_open_g_l_concat_op.html',1,'caffe2']]],
   ['openglconvop',['OpenGLConvOp',['../classcaffe2_1_1_open_g_l_conv_op.html',1,'caffe2']]],

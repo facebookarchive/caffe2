@@ -7,9 +7,10 @@ var indexSectionsWithContent =
   4: "_abcdefghiklmnopqrstuvw",
   5: "dfst",
   6: "acdeu",
-  7: "fopr",
+  7: "fnopr",
   8: "a",
-  9: "n"
+  9: "n",
+  10: "b"
 };
 
 var indexSectionNames =
@@ -23,7 +24,8 @@ var indexSectionNames =
   6: "typedefs",
   7: "enums",
   8: "enumvalues",
-  9: "groups"
+  9: "groups",
+  10: "pages"
 };
 
 var indexSectionLabels =
@@ -37,6 +39,7 @@ var indexSectionLabels =
   6: "Typedefs",
   7: "Enumerations",
   8: "Enumerator",
-  9: "Modules"
+  9: "Modules",
+  10: "Pages"
 };
 

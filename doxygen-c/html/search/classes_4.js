@@ -3,6 +3,7 @@ var searchData=
   ['dagnet',['DAGNet',['../classcaffe2_1_1_d_a_g_net.html',1,'caffe2']]],
   ['dagnetbase',['DAGNetBase',['../classcaffe2_1_1_d_a_g_net_base.html',1,'caffe2']]],
   ['dagnetstats',['DAGNetStats',['../structcaffe2_1_1_d_a_g_net_base_1_1_d_a_g_net_stats.html',1,'caffe2::DAGNetBase']]],
+  ['data',['Data',['../classnom_1_1repr_1_1_data.html',1,'nom::repr']]],
   ['db',['DB',['../classcaffe2_1_1db_1_1_d_b.html',1,'caffe2::db']]],
   ['dbexistsop',['DBExistsOp',['../classcaffe2_1_1_d_b_exists_op.html',1,'caffe2']]],
   ['dbreader',['DBReader',['../classcaffe2_1_1db_1_1_d_b_reader.html',1,'caffe2::db']]],
@@ -16,10 +17,11 @@ var searchData=
   ['deformconvopbase',['DeformConvOpBase',['../classcaffe2_1_1_deform_conv_op_base.html',1,'caffe2']]],
   ['dequeueblobsop',['DequeueBlobsOp',['../classcaffe2_1_1_dequeue_blobs_op.html',1,'caffe2']]],
   ['dequeuerebatchingqueueop',['DequeueRebatchingQueueOp',['../classcaffe2_1_1_dequeue_rebatching_queue_op.html',1,'caffe2']]],
-  ['descriptor',['descriptor',['../struct_g_l_convolution_1_1descriptor.html',1,'GLConvolution']]],
   ['descriptor',['descriptor',['../struct_g_l_pool_1_1descriptor.html',1,'GLPool']]],
+  ['descriptor',['descriptor',['../struct_g_l_convolution_1_1descriptor.html',1,'GLConvolution']]],
   ['detailedexportedstat',['DetailedExportedStat',['../classcaffe2_1_1_detailed_exported_stat.html',1,'caffe2']]],
   ['device',['Device',['../structcaffe2_1_1onnx_1_1_device.html',1,'caffe2::onnx']]],
+  ['deviceannotation',['DeviceAnnotation',['../classnom_1_1repr_1_1_device_annotation.html',1,'nom::repr']]],
   ['deviceguard',['DeviceGuard',['../classcaffe2_1_1_device_guard.html',1,'caffe2']]],
   ['devicetyperegisterer',['DeviceTypeRegisterer',['../structcaffe2_1_1_device_type_registerer.html',1,'caffe2']]],
   ['diagonalfillop',['DiagonalFillOp',['../classcaffe2_1_1_diagonal_fill_op.html',1,'caffe2']]],
@@ -35,5 +37,6 @@ var searchData=
   ['dotproductwithpaddingop',['DotProductWithPaddingOp',['../classcaffe2_1_1_dot_product_with_padding_op.html',1,'caffe2']]],
   ['dropoutgradientop',['DropoutGradientOp',['../classcaffe2_1_1_dropout_gradient_op.html',1,'caffe2']]],
   ['dropoutop',['DropoutOp',['../classcaffe2_1_1_dropout_op.html',1,'caffe2']]],
-  ['dummyname',['DummyName',['../classcaffe2_1_1onnx_1_1_dummy_name.html',1,'caffe2::onnx']]]
+  ['dummyname',['DummyName',['../classcaffe2_1_1onnx_1_1_dummy_name.html',1,'caffe2::onnx']]],
+  ['dynamicinput',['DynamicInput',['../classnom_1_1repr_1_1_dynamic_input.html',1,'nom::repr']]]
 ];

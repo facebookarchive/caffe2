@@ -14,12 +14,13 @@ var searchData=
   ['weightedsumreducerdef',['WeightedSumReducerDef',['../structcaffe2_1_1_weighted_sum_reducer_def.html',1,'caffe2']]],
   ['weightedsumreducergradient',['WeightedSumReducerGradient',['../classcaffe2_1_1_weighted_sum_reducer_gradient.html',1,'caffe2']]],
   ['whereop',['WhereOp',['../classcaffe2_1_1_where_op.html',1,'caffe2']]],
+  ['while',['While',['../classnom_1_1repr_1_1_while.html',1,'nom::repr']]],
   ['whileop',['WhileOp',['../classcaffe2_1_1_while_op.html',1,'caffe2']]],
   ['withdefaultconstructor',['WithDefaultConstructor',['../structcaffe2_1_1_with_default_constructor.html',1,'caffe2']]],
   ['withoutbroadcast',['WithoutBroadcast',['../structcaffe2_1_1_without_broadcast.html',1,'caffe2']]],
   ['worker',['Worker',['../classcaffe2_1_1_worker.html',1,'caffe2']]],
   ['workerspool',['WorkersPool',['../classcaffe2_1_1_workers_pool.html',1,'caffe2']]],
-  ['workspace',['Workspace',['../classcaffe2_1_1_workspace.html#aef7c97c55ee38fdcf4b2918a6993425b',1,'caffe2::Workspace::Workspace()'],['../classcaffe2_1_1_workspace.html#ab99f20bb1dffde6b560bf6476844ad2b',1,'caffe2::Workspace::Workspace(const string &amp;root_folder)'],['../classcaffe2_1_1_workspace.html#a04fc8bbe51352f1709fe4fa427d95a9b',1,'caffe2::Workspace::Workspace(const Workspace *shared)'],['../classcaffe2_1_1_workspace.html#a7d346429c55c5539078e2d53a2d476aa',1,'caffe2::Workspace::Workspace(const Workspace *shared, const std::unordered_map&lt; string, string &gt; &amp;forwarded_blobs)'],['../classcaffe2_1_1_workspace.html#a98b082669950457a5a31993a42de32b4',1,'caffe2::Workspace::Workspace(const string &amp;root_folder, Workspace *shared)']]],
   ['workspace',['Workspace',['../classcaffe2_1_1_workspace.html',1,'caffe2']]],
+  ['workspace',['Workspace',['../classcaffe2_1_1_workspace.html#aef7c97c55ee38fdcf4b2918a6993425b',1,'caffe2::Workspace::Workspace()'],['../classcaffe2_1_1_workspace.html#ab99f20bb1dffde6b560bf6476844ad2b',1,'caffe2::Workspace::Workspace(const string &amp;root_folder)'],['../classcaffe2_1_1_workspace.html#a04fc8bbe51352f1709fe4fa427d95a9b',1,'caffe2::Workspace::Workspace(const Workspace *shared)'],['../classcaffe2_1_1_workspace.html#a7d346429c55c5539078e2d53a2d476aa',1,'caffe2::Workspace::Workspace(const Workspace *shared, const std::unordered_map&lt; string, string &gt; &amp;forwarded_blobs)'],['../classcaffe2_1_1_workspace.html#a98b082669950457a5a31993a42de32b4',1,'caffe2::Workspace::Workspace(const string &amp;root_folder, Workspace *shared)']]],
   ['workspacestack',['WorkspaceStack',['../classcaffe2_1_1detail_1_1_workspace_stack.html',1,'caffe2::detail']]]
 ];

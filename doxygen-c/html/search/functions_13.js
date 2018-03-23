@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['tarjans',['Tarjans',['../class_tarjans.html#a3f4eaed474177654f5b26c79428dab82',1,'Tarjans']]],
   ['tensor',['Tensor',['../classcaffe2_1_1_tensor.html#a813559c5a8dbcdb7743d333d24f05481',1,'caffe2::Tensor::Tensor()'],['../classcaffe2_1_1_tensor.html#a4033b18347ac94c18f80d7b2a1d2cb16',1,'caffe2::Tensor::Tensor(const vector&lt; TIndex &gt; &amp;dims)'],['../classcaffe2_1_1_tensor.html#a553e23abde50c8573ef0bc467876ebb7',1,'caffe2::Tensor::Tensor(const Tensor&lt; SrcContext &gt; &amp;src, ContextForCopy *context)'],['../classcaffe2_1_1_tensor.html#a43bdfe596b5a6dfcf5232adf9972c5ad',1,'caffe2::Tensor::Tensor(const Tensor&lt; SrcContext &gt; &amp;src)'],['../classcaffe2_1_1_tensor.html#ad17896c358189b7a0ef67fffd62663e9',1,'caffe2::Tensor::Tensor(const vector&lt; TIndex &gt; &amp;dims, const vector&lt; T &gt; &amp;values, Context *context)'],['../classcaffe2_1_1_tensor.html#a02d3a30f2343c0ec0a8af285807ad984',1,'caffe2::Tensor::Tensor(const T &amp;value, Context *context)']]],
   ['tensorcoreavailable',['TensorCoreAvailable',['../namespacecaffe2.html#ac9185fa7304a1a5553a05fee40830c43',1,'caffe2']]],
   ['tensorinferencefunction',['TensorInferenceFunction',['../classcaffe2_1_1_op_schema.html#a77b556c1f29217a499b13cbcc18446c7',1,'caffe2::OpSchema']]],

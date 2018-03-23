@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['paddingcode',['PaddingCode',['../group___neural_networks.html#gab72e9e6263fd5b015bb7f41ec18ce220',1,'NeuralNetworks.h']]],
-  ['patternmatchtype',['PatternMatchType',['../classcaffe2_1_1_transform.html#a2d486da88c71c3e0a1dc552e0d99e791',1,'caffe2::Transform']]],
-  ['preferencecode',['PreferenceCode',['../group___neural_networks.html#ga034380829226e2d980b2a7e63c992f18',1,'NeuralNetworks.h']]]
+  ['opcode',['Opcode',['../classnom_1_1repr_1_1_instruction.html#ad127bfb2f70e11e2b447d3fe1a6ea862',1,'nom::repr::Instruction']]],
+  ['operandcode',['OperandCode',['../group___neural_networks.html#gaf06d1affd33f3bc698d0c04eceb23298',1,'NeuralNetworks.h']]],
+  ['operationcode',['OperationCode',['../group___neural_networks.html#gaabbe492c60331b13038e39d4207940e0',1,'NeuralNetworks.h']]]
 ];

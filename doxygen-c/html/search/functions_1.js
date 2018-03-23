@@ -3,6 +3,8 @@ var searchData=
   ['add',['add',['../classcaffe2_1_1_stat_registry.html#afb8511c240761776463076b75bd67aba',1,'caffe2::StatRegistry']]],
   ['addblobmapping',['AddBlobMapping',['../classcaffe2_1_1_workspace.html#aba6da83107180ddafe0e8bed95f1ec48',1,'caffe2::Workspace']]],
   ['addgradientinputaccumulationops',['AddGradientInputAccumulationOps',['../classcaffe2_1_1_recurrent_network_gradient_op.html#a94f76361aa9eccfdc955851c5502d4b8',1,'caffe2::RecurrentNetworkGradientOp']]],
+  ['addinedge',['addInEdge',['../classnom_1_1_node.html#a679cf019e94815d1df7b1f5f1ebc08ac',1,'nom::Node']]],
+  ['addoutedge',['addOutEdge',['../classnom_1_1_node.html#acdca299f7bd5b87762c1dc313608a3df',1,'nom::Node']]],
   ['analyzeops',['AnalyzeOps',['../classcaffe2_1_1_c_u_d_a_recurrent_network_executor.html#a46d687e8be704d49b4a67e8ef089565b',1,'caffe2::CUDARecurrentNetworkExecutor']]],
   ['aneuralnetworkscompilation_5fcreate',['ANeuralNetworksCompilation_create',['../group___neural_networks.html#ga10451d74cade530ceb163a2d6f7508f0',1,'NeuralNetworks.h']]],
   ['aneuralnetworkscompilation_5ffinish',['ANeuralNetworksCompilation_finish',['../group___neural_networks.html#gaa9fe0549c392bd3cfdbfc05182679864',1,'NeuralNetworks.h']]],

@@ -43,6 +43,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </script>
   <div id="navrow1" class="tabs">
     <ul class="tablist">
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -3647,6 +3648,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>CheckInitializedMPI</
 <tr class="memitem:a411386bd927eaf6efde8e598a35a79cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a411386bd927eaf6efde8e598a35a79cb"></a>
 element wise DOC&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;input&quot;,&quot;Input tensor&quot;).Output(0</td></tr>
 <tr class="separator:a411386bd927eaf6efde8e598a35a79cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac40ff05e282974a4623b30d7b81b200"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac40ff05e282974a4623b30d7b81b200"></a>
+element wise DOC The absolute value of the input tensor computed element wise&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Abs&quot;)</td></tr>
+<tr class="separator:aac40ff05e282974a4623b30d7b81b200"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf5b6698cbdefdc707ad876a1cf28b34"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf5b6698cbdefdc707ad876a1cf28b34"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (AbsGradient).NumInputs(2).NumOutputs(1).IdenticalTypeAndShape()</td></tr>
 <tr class="separator:acf5b6698cbdefdc707ad876a1cf28b34"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4289,6 +4293,9 @@ has&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> (M x C x kH x
 <tr class="memitem:a942109e38e9e63942f0974a34ab25e3f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a942109e38e9e63942f0974a34ab25e3f"></a>
 has where C is the number of and kH and kW are the height and width of the kernel&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (2,&quot;bias&quot;,&quot;The 1D bias blob that is added through the convolution;&quot;&quot;has size (C). Optional, if not passed, will treat it as all 0.&quot;).Output(0</td></tr>
 <tr class="separator:a942109e38e9e63942f0974a34ab25e3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a095a1e0adc7c3b9cc773235b374a609b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a095a1e0adc7c3b9cc773235b374a609b"></a>
+has where C is the number of and kH and kW are the height and width of the kernel Output data blob that contains the result of the transposed convolution The output dimensions are functions of the kernel stride and pad lengths&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;ConvTranspose&quot;)</td></tr>
+<tr class="separator:a095a1e0adc7c3b9cc773235b374a609b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1f8e8432ee0a969ed41eecea44dd07a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f8e8432ee0a969ed41eecea44dd07a3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CUDNN_OPERATOR</b> (ConvTranspose, <a class="el" href="classcaffe2_1_1_cudnn_conv_transpose_op.html">CudnnConvTransposeOp</a>&lt; float &gt;)</td></tr>
 <tr class="separator:a1f8e8432ee0a969ed41eecea44dd07a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4672,6 +4679,9 @@ default the ratio of random dropout&#160;</td><td class="memItemRight" valign="b
 <tr class="memitem:ab8288bc3130de889a68b2b6886860871"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab8288bc3130de889a68b2b6886860871"></a>
 default the ratio of random dropout The input data as <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;output&quot;,&quot;The output.&quot;).Output(1</td></tr>
 <tr class="separator:ab8288bc3130de889a68b2b6886860871"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41c0e751c8c257f71eed7bc62bbf52b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a41c0e751c8c257f71eed7bc62bbf52b2"></a>
+default the ratio of random dropout The input data as <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a> The output mask If is_test is this output is not filled&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Dropout&quot;)</td></tr>
+<tr class="separator:a41c0e751c8c257f71eed7bc62bbf52b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ee809be80b8cc87ce4358d03159b43a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ee809be80b8cc87ce4358d03159b43a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Dropout, <a class="el" href="classcaffe2_1_1_get_dropout_gradient.html">GetDropoutGradient</a>)</td></tr>
 <tr class="separator:a8ee809be80b8cc87ce4358d03159b43a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4739,9 +4749,9 @@ template&lt;typename Context &gt; </td></tr>
 <tr class="memitem:a3ad0d3b54b10f1c66809f96fb596dbf0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ad0d3b54b10f1c66809f96fb596dbf0"></a>
 std::function&lt; void(<a class="el" href="classcaffe2_1_1_op_schema.html">OpSchema</a> &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><b>MathDocGenerator</b> (const char *name)</td></tr>
 <tr class="separator:a3ad0d3b54b10f1c66809f96fb596dbf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac7943e389460d0a5de99e9fa3df03ba1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac7943e389460d0a5de99e9fa3df03ba1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CostInferenceFunction</b> (PointwiseCostInference&lt; 1 &gt;).IdenticalTypeAndShapeOfInput(0).FillUsing(MathDocGenerator(&quot;addition&quot;))</td></tr>
-<tr class="separator:ac7943e389460d0a5de99e9fa3df03ba1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0296f5ba55466805bd8ffe8a7fcb57f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae0296f5ba55466805bd8ffe8a7fcb57f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CostInferenceFunction</b> (PointwiseCostInference&lt; 1 &gt;).IdenticalTypeAndShapeOfInput(0).FillUsing(MathDocGenerator(&quot;addition&quot;)).InheritOnnxSchema(&quot;Add&quot;)</td></tr>
+<tr class="separator:ae0296f5ba55466805bd8ffe8a7fcb57f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad8002be33493bd612317dc56891e973c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad8002be33493bd612317dc56891e973c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (DivGradient).NumInputs(3).NumOutputs(2).AllowInplace(</td></tr>
 <tr class="separator:ad8002be33493bd612317dc56891e973c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4763,6 +4773,9 @@ and the dimensions of the second input is the contiguous subset of the dimension
 <tr class="memitem:aa0736265c39a007dae621ea822110cb8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0736265c39a007dae621ea822110cb8"></a>
 in which case the sum will be done in place and results will be accumulated in input0 All inputs and outputs must have the same shape and data type DOC&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;data_0&quot;,&quot;First of the input tensors. Can be inplace.&quot;).Output(0</td></tr>
 <tr class="separator:aa0736265c39a007dae621ea822110cb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e9a4d9058a695db14a167c176a25a86"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7e9a4d9058a695db14a167c176a25a86"></a>
+in which case the sum will be done in place and results will be accumulated in input0 All inputs and outputs must have the same shape and data type DOC Output tensor Same dimension as inputs&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Sum&quot;)</td></tr>
+<tr class="separator:a7e9a4d9058a695db14a167c176a25a86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac035f1485229df6b767b358832c9eaf6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac035f1485229df6b767b358832c9eaf6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Elu, <a class="el" href="classcaffe2_1_1_elu_op.html">EluOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ac035f1485229df6b767b358832c9eaf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4772,6 +4785,9 @@ in which case the sum will be done in place and results will be accumulated in i
 <tr class="memitem:a54f9360aa815be2d797761c5a368c53a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a54f9360aa815be2d797761c5a368c53a"></a>
 is applied to the tensor elementwise DOC&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;X&quot;,&quot;1D input tensor&quot;).Output(0</td></tr>
 <tr class="separator:a54f9360aa815be2d797761c5a368c53a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab7a9b996e5baea13c0dad790a5e3dc9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab7a9b996e5baea13c0dad790a5e3dc9"></a>
+is applied to the tensor elementwise DOC input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Elu&quot;)</td></tr>
+<tr class="separator:aab7a9b996e5baea13c0dad790a5e3dc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a020534a53773fbacf5c7fcb25f01c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a020534a53773fbacf5c7fcb25f01c3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 EluGradient takes both Y and dY and uses this to update dX according to the
@@ -4784,6 +4800,9 @@ chain rule and derivatives of the rectified linear function.
 <tr class="memitem:ab35898418acaa09e9592059b9069c46d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab35898418acaa09e9592059b9069c46d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Exp, <a class="el" href="namespacecaffe2.html#a3c84075c5d69ce9499450fbbb3f72965">UnaryElementwiseOp</a>&lt; <a class="el" href="structcaffe2_1_1_tensor_types.html">TensorTypes</a>&lt; float &gt;, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, <a class="el" href="structcaffe2_1_1_exp_c_p_u_functor.html">ExpCPUFunctor</a> &gt;)</td></tr>
 <tr class="separator:ab35898418acaa09e9592059b9069c46d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2756a7a235d50ac6aa48ab5e3ae41f6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac2756a7a235d50ac6aa48ab5e3ae41f6"></a>
+element wise This operation can be done in an in place fashion by providing the same input and output blobs DOC The exponential of the input tensor computed element wise&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Exp&quot;)</td></tr>
+<tr class="separator:ac2756a7a235d50ac6aa48ab5e3ae41f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace21a98aaf448ca86e2f57c4467765e6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace21a98aaf448ca86e2f57c4467765e6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Exp, <a class="el" href="classcaffe2_1_1_get_exp_gradient.html">GetExpGradient</a>)</td></tr>
 <tr class="separator:ace21a98aaf448ca86e2f57c4467765e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4896,9 +4915,9 @@ Flattens the input tensor into a 2D matrix. If input tensor has shape
 (d_0 X d_1 ... d_(axis-1), d_axis X d_(axis+1) ... X dn)
 )DOC&quot;).Input(0</td></tr>
 <tr class="separator:a2e0dada077138062df05f0b854d16140"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f0e792f937b10fe38af868a7ad041dd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7f0e792f937b10fe38af868a7ad041dd"></a>
-A tensor of with input dimensions up to axis flattened to the outer dimension of the output and remaining input dimensions flattened into the inner dimension of the output&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;axis&quot;,&quot;(Default to 1) Indicate up to which input dimensions &quot;&quot;(exclusive) should be flattened to the outer dimension of the output&quot;)</td></tr>
-<tr class="separator:a7f0e792f937b10fe38af868a7ad041dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a525138eada83af5e06a91251e6b2df91"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a525138eada83af5e06a91251e6b2df91"></a>
+A tensor of with input dimensions up to axis flattened to the outer dimension of the output and remaining input dimensions flattened into the inner dimension of the output&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;axis&quot;,&quot;(Default to 1) Indicate up to which input dimensions &quot;&quot;(exclusive) should be flattened to the outer dimension of the output&quot;).InheritOnnxSchema(&quot;Flatten&quot;)</td></tr>
+<tr class="separator:a525138eada83af5e06a91251e6b2df91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a384df3668505f76c85f552b02187ca33"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a384df3668505f76c85f552b02187ca33"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Flatten, <a class="el" href="classcaffe2_1_1_get_flatten_gradient.html">GetFlattenGradient</a>)</td></tr>
 <tr class="separator:a384df3668505f76c85f552b02187ca33"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5328,9 +5347,9 @@ Describes axis of the inputs Defaults to one because the axis most likely descri
 <tr class="memitem:a89bd555dbc7fce4a1bee4eee7f49d195"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a89bd555dbc7fce4a1bee4eee7f49d195"></a>
 Coefficient of default value is and produces one output&#160;</td><td class="memItemRight" valign="bottom"><b>data</b> (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt; T &gt;) where the function`f(x)</td></tr>
 <tr class="separator:a89bd555dbc7fce4a1bee4eee7f49d195"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e08259846bbbdb9446f66960fe014ae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e08259846bbbdb9446f66960fe014ae"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;alpha&quot;,&quot;Coefficient of leakage&quot;)</td></tr>
-<tr class="separator:a4e08259846bbbdb9446f66960fe014ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5811f1ed6a39ff33fb61e2250082c34"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab5811f1ed6a39ff33fb61e2250082c34"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Arg</b> (&quot;alpha&quot;,&quot;Coefficient of leakage&quot;).InheritOnnxSchema(&quot;LeakyRelu&quot;)</td></tr>
+<tr class="separator:ab5811f1ed6a39ff33fb61e2250082c34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ae6b082c1a7064c4fc73157bc41643f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1ae6b082c1a7064c4fc73157bc41643f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (LeakyRelu, <a class="el" href="classcaffe2_1_1_get_leaky_relu_gradient.html">GetLeakyReluGradient</a>)</td></tr>
 <tr class="separator:a1ae6b082c1a7064c4fc73157bc41643f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5584,6 +5603,9 @@ NumInputs(2, 3).NumOutputs(1).TensorInferenceFunction(<a class="el" href="classc
 <tr class="memitem:a33d9fdf95c6a6174779262572e85ae15"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a33d9fdf95c6a6174779262572e85ae15"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Log, <a class="el" href="namespacecaffe2.html#a3c84075c5d69ce9499450fbbb3f72965">UnaryElementwiseOp</a>&lt; <a class="el" href="structcaffe2_1_1_tensor_types.html">TensorTypes</a>&lt; float &gt;, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, <a class="el" href="structcaffe2_1_1_log_c_p_u_functor.html">LogCPUFunctor</a> &gt;)</td></tr>
 <tr class="separator:a33d9fdf95c6a6174779262572e85ae15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6451f6c1d6e7f7b0a35b07bfe1e1c3fb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6451f6c1d6e7f7b0a35b07bfe1e1c3fb"></a>
+element wise This operation can be done in an in place fashion by providing the same input and output blobs DOC The natural log of the input tensor computed element wise&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Log&quot;)</td></tr>
+<tr class="separator:a6451f6c1d6e7f7b0a35b07bfe1e1c3fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58f7b405b7c8bab8fb79c8174334e6b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58f7b405b7c8bab8fb79c8174334e6b7"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Log, <a class="el" href="classcaffe2_1_1_get_log_gradient.html">GetLogGradient</a>)</td></tr>
 <tr class="separator:a58f7b405b7c8bab8fb79c8174334e6b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5760,9 +5782,9 @@ place and results will be accumulated in input0. All inputs and outputs must
 have the same shape and data type.
 )DOC&quot;).Input(0</td></tr>
 <tr class="separator:a683c61a99d45d137e9b86dae33f5caf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a5c5136c7d786c9932b42740d062b8b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2a5c5136c7d786c9932b42740d062b8b"></a>
-First of the input tensors Can be inplace&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;max&quot;,&quot;Output tensor. Same dimension as inputs.&quot;)</td></tr>
-<tr class="separator:a2a5c5136c7d786c9932b42740d062b8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75a38c1d28f7c5053ca8839ecfd56031"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a75a38c1d28f7c5053ca8839ecfd56031"></a>
+First of the input tensors Can be inplace&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;max&quot;,&quot;Output tensor. Same dimension as inputs.&quot;).InheritOnnxSchema(&quot;Max&quot;)</td></tr>
+<tr class="separator:a75a38c1d28f7c5053ca8839ecfd56031"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afd6ddb1e7d4e031e1e3fdaa2a68ce7c2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afd6ddb1e7d4e031e1e3fdaa2a68ce7c2"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 Element-wise min of each of the input tensors. The first input tensor can be
@@ -5771,9 +5793,9 @@ place and results will be accumulated in input0. All inputs and outputs must
 have the same shape and data type.
 )DOC&quot;).Input(0</td></tr>
 <tr class="separator:afd6ddb1e7d4e031e1e3fdaa2a68ce7c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9fac6f81a5b2d3e78ef7bc8c974cba7e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9fac6f81a5b2d3e78ef7bc8c974cba7e"></a>
-First of the input tensors Can be inplace&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;min&quot;,&quot;Output tensor. Same dimension as inputs.&quot;)</td></tr>
-<tr class="separator:a9fac6f81a5b2d3e78ef7bc8c974cba7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21b151f3484e2d821c39ac5a78d9660e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21b151f3484e2d821c39ac5a78d9660e"></a>
+First of the input tensors Can be inplace&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;min&quot;,&quot;Output tensor. Same dimension as inputs.&quot;).InheritOnnxSchema(&quot;Min&quot;)</td></tr>
+<tr class="separator:a21b151f3484e2d821c39ac5a78d9660e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae73741e5100acaea710d5a2f66a282df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae73741e5100acaea710d5a2f66a282df"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (MultiClassAccuracy, <a class="el" href="classcaffe2_1_1_multi_class_accuracy_op.html">MultiClassAccuracyOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:ae73741e5100acaea710d5a2f66a282df"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -5807,9 +5829,9 @@ output, and in backward pass, flips the sign of the output gradient
 <tr class="memitem:aaa6c52a69d194a2098b41acb41f67a33"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa6c52a69d194a2098b41acb41f67a33"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (Negative, <a class="el" href="namespacecaffe2.html#a3c84075c5d69ce9499450fbbb3f72965">UnaryElementwiseOp</a>&lt; <a class="el" href="structcaffe2_1_1_tensor_types.html">TensorTypes</a>&lt; float, double, int, long &gt;, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, <a class="el" href="structcaffe2_1_1_negative_c_p_u_functor.html">NegativeCPUFunctor</a> &gt;)</td></tr>
 <tr class="separator:aaa6c52a69d194a2098b41acb41f67a33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6aa3a02f77c61a1b5b1b7f127ca2be0a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6aa3a02f77c61a1b5b1b7f127ca2be0a"></a>
-input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;Y&quot;,&quot;1D input tensor&quot;)</td></tr>
-<tr class="separator:a6aa3a02f77c61a1b5b1b7f127ca2be0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa5a4b136eac40912b7c9983ce2c4d67"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa5a4b136eac40912b7c9983ce2c4d67"></a>
+input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>Output</b> (0,&quot;Y&quot;,&quot;1D input tensor&quot;).InheritOnnxSchema(&quot;Neg&quot;)</td></tr>
+<tr class="separator:aaa5a4b136eac40912b7c9983ce2c4d67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac173195453631efd6a218de8a6bb416a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac173195453631efd6a218de8a6bb416a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Negative, <a class="el" href="classcaffe2_1_1_get_negative_gradient.html">GetNegativeGradient</a>)</td></tr>
 <tr class="separator:ac173195453631efd6a218de8a6bb416a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6558,6 +6580,9 @@ A tenosr of dimensions batch_size x M x N to compute colwise max&#160;</td><td c
 <tr class="memitem:aceadcfaec69d84d7d54a5e65ba97a30e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aceadcfaec69d84d7d54a5e65ba97a30e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CostInferenceFunction</b> (CostInferenceForRelu).IdenticalTypeAndShape().SetDoc(R&quot;DOC( Relu takes one input data (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) and produces one output data (<a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a>&lt;T&gt;) where the rectified linear function</td></tr>
 <tr class="separator:aceadcfaec69d84d7d54a5e65ba97a30e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb86bb87a3254811b20e7d6dde889166"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb86bb87a3254811b20e7d6dde889166"></a>
+is applied to the tensor elementwise DOC input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Relu&quot;)</td></tr>
+<tr class="separator:acb86bb87a3254811b20e7d6dde889166"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af39ce3aea64f0df0d6e527af7063ead0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af39ce3aea64f0df0d6e527af7063ead0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 ReluGradient takes both Y and dY and uses this to update dX according to the
@@ -6729,6 +6754,9 @@ is applied to the tensor elementwise DOC&#160;</td><td class="memItemRight" vali
 <tr class="memitem:a8f33690a488c551682ab413454f9397e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f33690a488c551682ab413454f9397e"></a>
 affects the activation function itself&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;X&quot;,&quot;input tensor&quot;).Output(0</td></tr>
 <tr class="separator:a8f33690a488c551682ab413454f9397e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af12d805fba644c500dfeaa7a64aef866"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af12d805fba644c500dfeaa7a64aef866"></a>
+affects the activation function itself input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Selu&quot;)</td></tr>
+<tr class="separator:af12d805fba644c500dfeaa7a64aef866"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9375ac4fa5ae7953080e1f8835f1f385"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9375ac4fa5ae7953080e1f8835f1f385"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 SeluGradient takes both Y and dY and uses this to update dX according to the
@@ -6845,6 +6873,9 @@ out[0]&#160;</td><td class="memItemRight" valign="bottom"><b>set_data_type</b> (
 <tr class="memitem:a07ebde54190f626dc7b3aad23808229c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a07ebde54190f626dc7b3aad23808229c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SigmoidGradient, <a class="el" href="classcaffe2_1_1_binary_elementwise_op.html">BinaryElementwiseOp</a>&lt; <a class="el" href="structcaffe2_1_1_tensor_types.html">TensorTypes</a>&lt; float &gt;, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, <a class="el" href="structcaffe2_1_1_without_broadcast.html">WithoutBroadcast</a>&lt; <a class="el" href="structcaffe2_1_1_sigmoid_gradient_c_p_u_functor.html">SigmoidGradientCPUFunctor</a> &gt;&gt;)</td></tr>
 <tr class="separator:a07ebde54190f626dc7b3aad23808229c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5c78b13f10079ac99f7c7a497f5bc40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af5c78b13f10079ac99f7c7a497f5bc40"></a>
+is applied to the tensor elementwise DOC output tensor&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Sigmoid&quot;)</td></tr>
+<tr class="separator:af5c78b13f10079ac99f7c7a497f5bc40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e16d0636c3fe6f41ff3c2acf707907a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6e16d0636c3fe6f41ff3c2acf707907a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 SigmoidGradient takes both Y and dY and uses this to update dX according to the
@@ -6890,6 +6921,9 @@ it will be coerced into one For an arbitrary n dimensional tensor X in[a_0, a_1,
 <tr class="memitem:a490d4ff8a51cc28bad8740d23ecf3656"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a490d4ff8a51cc28bad8740d23ecf3656"></a>
 it will be coerced into one For an arbitrary n dimensional tensor X in[a_0, a_1,..., a_{k-1}, a_k,..., a_{n-1}] and k is the axis then X will be coerced into a dimensional tensor with dimensions[a_0 *...*a_{k-1}, a_k *...*a_{n-1}] For the default case where this means the X tensor will be coerced into a tensor of where a_0 is often the batch size In this we must have or else the The input tensor that s coerced into a matrix of&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> (NxD)&quot; &quot;as described above.&quot;) .Output(0</td></tr>
 <tr class="separator:a490d4ff8a51cc28bad8740d23ecf3656"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0be127c6c45b8a2a8504de9993c88abb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0be127c6c45b8a2a8504de9993c88abb"></a>
+it will be coerced into one For an arbitrary n dimensional tensor X in[a_0, a_1,..., a_{k-1}, a_k,..., a_{n-1}] and k is the axis then X will be coerced into a dimensional tensor with dimensions[a_0 *...*a_{k-1}, a_k *...*a_{n-1}] For the default case where this means the X tensor will be coerced into a tensor of where a_0 is often the batch size In this we must have or else the The input tensor that s coerced into a matrix of The softmax normalized output values with the same shape as input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Softmax&quot;)</td></tr>
+<tr class="separator:a0be127c6c45b8a2a8504de9993c88abb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a885bce453a892365513928cb409e7752"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a885bce453a892365513928cb409e7752"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (SoftmaxGradient).NumInputs(2).NumOutputs(1)</td></tr>
 <tr class="separator:a885bce453a892365513928cb409e7752"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6950,6 +6984,9 @@ Unscaled log probabilities Optional blob to be used to weight the samples for th
 <tr class="memitem:a36000d81d5598901b3ce01b744e7487f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a36000d81d5598901b3ce01b744e7487f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (SoftplusGradient, <a class="el" href="classcaffe2_1_1_softplus_gradient_op.html">SoftplusGradientOp</a>&lt; float, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a> &gt;)</td></tr>
 <tr class="separator:a36000d81d5598901b3ce01b744e7487f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1dfd44f9797e21e735d9f1221dc6554"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad1dfd44f9797e21e735d9f1221dc6554"></a>
+is applied to the tensor elementwise DOC input tensor&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Softplus&quot;)</td></tr>
+<tr class="separator:ad1dfd44f9797e21e735d9f1221dc6554"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42ecfb1a5c9ef3e173961468e81760d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a42ecfb1a5c9ef3e173961468e81760d8"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Softplus, <a class="el" href="classcaffe2_1_1_get_softplus_gradient.html">GetSoftplusGradient</a>)</td></tr>
 <tr class="separator:a42ecfb1a5c9ef3e173961468e81760d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6962,9 +6999,9 @@ Unscaled log probabilities Optional blob to be used to weight the samples for th
 <tr class="memitem:a8046ba37c727d1db1121015980689d5e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8046ba37c727d1db1121015980689d5e"></a>
 by providing the same input and output blobs DOC&#160;</td><td class="memItemRight" valign="bottom"><b>Input</b> (0,&quot;input&quot;,&quot;1-D input tensor&quot;).Output(0</td></tr>
 <tr class="separator:a8046ba37c727d1db1121015980689d5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ca858518fcde6e6b69ecba322db015a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5ca858518fcde6e6b69ecba322db015a"></a>
-by providing the same input and output blobs DOC The&#160;</td><td class="memItemRight" valign="bottom"><b>softsign</b> (x/1+|x|) values of the input tensor&quot; &quot;computed element-wise&quot;)</td></tr>
-<tr class="separator:a5ca858518fcde6e6b69ecba322db015a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8501e8724fece2643b368eceb93585c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8501e8724fece2643b368eceb93585c"></a>
+by providing the same input and output blobs DOC The&#160;</td><td class="memItemRight" valign="bottom"><b>softsign</b> (x/1+|x|) values of the input tensor&quot; &quot;computed element-wise&quot;) .InheritOnnxSchema(&quot;Softsign&quot;)</td></tr>
+<tr class="separator:ae8501e8724fece2643b368eceb93585c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adafde3a73a6859f7c257053509c23f17"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adafde3a73a6859f7c257053509c23f17"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SetDoc</b> (R&quot;DOC(
 Calculates the softsign gradient (sgn(x)/(1+|x|)^2) of the given input tensor
@@ -7222,6 +7259,9 @@ chain rule and derivatives of the swish function.
 <tr class="memitem:a5a7b7293014acde03f55c62415e4fac1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5a7b7293014acde03f55c62415e4fac1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_CPU_OPERATOR</b> (TanhGradient, <a class="el" href="classcaffe2_1_1_binary_elementwise_op.html">BinaryElementwiseOp</a>&lt; <a class="el" href="structcaffe2_1_1_tensor_types.html">TensorTypes</a>&lt; float &gt;, <a class="el" href="classcaffe2_1_1_c_p_u_context.html">CPUContext</a>, <a class="el" href="structcaffe2_1_1_without_broadcast.html">WithoutBroadcast</a>&lt; <a class="el" href="structcaffe2_1_1_tanh_gradient_c_p_u_functor.html">TanhGradientCPUFunctor</a> &gt;&gt;)</td></tr>
 <tr class="separator:a5a7b7293014acde03f55c62415e4fac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a856dd1d53ec962eb0844cde6fdf1bfe9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a856dd1d53ec962eb0844cde6fdf1bfe9"></a>
+by providing the same input and output blobs DOC The hyperbolic tangent values of the input tensor computed element wise&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Tanh&quot;)</td></tr>
+<tr class="separator:a856dd1d53ec962eb0844cde6fdf1bfe9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f137244053c2518bf8b36b129a2e9ee"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3f137244053c2518bf8b36b129a2e9ee"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (TanhGradient).NumInputs(2).NumOutputs(1).AllowInplace(</td></tr>
 <tr class="separator:a3f137244053c2518bf8b36b129a2e9ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7327,6 +7367,9 @@ Number of replicas The input tensor&#160;</td><td class="memItemRight" valign="b
 <tr class="memitem:a36426f3160b822cda69b21b2bc4bbff7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a36426f3160b822cda69b21b2bc4bbff7"></a>
 Number of replicas The input tensor optional Axis to replicate&#160;</td><td class="memItemRight" valign="bottom"><b>along</b> (overrides argument)&quot;) .Output( 0</td></tr>
 <tr class="separator:a36426f3160b822cda69b21b2bc4bbff7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae03e8635fa784760cb36af0da4359b4d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae03e8635fa784760cb36af0da4359b4d"></a>
+Number of replicas The input tensor optional Axis to replicate <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a> that will contain input replicated along the given axis&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Tile&quot;)</td></tr>
+<tr class="separator:ae03e8635fa784760cb36af0da4359b4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b19f8c7e52f0be20be3e3ac9b79499f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b19f8c7e52f0be20be3e3ac9b79499f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OPERATOR_SCHEMA</b> (TileGradient).NumInputs(1</td></tr>
 <tr class="separator:a0b19f8c7e52f0be20be3e3ac9b79499f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7382,6 +7425,9 @@ axes=(1, 0, 2), given an input tensor of shape (1, 2, 3), the output shape
 will be (2, 1, 3).
 )DOC&quot;).Arg(&quot;axes&quot;</td></tr>
 <tr class="separator:ad64d201f43cf151d465c01c7e1835a21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a652117cc30538c253fd054cba0d70936"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a652117cc30538c253fd054cba0d70936"></a>
+A list of integers By reverse the otherwise permute the axes according to the values given Transposed output&#160;</td><td class="memItemRight" valign="bottom"><b>InheritOnnxSchema</b> (&quot;Transpose&quot;)</td></tr>
+<tr class="separator:a652117cc30538c253fd054cba0d70936"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8886b5fffc193adc7678c913d0739052"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8886b5fffc193adc7678c913d0739052"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>REGISTER_GRADIENT</b> (Transpose, <a class="el" href="classcaffe2_1_1_get_transpose_gradient.html">GetTransposeGradient</a>)</td></tr>
 <tr class="separator:a8886b5fffc193adc7678c913d0739052"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -8974,9 +9020,6 @@ constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>kGEMMTile
 <tr class="separator:aec79aadd2f986b41f0e9e1eaf3c4ec96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a874a9ae2d0b766057b51924dd6afc7ad"><td class="memItemLeft" align="right" valign="top">element wise DOC&#160;</td><td class="memItemRight" valign="bottom"><b>output</b></td></tr>
 <tr class="separator:a874a9ae2d0b766057b51924dd6afc7ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8cf3bc12ac0ef15877db474d92746fcf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8cf3bc12ac0ef15877db474d92746fcf"></a>
-element wise DOC The absolute value of the input tensor computed element&#160;</td><td class="memItemRight" valign="bottom"><b>wise</b></td></tr>
-<tr class="separator:a8cf3bc12ac0ef15877db474d92746fcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae33e5e712c84972a4ee6363f01b4dbd8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae33e5e712c84972a4ee6363f01b4dbd8"></a>
 we add to&#160;</td><td class="memItemRight" valign="bottom"><b>it</b></td></tr>
 <tr class="separator:ae33e5e712c84972a4ee6363f01b4dbd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9157,8 +9200,8 @@ INT_MAX&#160;</td><td class="memItemRight" valign="bottom"><b>split</b></td></tr
 <tr class="memitem:a538ab2114a9dbe0a8349c0149288a14e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a538ab2114a9dbe0a8349c0149288a14e"></a>
 INT_MAX Optional list of output Which axis to split on Either NHWC or&#160;</td><td class="memItemRight" valign="bottom"><b>NCWH</b></td></tr>
 <tr class="separator:a538ab2114a9dbe0a8349c0149288a14e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a544e450c246510c64c62fefbe3af76c7"><td class="memItemLeft" align="right" valign="top">INT_MAX Optional list of output Which axis to split on Either NHWC or will split on C&#160;</td><td class="memItemRight" valign="bottom"><b>axis</b></td></tr>
-<tr class="separator:a544e450c246510c64c62fefbe3af76c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6d3b53cac1c1ccd34535c069fb1d5f9"><td class="memItemLeft" align="right" valign="top">INT_MAX Optional list of output Which axis to split on Either NHWC or will split on C&#160;</td><td class="memItemRight" valign="bottom"><b>axis</b></td></tr>
+<tr class="separator:ab6d3b53cac1c1ccd34535c069fb1d5f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25c31e73fdb2e293a08bfcc8e29688c6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a25c31e73fdb2e293a08bfcc8e29688c6"></a>
 Which axis to concat on Pass to add the axis specified in arg axis to all input tensors&#160;</td><td class="memItemRight" valign="bottom"><b>concat_result</b></td></tr>
 <tr class="separator:a25c31e73fdb2e293a08bfcc8e29688c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9196,9 +9239,9 @@ this is done throughout the image data and the output is computed As a side note
 <tr class="memitem:a2edac4bc4b850734ee3b31a10344c9b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2edac4bc4b850734ee3b31a10344c9b4"></a>
 has where C is the number of&#160;</td><td class="memItemRight" valign="bottom"><b>channels</b></td></tr>
 <tr class="separator:a2edac4bc4b850734ee3b31a10344c9b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad88e3171d9002bb911dc07c92fe849f7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad88e3171d9002bb911dc07c92fe849f7"></a>
-has where C is the number of and kH and kW are the height and width of the kernel Output data blob that contains the result of the transposed convolution The output dimensions are functions of the kernel stride and pad&#160;</td><td class="memItemRight" valign="bottom"><b>lengths</b></td></tr>
-<tr class="separator:ad88e3171d9002bb911dc07c92fe849f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1dd8cda871ac83b52e8961937e24217"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af1dd8cda871ac83b52e8961937e24217"></a>
+element wise DOC The cosine of the input tensor computed element&#160;</td><td class="memItemRight" valign="bottom"><b>wise</b></td></tr>
+<tr class="separator:af1dd8cda871ac83b52e8961937e24217"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7026acab05a17cb8d768dae95f0434aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7026acab05a17cb8d768dae95f0434aa"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>counter</b></td></tr>
 <tr class="separator:a7026acab05a17cb8d768dae95f0434aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -9252,9 +9295,6 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><b>output_mask</b> = !ar
 <tr class="memitem:ac80bf284e0ee2cc6952f973c6b5bdcdc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac80bf284e0ee2cc6952f973c6b5bdcdc"></a>
 default the ratio of random dropout The input data as <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a> The output mask If is_test is&#160;</td><td class="memItemRight" valign="bottom"><b>nonzero</b></td></tr>
 <tr class="separator:ac80bf284e0ee2cc6952f973c6b5bdcdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad514b4db7086e54d5fc79c7bf31ea19d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad514b4db7086e54d5fc79c7bf31ea19d"></a>
-default the ratio of random dropout The input data as <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a> The output mask If is_test is this output is not&#160;</td><td class="memItemRight" valign="bottom"><b>filled</b></td></tr>
-<tr class="separator:ad514b4db7086e54d5fc79c7bf31ea19d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0efa4ede07f3852f506f974ae6bc276b"><td class="memItemLeft" align="right" valign="top">describes the axis of the&#160;</td><td class="memItemRight" valign="bottom"><b>inputs</b></td></tr>
 <tr class="separator:a0efa4ede07f3852f506f974ae6bc276b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:addad4c4cf84d667f963d2f34365f3fd4"><td class="memItemLeft" align="right" valign="top">defaults to one because the axis most likely describes the&#160;</td><td class="memItemRight" valign="bottom"><b>batch_size</b></td></tr>
@@ -9510,6 +9550,9 @@ D float i batch size D is number of possible classes labels&#160;</td><td class=
 <tr class="memitem:a8bcd9c1d66f538e1000206e7b9b26574"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8bcd9c1d66f538e1000206e7b9b26574"></a>
 axis to&#160;</td><td class="memItemRight" valign="bottom"><b>normalize</b></td></tr>
 <tr class="separator:a8bcd9c1d66f538e1000206e7b9b26574"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad88e3171d9002bb911dc07c92fe849f7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad88e3171d9002bb911dc07c92fe849f7"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>lengths</b></td></tr>
+<tr class="separator:ad88e3171d9002bb911dc07c92fe849f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6c795ac7b5679d106913d1e43f1ede8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af6c795ac7b5679d106913d1e43f1ede8"></a>
 d int long tensor contains the length in each of the output&#160;</td><td class="memItemRight" valign="bottom"><b>packed_tensor</b></td></tr>
 <tr class="separator:af6c795ac7b5679d106913d1e43f1ede8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10749,12 +10792,12 @@ Resource Acquisition" idiom. </p>
 
 </div>
 </div>
-<a class="anchor" id="a544e450c246510c64c62fefbe3af76c7"></a>
+<a class="anchor" id="ab6d3b53cac1c1ccd34535c069fb1d5f9"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Number of replicas The input tensor optional Axis to replicate <a class="el" href="classcaffe2_1_1_tensor.html">Tensor</a> that will contain input replicated along the given caffe2::axis</td>
+          <td class="memname">Number of replicas The input tensor caffe2::axis</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -11147,7 +11190,7 @@ Resource Acquisition" idiom. </p>
 <!-- HTML footer for doxygen 1.8.14-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Mar 22 2018 13:03:51 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Mar 23 2018 13:03:31 for Caffe2 - C++ API by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
