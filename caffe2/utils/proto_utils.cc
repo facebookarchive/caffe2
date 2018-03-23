@@ -33,7 +33,20 @@
 
 using ::google::protobuf::MessageLite;
 
+namespace caffe {
+// Wrapper functions for protobuf's GetEmptyStringALreadyInited() function
+// In order to avoid duplicated global variable in the case when protobuf
+// is built with hidden visibility.
+const ::std::string& GetEmptyStringAlreadyInited() {
+  return ::google::protobuf::internal::GetEmptyStringAlreadyInited();
+}
+}  // namespace caffe
+
 namespace caffe2 {
+
+const ::std::string& GetEmptyStringAlreadyInited() {
+  return ::google::protobuf::internal::GetEmptyStringAlreadyInited();
+}
 
 void ShutdownProtobufLibrary() {
   ::google::protobuf::ShutdownProtobufLibrary();
