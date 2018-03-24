@@ -1,24 +1,43 @@
+/**
+ * Copyright (c) 2016-present, Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #pragma once
 
-#include "backend_rep.h"
+#include "caffe2/onnx/backend_rep.h"
+#include "caffe2/onnx/device.h"
 #include "caffe2/proto/caffe2.pb.h"
-#include "device.h"
 #include "onnx/onnx_pb.h"
 
-#include <google/protobuf/text_format.h>
 #include <functional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 
-namespace caffe2 { namespace onnx {
+namespace caffe2 {
+namespace onnx {
 
-using ONNX_NAMESPACE::AttributeProto;
-using ONNX_NAMESPACE::NodeProto;
-using ONNX_NAMESPACE::GraphProto;
-using ONNX_NAMESPACE::ModelProto;
-using ONNX_NAMESPACE::TensorProto;
+using ::ONNX_NAMESPACE::AttributeProto;
+using ::ONNX_NAMESPACE::GraphProto;
+using ::ONNX_NAMESPACE::ModelProto;
+using ::ONNX_NAMESPACE::NodeProto;
+using ::ONNX_NAMESPACE::TensorProto;
 
+// \brief This struct holds the converted ops after the onnx->c2 conversion.
+// Notice that for RNN ops, it may create ops in init_net. Hence we have the
+// `init_ops` field.
 struct Caffe2Ops {
   ::google::protobuf::RepeatedPtrField<caffe2::OperatorDef> init_ops;
   ::google::protobuf::RepeatedPtrField<caffe2::OperatorDef> ops;
@@ -59,6 +78,16 @@ class OnnxAttributes {
     }
   }
 
+  const AttributeProto* remove(const std::string& key) {
+    const AttributeProto* result = nullptr;
+    auto iter = onnx_attrs_.find(key);
+    if (iter != onnx_attrs_.end()) {
+      result = iter->second;
+      onnx_attrs_.erase(iter);
+    }
+    return result;
+  }
+
  private:
   std::unordered_map<std::string, const AttributeProto*> onnx_attrs_;
   std::unordered_map<std::string, AttributeProto> rewritten_onnx_attrs_;
@@ -82,8 +111,7 @@ const TensorProto* OnnxAttributes::get(const std::string& key) const;
 
 // convenient class for onnx node
 struct OnnxNode {
-  OnnxNode(const NodeProto& node_in)
-      : node(node_in), attributes(node_in) {}
+  OnnxNode(const NodeProto& node_in) : node(node_in), attributes(node_in) {}
 
   const NodeProto& node;
 
@@ -97,14 +125,12 @@ class Caffe2Backend {
       const std::string& device,
       const std::vector<Caffe2Ops>& extras);
 
+  bool SupportOp(const std::string tyep) const;
+
   Caffe2Ops ConvertNode(const std::string& node_str, int opset_version);
 
  private:
-  using SpecialOpConverter = Caffe2Ops (Caffe2Backend::*)(
-      const ModelProto&,
-      const ModelProto&,
-      OnnxNode*,
-      int);
+  using SpecialOpConverter = Caffe2Ops (Caffe2Backend::*)(OnnxNode*, int);
 
   void OnnxToCaffe2(
       caffe2::NetDef* init_net,
@@ -121,99 +147,42 @@ class Caffe2Backend {
       OnnxNode* onnx_node,
       int opset_version);
 
-  std::unordered_set<std::string> AllNamesInGraph(
-      const GraphProto& graph);
-
-  void InplaceRewrite(GraphProto* graph);
-
-  std::unordered_map<std::string, std::string> InplaceRewrite(
-      ::google::protobuf::RepeatedPtrField<NodeProto>* nodes);
+  std::unordered_set<std::string> AllNamesInGraph(const GraphProto& graph);
 
   void BuildTensorFillingOp(
       caffe2::OperatorDef* c2_op,
       const TensorProto& onnx_tensor,
       const std::string& name = "");
 
-  Caffe2Ops CommonOnnxNodeToCaffe2Ops(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CommonOnnxNodeToCaffe2Ops(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateConstant(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateConstant(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateConvePoolOpBase(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateConvPoolOpBase(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateReshape(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateReshape(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateGather(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateGather(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateGemm(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateGemm(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreatePad(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreatePad(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateConcat(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateConcat(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateLogSoftmax(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateLogSoftmax(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateSlice(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateSlice(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateSqrt(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateReciprocal(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateReciprocal(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateBatchNormalization(OnnxNode* onnx_node, int opset_version);
 
-  Caffe2Ops CreateMatMul(
-      const ModelProto& init_model,
-      const ModelProto& pred_model,
-      OnnxNode* onnx_node,
-      int opset_version);
+  Caffe2Ops CreateMatMul(OnnxNode* onnx_node, int opset_version);
 
   // LUT related getters
-  const std::unordered_map<std::string, std::string>& get_renamed_operators() const;
+  const std::unordered_map<std::string, std::string>& get_renamed_operators()
+      const;
   const std::unordered_set<std::string>& get_rnn_operators() const;
   const std::unordered_map<std::string, int>& get_broken_operators() const;
   const std::unordered_map<std::string, std::string>& get_renamed_attrs() const;
@@ -224,4 +193,5 @@ class Caffe2Backend {
   get_special_operators() const;
 };
 
-}}
+} // namespace onnx
+} // namespace caffe2
