@@ -80,7 +80,7 @@ class OnnxExporter {
 
   // \brief Check black listed arguemnts where we won't pass down when
   // converting to ONNX node
-  bool IsBlaskListed(const caffe2::Argument& arg);
+  bool IsBlackListed(const caffe2::Argument& arg);
 
   // \brief Convert Caffe2 argument to Onnx attribute
   void CopyCaffe2ArgToOnnxAttr(

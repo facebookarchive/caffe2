@@ -26,6 +26,7 @@ namespace caffe2 {
 namespace onnx {
 
 namespace {
+// rewrite padding attributes
 void ApplyTrans(
     std::unordered_map<std::string, AttributeProto>* attrs,
     bool global,
@@ -163,9 +164,10 @@ void OnnxExporter::CopyCaffe2ArgToOnnxAttr(
     const std::string& op_type,
     const caffe2::Argument& arg) {
   std::string name;
-  if (get_per_op_renamed_attrs().count(op_type)) {
-    name = caffe2::get_default(
-        get_per_op_renamed_attrs().at(op_type), arg.name(), arg.name());
+  const auto& per_op_renamed_attr_lut = get_per_op_renamed_attrs();
+  const auto it = per_op_renamed_attr_lut.find(op_type);
+  if (it != per_op_renamed_attr_lut.end()) {
+    name = caffe2::get_default(it->second, arg.name(), arg.name());
   } else {
     name = caffe2::get_default(get_renamed_attrs(), arg.name(), arg.name());
   }
@@ -195,7 +197,7 @@ void OnnxExporter::CopyCaffe2ArgToOnnxAttr(
   }
 }
 
-bool OnnxExporter::IsBlaskListed(const caffe2::Argument& arg) {
+bool OnnxExporter::IsBlackListed(const caffe2::Argument& arg) {
   const static std::unordered_map<std::string, std::unordered_set<std::string>>
       kBlackListString = {{"order", {"NCHW"}}};
   const static std::unordered_map<std::string, std::unordered_set<int64_t>>
@@ -226,8 +228,10 @@ ConvertedResult OnnxExporter::Caffe2OpToOnnxNodes(
   if (it != renamed_op_lut.end()) {
     type = it->second;
   }
-  if (get_special_operators().count(type)) {
-    return (this->*get_special_operators().at(type))(def, shapes);
+  const auto& special_op_lut = get_special_operators();
+  const auto it_op = get_special_operators().find(type);
+  if (it_op != special_op_lut.end()) {
+    return (this->*(it_op->second))(def, shapes);
   } else {
     return CommonCaffe2OpToOnnxNodes(def);
   }
@@ -249,7 +253,7 @@ ConvertedResult OnnxExporter::CommonCaffe2OpToOnnxNodes(
     node.add_output(o);
   }
   for (const auto& a : def.arg()) {
-    if (!IsBlaskListed(a)) {
+    if (!IsBlackListed(a)) {
       auto* attr = node.add_attribute();
       CopyCaffe2ArgToOnnxAttr(attr, def.type(), a);
     }
@@ -270,15 +274,16 @@ ConvertedResult OnnxExporter::CreateConvPoolNodes(
   }
 
   // Handle global pooling
+  bool global = false;
   if (node.op_type() == "MaxPool" || node.op_type() == "AveragePool") {
     auto it = attrs.find("global_pooling");
     if (it != attrs.end() && it->second.has_i() && it->second.i()) {
       node.set_op_type("Global" + node.op_type());
+      global = true;
       attrs.erase(it);
     }
   }
 
-  bool global = (node.op_type().find("Global") == 0);
   ApplyTrans(&attrs, global, "kernel", 2, "kernel_shape");
   ApplyTrans(&attrs, global, "stride");
   ApplyTrans(&attrs, global, "dilation");
@@ -316,16 +321,15 @@ ConvertedResult OnnxExporter::CreateConvPoolNodes(
       // to replace legacy_pad. pad[end] = output_size[start + 2] *
       // stride[start] - pad[start] - 1 + kernel[start] - input[start + 2] end =
       // start + len(pad) / 2
-      std::cerr << "Warning: Converting legacy padding to explicit padding."
-                << std::endl;
+      LOG(WARNING) << "Converting legacy padding to explicit padding.";
       auto* pads_attr = attrs.at("pads").mutable_ints();
       auto& strides_attr = attrs.at("strides").ints();
       auto& kernel_shape_attr = attrs.at("kernel_shape").ints();
       for (int i = 0; i < 2; ++i) {
-        int64_t tmp = output_size.dims(i + 2) * strides_attr.Get(i) -
+        int64_t tmp_pad = output_size.dims(i + 2) * strides_attr.Get(i) -
             pads_attr->Get(i) - 1 + kernel_shape_attr.Get(i) -
             input_size.dims(i + 2);
-        pads_attr->Set(i + 2, tmp);
+        pads_attr->Set(i + 2, tmp_pad);
       }
     } else if (
         legacy_pad_attr.i() !=
@@ -412,21 +416,24 @@ ConvertedResult OnnxExporter::CreateChannelShuffleNodes(
   auto& nodes = result.first;
   auto& const_tensors = result.second;
 
-  const auto tmp1 = DummyName::NewDummyName();
+  const auto reshape_output = DummyName::NewDummyName();
   std::vector<int64_t> dims = {n, g, c / g, h, w};
   const_tensors.emplace_back(CreateOnnxShapeTensor(dims));
   nodes.emplace_back(
-      MakeNode("Reshape", {x, const_tensors.back().name()}, {tmp1}));
+      MakeNode("Reshape", {x, const_tensors.back().name()}, {reshape_output}));
 
-  const auto tmp2 = DummyName::NewDummyName();
+  const auto transpose_output = DummyName::NewDummyName();
   dims = {0, 2, 1, 3, 4};
-  nodes.emplace_back(
-      MakeNode("Transpose", {tmp1}, {tmp2}, {MakeAttribute("perm", dims)}));
+  nodes.emplace_back(MakeNode(
+      "Transpose",
+      {reshape_output},
+      {transpose_output},
+      {MakeAttribute("perm", dims)}));
 
   dims = {n, c, h, w};
   const_tensors.emplace_back(CreateOnnxShapeTensor(dims));
-  nodes.emplace_back(
-      MakeNode("Reshape", {tmp2, const_tensors.back().name()}, {y}));
+  nodes.emplace_back(MakeNode(
+      "Reshape", {transpose_output, const_tensors.back().name()}, {y}));
 
   return result;
 }

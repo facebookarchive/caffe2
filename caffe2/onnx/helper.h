@@ -28,6 +28,7 @@ namespace onnx {
 using ::ONNX_NAMESPACE::AttributeProto;
 using ::ONNX_NAMESPACE::NodeProto;
 
+// \brief This class generates unique dummy names
 class DummyName {
  public:
   static std::string NewDummyName();

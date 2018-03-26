@@ -62,8 +62,7 @@ NodeProto MakeNode(
     node.add_output(output);
   }
   for (const auto& attr: attributes) {
-    auto* tmp = node.add_attribute();
-    tmp->CopyFrom(attr);
+    node.add_attribute()->CopyFrom(attr);
   }
   return node;
 }
