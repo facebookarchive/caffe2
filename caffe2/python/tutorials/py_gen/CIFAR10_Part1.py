@@ -378,7 +378,7 @@ def AddInput(model, batch_size, db, db_type):
 # 
 # $$width_{out}=\frac{width_{in}-kernel+2*pad}{stride}+1$$
 # 
-# While this function is not necessary, we found that it is a easy strategy to avoid having to hand calculate the dimensionality changes of the data to provide to the penultimate fully connected layer. It also allows us to quickly change hyperparameters such as kernel size and not have to worry about the corresponding dimensionality alterations.
+# While this function is not necessary, we found that it is an easy strategy to avoid having to hand calculate the dimensionality changes of the data to provide to the penultimate fully connected layer. It also allows us to quickly change hyperparameters such as kernel size and not have to worry about the corresponding dimensionality alterations.
 # 
 # 
 
