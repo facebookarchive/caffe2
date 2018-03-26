@@ -15,7 +15,7 @@
 # 
 # Caffe2 provides a high-level interface that helps with creating Python ops. Let's consider the following example, in which we create a basic operator `f`, which outputs the input * 2:
 
-# In[8]:
+# In[1]:
 
 
 from __future__ import absolute_import
@@ -57,7 +57,7 @@ print(workspace.FetchBlob("y"))
 # 
 # Below is an example of ensuring that Caffe2's output tensor is properly configured using `reshape`:
 
-# In[9]:
+# In[2]:
 
 
 def f_reshape(inputs, outputs):
@@ -76,7 +76,7 @@ print(workspace.FetchBlob("z"))
 
 # There're several additional arguments that `net.Python()` accepts. When `pass_workspace=True` is passed, a workspace is passed to an operator's `Python` function:
 
-# In[10]:
+# In[3]:
 
 
 def f_workspace(inputs, outputs, workspace):
@@ -98,7 +98,7 @@ print(workspace.FetchBlob("y"))
 # Note that we are using the same `f` as before ( $y = 2x$ ). So when we expect the gradient with respect to x: ( $\frac{dy}{dx} = 2$ )
 # 
 
-# In[11]:
+# In[4]:
 
 
 def f(inputs, outputs):
