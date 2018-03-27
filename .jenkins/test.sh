@@ -6,24 +6,18 @@ LOCAL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT_DIR=$(cd "$LOCAL_DIR"/.. && pwd)
 
 # Figure out which Python to use
-PYTHON="python"
-if [ -n "$BUILD_ENVIRONMENT" ]; then
-  if [[ "$BUILD_ENVIRONMENT" == py2* ]]; then
-    PYTHON="python2"
-  elif [[ "$BUILD_ENVIRONMENT" == py3* ]]; then
-    PYTHON="python3"
-  fi
+PYTHON="$(which python)"
+if [[ "$BUILD_ENVIRONMENT" == py3* ]]; then
+  PYTHON="/usr/bin/python3"
 fi
+SITE_DIR=$($PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
 
 # The prefix must mirror the setting from build.sh
-INSTALL_PREFIX="/usr/local/caffe2"
+INSTALL_PREFIX='/usr/local/'
 
-# Anaconda builds have a special install prefix and python
+# Anaconda builds have a special install prefix and require more libraries
 if [[ "$BUILD_ENVIRONMENT" == conda* ]]; then
-  # This path comes from install_anaconda.sh which installs Anaconda into the
-  # docker image
-  PYTHON="/opt/conda/bin/python"
-  INSTALL_PREFIX="/opt/conda/"
+  INSTALL_PREFIX='/opt/conda'
 
   # Testing requires separate packages
   if [[ $BUILD_ENVIRONMENT == *gcc4* ]]; then
@@ -43,21 +37,10 @@ if [[ "$BUILD_ENVIRONMENT" == conda* ]]; then
   PROTOBUF_INCDIR=/opt/conda/include pip install "${ROOT_DIR}/third_party/onnx"
 fi
 
-# Add the site-packages in the caffe2 install prefix to the PYTHONPATH
-SITE_DIR=$($PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
-INSTALL_SITE_DIR="${INSTALL_PREFIX}/${SITE_DIR}"
-
 # Skip tests in environments where they are not built/applicable
 if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
   echo 'Skipping tests'
   exit 0
-fi
-
-# Set PYTHONPATH and LD_LIBRARY_PATH so that python can find the installed
-# Caffe2. This shouldn't be done on Anaconda, as Anaconda should handle this.
-if [[ "$BUILD_ENVIRONMENT" != conda* ]]; then
-  export PYTHONPATH="${PYTHONPATH}:$INSTALL_SITE_DIR"
-  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${INSTALL_PREFIX}/lib"
 fi
 
 exit_code=0
@@ -91,7 +74,7 @@ set +e
 
 # C++ tests
 echo "Running C++ tests.."
-for test in ./test/*; do
+for test in ./test/caffe2/*; do
   # Skip tests we know are hanging or bad
   case "$(basename "$test")" in
     mkl_utils_test)
@@ -111,7 +94,7 @@ for test in ./test/*; do
 done
 
 # Get the relative path to where the caffe2 python module was installed
-CAFFE2_PYPATH="$INSTALL_SITE_DIR/caffe2"
+CAFFE2_PYPATH="$SITE_DIR/caffe2"
 
 # Collect additional tests to run (outside caffe2/python)
 EXTRA_TESTS=()
