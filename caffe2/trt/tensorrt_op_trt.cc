@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "caffe2/operators/tensorrt_op_trt.h"
+#include "caffe2/trt/tensorrt_op_trt.h"
 #include "caffe2/core/logging.h"
 
 #include <numeric>

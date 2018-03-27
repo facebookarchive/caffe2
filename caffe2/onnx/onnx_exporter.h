@@ -17,9 +17,10 @@ using ::ONNX_NAMESPACE::GraphProto;
 using ::ONNX_NAMESPACE::ModelProto;
 using ::ONNX_NAMESPACE::NodeProto;
 using ::ONNX_NAMESPACE::TensorProto;
+} // namespace
+
 using ConvertedResult =
     std::pair<std::vector<NodeProto>, std::vector<TensorProto>>;
-} // namespace
 
 class OnnxExporter {
   using SpecialOpConverter = ConvertedResult (OnnxExporter::*)(

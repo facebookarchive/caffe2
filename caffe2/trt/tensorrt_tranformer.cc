@@ -20,8 +20,8 @@
 #include "caffe2/core/logging.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/onnx/onnx_exporter.h"
-#include "onnx2trt.hpp"
-#include "NvInfer.h"
+#include <onnx2trt.hpp>
+#include <NvInfer.h>
 
 #include <google/protobuf/text_format.h>
 #include <iostream>
@@ -344,16 +344,15 @@ void TensorRTTransformer::TransformSimple(
   for (const OperatorDef& op : pred_net->op()) {
     bool support_trt = true;
     const OpSchema* schema = OpSchemaRegistry::Schema(op.type());
-    std::vector<::ONNX_NAMESPACE::NodeProto> node_protos;
+    caffe2::onnx::ConvertedResult results;
     if (!schema or schema->onnx_schema().empty()) {
       LOG(INFO) << "Cannot export c2 op " << op.type() << " to onnx";
       support_trt = false;
     } else {
       // One c2 op can be converted into multiple onnx nodes. For simplicity, we
       // enforce all or nothing here
-      auto results = onnx::OnnxExporter().Caffe2OpToOnnxNodes(op, shape_hints);
-      const auto& node_protos = results.first;
-      for (const auto& n : node_protos) {
+      results = onnx::OnnxExporter().Caffe2OpToOnnxNodes(op, shape_hints);
+      for (const auto& n : results.first) {
         if (!importer->support(n.op_type().c_str())) {
           LOG(INFO) << "TRT does not support ONNX node " << n.op_type();
           support_trt = false;
@@ -363,6 +362,7 @@ void TensorRTTransformer::TransformSimple(
     }
 
     if (support_trt) {
+      const auto& node_protos = results.first;
       if (!trt_group) {
         trt_group = true;
         start = op_idx;

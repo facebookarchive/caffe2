@@ -17,7 +17,7 @@
 #pragma once
 
 #include "caffe2/core/logging.h"
-#include "NvInfer.h"
+#include <NvInfer.h>
 #include <iostream>
 
 namespace caffe2 {

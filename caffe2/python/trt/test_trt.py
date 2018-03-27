@@ -184,7 +184,7 @@ def test_resnet50_cut():
     pred_net_cut = caffe2_pb2.NetDef()
     pred_net_cut.ParseFromString(pred_net_str)
     del init_net_str, pred_net_str
-    print_net(pred_net_cut)
+    #print_net(pred_net_cut)
     Y_trt = None
     with Workspace(), core.DeviceScope(device_option):  # temporary!
         workspace.FeedBlob(input_name, data)
@@ -207,14 +207,6 @@ def test_detectron():
     input_blob_dims = (1, 3, 800, 800)
     for i in pred_net.external_input:
         print("Input: {}".format(i))
-    #for i in pred_net.external_output:
-    #    print("Output: {}".format(i))
-    #for op in pred_net.op:
-    #    print("Saw {}".format(op.type))
-    #    for x in op.input:
-    #        print("  input: {}".format(x))
-    #    for y in op.output:
-    #        print("  output: {}".format(y))
     n, c, h, w = input_blob_dims
     data = np.random.randn(n, c, h, w).astype(np.float32)
     im_info = np.random.randn(n, 3).astype(np.float32)

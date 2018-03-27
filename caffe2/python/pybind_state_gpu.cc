@@ -13,10 +13,10 @@
 #include "caffe2/core/common_cudnn.h"
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/operators/operator_fallback_gpu.h"
-#include "caffe2/trt/tensorrt_tranformer.h"
 
-#include "google/protobuf/io/coded_stream.h"
-#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
+#ifdef USE_TRT
+#include "caffe2/trt/tensorrt_tranformer.h"
+#endif // USE_TRT
 
 namespace caffe2 {
 namespace python {
@@ -36,14 +36,6 @@ REGISTER_BLOB_FEEDER(CUDA, TensorFeeder<CUDAContext>);
 
 namespace py = pybind11;
 
-static bool ParseProtobufFromLargeString(const string& str, Message* proto) {
-  ::google::protobuf::io::ArrayInputStream input_stream(str.data(), str.size());
-  ::google::protobuf::io::CodedInputStream coded_stream(&input_stream);
-  // Set PlanDef message size limit to 1G.
-  coded_stream.SetTotalBytesLimit(1024LL << 20, 512LL << 20);
-  return proto->ParseFromCodedStream(&coded_stream);
-}
-
 void addCUDAGlobalMethods(py::module& m) {
   m.def("num_cuda_devices", &NumCudaDevices);
   m.def("get_cuda_version", &CudaVersion);
@@ -62,6 +54,7 @@ void addCUDAGlobalMethods(py::module& m) {
     obj["totalGlobalMem"] = py::cast(prop.totalGlobalMem);
     return obj;
   });
+#ifdef USE_TRT
   m.def(
       "onnx_to_trt_op",
       [](const py::bytes& onnx_model_str,
@@ -81,12 +74,12 @@ void addCUDAGlobalMethods(py::module& m) {
          const std::unordered_map<std::string, std::vector<int>>& shapes)
           -> std::vector<py::bytes> {
         caffe2::NetDef init_net;
-        if(!ParseProtobufFromLargeString(
+        if(!ParseProtoFromLargeString(
             init_net_str.cast<std::string>(), &init_net)) {
           LOG(ERROR) << "broken init_net protobuf";
         }
         caffe2::NetDef pred_net;
-        if(!ParseProtobufFromLargeString(
+        if(!ParseProtoFromLargeString(
             pred_net_str.cast<std::string>(), &pred_net)) {
           LOG(ERROR) << "broken pred_net protobuf";
         }
@@ -96,7 +89,6 @@ void addCUDAGlobalMethods(py::module& m) {
               it.first, CreateTensorShape(it.second, TensorProto::FLOAT));
         }
         TensorRTTransformer ts;
-        //ts.LoadNets(init_net, pred_net);
         ts.TransformSimple(&init_net, &pred_net, tensor_shapes);
         std::string init_net_str2;
         std::string pred_net_str2;
@@ -104,6 +96,7 @@ void addCUDAGlobalMethods(py::module& m) {
         pred_net.SerializeToString(&pred_net_str2);
         return {py::bytes(init_net_str2), py::bytes(pred_net_str2)};
       });
+#endif // USE_TRT
 };
 
 void addCUDAObjectMethods(py::module& m) {

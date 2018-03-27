@@ -1,4 +1,4 @@
-# ---[ CPU files.
+# ---[ GPU files.
 file(GLOB tmp *.cc)
 set(Caffe2_GPU_SRCS ${Caffe2_GPU_SRCS} ${tmp})
 

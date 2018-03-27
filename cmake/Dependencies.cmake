@@ -590,15 +590,12 @@ list(APPEND Caffe2_DEPENDENCY_WHOLE_LINK_LIBS onnx_library)
 # Recover the build shared libs option.
 set(BUILD_SHARED_LIBS ${TEMP_BUILD_SHARED_LIBS})
 
-# --[ Onnx-trt
-if (USE_ONNX_TRT AND USE_TENSORRT) 
+# --[ TensorRT integration with onnx-trt
+if (USE_TENSORRT) 
   include_directories("${PROJECT_SOURCE_DIR}/third_party/onnx-trt")
   find_library(ONNX_TRT_LIBRARY onnx2trt 
     HINTS ${PROJECT_SOURCE_DIR}/third_party/onnx-trt
     PATH_SUFFIXES lib lib64 lib/x64)
-  #  find_library(ONNX_TRT_RUNTIME_LIBRARY onnx2trt_runtime
-  #    HINTS ${PROJECT_SOURCE_DIR}/third_party/onnx-trt
-  #    PATH_SUFFIXES lib lib64 lib/x64)
   list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS ${ONNX_TRT_LIBRARY})
-  #  list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS ${ONNX_TRT_RUNTIME_LIBRARY})
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_TRT=1")
 endif()
