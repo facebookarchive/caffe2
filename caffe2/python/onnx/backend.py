@@ -348,10 +348,11 @@ class Caffe2Backend(Backend):
                            starts=[weight_offset + 0 * hidden_size, 0],
                            ends  =[weight_offset + 1 * hidden_size,-1])
 
-            initial_h_sliced = name + '/initial_h'
-            init_net.Slice(initial_h, initial_h_sliced,
-                           starts=[direction_offset + 0, 0, 0],
-                           ends  =[direction_offset + 1,-1,-1])
+            if initial_h != "":
+                initial_h_sliced = name + '/initial_h'
+                init_net.Slice(initial_h, initial_h_sliced,
+                               starts=[direction_offset + 0, 0, 0],
+                               ends  =[direction_offset + 1,-1,-1])
 
             if direction_offset == 1:
                 input = pred_mh.net.ReversePackedSegs(
@@ -363,7 +364,7 @@ class Caffe2Backend(Backend):
                 pred_mh,
                 input,
                 sequence_lens,
-                [initial_h_sliced],
+                [initial_h_sliced] if initial_h != "" else None,
                 input_size,
                 hidden_size,
                 name,
@@ -402,8 +403,9 @@ class Caffe2Backend(Backend):
             pred_mh.net.VariableLengthSequencePadding(
                 [n.outputs[0], sequence_lens], [n.outputs[0]])
 
+        init_ops = list(pred_mh.InitProto().op) if initial_h == "" else []
         return Caffe2Ops(list(pred_mh.Proto().op),
-                         list(init_net.Proto().op),
+                         init_ops + list(init_net.Proto().op),
                          list(pred_mh.Proto().external_input))
 
     @classmethod
@@ -465,14 +467,17 @@ class Caffe2Backend(Backend):
                     init_net.Slice(name_from, x, starts=starts, ends=ends)
                 init_net.Concat([xi, xf, xo, xc], ['%s/%s' % (name, name_to), dummy_name()], axis=0)
 
-            initial_h_sliced = name + '/initial_h'
-            init_net.Slice(initial_h, initial_h_sliced,
-                           starts=[direction_offset + 0, 0, 0],
-                           ends  =[direction_offset + 1,-1,-1])
-            initial_c_sliced = name + '/initial_c'
-            init_net.Slice(initial_c, initial_c_sliced,
-                           starts=[direction_offset + 0, 0, 0],
-                           ends  =[direction_offset + 1,-1,-1])
+            if initial_h != "":
+                initial_h_sliced = name + '/initial_h'
+                init_net.Slice(initial_h, initial_h_sliced,
+                               starts=[direction_offset + 0, 0, 0],
+                               ends  =[direction_offset + 1,-1,-1])
+
+            if initial_c != "":
+                initial_c_sliced = name + '/initial_c'
+                init_net.Slice(initial_c, initial_c_sliced,
+                               starts=[direction_offset + 0, 0, 0],
+                               ends  =[direction_offset + 1,-1,-1])
 
             if direction_offset == 1:
                 input = pred_mh.net.ReversePackedSegs(
@@ -484,7 +489,7 @@ class Caffe2Backend(Backend):
                 pred_mh,
                 input,
                 sequence_lens,
-                [initial_h_sliced, initial_c_sliced],
+                [initial_h_sliced, initial_c_sliced] if initial_h != "" else None,
                 input_size,
                 hidden_size,
                 name,
@@ -526,8 +531,9 @@ class Caffe2Backend(Backend):
             pred_mh.net.VariableLengthSequencePadding(
                 [n.outputs[0], sequence_lens], [n.outputs[0]])
 
+        init_ops = list(pred_mh.InitProto().op) if initial_h == "" else []
         return Caffe2Ops(list(pred_mh.Proto().op),
-                         list(init_net.Proto().op),
+                         init_ops + list(init_net.Proto().op),
                          list(pred_mh.Proto().external_input))
 
     @classmethod
@@ -591,10 +597,11 @@ class Caffe2Backend(Backend):
                 if do_concat:
                     init_net.Concat([xr, xz, xh], ['%s/%s' % (name, name_to), dummy_name()], axis=0)
 
-            initial_h_sliced = name + '/initial_h'
-            init_net.Slice(initial_h, initial_h_sliced,
-                           starts=[direction_offset + 0, 0, 0],
-                           ends  =[direction_offset + 1,-1,-1])
+            if initial_h != "":
+                initial_h_sliced = name + '/initial_h'
+                init_net.Slice(initial_h, initial_h_sliced,
+                               starts=[direction_offset + 0, 0, 0],
+                               ends  =[direction_offset + 1,-1,-1])
 
             if direction_offset == 1:
                 input = pred_mh.net.ReversePackedSegs(
@@ -606,7 +613,7 @@ class Caffe2Backend(Backend):
                 pred_mh,
                 input,
                 sequence_lens,
-                [initial_h_sliced],
+                [initial_h_sliced] if initial_h != "" else None,
                 input_size,
                 hidden_size,
                 name,
@@ -645,8 +652,9 @@ class Caffe2Backend(Backend):
             pred_mh.net.VariableLengthSequencePadding(
                 [n.outputs[0], sequence_lens], [n.outputs[0]])
 
+        init_ops = list(pred_mh.InitProto().op) if initial_h == "" else []
         return Caffe2Ops(list(pred_mh.Proto().op),
-                         list(init_net.Proto().op),
+                         init_ops + list(init_net.Proto().op),
                          list(pred_mh.Proto().external_input))
 
     @classmethod
@@ -928,6 +936,7 @@ class Caffe2Backend(Backend):
                     c2ops = cls._onnx_node_to_caffe2_op(
                         init_model, pred_model, node, opset_version)
                 except Exception as e:
+                    raise
                     success = False
                     print('ONNX FATAL:', e)
                     continue

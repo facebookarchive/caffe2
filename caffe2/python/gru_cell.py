@@ -5,7 +5,21 @@ from __future__ import unicode_literals
 
 import functools
 from caffe2.python import brew, rnn_cell
+from caffe2.python.modeling.initializers import Initializer
 
+class GRUInitializer(object):
+    def __init__(self, hidden_size):
+        self.hidden_size = hidden_size
+
+    def create_states(self, model):
+        return [
+            model.create_param(
+                param_name='initial_hidden_state',
+                initializer=Initializer(operator_name='ConstantFill',
+                                        value=0.0),
+                shape=[self.hidden_size],
+            ),
+        ]
 
 class GRUCell(rnn_cell.RNNCell):
 
@@ -20,6 +34,7 @@ class GRUCell(rnn_cell.RNNCell):
         **kwargs
     ):
         super(GRUCell, self).__init__(**kwargs)
+        self.initializer = GRUInitializer(hidden_size=hidden_size)
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.forget_bias = float(forget_bias)
