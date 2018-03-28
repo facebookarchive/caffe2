@@ -59,8 +59,13 @@ void addCUDAGlobalMethods(py::module& m) {
       "onnx_to_trt_op",
       [](const py::bytes& onnx_model_str,
          const std::unordered_map<std::string, std::vector<int>>&
-             output_size_hints) -> py::bytes {
-        TensorRTTransformer t;
+             output_size_hints,
+         int max_batch_size,
+         int max_workspace_size,
+         int verbosity,
+         bool debug_builder) -> py::bytes {
+        TensorRTTransformer t(
+            max_batch_size, max_workspace_size, verbosity, debug_builder);
         auto op_def =
             t.BuildTrtOp(onnx_model_str.cast<std::string>(), output_size_hints);
         std::string out;
@@ -71,8 +76,11 @@ void addCUDAGlobalMethods(py::module& m) {
       "transform_trt",
       [](const py::bytes& init_net_str,
          const py::bytes& pred_net_str,
-         const std::unordered_map<std::string, std::vector<int>>& shapes)
-          -> std::vector<py::bytes> {
+         const std::unordered_map<std::string, std::vector<int>>& shapes,
+         int max_batch_size,
+         int max_workspace_size,
+         int verbosity,
+         bool debug_builder) -> std::vector<py::bytes> {
         caffe2::NetDef init_net;
         if(!ParseProtoFromLargeString(
             init_net_str.cast<std::string>(), &init_net)) {
@@ -88,8 +96,9 @@ void addCUDAGlobalMethods(py::module& m) {
           tensor_shapes.emplace(
               it.first, CreateTensorShape(it.second, TensorProto::FLOAT));
         }
-        TensorRTTransformer ts;
-        ts.TransformSimple(&init_net, &pred_net, tensor_shapes);
+        TensorRTTransformer ts(
+            max_batch_size, max_workspace_size, verbosity, debug_builder);
+        ts.Transform(&init_net, &pred_net, tensor_shapes);
         std::string init_net_str2;
         std::string pred_net_str2;
         init_net.SerializeToString(&init_net_str2);

@@ -39,7 +39,6 @@ class TensorRTOp final : public Operator<CUDAContext> {
 
   TrtLogger logger_;
   int max_batch_size_;
-  std::vector<void*> bindings_;
   std::vector<std::pair<int, bool>> binding_hints_;
   std::vector<nvinfer1::Dims> nv_dims_;
   std::unordered_map<int, std::vector<TIndex>> output_size_hints_;

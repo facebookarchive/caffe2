@@ -1,18 +1,3 @@
-# Copyright (c) 2016-present, Facebook, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-##############################################################################
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -21,29 +6,24 @@ from __future__ import unicode_literals
 from caffe2.proto import caffe2_pb2
 from caffe2.python import core, workspace
 import onnx
+import onnx.defs
 from onnx.helper import make_node, make_graph, make_tensor, make_tensor_value_info, make_model
-from caffe2.python.onnx.helper import c2_native_run_net, c2_native_run_op
 from onnx.backend.base import namedtupledict
+from caffe2.python.models.download import downloadFromURLToFile, getURLFromName, deleteDirectory
 import caffe2.python.onnx.backend as c2
-import caffe2.python.onnx.frontend as c2_front
 from caffe2.python.onnx.workspace import Workspace
+from caffe2.python.trt.transform import convert_onnx_model_to_trt_op, transform_caffe2_net
+from caffe2.python.onnx.tests.test_utils import TestCase
 import numpy as np
 import os.path
 import json
+import unittest
+import tarfile
+import tempfile
+import shutil
+from six.moves.urllib.request import urlretrieve
 
-import caffe2.python._import_c_extension as C
-
-# Note that ONNX-TRT enforce an NCHW input!!!!
-
-def dim_values_to_list(dim_values):
-    return [x.dim_value for x in dim_values]
-
-def get_output_shapes(output_value_infos):
-    names = [x.name for x in output_value_infos]
-    shapes = [dim_values_to_list(x.type.tensor_type.shape.dim) for x in output_value_infos]
-    return dict(zip(names, shapes))
-
-def print_net(net):
+def _print_net(net):
     for i in net.external_input:
         print("Input: {}".format(i))
     for i in net.external_output:
@@ -55,165 +35,212 @@ def print_net(net):
         for y in op.output:
             print("  output: {}".format(y))
 
-def test_relu_graph():
-    X = np.random.randn(1, 1, 3, 2).astype(np.float32)
-    node_def = make_node("Relu", ["X"], ["Y"])
-    Y_c2 = c2.run_node(node_def, {"X": X})
-    graph_def = make_graph(
-        [node_def],
-        name="test",
-        inputs=[make_tensor_value_info("X", onnx.TensorProto.FLOAT, [1, 1, 3, 2])],
-        outputs=[make_tensor_value_info("Y", onnx.TensorProto.FLOAT, [1, 1, 3, 2])])
-    model_def = make_model(graph_def, producer_name='relu-test')
-    op_outputs = [x.name for x in model_def.graph.output]
-    #print("Onnx Model: {}".format(model_def))
-    get_output_shapes(graph_def.output)
-    trt_str = C.onnx_to_trt_op(model_def.SerializeToString(), get_output_shapes(graph_def.output))
-    op = caffe2_pb2.OperatorDef()
-    op.ParseFromString(trt_str)
-    device_option = core.DeviceOption(caffe2_pb2.CUDA, 0)
-    op.device_option.CopyFrom(device_option)
-    #print("{}".format(op))
-    Y_trt = None
-    with Workspace(), core.DeviceScope(device_option):  # temporary!
-        workspace.FeedBlob("X", X)
-        workspace.RunOperatorsOnce([op])
-        output_values = [workspace.FetchBlob(name) for name in op_outputs]
-        Y_trt = namedtupledict('Outputs', op_outputs)(*output_values)
-    np.testing.assert_almost_equal(Y_c2, Y_trt)
 
-def test_resnet50():
-    input_blob_dims = (1, 3, 224, 224)
-    model_def = onnx.load('/home/yinghai/.onnx/models/resnet50/model.onnx')
-    op_inputs = [x.name for x in model_def.graph.input]
-    op_outputs = [x.name for x in model_def.graph.output]
-    print("Inputs: {}".format(op_inputs))
-    print("Outputs: {}".format(op_outputs))
-    n, c, h, w = input_blob_dims
-    data = np.random.randn(n, c, h, w).astype(np.float32)
-    Y_c2 = c2.run_model(model_def, {op_inputs[0]: data})
-    trt_str = C.onnx_to_trt_op(model_def.SerializeToString(), get_output_shapes(model_def.graph.output))
-    op = caffe2_pb2.OperatorDef()
-    op.ParseFromString(trt_str)
-    device_option = core.DeviceOption(caffe2_pb2.CUDA, 0)
-    op.device_option.CopyFrom(device_option)
-    Y_trt = None
-    with Workspace(), core.DeviceScope(device_option):  # temporary!
-        workspace.FeedBlob(op_inputs[0], data)
-        workspace.RunOperatorsOnce([op])
-        output_values = [workspace.FetchBlob(name) for name in op_outputs]
-        Y_trt = namedtupledict('Outputs', op_outputs)(*output_values)
-    np.testing.assert_almost_equal(Y_c2, Y_trt)
+_BASE_URL = 'https://s3.amazonaws.com/download.onnx/models/opset_{}'.format(onnx.defs.onnx_opset_version())
 
-def infer_shape(init_net, pred_net, inputs):
-    ws, outputs = c2_native_run_net(init_net, pred_net, inputs)
-    hints = {}
-    for op in pred_net.op:
-        for o in op.output:
-            if o not in hints:
-                blob = ws.FetchBlob(o)
-                if hasattr(blob, 'shape'):
-                    hints[o] = blob.shape
-        for i in op.input:
-            if i not in hints:
-                blob = ws.FetchBlob(i)
-                if hasattr(blob, 'shape'):
-                    hints[i] = blob.shape
+# TODO: This is copied from https://github.com/onnx/onnx/blob/master/onnx/backend/test/runner/__init__.py. Maybe we should
+# expose a model retrival API from ONNX
+def _download_onnx_model(model_name):
+    onnx_home = os.path.expanduser(os.getenv('ONNX_HOME', os.path.join('~', '.onnx')))
+    models_dir = os.getenv('ONNX_MODELS',
+                           os.path.join(onnx_home, 'models'))
+    model_dir = os.path.join(models_dir, model_name)
+    if not os.path.exists(os.path.join(model_dir, 'model.onnx')):
+        if os.path.exists(model_dir):
+            bi = 0
+            while True:
+                dest = '{}.old.{}'.format(model_dir, bi)
+                if os.path.exists(dest):
+                    bi += 1
+                    continue
+                shutil.move(model_dir, dest)
+                break
+        os.makedirs(model_dir)
 
-    #print("Shapes: {}".format(hints))
-    return hints
+        # On Windows, NamedTemporaryFile can not be opened for a
+        # second time
+        url = '{}/{}.tar.gz'.format(_BASE_URL, model_name)
+        download_file = tempfile.NamedTemporaryFile(delete=False)
+        try:
+            download_file.close()
+            print('Start downloading model {} from {}'.format(
+                model_name, url))
+            urlretrieve(url, download_file.name)
+            print('Done')
+            with tarfile.open(download_file.name) as t:
+                t.extractall(models_dir)
+        except Exception as e:
+            print('Failed to prepare data for model {}: {}'.format(
+                model_name, e))
+            raise
+        finally:
+            os.remove(download_file.name)
+    return model_dir
 
-def add_head_tail(pred_net):
-    # Add head
-    head = caffe2_pb2.OperatorDef()
-    head.type = "Copy"
-    head.input.append("real_data_0")
-    head.output.append("gpu_0/data_0")
-    dummy = caffe2_pb2.NetDef()
-    dummy.op.extend(pred_net.op)
-    del pred_net.op[:]
-    pred_net.op.extend([head])
-    pred_net.op.extend(dummy.op)
-    pred_net.external_input[0] = "real_data_0"
-
-    # Add tail
-    tail = caffe2_pb2.OperatorDef()
-    tail.type = "Copy"
-    tail.input.append("gpu_0/softmax_1")
-    tail.output.append("real_softmax_1")
-    pred_net.op.extend([tail])
-    pred_net.external_output[0] = "real_softmax_1"
-    #print_net(pred_net)
-
-def test_resnet50_cut():
-    init_net = caffe2_pb2.NetDef()
-    model_path = '/home/yinghai/.caffe2/models/resnet50/'
-    with open(os.path.join(model_path + 'init_net.pb'), 'rb') as f:
-        init_net.ParseFromString(f.read())
-    pred_net = caffe2_pb2.NetDef()
-    with open(os.path.join(model_path + 'predict_net.pb'), 'rb') as f:
-        pred_net.ParseFromString(f.read())
-    print("Loaded resnet model: {}, {}".format(init_net.name, pred_net.name))
-    c2_front.ssa_rewrite(pred_net, init_net, value_info=json.load(open(os.path.join(model_path, 'value_info.json'))))
-    add_head_tail(pred_net)
-    input_blob_dims = (1, 3, 224, 224)
-    n, c, h, w = input_blob_dims
-    data = np.random.randn(n, c, h, w).astype(np.float32)
-    input_name = "real_data_0"
-    shape_hints = infer_shape(init_net, pred_net, {input_name: data})
-    shape_hints[input_name] = input_blob_dims
-
-    device_option = core.DeviceOption(caffe2_pb2.CUDA, 0)
-    init_net.device_option.CopyFrom(device_option)
-    pred_net.device_option.CopyFrom(device_option)
-    for op in pred_net.op:
+class TensorRTOpTest(TestCase):
+    def _test_relu_graph(self, X, batch_size, trt_max_batch_size):
+        node_def = make_node("Relu", ["X"], ["Y"])
+        Y_c2 = c2.run_node(node_def, {"X": X})
+        graph_def = make_graph(
+            [node_def],
+            name="test",
+            inputs=[make_tensor_value_info("X", onnx.TensorProto.FLOAT, [batch_size, 1, 3, 2])],
+            outputs=[make_tensor_value_info("Y", onnx.TensorProto.FLOAT, [batch_size, 1, 3, 2])])
+        model_def = make_model(graph_def, producer_name='relu-test')
+        op_outputs = [x.name for x in model_def.graph.output]
+        op = convert_onnx_model_to_trt_op(model_def, max_batch_size=trt_max_batch_size)
+        device_option = core.DeviceOption(caffe2_pb2.CUDA, 0)
         op.device_option.CopyFrom(device_option)
-    net_outputs = pred_net.external_output
-    Y_c2 = None
-    with Workspace(), core.DeviceScope(device_option):  # temporary!
-        workspace.FeedBlob(input_name, data)
-        workspace.RunNetOnce(init_net)
-        workspace.RunNetOnce(pred_net)
-        output_values = [workspace.FetchBlob(name) for name in net_outputs]
-        Y_c2 = namedtupledict('Outputs', net_outputs)(*output_values)
+        Y_trt = None
+        with Workspace(), core.DeviceScope(device_option):
+            workspace.FeedBlob("X", X)
+            workspace.RunOperatorsOnce([op])
+            output_values = [workspace.FetchBlob(name) for name in op_outputs]
+            Y_trt = namedtupledict('Outputs', op_outputs)(*output_values)
+        np.testing.assert_almost_equal(Y_c2, Y_trt)
 
-    # Cut the graph
-    init_net_str, pred_net_str = C.transform_trt(init_net.SerializeToString(), pred_net.SerializeToString(), shape_hints)
-    init_net_cut = caffe2_pb2.NetDef()
-    init_net_cut.ParseFromString(init_net_str)
-    pred_net_cut = caffe2_pb2.NetDef()
-    pred_net_cut.ParseFromString(pred_net_str)
-    del init_net_str, pred_net_str
-    #print_net(pred_net_cut)
-    Y_trt = None
-    with Workspace(), core.DeviceScope(device_option):  # temporary!
-        workspace.FeedBlob(input_name, data)
-        workspace.RunNetOnce(init_net_cut)
-        workspace.RunNetOnce(pred_net_cut)
-        output_values = [workspace.FetchBlob(name) for name in net_outputs]
-        Y_trt = namedtupledict('Outputs', net_outputs)(*output_values)
-    np.testing.assert_almost_equal(Y_c2, Y_trt)
 
-def test_detectron():
-    init_net = caffe2_pb2.NetDef()
-    model_path = '/home/yinghai/.caffe2/models/detectron/e2e_faster_rcnn_R-50-C4_1x/'
-    with open(os.path.join(model_path + 'init_net.pb'), 'rb') as f:
-        init_net.ParseFromString(f.read())
-    pred_net = caffe2_pb2.NetDef()
-    with open(os.path.join(model_path + 'predict_net.pb'), 'rb') as f:
-        pred_net.ParseFromString(f.read())
-    print("Loaded detectron model: {}, {}".format(init_net.name, pred_net.name))
-    #c2_front.ssa_rewrite(pred_net, init_net, value_info=json.load(open(os.path.join(model_path, 'value_info.json'))))
-    input_blob_dims = (1, 3, 800, 800)
-    for i in pred_net.external_input:
-        print("Input: {}".format(i))
-    n, c, h, w = input_blob_dims
-    data = np.random.randn(n, c, h, w).astype(np.float32)
-    im_info = np.random.randn(n, 3).astype(np.float32)
-    ws, outputs = c2_native_run_net(init_net, pred_net, {"data":data, "im_info":im_info})
+    @unittest.skipIf('TEST_C2_TRT' not in os.environ, "No TensortRT support")
+    def test_relu_graph_simple(self):
+        X = np.random.randn(1, 1, 3, 2).astype(np.float32)
+        self._test_relu_graph(X, 1, 50)
 
-if __name__ == '__main__':
-    #test_relu_graph()
-    #test_resnet50()
-    test_resnet50_cut()
-    #test_detectron()
+
+    @unittest.skipIf('TEST_C2_TRT' not in os.environ, "No TensortRT support")
+    def test_relu_graph_big_batch(self):
+        X = np.random.randn(52, 1, 3, 2).astype(np.float32)
+        self._test_relu_graph(X, 52, 50)
+
+
+    @unittest.skipIf('TEST_C2_TRT' not in os.environ, "No TensortRT support")
+    def test_resnet50(self):
+        input_blob_dims = (1, 3, 224, 224)
+        model_dir = _download_onnx_model('resnet50')
+        model_def = onnx.load(os.path.join(model_dir, 'model.onnx'))
+        op_inputs = [x.name for x in model_def.graph.input]
+        op_outputs = [x.name for x in model_def.graph.output]
+        n, c, h, w = input_blob_dims
+        data = np.random.randn(n, c, h, w).astype(np.float32)
+        Y_c2 = c2.run_model(model_def, {op_inputs[0]: data})
+        op = convert_onnx_model_to_trt_op(model_def)
+        device_option = core.DeviceOption(caffe2_pb2.CUDA, 0)
+        op.device_option.CopyFrom(device_option)
+        Y_trt = None
+        with Workspace(), core.DeviceScope(device_option):
+            workspace.FeedBlob(op_inputs[0], data)
+            workspace.RunOperatorsOnce([op])
+            output_values = [workspace.FetchBlob(name) for name in op_outputs]
+            Y_trt = namedtupledict('Outputs', op_outputs)(*output_values)
+        np.testing.assert_allclose(Y_c2, Y_trt, rtol=1e-3)
+
+
+class TensorRTTransformmTest(TestCase):
+    def _model_dir(self, model):
+        caffe2_home = os.path.expanduser(os.getenv('ONNX_HOME', '~/.caffe2'))
+        models_dir = os.getenv('ONNX_MODELS', os.path.join(caffe2_home, 'models'))
+        return os.path.join(models_dir, model)
+
+    def _download(self, model):
+        model_dir = self._model_dir(model)
+        assert not os.path.exists(model_dir)
+        os.makedirs(model_dir)
+        for f in ['predict_net.pb', 'init_net.pb', 'value_info.json']:
+            url = getURLFromName(model, f)
+            dest = os.path.join(model_dir, f)
+            try:
+                try:
+                    downloadFromURLToFile(url, dest,
+                                          show_progress=False)
+                except TypeError:
+                    # show_progress not supported prior to
+                    # Caffe2 78c014e752a374d905ecfb465d44fa16e02a28f1
+                    # (Sep 17, 2017)
+                    downloadFromURLToFile(url, dest)
+            except Exception as e:
+                print("Abort: {reason}".format(reason=e))
+                print("Cleaning up...")
+                deleteDirectory(model_dir)
+                exit(1)
+
+    def _get_c2_model(self, model_name):
+        model_dir = self._model_dir(model_name)
+        if not os.path.exists(model_dir):
+            self._download(model_name)
+        c2_predict_pb = os.path.join(model_dir, 'predict_net.pb')
+        c2_predict_net = caffe2_pb2.NetDef()
+        with open(c2_predict_pb, 'rb') as f:
+            c2_predict_net.ParseFromString(f.read())
+        c2_predict_net.name = model_name
+
+        c2_init_pb = os.path.join(model_dir, 'init_net.pb')
+        c2_init_net = caffe2_pb2.NetDef()
+        with open(c2_init_pb, 'rb') as f:
+            c2_init_net.ParseFromString(f.read())
+        c2_init_net.name = model_name + '_init'
+
+        value_info = json.load(open(os.path.join(model_dir, 'value_info.json')))
+        return c2_init_net, c2_predict_net, value_info
+
+    def _add_head_tail(self, pred_net, new_head, new_tail):
+        orig_head = pred_net.external_input[0]
+        orig_tail = pred_net.external_output[0]
+
+        # Add head
+        head = caffe2_pb2.OperatorDef()
+        head.type = "Copy"
+        head.input.append(new_head)
+        head.output.append(orig_head)
+        dummy = caffe2_pb2.NetDef()
+        dummy.op.extend(pred_net.op)
+        del pred_net.op[:]
+        pred_net.op.extend([head])
+        pred_net.op.extend(dummy.op)
+        pred_net.external_input[0] = new_head
+
+        # Add tail
+        tail = caffe2_pb2.OperatorDef()
+        tail.type = "Copy"
+        tail.input.append(orig_tail)
+        tail.output.append(new_tail)
+        pred_net.op.extend([tail])
+        pred_net.external_output[0] = new_tail
+
+
+    @unittest.skipIf('TEST_C2_TRT' not in os.environ, "No TensortRT support")
+    def test_resnet50_core(self):
+        init_net, pred_net, value_info = self._get_c2_model('resnet50')
+        self._add_head_tail(pred_net, 'real_data', 'real_softmax')
+        input_blob_dims = (1, 3, 224, 224)
+        input_name = "real_data"
+
+        device_option = core.DeviceOption(caffe2_pb2.CUDA, 0)
+        init_net.device_option.CopyFrom(device_option)
+        pred_net.device_option.CopyFrom(device_option)
+        for op in pred_net.op:
+            op.device_option.CopyFrom(device_option)
+        net_outputs = pred_net.external_output
+        Y_c2 = None
+        data =  np.random.randn(*input_blob_dims).astype(np.float32)
+        with Workspace(), core.DeviceScope(device_option):
+            workspace.FeedBlob(input_name, data)
+            workspace.RunNetOnce(init_net)
+            workspace.RunNetOnce(pred_net)
+            output_values = [workspace.FetchBlob(name) for name in net_outputs]
+            Y_c2 = namedtupledict('Outputs', net_outputs)(*output_values)
+
+        # Cut the graph
+        init_net_cut, pred_net_cut = transform_caffe2_net(init_net, pred_net, value_info, {input_name: input_blob_dims})
+        del init_net, pred_net
+        #print_net(pred_net_cut)
+
+        Y_trt = None
+        input_name = pred_net_cut.external_input[0]
+        with Workspace(), core.DeviceScope(device_option):
+            workspace.FeedBlob(input_name, data)
+            workspace.RunNetOnce(init_net_cut)
+            workspace.RunNetOnce(pred_net_cut)
+            output_values = [workspace.FetchBlob(name) for name in net_outputs]
+            Y_trt = namedtupledict('Outputs', net_outputs)(*output_values)
+        np.testing.assert_allclose(Y_c2, Y_trt, rtol=1e-3)
+
+

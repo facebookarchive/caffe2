@@ -24,18 +24,22 @@ namespace caffe2 {
 
 namespace {
 // Note that input of trt tensor is in CHW format, while our tensor is NCHW
-bool CheckDims(
+// \return -1 if there is dimension mismatch between C2 tensor and trt tensor.
+// Otherwise, return the multiplicaton of CHW dimensions
+int64_t CheckDims(
     const nvinfer1::Dims& nv_dims,
     const std::vector<TIndex>& c2_dims) {
   if (nv_dims.nbDims + 1 != c2_dims.size()) {
-    return false;
+    return -1;
   }
+  int64_t chw = 1;
   for (int i = 0; i < nv_dims.nbDims; ++i) {
     if (nv_dims.d[i] != c2_dims[i + 1]) {
-      return false;
+      return -1;
     }
+    chw *= nv_dims.d[i];
   }
-  return true;
+  return chw;
 }
 
 } // namespace
@@ -116,7 +120,7 @@ void TensorRTOp::MaybeAdjustOutputShape(int output_idx, std::vector<TIndex>* dim
     auto total_trt = std::accumulate(dims->begin(), dims->end(), (TIndex)(1), std::multiplies<TIndex>());
     auto total_c2 = std::accumulate(dims_hint.begin(), dims_hint.end(), (TIndex)(1), std::multiplies<TIndex>());
     if (total_c2 != total_trt) {
-      LOG(WARNING) << "The total size of TensorRT op output and hint don't match";
+      LOG(WARNING) << "The total size of TensorRT op output and hint don't match: " << total_trt << " vs " << total_c2;
       return;
     }
 
@@ -142,7 +146,7 @@ void TensorRTOp::MaybeAdjustOutputShape(int output_idx, std::vector<TIndex>* dim
 bool TensorRTOp::RunOnDevice() {
   CAFFE_ENFORCE(trt_executor_);
   // Decide input batch size
-  int N = 0;
+  size_t N = 0;
   bool first = true;
   for (int i = 0; i < InputSize(); ++i) {
     const auto& input_tensor = Input(i);
@@ -155,40 +159,55 @@ bool TensorRTOp::RunOnDevice() {
           N, tensor_dims.front(), "Mismatched batch size in input tensors");
     }
   }
-  CAFFE_ENFORCE_LE(N, max_batch_size_, "Batch size is too large");
-  max_batch_size_ = N;
 
   // We need to do the binding at RunOnDevice time because we only know the
-  // exact shapes of the tensors now
-  bindings_.clear();
-  int b = 0;
-  for (const auto& p : binding_hints_) {
-    const auto& dims = nv_dims_[b++];
-    if (p.second) {
-      // input, check input dimensions
-      const auto& input_tensor = Input(p.first);
-      const float* input_data = input_tensor.data<float>();
-      const auto& tensor_dims = input_tensor.dims();
-      CAFFE_ENFORCE(CheckDims(dims, tensor_dims));
-      bindings_.push_back((void*)(input_data));
-    } else {
-      // output, we need to allocate the output tensor
-      auto* output_tensor = Output(p.first);
-      std::vector<TIndex> tensor_dims;
-      tensor_dims.push_back(N);
-      for (int i = 0; i < dims.nbDims; ++i) {
-        tensor_dims.push_back(dims.d[i]);
-      }
-      MaybeAdjustOutputShape(p.first, &tensor_dims);
+  // exact shapes of the tensors now. In addtion, since TensorRT engine has
+  // max_batch_size, we need to call that multiple times if input batch size
+  // exceeeds this limit.
+  std::vector<void*> bindings;
+  auto batch_size = max_batch_size_;
+  for (size_t offset = 0; offset < N; offset += batch_size) {
+    bindings.clear();
+    batch_size =
+        offset + max_batch_size_ > N ? N - offset : max_batch_size_;
+    VLOG(2) << "Offset: " << offset << ", batch_size: " << batch_size << ", N: " << N;
+    int b = 0;
+    for (const auto& p : binding_hints_) {
+      const auto& dims = nv_dims_[b++];
+      if (p.second) {
+        // input, check input dimensions
+        const auto& input_tensor = Input(p.first);
+        const float* input_data = input_tensor.data<float>();
+        const auto& tensor_dims = input_tensor.dims();
+        auto chw = CheckDims(dims, tensor_dims);
+        CAFFE_ENFORCE_GE(chw, 0, "Mismatched dimensions between TRT input and C2 input");
+        bindings.push_back((void*)(input_data + offset * chw));
+      } else {
+        // output, we need to allocate the output tensor at first batch run
+        auto* output_tensor = Output(p.first);
+        std::vector<TIndex> tensor_dims;
+        tensor_dims.push_back(N);
+        int64_t chw = 1;
+        for (int i = 0; i < dims.nbDims; ++i) {
+          tensor_dims.push_back(dims.d[i]);
+          chw *= dims.d[i];
+        }
 
-      output_tensor->Resize(tensor_dims);
-      float* output_data = output_tensor->mutable_data<float>();
-      bindings_.push_back((void*)(output_data));
+        if (offset == 0) {
+          MaybeAdjustOutputShape(p.first, &tensor_dims);
+          output_tensor->Resize(tensor_dims);
+        }
+        float* output_data = output_tensor->mutable_data<float>();
+        bindings.push_back((void*)(output_data + offset * chw));
+      }
+    }
+
+    CAFFE_ENFORCE(bindings.size() == InputSize() + OutputSize());
+    if(!trt_executor_->execute(batch_size, &bindings[0])){
+      return false;
     }
   }
-
-  CAFFE_ENFORCE(bindings_.size() == InputSize() + OutputSize());
-  return trt_executor_->execute(max_batch_size_, &bindings_[0]);
+  return true;
 }
 
 OPERATOR_SCHEMA(TensorRT)

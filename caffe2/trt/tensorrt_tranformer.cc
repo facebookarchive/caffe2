@@ -315,7 +315,7 @@ void TensorRTTransformer::ClusterToTrtOp(
 }
 
 // Simple transform. Asssume the nets were topologically sorted
-void TensorRTTransformer::TransformSimple(
+void TensorRTTransformer::Transform(
     NetDef* init_net,
     NetDef* pred_net,
     const std::unordered_map<std::string, TensorShape>& shape_hints) {
