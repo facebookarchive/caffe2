@@ -62,6 +62,11 @@ def Export(workspace, net, params):
     output_blobs = [blob_name for blob_name, version in
                     blob_versions.items()
                     if version != 0 and blob_name not in inputs]
+    # Remove unnecessary output_blob.
+    # i.e. dropout_mask and lrn_scale.
+    for op in predict_net.op:
+        if op.type in ["Dropout", "LRN"]:
+            output_blobs.remove(op.output[1])
 
     for blob_ref in params:
         blob_name = str(blob_ref)
