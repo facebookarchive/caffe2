@@ -21,7 +21,7 @@ import sys
 from textwrap import dedent
 
 SRC_DIR = os.path.realpath(os.path.dirname(__file__))
-TOP_DIR = os.path.join(SRC_DIR, '..')
+TOP_DIR = os.path.join(SRC_DIR, os.pardir)
 CMAKE_BUILD_DIR = os.path.join(TOP_DIR, '.setuptools-cmake-build')
 
 install_requires = []
@@ -224,7 +224,7 @@ ext_modules = [
 # Packages
 ################################################################################
 
-packages = setuptools.find_packages()
+packages = setuptools.find_packages(TOP_DIR)
 
 install_requires.extend(['protobuf',
                          'numpy',
