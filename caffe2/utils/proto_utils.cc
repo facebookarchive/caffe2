@@ -17,7 +17,17 @@
 
 using ::google::protobuf::MessageLite;
 
+namespace caffe {
+const ::std::string& GetEmptyStringAlreadyInited() {
+  return ::google::protobuf::internal::fixed_address_empty_string.get();
+}
+}
+
 namespace caffe2 {
+
+const ::std::string& GetEmptyStringAlreadyInited() {
+  return ::google::protobuf::internal::fixed_address_empty_string.get();
+}
 
 void ShutdownProtobufLibrary() {
   ::google::protobuf::ShutdownProtobufLibrary();
@@ -107,6 +117,10 @@ class IfstreamInputStream : public ::google::protobuf::io::CopyingInputStream {
 };
 }  // namespace
 
+string ProtoDebugString(const MessageLite& proto) {
+  return proto.SerializeAsString();
+}
+
 bool ParseProtoFromLargeString(const string& str, MessageLite* proto) {
   ::google::protobuf::io::ArrayInputStream input_stream(str.data(), str.size());
   ::google::protobuf::io::CodedInputStream coded_stream(&input_stream);
@@ -156,6 +170,10 @@ bool ParseProtoFromLargeString(const string& str, Message* proto) {
   // Set PlanDef message size limit to 1G.
   coded_stream.SetTotalBytesLimit(1024LL << 20, 512LL << 20);
   return proto->ParseFromCodedStream(&coded_stream);
+}
+
+string ProtoDebugString(const Message& proto) {
+  return proto.ShortDebugString();
 }
 
 bool ReadProtoFromTextFile(const char* filename, Message* proto) {

@@ -78,7 +78,7 @@ install(FILES ${PROJECT_BINARY_DIR}/caffe2/core/macros.h
 
 
 # ---[ List of libraries to link with
-add_library(caffe2_protos $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
+add_library(caffe2_protos STATIC $<TARGET_OBJECTS:Caffe_PROTO> $<TARGET_OBJECTS:Caffe2_PROTO>)
 add_dependencies(caffe2_protos Caffe_PROTO Caffe2_PROTO)
 # TODO: enable using lite protobuf.
 # If we are going to link protobuf locally inside caffe2 libraries, what we will do is
@@ -110,11 +110,15 @@ target_include_directories(caffe2_protos INTERFACE $<INSTALL_INTERFACE:include>)
 #     nothing changes. If one has a dependent library that uses protobuf, then one needs to
 #     have the right protobuf version as well as linking to libprotobuf.a.
 target_link_libraries(caffe2_protos PUBLIC protobuf::libprotobuf)
-install(TARGETS caffe2_protos EXPORT Caffe2Targets DESTINATION lib)
 
 # Compile exposed libraries.
 add_library(caffe2 ${Caffe2_CPU_SRCS})
-target_link_libraries(caffe2 PUBLIC caffe2_protos ${Caffe2_PUBLIC_DEPENDENCY_LIBS})
+caffe2_interface_library(caffe2_protos caffe2_protos_whole)
+target_link_libraries(caffe2 PRIVATE caffe2_protos_whole)
+if (${CAFFE2_LINK_LOCAL_PROTOBUF})
+  target_link_libraries(caffe2 INTERFACE protobuf::libprotobuf)
+endif()
+target_link_libraries(caffe2 PUBLIC ${Caffe2_PUBLIC_DEPENDENCY_LIBS})
 target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_LIBS})
 target_link_libraries(caffe2 PRIVATE ${Caffe2_DEPENDENCY_WHOLE_LINK_LIBS})
 target_include_directories(caffe2 INTERFACE $<INSTALL_INTERFACE:include>)
