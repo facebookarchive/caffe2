@@ -20,8 +20,8 @@ import subprocess
 import sys
 from textwrap import dedent
 
-TOP_DIR = os.path.realpath(os.path.dirname(__file__))
-SRC_DIR = os.path.join(TOP_DIR, 'caffe2')
+SRC_DIR = os.path.realpath(os.path.dirname(__file__))
+TOP_DIR = os.path.join(SRC_DIR, '..')
 CMAKE_BUILD_DIR = os.path.join(TOP_DIR, '.setuptools-cmake-build')
 
 install_requires = []
@@ -65,7 +65,7 @@ try:
 except (OSError, subprocess.CalledProcessError):
     git_version = None
 
-with open(os.path.join(TOP_DIR, 'VERSION_NUMBER')) as version_file:
+with open(os.path.join(SRC_DIR, 'VERSION_NUMBER')) as version_file:
     VersionInfo = namedtuple('VersionInfo', ['version', 'git_version'])(
         version=version_file.read().strip(),
         git_version=git_version
