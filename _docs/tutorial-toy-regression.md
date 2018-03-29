@@ -12,7 +12,7 @@ This tutorial shows how to use more Caffe2 features with simple linear regressio
 * automatically train the model
 * review stochastic gradient descent results and changes to your ground truth parameters as the network learned
 
-[Browse the Tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Toy_Regression.ipynb)
+[Browse the Tutorial](https://github.com/caffe2/tutorials/blob/master/Toy_Regression.ipynb)
 
 This is a quick example showing how one can use the concepts introduced in the Basics tutorial to do a quick toy regression.
 

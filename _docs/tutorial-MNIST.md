@@ -7,7 +7,7 @@ permalink: /docs/tutorial-MNIST.html
 
 This tutorial creates a small convolutional neural network (CNN) that can identify handwriting. To train and test the CNN, we use handwriting imagery from the MNIST dataset. This is a collection of 60,000 images of 500 different people's handwriting that is used for training your CNN. Another set of 10,000 test images (different from the training images) is used to test the accuracy of the resulting CNN.
 
-[Browse the IPython Tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/MNIST.ipynb)
+[Browse the IPython Tutorial](https://github.com/caffe2/tutorials/blob/master/MNIST.ipynb)
 
 First, let's import the necessities.
 
@@ -92,7 +92,7 @@ print("workspace root folder:" + root_folder)
     workspace root folder:/Users/aaronmarkham/caffe2_notebooks/tutorial_files/tutorial_mnist
 
 
-> If the database wasn't found in the last step, [download the MNIST lmdb database](https://download.caffe2.ai/databases/mnist-lmdb.zip) or review the [datasets and databases notebook](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/MNIST_Dataset_and_Databases.ipynb) on how to create the database from the MNIST dataset.
+> If the database wasn't found in the last step, [download the MNIST lmdb database](https://download.caffe2.ai/databases/mnist-lmdb.zip) or review the [datasets and databases notebook](https://github.com/caffe2/tutorials/blob/master/MNIST_Dataset_and_Databases.ipynb) on how to create the database from the MNIST dataset.
 
 We will be using the `ModelHelper` class to represent our main model and using `brew` module and `Operators` to build our model. `brew` module has a set of wrapper functions that automatically separates the parameter intialization and the actual computation into two networks. Under the hood, a `ModelHelper` object has two underlying nets, `param_init_net` and `net`, that keeps record of the initialization network and the main network respectively.
 

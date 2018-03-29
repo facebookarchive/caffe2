@@ -122,10 +122,10 @@ If you want to run your Jupyter server from a Docker container, then you'll need
 
 
 ```
-docker run -it -p 8888:8888 caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+docker run -it -p 8888:8888 caffe2ai/caffe2:cpu-fulloptions-ubuntu14.04 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2_tutorials"
 ```
 
-Your output will be along these lines below. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials. Note the if you installed caffe2 in a different spot, then update the optional path that is in the command `/caffe2/caffe2/python/tutorials` to match where the tutorials are located.
+Your output will be along these lines below. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials. Note the if you installed caffe2 in a different spot, then update the optional path that is in the command `/caffe2_tutorials` to match where the tutorials are located.
 
 ![jupyter docker launch screenshot](../static/images/jupyter-docker-launch.png)
 

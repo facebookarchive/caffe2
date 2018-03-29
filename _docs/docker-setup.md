@@ -11,7 +11,7 @@ permalink: /docs/docker-setup.html
 
 ```
 docker load -i /Volumes/CAFFE2/c2.gpu.tutorial.0.7.0.tar
-docker run -it -p 8888:8888 cc2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+docker run -it -p 8888:8888 cc2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2_tutorials"
 ```
 
 Essentially you need to locate the tar file, whatever its name is and import it with `docker load -i <path-to-image-tar-file>`
@@ -68,7 +68,7 @@ docker images
 Assuming it's there you can now launch it:
 
 ```
-docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2/caffe2/python/tutorials"
+docker run -it -p 8888:8888 c2.gpu.tutorial.0.7.0 sh -c "jupyter notebook --no-browser --ip 0.0.0.0 /caffe2_tutorials"
 ```
 
 This will output a URL. You just need to copy the provided URL/token combo into your browser and you should see the folder with tutorials.

@@ -13,7 +13,7 @@ This tutorial introduces a few basic Caffe2 components:
 
 You also may want to review the [Intro Tutorial](intro-tutorial) before starting this notebook.
 
-[Browse the Tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Basics.ipynb)
+[Browse the Tutorial](https://github.com/caffe2/tutorials/blob/master/Basics.ipynb)
 
 In this tutorial we will go through a set of Caffe2 basics: the basic concepts including how operators and nets are being written.
 

@@ -16,7 +16,7 @@ There are multiple ways to utilize multiple GPUs or machines to train models. Sy
 
 Parallelizing a model is done by module [caffe2.python.data_parallel_model](/doxygen-python/html/namespacedata__parallel__model.html). The model must be created using a ModelHelper, such as [model_helper.ModelHelper](https://github.com/caffe2/caffe2/blob/master/caffe2/python/model_helper.py).
 
-For a full-length tutorial building ResNet-50 for a single GPU, then using `Parallelize_GPU` for multiple GPU check out this [tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Multi-GPU_Training.ipynb)
+For a full-length tutorial building ResNet-50 for a single GPU, then using `Parallelize_GPU` for multiple GPU check out this [tutorial](https://github.com/caffe2/tutorials/blob/master/Multi-GPU_Training.ipynb)
 Here is example from the [Resnet-50 example code](https://github.com/caffe2/caffe2/blob/master/caffe2/python/examples/resnet50_trainer.py):
 
 ```python
