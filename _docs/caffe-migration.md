@@ -39,7 +39,7 @@ Converting your models from original Caffe is relatively easy. We provide a tuto
 
 Here you can find a tutorial with examples of downloading models from Caffe's original repository that you can use with the Caffe2 translator. Skip this if you're starting from scratch and just want to learn Caffe2.
 
-[Browse the IPython Tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/Getting_Caffe1_Models_for_Translation.ipynb)
+[Browse the IPython Tutorial](https://github.com/caffe2/tutorials/blob/master/Getting_Caffe1_Models_for_Translation.ipynb)
 
 #### Converting Models from Caffe to Caffe2
 

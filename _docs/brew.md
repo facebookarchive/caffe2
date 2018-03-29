@@ -85,7 +85,7 @@ from caffe2.python import brew
 brew.fc(model, blob_in, blob_out, ...)
 ```
 
-That's pretty much the same as using the helper function directly, however `brew` really starts to shine once your models get more complicated. The following is a LeNet model building example, extracted from the [MNIST tutorial](https://github.com/caffe2/caffe2/blob/master/caffe2/python/tutorials/MNIST.ipynb).
+That's pretty much the same as using the helper function directly, however `brew` really starts to shine once your models get more complicated. The following is a LeNet model building example, extracted from the [MNIST tutorial](https://github.com/caffe2/tutorials/blob/master/MNIST.ipynb).
 
 ```py
 from caffe2.python import brew
