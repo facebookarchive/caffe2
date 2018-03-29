@@ -21,7 +21,7 @@ import sys
 from textwrap import dedent
 
 SRC_DIR = os.path.realpath(os.path.dirname(__file__))
-TOP_DIR = os.path.join(SRC_DIR, os.pardir)
+TOP_DIR = os.path.realpath(os.path.join(SRC_DIR, os.pardir))
 CMAKE_BUILD_DIR = os.path.join(TOP_DIR, '.setuptools-cmake-build')
 
 install_requires = []
@@ -224,7 +224,11 @@ ext_modules = [
 # Packages
 ################################################################################
 
-packages = setuptools.find_packages(SRC_DIR)
+packages = setuptools.find_packages(
+    TOP_DIR,
+    exclude=('tools', 'tools.*', 'torch', 'torch.*',),
+)
+package_dir = { '': TOP_DIR }
 
 install_requires.extend(['protobuf',
                          'numpy',
@@ -262,6 +266,7 @@ setuptools.setup(
     ext_modules=ext_modules,
     cmdclass=cmdclass,
     packages=packages,
+    package_dir=package_dir,
     install_requires=install_requires,
     setup_requires=setup_requires,
     tests_require=tests_require,
