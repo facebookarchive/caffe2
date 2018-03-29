@@ -224,7 +224,7 @@ ext_modules = [
 # Packages
 ################################################################################
 
-packages = setuptools.find_packages(TOP_DIR)
+packages = setuptools.find_packages(SRC_DIR)
 
 install_requires.extend(['protobuf',
                          'numpy',
