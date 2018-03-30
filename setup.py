@@ -230,7 +230,6 @@ install_requires.extend(['protobuf',
                          'numpy',
                          'future',
                          'hypothesis',
-                         'pydot',
                          'requests',
                          'scipy',
                          'six',])
