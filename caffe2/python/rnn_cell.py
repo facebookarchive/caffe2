@@ -291,6 +291,19 @@ class LSTMInitializer(object):
             )
         ]
 
+class BasicRNNInitializer(object):
+    def __init__(self, hidden_size):
+        self.hidden_size = hidden_size
+
+    def create_states(self, model):
+        return [
+            model.create_param(
+                param_name='initial_hidden_state',
+                initializer=Initializer(operator_name='ConstantFill',
+                                        value=0.0),
+                shape=[self.hidden_size],
+            ),
+        ]
 
 # based on http://pytorch.org/docs/master/nn.html#torch.nn.RNNCell
 class BasicRNNCell(RNNCell):
@@ -306,6 +319,8 @@ class BasicRNNCell(RNNCell):
         **kwargs
     ):
         super(BasicRNNCell, self).__init__(**kwargs)
+        self.initializer = initializer or BasicRNNInitializer(
+            hidden_size=hidden_size)
         self.drop_states = drop_states
         self.input_size = input_size
         self.hidden_size = hidden_size
