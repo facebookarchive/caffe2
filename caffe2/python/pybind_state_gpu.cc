@@ -15,7 +15,7 @@
 #include "caffe2/operators/operator_fallback_gpu.h"
 
 #ifdef USE_TRT
-#include "caffe2/trt/tensorrt_tranformer.h"
+#include "caffe2/contrib/tensorrt/tensorrt_tranformer.h"
 #endif // USE_TRT
 
 namespace caffe2 {

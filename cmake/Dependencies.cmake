@@ -592,10 +592,10 @@ set(BUILD_SHARED_LIBS ${TEMP_BUILD_SHARED_LIBS})
 
 # --[ TensorRT integration with onnx-trt
 if (USE_TENSORRT) 
+  set(CMAKE_CUDA_COMPILER ${CUDA_NVCC_EXECUTABLE})
+  add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/onnx-trt)
   include_directories("${PROJECT_SOURCE_DIR}/third_party/onnx-trt")
-  find_library(ONNX_TRT_LIBRARY onnx2trt 
-    HINTS ${PROJECT_SOURCE_DIR}/third_party/onnx-trt
-    PATH_SUFFIXES lib lib64 lib/x64)
-  list(APPEND Caffe2_PUBLIC_DEPENDENCY_LIBS ${ONNX_TRT_LIBRARY})
+  caffe2_interface_library(onnx2trt_importer_static onnx_trt_library)
+  list(APPEND Caffe2_DEPENDENCY_WHOLE_LINK_LIBS onnx_trt_library)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_TRT=1")
 endif()

@@ -16,9 +16,9 @@
 
 #pragma once
 
+#include "caffe2/contrib/tensorrt/trt_utils.h"
 #include "caffe2/core/context_gpu.h"
 #include "caffe2/core/operator.h"
-#include "caffe2/trt/trt_utils.h"
 
 #include <NvInfer.h>
 #include <iostream>

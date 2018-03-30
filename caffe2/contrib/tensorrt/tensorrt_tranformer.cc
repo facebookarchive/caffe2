@@ -15,8 +15,8 @@
  */
 
 
-#include "caffe2/trt/tensorrt_tranformer.h"
-#include "caffe2/trt/trt_utils.h"
+#include "caffe2/contrib/tensorrt/tensorrt_tranformer.h"
+#include "caffe2/contrib/tensorrt/trt_utils.h"
 #include "caffe2/core/logging.h"
 #include "caffe2/core/operator.h"
 #include "caffe2/onnx/onnx_exporter.h"
@@ -353,7 +353,7 @@ void TensorRTTransformer::Transform(
       // enforce all or nothing here
       results = onnx::OnnxExporter().Caffe2OpToOnnxNodes(op, shape_hints);
       for (const auto& n : results.first) {
-        if (!importer->support(n.op_type().c_str())) {
+        if (!importer->supports(n)) {
           LOG(INFO) << "TRT does not support ONNX node " << n.op_type();
           support_trt = false;
           break;
