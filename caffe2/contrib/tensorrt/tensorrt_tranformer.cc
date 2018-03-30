@@ -31,6 +31,30 @@ namespace caffe2 {
 
 namespace {
 
+// TODO(yinghai): Remove the awkward conversion between unordered_map and map
+std::unordered_map<std::string, TensorShape> InferShapes(
+    NetDef* init_net,
+    NetDef* pred_net,
+    const std::unordered_map<std::string, TensorShape>& input_shape_hints) {
+  CaffeMap<std::string, TensorShape> shape_hints_ordered;
+  for (const auto& kv : input_shape_hints) {
+    shape_hints_ordered.emplace(kv.first, kv.second);
+  }
+  std::vector<std::unique_ptr<NetDef>> nets;
+  nets.emplace_back(init_net);
+  nets.emplace_back(pred_net);
+  InferBlobShapesAndTypes(shape_hints_ordered, nets);
+  for (auto& net : nets) {
+    net.release();
+  }
+  std::unordered_map<std::string, TensorShape> shape_hints;
+  for (const auto& kv : shape_hints_ordered) {
+    shape_hints.emplace(kv.first, kv.second);
+  }
+
+  return shape_hints;
+}
+
 std::vector<std::string> FigureInputs(
     const NetDef& pred_net,
     int start,
@@ -275,7 +299,9 @@ void TensorRTTransformer::ClusterToTrtOp(
     model->mutable_graph()->add_output()->CopyFrom(i);
     auto ret = output_shape_hints.emplace(i.name(), std::vector<int>());
     auto& vec = ret.first->second;
-    const auto& shape = shape_hints.at(i.name());
+    const auto it = shape_hints.find(i.name());
+    CAFFE_ENFORCE(it != shape_hints.end(), "Cannot find shape info for output ", i.name());
+    const auto& shape = it->second;
     for (int k = 0; k < shape.dims().size(); ++k) {
       vec.push_back(shape.dims(k));
     }
@@ -314,11 +340,14 @@ void TensorRTTransformer::ClusterToTrtOp(
   model->mutable_graph()->clear_node();
 }
 
-// Simple transform. Asssume the nets were topologically sorted
+// Cutting off the runnable part and replace with tensor ops. Asssume the nets
+// were topologically sorted
 void TensorRTTransformer::Transform(
     NetDef* init_net,
     NetDef* pred_net,
-    const std::unordered_map<std::string, TensorShape>& shape_hints) {
+    const std::unordered_map<std::string, TensorShape>& input_shape_hints) {
+  const auto shape_hints = InferShapes(init_net, pred_net, input_shape_hints);
+
   std::unordered_set<std::string> weights;
   if (init_net) {
     for (const auto& op : init_net->op()) {

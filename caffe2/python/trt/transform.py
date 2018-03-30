@@ -69,6 +69,7 @@ def transform_caffe2_net(init_net,
         pred_net,
         input_info,
         input_shapes,
+        populate_shapes = False,
         max_batch_size=50,
         max_workspace_size=2*1024*1024,
         verbosity=1,
@@ -80,7 +81,13 @@ def transform_caffe2_net(init_net,
     input_data = {}
     for k,v in input_shapes.iteritems():
         input_data[_ssa_rewrite_input(k)] = np.random.randn(*v).astype(np.float32)
-    shape_hints = _infer_shapes(init_net, pred_net, input_data)
+
+    # Hacky way to infer shapes as not all our operators have shape inference function.
+    # Normally this is not needed
+    if populate_shapes:
+        shape_hints = _infer_shapes(init_net, pred_net, input_data)
+
+    shape_hints = {}
     for k,v in input_shapes.iteritems():
         shape_hints[_ssa_rewrite_input(k)] = v
     init_net_str, pred_net_str = C.transform_trt(init_net.SerializeToString(),
