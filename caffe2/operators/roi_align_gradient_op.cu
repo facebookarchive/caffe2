@@ -123,9 +123,7 @@ __global__ void RoIAlignBackwardFeature(
     T* offset_bottom_diff =
         bottom_diff + (roi_batch_ind * channels + c) * height * width;
 
-    int top_offset = (n * channels + c) * pooled_height * pooled_width;
-    const T* offset_top_diff = top_diff + top_offset;
-    const T top_diff_this_bin = offset_top_diff[ph * pooled_width + pw];
+    const T top_diff_this_bin = top_diff[index];
 
     // We use roi_bin_grid to sample the grid and mimic integral
     int roi_bin_grid_h = (sampling_ratio > 0)
