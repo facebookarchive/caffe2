@@ -296,6 +296,30 @@ TEST(NNPACK, Conv_1x1s1_precompute) {
   }
 }
 
+TEST(NNPACK, Conv_3x3s2) {
+  for (int i = 0; i < kIters; ++i) {
+    runConv(3, 3, 2, 2,
+        1 /* groups */,
+        "AUTO",
+        randInt(3, 16),
+        randInt(3, 16),
+        1 /* batch size */);
+  }
+}
+
+TEST(NNPACK, Conv_3x3s2_precompute) {
+  for (int i = 0; i < kIters; ++i) {
+    int group = randInt(1, 2);
+    runConv(3, 3, 2, 2,
+        1 /* groups */,
+        "AUTO",
+        randInt(3, 16),
+        randInt(3, 16),
+        1 /* batch size */,
+        "PRECOMPUTE");
+  }
+}
+
 TEST(NNPACK, Conv_NxNs_grouped) {
   for (int i = 0; i < kIters; ++i) {
     int group = randInt(2, 3);
