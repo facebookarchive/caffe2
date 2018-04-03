@@ -1,16 +1,1 @@
-If this is a build issue, please fill out the template below.
-
-### System information
-
-* Operating system:
-* Compiler version:
-* CMake version:
-* CMake arguments:
-* Relevant libraries/versions (e.g. CUDA):
-
-### CMake summary output
-
-```
-******** Summary ********
-<please paste summary output here>
-```
+Caffe2 has been moved to https://github.com/pytorch/pytorch . Please post your issue at https://github.com/pytorch/pytorch/issues and include [Caffe2] in the beginning of your issue title.
