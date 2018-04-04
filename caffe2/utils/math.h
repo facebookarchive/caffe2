@@ -295,16 +295,16 @@ template <typename T, class Context>
 void Dot(const int N, const T* a, const T* b, T* y, Context* context);
 
 // Sum of vector x, and writes the result to a single value y.
-template <typename T, class Context>
-void Sum(const int N, const T* x, T* y, Context* context,
+template <typename IN_TYPE, class Context, typename OUT_TYPE = IN_TYPE>
+void Sum(const int N, const IN_TYPE* x, OUT_TYPE* y, Context* context,
          Tensor<Context>* scratch_ptr = nullptr);
 
 // Sum of squares of vector x, and writes the result to a single value y.
-template <typename T, class Context>
+template <typename IN_TYPE, class Context, typename OUT_TYPE = IN_TYPE>
 void SumSqr(
     const int N,
-    const T* x,
-    T* y,
+    const IN_TYPE* x,
+    OUT_TYPE* y,
     Context* context,
     Tensor<Context>* scratch_ptr = nullptr);
 
@@ -314,14 +314,14 @@ template <typename T, class Context>
 void Select(const int N, const int D, const T* x, const int* idx, T* y,
             Context* context);
 
-template <typename T, class Context>
-void Scale(const int N, const float alpha, const T* x, T* y, Context* context);
+template <typename IN_TYPE, class Context, typename OUT_TYPE = IN_TYPE>
+void Scale(const int N, const float alpha, const IN_TYPE* x, OUT_TYPE* y, Context* context);
 
 // Different from the Scale function above, if alpha is passed in
 // as a pointer, we will assume that it lives on the Context device,
 // for example on GPU.
-template <typename T, class Context>
-void Scale(const int N, const float* alpha, const T* x, T* y, Context* context);
+template <typename IN_TYPE, class Context, typename OUT_TYPE = IN_TYPE>
+void Scale(const int N, const float* alpha, const IN_TYPE* x, OUT_TYPE* y, Context* context);
 
 template <typename T, class Context>
 void Axpy(const int N, const float alpha, const T* x, T* y, Context* context);

@@ -1004,8 +1004,8 @@ void Dot<float16, CUDAContext>(
 // may interfere with NCCL and create a deadlock. Hence we are using a custom
 // reduction here.
 #define SUM_KERNEL_NTHREADS 128
-template <typename T>
-__global__ void SumKernel(const int N, const T* X, T* Y, bool square) {
+template <typename IN_TYPE, typename OUT_TYPE>
+__global__ void SumKernel(const int N, const IN_TYPE* X, OUT_TYPE* Y, bool square) {
   const int idx = threadIdx.x;
   __shared__ float reduction_buffer[SUM_KERNEL_NTHREADS];
 
@@ -1015,11 +1015,11 @@ __global__ void SumKernel(const int N, const T* X, T* Y, bool square) {
   // N -> 128
   if (!square) {
     for (int i = idx; i < N; i += SUM_KERNEL_NTHREADS) {
-      reduction_buffer[idx] += convert::To<T, float>(X[i]);
+      reduction_buffer[idx] += convert::To<IN_TYPE, float>(X[i]);
     }
   } else {
     for (int i = idx; i < N; i += SUM_KERNEL_NTHREADS) {
-      float Xi = convert::To<T, float>(X[i]);
+      float Xi = convert::To<IN_TYPE, float>(X[i]);
       reduction_buffer[idx] += Xi * Xi;
     }
   }
@@ -1038,7 +1038,7 @@ __global__ void SumKernel(const int N, const T* X, T* Y, bool square) {
     for (int i = 0; i < 32; ++i) {
       tmp += reduction_buffer[i];
     }
-    *Y = convert::To<float, T>(tmp);
+    *Y = convert::To<float, OUT_TYPE>(tmp);
   }
 }
 
@@ -1122,17 +1122,17 @@ struct FloatTransform {
 };
 } // namespace
 
-#define CAFFE2_MATH_SUM_FUNC(T)                                           \
+#define CAFFE2_MATH_SUM_FUNC(IN_TYPE, OUT_TYPE)                                           \
   template <>                                                             \
-  void Sum<T, CUDAContext>(                                               \
+  void Sum<IN_TYPE, CUDAContext, OUT_TYPE>(                                               \
       const int N,                                                        \
-      const T* x,                                                         \
-      T* y,                                                               \
+      const IN_TYPE* x,                                                         \
+      OUT_TYPE* y,                                                               \
       CUDAContext* context,                                               \
       Tensor<CUDAContext>* scratch_ptr) {                                 \
     if (scratch_ptr && N > DEVICE_REDUCE_SIZE_THRESHOLD) {                \
-      FloatTransform<T> transform;                                        \
-      cub::TransformInputIterator<float, FloatTransform<T>, const T*> it( \
+      FloatTransform<IN_TYPE> transform;                                        \
+      cub::TransformInputIterator<float, FloatTransform<IN_TYPE>, const IN_TYPE*> it( \
           x, transform);                                                  \
       float* sum = nullptr;                                               \
       SumGenericIter<float>(N, it, sum, context, scratch_ptr);            \
@@ -1143,7 +1143,8 @@ struct FloatTransform {
     }                                                                     \
   }
 
-CAFFE2_MATH_SUM_FUNC(float16)
+CAFFE2_MATH_SUM_FUNC(float16, float16)
+CAFFE2_MATH_SUM_FUNC(float16, float)
 #undef CAFFE2_MATH_SUM_FUNC
 
 namespace {
@@ -1173,17 +1174,17 @@ void SumSqr<float, CUDAContext>(
   }
 }
 
-#define CAFFE2_MATH_SUMSQR_FUNC(T)                                      \
+#define CAFFE2_MATH_SUMSQR_FUNC(IN_TYPE, OUT_TYPE)                                      \
   template <>                                                           \
-  void SumSqr<T, CUDAContext>(                                          \
+  void SumSqr<IN_TYPE, CUDAContext, OUT_TYPE>(                                          \
       const int N,                                                      \
-      const T* x,                                                       \
-      T* y,                                                             \
+      const IN_TYPE* x,                                                       \
+      OUT_TYPE* y,                                                             \
       CUDAContext* context,                                             \
       Tensor<CUDAContext>* scratch_ptr) {                               \
     if (scratch_ptr && N > DEVICE_REDUCE_SIZE_THRESHOLD) {              \
-      FloatTransform<T> float_transform;                                \
-      cub::TransformInputIterator<float, FloatTransform<T>, const T*>   \
+      FloatTransform<IN_TYPE> float_transform;                                \
+      cub::TransformInputIterator<float, FloatTransform<IN_TYPE>, const IN_TYPE*>   \
           float_it(x, float_transform);                                 \
       SqrTransform<float> sqr_transform;                                \
       cub::TransformInputIterator<                                      \
@@ -1200,7 +1201,8 @@ void SumSqr<float, CUDAContext>(
     }                                                                   \
   }
 
-CAFFE2_MATH_SUMSQR_FUNC(float16)
+CAFFE2_MATH_SUMSQR_FUNC(float16, float)
+CAFFE2_MATH_SUMSQR_FUNC(float16, float16)
 #undef CAFFE2_MATH_SUMSQR_FUNC
 #undef DEVICE_REDUCE_SIZE_THRESHOLD
 
@@ -1238,19 +1240,18 @@ void Select<float16, CUDAContext>(
 }
 
 namespace {
-template <typename T>
-__global__ void ScaleKernel(const int n, const float alpha, const T* x, T* y) {
+template <typename IN_TYPE, typename OUT_TYPE>
+__global__ void ScaleKernel(const int n, const float alpha, const IN_TYPE* x, OUT_TYPE* y) {
   CUDA_1D_KERNEL_LOOP(i, n) {
-    // y[i] = convert::To<float,T>(convert::To<T, float>(x[i]) * alpha);
-    y[i] = convert::Get<T>(convert::Get<float>(x[i]) * alpha);
+    y[i] = convert::Get<OUT_TYPE>(convert::Get<float>(x[i]) * alpha);
   }
 }
 
-template <typename T>
+template <typename IN_TYPE, typename OUT_TYPE>
 __global__ void
-ScaleKernelDeviceAlpha(const int n, const float* alpha, const T* x, T* y) {
+ScaleKernelDeviceAlpha(const int n, const float* alpha, const IN_TYPE* x, OUT_TYPE* y) {
   CUDA_1D_KERNEL_LOOP(i, n) {
-    y[i] = x[i] * (*alpha);
+    y[i] = convert::Get<OUT_TYPE>(convert::Get<float>(x[i]) * (*alpha));
   }
 }
 
@@ -1297,8 +1298,11 @@ void Scale<float, CUDAContext>(
     const float* x,
     float* y,
     CUDAContext* context) {
-  ScaleKernel<float><<<CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS,
-                       0, context->cuda_stream()>>>(n, alpha, x, y);
+  ScaleKernel<float, float>
+      <<<CAFFE_GET_BLOCKS(n),
+         CAFFE_CUDA_NUM_THREADS,
+         0,
+         context->cuda_stream()>>>(n, alpha, x, y);
 }
 
 template <>
@@ -1308,20 +1312,36 @@ void Scale<float16, CUDAContext>(
     const float16* x,
     float16* y,
     CUDAContext* context) {
-  ScaleKernel<float16><<<
-      CAFFE_GET_BLOCKS(n),
-      CAFFE_CUDA_NUM_THREADS,
-      0,
-      context->cuda_stream()>>>(n, alpha, x, y);
+  ScaleKernel<float16, float16>
+      <<<CAFFE_GET_BLOCKS(n),
+         CAFFE_CUDA_NUM_THREADS,
+         0,
+         context->cuda_stream()>>>(n, alpha, x, y);
+}
+
+template <>
+void Scale<float16, CUDAContext, float>(
+    const int n,
+    const float alpha,
+    const float16* x,
+    float* y,
+    CUDAContext* context) {
+  ScaleKernel<float16, float>
+      <<<CAFFE_GET_BLOCKS(n),
+         CAFFE_CUDA_NUM_THREADS,
+         0,
+         context->cuda_stream()>>>(n, alpha, x, y);
 }
 
 template <>
 void Scale<float, CUDAContext>(
     const int n, const float* alpha, const float *x, float* y,
     CUDAContext* context) {
-  ScaleKernelDeviceAlpha<float><<<
-      CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS, 0, context->cuda_stream()>>>(
-          n, alpha, x, y);
+  ScaleKernelDeviceAlpha<float, float>
+      <<<CAFFE_GET_BLOCKS(n),
+         CAFFE_CUDA_NUM_THREADS,
+         0,
+         context->cuda_stream()>>>(n, alpha, x, y);
 }
 
 template <>
@@ -1331,11 +1351,25 @@ void Scale<float16, CUDAContext>(
     const float16* x,
     float16* y,
     CUDAContext* context) {
-  ScaleKernelDeviceAlpha<float16><<<
-      CAFFE_GET_BLOCKS(n),
-      CAFFE_CUDA_NUM_THREADS,
-      0,
-      context->cuda_stream()>>>(n, alpha, x, y);
+  ScaleKernelDeviceAlpha<float16, float16>
+      <<<CAFFE_GET_BLOCKS(n),
+         CAFFE_CUDA_NUM_THREADS,
+         0,
+         context->cuda_stream()>>>(n, alpha, x, y);
+}
+
+template <>
+void Scale<float16, CUDAContext, float>(
+    const int n,
+    const float* alpha,
+    const float16* x,
+    float* y,
+    CUDAContext* context) {
+  ScaleKernelDeviceAlpha<float16, float>
+      <<<CAFFE_GET_BLOCKS(n),
+         CAFFE_CUDA_NUM_THREADS,
+         0,
+         context->cuda_stream()>>>(n, alpha, x, y);
 }
 
 template <>

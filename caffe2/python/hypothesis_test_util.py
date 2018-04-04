@@ -234,14 +234,27 @@ def sparse_lengths_tensor(**kwargs):
     return sparse_segmented_tensor(segment_generator=lengths, **kwargs)
 
 
-def tensors(n, min_dim=1, max_dim=4, dtype=np.float32, elements=None, **kwargs):
-    dims_ = st.lists(dims(**kwargs), min_size=min_dim, max_size=max_dim)
-    return dims_.flatmap(
-        lambda dims: st.lists(
-            arrays(dims, dtype, elements),
-            min_size=n,
-            max_size=n))
+def tensors(min_n=1, max_n=None,
+            min_dim=1, max_dim=4,
+            varying_shape=False,
+            dtype=np.float32,
+            elements=None,
+            **kwargs):
+    """
+    If varying_shape then the tensors will have different shapes.
 
+    """
+    dims_ = st.lists(dims(**kwargs), min_size=min_dim, max_size=max_dim)
+    arrays_list = lambda dims: st.lists(
+      arrays(dims, dtype, elements),
+      min_size=min_n,
+      max_size=max_n if max_n != None else min_n)
+
+    if varying_shape:
+        return arrays_list(dims_)
+    else:
+        return dims_.flatmap(
+            lambda dims: arrays_list(dims))
 
 def tensors1d(n, min_len=1, max_len=64, dtype=np.float32, elements=None):
     return tensors(
@@ -335,7 +348,7 @@ class HypothesisTestCase(test_util.TestCase):
 
         Usage example:
 
-            @given(inputs=hu.tensors(n=2), in_place=st.booleans(), **hu.gcs)
+            @given(inputs=hu.tensors(min_n=2), in_place=st.booleans(), **hu.gcs)
             def test_sum(self, inputs, in_place, gc, dc):
                 op = core.CreateOperator("Sum", ["X1", "X2"],
                                                 ["Y" if not in_place else "X1"])
@@ -371,7 +384,7 @@ class HypothesisTestCase(test_util.TestCase):
 
         Usage example:
 
-            @given(inputs=hu.tensors(n=2), in_place=st.booleans(), **hu.gcs)
+            @given(inputs=hu.tensors(min_n=2), in_place=st.booleans(), **hu.gcs)
             def test_sum(self, inputs, in_place, gc, dc):
                 op = core.CreateOperator("Sum", ["X1", "X2"],
                                                 ["Y" if not in_place else "X1"])

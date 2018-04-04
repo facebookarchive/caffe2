@@ -33,6 +33,7 @@ _known_working_ops = [
     "AveragedLoss",
     "Cast",
     "Checkpoint",
+    "ClipByGlobalNorm",
     "ConstantFill",
     "Copy",
     "CopyGPUToCPU",
