@@ -20,6 +20,7 @@ from caffe2.python.onnx.helper import c2_native_run_net, c2_native_run_op
 from onnx import defs, mapping
 import caffe2.python.onnx.frontend as c2_onnx
 import caffe2.python.onnx.backend as c2
+import caffe2.python.utils as c2_util
 
 import numpy as np
 from caffe2.python.models.download import downloadFromURLToFile, getURLFromName, deleteDirectory
@@ -33,6 +34,20 @@ class TestCaffe2Basic(TestCase):
         n1 = dummy_name()
         n2 = dummy_name()
         assert n1 != n2, "Got same names in different calls: {}".format(n1)
+
+    def test_check_arguments(self):
+        add = caffe2_pb2.OperatorDef()
+        args = map(lambda nm: c2_util.MakeArgument(nm, ''), ['broadcast', 'axis'])
+        add.arg.extend(args)
+        addSchema = c2.workspace.C.OpSchema.get("Add")
+        # positive case of a valid arg list: should not raise
+        c2.Caffe2Backend._check_op_argument_schema(addSchema, add)
+        # negative: should raise
+        import random
+        hash = random.getrandbits(128)
+        add.arg.extend([c2_util.MakeArgument(str(hash) + 'foo', '')])
+        with self.assertRaises(ValueError):
+            c2.Caffe2Backend._check_op_argument_schema(addSchema, add)
 
     def test_relu_graph(self):
         X = np.random.randn(3, 2).astype(np.float32)

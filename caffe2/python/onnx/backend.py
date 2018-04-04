@@ -815,6 +815,14 @@ class Caffe2Backend(Backend):
             retval = Caffe2Rep(init_net, predict_net, ws, uninitialized)
             return retval
 
+    @staticmethod
+    def _check_op_argument_schema(opschema, op):
+        schema_argnames = list(map(lambda x: x.name, opschema.args))
+        for k in op.arg:
+            if k.name not in schema_argnames:
+                raise ValueError(
+                    "Don't know how to map argument {}, expected one of {}".format(
+                        k.name, ", ".join(schema_argnames)))
 
     @classmethod
     # TODO: This method needs a refactor for clarity
@@ -839,6 +847,8 @@ class Caffe2Backend(Backend):
         else:
             translator = cls._common_onnx_node_to_caffe2_op
         ops = translator(init_model, pred_model, OnnxNode(node_def), opset_version)
+        opschema = workspace.C.OpSchema.get(ops.op_type)
+        cls._check_op_argument_schema(opschema, ops)
         if isinstance(ops, Caffe2Ops):
             return ops
         if not isinstance(ops, collections.Iterable):
