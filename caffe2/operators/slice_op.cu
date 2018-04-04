@@ -56,6 +56,12 @@ bool SliceImplGpu(
     Context* context,
     Tensor<Context>* gdata = nullptr,
     const Tensor<Context>* go = nullptr) {
+
+  // TODO Replace this before landing
+  // This uses the CPU algorithm on a GPU, which makes the GPU support multidimensional slice,
+  // but in a inperformant way. This should be replaced with a better GPU algorithm.
+  return SliceImpl<SIndex, Context>(output, data, starts, ends, context, gdata, go);
+  
   bool backward = output == nullptr;
 
   auto* starts_data = starts.template data<SIndex>();

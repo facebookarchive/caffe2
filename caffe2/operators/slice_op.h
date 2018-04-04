@@ -9,12 +9,85 @@ namespace caffe2 {
 
 namespace {
 
+template<class SIndex, class Context>
+void slice_(
+    const char* src_bytes,
+    char* dst_bytes,
+    typename std::vector<SIndex>::const_iterator starts_idx,
+    typename std::vector<SIndex>::const_iterator ends_idx,
+    typename std::vector<TIndex>::const_iterator src_unit_sizes,
+    typename std::vector<TIndex>::const_iterator dst_unit_sizes,
+    size_t ndim,
+    Context* context,
+    const TypeMeta& meta,
+    bool backward) {
+  DCHECK_LE(*starts_idx, *ends_idx);
+
+  size_t src_unit = meta.itemsize() * *src_unit_sizes;
+  size_t dst_unit = meta.itemsize() * *dst_unit_sizes;
+
+  const char* src = src_bytes;
+  char* dst = dst_bytes;
+  if (backward) {
+    dst += *starts_idx * dst_unit;
+  } else {
+    src += *starts_idx * src_unit;
+  }
+  size_t num_units = *ends_idx - *starts_idx;
+
+  if (ndim == 0) {
+    CAFFE_ENFORCE_EQ(*src_unit_sizes, *dst_unit_sizes);
+    context->template CopyItems<Context, Context>(
+      meta,
+      num_units * *src_unit_sizes,
+      src,
+      dst
+    );
+  } else {
+    for (size_t i = 0; i != num_units; ++i) {
+      slice_<SIndex, Context>(
+        src + i * src_unit,
+        dst + i * dst_unit,
+        starts_idx + 1,
+        ends_idx + 1,
+        src_unit_sizes + 1,
+        dst_unit_sizes + 1,
+        ndim - 1,
+        context,
+        meta,
+        backward
+      );
+    }
+  }
+}
+
+template<class SIndex>
+int _last_nonfull_dimension(
+    const std::vector<TIndex>& dims,
+    const TensorCPU& starts,
+    const TensorCPU& ends
+) {
+  auto* starts_data = starts.template data<SIndex>();
+  auto* ends_data = ends.template data<SIndex>();
+
+  for (int i = dims.size()-1; i >= 0; --i) {
+    if (
+        dims[i] != 0 &&
+        i < starts.size() &&
+        (starts_data[i] != 0 || ends_data[i] < dims[i])
+    ) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 template <class SIndex, class Context>
 bool SliceImpl(
     Tensor<Context>* output,
     const Tensor<Context>& data,
-    const Tensor<Context>& starts,
-    const Tensor<Context>& ends,
+    const TensorCPU& starts,
+    const TensorCPU& ends,
     Context* context,
     Tensor<Context>* gdata = nullptr,
     const Tensor<Context>* go = nullptr) {
@@ -28,14 +101,28 @@ bool SliceImpl(
   CAFFE_ENFORCE_GE(data.ndim(), starts.size());
   CAFFE_ENFORCE_EQ(starts.size(), ends.size());
 
+  // Compute start and end indices
+  const int last_nonfull_dimension = _last_nonfull_dimension<SIndex>(data.dims(), starts, ends);
+
+  // optimize for full-data case
+  if (last_nonfull_dimension == -1) {
+    if (!backward) {
+      output->CopyFrom(data, context);
+    } else {
+      gdata->CopyFrom(*go, context);
+    }
+    return true;
+  }
+
   std::vector<SIndex> starts_idx(data.ndim());
   std::vector<SIndex> ends_idx(data.ndim());
   std::vector<SIndex> dst_sizes(data.ndim());
 
-  for (int i = 0; i < data.ndim(); ++i) {
+  for (int i = 0; i <= data.ndim(); ++i) {
     if (i >= starts.size()) {
       starts_idx[i] = 0;
       ends_idx[i] = data.dims()[i];
+      dst_sizes[i] = data.dims()[i];
       continue;
     }
     if (data.dims()[i] > 0) {
@@ -66,6 +153,7 @@ bool SliceImpl(
     }
   }
 
+  // optimize for empty-input case
   if (data.size() <= 0) {
     // When the input is empty, we do not need to do copy.
     if (!backward) {
@@ -74,125 +162,47 @@ bool SliceImpl(
     }
     return true;
   }
-  // for now only supports slicing in 1 dimension
-  int dim = -1;
-  for (int i = 0; i < data.ndim(); ++i) {
-    if (starts_idx[i] > 0 || ends_idx[i] < data.dims()[i]) {
-      CAFFE_ENFORCE_EQ(
-          dim, -1, "Currently only possible to slice in 1 dimension.");
-      dim = i;
-    }
+
+  // postfix product of the dimensions is the unit size for each recursion step
+  // precompute it here instead of in each recursion step for performance.
+  std::vector<TIndex> src_unit_sizes(data.ndim());
+  std::vector<TIndex> dst_unit_sizes(data.ndim());
+  src_unit_sizes.back() = 1;
+  dst_unit_sizes.back() = 1;
+  for (int i = dst_unit_sizes.size()-1; i > 0; --i) {
+    src_unit_sizes[i-1] = src_unit_sizes[i] * data.dims()[i];
+    dst_unit_sizes[i-1] = dst_unit_sizes[i] * dst_sizes[i];
   }
-  if (dim == -1) {
-    if (!backward) {
-      output->CopyFrom(data, context);
-    } else {
-      gdata->CopyFrom(*go, context);
-    }
-    return true;
-  }
-  size_t unit = std::accumulate(
-      data.dims().begin() + dim + 1,
-      data.dims().end(),
-      1,
-      std::multiplies<SIndex>());
-  size_t num_blocks = std::accumulate(
-      data.dims().begin(),
-      data.dims().begin() + dim,
-      1,
-      std::multiplies<SIndex>());
+
+  char* src_bytes = nullptr;
+  char* dst_bytes = nullptr;
+
   if (!backward) {
     output->Resize(dst_sizes);
+
+    src_bytes = (char*)data.raw_data();
+    dst_bytes = (char*)output->raw_mutable_data(data.meta());
   } else {
     gdata->ResizeLike(data);
-  }
 
-  size_t itemsize = data.meta().itemsize();
+    src_bytes = (char*)go->raw_data();
+    dst_bytes = (char*)gdata->raw_mutable_data(go->meta());
 
-  if (!backward) {
-    char* src_bytes = (char*)data.raw_data();
-    char* dst_bytes = (char*)output->raw_mutable_data(data.meta());
-
-    size_t src_nbytes = data.nbytes();
-    size_t dst_nbytes = output->nbytes();
-
-    size_t src_block_size = unit * data.dims()[dim];
-    size_t dst_block_size = unit * (ends_idx[dim] - starts_idx[dim]);
-    size_t src_offset = unit * starts_idx[dim];
-
-    if (num_blocks == 0 || dst_block_size == 0) {
-      return true;
-    }
-
-    size_t src_block_size_bytes = itemsize * src_block_size;
-    size_t dst_block_size_bytes = itemsize * dst_block_size;
-
-    char* src_offset_bytes = src_bytes + itemsize * src_offset;
-    char* dst_offset_bytes = dst_bytes;
-    for (int i = 0; i < num_blocks; ++i) {
-      char* local_src_offset_bytes =
-          src_offset_bytes + i * src_block_size_bytes;
-      char* local_dst_offset_bytes =
-          dst_offset_bytes + i * dst_block_size_bytes;
-      DCHECK_LE(
-          static_cast<void*>(local_src_offset_bytes + dst_block_size_bytes),
-          static_cast<void*>(src_bytes + src_nbytes));
-      DCHECK_LE(
-          static_cast<void*>(local_dst_offset_bytes + dst_block_size_bytes),
-          static_cast<void*>(dst_bytes + dst_nbytes));
-      context->template CopyItems<Context, Context>(
-          data.meta(),
-          dst_block_size,
-          (void*)local_src_offset_bytes,
-          (void*)local_dst_offset_bytes);
-    }
-  } else {
-    char* src_bytes = (char*)go->raw_data();
-    char* dst_bytes = (char*)gdata->raw_mutable_data(go->meta());
-
-    size_t src_nbytes = go->nbytes();
-    size_t dst_nbytes = gdata->nbytes();
-
-    size_t src_block_size = unit * (ends_idx[dim] - starts_idx[dim]);
-    size_t dst_block_size = unit * data.dims()[dim];
-    size_t dst_offset = unit * starts_idx[dim];
-
-    if (num_blocks == 0 || dst_block_size == 0) {
-      return true;
-    }
-
-    size_t src_block_size_bytes = itemsize * src_block_size;
-    size_t dst_block_size_bytes = itemsize * dst_block_size;
-
-    char* src_offset_bytes = src_bytes;
-    char* dst_offset_bytes = dst_bytes + itemsize * dst_offset;
     // Zero out gradient blob before copy since we copy in fewer items than
     // there is space for
-    math::Set<char, Context>(dst_nbytes, 0, dst_bytes, context);
+    math::Set<char, Context>(gdata->nbytes(), 0, dst_bytes, context);
 
     // If output tensor is empty, just return zeroed gradient tensor
     if (!src_bytes) {
       return true;
     }
 
-    for (int i = 0; i < num_blocks; ++i) {
-      char* local_src_offset_bytes =
-          src_offset_bytes + i * src_block_size_bytes;
-      char* local_dst_offset_bytes =
-          dst_offset_bytes + i * dst_block_size_bytes;
-      DCHECK_LE(
-          local_src_offset_bytes + src_block_size_bytes,
-          src_bytes + src_nbytes);
-      DCHECK_LE(
-          local_dst_offset_bytes + src_block_size_bytes,
-          dst_bytes + dst_nbytes);
-      context->template CopyItems<Context, Context>(
-          go->meta(),
-          src_block_size,
-          (void*)local_src_offset_bytes,
-          (void*)local_dst_offset_bytes);
-    }
+    std::swap(src_unit_sizes, dst_unit_sizes);
   }
+
+  // Do actual slicing, i.e. call the recursive algorithm
+  slice_<SIndex, Context>(src_bytes, dst_bytes, starts_idx.begin(), ends_idx.begin(), src_unit_sizes.begin(), dst_unit_sizes.begin(), last_nonfull_dimension, context, data.meta(), backward);
+
   return true;
 }
 
