@@ -12,7 +12,65 @@
 #include "caffe2/proto/caffe2.pb.h"
 #include "caffe2/utils/proto_utils.h"
 
+#ifdef CAFFE2_USE_NVTX
+#include <nvToolsExt.h>
+#endif
+
+CAFFE2_DECLARE_bool(caffe2_use_nvtx);
+
 namespace caffe2 {
+
+namespace {
+
+using Color = int32_t;
+constexpr Color kRunColor = 0x0000CCFF; // blue
+constexpr Color kRecordColor = 0x00FF3300; // red
+constexpr Color kWaitColor = 0x0066FF33; // green
+
+#ifdef CAFFE2_USE_NVTX
+
+class ProfiledRange {
+ public:
+  ProfiledRange(const OperatorDef& def, Color color) {
+    if (!FLAGS_caffe2_use_nvtx) {
+      return;
+    }
+    nvtxEventAttributes_t eventAttrib = {0};
+    eventAttrib.version = NVTX_VERSION;
+    eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
+    eventAttrib.colorType = NVTX_COLOR_ARGB;
+    eventAttrib.color = color;
+    eventAttrib.messageType = NVTX_MESSAGE_TYPE_ASCII;
+    eventAttrib.message.ascii = def.type().c_str();
+    range_ = nvtxRangeStartEx(&eventAttrib);
+    CAFFE_ENFORCE(range_, "Start range is invalid.");
+  }
+
+  ~ProfiledRange() {
+    if (!FLAGS_caffe2_use_nvtx) {
+      return;
+    }
+    nvtxRangeEnd(range_);
+  }
+
+ private:
+  nvtxRangeId_t range_ = 0;
+  DISABLE_COPY_AND_ASSIGN(ProfiledRange);
+};
+
+#else
+
+class ProfiledRange {
+ public:
+  ProfiledRange(const OperatorDef& def, Color color) {}
+
+ private:
+  DISABLE_COPY_AND_ASSIGN(ProfiledRange);
+};
+
+#endif // ifdef CAFFE2_USE_NVTX
+
+} // namespace
 
 SimpleNet::SimpleNet(
     const std::shared_ptr<const NetDef>& net_def,
@@ -55,6 +113,7 @@ bool SimpleNet::Run() {
     const auto& net_name = name_.c_str();
     CAFFE_SDT(operator_start, net_name, op_name, op_type, op_ptr);
 #endif
+    ProfiledRange r(op->debug_def(), kRunColor);
     bool res = op->Run();
 #ifdef CAFFE2_ENABLE_SDT
     CAFFE_SDT(operator_done, net_name, op_name, op_type, op_ptr);

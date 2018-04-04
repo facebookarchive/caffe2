@@ -378,6 +378,21 @@ if(USE_CUDA)
   endif()
 endif()
 
+# ---[ NVTX
+if(USE_NVTX)
+  if(NOT USE_CUDA)
+      message(WARNING "If not using cuda, one should not use NVTX either.")
+      set(USE_NVTX OFF)
+  else()
+    find_package(NVTX REQUIRED)
+    if(NVTX_FOUND)
+      caffe2_include_directories(${NVTX_INCLUDE_DIRS})
+      list(APPEND Caffe2_CUDA_DEPENDENCY_LIBS ${NVTX_LIBRARIES})
+      set(CAFFE2_USE_NVTX 1)
+    endif()
+  endif()
+endif()
+
 # ---[ NCCL
 if(USE_NCCL)
   if(NOT USE_CUDA)
