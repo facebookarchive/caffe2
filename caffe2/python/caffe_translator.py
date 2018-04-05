@@ -389,7 +389,7 @@ def _TranslateStridePadKernelHelper(param, caffe_op):
 def TranslateConvNd(layer, pretrained_blobs, is_test, **kwargs):
     param = layer.convolution3d_param
     caffe_op = BaseTranslate(layer, "Conv")
-    output = caffe_op.output[0]
+    output = layer.name
     caffe_op.input.append(output + '_w')
 
     AddArgument(
@@ -424,7 +424,7 @@ def TranslateConvNd(layer, pretrained_blobs, is_test, **kwargs):
 def TranslateConv(layer, pretrained_blobs, is_test, **kwargs):
     param = layer.convolution_param
     caffe_op = BaseTranslate(layer, "Conv")
-    output = caffe_op.output[0]
+    output = layer.name
     caffe_op.input.append(output + '_w')
     _TranslateStridePadKernelHelper(param, caffe_op)
     # weight
@@ -458,7 +458,7 @@ def TranslateDeconv(layer, pretrained_blobs, is_test, **kwargs):
             "Translator currently does not support group deconvolution."
         )
     caffe_op = BaseTranslate(layer, "ConvTranspose")
-    output = caffe_op.output[0]
+    output = layer.name
     _TranslateStridePadKernelHelper(param, caffe_op)
     caffe_op.input.extend([output + '_w'])
     AddArgument(caffe_op, "order", "NCHW")
@@ -596,7 +596,7 @@ def TranslateInnerProduct(layer, pretrained_blobs, is_test, **kwargs):
         # and transpose arguments, so we will silently pass.
         pass
     caffe_op = BaseTranslate(layer, "FC")
-    output = caffe_op.output[0]
+    output = layer.name
     caffe_op.input.extend([output + '_w', output + '_b'])
     # To provide the old-style 4-dimensional blob (1, 1, dim_output, dim_input)
     # case, we always explicitly reshape the pretrained blob.
@@ -675,7 +675,7 @@ def TranslateTanH(layer, pretrained_blobs, is_test, **kwargs):
 @TranslatorRegistry.Register("InstanceNorm")
 def TranslateInstanceNorm(layer, pretrained_blobs, is_test, **kwargs):
     caffe_op = BaseTranslate(layer, "InstanceNorm")
-    output = caffe_op.output[0]
+    output = layer.name
     weight = utils.NumpyArrayToCaffe2Tensor(
         pretrained_blobs[0].flatten(), output + '_w')
     bias = utils.NumpyArrayToCaffe2Tensor(
@@ -688,7 +688,7 @@ def TranslateInstanceNorm(layer, pretrained_blobs, is_test, **kwargs):
 @TranslatorRegistry.Register("BatchNorm")
 def TranslateBatchNorm(layer, pretrained_blobs, is_test, **kwargs):
     caffe_op = BaseTranslate(layer, "SpatialBN")
-    output = caffe_op.output[0]
+    output = layer.name
     param = layer.batch_norm_param
     AddArgument(caffe_op, "is_test", is_test)
     AddArgument(caffe_op, "epsilon", param.eps)
@@ -750,7 +750,7 @@ def TranslateScale(layer, pretrained_blobs, is_test, **kwargs):
         if scale_param.num_axes != 1:
             raise RuntimeError("This path has not been verified yet.")
 
-        output = mul_op.output[0]
+        output = layer.name
         mul_op_param = output + '_w'
         mul_op.input.append(mul_op_param)
         weights = []
@@ -849,7 +849,7 @@ def TranslateROIPooling(layer, pretrained_blobs, is_test, **kwargs):
 @TranslatorRegistry.Register("PReLU")
 def TranslatePRelu(layer, pretrained_blobs, is_test, **kwargs):
     caffe_op = BaseTranslate(layer, "PRelu")
-    output = caffe_op.output[0]
+    output = layer.name
     caffe_op.input.extend([output + '_Slope'])
     slope = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_Slope')
 
