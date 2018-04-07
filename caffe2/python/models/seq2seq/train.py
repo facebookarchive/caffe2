@@ -739,7 +739,7 @@ def main():
 
     if args.use_bidirectional_encoder:
         assert args.encoder_cell_num_units % 2 == 0
-        encoder_layer_configs[0]['num_units'] /= 2
+        encoder_layer_configs[0]['num_units'] //= 2
 
     decoder_layer_configs = [
         dict(
