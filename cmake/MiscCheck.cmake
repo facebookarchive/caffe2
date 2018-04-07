@@ -263,6 +263,9 @@ if (MSVC)
 elseif (${CMAKE_VERSION} VERSION_LESS 3.7 AND ${USE_CUDA})
   set(CAFFE2_CMAKE_USE_LOCAL_FINDCUDA ON)
 endif()
+# We want to use local FindCUDA because of the following pending PR:
+# https://gitlab.kitware.com/cmake/cmake/merge_requests/1899
+set(CAFFE2_CMAKE_USE_LOCAL_FINDCUDA ON)
 
 if (${CAFFE2_CMAKE_USE_LOCAL_FINDCUDA})
   list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules_CUDA_fix)
