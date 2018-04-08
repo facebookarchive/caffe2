@@ -7,6 +7,7 @@ import copy
 import logging
 import re
 import numpy as np  # noqa
+import sys
 
 from caffe2.proto import caffe2_pb2, caffe2_legacy_pb2
 from caffe.proto import caffe_pb2
@@ -872,6 +873,72 @@ def TranslateReduction(layer, pretrained_blobs, is_test, **kwargs):
         raise NotImplementedError("Not yet supported")
     num_reduce_dim = -param.axis
     AddArgument(caffe_op, "num_reduce_dim", num_reduce_dim)
+
+    return caffe_op, []
+
+
+@TranslatorRegistry.Register("Normalize")
+def TranslateNormalize(layer, pretrained_blobs, is_test, **kwargs):
+    caffe_op = BaseTranslate(layer, "Norm")
+    output = caffe_op.output[0]
+    param = layer.norm_param
+    AddArgument(caffe_op, "across_spatial", param.across_spatial)
+    AddArgument(caffe_op, "eps", param.eps)
+    AddArgument(caffe_op, "channel_shared", param.channel_shared)
+    AddArgument(caffe_op, "order", "NCHW")
+
+    caffe_op.input.extend([output + "_scale"])
+    scale = utils.NumpyArrayToCaffe2Tensor(pretrained_blobs[0], output + '_scale')
+    
+
+    return caffe_op, [scale]
+
+@TranslatorRegistry.Register("PriorBox")
+def TranslatePriorBox(layer, pretrained_blobs, is_test, **kwargs):
+    caffe_op = BaseTranslate(layer, "PriorBox")
+    output = caffe_op.output[0]
+    param = layer.prior_box_param
+    AddArgument(caffe_op, "min_sizes", [param.min_size[i] for i in range(len(param.min_size))])
+    AddArgument(caffe_op, "max_sizes", [param.max_size[i] for i in range(len(param.max_size))])
+    AddArgument(caffe_op, "aspect_ratios", [param.aspect_ratio[i] for i in range(len(param.aspect_ratio))])
+    AddArgument(caffe_op, "flip", param.flip)
+    AddArgument(caffe_op, "clip", param.clip)
+    AddArgument(caffe_op, "variance", [param.variance[i] for i in range(len(param.variance))])
+    AddArgument(caffe_op, "img_size", param.img_size)
+    AddArgument(caffe_op, "img_w", param.img_w)
+    AddArgument(caffe_op, "img_h", param.img_h)
+    AddArgument(caffe_op, "step", param.step)
+    AddArgument(caffe_op, "step_h", param.step_h)
+    AddArgument(caffe_op, "step_w", param.step_w)
+    AddArgument(caffe_op, "offset", param.offset)
+    AddArgument(caffe_op, "order", "NCHW")
+
+    return caffe_op, []
+
+@TranslatorRegistry.Register("Permute")
+def TranslatePermute(layer, pretrained_blobs, is_test, **kwargs):
+    caffe_op = BaseTranslate(layer, "Transpose")
+    param = layer.permute_param
+    num_orders = len(param.order)
+    assert num_orders == 4
+    AddArgument(caffe_op, "axes", [param.order[i] for i in range(num_orders)])
+
+    return caffe_op, []
+
+@TranslatorRegistry.Register("DetectionOutput")
+def TranslateDetectionOutput(layer, pretrained_blobs, is_test, **kwargs):
+    caffe_op = BaseTranslate(layer, "DetectionOutput")
+    param = layer.detection_output_param
+    AddArgument(caffe_op, "num_classes", param.num_classes)
+    AddArgument(caffe_op, "share_location", param.share_location)
+    AddArgument(caffe_op, "background_label_id", param.background_label_id)
+    AddArgument(caffe_op, "nms_threshold", param.nms_param.nms_threshold)
+    AddArgument(caffe_op, "top_k", param.nms_param.top_k)
+    AddArgument(caffe_op, "eta", param.nms_param.eta)
+    AddArgument(caffe_op, "code_type", param.code_type)
+    AddArgument(caffe_op, "variance_encoded_in_target", param.variance_encoded_in_target)
+    AddArgument(caffe_op, "keep_top_k", param.keep_top_k)
+    AddArgument(caffe_op, "confidence_threshold", param.confidence_threshold)
 
     return caffe_op, []
 
