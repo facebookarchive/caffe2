@@ -206,6 +206,7 @@ class Caffe2Backend(Backend):
                 ops2 = init_ops + ops2
                 for op in ops2:
                     op.device_option.CopyFrom(device_option)
+
                 print("\nC++:\n{}\nPython:\n{}".format(ops, ops2))
             workspace.RunOperatorsOnce(ops)
             output_values = [workspace.FetchBlob(name) for name in node.output]
