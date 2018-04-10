@@ -1059,9 +1059,10 @@ class RNNCellTest(hu.HypothesisTestCase):
         forget_bias=st.floats(-10.0, 10.0),
         forward_only=st.booleans(),
         drop_states=st.booleans(),
+        num_layers=st.integers(1, 9),
     )
     @ht_settings(max_examples=10)
-    def test_layered_lstm(self, input_tensor, **kwargs):
+    def test_layered_lstm(self, input_tensor, num_layers, **kwargs):
         for outputs_with_grads in [[0], [1], [0, 1, 2, 3]]:
             for memory_optim in [False, True]:
                 _, net, inputs = _prepare_rnn(
@@ -1069,6 +1070,7 @@ class RNNCellTest(hu.HypothesisTestCase):
                     create_rnn=rnn_cell.LSTM,
                     outputs_with_grads=outputs_with_grads,
                     memory_optim=memory_optim,
+                    dim_out=[input_tensor.shape[2]]*num_layers,
                     **kwargs
                 )
                 workspace.FeedBlob(inputs[-1], input_tensor)
