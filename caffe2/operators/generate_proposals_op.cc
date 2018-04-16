@@ -155,16 +155,19 @@ void GenerateProposalsOp<CPUContext>::ProposalsForOneImage(
   // 3. remove predicted boxes with either height or width < min_size
   auto keep = utils::filter_boxes(proposals, min_size, im_info);
   DCHECK_LE(keep.size(), scores.size());
-
-  // 4. sort all (proposal, score) pairs by score from highest to lowest
-  // 5. take top pre_nms_topN (e.g. 6000)
-  std::sort(keep.begin(), keep.end(), [&scores](int lhs, int rhs) {
+  auto comp = [&scores](int lhs, int rhs) {
     return scores[lhs] > scores[rhs];
-  });
+  };
 
+  // 4. check if pre_nms_topN (e.g. 6000) is less than keep size
+  // and, if so, truncate with top_n before sorting
   if (pre_nms_topN > 0 && pre_nms_topN < keep.size()) {
+    std::nth_element(keep.begin(), keep.begin() + pre_nms_topN, keep.end(), comp);
     keep.resize(pre_nms_topN);
   }
+
+  // 5. sort (proposal, score) pairs by score from highest to lowest
+  std::sort(keep.begin(), keep.end(), comp);
 
   // 6. apply loose nms (e.g. threshold = 0.7)
   // 7. take after_nms_topN (e.g. 300)
