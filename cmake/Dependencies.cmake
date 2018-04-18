@@ -244,16 +244,39 @@ endif()
 
 
 # ---[ OpenCV
+# GOOD & BAD are single strings, INPUT is a list wrapped in string, OUTPUT is the filtered list
+# INPUT = "debug;x.so;optimized;y.so;debug;z.so
+# FILTER_LIST("${INPUT}" OUTPUT_VAR optimized debug)
+# ==> OUTPUT_VAR's content is "optimized;y.so"
+macro(FILTER_LIST INPUT OUTPUT GOOD BAD)
+  set(LST ${INPUT})
+  set(PICKME YES)
+  foreach(ELEMENT IN LISTS LST)
+    if(${ELEMENT} STREQUAL ${GOOD})
+      set(PICKME YES)
+    elseif(${ELEMENT} STREQUAL ${BAD})
+      set(PICKME NO)
+    elseif(PICKME)
+      list(APPEND ${OUTPUT} ${ELEMENT})
+    endif()
+  endforeach()
+endmacro(FILTER_LIST)
 if(USE_OPENCV)
   # OpenCV 3
   find_package(OpenCV 3 QUIET COMPONENTS core highgui imgproc imgcodecs)
   if(NOT OpenCV_FOUND)
     # OpenCV 2
-    find_package(OpenCV QUIET COMPONENTS core highgui imgproc)
+    find_package(OpenCV 2 QUIET COMPONENTS core highgui imgproc)
   endif()
   if(OpenCV_FOUND)
     include_directories(${OpenCV_INCLUDE_DIRS})
-    list(APPEND Caffe2_DEPENDENCY_LIBS ${OpenCV_LIBS})
+    # Filter debug and optimized annotations, which cannot combine with PRIVATE.
+    if(${CMAKE_BUILD_TYPE} MATCHES "Release")
+      FILTER_LIST("${OpenCV_LIBS}" FILTERED_OpenCV_LIBS optimized debug)
+    else()
+      FILTER_LIST("${OpenCV_LIBS}" FILTERED_OpenCV_LIBS debug optimized)
+    endif()
+    list(APPEND Caffe2_DEPENDENCY_LIBS ${FILTERED_OpenCV_LIBS})
     message(STATUS "OpenCV found (${OpenCV_CONFIG_PATH})")
   else()
     message(WARNING "Not compiling with OpenCV. Suppress this warning with -DUSE_OPENCV=OFF")
@@ -277,7 +300,7 @@ endif()
 # ---[ EIGEN
 # Due to license considerations, we will only use the MPL2 parts of Eigen.
 set(EIGEN_MPL2_ONLY 1)
-find_package(Eigen3)
+find_package(Eigen3 3.3.0)
 if(EIGEN3_FOUND)
   message(STATUS "Found system Eigen at " ${EIGEN3_INCLUDE_DIR})
   include_directories(${EIGEN3_INCLUDE_DIR})
