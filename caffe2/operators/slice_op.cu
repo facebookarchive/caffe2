@@ -6,43 +6,41 @@ namespace caffe2 {
 namespace {
 __global__ void SliceCopyKernel(
     char* src_offset_bytes,
-    int src_block_size_bytes,
+    int src_frame_size_bytes,
     char* dst_offset_bytes,
-    int dst_block_size_bytes,
-    int copy_size,
-    int itemsize,
-    int num_blocks) {
+    int dst_frame_size_bytes,
+    int copy_size) {
   if ((copy_size % sizeof(int) == 0) &&
-      (src_block_size_bytes % sizeof(int) == 0) &&
-      (dst_block_size_bytes % sizeof(int) == 0)) {
+      (src_frame_size_bytes % sizeof(int) == 0) &&
+      (dst_frame_size_bytes % sizeof(int) == 0)) {
     int* src = (int*)src_offset_bytes;
     int* dst = (int*)dst_offset_bytes;
 
-    int src_block_size = src_block_size_bytes / sizeof(int);
-    int dst_block_size = dst_block_size_bytes / sizeof(int);
+    int src_frame_size = src_frame_size_bytes / sizeof(int);
+    int dst_frame_size = dst_frame_size_bytes / sizeof(int);
 
     int copyChunks = copy_size / sizeof(int);
 
-    CUDA_1D_KERNEL_LOOP(index, num_blocks * copyChunks) {
+    CUDA_1D_KERNEL_LOOP(index, copyChunks) {
       int chunk = index % copyChunks;
       int block = index / copyChunks;
 
-      dst[block * dst_block_size + chunk] = src[block * src_block_size + chunk];
+      dst[block * dst_frame_size + chunk] = src[block * src_frame_size + chunk];
     }
   } else {
     char* src = (char*)src_offset_bytes;
     char* dst = (char*)dst_offset_bytes;
 
-    int src_block_size = src_block_size_bytes / sizeof(char);
-    int dst_block_size = dst_block_size_bytes / sizeof(char);
+    int src_frame_size = src_frame_size_bytes / sizeof(char);
+    int dst_frame_size = dst_frame_size_bytes / sizeof(char);
 
     int copyChunks = copy_size / sizeof(char);
 
-    CUDA_1D_KERNEL_LOOP(index, num_blocks * copyChunks) {
+    CUDA_1D_KERNEL_LOOP(index, copyChunks) {
       int chunk = index % copyChunks;
       int block = index / copyChunks;
 
-      dst[block * dst_block_size + chunk] = src[block * src_block_size + chunk];
+      dst[block * dst_frame_size + chunk] = src[block * src_frame_size + chunk];
     }
   }
 }
@@ -115,11 +113,8 @@ bool SliceImplGpu(
   // for now only supports slicing in 1 dimension
   int dim = -1;
   for (int i = 0; i < data.ndim(); ++i) {
-    if (starts_idx[i] > 0 || ends_idx[i] < data.dims()[i]) {
-      CAFFE_ENFORCE_EQ(
-          dim, -1, "Currently only possible to slice in 1 dimension.");
+    if (starts_idx[i] > 0 || ends_idx[i] < data.dims()[i])
       dim = i;
-    }
   }
   if (dim == -1) {
     if (!backward) {
@@ -154,31 +149,51 @@ bool SliceImplGpu(
     size_t src_nbytes = data.nbytes();
     size_t dst_nbytes = output->nbytes();
 
-    size_t src_block_size = unit * data.dims()[dim];
-    size_t dst_block_size = unit * (ends_idx[dim] - starts_idx[dim]);
+    size_t src_frame_size = unit * data.dims()[dim];
+    size_t dst_frame_size = unit * (ends_idx[dim] - starts_idx[dim]);
     size_t src_offset = unit * starts_idx[dim];
 
-    if (num_blocks == 0 || dst_block_size == 0) {
+    if (num_blocks == 0 || dst_frame_size == 0) {
       return true;
     }
 
-    size_t src_block_size_bytes = itemsize * src_block_size;
-    size_t dst_block_size_bytes = itemsize * dst_block_size;
-    char* src_offset_bytes = src_bytes + itemsize * src_offset;
-    char* dst_offset_bytes = dst_bytes;
-
-    SliceCopyKernel<<<
-        std::min(num_blocks, CAFFE_MAXIMUM_NUM_BLOCKS),
-        CAFFE_CUDA_NUM_THREADS,
-        0,
-        context->cuda_stream()>>>(
-        src_offset_bytes,
-        src_block_size_bytes,
-        dst_offset_bytes,
-        dst_block_size_bytes,
-        dst_block_size_bytes,
-        itemsize,
-        num_blocks);
+    size_t src_frame_size_bytes = itemsize * src_frame_size;
+    size_t dst_frame_size_bytes = itemsize * dst_frame_size;
+	
+	std::vector<int> it(dim);
+	for(int i = 0 ; i < dim ; i++) it[i] = starts_idx[i];
+	while(it[0] < ends_idx[0]) {
+		//get the start postion of current frame
+		size_t src_frame_idx = 0;
+		size_t dst_frame_idx = 0;
+		size_t src_basis = 1;
+		size_t dst_basis = 1;
+		for(int d = dim - 1 ; d >= 0 ; d--) {
+			src_frame_idx += it[d] * src_basis;
+			dst_frame_idx += (it[d] - starts_idx[d]) * dst_basis;
+			src_basis *= data.dims()[d];
+			dst_basis *= dst_sizes[d];
+		}
+		//copy the block in current src frame to dst frame
+		char * local_src_offset_bytes = src_bytes + src_frame_idx * src_frame_size_bytes + itemsize * src_offset;
+		char * local_dst_offset_bytes = dst_bytes + dst_frame_idx * dst_frame_size_bytes;
+		SliceCopyKernel<<<
+			std::min(num_blocks, CAFFE_MAXIMUM_NUM_BLOCKS),
+			CAFFE_CUDA_NUM_THREADS,
+			0,
+			context->cuda_stream()>>>(
+				local_src_offset_bytes,
+				src_frame_size_bytes,
+				local_dst_offset_bytes,
+				dst_frame_size_bytes,
+				dst_frame_size_bytes);
+		//get the index of next frame
+		it[dim - 1]++;
+		for(int i = dim - 1 ; i > 0 && (it[i] >= ends_idx[i]) ; --i) {
+			it[i] = starts_idx[i];
+			it[i - 1]++;
+		}
+	}
   } else {
     char* src_bytes = (char*)go->raw_data();
     char* dst_bytes = (char*)gdata->raw_mutable_data(go->meta());
@@ -186,19 +201,17 @@ bool SliceImplGpu(
     size_t src_nbytes = go->nbytes();
     size_t dst_nbytes = gdata->nbytes();
 
-    size_t src_block_size = unit * (ends_idx[dim] - starts_idx[dim]);
-    size_t dst_block_size = unit * data.dims()[dim];
+    size_t src_frame_size = unit * (ends_idx[dim] - starts_idx[dim]);
+    size_t dst_frame_size = unit * data.dims()[dim];
     size_t dst_offset = unit * starts_idx[dim];
 
-    if (num_blocks == 0 || dst_block_size == 0) {
+    if (num_blocks == 0 || dst_frame_size == 0) {
       return true;
     }
 
-    size_t src_block_size_bytes = itemsize * src_block_size;
-    size_t dst_block_size_bytes = itemsize * dst_block_size;
+    size_t src_frame_size_bytes = itemsize * src_frame_size;
+    size_t dst_frame_size_bytes = itemsize * dst_frame_size;
 
-    char* src_offset_bytes = src_bytes;
-    char* dst_offset_bytes = dst_bytes + itemsize * dst_offset;
     // Zero out gradient blob before copy since we copy in fewer items than
     // there is space for
     math::Set<float, CUDAContext>(
@@ -212,18 +225,40 @@ bool SliceImplGpu(
       return true;
     }
 
-    SliceCopyKernel<<<
-        std::min(num_blocks, CAFFE_MAXIMUM_NUM_BLOCKS),
-        CAFFE_CUDA_NUM_THREADS,
-        0,
-        context->cuda_stream()>>>(
-        src_offset_bytes,
-        src_block_size_bytes,
-        dst_offset_bytes,
-        dst_block_size_bytes,
-        src_block_size_bytes,
-        itemsize,
-        num_blocks);
+    std::vector<int> it(dim);
+	for(int i = 0 ; i < dim ; i++) it[i] = starts_idx[i];
+	while(it[0] < ends_idx[0]) {
+		//get the start postion of current frame
+		size_t src_frame_idx = 0;
+		size_t dst_frame_idx = 0;
+		size_t src_basis = 1;
+		size_t dst_basis = 1;
+		for(int d = dim - 1 ; d >= 0 ; d--) {
+			src_frame_idx += (it[d] - starts_idx[d]) * src_basis;
+			dst_frame_idx += it[d] * dst_basis;
+			src_basis *= dst_sizes[d];
+			dst_basis *= data.dims()[d];
+		}
+		//copy current srd frame to the block in dst frame
+		char * local_src_offset_bytes = src_bytes + src_frame_idx * src_frame_size_bytes;
+		char * local_dst_offset_bytes = dst_bytes + dst_frame_idx * dst_frame_size_bytes + itemsize * dst_offset;
+		SliceCopyKernel<<<
+			std::min(num_blocks, CAFFE_MAXIMUM_NUM_BLOCKS),
+			CAFFE_CUDA_NUM_THREADS,
+			0,
+			context->cuda_stream()>>>(
+				local_src_offset_bytes,
+				src_frame_size_bytes,
+				local_dst_offset_bytes,
+				dst_frame_size_bytes,
+				src_frame_size_bytes);
+		//get the index of next frame
+		it[dim - 1]++;
+		for(int i = dim - 1 ; i > 0 && (it[i] >= ends_idx[i]) ; --i) {
+			it[i] = starts_idx[i];
+			it[i - 1]++;
+		}		
+	}
   }
 
   return true;

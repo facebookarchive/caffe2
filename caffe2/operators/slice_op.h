@@ -77,11 +77,8 @@ bool SliceImpl(
   // for now only supports slicing in 1 dimension
   int dim = -1;
   for (int i = 0; i < data.ndim(); ++i) {
-    if (starts_idx[i] > 0 || ends_idx[i] < data.dims()[i]) {
-      CAFFE_ENFORCE_EQ(
-          dim, -1, "Currently only possible to slice in 1 dimension.");
+    if (starts_idx[i] > 0 || ends_idx[i] < data.dims()[i]) 
       dim = i;
-    }
   }
   if (dim == -1) {
     if (!backward) {
@@ -97,8 +94,8 @@ bool SliceImpl(
       1,
       std::multiplies<SIndex>());
   size_t num_blocks = std::accumulate(
-      data.dims().begin(),
-      data.dims().begin() + dim,
+      dst_sizes.begin(),
+      dst_sizes.begin() + dim,
       1,
       std::multiplies<SIndex>());
   if (!backward) {
@@ -116,36 +113,52 @@ bool SliceImpl(
     size_t src_nbytes = data.nbytes();
     size_t dst_nbytes = output->nbytes();
 
-    size_t src_block_size = unit * data.dims()[dim];
-    size_t dst_block_size = unit * (ends_idx[dim] - starts_idx[dim]);
+    size_t src_frame_size = unit * data.dims()[dim];
+    size_t dst_frame_size = unit * (ends_idx[dim] - starts_idx[dim]);
     size_t src_offset = unit * starts_idx[dim];
 
-    if (num_blocks == 0 || dst_block_size == 0) {
+    if (num_blocks == 0 || dst_frame_size == 0) {
       return true;
     }
 
-    size_t src_block_size_bytes = itemsize * src_block_size;
-    size_t dst_block_size_bytes = itemsize * dst_block_size;
+    size_t src_frame_size_bytes = itemsize * src_frame_size;
+    size_t dst_frame_size_bytes = itemsize * dst_frame_size;
 
-    char* src_offset_bytes = src_bytes + itemsize * src_offset;
-    char* dst_offset_bytes = dst_bytes;
-    for (int i = 0; i < num_blocks; ++i) {
-      char* local_src_offset_bytes =
-          src_offset_bytes + i * src_block_size_bytes;
-      char* local_dst_offset_bytes =
-          dst_offset_bytes + i * dst_block_size_bytes;
-      DCHECK_LE(
-          static_cast<void*>(local_src_offset_bytes + dst_block_size_bytes),
-          static_cast<void*>(src_bytes + src_nbytes));
-      DCHECK_LE(
-          static_cast<void*>(local_dst_offset_bytes + dst_block_size_bytes),
-          static_cast<void*>(dst_bytes + dst_nbytes));
-      context->template CopyItems<Context, Context>(
-          data.meta(),
-          dst_block_size,
-          (void*)local_src_offset_bytes,
-          (void*)local_dst_offset_bytes);
-    }
+	std::vector<int> it(dim);
+	for(int i = 0 ; i < dim ; i++) it[i] = starts_idx[i];
+	while(it[0] < ends_idx[0]) {
+		//get the start postion of current frame
+		size_t src_frame_idx = 0;
+		size_t dst_frame_idx = 0;
+		size_t src_basis = 1;
+		size_t dst_basis = 1;
+		for(int d = dim - 1 ; d >= 0 ; d--) {
+			src_frame_idx += it[d] * src_basis;
+			dst_frame_idx += (it[d] - starts_idx[d]) * dst_basis;
+			src_basis *= data.dims()[d];
+			dst_basis *= dst_sizes[d];
+		}
+		//copy the block in current src frame to dst frame
+		char * local_src_offset_bytes = src_bytes + src_frame_idx * src_frame_size_bytes + itemsize * src_offset;
+		char * local_dst_offset_bytes = dst_bytes + dst_frame_idx * dst_frame_size_bytes;
+		DCHECK_LE(
+			static_cast<void*>(local_src_offset_bytes + dst_frame_size_bytes),
+			static_cast<void*>(src_bytes + src_nbytes));
+		DCHECK_LE(
+			static_cast<void*>(local_dst_offset_bytes + dst_frame_size_bytes),
+			static_cast<void*>(dst_bytes + dst_nbytes));
+		context->template CopyItems<Context, Context>(
+			data.meta(),
+			dst_frame_size,
+			(void*)local_src_offset_bytes,
+			(void*)local_dst_offset_bytes);
+		//get the index of next frame
+		it[dim - 1]++;
+		for(int i = dim - 1 ; i > 0 && (it[i] >= ends_idx[i]) ; --i) {
+			it[i] = starts_idx[i];
+			it[i - 1]++;
+		}
+	}
   } else {
     char* src_bytes = (char*)go->raw_data();
     char* dst_bytes = (char*)gdata->raw_mutable_data(go->meta());
@@ -153,19 +166,17 @@ bool SliceImpl(
     size_t src_nbytes = go->nbytes();
     size_t dst_nbytes = gdata->nbytes();
 
-    size_t src_block_size = unit * (ends_idx[dim] - starts_idx[dim]);
-    size_t dst_block_size = unit * data.dims()[dim];
+    size_t src_frame_size = unit * (ends_idx[dim] - starts_idx[dim]);
+    size_t dst_frame_size = unit * data.dims()[dim];
     size_t dst_offset = unit * starts_idx[dim];
 
-    if (num_blocks == 0 || dst_block_size == 0) {
+    if (num_blocks == 0 || dst_frame_size == 0) {
       return true;
     }
 
-    size_t src_block_size_bytes = itemsize * src_block_size;
-    size_t dst_block_size_bytes = itemsize * dst_block_size;
+    size_t src_frame_size_bytes = itemsize * src_frame_size;
+    size_t dst_frame_size_bytes = itemsize * dst_frame_size;
 
-    char* src_offset_bytes = src_bytes;
-    char* dst_offset_bytes = dst_bytes + itemsize * dst_offset;
     // Zero out gradient blob before copy since we copy in fewer items than
     // there is space for
     math::Set<char, Context>(dst_nbytes, 0, dst_bytes, context);
@@ -175,23 +186,41 @@ bool SliceImpl(
       return true;
     }
 
-    for (int i = 0; i < num_blocks; ++i) {
-      char* local_src_offset_bytes =
-          src_offset_bytes + i * src_block_size_bytes;
-      char* local_dst_offset_bytes =
-          dst_offset_bytes + i * dst_block_size_bytes;
-      DCHECK_LE(
-          local_src_offset_bytes + src_block_size_bytes,
-          src_bytes + src_nbytes);
-      DCHECK_LE(
-          local_dst_offset_bytes + src_block_size_bytes,
-          dst_bytes + dst_nbytes);
-      context->template CopyItems<Context, Context>(
-          go->meta(),
-          src_block_size,
-          (void*)local_src_offset_bytes,
-          (void*)local_dst_offset_bytes);
-    }
+    std::vector<int> it(dim);
+	for(int i = 0 ; i < dim ; i++) it[i] = starts_idx[i];
+	while(it[0] < ends_idx[0]) {
+		//get the start postion of current frame
+		size_t src_frame_idx = 0;
+		size_t dst_frame_idx = 0;
+		size_t src_basis = 1;
+		size_t dst_basis = 1;
+		for(int d = dim - 1 ; d >= 0 ; d--) {
+			src_frame_idx += (it[d] - starts_idx[d]) * src_basis;
+			dst_frame_idx += it[d] * dst_basis;
+			src_basis *= dst_sizes[d];
+			dst_basis *= data.dims()[d];
+		}
+		//copy current srd frame to the block in dst frame
+		char * local_src_offset_bytes = src_bytes + src_frame_idx * src_frame_size_bytes;
+		char * local_dst_offset_bytes = dst_bytes + dst_frame_idx * dst_frame_size_bytes + itemsize * dst_offset;
+		DCHECK_LE(
+			local_src_offset_bytes + src_frame_size_bytes,
+			src_bytes + src_nbytes);
+		DCHECK_LE(
+			local_dst_offset_bytes + src_frame_size_bytes,
+			dst_bytes + dst_nbytes);
+		context->template CopyItems<Context, Context>(
+			go->meta(),
+			src_frame_size,
+			(void*)local_src_offset_bytes,
+			(void*)local_dst_offset_bytes);
+		//get the index of next frame
+		it[dim - 1]++;
+		for(int i = dim - 1 ; i > 0 && (it[i] >= ends_idx[i]) ; --i) {
+			it[i] = starts_idx[i];
+			it[i - 1]++;
+		}		
+	}
   }
   return true;
 }
