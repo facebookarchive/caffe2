@@ -26,6 +26,15 @@ INSTANTIATE_FOR_CONTAINER(std::map)
 INSTANTIATE_FOR_CONTAINER(std::set)
 #undef INSTANTIATE_FOR_CONTAINER
 
+// Enables the compiler to find these operators during ADL.
+// Example.
+//   namespace caffe2 {
+//      void foo(std::stringstream& ss, std::vector<T>& seq) {
+//         ss << seq; // this will not find ::operator<<
+//      }
+//   }
+namespace std { using ::operator<<; }
+
 #endif
 
 #include <glog/logging.h>
