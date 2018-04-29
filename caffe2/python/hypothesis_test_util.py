@@ -55,7 +55,9 @@ import os
 def is_sandcastle():
     if os.getenv('SANDCASTLE') == '1':
         return True
-    elif os.getenv('TW_JOB_USER') == 'sandcastle':
+    if os.getenv('TW_JOB_USER') == 'sandcastle':
+        return True
+    if os.getenv('JENKINS_URL'):
         return True
     return False
 
