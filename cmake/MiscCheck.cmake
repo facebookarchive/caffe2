@@ -222,6 +222,13 @@ if (IOS)
   add_definitions("-Wno-deprecated-declarations")
 endif()
 
+if (ANDROID AND USE_MOBILE_OPENGL)
+  if (CMAKE_COMPILER_IS_GNUCXX)
+    add_definitions("-mfp16-format=ieee")
+    add_definitions("-mfpu=neon-fp16")
+  endif()
+endif()
+
 # ---[ If we are building with ACL, we will enable neon-fp16.
 if(USE_ACL)
   if (CMAKE_SYSTEM_PROCESSOR MATCHES "^armv")

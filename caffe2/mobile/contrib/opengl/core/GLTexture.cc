@@ -6,28 +6,6 @@
 #include "caffe2/core/logging.h"
 #include "caffe2/core/timer.h"
 
-#if CAFFE2_ANDROID && defined(__ARM_NEON__)
-
-#include "../android/AndroidGLContext.h"
-
-// https://community.arm.com/thread/10002
-void arm_memcpy(volatile unsigned char* dst, volatile unsigned char* src, int sz) {
-  if (sz & 63) {
-    sz = (sz & -64) + 64;
-  }
-
-  asm volatile(
-      "NEONCopyPLD: \n"
-      " VLDM %[src]!,{d0-d7} \n"
-      " VSTM %[dst]!,{d0-d7} \n"
-      " SUBS %[sz],%[sz],#0x40 \n"
-      " BGT NEONCopyPLD \n"
-      : [dst] "+r"(dst), [src] "+r"(src), [sz] "+r"(sz)
-      :
-      : "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "cc", "memory");
-}
-#endif
-
 const GLTexture::Type GLTexture::FP16 = {GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT};
 const GLTexture::Type GLTexture::UI8 = {GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE};
 const GLTexture::Type GLTexture::FP16_COMPAT = {GL_RG32UI, GL_RG_INTEGER, GL_UNSIGNED_INT};
