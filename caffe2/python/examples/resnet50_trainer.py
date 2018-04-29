@@ -46,7 +46,7 @@ dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:file_store_handler_ops')
 dyndep.InitOpsLibrary('@/caffe2/caffe2/distributed:redis_store_handler_ops')
 
 
-def AddImageInput(model, reader, batch_size, img_size, dtype, is_test):
+def AddImageInput(model, reader, batch_size, img_size, dtype, is_test, shuffle_num):
     '''
     The image input operator loads image and label data from the reader and
     applies transformations to the images (random cropping, mirroring, ...).
@@ -64,6 +64,7 @@ def AddImageInput(model, reader, batch_size, img_size, dtype, is_test):
         crop=img_size,
         mirror=1,
         is_test=is_test,
+        shuffle_num=shuffle_num,
     )
 
     data = model.StopGradient(data, data)
@@ -408,6 +409,7 @@ def Train(args):
                 img_size=args.image_size,
                 dtype=args.dtype,
                 is_test=False,
+                shuffle_num=args.shuffle_num,
             )
 
     def add_post_sync_ops(model):
@@ -605,6 +607,8 @@ def main():
                         help="Transport to use for distributed run [tcp|ibverbs]")
     parser.add_argument("--distributed_interfaces", type=str, default="",
                         help="Network interfaces to use for distributed run")
+    parser.add_argument("--shuffle_num", type=int, default=0,
+                        help="quene size of shuffle_num for shuffling input images, 0 for non shuffling")
 
     args = parser.parse_args()
 

@@ -114,6 +114,7 @@ class ImageInputOp final
   // it ensures that both dimensions of the image are at least minsize_
   int minsize_;
   bool warp_;
+  int shuffle_num_;
   int crop_;
   std::vector<float> mean_;
   std::vector<float> std_;
@@ -180,6 +181,7 @@ ImageInputOp<Context>::ImageInputOp(
       scale_(OperatorBase::template GetSingleArgument<int>("scale", -1)),
       minsize_(OperatorBase::template GetSingleArgument<int>("minsize", -1)),
       warp_(OperatorBase::template GetSingleArgument<int>("warp", 0)),
+      shuffle_num_(OperatorBase::template GetSingleArgument<int>("shuffle_num", 0)),
       crop_(OperatorBase::template GetSingleArgument<int>("crop", -1)),
       mirror_(OperatorBase::template GetSingleArgument<int>("mirror", 0)),
       is_test_(OperatorBase::template GetSingleArgument<int>(
@@ -1087,7 +1089,11 @@ bool ImageInputOp<Context>::Prefetch() {
     cv::Mat img;
 
     // read data
-    reader_->Read(&key, &value);
+    if( shuffle_num_ == 0 ){
+        reader_->Read(&key, &value);
+    }else{
+        reader_->ShuffleRead(&key, &value, shuffle_num=shuffle_num_);
+    }
 
     // determine label type based on first item
     if( item_id == 0 ) {

@@ -235,6 +235,48 @@ class DBReader {
     }
   }
 
+  void ShuffleRead(string* key, string* value, const int shuffle_num=256, const int epoch=1) const {
+    CAFFE_ENFORCE(cursor_ != nullptr, "Reader not initialized.");
+    std::unique_lock<std::mutex> mutex_lock(reader_mutex_);
+    if (flag_ == 0){
+        flag_ = epoch + 1;
+        std::srand(flag_);
+    }
+    if (shuffle_key.size()==0){
+        shuffle_key = std::vector<std::string>(shuffle_num);
+        shuffle_value = std::vector<std::string>(shuffle_num);
+        for(size_t i=0; i<shuffle_num; ++i){
+            shuffle_key[i] = cursor_->key();
+            shuffle_value[i] = cursor_->value();
+            for (int s = 0; s < num_shards_; s++) {
+              cursor_->Next();
+              if (!cursor_->Valid()) {
+                ++flag_;
+                std::srand(flag_);
+                MoveToBeginning();
+                break;
+              }
+            }
+        }
+    }
+    int i = rand() % shuffle_num;
+    *key = shuffle_key[i];
+    *value = shuffle_value[i];
+    shuffle_key[i] = cursor_->key();
+    shuffle_value[i] = cursor_->value();
+
+    // In sharded mode, each read skips num_shards_ records
+    for (int s = 0; s < num_shards_; s++) {
+      cursor_->Next();
+      if (!cursor_->Valid()) {
+        ++flag_;
+        std::srand(flag_);
+        MoveToBeginning();
+        break;
+      }
+    }
+  }
+
   /**
    * @brief Seeks to the first key. Thread safe.
    */
@@ -264,6 +306,7 @@ class DBReader {
     CAFFE_ENFORCE(shard_id < num_shards);
     num_shards_ = num_shards;
     shard_id_ = shard_id;
+    flag_ = 0;
     cursor_ = db_->NewCursor();
     SeekToFirst();
   }
@@ -284,6 +327,9 @@ class DBReader {
   mutable std::mutex reader_mutex_;
   uint32_t num_shards_;
   uint32_t shard_id_;
+  mutable uint32_t flag_;
+  mutable std::vector<string> shuffle_key;
+  mutable std::vector<string> shuffle_value;
 
   DISABLE_COPY_AND_ASSIGN(DBReader);
 };
