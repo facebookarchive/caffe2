@@ -6,6 +6,13 @@
 
 namespace caffe2 {
 
+/**
+ * Checks if @a string starts with @a prefix.
+ */
+bool startsWith(
+  const std::string& string,
+  const std::string& prefix);
+
 std::vector<std::string> split(char separator, const std::string& string);
 size_t editDistance(
   const std::string& s1, const std::string& s2, size_t max_distance = 0);

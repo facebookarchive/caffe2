@@ -140,6 +140,57 @@ message DeviceOption {
   optional int32 numa_node_id = 5 [default = -1];
 }
 
+// Platform- and devices-specific modifications of operator attributes.
+// Profiles let users ship a single model, but change execution parameters
+// (e.g. engine, or NNPACK algorithm) in run-time based on characteristics
+// or the host device.
+message Profile {
+  // Type of condition that will be evaluated at runtime to device if a profile
+  // should be applied.
+  enum Condition {
+    // Platform name must exactly match specified value (e.g. "Android", "iOS").
+    PLATFORM_EQUALS = 0;
+    // SoC name must start with specified string (e.g. "Samsung Exynos").
+    SOC_STARTSWITH = 1;
+  }
+
+  message Predicate {
+    // Type of condition in predicate check.
+    required Condition condition = 1;
+    // Whether condition is inverted in predicate check.
+    optional bool invert = 2 [default = false];
+    // Static r.h.s. value to use in the predicate.
+    // Meaningful values depend on condition.
+    //   Meaningful values for PLATFORM_EQUALS condition:
+    //     "Android"
+    //     "iOS"
+    //     "Windows"
+    //     "GNU/Linux"
+    //     "macOS"
+    //     "Unknown"
+    //   Example values for SOC_STARTSWITH condition:
+    //     "Qualcomm" (predicate matches all Qualcomm chipsets).
+    //     "Qualcomm MSM" (predicate matches Qualcomm MSMxxxx chipsets, but
+    //                     not Qualcomm APQxxxx or new Qualcomm Snapdragon
+    //                     chipsets which don't have MSM-type model name).
+    //     "Samsung Exynos 889" (predicate matches Samsung Exynos 8890 and
+    //                           Samsung Exynos 8895).
+    //     "MediaTek MT6737" (predicate matches MediaTek MT6737, MT6737T,
+    //                        MT6737H, etc).
+    required string value = 3;
+  }
+
+  // Predicates which guard application of this profile.
+  // If ALL predicates in this list are satisfied, the profile is applied.
+  repeated Predicate predicate = 1;
+  // Names of the operators that will be modified by this profile.
+  repeated string target = 4;
+  // Operator arguments that will be set in the target profiles.
+  // If operators already have arguments with the same names, they will be
+  // replaced with new arguments from the profile.
+  repeated Argument arg = 5;
+}
+
 // Operator Definition.
 message OperatorDef {
   repeated string input = 1; // the name of the input blobs
@@ -219,6 +270,11 @@ message NetDef {
   // blobs' contents may be overwritten.
   repeated string external_input = 7;
   repeated string external_output = 8;
+
+  // List of profiles that modify operator arguments based on characteristics
+  // of the target system. Profiles are applied in the order in which they
+  // are listed.
+  repeated Profile profile = 9;
 }
 
 // ExecutionStep is actually a sort-of-hacky way we simulate iteration right

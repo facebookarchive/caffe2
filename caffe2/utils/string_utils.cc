@@ -6,6 +6,17 @@
 
 namespace caffe2 {
 
+bool startsWith(
+    const std::string& string,
+    const std::string& prefix)
+{
+  if (string.size() < prefix.size()) {
+    return false;
+  }
+
+  return string.compare(0, prefix.size(), prefix) == 0;
+}
+
 std::vector<std::string> split(char separator, const std::string& string) {
   std::vector<std::string> pieces;
   std::stringstream ss(string);
