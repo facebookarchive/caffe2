@@ -61,9 +61,10 @@ pass.
 import argparse
 
 from caffe2.python import workspace, brew, model_helper
+from caffe2.python.modeling.initializers import Initializer, pFP16Initializer
 
 
-def MLP(order, cudnn_ws):
+def MLP(order, cudnn_ws, use_fp16=False):
     model = model_helper.ModelHelper(name="MLP")
     d = 256
     depth = 20
@@ -84,7 +85,7 @@ def MLP(order, cudnn_ws):
     brew.sum(
         model, ["fc_{}_{}".format(depth, j) for j in range(width)], ["sum"]
     )
-    brew.fc(
+    last = brew.fc(
         model,
         "sum",
         "last",
@@ -93,12 +94,14 @@ def MLP(order, cudnn_ws):
         weight_init=('XavierFill', {}),
         bias_init=('XavierFill', {}),
     )
-    xent = model.net.LabelCrossEntropy(["last", "label"], "xent")
+    if use_fp16:
+        last = model.HalfToFloat(last, last + "_fp32")
+    xent = model.net.LabelCrossEntropy([last, "label"], "xent")
     model.net.AveragedLoss(xent, "loss")
     return model, d
 
 
-def AlexNet(order, cudnn_ws):
+def AlexNet(order, cudnn_ws, use_fp16=False):
     my_arg_scope = {
         'order': order,
         'use_cudnn': True,
@@ -185,13 +188,15 @@ def AlexNet(order, cudnn_ws):
     fc8 = brew.fc(
         model, relu7, "fc8", 4096, 1000, ('XavierFill', {}), ('ConstantFill', {})
     )
+    if use_fp16:
+        fc8 = model.HalfToFloat(fc8, fc8 + "_fp32")
     pred = brew.softmax(model, fc8, "pred")
     xent = model.net.LabelCrossEntropy([pred, "label"], "xent")
     model.net.AveragedLoss(xent, "loss")
     return model, 224
 
 
-def OverFeat(order, cudnn_ws):
+def OverFeat(order, cudnn_ws, use_fp16=False):
     my_arg_scope = {
         'order': order,
         'use_cudnn': True,
@@ -271,13 +276,15 @@ def OverFeat(order, cudnn_ws):
     fc8 = brew.fc(
         model, relu7, "fc8", 4096, 1000, ('XavierFill', {}), ('ConstantFill', {})
     )
+    if use_fp16:
+        fc8 = model.HalfToFloat(fc8, fc8 + "_fp32")
     pred = brew.softmax(model, fc8, "pred")
     xent = model.net.LabelCrossEntropy([pred, "label"], "xent")
     model.net.AveragedLoss(xent, "loss")
     return model, 231
 
 
-def VGGA(order, cudnn_ws):
+def VGGA(order, cudnn_ws, use_fp16=False):
     my_arg_scope = {
         'order': order,
         'use_cudnn': True,
@@ -405,6 +412,8 @@ def VGGA(order, cudnn_ws):
         model, relux, "fcxi", 4096, 1000, ('XavierFill', {}),
         ('ConstantFill', {})
     )
+    if use_fp16:
+        fcxi = model.HalfToFloat(fcxi, fcxi + "_fp32")
     pred = brew.softmax(model, fcxi, "pred")
     xent = model.net.LabelCrossEntropy([pred, "label"], "xent")
     model.net.AveragedLoss(xent, "loss")
@@ -475,7 +484,7 @@ def _InceptionModule(
     return output
 
 
-def Inception(order, cudnn_ws):
+def Inception(order, cudnn_ws, use_fp16=False):
     my_arg_scope = {
         'order': order,
         'use_cudnn': True,
@@ -554,6 +563,8 @@ def Inception(order, cudnn_ws):
         model, pool11, "fc", 1024, 1000, ('XavierFill', {}),
         ('ConstantFill', {})
     )
+    if use_fp16:
+        fc = model.HalfToFloat(fc, fc + "_fp32")
     # It seems that Soumith's benchmark does not have softmax on top
     # for Inception. We will add it anyway so we can have a proper
     # backward pass.
@@ -575,7 +586,11 @@ def AddParameterUpdate(model):
 
 
 def Benchmark(model_gen, arg):
-    model, input_size = model_gen(arg.order, arg.cudnn_ws)
+    initializer = pFP16Initializer if arg.use_fp16 else Initializer
+    with brew.arg_scope([brew.conv, brew.fc],
+                        WeightInitializer=initializer,
+                        BiasInitializer=initializer):
+        model, input_size = model_gen(arg.order, arg.cudnn_ws, arg.use_fp16)
     model.Proto().type = arg.net_type
     model.Proto().num_workers = arg.num_workers
 
@@ -588,13 +603,17 @@ def Benchmark(model_gen, arg):
     if arg.model == "MLP":
         input_shape = [arg.batch_size, input_size]
 
-    model.param_init_net.GaussianFill(
+    data = model.param_init_net.GaussianFill(
         [],
-        "data",
+        "data_fp32",
         shape=input_shape,
         mean=0.0,
         std=1.0
     )
+    if arg.use_fp16:
+        model.param_init_net.FloatToHalf(data, "data")
+    else:
+        model.param_init_net.Alias(data, "data")
     model.param_init_net.UniformIntFill(
         [],
         "label",
@@ -696,6 +715,11 @@ def GetArgumentParser():
         "--dump_model",
         action='store_true',
         help="If True, dump the model prototxts to disk."
+    )
+    parser.add_argument(
+        "--use_fp16",
+        action='store_true',
+        help="If set, use fp16 instead of fp32"
     )
     parser.add_argument("--net_type", type=str, default="dag")
     parser.add_argument("--num_workers", type=int, default=2)
