@@ -538,39 +538,66 @@ void Gemm<float16, CUDAContext, TensorCoreEngine>(
   cublasOperation_t cuTransB =
       (TransB == CblasNoTrans) ? CUBLAS_OP_N : CUBLAS_OP_T;
 
-  // enable TensorCore for this call on this handle
-  if (TensorCoreAvailable()) {
-    CUBLAS_ENFORCE(cublasSetMathMode(
-        context->cublas_handle(),
-        CUBLAS_TENSOR_OP_MATH));
-  }
+  int device = CaffeCudaGetDevice();
+  auto& prop = GetDeviceProperty(device);
 
-  CUBLAS_CHECK(cublasGemmEx(
-      context->cublas_handle(),
-      cuTransB,
-      cuTransA,
-      N,
-      M,
-      K,
-      &alpha,
-      B,
-      CUDA_R_16F,
-      ldb,
-      A,
-      CUDA_R_16F,
-      lda,
-      &beta,
-      C,
-      CUDA_R_16F,
-      N,
-      CUDA_R_32F,
-      CUBLAS_GEMM_DFALT_TENSOR_OP));
+  if (prop.major >= 5) {
+    // enable TensorCore for this call on this handle
+    auto algo = CUBLAS_GEMM_DFALT;
+    if (TensorCoreAvailable()) {
+      CUBLAS_ENFORCE(cublasSetMathMode(
+            context->cublas_handle(),
+            CUBLAS_TENSOR_OP_MATH));
+      algo = CUBLAS_GEMM_DFALT_TENSOR_OP;
+    }
 
-  // Now disable TensorCore math for subsequent calls to this handle
-  if (TensorCoreAvailable()) {
-    CUBLAS_ENFORCE(cublasSetMathMode(
-        context->cublas_handle(),
-        CUBLAS_DEFAULT_MATH));
+    CUBLAS_CHECK(cublasGemmEx(
+          context->cublas_handle(),
+          cuTransB,
+          cuTransA,
+          N,
+          M,
+          K,
+          &alpha,
+          B,
+          CUDA_R_16F,
+          ldb,
+          A,
+          CUDA_R_16F,
+          lda,
+          &beta,
+          C,
+          CUDA_R_16F,
+          N,
+          CUDA_R_32F,
+          algo));
+
+    // Now disable TensorCore math for subsequent calls to this handle
+    if (TensorCoreAvailable()) {
+      CUBLAS_ENFORCE(cublasSetMathMode(
+            context->cublas_handle(),
+            CUBLAS_DEFAULT_MATH));
+    }
+  } else {
+    // fall back to SgemmEx when arch < Maxwell
+    CUBLAS_CHECK(cublasSgemmEx(
+          context->cublas_handle(),
+          cuTransB,
+          cuTransA,
+          N,
+          M,
+          K,
+          &alpha,
+          B,
+          CUDA_R_16F,
+          ldb,
+          A,
+          CUDA_R_16F,
+          lda,
+          &beta,
+          C,
+          CUDA_R_16F,
+          N));
   }
 }
 
