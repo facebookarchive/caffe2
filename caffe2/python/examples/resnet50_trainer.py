@@ -351,6 +351,35 @@ def Train(args):
         brew.accuracy(model, [softmax, "label"], "accuracy")
         return [loss]
 
+    # Test Model building functions
+    def create_resnet50_test_model_ops(model, loss_scale):
+        initializer = (pFP16Initializer if args.dtype == 'float16'
+                       else Initializer)
+
+        with brew.arg_scope([brew.conv, brew.fc],
+                            WeightInitializer=initializer,
+                            BiasInitializer=initializer,
+                            enable_tensor_core=args.enable_tensor_core,
+                            float16_compute=args.float16_compute):
+            pred = resnet.create_resnet50(
+                model,
+                "data",
+                num_input_channels=args.num_channels,
+                num_labels=args.num_labels,
+                no_bias=True,
+                no_loss=True,
+                is_test=True,
+            )
+
+        if args.dtype == 'float16':
+            pred = model.net.HalfToFloat(pred, pred + '_fp32')
+
+        softmax, loss = model.SoftmaxWithLoss([pred, 'label'],
+                                              ['softmax', 'loss'])
+        loss = model.Scale(loss, scale=loss_scale)
+        brew.accuracy(model, [softmax, "label"], "accuracy")
+        return [loss]
+
     def add_optimizer(model):
         stepsz = int(30 * args.epoch_size / total_batch_size / num_shards)
 
@@ -481,7 +510,7 @@ def Train(args):
         data_parallel_model.Parallelize(
             test_model,
             input_builder_fun=test_input_fn,
-            forward_pass_builder_fun=create_resnet50_model_ops,
+            forward_pass_builder_fun=create_resnet50_test_model_ops,
             post_sync_builder_fun=add_post_sync_ops,
             param_update_builder_fun=None,
             devices=gpus,
