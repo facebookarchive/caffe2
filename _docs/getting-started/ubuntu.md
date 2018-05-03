@@ -21,13 +21,13 @@ For GPU support you will need [CUDA](https://developer.nvidia.com/cuda-downloads
 For Caffe2 with CUDA 9 and CuDNN 7 support:
 
 ```bash
-conda install -c caffe2 caffe2-cuda9.0-cudnn7
+conda install -c caffe2 caffe2_cuda9.0_cudnn7
 ```
 
 For Caffe2 with CUDA 8 and CuDNN 7 support:
 
 ```bash
-conda install -c caffe2 caffe2-cuda8.0-cudnn7
+conda install -c caffe2 caffe2_cuda8.0_cudnn7
 ```
 
 > This does NOT include libraries that are necessary to run the tutorials, such as jupyter. See the [tutorials](https://caffe2.ai/docs/tutorials) page for the list of required packages needed to run the tutorials.
