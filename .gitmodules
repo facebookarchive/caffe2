@@ -45,7 +45,7 @@
 	url = https://github.com/Maratyszcza/psimd.git
 [submodule "third_party/aten"]
 	path = third_party/aten
-	url = https://github.com/zdevito/aten
+	url = https://github.com/zdevito/ATen.git
 [submodule "third_party/zstd"]
 	path = third_party/zstd
 	url = https://github.com/facebook/zstd.git
