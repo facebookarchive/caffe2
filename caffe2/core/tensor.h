@@ -446,10 +446,10 @@ class Tensor {
     // Check if the deleter is a MemoryDeleter and is a simple nullptr.
     if (std::is_same<MemoryDeleter, Deleter>::value &&
         reinterpret_cast<MemoryDeleter*>(&d)[0] == nullptr) {
-      // Use aliasing constructor trick to avoid calling the destructor.
-      data_ = std::shared_ptr<void>(std::shared_ptr<void>(), src);
+      // TODO: Probably could use aliasing trick to avoid the destructor call
+      data_.reset(new std::unique_ptr<void, std::function<void(void*)>>(src, NoDelete));
     } else {
-      data_.reset(src, d);
+      data_.reset(new std::unique_ptr<void, std::function<void(void*)>>(src, d));
     }
     // Sets capacity. If not specified, we will implicitly assume that
     // the capacity is the current size.
@@ -471,7 +471,7 @@ class Tensor {
    */
   inline const void* raw_data() const {
     CAFFE_ENFORCE_WITH_CALLER(data_.get() || size_ == 0);
-    return data_.get();
+    return data_.get()->get();
   }
 
   /**
@@ -493,7 +493,7 @@ class Tensor {
         TypeMeta::TypeName<T>(),
         " while tensor contains ",
         meta_.name());
-    return static_cast<T*>(data_.get());
+    return static_cast<T*>(data_.get()->get());
   }
 
   /**
@@ -510,7 +510,7 @@ class Tensor {
   inline void* raw_mutable_data(const TypeMeta& meta) {
     // For 0-size tensors it's fine to return any pointer (including nullptr)
     if (meta_ == meta && (data_.get() || size_ == 0)) {
-      return data_.get();
+      return data_.get()->get();
     } else {
       bool had_special_dtor = meta_.dtor() != nullptr;
       meta_ = meta;
@@ -525,7 +525,7 @@ class Tensor {
       if (size_ == 0 ||
           (meta.ctor() == nullptr && !had_special_dtor &&
            capacity_ >= size_ * meta_.itemsize())) {
-        return data_.get();
+        return data_.get()->get();
       }
       if (meta.ctor()) {
         // For types that need placement new, we will call it, as well as
@@ -536,18 +536,20 @@ class Tensor {
         auto ptr_and_deleter = Context::New(size_ * meta_.itemsize());
         auto deleter = ptr_and_deleter.second;
         data_.reset(
-            ptr_and_deleter.first, [size, dtor, deleter](void* ptr) -> void {
-              dtor(ptr, size);
-              deleter(ptr);
-            });
-        meta_.ctor()(data_.get(), size_);
+          new std::unique_ptr<void, std::function<void(void*)>>(
+              ptr_and_deleter.first, [size, dtor, deleter](void* ptr) -> void {
+                dtor(ptr, size);
+                deleter(ptr);
+              }
+            ));
+        meta_.ctor()(data_.get()->get(), size_);
       } else {
         // For fundamental type, new and delete is easier.
         auto ptr_and_deleter = Context::New(size_ * meta_.itemsize());
-        data_.reset(ptr_and_deleter.first, ptr_and_deleter.second);
+        data_.reset(new std::unique_ptr<void, std::function<void(void*)>>(ptr_and_deleter.first, ptr_and_deleter.second));
       }
       capacity_ = size_ * meta_.itemsize();
-      return data_.get();
+      return data_.get()->get();
     }
   }
 
@@ -577,7 +579,7 @@ class Tensor {
    template <typename T>
     inline T* mutable_data() {
       if ((size_ == 0 || data_.get()) && IsType<T>()) {
-        return static_cast<T*>(data_.get());
+        return static_cast<T*>(data_.get()->get());
       }
       return static_cast<T*>(raw_mutable_data(TypeMeta::Make<T>()));
     }
@@ -680,7 +682,9 @@ class Tensor {
   vector<TIndex> dims_;
   TIndex size_ = -1;
   TypeMeta meta_;
-  std::shared_ptr<void> data_;
+  // Invariant: either nothing is allocated, or all pointers are allocated.
+  // We never have a shared_ptr to nullptr.
+  std::shared_ptr<std::unique_ptr<void, std::function<void(void*)>>> data_;
   bool shares_data_ = false;
   size_t capacity_ = 0;
   bool reserved_ = false;
