@@ -453,7 +453,7 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
               datum.data().size(),
               CV_8UC1,
               const_cast<char*>(datum.data().data())),
-          color_ ? CV_LOAD_IMAGE_COLOR : CV_LOAD_IMAGE_GRAYSCALE);
+          color_ ? cv::IMREAD_COLOR : cv::IMREAD_GRAYSCALE);
     } else {
       // Raw image in datum.
       CAFFE_ENFORCE(datum.channels() == 3 || datum.channels() == 1);
@@ -517,7 +517,7 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
               &encoded_size,
               CV_8UC1,
               const_cast<char*>(encoded_image_str.data())),
-          color_ ? CV_LOAD_IMAGE_COLOR : CV_LOAD_IMAGE_GRAYSCALE);
+          color_ ? cv::IMREAD_COLOR : cv::IMREAD_GRAYSCALE);
     } else if (image_proto.data_type() == TensorProto::BYTE) {
       // raw image content.
       int src_c = (image_proto.dims_size() == 3) ? image_proto.dims(2) : 1;
@@ -641,7 +641,7 @@ bool ImageInputOp<Context>::GetImageAndLabelAndInfoFromDBValue(
   if (out_c == src.channels()) {
     *img = src;
   } else {
-    cv::cvtColor(src, *img, (out_c == 1) ? CV_BGR2GRAY : CV_GRAY2BGR);
+    cv::cvtColor(src, *img, (out_c == 1) ? cv::COLOR_BGR2GRAY : cv::COLOR_GRAY2BGR);
   }
 
   // Note(Yangqing): I believe that the mat should be created continuous.
