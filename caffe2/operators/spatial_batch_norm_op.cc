@@ -8,11 +8,13 @@ bool SpatialBNOp<CPUContext>::RunOnDevice() {
   const auto& scale = Input(SCALE);
   const auto& bias = Input(BIAS);
 
-  CAFFE_ENFORCE(X.ndim() >= 3 && X.ndim() <= 5);
+  CAFFE_ENFORCE(X.ndim() >= 2 && X.ndim() <= 5);
   const int N = X.dim32(0);
   const int C =
       (order_ == StorageOrder::NCHW ? X.dim32(1) : X.dim32(X.ndim() - 1));
-  const int H = (order_ == StorageOrder::NCHW ? X.dim32(2) : X.dim32(1));
+  const int H = X.ndim() > 2
+      ? (order_ == StorageOrder::NCHW ? X.dim32(2) : X.dim32(1))
+      : 1;
   const int W = X.ndim() > 3
       ? (order_ == StorageOrder::NCHW ? X.dim32(3) : X.dim32(2))
       : 1;
