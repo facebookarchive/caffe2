@@ -242,11 +242,15 @@ class TranslatorRegistry(object):
             )
         if not input_dims:
             input_dims = _GetInputDims(caffe_net)
+	
+        data_layer = -1
         for layer in caffe_net.layer:
             if not _ShouldInclude(net_state, layer):
                 log.info('Current net state does not need layer {}'
                             .format(layer.name))
                 continue
+            if layer.type == 'Input':
+                data_layer = layer
             log.info('Translate layer {}'.format(layer.name))
             # Get pretrained one
             pretrained_layers = (
@@ -270,7 +274,7 @@ class TranslatorRegistry(object):
                 pretrained_blobs = []
             operators, params = cls.TranslateLayer(
                 layer, pretrained_blobs, is_test, net=net,
-                net_params=net_params, input_dims=input_dims)
+                net_params=net_params, input_dims=input_dims, data_dims=data_layer.input_param.shape)
             net.op.extend(operators)
             net_params.protos.extend(params)
         if remove_legacy_pad:
@@ -475,7 +479,7 @@ def TranslateDeconv(layer, pretrained_blobs, is_test, **kwargs):
 
 @TranslatorRegistry.Register("Crop")
 def TranslateCrop(layer, pretrained_blobs, is_test, **kwargs):
-    net, net_params, input_dims = kwargs['net'], kwargs['net_params'], kwargs['input_dims']
+    net, net_params, input_dims, data_dims = kwargs['net'], kwargs['net_params'], kwargs['input_dims'], kwargs['data_dims']
     n, c, h, w = input_dims
     dummy_input = np.random.randn(n, c, h, w).astype(np.float32)
     dim_map = _GetBlobDimMap(net, net_params, dummy_input)
@@ -483,9 +487,12 @@ def TranslateCrop(layer, pretrained_blobs, is_test, **kwargs):
     axis, offsets = param.axis, param.offset
     caffe_op = BaseTranslate(layer, "Slice")
     input_1 = caffe_op.input[1]
-    input_1_dim = dim_map[input_1]
+    if input_1 != 'data':
+        input_1_dim = dim_map[input_1]
+    else:
+        input_1_dim = data_dims
     starts, ends = [], []
-    dims = len(dim_map[input_1])
+    dims = len(input_1_dim)
     assert len(offsets) == 1, 'Caffe Translator for Crop only works for offset \
     of 1 for now'
     for _ in range(axis):
