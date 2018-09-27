@@ -1,0 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4205569..d50f714 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -60,6 +60,10 @@ option(USE_OPENMP "Use OpenMP for parallel code" ON)
+ option(BUILD_PYTHON "Build python binaries" ON)
+ option(BUILD_BINARY "Build c++ binary executives" ON)
+ 
++# Eigen3 path
++# Note that Eigen3 is located in /usr/include/eigen3 in Tizen platform.
++INCLUDE_DIRECTORIES(/usr/include/eigen3)
++
+ # External projects
+ include(ExternalProject)
+ 
