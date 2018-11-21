@@ -29,4 +29,4 @@ Please participate in our survey (https://www.surveymonkey.com/r/caffe2). We wil
 
 ## License
 
-Caffe2 is [BSD 2-Clause licensed](https://github.com/Yangqing/caffe2/blob/master/LICENSE).
+Caffe2 is [Apache 2.0 licensed](https://github.com/caffe2/caffe2/blob/master/LICENSE).
