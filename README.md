@@ -15,11 +15,6 @@ Please use Github issues (https://github.com/caffe2/caffe2/issues) to ask questi
 
 Please participate in our survey (https://www.surveymonkey.com/r/caffe2). We will send you information about new releases and special developer events/webinars.
 
-
-## License and Citation
-
-Caffe2 is released under the [BSD 2-Clause license](https://github.com/Yangqing/caffe2/blob/master/LICENSE).
-
 ### Further Resources on [Caffe2.ai](http://caffe2.ai)
 
 * [Installation](http://caffe2.ai/docs/getting-started.html)
@@ -31,3 +26,7 @@ Caffe2 is released under the [BSD 2-Clause license](https://github.com/Yangqing/
 * [Operators Catalogue](http://caffe2.ai/docs/operators-catalogue.html)
 * [C++ API](http://caffe2.ai/doxygen-c/html/classes.html)
 * [Python API](http://caffe2.ai/doxygen-python/html/namespaces.html)
+
+## License
+
+Caffe2 is [BSD 2-Clause licensed](https://github.com/Yangqing/caffe2/blob/master/LICENSE).
